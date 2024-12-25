@@ -1,7 +1,7 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.crystallib.core.pathlib
-import freeflowuniverse.crystallib.data.paramsparser
+import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.data.paramsparser
 import os
 
 const testpath3 = os.dir(@FILE) + '/../..'

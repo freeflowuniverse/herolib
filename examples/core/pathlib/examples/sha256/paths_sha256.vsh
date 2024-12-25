@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.crystallib.core.pathlib
+import freeflowuniverse.herolib.core.pathlib
 import os
 
 const testpath4 = os.dir(@FILE) + '/paths_sha256.vsh'

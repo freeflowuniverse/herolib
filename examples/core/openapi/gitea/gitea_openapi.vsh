@@ -2,7 +2,7 @@
 
 import os
 import json
-import freeflowuniverse.crystallib.core.openapi.gen
+import freeflowuniverse.herolib.core.openapi.gen
 
 const spec_path = '${os.dir(@FILE)}/openapi.json'
 

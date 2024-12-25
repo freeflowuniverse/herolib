@@ -1,6 +1,6 @@
 # herolib
 
-a smaller version of crystallib with only the items we need for hero
+a smaller version of herolib with only the items we need for hero
 
 > [documentation here](https://freeflowuniverse.github.io/herolib/)
 

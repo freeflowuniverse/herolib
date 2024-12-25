@@ -30,7 +30,7 @@ if additional_args.len > 0 {
 }
 
 // Change to the hero directory
-hero_dir := os.join_path(os.home_dir(), 'code/github/freeflowuniverse/crystallib/cli/hero')
+hero_dir := os.join_path(os.home_dir(), 'code/github/freeflowuniverse/herolib/cli/hero')
 os.chdir(hero_dir) or { panic('Failed to change directory to ${hero_dir}: ${err}') }
 
 // Set HEROPATH based on OS
