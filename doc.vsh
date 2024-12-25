@@ -6,11 +6,11 @@ abs_dir_of_script := dir(@FILE)
 
 // Format code
 println('Formatting code...')
-os.system('v fmt -w ${abs_dir_of_script}/examples') or {
-    eprintln('Warning: Failed to format examples: ${err}')
+if os.system('v fmt -w ${abs_dir_of_script}/examples') != 0 {
+    eprintln('Warning: Failed to format examples')
 }
-os.system('v fmt -w ${abs_dir_of_script}/herolib') or {
-    eprintln('Warning: Failed to format herolib: ${err}')
+if os.system('v fmt -w ${abs_dir_of_script}/herolib') != 0 {
+    eprintln('Warning: Failed to format herolib')
 }
 
 // Clean existing docs
@@ -27,8 +27,8 @@ os.rmdir_all('docs') or {}
 
 // Generate HTML documentation
 println('Generating HTML documentation...')
-os.system('v doc -m -f html . -readme -comments -no-timestamp') or {
-    panic('Failed to generate HTML documentation: ${err}')
+if os.system('v doc -m -f html . -readme -comments -no-timestamp') != 0 {
+    panic('Failed to generate HTML documentation')
 }
 
 // Move docs to parent directory
@@ -46,11 +46,11 @@ os.mkdir_all('vdocs/crystal') or {
     panic('Failed to create crystal docs directory: ${err}')
 }
 
-os.system('v doc -m -no-color -f md -o vdocs/v/') or {
-    panic('Failed to generate V markdown documentation: ${err}')
+if os.system('v doc -m -no-color -f md -o vdocs/v/') != 0 {
+    panic('Failed to generate V markdown documentation')
 }
-os.system('v doc -m -no-color -f md -o vdocs/crystal/') or {
-    panic('Failed to generate Crystal markdown documentation: ${err}')
+if os.system('v doc -m -no-color -f md -o vdocs/crystal/') != 0 {
+    panic('Failed to generate Crystal markdown documentation')
 }
 
 // Open documentation in browser on non-Linux systems
@@ -58,8 +58,8 @@ $if !linux {
     os.chdir(abs_dir_of_script) or {
         panic('Failed to change directory: ${err}')
     }
-    os.system('open docs/index.html') or {
-        eprintln('Warning: Failed to open documentation in browser: ${err}')
+    if os.system('open docs/index.html') != 0 {
+        eprintln('Warning: Failed to open documentation in browser')
     }
 }
 

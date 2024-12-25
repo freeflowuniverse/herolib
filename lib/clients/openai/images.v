@@ -3,7 +3,7 @@ module openai
 import json
 import net.http
 import os
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 
 const image_mine_type = 'image/png'
 

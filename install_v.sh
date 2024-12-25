@@ -105,6 +105,10 @@ function package_install {
     fi
 }
 
+is_github_actions() {
+    [ -d "/home/runner" ] || [ -d "$HOME/runner" ]
+}
+
 
 function myplatform {
     if [[ "${OSTYPE}" == "darwin"* ]]; then

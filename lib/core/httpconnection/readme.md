@@ -13,7 +13,7 @@ The HTTPConnection module provides a robust HTTP client implementation with supp
 ## Basic Usage
 
 ```v
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 
 // Create a new HTTP connection
 mut conn := HTTPConnection{

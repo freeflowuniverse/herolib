@@ -1,6 +1,6 @@
 module jsonschema
 
-import freeflowuniverse.herolib.core.codemodel
+import freeflowuniverse.herolib.code.codemodel
 import freeflowuniverse.herolib.ui.console
 
 fn test_struct_to_schema() {

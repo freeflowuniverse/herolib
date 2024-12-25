@@ -1,7 +1,7 @@
 module currency
 
 import json
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 
 struct ResponseBody {
 	motd    string

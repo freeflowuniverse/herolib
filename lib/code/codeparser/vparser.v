@@ -4,7 +4,7 @@ import v.ast
 import v.parser
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.codemodel { CodeFile, CodeItem, Function, Import, Module, Param, Result, Struct, StructField, Sumtype, Type, parse_consts, parse_import }
+import freeflowuniverse.herolib.code.codemodel { CodeFile, CodeItem, Function, Import, Module, Param, Result, Struct, StructField, Sumtype, Type, parse_consts, parse_import }
 import v.pref
 
 // VParser holds configuration of parsing

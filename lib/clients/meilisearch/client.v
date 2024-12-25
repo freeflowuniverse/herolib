@@ -1,6 +1,6 @@
 module meilisearch
 
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 import x.json2
 import json
 
