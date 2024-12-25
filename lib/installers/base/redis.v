@@ -1,4 +1,4 @@
-module redis
+module base
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.pathlib

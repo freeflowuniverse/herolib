@@ -1,4 +1,4 @@
-module generic
+module installer_client
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.pathlib
@@ -9,7 +9,7 @@ fn generate(args GenerateArgs) ! {
 	console.print_debug('generate code for path: ${args.path}')
 
 	//as used in the templates
-	model :=args.model 
+	model :=args.model or { panic("bug)" }
 
 	mut path_actions := pathlib.get(args.path + '/${args.model.name}_actions.v')
 	if args.reset {

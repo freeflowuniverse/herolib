@@ -1,4 +1,4 @@
-module generic
+module installer_client
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.playbook
@@ -18,73 +18,94 @@ pub mut:
 	reset               bool     // regenerate all, dangerous !!!
 	interactive         bool 	 //if we want to ask
 	startupmanager      bool = true
-	build               bool		
+	build               bool	
+	hasconfig 				bool	
 	cat Cat = .client
 }
 
 
 pub enum Cat {
 	unknown
-	installer
 	client
+	installer
 }
 
 
-pub fn gen_model_set(args GenModel) ! {
+pub fn gen_model_set(args GenerateArgs) ! {
+	model := args.model
 	heroscript_templ := $tmpl('templates/heroscript')
 	pathlib.template_write(heroscript_templ, '${args.path}/templates/.heroscript', true)!
 }
 
 
-pub fn gen_model_get(path string) !GenModel {
+pub fn gen_model_get(path string, create: bool) !GenModel {
 	console.print_debug('play installer code for path: ${path}')
 
-	mut config_path := pathlib.get_file(path: '${path}/.heroscript', create: false)!
+	mut config_path := pathlib.get_file(path: '${path}/.heroscript', create: create)!
 
-	if !config_path.exists() {
-		return error("can't find path with .heroscript in ${path}")
-	}
+	mut plbook := playbook.new(text: config_path.read()! )!
 
-	mut plbook := playbook.new(text: config_path.read()!)!
+	mut model := GenModel{}
+	mut found := false
 
 	mut install_actions := plbook.find(filter: 'hero_code.generate_installer')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
+			if found {
+				return error("cannot find more than one her_code.generate_installer ... in ${path}")
+			}
+			found = true
 			mut p := install_action.params
-			mut args := GenModel{
-				name:                p.get('name')!
-				classname:           p.get('classname')!
+			model = GenModel{
+				name:                p.get_default('name','')!
+				classname:           p.get_default('classname','')!
 				title:               p.get_default('title', '')!
 				default:             p.get_default_true('default')
 				supported_platforms: p.get_list('supported_platforms')!
 				singleton:           p.get_default_false('singleton')
 				templates:           p.get_default_false('templates')
-				reset:               p.get_default_false('reset')
 				startupmanager:      p.get_default_true('startupmanager')
-				hasconfig:           p.get_default_true('hasconfig')
 				build:               p.get_default_false('build')
+				hasconfig: 			 p.get_default_false('hasconfig')
 				cat:                 .installer
 			}
-			return args
+			return model
 		}
 	}
 
 	mut client_actions := plbook.find(filter: 'hero_code.generate_client')!
 	if client_actions.len > 0 {
 		for client_action in client_actions {
+			if found {
+				return error("cannot find more than one her_code.generate_client ... in ${path}")
+			}
+			found = true			
 			mut p := client_action.params
-			args := GenModel{
-				name:      p.get('name')!
-				classname: p.get('classname')!
+			model = GenModel{
+				name:      p.get_default('name','')!
+				classname: p.get_default('classname','')!
 				title:     p.get_default('title', '')!
 				default:   p.get_default_true('default')
 				singleton: p.get_default_false('singleton')
 				reset:     p.get_default_false('reset')
+				hasconfig: p.get_default_false('hasconfig')
 				cat:       .client
 			}
-			return args
 		}
 	}
-	return error("can't find hero_code.generate_client or hero_code.generate_installer in ${path}")
+
+	if model.cat == .unknown {
+		if path.contains("clients"){
+			model.cat == .client
+		}else{
+			model.cat == .installer
+		}
+	}
+
+	if model.name == "" {
+		model.name = os.base(path).to_lower()
+	}
+
+	return model
 	// return GenModel{}
 }

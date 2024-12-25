@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.code.generator.generic
+import freeflowuniverse.herolib.code.generator.installer_client as generator
 
 mut fp := flag.new_flag_parser(os.args)
 fp.application('generate.vsh')
@@ -8,9 +8,9 @@ fp.version('v0.1.0')
 fp.description('Generate code')
 fp.skip_executable()
 
-path := fp.string('path', `p`, "", 'Path where to generate a module, if not mentioned will scan over all installers & clients')
+mut path := fp.string('path', `p`, "", 'Path where to generate a module, if not mentioned will scan over all installers & clients.\nif . then will be path we are on.')
 reset := fp.bool('reset', `r`, false, 'If we want to reset')
-is_installer := fp.bool('installer', `i`, false, 'If we want an installer, otherwise will be client')
+interactive := fp.bool('interactive', `i`, true, 'If we want to work interactive')
 help_requested := fp.bool('help', `h`, false, 'Show help message')
 
 if help_requested {
@@ -30,9 +30,18 @@ if additional_args.len > 0 {
     exit(1)
 }
 
+// reset               bool     // regenerate all, dangerous !!!
+// interactive         bool 	 //if we want to ask
+// path                string
 
-if path!=""{
-	//TODO: create path
+if path.trim_space() == "." {
+	path = os.getwd()		
 }
 
-generic.scan(path:"~/code/github/freeflowuniverse/herolib/lib/installers",force:true, add:true)!
+if path {
+	generator.do(path:path, reset:reset, interactive:interactive)!
+}else{
+	generator.scan(path:path, reset:reset, interactive:interactive)!
+}
+
+
