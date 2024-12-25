@@ -36,3 +36,12 @@ Examples:
 
 ```
 
+### to test
+
+```bash
+vtest ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
+#for a full dir
+vtest ~/code/github/freeflowuniverse/herolib/lib/osal
+```
+vtest is an alias to test functionality
+
