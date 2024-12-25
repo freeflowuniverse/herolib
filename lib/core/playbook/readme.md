@@ -20,7 +20,7 @@ import freeflowuniverse.herolib.core.playcmds
 // session  ?&base.Session      is optional
 mut plbook := playbook.new(path: "....")!
 
-//now we run all the commands as they are pre-defined in crystallib (herolib)
+//now we run all the commands as they are pre-defined in herolib (herolib)
 playcmds.run(mut plbook)!
 
 

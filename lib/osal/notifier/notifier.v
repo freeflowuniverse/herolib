@@ -14,7 +14,7 @@ pub mut:
 
 pub fn new() !Notifier {
 	mut n := notify.new()!
-	mut f := os.open('/Users/despiegk1/code/github/freeflowuniverse/crystallib/osal/examples/download/download_example.v')!
+	mut f := os.open('/Users/despiegk1/code/github/freeflowuniverse/herolib/osal/examples/download/download_example.v')!
 	f.close()
 	// how can we know the filedescriptors of what we need?
 	fid := f.fd

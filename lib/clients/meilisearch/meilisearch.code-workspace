@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../herolib/clients/httpconnection"
+		}
+	],
+	"settings": {}
+}

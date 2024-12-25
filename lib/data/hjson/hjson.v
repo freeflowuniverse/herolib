@@ -1,4 +1,4 @@
-module crystaljson
+module herojson
 
 import x.json2
 import freeflowuniverse.herolib.core.texttools

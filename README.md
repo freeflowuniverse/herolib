@@ -5,12 +5,11 @@ a smaller version of crystallib with only the items we need for hero
 ## automated install
 
 ```bash
-
+curl 'https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/main/install_v.sh' > /tmp/install_v.sh
+bash /tmp/install_v.sh --analyzer --herolib 
 ```
 
-
-
-## to install v
+### details
 
 ```bash
 
@@ -18,7 +17,7 @@ a smaller version of crystallib with only the items we need for hero
 
 V & HeroLib Installer Script
 
-Usage: /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh [options]
+Usage: ~/code/github/freeflowuniverse/herolib/install_v.sh [options]
 
 Options:
   -h, --help     Show this help message
@@ -28,12 +27,12 @@ Options:
   --herolib      Install our herolib
 
 Examples:
-  /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh
-  /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh --reset
-  /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh --remove
-  /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh --analyzer
-  /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh --herolib
-  /Users/despiegk1/code/github/freeflowuniverse/herolib/install_v.sh --reset --analyzer # Fresh install of both
+  ~/code/github/freeflowuniverse/herolib/install_v.sh
+  ~/code/github/freeflowuniverse/herolib/install_v.sh --reset
+  ~/code/github/freeflowuniverse/herolib/install_v.sh --remove
+  ~/code/github/freeflowuniverse/herolib/install_v.sh --analyzer
+  ~/code/github/freeflowuniverse/herolib/install_v.sh --herolib
+  ~/code/github/freeflowuniverse/herolib/install_v.sh --reset --analyzer # Fresh install of both
 
 ```
 

@@ -42,7 +42,7 @@ pub fn install(args_ InstallArgs) ! {
 		if osal.is_linux() {
 			osal.package_install('redis-server')!
 		} else {
-			osal.package_install('redis')!/Users/despiegk1/code/github/freeflowuniverse/crystallib/crystallib/installers/db/redis/template
+			osal.package_install('redis')!/Users/despiegk1/code/github/freeflowuniverse/herolib/herolib/installers/db/redis/template
 		}
 	}
 	osal.execute_silent('mkdir -p ${args.datadir}')!

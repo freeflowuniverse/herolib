@@ -3,5 +3,5 @@
 
 > only basics implemented as we need for our installers
 
-example see crystallib/examples/...
+example see herolib/examples/...
 

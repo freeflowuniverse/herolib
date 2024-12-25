@@ -4,5 +4,5 @@
 ```bash
 brew install fswatch
 
-fswatch -r ~/code/github/freeflowuniverse/crystallib.biz.bizmodel
+fswatch -r ~/code/github/freeflowuniverse/herolib.biz.bizmodel
 ```

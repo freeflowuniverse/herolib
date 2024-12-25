@@ -5,10 +5,10 @@ import time
 
 fn test_zinit() {
 	// you need to have zinit in your path to run this test
-	spawn os.execute('zinit -s crystallib/osal/zinit/zinit/zinit.sock init -c crystallib/osal/zinit/zinit')
+	spawn os.execute('zinit -s herolib/osal/zinit/zinit/zinit.sock init -c herolib/osal/zinit/zinit')
 	time.sleep(time.second)
 
-	client := new_rpc_client('crystallib/osal/zinit/zinit/zinit.sock')
+	client := new_rpc_client('herolib/osal/zinit/zinit/zinit.sock')
 
 	mut ls := client.list()!
 	mut want_ls := {
