@@ -143,7 +143,7 @@ pub fn (mut h HTTPConnection) post_json_str(req_ Request) !string {
 	if result.is_ok() {
 		mut data_ := result.data
 		if req.dict_key.len > 0 {
-			data_ = herojson.json_dict_get_string(data_, false, req.dict_key)!
+			data_ = hjson.json_dict_get_string(data_, false, req.dict_key)!
 		}
 		return data_
 	}
@@ -155,7 +155,7 @@ pub fn (mut h HTTPConnection) post_json_str(req_ Request) !string {
 pub fn (mut h HTTPConnection) get_json_dict(req Request) !map[string]json2.Any {
 	data_ := h.get(req)!
 	mut data := map[string]json2.Any{}
-	data = herojson.json_dict_filter_any(data_, false, [], [])!
+	data = hjson.json_dict_filter_any(data_, false, [], [])!
 	return data
 }
 
@@ -165,12 +165,12 @@ pub fn (mut h HTTPConnection) get_json_dict(req Request) !map[string]json2.Any {
 pub fn (mut h HTTPConnection) get_json_list(req Request) ![]string {
 	mut data_ := h.get(req)!
 	if req.dict_key.len > 0 {
-		data_ = herojson.json_dict_get_string(data_, false, req.dict_key)!
+		data_ = hjson.json_dict_get_string(data_, false, req.dict_key)!
 	}
 	if req.list_dict_key.len > 0 {
-		return herojson.json_list_dict_get_string(data_, false, req.list_dict_key)!
+		return hjson.json_list_dict_get_string(data_, false, req.list_dict_key)!
 	}
-	data := herojson.json_list(data_, false)
+	data := hjson.json_list(data_, false)
 	return data
 }
 
@@ -179,7 +179,7 @@ pub fn (mut h HTTPConnection) get_json(req Request) !string {
 	h.default_header.add(.content_language, 'Content-Type: application/json')
 	mut data_ := h.get(req)!
 	if req.dict_key.len > 0 {
-		data_ = herojson.json_dict_get_string(data_, false, req.dict_key)!
+		data_ = hjson.json_dict_get_string(data_, false, req.dict_key)!
 	}
 	return data_
 }
