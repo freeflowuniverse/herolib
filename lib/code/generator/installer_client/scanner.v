@@ -7,19 +7,18 @@ import freeflowuniverse.herolib.ui.console
 @[params]
 pub struct ScannerArgs {
 pub mut:
-	reset               bool     // regenerate all, dangerous !!!
-	interactive         bool 	 //if we want to ask
-	path                string
+	reset       bool // regenerate all, dangerous !!!
+	interactive bool // if we want to ask
+	path        string
 }
 
 // scan over a set of directories call the play where
 pub fn scan(args ScannerArgs) ! {
+	console.print_debug('Code generator scan: ${args.path}')
 
-	console.print_debug("Code generator scan: ${args.path}")
-
-	if args.path == "" {
-        scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/installers")!
-        scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/clients")!
+	if args.path == '' {
+		scan(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/installers')!
+		scan(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/clients')!
 		return
 	}
 
@@ -36,9 +35,8 @@ pub fn scan(args ScannerArgs) ! {
 	for mut p in plist.paths {
 		pparent := p.parent()!
 		path_module := pparent.path
-		if os.exists("${path_module}/.heroscript"){
-			do(interactive:args.interactive,path:path_module,reset:args.reset)!
+		if os.exists('${path_module}/.heroscript') {
+			do(interactive: args.interactive, path: path_module, reset: args.reset)!
 		}
 	}
-
 }

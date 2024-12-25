@@ -47,7 +47,7 @@ pub fn (mut c UIConsole) ask_question(args QuestionArgs) !string {
 			description: args.description
 			warning:     'Min lenght of answer is: ${args.minlen}'
 			question:    args.question
-			default: args.default
+			default:     args.default
 		)
 	}
 	return choice

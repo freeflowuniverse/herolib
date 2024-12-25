@@ -114,13 +114,13 @@ pub mut:
 
 pub struct ServerRescueArgs {
 pub mut:
-	id              int
-	name            string
-	wait            bool = true
+	id           int
+	name         string
+	wait         bool = true
 	hero_install bool
-	hero_install    bool
-	sshkey_name     string
-	reset           bool // ask to do reset/rescue even if its already in that state
+	hero_install bool
+	sshkey_name  string
+	reset        bool // ask to do reset/rescue even if its already in that state
 }
 
 // put server in rescue mode, if sshkey_name not specified then will use the first one in the list

@@ -11,15 +11,8 @@ import os
 import time
 import json
 
-@[params]
-pub struct InstallArgs {
-pub mut:
-	reset   bool
-	restart bool = true
-}
-
 // install mycelium will return true if it was already installed
-pub fn install(args_ InstallArgs) ! {
+pub fn installss(args_ InstallArgs) ! {
 	mut args := args_
 
 	console.print_header('install mycelium.')

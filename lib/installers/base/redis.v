@@ -8,7 +8,7 @@ import time
 import os
 
 @[params]
-pub struct InstallArgs {
+pub struct RedisInstallArgs {
 pub mut:
 	port    int    = 6379
 	datadir string = '${os.home_dir()}/hero/var/redis'
@@ -28,7 +28,7 @@ pub mut:
 // 	restart bool = true
 // }
 // ```
-pub fn install(args_ InstallArgs) ! {
+pub fn install(args_ RedisInstallArgs) ! {
 	mut args := args_
 
 	if !args.reset {

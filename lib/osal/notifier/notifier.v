@@ -26,18 +26,18 @@ pub mut:
 // Notifier manages file system notifications
 pub struct Notifier {
 pub mut:
-	name         string
-	watcher      notify.FdNotifier
-	watch_list   []WatchEntry
-	is_watching  bool
+	name        string
+	watcher     notify.FdNotifier
+	watch_list  []WatchEntry
+	is_watching bool
 }
 
 // new creates a new Notifier instance
 pub fn new(name string) !&Notifier {
 	return &Notifier{
-		name: name
-		watcher: notify.new()!
-		watch_list: []WatchEntry{}
+		name:        name
+		watcher:     notify.new()!
+		watch_list:  []WatchEntry{}
 		is_watching: false
 	}
 }
@@ -55,9 +55,9 @@ pub fn (mut n Notifier) add_watch(path string, callback NotifyCallback) ! {
 	n.watcher.add(fd, .write | .read, .edge_trigger)!
 
 	n.watch_list << WatchEntry{
-		path: path
+		path:     path
 		callback: callback
-		fd: fd
+		fd:       fd
 	}
 
 	println('Added watch for: ${path}')
@@ -98,7 +98,7 @@ fn (mut n Notifier) watch_loop() {
 	for n.is_watching {
 		event := n.watcher.wait(time.Duration(time.hour * 1))
 		println(event)
-		panic("implement")
+		panic('implement')
 		// for entry in n.watch_list {
 		// 	if event.fd == entry.fd {
 		// 		mut notify_event := NotifyEvent.modify

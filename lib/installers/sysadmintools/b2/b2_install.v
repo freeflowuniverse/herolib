@@ -5,13 +5,8 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.lang.python
 // import os
 
-@[params]
-pub struct InstallArgs {
-pub mut:
-	reset bool
-}
 
-pub fn install(args_ InstallArgs) ! {
+pub fn installll(args_ InstallArgs) ! {
 	mut args := args_
 
 	if args.reset == false && osal.done_exists('install_b2') {

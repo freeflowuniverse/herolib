@@ -3,12 +3,11 @@ module installer_client
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.pathlib
 
-//generate based on filled in args, ask has to be done before
+// generate based on filled in args, ask has to be done before
 fn generate(args GenerateArgs) ! {
-
 	console.print_debug('generate code for path: ${args.path}')
 
-	//as used in the templates
+	// as used in the templates
 	model := args.model or { panic('bug no model specified in generate') }
 
 	mut path_actions := pathlib.get(args.path + '/${model.name}_actions.v')
@@ -49,8 +48,6 @@ fn generate(args GenerateArgs) ! {
 			pathlib.template_write(templ_6, '${args.path}/templates/atemplate.yaml', true)!
 		}
 	}
-
-
 }
 
 // fn platform_check(args GenModel) ! {

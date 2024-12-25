@@ -10,15 +10,9 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.screen
 import os
 
-@[params]
-pub struct InstallArgs {
-pub mut:
-	reset       bool
-	letsencrypt bool
-}
 
 // install lighttpd will return true if it was already installed
-pub fn install(args InstallArgs) ! {
+pub fn installll(args InstallArgs) ! {
 	// make sure we install base on the node
 	base.install()!
 

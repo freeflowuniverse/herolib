@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import os
 
-pub fn install(args_ S3Config) ! {
+pub fn installll(args_ S3Config) ! {
 	mut args := args_
 	version := '1.0.0'
 

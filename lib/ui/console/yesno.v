@@ -30,9 +30,9 @@ pub fn (mut c UIConsole) ask_yesno(args YesNoArgs) !bool {
 	}
 	print_debug('${question} (y/n) : ')
 	choice := os.get_raw_line().trim(' \n').to_lower()
-	if choice.trim_space() == "" {
-		return args.default 
-	}	
+	if choice.trim_space() == '' {
+		return args.default
+	}
 	if choice.starts_with('y') {
 		return true
 	}
@@ -50,6 +50,6 @@ pub fn (mut c UIConsole) ask_yesno(args YesNoArgs) !bool {
 		question:    args.question
 		warning:     "Please choose 'y' or 'n', then enter."
 		reset:       true
-		default: 	 args.default
+		default:     args.default
 	)
 }

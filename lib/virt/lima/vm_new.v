@@ -9,16 +9,16 @@ import freeflowuniverse.herolib.osal
 @[params]
 pub struct VMNewArgs {
 pub mut:
-	name            string = 'default'
-	template        TemplateName
-	platform        PlatformType
-	cpus            int = 8
-	memory          i64 = 2000  // in MB
-	disk            i64 = 50000 // in MB
-	reset           bool
-	start           bool = true
+	name         string = 'default'
+	template     TemplateName
+	platform     PlatformType
+	cpus         int = 8
+	memory       i64 = 2000  // in MB
+	disk         i64 = 50000 // in MB
+	reset        bool
+	start        bool = true
 	install_hero bool // if you want hero to be installed
-	install_hero    bool
+	install_hero bool
 }
 
 pub enum TemplateName {

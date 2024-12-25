@@ -5,13 +5,8 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import os
 
-@[params]
-pub struct InstallArgs {
-pub mut:
-	reset bool
-}
 
-pub fn install(args_ InstallArgs) ! {
+pub fn installlll(args_ InstallArgs) ! {
 	mut args := args_
 	version := '2.0.6'
 

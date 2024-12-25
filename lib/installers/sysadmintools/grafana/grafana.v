@@ -9,25 +9,8 @@ import freeflowuniverse.herolib.sysadmin.startupmanager
 import os
 import time
 
-@[params]
-pub struct InstallArgs {
-pub mut:
-	// homedir    string
-	// configpath string
-	// username   string = "admin"
-	// password   string @[secret]
-	// secret     string @[secret]
-	// title      string = 'My Hero DAG'
-	reset     bool
-	start     bool = true
-	stop      bool
-	restart   bool
-	uninstall bool
-	// host        string = 'localhost' // server host (default is localhost)
-	// port       int = 8888
-}
 
-pub fn install(args_ InstallArgs) ! {
+pub fn installll(args_ InstallArgs) ! {
 	mut args := args_
 
 	version := '11.1.4'

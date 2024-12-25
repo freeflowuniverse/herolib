@@ -9,14 +9,8 @@ import freeflowuniverse.herolib.develop.gittools
 import os
 import time
 
-@[params]
-pub struct InstallArgs {
-pub mut:
-	reset bool
-}
-
 // install yggdrasil will return true if it was already installed
-pub fn install(args_ InstallArgs) ! {
+pub fn installll(args_ InstallArgs) ! {
 	peers := '
 Peers:
   [

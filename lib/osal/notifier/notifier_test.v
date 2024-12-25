@@ -3,20 +3,18 @@ module notifier
 import time
 import os
 
-const (
-	test_file  = 'test_watch.txt'
-	test_file2 = 'test_watch2.txt'
-)
+const test_file = 'test_watch.txt'
+const test_file2 = 'test_watch2.txt'
 
 fn testsuite_begin() {
 	if os.exists(test_file) {
-		os.rm(test_file) or { }
+		os.rm(test_file) or {}
 	}
 }
 
 fn testsuite_end() {
 	if os.exists(test_file) {
-		os.rm(test_file) or { }
+		os.rm(test_file) or {}
 	}
 }
 
