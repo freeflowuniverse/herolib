@@ -78,6 +78,10 @@ fn process_test_file(path string, base_dir string, test_files_ignore []string, t
     
     mut should_ignore := false
     mut is_error := false
+
+    if ! path.to_lower().contains("_test.v"){
+        return 
+    }
     
     // Check if any ignore pattern matches the path
     for pattern in test_files_ignore {
@@ -118,7 +122,7 @@ fn dotest(path string, base_dir string, use_redis bool)! {
         }
     }
 
-    cmd := 'vtest ${norm_path}'
+    cmd := 'v -stats -enable-globals -n -w -gc none -no-retry-compilation -cc tcc test ${norm_path}'
     println(cmd)
     result := os.execute(cmd)
     
@@ -234,6 +238,7 @@ for test in test_files {
         files := os.walk_ext(full_path, '.v')
         for file in files {
             process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
+            
         }
     } else if os.is_file(full_path) {
         process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
