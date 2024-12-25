@@ -1,7 +1,7 @@
 module meilisearch
 
 import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 import os
 
 pub const version = '1.0.0'

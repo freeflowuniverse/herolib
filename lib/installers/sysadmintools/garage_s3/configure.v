@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.crypt.secrets
 // import freeflowuniverse.herolib.core.texttools
-// import freeflowuniverse.herolib.clients.httpconnection
+// import freeflowuniverse.herolib.core.httpconnection
 import os
 import time
 

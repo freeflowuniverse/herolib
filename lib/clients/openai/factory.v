@@ -3,7 +3,7 @@ module openai
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui as gui
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 
 // import freeflowuniverse.herolib.ui.console
 

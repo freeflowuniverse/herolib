@@ -97,6 +97,10 @@ lib/data
 "
 
 tests_ignore := "
+
+"
+
+tests_error := "
 net_test.v
 systemd_process_test.v
 rpc_test.v
@@ -107,11 +111,13 @@ tmux_test.v
 startupmanager_test.v
 "
 
+
 // Split tests into array and remove empty lines
 test_files := tests.split('\n').filter(it.trim_space() != '')
 test_files_ignore := tests_ignore.split('\n').filter(it.trim_space() != '')
+test_files_error := tests_error.split('\n').filter(it.trim_space() != '')
 
-mut ignored_tests := []string{}
+mut tests_in_error := []string{}
 
 
 // Check if Redis is available
@@ -142,7 +148,7 @@ for test in test_files {
             base_file := os.base(file)
             if base_file in test_files_ignore {
                 println('Ignoring test: ${file}')
-                ignored_tests << file
+                tests_in_error << file
                 continue
             }
             dotest(file, redis_available)!
@@ -150,20 +156,22 @@ for test in test_files {
     } else if os.is_file(full_path) {
         // If single file, run test if not in ignore list
         base_file := os.base(full_path)
-        if base_file !in test_files_ignore {
+        if base_file !in test_files_ignore && base_file !in test_files_error{
             dotest(full_path, redis_available)!
         } else {
             println('Ignoring test: ${full_path}')
-            ignored_tests << full_path
+            if base_file !in test_files_ignore {
+                tests_in_error << full_path
+            }            
         }
     }
 }
 
 println('All (non skipped) tests ok')
 
-if ignored_tests.len > 0 {
+if tests_in_error.len > 0 {
     println('\n\033[31mTests that need to be fixed (not executed):')
-    for test in ignored_tests {
+    for test in tests_in_error {
         println('  ${test}')
     }
     println('\033[0m')

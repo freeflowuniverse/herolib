@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 import freeflowuniverse.herolib.crypt.secrets
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.clients.zdb

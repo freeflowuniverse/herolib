@@ -1,7 +1,7 @@
 module openai
 
 import json
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 import os
 import net.http
 
