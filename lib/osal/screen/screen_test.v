@@ -11,7 +11,7 @@ pub fn testsuite_begin() ! {
 
 pub fn test_screen_status() ! {
 	mut screen_factory := new()!
-	mut screen := screen_factory.add(name: 'testservice', cmd: 'redis-server')!
+	mut screen := screen_factory.add(name: 'testservice', cmd: 'redis-server --port 1234')!
 	status := screen.status()!
-	// assert status == .active
+	assert status == .active
 }

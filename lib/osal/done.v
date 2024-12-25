@@ -44,7 +44,9 @@ pub fn done_exists(key string) bool {
 pub fn done_print() ! {
 	mut db := donedb()!
 	mut output := 'DONE:\n'
-	for key in db.keys('')! {
+	kyes := db.keys('')!
+	println('kyes: ${kyes}')
+	for key in kyes {
 		output += '\t${key} = ${done_get_str(key)}\n'
 	}
 	console.print_debug('${output}')
