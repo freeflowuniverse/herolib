@@ -31,7 +31,10 @@ jobs:
         run: ./install_v.sh          
 
       - name: Generate documentation
-        run: ./doc.vsh
+        run: |
+          ./doc.vsh
+          # ls /home/runner/work/herolib/docs
+          find .
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -39,7 +42,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "/home/runner/work/crystallib/crystallib/docs"
+          path: "/home/runner/work/herolib/herolib/docs"
 
       - name: Deploy to GitHub Pages
         id: deployment

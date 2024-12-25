@@ -150,7 +150,7 @@ pub fn secret() !string {
 	return secret
 }
 
-pub fn client() !zdb.ZDB {
+pub fn client() !ZDB {
 	mut db := zdb.get('localhost:3355', secret()!, 'test')!
 	return db
 }
