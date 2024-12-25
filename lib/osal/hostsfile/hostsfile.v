@@ -3,7 +3,7 @@ module hostsfile
 import os
 import freeflowuniverse.herolib.osal
 
-// TODO: will be broken now
+const hosts_file_path = '/etc/hosts'
 
 @[heap]
 pub struct HostsFile {
@@ -23,119 +23,182 @@ pub mut:
 	domain string
 }
 
-// pub fn new() HostsFile {
-// 	mut obj := HostsFile{}
+// new creates a new HostsFile instance by reading the system's hosts file
+pub fn new() !HostsFile {
+	mut obj := HostsFile{}
+	mut content := os.read_file(hosts_file_path) or {
+		return error('Failed to read hosts file: ${err}')
+	}
+	mut current_section := Section{
+		name: ''
+	}
 
-// 	mut content := os.read_file('/etc/hosts') or { panic(err) }
-// 	mut section := ''
+	for line in content.split_into_lines() {
+		trimmed := line.trim_space()
+		if trimmed == '' {
+			continue
+		}
 
-// 	for mut line in content.split('\n') {
-// 		line = line.trim_space()
-// 		if line.starts_with('#') {
-// 			section = line.trim('#').trim_space()
-// 			continue
-// 		}
+		if trimmed.starts_with('#') {
+			// If we have hosts in the current section, add it to sections
+			if current_section.hosts.len > 0 {
+				obj.sections << current_section
+			}
+			// Start a new section
+			current_section = Section{
+				name: trimmed[1..].trim_space()
+			}
+			continue
+		}
 
-// 		mut splitted := line.fields()
-// 		if splitted.len > 1 {
-// 			if section !in obj.hosts {
-// 				obj.hosts[section] = []map[string]string{}
-// 			}
-// 			obj.hosts[section] << {
-// 				splitted[0]: splitted[1]
-// 			}
-// 		}
-// 	}
-// 	return obj
-// }
+		// Parse host entries
+		parts := trimmed.fields()
+		if parts.len >= 2 {
+			current_section.hosts << Host{
+				ip:     parts[0]
+				domain: parts[1]
+			}
+		}
+	}
 
-// pub fn (mut hostsfile HostsFile) save(sudo bool) &HostsFile {
-// 	mut str := ''
-// 	for section, items in hostsfile.hosts {
-// 		if section != '' {
-// 			str = str + '# ${section}\n\n'
-// 		}
+	// Add the last section if it has hosts
+	if current_section.hosts.len > 0 {
+		obj.sections << current_section
+	}
 
-// 		for item in items {
-// 			for ip, domain in item {
-// 				str = str + '${ip}\t${domain}\n'
-// 			}
-// 		}
-// 		str = str + '\n\n'
-// 	}
-// 	if sudo {
-// 		osal.execute_interactive('sudo -- sh -c -e "echo \'${str}\' > /etc/hosts"') or {
-// 			panic(err)
-// 		}
-// 	} else {
-// 		os.write_file('/etc/hosts', str) or { panic(err) }
-// 	}
-// 	return hostsfile
-// }
+	return obj
+}
 
-// pub fn (mut hostsfile HostsFile) reset(sections []string) &HostsFile {
-// 	for section in sections {
-// 		if section in hostsfile.hosts {
-// 			hostsfile.hosts[section] = []map[string]string{}
-// 		}
-// 	}
-// 	return hostsfile
-// }
+// add_host adds a new host entry to the specified section
+pub fn (mut h HostsFile) add_host(ip string, domain string, section string) ! {
+	// Validate inputs
+	if ip == '' {
+		return error('IP address cannot be empty')
+	}
+	if domain == '' {
+		return error('Domain cannot be empty')
+	}
 
-// pub struct HostItemArg{
-// pub mut:
-// 	ip string
-// 	domain string
-// 	section string = "main"
-// }
+	// Check if domain already exists
+	if h.exists(domain) {
+		return error('Domain ${domain} already exists in hosts file')
+	}
 
-// pub fn (mut hostsfile HostsFile) add(args HostItemArg) &HostsFile {
-// 	if args.section !in hostsfile.hosts {
-// 		hostsfile.hosts[args.section] = []map[string]string{}
-// 	}
-// 	hostsfile.hosts[args.section] << {
-// 		ip: domain
-// 	}
-// 	return hostsfile
-// }
+	// Find or create section
+	mut found_section := false
+	for mut s in h.sections {
+		if s.name == section {
+			s.hosts << Host{
+				ip:     ip
+				domain: domain
+			}
+			found_section = true
+			break
+		}
+	}
 
-// pub fn (mut hostsfile HostsFile) delete(domain string) &HostsFile {
-// 	mut indexes := map[string][]int{}
+	if !found_section {
+		h.sections << Section{
+			name:  section
+			hosts: [Host{
+				ip:     ip
+				domain: domain
+			}]
+		}
+	}
+}
 
-// 	for section, items in hostsfile.hosts {
-// 		indexes[section] = []int{}
-// 		for i, item in items {
-// 			for _, dom in item {
-// 				if dom == domain {
-// 					indexes[section] << i
-// 				}
-// 			}
-// 		}
-// 	}
+// remove_host removes all entries for the specified domain
+pub fn (mut h HostsFile) remove_host(domain string) ! {
+	mut found := false
+	for mut section in h.sections {
+		// Filter out hosts with matching domain
+		old_len := section.hosts.len
+		section.hosts = section.hosts.filter(it.domain != domain)
+		if section.hosts.len < old_len {
+			found = true
+		}
+	}
 
-// 	for section, items in indexes {
-// 		for i in items {
-// 			hostsfile.hosts[section].delete(i)
-// 		}
-// 	}
+	if !found {
+		return error('Domain ${domain} not found in hosts file')
+	}
+}
 
-// 	return hostsfile
-// }
+// exists checks if a domain exists in any section
+pub fn (h &HostsFile) exists(domain string) bool {
+	for section in h.sections {
+		for host in section.hosts {
+			if host.domain == domain {
+				return true
+			}
+		}
+	}
+	return false
+}
 
-// pub fn (mut hostsfile HostsFile) delete_section(section string) &HostsFile {
-// 	hostsfile.hosts.delete(section)
-// 	return hostsfile
-// }
+// save writes the hosts file back to disk
+pub fn (h &HostsFile) save() ! {
+	mut content := ''
 
-// pub fn (mut hostsfile HostsFile) exists(domain string) bool {
-// 	for _, items in hostsfile.hosts {
-// 		for item in items {
-// 			for _, dom in item {
-// 				if dom == domain {
-// 					return true
-// 				}
-// 			}
-// 		}
-// 	}
-// 	return false
-// }
+	for section in h.sections {
+		if section.name != '' {
+			content += '# ${section.name}\n'
+		}
+
+		for host in section.hosts {
+			content += '${host.ip}\t${host.domain}\n'
+		}
+		content += '\n'
+	}
+
+	// Check if we're on macOS
+	is_macos := os.user_os() == 'macos'
+
+	if is_macos {
+		// On macOS, we need to use sudo
+		osal.execute_interactive('sudo -- sh -c -e "echo \'${content}\' > ${hosts_file_path}"') or {
+			return error('Failed to write hosts file with sudo: ${err}')
+		}
+	} else {
+		// On Linux, try direct write first, fallback to sudo if needed
+		os.write_file(hosts_file_path, content) or {
+			// If direct write fails, try with sudo
+			osal.execute_interactive('sudo -- sh -c -e "echo \'${content}\' > ${hosts_file_path}"') or {
+				return error('Failed to write hosts file: ${err}')
+			}
+		}
+	}
+}
+
+// remove_section removes an entire section and its hosts
+pub fn (mut h HostsFile) remove_section(section_name string) ! {
+	mut found := false
+	for i, section in h.sections {
+		if section.name == section_name {
+			h.sections.delete(i)
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return error('Section ${section_name} not found')
+	}
+}
+
+// clear_section removes all hosts from a section but keeps the section
+pub fn (mut h HostsFile) clear_section(section_name string) ! {
+	mut found := false
+	for mut section in h.sections {
+		if section.name == section_name {
+			section.hosts.clear()
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return error('Section ${section_name} not found')
+	}
+}

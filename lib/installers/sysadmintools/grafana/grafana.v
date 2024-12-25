@@ -9,7 +9,6 @@ import freeflowuniverse.herolib.sysadmin.startupmanager
 import os
 import time
 
-
 pub fn installll(args_ InstallArgs) ! {
 	mut args := args_
 

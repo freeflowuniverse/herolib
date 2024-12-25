@@ -14,18 +14,3 @@ sm.start(
 ```
 
 
-## some basic commands for screen
-
-```bash
-#list the screens
-screen -ls
-#attach to the screens
-screen -r myscreen
-```
-
-to exit a screen to  
-
-```
-ctrl a d
-```
-

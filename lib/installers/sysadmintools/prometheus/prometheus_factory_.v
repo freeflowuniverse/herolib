@@ -124,12 +124,12 @@ pub fn (mut self Prometheus) running() !bool {
 }
 
 @[params]
-pub struct InstallArgss {
+pub struct InstallArgs {
 pub mut:
 	reset bool
 }
 
-pub fn (mut self Prometheus) install(model InstallArgss) ! {
+pub fn (mut self Prometheus) install(model InstallArgs) ! {
 	switch(self.name)
 	if model.reset || (!installed()!) {
 		install()!
