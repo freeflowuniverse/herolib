@@ -15,6 +15,8 @@ mut:
     tests map[string]i64 // Map of test paths to last successful run timestamp
 }
 
+
+
 // Load the test cache from JSON file
 fn load_test_cache() TestCache {
     if !os.exists(cache_file) {
@@ -145,6 +147,26 @@ fn dotest(path string, base_dir string, mut cache TestCache)! {
 
 /////////////////////////
 /////////////////////////
+
+// Parse command line flags
+mut fp := flag.new_flag_parser(os.args)
+fp.application('test_basic')
+fp.description('Run tests for herolib')
+remove_cache := fp.bool('r', `r`, false, 'Remove cache file before running tests', flag.FlagConfig{})
+fp.finalize() or {
+    eprintln(err)
+    exit(1)
+}
+
+
+// Remove cache file if -r flag is set
+if remove_cache && os.exists(cache_file) {
+    os.rm(cache_file) or {
+        eprintln('Failed to remove cache file: ${err}')
+        exit(1)
+    }
+    println('Removed cache file: ${cache_file}')
+}
 
 
 abs_dir_of_script := dir(@FILE)
