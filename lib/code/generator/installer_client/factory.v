@@ -33,7 +33,7 @@ pub fn do(args_ GenerateArgs) ! {
 		if args.path == '' {
 			args.path = os.getwd()
 		}		
-		mut m := gen_model_get(args.path,create:false)!		
+		mut m := gen_model_get(args.path, false)!		
 		m
 	}
 
@@ -56,7 +56,7 @@ pub fn do(args_ GenerateArgs) ! {
 
 	if args.interactive{
 		ask(args.path)!
-		args.model = gen_model_get(args.path)!
+		args.model = gen_model_get(args.path, false)!
 	}
 
 	console.print_debug(args)

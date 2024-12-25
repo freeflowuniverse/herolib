@@ -16,8 +16,8 @@ pub mut:
 pub fn scan(args ScannerArgs) ! {
 
 	if args.path == "" {
-		scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/installers")
-		scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/clients")
+        scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/installers")!
+        scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/clients")!
 		return
 	}
 

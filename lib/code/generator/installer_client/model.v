@@ -33,12 +33,13 @@ pub enum Cat {
 
 
 pub fn gen_model_set(args GenerateArgs) ! {
-	model := args.model
-	mut heroscript_templ := match model.cat {
-		.client { heroscript_templ := $tmpl('templates/heroscript_client' )}
-		.installer { heroscript_templ := $tmpl('templates/heroscript_installer' )}
+	model := args.model or { return error('model is none') }
+	heroscript_templ := match model.cat {
+		.client { $tmpl('templates/heroscript_client') }
+		.installer { $tmpl('templates/heroscript_installer') }
 		else { return error('Invalid category: ${model.cat}') }
 	}
+	
 	pathlib.template_write(heroscript_templ, '${args.path}/.heroscript', true)!
 }
 

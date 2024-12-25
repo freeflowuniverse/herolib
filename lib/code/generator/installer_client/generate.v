@@ -43,7 +43,7 @@ fn generate(args GenerateArgs) ! {
 	if args.reset {
 		path_templ_dir.delete()!
 	}
-	if args.model.templates {
+	if (args.model or { panic('bug') }).templates {
 		if !path_templ_dir.exists() {
 			mut templ_6 := $tmpl('templates/atemplate.yaml')
 			pathlib.template_write(templ_6, '${args.path}/templates/atemplate.yaml', true)!

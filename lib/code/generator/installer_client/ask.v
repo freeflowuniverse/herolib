@@ -10,7 +10,7 @@ import freeflowuniverse.herolib.core.pathlib
 pub fn ask(path string) ! {
 	mut myconsole := console.new()
 
-	mut model:= gen_model_get(path)!
+    mut model:= gen_model_get(path, false)!
 
 	console.clear()
 	console.print_header('Configure generation of code for a module on path:')
