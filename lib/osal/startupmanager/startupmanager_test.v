@@ -23,12 +23,16 @@ pub fn testsuite_end() ! {
 // remove from the startup manager
 pub fn test_status() ! {
 	mut sm := get()!
-
-	sm.start(
-		name: process_name
-		cmd:  'redis-server'
-	)!
-
-	status := sm.status(process_name)!
-	assert status == .active
+	if sm.exists(process_name)! {
+		sm.stop(process_name)!
+		sm.start(process_name)!
+		status := sm.status(process_name)!
+		assert status == .inactive
+	} else {
+		sm.new(name: process_name, cmd: 'sleep 100')!
+		sm.start(process_name)!
+		status := sm.status(process_name)!
+		assert status == .active
+	}
+	sm.stop(process_name)!
 }
