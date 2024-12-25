@@ -1,0 +1,11 @@
+!!hero_code.generate_installer
+    name: "nodejs"
+    classname: "NodeJS"
+    hasconfig: false
+    singleton: true
+    default: true
+    title: ""
+    templates: false
+    build: true
+    startupmanager: true
+
