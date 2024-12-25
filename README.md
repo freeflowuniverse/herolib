@@ -38,6 +38,12 @@ Examples:
 
 ### to test
 
+to run the basic tests, important !!!
+
+```bash
+~/code/github/freeflowuniverse/herolib/test_basic.vsh
+```
+
 ```bash
 vtest ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
 #for a full dir
