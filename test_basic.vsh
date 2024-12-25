@@ -14,13 +14,15 @@ fn check_redis() bool {
     return true
 }
 
+const redis_key_prefix = 'vtests'
+
 // Set Redis key with expiration
 fn redis_set(key string) ! {
     mut sock := net.dial_tcp('127.0.0.1:6379')!
     defer { sock.close() or {} }
     
     // SET key value EX seconds
-    cmd := 'SET vtests.${key} 1 EX 3600\r\n' 
+    cmd := 'SET ${redis_key_prefix}.${key} 1 EX 3600\r\n' 
     sock.write_string(cmd)!
 }
 
@@ -30,7 +32,7 @@ fn redis_exists(key string) bool {
     defer { sock.close() or {} }
     
     // EXISTS key
-    cmd := 'EXISTS vtests.${key}\r\n'
+    cmd := 'EXISTS ${redis_key_prefix}.${key}\r\n'
     sock.write_string(cmd) or { return false }
     
     response := sock.read_line() 
@@ -38,19 +40,41 @@ fn redis_exists(key string) bool {
 }
 
 // Delete Redis key
-fn redis_del(key string) ! {
-    mut sock := net.dial_tcp('127.0.0.1:6379')!
-    defer { sock.close() or {} }
+// fn redis_del(key string) ! {
+//     mut sock := net.dial_tcp('127.0.0.1:6379')!
+//     defer { sock.close() or {} }
     
-    // DEL key
-    cmd := 'DEL vtests.${key}\r\n'
-    sock.write_string(cmd)!
+//     // DEL key
+//     cmd := 'DEL ${redis_key_prefix}.${key}\r\n'
+//     sock.write_string(cmd)!
+// }
+
+// Normalize a path for consistent handling
+fn normalize_path(path string) string {
+    mut norm_path := os.abs_path(path)
+    norm_path = norm_path.replace('//', '/') // Remove any double slashes
+    return norm_path
+}
+
+// Get normalized and relative path
+fn get_normalized_paths(path string, base_dir_norm string) (string, string) {
+    // base_dir_norm is already normalized
+    norm_path := normalize_path(path)
+    rel_path := norm_path.replace(base_dir_norm + '/', '')
+    return norm_path, rel_path
+}
+
+// Generate a Redis key from a path
+fn get_redis_key(path string, base_dir string) string {
+    _, rel_path := get_normalized_paths(path, base_dir)
+    // Create consistent key format
+    return rel_path.replace('/', '_').trim('_').to_lower()
 }
 
 // Check if a file should be ignored or marked as error based on its path
-fn process_test_file(path string, test_files_ignore []string, test_files_error []string, redis_available bool, mut tests_in_error []string)! {
-    // Get relative path for more accurate pattern matching
-    rel_path := path.replace(os.abs_path('.') + '/', '')
+fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, redis_available bool, mut tests_in_error []string)! {
+    // Get normalized paths
+    norm_path, rel_path := get_normalized_paths(path, base_dir)
     
     mut should_ignore := false
     mut is_error := false
@@ -72,7 +96,7 @@ fn process_test_file(path string, test_files_ignore []string, test_files_error [
     }
     
     if !should_ignore && !is_error {
-        dotest(path, redis_available)!
+        dotest(norm_path, base_dir, redis_available)!
     } else {
         println('Ignoring test: ${rel_path}')
         if !should_ignore {
@@ -81,11 +105,11 @@ fn process_test_file(path string, test_files_ignore []string, test_files_error [
     }
 }
 
-fn dotest(path string, use_redis bool)! {
+fn dotest(path string, base_dir string, use_redis bool)! {
+    norm_path, _ := get_normalized_paths(path, base_dir)
+    
     if use_redis {
-        // Use absolute path as Redis key
-        abs_path := os.abs_path(path)
-        redis_key := abs_path.replace('/', '_')
+        redis_key := get_redis_key(norm_path, base_dir)
         
         // Check if test result is cached
         if redis_exists(redis_key) {
@@ -94,7 +118,7 @@ fn dotest(path string, use_redis bool)! {
         }
     }
 
-    cmd := 'vtest ${path}'
+    cmd := 'vtest ${norm_path}'
     println(cmd)
     result := os.execute(cmd)
     
@@ -105,9 +129,7 @@ fn dotest(path string, use_redis bool)! {
     }
     
     if use_redis {
-        // Cache successful test result
-        abs_path := os.abs_path(path)
-        redis_key := abs_path.replace('/', '_')
+        redis_key := get_redis_key(norm_path, base_dir)
         redis_set(redis_key) or {
             eprintln('Failed to cache test result: ${err}')
         }
@@ -122,12 +144,16 @@ fn dotest(path string, use_redis bool)! {
 
 
 abs_dir_of_script := dir(@FILE)
+norm_dir_of_script := normalize_path(abs_dir_of_script)
 os.chdir(abs_dir_of_script) or { panic(err) }
 
+
+
+// can use // inside this list as well to ignore temporary certain dirs, useful for testing
 tests := "
+lib/data
 lib/osal
 lib/lang
-lib/data
 lib/code
 lib/clients
 "
@@ -168,6 +194,9 @@ ourdb/db_test.v
 ourdb/lookup_location_test.v
 encoderhero/encoder_test.v
 encoderhero/decoder_test.v
+code/codeparser
+clients/meilisearch
+clients/zdb
 "
 
 
@@ -189,7 +218,7 @@ if redis_available {
 
 // Run each test with proper v command flags
 for test in test_files {
-    if test.trim_space() == '' {
+    if test.trim_space() == '' || test.trim_space().starts_with("//") || test.trim_space().starts_with("#") {
         continue
     }
     
@@ -204,10 +233,10 @@ for test in test_files {
         // If directory, run tests for each .v file in it recursively
         files := os.walk_ext(full_path, '.v')
         for file in files {
-            process_test_file(file, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
+            process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
         }
     } else if os.is_file(full_path) {
-        process_test_file(full_path, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
+        process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
     }
 }
 

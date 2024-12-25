@@ -1,6 +1,6 @@
 module jsonschema
 
-import freeflowuniverse.herolib.core.codemodel { Param, Result, Struct, Type }
+import freeflowuniverse.herolib.code.codemodel { Param, Result, Struct, Type }
 
 // struct_to_schema generates a json schema or reference from a struct model
 pub fn sumtype_to_schema(sumtype codemodel.Sumtype) SchemaRef {

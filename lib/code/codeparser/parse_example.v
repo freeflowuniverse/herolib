@@ -1,6 +1,6 @@
 module codeparser
 
-// import freeflowuniverse.herolib.core.codemodel {Example}
+// import freeflowuniverse.herolib.code.codemodel {Example}
 // import freeflowuniverse.herolib.rpc.openrpc {ExamplePairing}
 
 // pub fn parse_example_pairing(text_ string) !ExamplePairing {

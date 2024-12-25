@@ -1,6 +1,6 @@
 module jsonschema
 
-import freeflowuniverse.herolib.core.codemodel { Alias, Attribute, CodeItem, Struct, StructField, Type }
+import freeflowuniverse.herolib.code.codemodel { Alias, Attribute, CodeItem, Struct, StructField, Type }
 
 const vtypes = {
 	'integer': 'int'

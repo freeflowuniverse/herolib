@@ -1,6 +1,6 @@
 module codeparser
 
-import freeflowuniverse.herolib.core.codemodel { CodeItem, Function, Struct }
+import freeflowuniverse.herolib.code.codemodel { CodeItem, Function, Struct }
 import os
 import freeflowuniverse.herolib.ui.console
 
@@ -20,7 +20,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the first function of file'
 			params:      []
 			body:        ''
@@ -43,7 +43,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the second function of file'
 			params:      [
 				codemodel.Param{
@@ -68,7 +68,7 @@ const testcode = {
 		CodeItem(Struct{
 			name:        'AnotherfileStruct0'
 			description: 'AnotherfileStruct0 defines the configuration params of anotherfile_func2'
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			is_pub:      true
 			attrs:       [
 				codemodel.Attribute{
@@ -118,7 +118,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the third function of the file'
 			params:      [
 				codemodel.Param{
@@ -143,7 +143,7 @@ const testcode = {
 		CodeItem(Struct{
 			name:        'AnotherfileStruct1'
 			description: ''
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			is_pub:      true
 			fields:      [
 				codemodel.StructField{
@@ -172,7 +172,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the fourth function of the file is does something with param1 and param2 and creates AnotherfileStruct1'
 			params:      [
 				codemodel.Param{
@@ -214,7 +214,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the first function of file'
 			params:      []
 			body:        ''
@@ -237,7 +237,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the second function of file'
 			params:      [
 				codemodel.Param{
@@ -262,7 +262,7 @@ const testcode = {
 		CodeItem(Struct{
 			name:        'SubfileStruct0'
 			description: 'SubfileStruct0 defines the configuration params of subfile_func2'
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			is_pub:      true
 			attrs:       [
 				codemodel.Attribute{
@@ -312,7 +312,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the third function of the file'
 			params:      [
 				codemodel.Param{
@@ -337,7 +337,7 @@ const testcode = {
 		CodeItem(Struct{
 			name:        'SubfileStruct1'
 			description: ''
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			is_pub:      true
 			fields:      [
 				codemodel.StructField{
@@ -366,7 +366,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata.flatdir'
+			mod:         'code.codeparser.testdata.flatdir'
 			description: 'is the fourth function of the file is does something with param1 and param2 and creates SubfileStruct1'
 			params:      [
 				codemodel.Param{
@@ -408,7 +408,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata'
+			mod:         'code.codeparser.testdata'
 			description: 'is the first function of file'
 			params:      []
 			body:        ''
@@ -431,7 +431,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata'
+			mod:         'code.codeparser.testdata'
 			description: 'is the second function of file'
 			params:      [
 				codemodel.Param{
@@ -456,7 +456,7 @@ const testcode = {
 		CodeItem(Struct{
 			name:        'FileStruct0'
 			description: 'FileStruct0 defines the configuration params of file_func2'
-			mod:         'core.codeparser.testdata'
+			mod:         'code.codeparser.testdata'
 			is_pub:      true
 			attrs:       [
 				codemodel.Attribute{
@@ -506,7 +506,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata'
+			mod:         'code.codeparser.testdata'
 			description: 'is the third function of the file'
 			params:      [
 				codemodel.Param{
@@ -532,7 +532,7 @@ const testcode = {
 			name:        'FileStruct1'
 			description: ''
 			fields:      []
-			mod:         'core.codeparser.testdata'
+			mod:         'code.codeparser.testdata'
 			is_pub:      true
 		}),
 		CodeItem(Function{
@@ -545,7 +545,7 @@ const testcode = {
 					symbol: 'void'
 				}
 			}
-			mod:         'core.codeparser.testdata'
+			mod:         'code.codeparser.testdata'
 			description: 'is the fourth function of the file is does something with param1 and param2 and creates FileStruct1'
 			params:      [
 				codemodel.Param{
