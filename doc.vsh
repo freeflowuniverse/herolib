@@ -32,15 +32,9 @@ os.rmdir_all('vdocs') or {}
 
 // Generate HTML documentation
 println('Generating HTML documentation...')
-if os.system('v doc -m -f html . -readme -comments -no-timestamp') != 0 {
+if os.system('v doc -m -f html . -readme -comments -no-timestamp -o ../docs') != 0 {
     panic('Failed to generate HTML documentation')
 }
-
-// Move docs to parent directory
-os.rename('_docs', '${abs_dir_of_script}/docs') or {
-    panic('Failed to move documentation to parent directory: ${err}')
-}
-
 
 os.chdir(abs_dir_of_script) or {
     panic('Failed to change directory to abs_dir_of_script: ${err}')
