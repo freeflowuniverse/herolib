@@ -190,12 +190,14 @@ lib/develop
 //the following tests have no prio and can be ignored
 tests_ignore := "
 notifier_test.v
+clients/meilisearch
+clients/zdb
+systemd_process_test.v
 "
 
 tests_error := "
 net_test.v
 osal/package_test.v
-systemd_process_test.v
 rpc_test.v
 screen_test.v
 tmux_session_test.v
@@ -226,8 +228,6 @@ ourdb/lookup_location_test.v
 encoderhero/encoder_test.v
 encoderhero/decoder_test.v
 code/codeparser
-clients/meilisearch
-clients/zdb
 gittools_test.v
 "
 
