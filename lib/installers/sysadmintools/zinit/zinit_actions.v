@@ -94,9 +94,9 @@ fn ulist_get() !ulist.UList {
 fn upload() ! {
 }
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
+fn startupcmd() ![]ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
-	res << zinit.ZProcessNewArgs{
+	res << ZProcessNewArgs{
 		name:        'zinit'
 		cmd:         '/usr/local/bin/zinit init'
 		startuptype: .systemd

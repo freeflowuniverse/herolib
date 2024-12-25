@@ -23,7 +23,6 @@ pub fn ensure_hero_dirs() string {
 	return herodir()
 }
 
-
 // root dir for our hero environment
 pub fn herodir() string {
 	return shell_expansion('~/hero')
@@ -53,14 +52,12 @@ pub fn path_ensure(s string) string {
 	return path
 }
 
-
 // get path underneath the hero root directory
 pub fn hero_path(s string) string {
 	path := shell_expansion(s).trim_left(' /')
 	full_path := '${herodir()}/${path}/'
 	return full_path
 }
-
 
 // return path and ensure it exists and return the path
 pub fn hero_path_ensure(s string) string {

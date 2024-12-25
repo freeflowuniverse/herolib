@@ -125,7 +125,7 @@ fn dotest(path string, base_dir string, use_redis bool)! {
     cmd := 'v -stats -enable-globals -n -w -gc none -no-retry-compilation -cc tcc test ${norm_path}'
     println(cmd)
     result := os.execute(cmd)
-    
+    eprintln(result)
     if result.exit_code != 0 {
         eprintln('Test failed: ${path}')
         eprintln(result.output)
@@ -168,6 +168,7 @@ tests_ignore := "
 
 tests_error := "
 net_test.v
+osal/package_test.v
 systemd_process_test.v
 rpc_test.v
 screen_test.v

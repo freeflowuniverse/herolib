@@ -8,7 +8,7 @@ import json
 // client for telegram bot
 struct TelegramClient {
 	bot        vgram.Bot
-	baobab     client.Client         // Baobab client
+	baobab     Client                // Baobab client
 	waiting_qs map[string]RedisQueue // where string is user_id
 }
 
