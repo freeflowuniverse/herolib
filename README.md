@@ -7,6 +7,7 @@ a smaller version of crystallib with only the items we need for hero
 ```bash
 curl 'https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/main/install_v.sh' > /tmp/install_v.sh
 bash /tmp/install_v.sh --analyzer --herolib 
+#DONT FORGET TO START A NEW SHELL (otherwise the paths will not be set)
 ```
 
 ### details
