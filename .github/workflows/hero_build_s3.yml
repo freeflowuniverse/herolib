@@ -43,9 +43,18 @@ jobs:
 
       - name: Install and Start Redis
         run: |
+          # Import Redis GPG key
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+          # Add Redis repository
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+          # Install Redis
           sudo apt-get update
-          sudo apt-get install -y redis-server
-          redis-server --daemonize yes
+          sudo apt-get install -y redis
+          # Print versions
+          redis-cli --version
+          redis-server --version
+          # Start Redis
+          sudo systemctl start redis-server
           redis-cli ping
 
       - name: Do all the basic tests
