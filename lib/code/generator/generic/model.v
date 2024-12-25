@@ -4,7 +4,9 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 
-pub struct GeneratorArgs {
+
+
+pub struct GenModel {
 pub mut:
 	name                string
 	classname           string
@@ -14,20 +16,27 @@ pub mut:
 	singleton           bool     // means there can only be one
 	templates           bool     // means we will use templates in the installer, client doesn't do this'
 	reset               bool     // regenerate all, dangerous !!!
+	interactive         bool 	 //if we want to ask
 	startupmanager      bool = true
-	build               bool
-	cat                 Cat
-	path                string
-	force               bool
-	hasconfig           bool = true
+	build               bool		
+	cat Cat = .client
 }
 
+
 pub enum Cat {
+	unknown
 	installer
 	client
 }
 
-fn args_get(path string) !GeneratorArgs {
+
+pub fn gen_model_set(args GenModel) ! {
+	heroscript_templ := $tmpl('templates/heroscript')
+	pathlib.template_write(heroscript_templ, '${args.path}/templates/.heroscript', true)!
+}
+
+
+pub fn gen_model_get(path string) !GenModel {
 	console.print_debug('play installer code for path: ${path}')
 
 	mut config_path := pathlib.get_file(path: '${path}/.heroscript', create: false)!
@@ -42,7 +51,7 @@ fn args_get(path string) !GeneratorArgs {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
-			mut args := GeneratorArgs{
+			mut args := GenModel{
 				name:                p.get('name')!
 				classname:           p.get('classname')!
 				title:               p.get_default('title', '')!
@@ -54,9 +63,7 @@ fn args_get(path string) !GeneratorArgs {
 				startupmanager:      p.get_default_true('startupmanager')
 				hasconfig:           p.get_default_true('hasconfig')
 				build:               p.get_default_false('build')
-				force:               p.get_default_false('force')
 				cat:                 .installer
-				path:                path
 			}
 			return args
 		}
@@ -66,7 +73,7 @@ fn args_get(path string) !GeneratorArgs {
 	if client_actions.len > 0 {
 		for client_action in client_actions {
 			mut p := client_action.params
-			args := GeneratorArgs{
+			args := GenModel{
 				name:      p.get('name')!
 				classname: p.get('classname')!
 				title:     p.get_default('title', '')!
@@ -74,11 +81,10 @@ fn args_get(path string) !GeneratorArgs {
 				singleton: p.get_default_false('singleton')
 				reset:     p.get_default_false('reset')
 				cat:       .client
-				path:      path
 			}
 			return args
 		}
 	}
 	return error("can't find hero_code.generate_client or hero_code.generate_installer in ${path}")
-	// return GeneratorArgs{}
+	// return GenModel{}
 }

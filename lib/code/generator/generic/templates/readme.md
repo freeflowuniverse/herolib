@@ -1,34 +1,34 @@
-# ${args.name}
+# ${model.name}
 
-${args.title}
+${model.title}
 
 To get started
 
 ```vlang
 
-@if args.cat == .installer
+@if model.cat == .installer
 
-import freeflowuniverse.herolib.installers.something.${args.name} as ${args.name}_installer
+import freeflowuniverse.herolib.installers.something.${model.name} as ${model.name}_installer
 
 heroscript:="
-!!${args.name}.configure name:'test'
+!!${model.name}.configure name:'test'
 	password: '1234'
 	port: 7701
 
-!!${args.name}.start name:'test' reset:1 
+!!${model.name}.start name:'test' reset:1 
 "
 
-${args.name}_installer.play(heroscript=heroscript)!
+${model.name}_installer.play(heroscript=heroscript)!
 
 //or we can call the default and do a start with reset
-//mut installer:= ${args.name}_installer.get()!
+//mut installer:= ${model.name}_installer.get()!
 //installer.start(reset:true)!
 
 @else
 
-import freeflowuniverse.herolib.clients. ${args.name}
+import freeflowuniverse.herolib.clients. ${model.name}
 
-mut client:= ${args.name}.get()!
+mut client:= ${model.name}.get()!
 
 client...
 
@@ -40,10 +40,10 @@ client...
 
 ## example heroscript
 
-@if args.cat == .installer
+@if model.cat == .installer
 ```hero
-!!${args.name}.configure
-    homedir: '/home/user/${args.name}'
+!!${model.name}.configure
+    homedir: '/home/user/${model.name}'
     username: 'admin'
     password: 'secretpassword'
     title: 'Some Title'
@@ -53,7 +53,7 @@ client...
 ```
 @else
 ```hero
-!!${args.name}.configure
+!!${model.name}.configure
     secret: '...'
     host: 'localhost'
     port: 8888

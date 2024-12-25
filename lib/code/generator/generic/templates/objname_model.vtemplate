@@ -1,20 +1,20 @@
-module ${args.name}
+module ${model.name}
 import freeflowuniverse.herolib.data.paramsparser
 import os
 
 pub const version = '1.14.3'
-const singleton = ${args.singleton}
-const default = ${args.default}
+const singleton = ${model.singleton}
+const default = ${model.default}
 
-@if args.hasconfig
+@if model.hasconfig
 //TODO: THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE TO STRUCT BELOW, IS STRUCTURED AS HEROSCRIPT
 pub fn heroscript_default() !string {
-@if args.cat == .installer    
+@if model.cat == .installer    
     heroscript:="
-    !!${args.name}.configure 
-        name:'${args.name}'
-        homedir: '{HOME}/hero/var/${args.name}'
-        configpath: '{HOME}/.config/${args.name}/admin.yaml'
+    !!${model.name}.configure 
+        name:'${model.name}'
+        homedir: '{HOME}/hero/var/${model.name}'
+        configpath: '{HOME}/.config/${model.name}/admin.yaml'
         username: 'admin'
         password: 'secretpassword'
         secret: ''
@@ -25,8 +25,8 @@ pub fn heroscript_default() !string {
         "
 @else
     heroscript:="
-    !!${args.name}.configure 
-        name:'${args.name}'
+    !!${model.name}.configure 
+        name:'${model.name}'
         mail_from: 'info@@example.com'
         mail_password: 'secretpassword'
         mail_port: 587
@@ -60,12 +60,12 @@ pub fn heroscript_default() !string {
 @end
 
 //THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-@if args.cat == .installer
+@if model.cat == .installer
 @[heap]
-pub struct ${args.classname} {
+pub struct ${model.classname} {
 pub mut:
     name string = 'default'
-@if args.hasconfig    
+@if model.hasconfig    
 	homedir    string
 	configpath string
 	username   string
@@ -76,13 +76,13 @@ pub mut:
 	port       int
 @end
 }
-@if args.hasconfig
-fn cfg_play(p paramsparser.Params) !${args.classname} {
+@if model.hasconfig
+fn cfg_play(p paramsparser.Params) !${model.classname} {
     //THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
-    mut mycfg := ${args.classname}{
+    mut mycfg := ${model.classname}{
         name: p.get_default('name', 'default')!
-        homedir: p.get_default('homedir', '{HOME}/hero/var/${args.name}')!
-        configpath: p.get_default('configpath', '{HOME}/hero/var/${args.name}/admin.yaml')!
+        homedir: p.get_default('homedir', '{HOME}/hero/var/${model.name}')!
+        configpath: p.get_default('configpath', '{HOME}/hero/var/${model.name}/admin.yaml')!
         username: p.get_default('username', 'admin')!
         password: p.get_default('password', '')!
         secret: p.get_default('secret', '')!
@@ -92,7 +92,7 @@ fn cfg_play(p paramsparser.Params) !${args.classname} {
     }
 
     if mycfg.password == '' && mycfg.secret == '' {
-        return error('password or secret needs to be filled in for ${args.name}')
+        return error('password or secret needs to be filled in for ${model.name}')
     }
     return mycfg
 }
@@ -101,7 +101,7 @@ fn cfg_play(p paramsparser.Params) !${args.classname} {
 @else
 
 @[heap]
-pub struct ${args.classname} {
+pub struct ${model.classname} {
 pub mut:
     name string = 'default'
 	mail_from    string
@@ -111,10 +111,10 @@ pub mut:
 	mail_username     string 
 }
 
-@if args.hasconfig
+@if model.hasconfig
 fn cfg_play(p paramsparser.Params) ! {
     //THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
-    mut mycfg := ${args.classname}{
+    mut mycfg := ${model.classname}{
         name: p.get_default('name', 'default')!
         mail_from: p.get('mail_from')!
         mail_password: p.get('mail_password')!
@@ -128,21 +128,21 @@ fn cfg_play(p paramsparser.Params) ! {
 
 @end
 
-fn obj_init(obj_ ${args.classname})!${args.classname}{
+fn obj_init(obj_ ${model.classname})!${model.classname}{
     //never call get here, only thing we can do here is work on object itself
     mut obj:=obj_
     return obj
 }
 
-@if args.cat == .installer
+@if model.cat == .installer
 //called before start if done
 fn configure() ! {
-    @if args.cat == .installer
+    @if model.cat == .installer
 	//mut installer := get()!
     @else
     //mut client := get()!
     @end 
-@if args.templates
+@if model.templates
 	// mut mycode := ??tmpl('templates/atemplate.yaml')
 	// mut path := pathlib.get_file(path: cfg.configpath, create: true)!
 	// path.write(mycode)!
