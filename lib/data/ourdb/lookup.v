@@ -87,7 +87,7 @@ fn get_incremental_info(config LookupConfig) ?u32 {
 
 // Method to get value from a specific position
 fn (lut LookupTable) get(x u32) !Location {
-	entry_size := int(lut.keysize)
+	entry_size := lut.keysize
 	if lut.lookuppath.len > 0 {
 		// Check file size first
 		file_size := os.file_size(lut.get_data_file_path()!)
@@ -101,7 +101,7 @@ fn (lut LookupTable) get(x u32) !Location {
 		mut file := os.open(lut.get_data_file_path()!)!
 		defer { file.close() }
 
-		mut data := []u8{len: entry_size}
+		mut data := []u8{len: int(entry_size)}
 		bytes_read := file.read_from(u64(start_pos), mut data)!
 		if bytes_read < entry_size {
 			return error('Incomplete read: expected ${entry_size} bytes but got ${bytes_read}')
@@ -145,7 +145,7 @@ fn (mut lut LookupTable) increment_index() ! {
 
 // Method to set a value at a specific position
 fn (mut lut LookupTable) set(x u32, location Location) ! {
-	entry_size := int(lut.keysize)
+	entry_size := lut.keysize
 
 	mut id := x
 	if incremental := lut.incremental {
@@ -198,7 +198,7 @@ fn (mut lut LookupTable) set(x u32, location Location) ! {
 
 // Method to delete an entry (set bytes to 0)
 fn (mut lut LookupTable) delete(x u32) ! {
-	entry_size := int(lut.keysize)
+	entry_size := lut.keysize
 
 	if lut.lookuppath.len > 0 {
 		// Check file size first
@@ -216,7 +216,7 @@ fn (mut lut LookupTable) delete(x u32) ! {
 			file.close()
 		}
 
-		zeros := []u8{len: entry_size, init: 0}
+		zeros := []u8{len: int(entry_size), init: 0}
 		bytes_written := file.write_to(u64(start_pos), zeros)!
 		if bytes_written < entry_size {
 			return error('Incomplete delete: expected ${entry_size} bytes but wrote ${bytes_written}')
