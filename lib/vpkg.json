@@ -1,10 +1,10 @@
 {
-    "name": "crystallib",
+    "name": "herolib",
     "version": "0.1.0",
     "author": [
         "despiegk <info@threefold.io>"
     ],
-    "repo": "https://github.com/crystaluniverse/crystallib/crystallib",
+    "repo": "https://github.com/herouniverse/herolib/herolib",
     "sources": [
         "https://vpkg-project.github.io/registry/src/"
     ],

@@ -1,22 +1,22 @@
 
-# Crystallib
+# herolib
 
 Is an opinionated library as used by threefold mainly to automate cloud environments, its still very much work in progress and we welcome any contribution.
 
-Please check also our [cookbook](https://github.com/freeflowuniverse/crystallib/tree/development/cookbook) which might give some ideas how to use it.
+Please check also our [cookbook](https://github.com/freeflowuniverse/herolib/tree/development/cookbook) which might give some ideas how to use it.
 
 ## Get started with hero
 
 ```bash
-curl -sL https://raw.githubusercontent.com/freeflowuniverse/crystallib/development/scripts/install_hero.sh | bash
+curl -sL https://raw.githubusercontent.com/freeflowuniverse/herolib/development/scripts/install_hero.sh | bash
 ```
 
-## Get started with crystallib
+## Get started with herolib
 
-the following script will install vlang and crystallib (report bugs please)
+the following script will install vlang and herolib (report bugs please)
 
 ```bash
-curl https://raw.githubusercontent.com/freeflowuniverse/crystallib/development/scripts/installer.sh > /tmp/install.sh
+curl https://raw.githubusercontent.com/freeflowuniverse/herolib/development/scripts/installer.sh > /tmp/install.sh
 bash /tmp/install.sh
 ```
 
@@ -34,8 +34,8 @@ requirements
 ```bash
 mkdir -p ~/code/github/freeflowuniverse
 cd ~/code/github/freeflowuniverse
-git clone git@github.com:freeflowuniverse/crystallib.git
-cd crystallib
+git clone git@github.com:freeflowuniverse/herolib.git
+cd herolib
 # checkout a branch with most recent changes
 # git checkout development 
 bash install.sh
@@ -52,7 +52,7 @@ hero will be installed in
 - ~/hero/bin for osx
 
 ```bash
-curl https://raw.githubusercontent.com/freeflowuniverse/crystallib/development/scripts/install_hero.sh > /tmp/hero_install.sh
+curl https://raw.githubusercontent.com/freeflowuniverse/herolib/development/scripts/install_hero.sh > /tmp/hero_install.sh
 bash /tmp/hero_install.sh
 #to debug
 bash -x /tmp/hero_install.sh
@@ -72,7 +72,7 @@ requirements
 
 ```bash
 #cd in this directory
-cd ~/code/github/freeflowuniverse/crystallib
+cd ~/code/github/freeflowuniverse/herolib
 bash doc.sh
 ```
 
