@@ -45,3 +45,7 @@ vtest ~/code/github/freeflowuniverse/herolib/lib/osal
 ```
 vtest is an alias to test functionality
 
+
+## important to read
+
+- [aiprompts/starter/0_start_here.md](aiprompts/starter/0_start_here.md)

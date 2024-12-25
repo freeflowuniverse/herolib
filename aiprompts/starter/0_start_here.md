@@ -58,7 +58,3 @@ vtest ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
 ```
 
 - use ~ so it works over all machines
-
-## important to read
-
-- [aiprompts/starter/0_start_here.md](aiprompts/starter/0_start_here.md)
