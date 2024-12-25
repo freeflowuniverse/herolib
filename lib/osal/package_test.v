@@ -12,9 +12,7 @@ fn test_package_management() {
 	}
 
 	// First ensure wget is not installed
-	package_remove('wget') or {
-		assert true // Ignore error if package wasn't installed
-	}
+	package_remove('wget') or {}
 
 	// Verify wget is not installed
 	assert !cmd_exists('wget')

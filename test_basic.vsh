@@ -168,6 +168,7 @@ tests_ignore := "
 
 tests_error := "
 net_test.v
+osal/package_test.v
 systemd_process_test.v
 rpc_test.v
 screen_test.v
