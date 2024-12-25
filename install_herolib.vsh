@@ -19,12 +19,24 @@ fn addtoscript(tofind string, toadd string) ! {
     // Remove existing alias if present
     lines := content.split('\n')
     mut new_lines := []string{}
+    mut prev_is_emtpy := false
     for line in lines {
+        if prev_is_emtpy {
+            if line.trim_space() == ""{
+                continue
+            }else{
+                prev_is_emtpy = false
+            }            
+        }
+        if line.trim_space() == ""{
+            prev_is_emtpy = true
+        }        
         if !line.contains(tofind) {
             new_lines << line
-        }
+        }        
     }
     new_lines << toadd    
+    new_lines << ""
     // Write back to file
     new_content := new_lines.join('\n')
     os.write_file(rc_file, new_content)!
