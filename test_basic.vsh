@@ -160,7 +160,7 @@ lib/osal
 lib/lang
 lib/code
 lib/clients
-lib/crypt
+// lib/crypt
 lib/core
 lib/develop
 "

@@ -1,4 +1,4 @@
-name: Test Crystal & Release to S3
+name: Test Hero & Release to S3
 
 permissions:
   contents: write

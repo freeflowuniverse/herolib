@@ -49,7 +49,7 @@ os.rmdir_all('vdocs') or {}
 // }
 
 if os.system('v doc -m -no-color -f md -o vdocs/herolib/') != 0 {
-    panic('Failed to generate Crystal markdown documentation')
+    panic('Failed to generate Hero markdown documentation')
 }
 
 // Open documentation in browser on non-Linux systems

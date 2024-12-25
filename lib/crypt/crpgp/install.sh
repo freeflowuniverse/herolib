@@ -40,7 +40,7 @@ if [ -d $CRPGP_DIR ]; then
 			>>$V_CRPGP_PATH
 	echo "✅ Updated!"
 else
-	echo "- Crystallib not found"
+	echo "- Herolib not found"
 fi
 
 # Move crpgp lib and header file in system dirs
