@@ -41,6 +41,13 @@ jobs:
       - name: Setup Herolib
         run: ./install_herolib.vsh            
 
+      - name: Install and Start Redis
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y redis-server
+          redis-server --daemonize yes
+          redis-cli ping
+
       - name: Do all the basic tests
         run: ./test_basic.vsh          
 
