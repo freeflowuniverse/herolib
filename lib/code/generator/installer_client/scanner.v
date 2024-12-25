@@ -21,10 +21,10 @@ pub fn scan(args ScannerArgs) ! {
 		return
 	}
 
-	console.print_header('Scan for generation of code for ${path}')
+	console.print_header('Scan for generation of code for ${args.path}')
 
 	// now walk over all directories, find .heroscript
-	mut pathroot := pathlib.get_dir(path: path, create: false)!
+	mut pathroot := pathlib.get_dir(path: args.path, create: false)!
 	mut plist := pathroot.list(
 		recursive:     true
 		ignoredefault: false

@@ -14,7 +14,7 @@ pub fn ask(path string) ! {
 
 	console.clear()
 	console.print_header('Configure generation of code for a module on path:')
-	console.print_green('Path: ${args.path}')
+	console.print_green('Path: ${path}')
 	console.lf()
 
 	model.classname = myconsole.ask_question(
@@ -30,13 +30,13 @@ pub fn ask(path string) ! {
 		default:	 model.title
 	)!
 
-	model.config = !myconsole.ask_yesno(
+	model.hasconfig = !myconsole.ask_yesno(
 		description: 'Is there a config (normally yes)?'
-		default:	 model.config
+		default:	 model.hasconfig
 	)!
 
 
-	if model.config{
+	if model.hasconfig {
 		model.singleton = !myconsole.ask_yesno(
 			description: 'Can there be multiple instances (normally yes)?'
 			default:	 model.singleton
@@ -64,7 +64,6 @@ pub fn ask(path string) ! {
 		)!
 	}
 
-	gen_model_set(model)!
+	gen_model_set(GenerateArgs{model: model, path: path})!
 
 }
-

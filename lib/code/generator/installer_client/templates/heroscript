@@ -7,6 +7,6 @@
     title:\"${model.title}\"
 ${if model.cat == .installer {
     templates:${if model.templates { "1" } else { "0" }}
-    build:${if model.build { "1" } else { "0" }}"
+    build:${if model.build { "1" } else { "0" }}
     startupmanager:${if model.startupmanager { "1" } else { "0" }}
 }

@@ -9,27 +9,27 @@ fn generate(args GenerateArgs) ! {
 	console.print_debug('generate code for path: ${args.path}')
 
 	//as used in the templates
-	model :=args.model or { panic("bug)" }
+	model := args.model or { panic('bug') }
 
-	mut path_actions := pathlib.get(args.path + '/${args.model.name}_actions.v')
+	mut path_actions := pathlib.get(args.path + '/${model.name}_actions.v')
 	if args.reset {
 		path_actions.delete()!
 	}
-	if !path_actions.exists() && args.model.cat == .installer {
+	if !path_actions.exists() && model.cat == .installer {
 		console.print_debug('write installer actions')
 		mut templ_1 := $tmpl('templates/objname_actions.vtemplate')
-		pathlib.template_write(templ_1, '${args.path}/${args.model.name}_actions.v', true)!
+		pathlib.template_write(templ_1, '${args.path}/${model.name}_actions.v', true)!
 	}
 
 	mut templ_2 := $tmpl('templates/objname_factory_.vtemplate')
 
-	pathlib.template_write(templ_2, '${args.path}/${args.model.name}_factory_.v', true)!
+	pathlib.template_write(templ_2, '${args.path}/${model.name}_factory_.v', true)!
 
-	mut path_model := pathlib.get(args.path + '/${args.model.name}_model.v')
+	mut path_model := pathlib.get(args.path + '/${model.name}_model.v')
 	if args.reset || !path_model.exists() {
 		console.print_debug('write model.')
 		mut templ_3 := $tmpl('templates/objname_model.vtemplate')
-		pathlib.template_write(templ_3, '${args.path}/${args.model.name}_model.v', true)!
+		pathlib.template_write(templ_3, '${args.path}/${model.name}_model.v', true)!
 	}
 
 	// TODO: check case sensistivity for delete
@@ -78,6 +78,3 @@ fn generate(args GenerateArgs) ! {
 // 	out = out.trim_right('|')
 // 	return out
 // }
-
-
-

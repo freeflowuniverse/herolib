@@ -1,5 +1,7 @@
 #!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
+import os
+import flag
 import freeflowuniverse.herolib.code.generator.installer_client as generator
 
 mut fp := flag.new_flag_parser(os.args)
@@ -43,5 +45,3 @@ if path {
 }else{
 	generator.scan(path:path, reset:reset, interactive:interactive)!
 }
-
-

@@ -1,5 +1,6 @@
 module installer_client
 
+import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
@@ -34,7 +35,10 @@ pub enum Cat {
 pub fn gen_model_set(args GenerateArgs) ! {
 	model := args.model
 	heroscript_templ := $tmpl('templates/heroscript')
-	pathlib.template_write(heroscript_templ, '${args.path}/templates/.heroscript', true)!
+
+	//TODO: look in lib/code/generator/installer_client/templates/heroscript, don't use the if in template, use 2 templates, depending type use other template, and the args used should be set here in code 
+
+	pathlib.template_write(heroscript_templ, '${args.path}/.heroscript', true)!
 }
 
 
@@ -69,7 +73,6 @@ pub fn gen_model_get(path string, create: bool) !GenModel {
 				hasconfig: 			 p.get_default_false('hasconfig')
 				cat:                 .installer
 			}
-			return model
 		}
 	}
 
@@ -95,10 +98,10 @@ pub fn gen_model_get(path string, create: bool) !GenModel {
 	}
 
 	if model.cat == .unknown {
-		if path.contains("clients"){
-			model.cat == .client
-		}else{
-			model.cat == .installer
+		if path.contains("clients") {
+			model.cat = .client
+		} else {
+			model.cat = .installer
 		}
 	}
 
