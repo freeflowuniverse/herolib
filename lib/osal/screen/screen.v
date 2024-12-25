@@ -20,25 +20,6 @@ enum ScreenState {
 	detached
 }
 
-// checks whether screen server is running
-pub fn (mut t Screen) is_running() !bool {
-	panic('implement')
-	// res := osal.exec(cmd: 'screen info', stdout: false, name: 'screen_info', raise_error: false) or {
-	// 	panic('bug')
-	// }
-	// if res.error.contains('no server running') {
-	// 	// console.print_debug(" TMUX NOT RUNNING")
-	// 	return false
-	// }
-	// if res.error.contains('no current client') {
-	// 	return true
-	// }
-	// if res.exit_code > 0 {
-	// 	return error('could not execute screen info.\n${res}')
-	// }
-	return true
-}
-
 pub enum ScreenStatus {
 	unknown
 	active
