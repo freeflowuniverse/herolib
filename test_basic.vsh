@@ -146,12 +146,15 @@ for test in test_files {
         files := os.walk_ext(full_path, '.v')
         for file in files {
             base_file := os.base(file)
-            if base_file in test_files_ignore {
-                println('Ignoring test: ${file}')
-                tests_in_error << file
-                continue
-            }
-            dotest(file, redis_available)!
+            if base_file !in test_files_ignore && base_file !in test_files_error{
+                dotest(full_path, redis_available)!
+            } else {
+                println('Ignoring test: ${full_path}')
+                if base_file !in test_files_ignore {
+                    tests_in_error << full_path
+                }            
+            }            
+
         }
     } else if os.is_file(full_path) {
         // If single file, run test if not in ignore list
