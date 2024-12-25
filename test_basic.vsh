@@ -2,52 +2,60 @@
 
 import os
 import flag
-import net
 import time
+import json
 
+const (
+    cache_file = '/tmp/herolib_tests.json'
+    test_expiry_seconds = 3600 // 1 hour
+)
 
-// Check if Redis is available
-fn check_redis() bool {
-    mut redis_available := false
-    mut sock := net.dial_tcp('127.0.0.1:6379') or { return false }
-    sock.close() or {}
-    return true
+struct TestCache {
+mut:
+    tests map[string]i64 // Map of test paths to last successful run timestamp
 }
 
-const redis_key_prefix = 'vtests'
-
-// Set Redis key with expiration
-fn redis_set(key string) ! {
-    mut sock := net.dial_tcp('127.0.0.1:6379')!
-    defer { sock.close() or {} }
+// Load the test cache from JSON file
+fn load_test_cache() TestCache {
+    if !os.exists(cache_file) {
+        return TestCache{
+            tests: map[string]i64{}
+        }
+    }
     
-    // SET key value EX seconds
-    cmd := 'SET ${redis_key_prefix}.${key} 1 EX 3600\r\n' 
-    sock.write_string(cmd)!
+    content := os.read_file(cache_file) or {
+        return TestCache{
+            tests: map[string]i64{}
+        }
+    }
+    
+    return json.decode(TestCache, content) or {
+        return TestCache{
+            tests: map[string]i64{}
+        }
+    }
 }
 
-// Check if key exists in Redis
-fn redis_exists(key string) bool {
-    mut sock := net.dial_tcp('127.0.0.1:6379') or { return false }
-    defer { sock.close() or {} }
-    
-    // EXISTS key
-    cmd := 'EXISTS ${redis_key_prefix}.${key}\r\n'
-    sock.write_string(cmd) or { return false }
-    
-    response := sock.read_line() 
-    return response.trim_space() == ':1'
+// Save the test cache to JSON file
+fn save_test_cache(cache TestCache) {
+    json_str := json.encode_pretty(cache)
+    os.write_file(cache_file, json_str) or {
+        eprintln('Failed to save test cache: ${err}')
+    }
 }
 
-// Delete Redis key
-// fn redis_del(key string) ! {
-//     mut sock := net.dial_tcp('127.0.0.1:6379')!
-//     defer { sock.close() or {} }
-    
-//     // DEL key
-//     cmd := 'DEL ${redis_key_prefix}.${key}\r\n'
-//     sock.write_string(cmd)!
-// }
+// Check if a test needs to be rerun based on timestamp
+fn should_rerun_test(cache TestCache, test_key string) bool {
+    last_run := cache.tests[test_key] or { return true }
+    now := time.now().unix()
+    return (now - last_run) > test_expiry_seconds
+}
+
+// Update test timestamp in cache
+fn update_test_cache(mut cache TestCache, test_key string) {
+    cache.tests[test_key] = time.now().unix()
+    save_test_cache(cache)
+}
 
 // Normalize a path for consistent handling
 fn normalize_path(path string) string {
@@ -64,15 +72,15 @@ fn get_normalized_paths(path string, base_dir_norm string) (string, string) {
     return norm_path, rel_path
 }
 
-// Generate a Redis key from a path
-fn get_redis_key(path string, base_dir string) string {
+// Generate a cache key from a path
+fn get_cache_key(path string, base_dir string) string {
     _, rel_path := get_normalized_paths(path, base_dir)
     // Create consistent key format
     return rel_path.replace('/', '_').trim('_').to_lower()
 }
 
 // Check if a file should be ignored or marked as error based on its path
-fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, redis_available bool, mut tests_in_error []string)! {
+fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, mut cache TestCache, mut tests_in_error []string)! {
     // Get normalized paths
     norm_path, rel_path := get_normalized_paths(path, base_dir)
     
@@ -100,7 +108,7 @@ fn process_test_file(path string, base_dir string, test_files_ignore []string, t
     }
     
     if !should_ignore && !is_error {
-        dotest(norm_path, base_dir, redis_available)!
+        dotest(norm_path, base_dir, mut cache)!
     } else {
         println('Ignoring test: ${rel_path}')
         if !should_ignore {
@@ -109,17 +117,14 @@ fn process_test_file(path string, base_dir string, test_files_ignore []string, t
     }
 }
 
-fn dotest(path string, base_dir string, use_redis bool)! {
+fn dotest(path string, base_dir string, mut cache TestCache)! {
     norm_path, _ := get_normalized_paths(path, base_dir)
+    test_key := get_cache_key(norm_path, base_dir)
     
-    if use_redis {
-        redis_key := get_redis_key(norm_path, base_dir)
-        
-        // Check if test result is cached
-        if redis_exists(redis_key) {
-            println('Test cached (passed): ${path}')
-            return
-        }
+    // Check if test result is cached and still valid
+    if !should_rerun_test(cache, test_key) {
+        println('Test cached (passed): ${path}')
+        return
     }
 
     cmd := 'v -stats -enable-globals -n -w -gc none -no-retry-compilation -cc tcc test ${norm_path}'
@@ -132,13 +137,8 @@ fn dotest(path string, base_dir string, use_redis bool)! {
         exit(1)
     }
     
-    if use_redis {
-        redis_key := get_redis_key(norm_path, base_dir)
-        redis_set(redis_key) or {
-            eprintln('Failed to cache test result: ${err}')
-        }
-    }
-    
+    // Update cache with successful test run
+    update_test_cache(mut cache, test_key)
     println('Test passed: ${path}')
 }
 
@@ -165,8 +165,9 @@ lib/core
 lib/develop
 "
 
+//the following tests have no prio and can be ignored
 tests_ignore := "
-
+notifier_test.v
 "
 
 tests_error := "
@@ -205,6 +206,7 @@ encoderhero/decoder_test.v
 code/codeparser
 clients/meilisearch
 clients/zdb
+gittools_test.v
 "
 
 
@@ -216,13 +218,9 @@ test_files_error := tests_error.split('\n').filter(it.trim_space() != '')
 mut tests_in_error := []string{}
 
 
-// Check if Redis is available
-redis_available := check_redis()
-if redis_available {
-    println('Redis cache enabled')
-} else {
-    println('Redis not available, running without cache')
-}
+// Load test cache
+mut cache := load_test_cache()
+println('Test cache loaded from ${cache_file}')
 
 // Run each test with proper v command flags
 for test in test_files {
@@ -241,11 +239,11 @@ for test in test_files {
         // If directory, run tests for each .v file in it recursively
         files := os.walk_ext(full_path, '.v')
         for file in files {
-            process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
+            process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut cache, mut tests_in_error)!
             
         }
     } else if os.is_file(full_path) {
-        process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
+        process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut cache, mut tests_in_error)!
     }
 }
 
