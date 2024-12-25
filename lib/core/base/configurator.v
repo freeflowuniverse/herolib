@@ -1,7 +1,7 @@
 module base
 
 import json
-import freeflowuniverse.crystallib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct Configurator[T] {

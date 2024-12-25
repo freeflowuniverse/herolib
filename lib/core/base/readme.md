@@ -25,7 +25,7 @@ Session id is $contextid:$sessionid  (e.g. 10:111)
 - coderoot            string        //this will define where all code is checked out
 
 ```v
-import freeflowuniverse.crystallib.core.base
+import freeflowuniverse.herolib.core.base
 
 mut session:=context_new(
     coderoot:'/tmp/code'

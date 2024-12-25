@@ -1,15 +1,15 @@
 module base
 
-import freeflowuniverse.crystallib.data.paramsparser
-import freeflowuniverse.crystallib.clients.redisclient
-import freeflowuniverse.crystallib.data.dbfs
-// import freeflowuniverse.crystallib.crypt.secp256k1
-import freeflowuniverse.crystallib.crypt.aes_symmetric
-import freeflowuniverse.crystallib.ui
-import freeflowuniverse.crystallib.ui.console
-import freeflowuniverse.crystallib.core.pathlib
-import freeflowuniverse.crystallib.core.texttools
-import freeflowuniverse.crystallib.core.rootpath
+import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.data.dbfs
+// import freeflowuniverse.herolib.crypt.secp256k1
+import freeflowuniverse.herolib.crypt.aes_symmetric
+import freeflowuniverse.herolib.ui
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.rootpath
 import json
 import os
 import crypto.md5

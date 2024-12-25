@@ -1,8 +1,8 @@
 module base
 
-import freeflowuniverse.crystallib.data.paramsparser
-import freeflowuniverse.crystallib.ui
-import freeflowuniverse.crystallib.ui.console
+import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.ui
+import freeflowuniverse.herolib.ui.console
 import crypto.md5
 
 @[params]

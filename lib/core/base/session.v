@@ -1,13 +1,13 @@
 module base
 
-import freeflowuniverse.crystallib.data.ourtime
-// import freeflowuniverse.crystallib.core.texttools
-import freeflowuniverse.crystallib.data.paramsparser
-import freeflowuniverse.crystallib.data.dbfs
+import freeflowuniverse.herolib.data.ourtime
+// import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.dbfs
 import json
-// import freeflowuniverse.crystallib.core.pathlib
-// import freeflowuniverse.crystallib.develop.gittools
-// import freeflowuniverse.crystallib.ui.console
+// import freeflowuniverse.herolib.core.pathlib
+// import freeflowuniverse.herolib.develop.gittools
+// import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct Session {

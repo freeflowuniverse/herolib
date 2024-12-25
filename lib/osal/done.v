@@ -1,8 +1,8 @@
 module osal
 
-import freeflowuniverse.crystallib.core.base
-import freeflowuniverse.crystallib.data.dbfs
-import freeflowuniverse.crystallib.ui.console
+import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.data.dbfs
+import freeflowuniverse.herolib.ui.console
 
 fn donedb() !&dbfs.DB {
 	mut context := base.context()!

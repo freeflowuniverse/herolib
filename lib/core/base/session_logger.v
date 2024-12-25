@@ -1,7 +1,7 @@
 module base
 
-import freeflowuniverse.crystallib.data.ourtime
-import freeflowuniverse.crystallib.core.texttools
+import freeflowuniverse.herolib.data.ourtime
+import freeflowuniverse.herolib.core.texttools
 
 @[heap]
 pub struct Logger {

@@ -1,7 +1,7 @@
 module base
 
-import freeflowuniverse.crystallib.data.ourtime
-import freeflowuniverse.crystallib.data.paramsparser
+import freeflowuniverse.herolib.data.ourtime
+import freeflowuniverse.herolib.data.paramsparser
 import json
 
 @[params]
