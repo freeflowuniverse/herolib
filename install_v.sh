@@ -64,6 +64,7 @@ command_exists() {
 export DIR_BASE="$HOME"
 export DIR_BUILD="/tmp"
 export DIR_CODE="$DIR_BASE/code"
+export DIR_CODE_V="$DIR_BASE/_code"
 
 function sshknownkeysadd {
     mkdir -p ~/.ssh
@@ -292,7 +293,8 @@ if [ "$RESET" = true ] || ! command_exists v; then
     # Only clone and install if directory doesn't exist
     if [ ! -d ~/code/v ]; then
         echo "Installing V..."
-        cd ~/code
+        mkdir -p ~/_code
+        cd ~/_code
         git clone --depth=1 https://github.com/vlang/v
         cd v
         make
