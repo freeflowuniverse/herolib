@@ -106,6 +106,11 @@ pub fn gen_model_get(path string, create bool) !GenModel {
 		} else {
 			model.cat = .installer
 		}
+		if true{
+			println(path)
+			println(model)
+			panic("ghyui")
+		}
 	}
 
 	if model.name == "" {
