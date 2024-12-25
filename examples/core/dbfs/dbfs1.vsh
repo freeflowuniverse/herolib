@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.crystallib.data.dbfs
+import freeflowuniverse.herolib.data.dbfs
 import time
 import os
 

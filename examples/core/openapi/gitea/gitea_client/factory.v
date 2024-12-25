@@ -1,7 +1,7 @@
 module dagu
 
 // import os
-import freeflowuniverse.crystallib.clients.httpconnection
+import freeflowuniverse.herolib.clients.httpconnection
 import os
 
 struct GiteaClient[T] {

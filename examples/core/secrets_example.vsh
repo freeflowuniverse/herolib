@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.crystallib.crypt.secrets
+import freeflowuniverse.herolib.crypt.secrets
 
 secrets.delete_passwd()!
 r := secrets.encrypt('aaa')!

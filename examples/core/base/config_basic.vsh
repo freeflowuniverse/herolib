@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.crystallib.core.base
+import freeflowuniverse.herolib.core.base
 
 pub struct MyClient[T] {
 	base.BaseConfig[T]

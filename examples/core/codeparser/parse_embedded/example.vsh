@@ -1,8 +1,8 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import os
-import freeflowuniverse.crystallib.core.codeparser
-import freeflowuniverse.crystallib.core.codemodel { Struct }
+import freeflowuniverse.herolib.core.codeparser
+import freeflowuniverse.herolib.core.codemodel { Struct }
 
 code_path := '${os.dir(@FILE)}/embedding.v'
 

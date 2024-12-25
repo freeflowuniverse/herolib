@@ -1,9 +1,9 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import time
-import freeflowuniverse.crystallib.core.smartid
-import freeflowuniverse.crystallib.data.ourtime
-import freeflowuniverse.crystallib.core.db
+import freeflowuniverse.herolib.core.smartid
+import freeflowuniverse.herolib.data.ourtime
+import freeflowuniverse.herolib.core.db
 
 pub struct MyStruct {
 	db.Base

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.crystallib.core.base
-import freeflowuniverse.crystallib.develop.gittools
+import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.develop.gittools
 
 pub struct MyClass {
 	base.Base
