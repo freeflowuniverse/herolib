@@ -2,6 +2,6 @@
     name: "openai"
     classname: "OpenAI"
     hasconfig: false
-    singleton: true
+    singleton: false
     default: true
     title: ""

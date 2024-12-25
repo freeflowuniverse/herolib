@@ -1,6 +1,6 @@
 !!hero_code.generate_client
-    name: "zdb"
-    classname: "ZeroDBClient"
+    name: "postgresql_client"
+    classname: "PostgresClient"
     hasconfig: false
     singleton: true
     default: true

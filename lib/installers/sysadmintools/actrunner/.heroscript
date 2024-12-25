@@ -1,0 +1,11 @@
+!!hero_code.generate_installer
+    name: "actrunner"
+    classname: "ActRunner"
+    hasconfig: false
+    singleton: true
+    default: true
+    title: ""
+    templates: false
+    build: true
+    startupmanager: true
+

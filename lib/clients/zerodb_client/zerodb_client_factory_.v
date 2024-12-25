@@ -1,5 +1,5 @@
 
-module postgres
+module zerodb_client
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -7,8 +7,8 @@ import freeflowuniverse.herolib.ui.console
 
 
 __global (
-    postgres_global map[string]&PostgresClient
-    postgres_default string
+    zerodb_client_global map[string]&ZeroDBClient
+    zerodb_client_default string
 )
 
 /////////FACTORY
@@ -19,14 +19,14 @@ pub mut:
     name string
 }
 
-pub fn get(args_ ArgsGet) !&PostgresClient  {
-    return &PostgresClient{}
+pub fn get(args_ ArgsGet) !&ZeroDBClient  {
+    return &ZeroDBClient{}
 }
 
 
 
 
-//switch instance to be used for postgres
+//switch instance to be used for zerodb_client
 pub fn switch(name string) {
-    postgres_default = name
+    zerodb_client_default = name
 }
