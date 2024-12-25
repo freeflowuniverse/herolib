@@ -109,6 +109,8 @@ startupmanager_test.v
 test_files := tests.split('\n').filter(it.trim_space() != '')
 test_files_ignore := tests_ignore.split('\n').filter(it.trim_space() != '')
 
+mut ignored_tests := []string{}
+
 
 // Check if Redis is available
 redis_available := check_redis()
@@ -138,6 +140,7 @@ for test in test_files {
             base_file := os.base(file)
             if base_file in test_files_ignore {
                 println('Ignoring test: ${file}')
+                ignored_tests << file
                 continue
             }
             dotest(file, redis_available)!
@@ -149,8 +152,17 @@ for test in test_files {
             dotest(full_path, redis_available)!
         } else {
             println('Ignoring test: ${full_path}')
+            ignored_tests << full_path
         }
     }
 }
 
-println('All tests ok')
+println('All (non skipped) tests ok')
+
+if ignored_tests.len > 0 {
+    println('\n\033[31mTests that need to be fixed (not executed):')
+    for test in ignored_tests {
+        println('  ${test}')
+    }
+    println('\033[0m')
+}
