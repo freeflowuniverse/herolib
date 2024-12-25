@@ -17,7 +17,7 @@ module httpconnection
 
 import x.json2
 import net.http
-import freeflowuniverse.herolib.core.herojson
+import freeflowuniverse.herolib.data.hjson
 import freeflowuniverse.herolib.ui.console
 
 // Build url from Request and httpconnection

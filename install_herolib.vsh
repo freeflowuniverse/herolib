@@ -48,9 +48,7 @@ abs_dir_of_script := dir(@FILE)
 
 // Reset symlinks if requested
 println('Resetting all symlinks...')
-os.rmdir_all('${os.home_dir()}/.vmodules/freeflowuniverse/herolib') or {}
 os.rm('${os.home_dir()}/.vmodules/freeflowuniverse/herolib') or {}
-os.rmdir_all('${os.home_dir()}/.vmodules/vlang/testing') or {}
 
 // Create necessary directories
 os.mkdir_all('${os.home_dir()}/.vmodules/freeflowuniverse') or { 
