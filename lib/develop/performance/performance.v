@@ -4,7 +4,7 @@ import arrays
 import time
 import sync
 import term // For color coding
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 // Struct to represent a timer for measuring process performance
 @[noinit]

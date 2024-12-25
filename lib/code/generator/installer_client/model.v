@@ -34,15 +34,16 @@ pub enum Cat {
 
 pub fn gen_model_set(args GenerateArgs) ! {
 	model := args.model
-	heroscript_templ := $tmpl('templates/heroscript')
-
-	//TODO: look in lib/code/generator/installer_client/templates/heroscript, don't use the if in template, use 2 templates, depending type use other template, and the args used should be set here in code 
-
+	mut heroscript_templ := match model.cat {
+		.client { heroscript_templ := $tmpl('templates/heroscript_client' )}
+		.installer { heroscript_templ := $tmpl('templates/heroscript_installer' )}
+		else { return error('Invalid category: ${model.cat}') }
+	}
 	pathlib.template_write(heroscript_templ, '${args.path}/.heroscript', true)!
 }
 
 
-pub fn gen_model_get(path string, create: bool) !GenModel {
+pub fn gen_model_get(path string, create bool) !GenModel {
 	console.print_debug('play installer code for path: ${path}')
 
 	mut config_path := pathlib.get_file(path: '${path}/.heroscript', create: create)!

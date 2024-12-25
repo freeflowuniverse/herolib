@@ -2,7 +2,7 @@ module gittools
 
 import crypto.md5
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import os
 import freeflowuniverse.herolib.ui.console
 

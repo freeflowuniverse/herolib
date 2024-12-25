@@ -1,7 +1,7 @@
 module base
 
 import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.data.dbfs
 // import freeflowuniverse.herolib.crypt.secp256k1
 import freeflowuniverse.herolib.crypt.aes_symmetric

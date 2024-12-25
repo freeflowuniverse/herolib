@@ -44,7 +44,7 @@ Display the recorded timeline:
 ## Dependencies
 
 	•	Redis: Requires a Redis server for data storage.
-	•	Redis Client: Uses freeflowuniverse.herolib.clients.redisclient.
+	•	Redis Client: Uses freeflowuniverse.herolib.core.redisclient.
 
 ## Example
 ```

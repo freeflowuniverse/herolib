@@ -1,7 +1,7 @@
 module client
 
 import freeflowuniverse.herolib.baobab.client
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import dariotarantini.vgram
 import json
 

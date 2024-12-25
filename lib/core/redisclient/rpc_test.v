@@ -1,4 +1,4 @@
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.ui.console
 
 fn setup() !&redisclient.Redis {

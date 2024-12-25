@@ -1,7 +1,7 @@
 module httpconnection
 
 import net.http
-import freeflowuniverse.herolib.clients.redisclient { RedisURL }
+import freeflowuniverse.herolib.core.redisclient { RedisURL }
 
 @[params]
 pub struct HTTPConnectionArgs {

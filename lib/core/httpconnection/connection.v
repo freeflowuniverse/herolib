@@ -1,7 +1,7 @@
 module httpconnection
 
 import net.http { Header }
-import freeflowuniverse.herolib.clients.redisclient { Redis }
+import freeflowuniverse.herolib.core.redisclient { Redis }
 
 @[heap]
 pub struct HTTPConnection {

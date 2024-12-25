@@ -1,6 +1,6 @@
 module smartid
 
-// import freeflowuniverse.herolib.clients.redisclient
+// import freeflowuniverse.herolib.core.redisclient
 import math
 // import freeflowuniverse.herolib.core.texttools.regext
 // import rand

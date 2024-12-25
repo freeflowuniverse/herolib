@@ -1,6 +1,6 @@
 module gittools
 
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import time
 
 // ReposGetArgs defines arguments to retrieve repositories from the git structure.

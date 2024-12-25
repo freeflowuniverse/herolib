@@ -1,6 +1,6 @@
 module zdb
 
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.ui.console
 
 pub struct ZDB {

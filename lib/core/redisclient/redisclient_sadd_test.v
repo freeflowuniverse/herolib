@@ -1,4 +1,4 @@
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 fn setup() !&redisclient.Redis {
 	mut redis := redisclient.core_get()!

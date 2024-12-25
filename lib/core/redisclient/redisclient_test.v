@@ -1,4 +1,4 @@
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import time
 import freeflowuniverse.herolib.ui.console
 // original code see https://github.com/patrickpissurno/vredis/blob/master/vredis_test.v

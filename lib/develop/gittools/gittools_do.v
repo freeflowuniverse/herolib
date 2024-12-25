@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.ui as gui
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.ui.generic
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import os
 
 pub const gitcmds = 'clone,commit,pull,push,delete,reload,list,edit,sourcetree,cd'

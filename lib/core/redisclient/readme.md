@@ -4,7 +4,7 @@
 
 ```v
 
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 mut redis := redisclient.core_get()!
 redis.set('test', 'some data') or { panic('set' + err.str() + '\n' + c.str()) }
