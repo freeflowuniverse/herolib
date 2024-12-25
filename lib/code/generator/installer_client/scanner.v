@@ -15,6 +15,8 @@ pub mut:
 // scan over a set of directories call the play where
 pub fn scan(args ScannerArgs) ! {
 
+	console.print_debug("Code generator scan: ${args.path}")
+
 	if args.path == "" {
         scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/installers")!
         scan(path:"${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/clients")!

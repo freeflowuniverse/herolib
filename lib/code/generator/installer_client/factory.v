@@ -37,6 +37,11 @@ pub fn do(args_ GenerateArgs) ! {
 		m
 	}
 
+	if model.classname == "" {
+		args.interactive = true
+
+	}
+
 	if create{
 		if args.path == '' {
 			return error("need to specify path fo ${args_} because we asked to create .heroscript ")
@@ -57,6 +62,8 @@ pub fn do(args_ GenerateArgs) ! {
 	if args.interactive{
 		ask(args.path)!
 		args.model = gen_model_get(args.path, false)!
+	}else{
+		args.model = model
 	}
 
 	console.print_debug(args)

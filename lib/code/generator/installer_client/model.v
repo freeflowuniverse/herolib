@@ -18,9 +18,9 @@ pub mut:
 	templates           bool     // means we will use templates in the installer, client doesn't do this'
 	reset               bool     // regenerate all, dangerous !!!
 	interactive         bool 	 //if we want to ask
-	startupmanager      bool = true
+	startupmanager      bool
 	build               bool	
-	hasconfig 				bool	
+	hasconfig 			bool	
 	cat Cat = .client
 }
 
@@ -33,6 +33,7 @@ pub enum Cat {
 
 
 pub fn gen_model_set(args GenerateArgs) ! {
+	console.print_debug("Code generator set: ${args}")
 	model := args.model or { return error('model is none') }
 	heroscript_templ := match model.cat {
 		.client { $tmpl('templates/heroscript_client') }
@@ -110,6 +111,8 @@ pub fn gen_model_get(path string, create bool) !GenModel {
 	if model.name == "" {
 		model.name = os.base(path).to_lower()
 	}
+
+	console.print_debug("Code generator get: ${model}")	
 
 	return model
 	// return GenModel{}

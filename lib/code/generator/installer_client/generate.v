@@ -9,7 +9,7 @@ fn generate(args GenerateArgs) ! {
 	console.print_debug('generate code for path: ${args.path}')
 
 	//as used in the templates
-	model := args.model or { panic('bug') }
+	model := args.model or { panic('bug no model specified in generate') }
 
 	mut path_actions := pathlib.get(args.path + '/${model.name}_actions.v')
 	if args.reset {

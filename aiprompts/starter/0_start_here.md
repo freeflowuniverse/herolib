@@ -21,7 +21,7 @@ when I generate vlang scripts I will always use .vsh extension and use following
 ## to do argument parsing use following examples
 
 ```v
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag

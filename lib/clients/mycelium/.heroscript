@@ -1,0 +1,7 @@
+!!hero_code.generate_client
+    name: "mycelium"
+    classname: "Mycelium"
+    hasconfig: true
+    singleton: true
+    default: true
+    title: ""

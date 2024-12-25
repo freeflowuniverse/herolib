@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag
@@ -12,7 +12,7 @@ fp.skip_executable()
 
 mut path := fp.string('path', `p`, "", 'Path where to generate a module, if not mentioned will scan over all installers & clients.\nif . then will be path we are on.')
 reset := fp.bool('reset', `r`, false, 'If we want to reset')
-interactive := fp.bool('interactive', `i`, true, 'If we want to work interactive')
+interactive := fp.bool('interactive', `i`, false, 'If we want to work interactive')
 scan := fp.bool('scan', `s`, false, 'If we want to scan')
 help_requested := fp.bool('help', `h`, false, 'Show help message')
 

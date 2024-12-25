@@ -7,7 +7,6 @@ pub const version = '1.0.0'
 const singleton = false
 const default = true
 
-// TODO: THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE TO STRUCT BELOW, IS STRUCTURED AS HEROSCRIPT
 pub fn heroscript_default() string {
 	mail_from := os.getenv_opt('MAIL_FROM') or { 'info@example.com' }
 	mail_password := os.getenv_opt('MAIL_PASSWORD') or { 'secretpassword' }

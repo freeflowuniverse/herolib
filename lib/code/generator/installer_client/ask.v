@@ -39,7 +39,7 @@ pub fn ask(path string) ! {
 	if model.hasconfig {
 		model.singleton = !myconsole.ask_yesno(
 			description: 'Can there be multiple instances (normally yes)?'
-			default:	 model.singleton
+			default:	 !model.singleton
 		)!
 		if model.cat == .installer {
 			model.templates = myconsole.ask_yesno(
@@ -63,6 +63,12 @@ pub fn ask(path string) ! {
 			default:	 model.build
 		)!
 	}
+
+	// if true{
+	// 	println(model)
+	// 	panic("Sdsd")
+	// }
+
 
 	gen_model_set(GenerateArgs{model: model, path: path})!
 

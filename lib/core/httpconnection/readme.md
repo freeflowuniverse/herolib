@@ -22,6 +22,27 @@ mut conn := HTTPConnection{
 }
 ```
 
+## important: How to use it on a management class e.g. an installe or a client
+
+```v
+// e.g. HetznerManager is the object on which we want to have an http client
+
+pub fn (mut h HetznerManager) connection() !&httpconnection.HTTPConnection {
+	mut c := h.conn or {
+		mut c2 := httpconnection.new(
+			name:  'hetzner_${h.name}'
+			url:   h.baseurl
+			cache: true
+			retry: 3
+		)!
+		c2.basic_auth(h.user, h.password)
+		c2
+	}
+
+	return c
+}
+```
+
 ## Examples
 
 ### GET Request with JSON Response

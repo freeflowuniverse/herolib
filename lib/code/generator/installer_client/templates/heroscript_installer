@@ -1,7 +1,7 @@
 !!hero_code.generate_installer
     name: "${model.name}"
     classname: "${model.classname}"
-    config: ${model.hasconfig}
+    hasconfig: ${model.hasconfig}
     singleton: ${model.singleton}
     default: ${model.default}
     title: "${model.title}"
