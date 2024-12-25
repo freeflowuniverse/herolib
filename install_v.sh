@@ -1,5 +1,5 @@
 
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # Help function
 print_help() {
@@ -106,6 +106,38 @@ function package_install {
 }
 
 
+function myplatform {
+    if [[ "${OSTYPE}" == "darwin"* ]]; then
+        export OSNAME='darwin'
+    elif [ -e /etc/os-release ]; then
+        # Read the ID field from the /etc/os-release file
+        export OSNAME=$(grep '^ID=' /etc/os-release | cut -d= -f2)
+        if [ "${os_id,,}" == "ubuntu" ]; then
+            export OSNAME="ubuntu"          
+        fi
+        if [ "${OSNAME}" == "archarm" ]; then
+            export OSNAME="arch"          
+        fi        
+        if [ "${OSNAME}" == "debian" ]; then
+            export OSNAME="ubuntu"          
+        fi            
+    else
+        echo "Unable to determine the operating system."
+        exit 1        
+    fi
+
+
+    # if [ "$(uname -m)" == "x86_64" ]; then
+    #     echo "This system is running a 64-bit processor."
+    # else
+    #     echo "This system is not running a 64-bit processor."
+    #     exit 1
+    # fi    
+
+}
+
+myplatform
+
 function os_update {
     echo ' - os update'
     if [[ "${OSNAME}" == "ubuntu" ]]; then
@@ -136,7 +168,7 @@ function os_update {
 
     elif [[ "${OSNAME}" == "darwin"* ]]; then
         if command -v brew >/dev/null 2>&1; then
-            echo 'homebrew installed'
+            echo ' - homebrew installed'
         else 
             export NONINTERACTIVE=1
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"            
@@ -165,7 +197,7 @@ function os_update {
             execute_with_marker "paru_install" paru_install
         fi
     fi
-    echo 'os_update done'
+    echo ' - os update done'
 }
 
 
@@ -245,13 +277,14 @@ fi
 # Create code directory if it doesn't exist
 mkdir -p ~/code
 
-os_update
-
-sshknownkeysadd
-
 
 # Check if v needs to be installed
 if [ "$RESET" = true ] || ! command_exists v; then
+
+    os_update
+
+    sshknownkeysadd
+
     # Only clone and install if directory doesn't exist
     if [ ! -d ~/code/v ]; then
         echo "Installing V..."
@@ -320,12 +353,13 @@ fi
 
 if [ "$HEROLIB" = true ]; then
     hero_lib_get
+    ~/code/github/freeflowuniverse/herolib/install_herolib.vsh
 fi
 
 
-if [ "$INSTALL_ANALYZER" = true ]; then
-    echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
-fi
+# if [ "$INSTALL_ANALYZER" = true ]; then
+#     echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
+# fi
 
 
 echo "Installation complete!"
