@@ -47,6 +47,40 @@ fn redis_del(key string) ! {
     sock.write_string(cmd)!
 }
 
+// Check if a file should be ignored or marked as error based on its path
+fn process_test_file(path string, test_files_ignore []string, test_files_error []string, redis_available bool, mut tests_in_error []string)! {
+    // Get relative path for more accurate pattern matching
+    rel_path := path.replace(os.abs_path('.') + '/', '')
+    
+    mut should_ignore := false
+    mut is_error := false
+    
+    // Check if any ignore pattern matches the path
+    for pattern in test_files_ignore {
+        if pattern.trim_space() != '' && rel_path.contains(pattern) {
+            should_ignore = true
+            break
+        }
+    }
+    
+    // Check if any error pattern matches the path
+    for pattern in test_files_error {
+        if pattern.trim_space() != '' && rel_path.contains(pattern) {
+            is_error = true
+            break
+        }
+    }
+    
+    if !should_ignore && !is_error {
+        dotest(path, redis_available)!
+    } else {
+        println('Ignoring test: ${rel_path}')
+        if !should_ignore {
+            tests_in_error << rel_path
+        }
+    }
+}
+
 fn dotest(path string, use_redis bool)! {
     if use_redis {
         // Use absolute path as Redis key
@@ -110,6 +144,28 @@ tmux_window_test.v
 tmux_test.v
 startupmanager_test.v
 python_test.v
+flist_test.v
+mnemonic_test.v
+decode_test.v
+codegen_test.v
+generate_test.v
+dbfs_test.v
+namedb_test.v
+timetools_test.v
+markdownparser/link_test.v
+markdownparser/link_def_test.v
+markdownparser/char_parser_test.v
+markdownparser/action_test.v
+markdownparser/elements/char_parser_test.v
+markdownparser/markdown_test.v
+markdownparser/list_test.v
+markdownparser/table_test.v
+ourdb/lookup_test.v
+ourdb/lookup_id_test.v
+ourdb/db_test.v
+ourdb/lookup_location_test.v
+encoderhero/encoder_test.v
+encoderhero/decoder_test.v
 "
 
 
@@ -146,27 +202,10 @@ for test in test_files {
         // If directory, run tests for each .v file in it recursively
         files := os.walk_ext(full_path, '.v')
         for file in files {
-            base_file := os.base(file)
-            if base_file !in test_files_ignore && base_file !in test_files_error {
-                dotest(file, redis_available)!
-            } else {
-                println('Ignoring test: ${file}')
-                if base_file !in test_files_ignore {
-                    tests_in_error << file
-                }
-            }
+            process_test_file(file, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
         }
     } else if os.is_file(full_path) {
-        // If single file, run test if not in ignore list
-        base_file := os.base(full_path)
-        if base_file !in test_files_ignore && base_file !in test_files_error {
-            dotest(full_path, redis_available)!
-        } else {
-            println('Ignoring test: ${full_path}')
-            if base_file !in test_files_ignore {
-                tests_in_error << full_path
-            }
-        }
+        process_test_file(full_path, test_files_ignore, test_files_error, redis_available, mut tests_in_error)!
     }
 }
 
