@@ -2,7 +2,7 @@ module main
 
 import os
 import cli { Command, Flag }
-import freeflowuniverse.herolib.hero.cmds
+// import freeflowuniverse.herolib.hero.cmds
 // import freeflowuniverse.herolib.hero.publishing
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
