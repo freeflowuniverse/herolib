@@ -51,12 +51,11 @@ additional_args := fp.finalize() or {
 
 ## when creating a test script
 
-instruct user to use it as 
+instruct user to test as follows (vtest is an alias which gets installed when herolib gets installed), can be done for a dir and for a file
 
 ```bash
-v -enable-globals test ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
+vtest ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
 ```
 
 - use ~ so it works over all machines
-- always use -enable-globals
 
