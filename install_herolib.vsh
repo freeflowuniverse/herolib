@@ -30,10 +30,11 @@ fn addtoscript(tofind string, toadd string) ! {
         }
         if line.trim_space() == ""{
             prev_is_emtpy = true
-        }        
+        }       
+
         if !line.contains(tofind) {
             new_lines << line
-        }        
+        }
     }
     new_lines << toadd    
     new_lines << ""
@@ -63,7 +64,7 @@ os.symlink('${abs_dir_of_script}/lib', '${os.home_dir()}/.vmodules/freeflowunive
 println('Herolib installation completed successfully!')
 
 // Add vtest alias
-addtoscript('vtest ', 'alias vtest \'v -stats -enable-globals -n -w -gc none -no-retry-compilation -cc tcc test\' %') or {
+addtoscript('alias vtest=', 'alias vtest=\'v -stats -enable-globals -n -w -gc none -no-retry-compilation -cc tcc test\' %') or {
     eprintln('Failed to add vtest alias: ${err}')
 }
 
