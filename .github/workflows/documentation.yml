@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "/home/runner/work/crystallib/crystallib/docs"
+          path: "/home/runner/work/crystallib/docs"
 
       - name: Deploy to GitHub Pages
         id: deployment
