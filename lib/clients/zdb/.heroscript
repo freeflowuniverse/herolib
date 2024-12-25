@@ -1,0 +1,7 @@
+!!hero_code.generate_client
+    name: "zdb"
+    classname: "ZeroDBClient"
+    hasconfig: false
+    singleton: true
+    default: true
+    title: ""

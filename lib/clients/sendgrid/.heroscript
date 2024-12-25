@@ -1,0 +1,7 @@
+!!hero_code.generate_client
+    name: "sendgrid"
+    classname: "SendGrid"
+    hasconfig: false
+    singleton: true
+    default: true
+    title: ""

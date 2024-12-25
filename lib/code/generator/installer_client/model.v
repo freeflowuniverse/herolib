@@ -13,15 +13,15 @@ pub mut:
 	classname           string
 	default             bool = true // means user can just get the object and a default will be created
 	title               string
-	supported_platforms []string // only relevant for installers for now
+	//supported_platforms []string // only relevant for installers for now
 	singleton           bool     // means there can only be one
 	templates           bool     // means we will use templates in the installer, client doesn't do this'
 	reset               bool     // regenerate all, dangerous !!!
 	interactive         bool 	 //if we want to ask
-	startupmanager      bool
-	build               bool	
-	hasconfig 			bool	
-	cat Cat = .client
+	startupmanager      bool = true
+	build               bool = true	
+	hasconfig 			bool = true	
+	cat Cat   //dont' set default
 }
 
 
@@ -68,12 +68,12 @@ pub fn gen_model_get(path string, create bool) !GenModel {
 				classname:           p.get_default('classname','')!
 				title:               p.get_default('title', '')!
 				default:             p.get_default_true('default')
-				supported_platforms: p.get_list('supported_platforms')!
+				//supported_platforms: p.get_list('supported_platforms')!
 				singleton:           p.get_default_false('singleton')
 				templates:           p.get_default_false('templates')
 				startupmanager:      p.get_default_true('startupmanager')
-				build:               p.get_default_false('build')
-				hasconfig: 			 p.get_default_false('hasconfig')
+				build:               p.get_default_true('build')
+				hasconfig: 			 p.get_default_true('hasconfig')
 				cat:                 .installer
 			}
 		}
@@ -93,8 +93,7 @@ pub fn gen_model_get(path string, create bool) !GenModel {
 				title:     p.get_default('title', '')!
 				default:   p.get_default_true('default')
 				singleton: p.get_default_false('singleton')
-				reset:     p.get_default_false('reset')
-				hasconfig: p.get_default_false('hasconfig')
+				hasconfig: p.get_default_true('hasconfig')
 				cat:       .client
 			}
 		}
@@ -105,11 +104,6 @@ pub fn gen_model_get(path string, create bool) !GenModel {
 			model.cat = .client
 		} else {
 			model.cat = .installer
-		}
-		if true{
-			println(path)
-			println(model)
-			panic("ghyui")
 		}
 	}
 

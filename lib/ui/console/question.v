@@ -27,7 +27,7 @@ pub fn (mut c UIConsole) ask_question(args QuestionArgs) !string {
 		cprintln(foreground: .red, text: args.warning + '\n')
 	}
 	if question == '' {
-		question = 'Please provide answer'
+		question = 'Please provide answer default: ${args.default}'
 	}
 	if args.default.len > 0 {
 		question += ' (${args.default}) '

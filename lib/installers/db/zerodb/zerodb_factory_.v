@@ -1,5 +1,5 @@
 
-module zinit
+module zerodb
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -10,8 +10,8 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-    zinit_global map[string]&Zinit
-    zinit_default string
+    zerodb_global map[string]&ZeroDB
+    zerodb_default string
 )
 
 /////////FACTORY
@@ -22,8 +22,8 @@ pub mut:
     name string
 }
 
-pub fn get(args_ ArgsGet) !&Zinit  {
-    return &Zinit{}
+pub fn get(args_ ArgsGet) !&ZeroDB  {
+    return &ZeroDB{}
 }
 
 
@@ -54,13 +54,13 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 }
 
 
-pub fn (mut self Zinit) start() ! {
+pub fn (mut self ZeroDB) start() ! {
     switch(self.name)
     if self.running()!{
         return
     }
 
-    console.print_header('zinit start')
+    console.print_header('zerodb start')
 
     if ! installed()!{
         install()!
@@ -73,7 +73,7 @@ pub fn (mut self Zinit) start() ! {
     for zprocess in startupcmd()!{
         mut sm:=startupmanager_get(zprocess.startuptype)!
 
-        console.print_debug('starting zinit with ${zprocess.startuptype}...')
+        console.print_debug('starting zerodb with ${zprocess.startuptype}...')
 
         sm.new(zprocess)!
 
@@ -88,17 +88,17 @@ pub fn (mut self Zinit) start() ! {
         }
         time.sleep(100 * time.millisecond)
     }
-    return error('zinit did not install properly.')
+    return error('zerodb did not install properly.')
 
 }
 
-pub fn (mut self Zinit) install_start(model InstallArgs) ! {
+pub fn (mut self ZeroDB) install_start(model InstallArgs) ! {
     switch(self.name)
     self.install(model)!
     self.start()!
 }
 
-pub fn (mut self Zinit) stop() ! {
+pub fn (mut self ZeroDB) stop() ! {
     switch(self.name)
     stop_pre()!
     for zprocess in startupcmd()!{
@@ -108,13 +108,13 @@ pub fn (mut self Zinit) stop() ! {
     stop_post()!
 }
 
-pub fn (mut self Zinit) restart() ! {
+pub fn (mut self ZeroDB) restart() ! {
     switch(self.name)
     self.stop()!
     self.start()!
 }
 
-pub fn (mut self Zinit) running() !bool {
+pub fn (mut self ZeroDB) running() !bool {
     switch(self.name)
 
     //walk over the generic processes, if not running return
@@ -134,19 +134,19 @@ pub mut:
     reset bool
 }
 
-pub fn (mut self Zinit) install(model InstallArgs) ! {
+pub fn (mut self ZeroDB) install(model InstallArgs) ! {
     switch(self.name)
     if model.reset || (!installed()!) {
         install()!
     }    
 }
 
-pub fn (mut self Zinit) build() ! {
+pub fn (mut self ZeroDB) build() ! {
     switch(self.name)
     build()!
 }
 
-pub fn (mut self Zinit) destroy() ! {
+pub fn (mut self ZeroDB) destroy() ! {
     switch(self.name)
     self.stop() or {}
     destroy()!
@@ -154,7 +154,7 @@ pub fn (mut self Zinit) destroy() ! {
 
 
 
-//switch instance to be used for zinit
+//switch instance to be used for zerodb
 pub fn switch(name string) {
-    zinit_default = name
+    zerodb_default = name
 }

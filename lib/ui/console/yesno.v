@@ -26,7 +26,7 @@ pub fn (mut c UIConsole) ask_yesno(args YesNoArgs) !bool {
 		cprintln(foreground: .red, text: args.warning + '\n')
 	}
 	if question == '' {
-		question = 'Yes or No, default is Yes (just press enter).'
+		question = 'Yes or No, default is ${args.default} (just press enter).'
 	}
 	print_debug('${question} (y/n) : ')
 	choice := os.get_raw_line().trim(' \n').to_lower()

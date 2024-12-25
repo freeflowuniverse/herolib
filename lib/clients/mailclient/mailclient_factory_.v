@@ -1,5 +1,5 @@
 
-module meilisearch
+module mailclient
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -7,8 +7,8 @@ import freeflowuniverse.herolib.ui.console
 
 
 __global (
-    meilisearch_global map[string]&MeilisearchClient
-    meilisearch_default string
+    mailclient_global map[string]&MailClient
+    mailclient_default string
 )
 
 /////////FACTORY
@@ -22,7 +22,7 @@ pub mut:
 fn args_get (args_ ArgsGet) ArgsGet {
     mut model:=args_
     if model.name == ""{
-        model.name = meilisearch_default
+        model.name = mailclient_default
     }
     if model.name == ""{
         model.name = "default"
@@ -30,9 +30,9 @@ fn args_get (args_ ArgsGet) ArgsGet {
     return model
 }
 
-pub fn get(args_ ArgsGet) !&MeilisearchClient  {
+pub fn get(args_ ArgsGet) !&MailClient  {
     mut model := args_get(args_)
-    if !(model.name in meilisearch_global) {
+    if !(model.name in mailclient_global) {
         if model.name=="default"{
             if ! config_exists(model){
                 if default{
@@ -42,9 +42,9 @@ pub fn get(args_ ArgsGet) !&MeilisearchClient  {
             config_load(model)!
         }
     }
-    return meilisearch_global[model.name] or { 
-            println(meilisearch_global)
-            panic("could not get config for meilisearch with name:${model.name}") 
+    return mailclient_global[model.name] or { 
+            println(mailclient_global)
+            panic("could not get config for mailclient with name:${model.name}") 
         }
 }
 
@@ -53,27 +53,27 @@ pub fn get(args_ ArgsGet) !&MeilisearchClient  {
 fn config_exists(args_ ArgsGet) bool {
     mut model := args_get(args_)
     mut context:=base.context() or { panic("bug") }
-    return context.hero_config_exists("meilisearch",model.name)
+    return context.hero_config_exists("mailclient",model.name)
 }
 
 fn config_load(args_ ArgsGet) ! {
     mut model := args_get(args_)
     mut context:=base.context()!
-    mut heroscript := context.hero_config_get("meilisearch",model.name)!
+    mut heroscript := context.hero_config_get("mailclient",model.name)!
     play(heroscript:heroscript)!
 }
 
 fn config_save(args_ ArgsGet) ! {
     mut model := args_get(args_)
     mut context:=base.context()!
-    context.hero_config_set("meilisearch",model.name,heroscript_default()!)!
+    context.hero_config_set("mailclient",model.name,heroscript_default()!)!
 }
 
 
-fn set(o MeilisearchClient)! {
+fn set(o MailClient)! {
     mut o2:=obj_init(o)!
-    meilisearch_global[o.name] = &o2
-    meilisearch_default = o.name
+    mailclient_global[o.name] = &o2
+    mailclient_default = o.name
 }
 
 
@@ -96,12 +96,12 @@ pub fn play(args_ PlayArgs) ! {
         playbook.new(text: model.heroscript)!
     }
     
-    mut install_actions := plbook.find(filter: 'meilisearch.configure')!
+    mut install_actions := plbook.find(filter: 'mailclient.configure')!
     if install_actions.len > 0 {
         for install_action in install_actions {
             mut p := install_action.params
             mycfg:=cfg_play(p)!
-            console.print_debug("install action meilisearch.configure\n${mycfg}")
+            console.print_debug("install action mailclient.configure\n${mycfg}")
             set(mycfg)!
         }
     }
@@ -112,7 +112,7 @@ pub fn play(args_ PlayArgs) ! {
 
 
 
-//switch instance to be used for meilisearch
+//switch instance to be used for mailclient
 pub fn switch(name string) {
-    meilisearch_default = name
+    mailclient_default = name
 }
