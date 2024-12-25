@@ -42,6 +42,10 @@ Examples:
 vtest ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
 #for a full dir
 vtest ~/code/github/freeflowuniverse/herolib/lib/osal
+
+#to do al basic tests
+~/code/github/freeflowuniverse/herolib/test_basic.vsh
+
 ```
 vtest is an alias to test functionality
 
