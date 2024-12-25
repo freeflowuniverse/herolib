@@ -28,7 +28,7 @@ pub fn get(args_ ArgsGet) !&Zinit {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+fn startupmanager_get(cat StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
 	// zinit
