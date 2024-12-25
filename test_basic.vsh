@@ -20,7 +20,7 @@ fn redis_set(key string) ! {
     defer { sock.close() or {} }
     
     // SET key value EX seconds
-    cmd := 'SET vtests.${key} 1 EX 600\r\n'  // 600 seconds = 10 minutes
+    cmd := 'SET vtests.${key} 1 EX 3600\r\n' 
     sock.write_string(cmd)!
 }
 
@@ -109,6 +109,7 @@ tmux_session_test.v
 tmux_window_test.v
 tmux_test.v
 startupmanager_test.v
+python_test.v
 "
 
 
@@ -142,30 +143,29 @@ for test in test_files {
     }
     
     if os.is_dir(full_path) {
-        // If directory, run tests for each .v file in it
+        // If directory, run tests for each .v file in it recursively
         files := os.walk_ext(full_path, '.v')
         for file in files {
             base_file := os.base(file)
-            if base_file !in test_files_ignore && base_file !in test_files_error{
-                dotest(full_path, redis_available)!
+            if base_file !in test_files_ignore && base_file !in test_files_error {
+                dotest(file, redis_available)!
             } else {
-                println('Ignoring test: ${full_path}')
+                println('Ignoring test: ${file}')
                 if base_file !in test_files_ignore {
-                    tests_in_error << full_path
-                }            
-            }            
-
+                    tests_in_error << file
+                }
+            }
         }
     } else if os.is_file(full_path) {
         // If single file, run test if not in ignore list
         base_file := os.base(full_path)
-        if base_file !in test_files_ignore && base_file !in test_files_error{
+        if base_file !in test_files_ignore && base_file !in test_files_error {
             dotest(full_path, redis_available)!
         } else {
             println('Ignoring test: ${full_path}')
             if base_file !in test_files_ignore {
                 tests_in_error << full_path
-            }            
+            }
         }
     }
 }
