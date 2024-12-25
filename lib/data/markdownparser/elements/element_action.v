@@ -16,11 +16,11 @@ pub fn (mut self Action) process() !int {
 		return 0
 	}
 	// Should we process actions here?
-	// p := playbook.new(text: self.content)!
-	// if p.actions.len != 1 {
-	// 	return error('a single action is expected, but found ${p.actions.len}')
-	// }
-	// self.action = p.actions[0]
+	p := playbook.new(text: self.content)!
+	if p.actions.len != 1 {
+		return error('a single action is expected, but found ${p.actions.len}')
+	}
+	self.action = p.actions[0]
 	self.processed = true
 	self.content = ''
 	return 1

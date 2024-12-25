@@ -67,6 +67,7 @@ fn test_action_some_params_inline() {
 !!farmerbot_nodemanager.define id:15 twinid:20 has_public_ip:yes has_public_config:1
 '
 	)!
+	println(docs.children)
 
 	assert docs.children.len == 2
 	action := docs.children[1]

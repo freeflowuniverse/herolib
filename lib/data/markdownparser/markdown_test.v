@@ -164,6 +164,7 @@ fn test_wiki_action() {
 
 	action := docs.children[3]
 	if action is Action {
+		println('action: ${action}')
 		assert action.action.actor == 'farmerbot'
 		assert action.action.name == 'nodemanager_define'
 		assert action.action.params == Params{
