@@ -92,6 +92,8 @@ os.chdir(abs_dir_of_script) or { panic(err) }
 
 tests := "
 lib/osal
+lib/lang
+lib/data
 "
 
 tests_ignore := "
