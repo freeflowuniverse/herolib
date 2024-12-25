@@ -128,6 +128,8 @@ tests := "
 lib/osal
 lib/lang
 lib/data
+lib/code
+lib/clients
 "
 
 tests_ignore := "
