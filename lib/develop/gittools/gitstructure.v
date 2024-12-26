@@ -42,9 +42,9 @@ pub mut:
 // - args (StatusUpdateArgs): Arguments controlling the reload behavior.
 pub fn (mut gitstructure GitStructure) load(args StatusUpdateArgs) ! {
 	mut processed_paths := []string{}
-	// println("1")
+	println('1')
 	gitstructure.load_recursive(gitstructure.coderoot.path, mut processed_paths)!
-	// println("2")
+	println('2')
 
 	if args.reload {
 		mut ths := []thread !{}
@@ -68,18 +68,16 @@ pub fn (mut gitstructure GitStructure) load(args StatusUpdateArgs) ! {
 		// exit(0)
 	}
 
-	gitstructure.init()!
+	// gitstructure.init()!
 }
 
-// just some initialization mechanism
-pub fn (mut gitstructure GitStructure) init() ! {
-	if gitstructure.config.debug {
-		gitstructure.config.log = true
-	}
-	if gitstructure.repos.keys().len == 0 {
-		gitstructure.load()!
-	}
-}
+// // just some initialization mechanism
+// pub fn (mut gitstructure GitStructure) init() ! {
+// 	if gitstructure.repos.keys().len == 0 {
+// 		println('Before loading keys.')
+// 		gitstructure.load()!
+// 	}
+// }
 
 // Recursively loads repositories from the provided path, updating their statuses.
 //
