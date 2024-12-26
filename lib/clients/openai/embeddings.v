@@ -42,13 +42,15 @@ pub mut:
 	usage  Usage
 }
 
-pub fn (mut f OpenAIClient[Config]) create_embeddings(args EmbeddingCreateArgs) !EmbeddingResponse {
+pub fn (mut f OpenAI) create_embeddings(args EmbeddingCreateArgs) !EmbeddingResponse {
 	req := EmbeddingCreateRequest{
 		input: args.input
 		model: embedding_model_str(args.model)
-		user:  args.user
+		user: args.user
 	}
 	data := json.encode(req)
-	r := f.connection.post_json_str(prefix: 'embeddings', data: data)!
+
+	mut conn := f.connection()!
+	r := conn.post_json_str(prefix: 'embeddings', data: data)!
 	return json.decode(EmbeddingResponse, r)!
 }

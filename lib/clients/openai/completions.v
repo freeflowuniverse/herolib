@@ -50,20 +50,21 @@ mut:
 
 // creates a new chat completion given a list of messages
 // each message consists of message content and the role of the author
-pub fn (mut f OpenAIClient[Config]) chat_completion(model_type ModelType, msgs Messages) !ChatCompletion {
+pub fn (mut f OpenAI) chat_completion(model_type ModelType, msgs Messages) !ChatCompletion {
 	model_type0 := modelname_str(model_type)
 	mut m := ChatMessagesRaw{
 		model: model_type0
 	}
 	for msg in msgs.messages {
 		mr := MessageRaw{
-			role:    roletype_str(msg.role)
+			role: roletype_str(msg.role)
 			content: msg.content
 		}
 		m.messages << mr
 	}
 	data := json.encode(m)
-	r := f.connection.post_json_str(prefix: 'chat/completions', data: data)!
+	mut conn := f.connection()!
+	r := conn.post_json_str(prefix: 'chat/completions', data: data)!
 
 	res := json.decode(ChatCompletion, r)!
 	return res
