@@ -2,9 +2,6 @@
 
 ## Getting started
 
-Start by making all example scripts executable.
-`chmod +x *.vsh`
-
 ### Step 1: Generate specification
 
 ### Step 2: Generate actor from specification
