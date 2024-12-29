@@ -2,8 +2,9 @@ module rclone
 
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.core.texttools
+import os
 
-const configfile = '${HOME}/.config/rclone/rclone.conf'
+const configfile = '${os.home_dir()}/.config/rclone/rclone.conf'
 
 // will look for personal configuration file in ~/hero/config .
 // this file is in heroscript format and will have all required info to configure rclone
@@ -17,13 +18,15 @@ const configfile = '${HOME}/.config/rclone/rclone.conf'
 //     url:''
 //```
 pub fn configure() ! {
-	actions := playbook.new(
-		path:          configfile
-		actor_filter:  ['config']
-		action_filter: [
-			's3server_define',
-		]
+	mut plbook := playbook.new(
+		path: rclone.configfile
+		// actor_filter: ['config']
+		// action_filter: [
+		// 	's3server_define',
+		// ]
 	)!
+
+	actions := plbook.find(filter: 'config.s3server_define')!
 	mut out := ''
 	for action in actions {
 		mut name := action.params.get_default('name', '')!
