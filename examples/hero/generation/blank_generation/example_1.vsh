@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -w -n -enable-globals run
 
-import freeflowuniverse.crystallib.hero.generation
+import freeflowuniverse.herolib.hero.generation
 
 generation.generate_actor(
 	name: 'Example'

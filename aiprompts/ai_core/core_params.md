@@ -5,7 +5,7 @@ works very well in combination with heroscript
 ## How to get the paramsparser
 
 ```v
-import freeflowuniverse.crystallib.data.paramsparser
+import freeflowuniverse.herolib.data.paramsparser
 
 // Create new params from text
 params := paramsparser.new("color:red size:'large' priority:1 enable:true")!
@@ -25,6 +25,7 @@ The parser supports several formats:
 4. Comments: `// this is a comment`
 
 Example:
+
 ```v
 text := "name:'John Doe' age:30 active:true // user details"
 params := paramsparser.new(text)!
@@ -59,6 +60,7 @@ progress := params.get_percentage("progress")!
 The module supports various type conversions:
 
 ### Basic Types
+
 - `get_int()`: Convert to int32
 - `get_u32()`: Convert to unsigned 32-bit integer
 - `get_u64()`: Convert to unsigned 64-bit integer
@@ -67,10 +69,12 @@ The module supports various type conversions:
 - `get_percentage()`: Convert percentage string to float (e.g., "80%" → 0.8)
 
 ### Boolean Values
+
 - `get_default_true()`: Returns true if value is empty, "1", "true", "y", or "yes"
 - `get_default_false()`: Returns false if value is empty, "0", "false", "n", or "no"
 
 ### Lists
+
 The module provides robust support for parsing and converting lists:
 
 ```v
@@ -89,6 +93,7 @@ clean_names := params.get_list_namefix("categories")!
 ```
 
 Supported list types:
+
 - `get_list()`: String list
 - `get_list_u8()`, `get_list_u16()`, `get_list_u32()`, `get_list_u64()`: Unsigned integers
 - `get_list_i8()`, `get_list_i16()`, `get_list_int()`, `get_list_i64()`: Signed integers
@@ -97,6 +102,7 @@ Supported list types:
 Each list method has a corresponding `_default` version that accepts a default value.
 
 Valid list formats:
+
 ```v
 users: "john, jane,bob"
 ids: "1,2,3,4,5"
