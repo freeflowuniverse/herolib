@@ -11,7 +11,14 @@ const jsonl_mime_type = 'text/jsonl'
 pub struct FileUploadArgs {
 pub:
 	filepath string
-	purpose  string
+	purpose  FilePurpose
+}
+
+pub enum FilePurpose {
+	assistants
+	vision
+	batch
+	fine_tuning
 }
 
 pub struct File {
@@ -51,7 +58,7 @@ pub fn (mut f OpenAI) upload_file(args FileUploadArgs) !File {
 			'file': [file_data]
 		}
 		form: {
-			'purpose': args.purpose
+			'purpose': file_purpose_str(args.purpose)
 		}
 	}
 
@@ -92,4 +99,22 @@ pub fn (mut f OpenAI) get_file_content(file_id string) !string {
 	mut conn := f.connection()!
 	r := conn.get(prefix: 'files/' + file_id + '/content')!
 	return r
+}
+
+// returns the purpose of the file in string format
+fn file_purpose_str(purpose FilePurpose) string {
+	return match purpose {
+		.assistants {
+			'assistants'
+		}
+		.vision {
+			'vision'
+		}
+		.batch {
+			'batch'
+		}
+		.fine_tuning {
+			'fine_tuning'
+		}
+	}
 }

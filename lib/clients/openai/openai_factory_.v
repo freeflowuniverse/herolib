@@ -1,7 +1,7 @@
 module openai
 
-import freeflowuniverse.crystallib.core.base
-import freeflowuniverse.crystallib.core.playbook
+import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.core.playbook
 
 __global (
 	openai_global  map[string]&OpenAI

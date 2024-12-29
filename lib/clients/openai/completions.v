@@ -63,8 +63,10 @@ pub fn (mut f OpenAI) chat_completion(model_type ModelType, msgs Messages) !Chat
 		m.messages << mr
 	}
 	data := json.encode(m)
+	println('data: ${data}')
 	mut conn := f.connection()!
 	r := conn.post_json_str(prefix: 'chat/completions', data: data)!
+	println('res: ${r}')
 
 	res := json.decode(ChatCompletion, r)!
 	return res
