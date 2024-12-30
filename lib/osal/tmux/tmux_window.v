@@ -190,7 +190,7 @@ pub fn (mut w Window) stop() ! {
 		cmd:    'tmux kill-window -t @${w.id}'
 		stdout: false
 		name:   'tmux_kill-window'
-		die:    false
+		// die:    false
 	) or { return error("Can't kill window with id:${w.id}") }
 	w.pid = 0
 	w.active = false

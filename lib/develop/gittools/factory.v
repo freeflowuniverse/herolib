@@ -62,7 +62,6 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 		cachereset()!
 	}
 	rediskey_ := rediskey(args.coderoot)
-	// println(rediskey_)
 
 	// Return existing instance if already created.
 	if rediskey_ in gsinstances {
@@ -96,8 +95,6 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 
 	if args.reload {
 		gs.load()!
-	} else {
-		gs.init()!
 	}
 
 	gsinstances[rediskey_] = &gs
