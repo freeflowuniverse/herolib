@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../lib"
+		},
+		{
+			"path": "../aiprompts"
+		},
+		{
+			"path": "../research"
+		},
+		{
+			"path": "../examples"
+		},		
+		{
+			"path": "../cli"
+		}
+	],
+	"settings": {}
+}

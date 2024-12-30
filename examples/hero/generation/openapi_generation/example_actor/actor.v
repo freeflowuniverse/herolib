@@ -1,8 +1,8 @@
 module example_actor
 
 import os
-import freeflowuniverse.crystallib.hero.baobab.actor {IActor, RunParams}
-import freeflowuniverse.crystallib.web.openapi
+import freeflowuniverse.herolib.hero.baobab.actor {IActor, RunParams}
+import freeflowuniverse.herolib.web.openapi
 import time
 
 const openapi_spec_path = '${os.dir(@FILE)}/specs/openapi.json'

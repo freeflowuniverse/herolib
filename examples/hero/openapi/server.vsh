@@ -6,10 +6,10 @@ import veb
 import json
 import x.json2 {Any}
 import net.http
-import freeflowuniverse.crystallib.data.jsonschema {Schema}
-import freeflowuniverse.crystallib.web.openapi {Server, Context, Request, Response}
-import freeflowuniverse.crystallib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
-import freeflowuniverse.crystallib.clients.redisclient
+import freeflowuniverse.herolib.data.jsonschema {Schema}
+import freeflowuniverse.herolib.web.openapi {Server, Context, Request, Response}
+import freeflowuniverse.herolib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
+import freeflowuniverse.herolib.clients.redisclient
 
 const spec_path = '${os.dir(@FILE)}/data/openapi.json'
 const spec_json = os.read_file(spec_path) or { panic(err) }

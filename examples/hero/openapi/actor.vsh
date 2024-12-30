@@ -6,9 +6,9 @@ import veb
 import json
 import x.json2
 import net.http
-import freeflowuniverse.crystallib.web.openapi {Server, Context, Request, Response}
-import freeflowuniverse.crystallib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
-import freeflowuniverse.crystallib.clients.redisclient
+import freeflowuniverse.herolib.web.openapi {Server, Context, Request, Response}
+import freeflowuniverse.herolib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
+import freeflowuniverse.herolib.clients.redisclient
 
 @[heap]
 struct Actor {

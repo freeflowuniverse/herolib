@@ -5,7 +5,7 @@ works very well in combination with heroscript
 ## How to get the paramsparser
 
 ```v
-import freeflowuniverse.crystallib.data.paramsparser
+import freeflowuniverse.herolib.data.paramsparser
 
 // Create new params from text
 params := paramsparser.new("color:red size:'large' priority:1 enable:true")!

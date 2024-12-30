@@ -8,7 +8,7 @@ Chalk offers functions:- `console.color_fg(text string, color string)` - To chan
 Example:
 
 ```vlang
-import freeflowuniverse.crystallib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 # basic usage
 println('I am really ' + console.color_fg('happy', 'green'))

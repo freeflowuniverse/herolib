@@ -5,7 +5,7 @@ has mechanisms to print better to console, see the methods below
 import as 
 
 ```vlang
-import freeflowuniverse.crystallib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 ```
 
