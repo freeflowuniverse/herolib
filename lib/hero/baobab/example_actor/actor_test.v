@@ -3,9 +3,7 @@ module example_actor
 const test_port = 8101
 
 pub fn test_new() ! {
-	new() or {
-		return error('Failed to create actor:\n${err}')
-	}
+	new() or { return error('Failed to create actor:\n${err}') }
 }
 
 pub fn test_run() ! {

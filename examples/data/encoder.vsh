@@ -14,7 +14,7 @@ mut:
 _, privkey := ed25519.generate_key()!
 mut a := AStruct{
 	items: ['a', 'b']
-	nr: 10
+	nr:    10
 	// privkey: []u8{len: 5, init: u8(0xf8)}
 	privkey: privkey
 }
@@ -36,10 +36,9 @@ aa.privkey = d.get_bytes()
 
 assert a == aa
 
-
 a = AStruct{
-	items: ['a', 'b']
-	nr: 10
+	items:   ['a', 'b']
+	nr:      10
 	privkey: []u8{len: 5, init: u8(0xf8)}
 }
 

@@ -3,7 +3,7 @@
 import freeflowuniverse.herolib.threefold.gridproxy
 import freeflowuniverse.herolib.ui.console
 
-mut gp_client := gridproxy.new(net:.test, cache:true)!
+mut gp_client := gridproxy.new(net: .test, cache: true)!
 
 // get twin list
 twins := gp_client.get_twins()!

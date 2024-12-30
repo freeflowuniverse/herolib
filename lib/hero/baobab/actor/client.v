@@ -41,11 +41,11 @@ pub fn (mut p Client) monologue(call ProcedureCall, params Params) ! {
 		timeout: u64(params.timeout * 1000) // Convert seconds to milliseconds
 		wait:    true
 	})!
-        // TODO: check error type
+	// TODO: check error type
 }
 
 // Process the procedure call
-pub fn (mut p Client) call_to_action (action Procedure, params Params) !ProcedureResponse {
+pub fn (mut p Client) call_to_action(action Procedure, params Params) !ProcedureResponse {
 	// Use RedisRpc's `call` to send the call and wait for the response
 	response_data := p.rpc.call(redisclient.RPCArgs{
 		cmd:     call.method

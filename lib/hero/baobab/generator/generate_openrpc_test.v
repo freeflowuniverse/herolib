@@ -3,15 +3,15 @@ module generator
 import freeflowuniverse.herolib.core.codemodel { Function, Param, Result, Struct, Type }
 import freeflowuniverse.herolib.rpc.openrpc
 
-const test_actor_specification = ActorSpecification {
+const test_actor_specification = ActorSpecification{
 	methods: [
 		ActorMethod{
 			func: Function{
-				name: 'get_object'
+				name:   'get_object'
 				params: [
 					Param{
 						name: 'id'
-						typ: Type{
+						typ:  Type{
 							symbol: 'int'
 						}
 					},
@@ -32,9 +32,7 @@ const test_actor_specification = ActorSpecification {
 }
 
 pub fn test_generate_openrpc() ! {
-	actor := Actor{
-		
-	}
+	actor := Actor{}
 	object := generate_openrpc(actor)
 	panic(object.encode()!)
 }

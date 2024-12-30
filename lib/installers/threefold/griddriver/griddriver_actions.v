@@ -41,9 +41,9 @@ fn build() ! {
 	url := 'https://github.com/threefoldtech/web3gw/tree/development_integration/griddriver'
 
 	mut repo := gs.get_repo(
-		url: url
+		url:   url
 		reset: true
-		pull: true
+		pull:  true
 	)!
 
 	mut path := repo.get_path()!

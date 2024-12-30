@@ -5,7 +5,6 @@ import freeflowuniverse.herolib.core.playbook
 import os
 
 pub fn play_doctree(mut plbook playbook.PlayBook) ! {
-
 	// check if any actions for doctree, if not then nothing to do here
 	// dtactions := plbook.find(filter: 'doctree.')!
 	// if dtactions.len == 0 {
@@ -55,8 +54,8 @@ pub fn play_doctree(mut plbook playbook.PlayBook) ! {
 
 		tree.export(
 			destination: build_path
-			reset: reset2
-			toreplace: toreplace
+			reset:       reset2
+			toreplace:   toreplace
 		)!
 		action.done = true
 	}

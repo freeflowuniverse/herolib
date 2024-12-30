@@ -3,6 +3,6 @@
 import freeflowuniverse.herolib.hero.generation
 
 generation.generate_actor(
-	name: 'Example'
+	name:       'Example'
 	interfaces: []
 )

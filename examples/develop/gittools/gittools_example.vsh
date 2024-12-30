@@ -4,7 +4,6 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal
 import time
 
-
 mut gs_default := gittools.new()!
 
 println(gs_default)

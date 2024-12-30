@@ -2,7 +2,6 @@
 
 import os
 import flag
-
 import freeflowuniverse.herolib.virt.herocontainers
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.base
@@ -21,13 +20,13 @@ additional_args := fp.finalize() or {
 	return
 }
 
-mut pm:=herocontainers.new(herocompile:true,install:false)!
+mut pm := herocontainers.new(herocompile: true, install: false)!
 
-mut mybuildcontainer := pm.builder_get("builder_heroweb")!
+mut mybuildcontainer := pm.builder_get('builder_heroweb')!
 
 // //bash & python can be executed directly in build container
 
 // //any of the herocommands can be executed like this
-mybuildcontainer.run(cmd:"installers -n heroweb",runtime:.herocmd)!
+mybuildcontainer.run(cmd: 'installers -n heroweb', runtime: .herocmd)!
 
 mybuildcontainer.run(cmd: 'hero mdbook -u ${url} -o', runtime: .bash)!

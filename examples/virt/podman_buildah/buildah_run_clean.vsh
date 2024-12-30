@@ -5,13 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.base
 // import freeflowuniverse.herolib.builder
 import time
-
 import os
 
+mut pm := herocontainers.new(herocompile: false)!
 
-mut pm:=herocontainers.new(herocompile:false)!
-
-mut b:=pm.builder_new()!
+mut b := pm.builder_new()!
 
 println(b)
 

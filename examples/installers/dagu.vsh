@@ -3,8 +3,8 @@
 import freeflowuniverse.herolib.installers.sysadmintools.daguserver
 import freeflowuniverse.herolib.installers.infra.zinit
 
-//make sure zinit is there and running, will restart it if needed
-mut z:=zinit.get()!
+// make sure zinit is there and running, will restart it if needed
+mut z := zinit.get()!
 z.destroy()!
 z.start()!
 

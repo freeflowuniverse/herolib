@@ -51,7 +51,7 @@ fn install() ! {
 
 	// the downloader is cool, it will check the download succeeds and also check the minimum size
 	_ = osal.download(
-		url: url
+		url:        url
 		minsize_kb: 40000
 		expand_dir: expand_dir
 	)!
