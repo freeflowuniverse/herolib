@@ -34,7 +34,7 @@ pub fn heroscript_default() !string {
 pub struct RCloneClient {
 pub mut:
 	name       string = 'default'
-	type_      string = 's3'  // remote type (s3, sftp, etc)
+	type_      string = 's3' // remote type (s3, sftp, etc)
 	provider   string = 'aws' // provider for s3 (aws, minio, etc)
 	access_key string // access key for authentication
 	secret_key string // secret key for authentication
@@ -44,13 +44,13 @@ pub mut:
 
 fn cfg_play(p paramsparser.Params) ! {
 	mut mycfg := RCloneClient{
-		name:       p.get_default('name', 'default')!
-		type_:      p.get_default('type', 's3')!
-		provider:   p.get_default('provider', 'aws')!
+		name: p.get_default('name', 'default')!
+		type_: p.get_default('type', 's3')!
+		provider: p.get_default('provider', 'aws')!
 		access_key: p.get('access_key')!
 		secret_key: p.get('secret_key')!
-		region:     p.get_default('region', 'us-east-1')!
-		endpoint:   p.get_default('endpoint', '')!
+		region: p.get_default('region', 'us-east-1')!
+		endpoint: p.get_default('endpoint', '')!
 	}
 	set(mycfg)!
 }

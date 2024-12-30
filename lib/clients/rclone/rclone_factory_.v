@@ -2,7 +2,6 @@ module rclone
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 
 __global (
 	rclone_global  map[string]&RCloneClient
@@ -91,9 +90,9 @@ pub fn play(args_ PlayArgs) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
-			mycfg := cfg_play(p)!
-			console.print_debug('install action rclone.configure\n${mycfg}')
-			set(mycfg)!
+			cfg_play(p)!
+			// console.print_debug('install action rclone.configure\n${mycfg}')
+			// set(mycfg)!
 		}
 	}
 }

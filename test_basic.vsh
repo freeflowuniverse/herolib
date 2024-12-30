@@ -141,7 +141,7 @@ fn dotest(path string, base_dir string, mut cache TestCache) ! {
 mut fp := flag.new_flag_parser(os.args)
 fp.application('test_basic')
 fp.description('Run tests for herolib')
-remove_cache := fp.bool('r', `r`, false, 'Remove cache file before running tests', flag.FlagConfig{})
+remove_cache := fp.bool('r', `r`, false, 'Remove cache file before running tests')
 fp.finalize() or {
 	eprintln(err)
 	exit(1)
@@ -204,6 +204,7 @@ timetools_test.v
 encoderhero/encoder_test.v
 encoderhero/decoder_test.v
 code/codeparser
+gittools_test.v
 '
 
 // Split tests into array and remove empty lines
