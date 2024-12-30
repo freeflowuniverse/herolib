@@ -1,12 +1,10 @@
-name: Test Hero & Release to S3
+name: Build Hero & Run tests
 
 permissions:
   contents: write
 
-
 on:
   push:
-    branches: ["development","main"]   
   workflow_dispatch:
 
 jobs:
@@ -19,7 +17,7 @@ jobs:
             short-name: linux-i64
           # - target: aarch64-unknown-linux-musl
           #   os: ubuntu-latest
-          #   short-name: linux-arm64            
+          #   short-name: linux-arm64
           # - target: aarch64-apple-darwin
           #   os: macos-latest
           #   short-name: macos-arm64
@@ -37,9 +35,9 @@ jobs:
 
       - name: Setup Vlang
         run: ./install_v.sh
-        
+
       - name: Setup Herolib
-        run: ./install_herolib.vsh            
+        run: ./install_herolib.vsh
 
       - name: Install and Start Redis
         run: |
@@ -57,8 +55,16 @@ jobs:
           sudo systemctl start redis-server
           redis-cli ping
 
+      - name: Build Hero
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            v -cg -enable-globals -w -n cli/hero.v
+          # else if [ "${{ matrix.os }}" = "macos-latest" ]; then
+          #   v -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals cli/hero.v
+          fi
+
       - name: Do all the basic tests
-        run: ./test_basic.vsh          
+        run: ./test_basic.vsh
 
       # - name: Upload to S3
       #   run: |
