@@ -93,7 +93,8 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 		coderoot: pathlib.get_dir(path: args.coderoot, create: true)!
 	}
 
-	if args.reload {
+	// TODO: should we load repos here disregarding the reload flag?
+	if gs.repos.keys().len == 0 || args.reload {
 		gs.load()!
 	}
 

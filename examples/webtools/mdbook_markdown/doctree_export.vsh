@@ -23,5 +23,4 @@ tree.export(
 	reset:          true
 	keep_structure: true
 	exclude_errors: false
-	production:     true
 )!

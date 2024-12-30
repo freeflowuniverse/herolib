@@ -42,9 +42,7 @@ pub mut:
 // - args (StatusUpdateArgs): Arguments controlling the reload behavior.
 pub fn (mut gitstructure GitStructure) load(args StatusUpdateArgs) ! {
 	mut processed_paths := []string{}
-	println('1')
 	gitstructure.load_recursive(gitstructure.coderoot.path, mut processed_paths)!
-	println('2')
 
 	if args.reload {
 		mut ths := []thread !{}
