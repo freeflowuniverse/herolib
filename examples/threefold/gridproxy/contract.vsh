@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.threefold.grid as tfgrid
 import freeflowuniverse.herolib.threefold.gridproxy
@@ -46,4 +46,3 @@ fn get_my_contracts_example() ! {
 get_contracts_example()!
 get_contract_by_id_example(u64(49268))!
 get_my_contracts_example()!
-

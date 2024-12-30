@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.virt.hetzner
 import freeflowuniverse.herolib.ui.console
@@ -40,4 +40,3 @@ mut n := b.node_new(ipaddr: serverinfo.server_ip)!
 
 // mut ks:=cl.keys_get()!
 // println(ks)
-

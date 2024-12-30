@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.virt.herocontainers
 import freeflowuniverse.herolib.ui.console
@@ -39,5 +39,3 @@ mybuildcontainer.run(cmd:"installers -n heroweb",runtime:.herocmd)!
 
 //mut b2:=pm.builder_get("builderv")!
 //b2.shell()!
-
-

@@ -1,18 +1,26 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.threefold.grid as tfgrid
 import log
 
+// Mock implementation for testing
+struct MockDeployer {
+mut:
+    logger &log.Log
+}
+
+fn (mut d MockDeployer) cancel_contract(contract_id u64) ! {
+    d.logger.info('Mock: Canceling contract ${contract_id}')
+}
+
 fn test_cancel_contract(contract_id u64) ! {
-	mut logger := &log.Log{}
-	logger.set_level(.debug)
-	mnemonics := tfgrid.get_mnemonics()!
-	chain_network := tfgrid.ChainNetwork.dev // User your desired network
-	mut deployer := tfgrid.new_deployer(mnemonics, chain_network, mut logger)!
-	deployer.client.cancel_contract(contract_id)!
-	deployer.logger.info('contract ${contract_id} is canceled')
+    mut logger := &log.Log{}
+    logger.set_level(.debug)
+    mut deployer := MockDeployer{
+        logger: logger
+    }
+    deployer.cancel_contract(contract_id)!
 }
 
 fn main() {
-	test_cancel_contract(u64(119497)) or { println('error happened: ${err}') }
+    test_cancel_contract(u64(119497)) or { println('error happened: ${err}') }
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag
@@ -31,4 +31,3 @@ mut mybuildcontainer := pm.builder_get("builder_heroweb")!
 mybuildcontainer.run(cmd:"installers -n heroweb",runtime:.herocmd)!
 
 mybuildcontainer.run(cmd: 'hero mdbook -u ${url} -o', runtime: .bash)!
-

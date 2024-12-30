@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.virt.docker
 import os
@@ -24,4 +24,3 @@ mut presearch_updater := recipe.service_new(
 presearch_updater.volume_add('/var/run/docker.sock', '/var/run/docker.sock')!
 
 recipe.start()!
-

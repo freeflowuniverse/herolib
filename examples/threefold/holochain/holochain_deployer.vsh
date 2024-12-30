@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.threefold.tfrobot
 import freeflowuniverse.herolib.ui.console
@@ -61,7 +61,3 @@ for vm in tfrobot.vms_get('holotest')!{
 	r:=node.exec(cmd:"ls /")!
 	println(r)
 }
-
-
-
-
