@@ -25,8 +25,11 @@ pub mut:
 }
 
 fn (mut bs BootStrapper) load() {
-	bs.embedded_files['install_base.sh'] = $embed_file('../../scripts/install_base.sh')
-	bs.embedded_files['install_hero.sh'] = $embed_file('../../scripts/install_hero.sh')
+	panic('not implemented')
+
+	// TODO: check how to install hero. maybe once we have releases, we could just download the binary
+	// bs.embedded_files['install_base.sh'] = $embed_file('../../scripts/install_base.sh')
+	// bs.embedded_files['install_hero.sh'] = $embed_file('../../scripts/install_hero.sh')
 }
 
 // to use do something like: export NODES="195.192.213.3" .
