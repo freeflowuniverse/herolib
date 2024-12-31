@@ -6,14 +6,14 @@ import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.dbfs
 import freeflowuniverse.herolib.core.logger
 import json
-// import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.pathlib
 // import freeflowuniverse.herolib.develop.gittools
 // import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct Session {
 mut:
-	path_ 		  ?pathlib.Path
+	path_ 		 ?pathlib.Path
 	logger_      ?logger.Logger
 pub mut:
 	name        string // unique id for session (session id), can be more than one per context
@@ -95,8 +95,8 @@ pub fn (self Session) guid() string {
 
 pub fn (mut self Session) path() !pathlib.Path {
 	return self.path_ or { 
-		path := '${self.context.path().path}/${self.name}'
-		mut path := pathlib.get_dir(path: path,create: true)!
+		path2 := '${self.context.path()!.path}/${self.name}'
+		mut path := pathlib.get_dir(path: path2,create: true)!
 		path
 	}
 }

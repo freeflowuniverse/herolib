@@ -4,6 +4,9 @@ module ${model.name}
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
+@if model.hasconfig
+import freeflowuniverse.herolib.data.encoderhero
+@end
 
 @if model.cat == .installer
 import freeflowuniverse.herolib.sysadmin.startupmanager
@@ -37,23 +40,23 @@ fn args_get (args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&${model.classname}  {
-    mut model := args_get(args_)
-	if !(model.name in ${model.name}_global) {
-        if model.name=="default"{
-            if ! config_exists(model){
+    mut args := args_get(args_)
+	if !(args.name in ${args.name}_global) {
+        if args.name=="default"{
+            if ! config_exists(args){
                 if default{
-                    config_save(model)!
+                    mut context:=base.context() or { panic("bug") }
+                    context.hero_config_set("${model.name}",model.name,heroscript_default()!)!
                 }
             }
-    		config_load(model)!
+    		load(args)!
         }
 	}
-	return ${model.name}_global[model.name] or { 
-            println(${model.name}_global)
-            panic("could not get config for ${model.name} with name:??{model.name}") 
+	return ${args.name}_global[args.name] or { 
+            println(${args.name}_global)
+            panic("could not get config for ${args.name} with name:??{model.name}") 
         }
 }
-
 
 @else
 pub fn get(args_ ArgsGet) !&${model.classname}  {
@@ -62,31 +65,37 @@ pub fn get(args_ ArgsGet) !&${model.classname}  {
 @end
 
 @if model.hasconfig
-fn config_exists(args_ ArgsGet) bool {
+
+//set the model in mem and the config on the filesystem
+fn set(o ${model.classname})! {
+	mut o2:=obj_init(o)!
+	${model.name}_global[o.name] = &o2
+    ${model.name}_default = o.name
+}
+
+//check we find the config on the filesystem
+fn exists(args_ ArgsGet) bool {
     mut model := args_get(args_)
 	mut context:=base.context() or { panic("bug") }
 	return context.hero_config_exists("${model.name}",model.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+//load the config error if it doesn't exist
+fn load(args_ ArgsGet) ! {
 	mut model := args_get(args_)
 	mut context:=base.context()!
 	mut heroscript := context.hero_config_get("${model.name}",model.name)!
 	play(heroscript:heroscript)!
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut model := args_get(args_)
+//save the config to the filesystem in the context
+fn save(o ${model.classname})! {
+    mut model := args_get(args_)
 	mut context:=base.context()!
-	context.hero_config_set("${model.name}",model.name,heroscript_default()!)!
+    heroscript := encoderhero.encode[${model.classname}](o2)!
+	context.hero_config_set("${model.name}",model.name,heroscript)!
 }
 
-
-fn set(o ${model.classname})! {
-	mut o2:=obj_init(o)!
-	${model.name}_global[o.name] = &o2
-    ${model.name}_default = o.name
-}
 
 
 ^^[params]

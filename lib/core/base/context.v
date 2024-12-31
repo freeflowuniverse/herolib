@@ -3,7 +3,6 @@ module base
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.data.dbfs
-// import freeflowuniverse.herolib.crypt.secp256k1
 import freeflowuniverse.herolib.crypt.aes_symmetric
 import freeflowuniverse.herolib.ui
 import freeflowuniverse.herolib.ui.console
@@ -134,18 +133,18 @@ pub fn (mut self Context) db_config_get() !dbfs.DB {
 pub fn (mut self Context) hero_config_set(cat string, name string, content_ string) ! {
 	mut content := texttools.dedent(content_)
 	content = rootpath.shell_expansion(content)
-	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}__${name}.yaml'
+	path := '${self.path()!.path}/${cat}__${name}.yaml'
 	mut config_file := pathlib.get_file(path: path)!
 	config_file.write(content)!
 }
 
-pub fn (mut self Context) hero_config_exists(cat string, name string) bool {
-	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}__${name}.yaml'
+pub fn (mut self Context) hero_config_exists(cat string, name string) !bool {
+	path := '${self.path()!.path}/${cat}__${name}.yaml'
 	return os.exists(path)
 }
 
 pub fn (mut self Context) hero_config_get(cat string, name string) !string {
-	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}__${name}.yaml'
+	path := '${self.path()!.path}/${cat}__${name}.yaml'
 	mut config_file := pathlib.get_file(path: path, create: false)!
 	return config_file.read()!
 }
@@ -187,12 +186,10 @@ pub fn (mut self Context) secret_set(secret_ string) ! {
 	self.save()!
 }
 
-
-
 pub fn (mut self Context) path() !pathlib.Path {
 	return self.path_ or { 
-		path := '${os.home_dir()}/hero/context/${self.config.name}'
-		mut path := pathlib.get_dir(path: path,create: false)!
+		path2 := '${os.home_dir()}/hero/context/${self.config.name}'
+		mut path := pathlib.get_dir(path: path2,create: false)!
 		path
 	}
 }
