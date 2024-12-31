@@ -106,6 +106,13 @@ fn get_unix_from_relative(timestr string) !i64 {
 	return time_unix
 }
 
+// Supported date formats:
+
+// - `YYYY-MM-DD HH:mm:ss`
+// - `YYYY-MM-DD HH:mm`
+// - `YYYY-MM-DD HH`
+// - `YYYY-MM-DD`
+// - `DD-MM-YYYY` (YYYY must be 4 digits)
 pub fn get_unix_from_absolute(timestr_ string) !i64 {
 	timestr := timestr_.trim_space()
 	split_time_hour := timestr.split(' ')
@@ -138,6 +145,9 @@ pub fn get_unix_from_absolute(timestr_ string) !i64 {
 		return error("unrecognized time format, time must either be YYYY/MM/DD or DD/MM/YYYY, or : in stead of /. Input was:'${timestr_}'")
 	}
 
+	if timepart.trim_space() == ""{
+		timepart='00:00:00'
+	}
 	timparts := timepart.split(':')
 	if timparts.len > 3 {
 		return error("format of date/time not correct, in time part: '${timepart}'")
@@ -146,17 +156,15 @@ pub fn get_unix_from_absolute(timestr_ string) !i64 {
 	if timparts.len == 2 {
 		timepart = '${timepart}:00'
 	} else if timparts.len == 1 {
-		if timepart.len == 0 {
-			timepart = '00:00:00'
-		} else {
-			timepart = '${timepart}:00:00'
-		}
+		timepart = '${timepart}:00:00'
 	}
 
 	full_string := '${datepart} ${timepart}'
 
 	time_struct := time.parse(full_string) or {
-		return error("could not parse date/time string '${timestr_}': ${err}")
+		return error("could not parse date/time string '${full_string}': ${err}")
 	}
+
+	//println(" ${timparts} ${time_struct}")
 	return time_struct.unix()
 }

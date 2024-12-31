@@ -21,6 +21,7 @@ mut:
 	params_       ?&paramsparser.Params
 	dbcollection_ ?&dbfs.DBCollection @[skip; str: skip]
 	redis_        ?&redisclient.Redis @[skip; str: skip]
+	path_ 		  ?pathlib.Path
 pub mut:
 	// snippets     map[string]string
 	config ContextConfig
@@ -184,4 +185,14 @@ pub fn (mut self Context) secret_set(secret_ string) ! {
 	secret2 := md5.hexhash(secret)
 	self.config.secret = secret2
 	self.save()!
+}
+
+
+
+pub fn (mut self Context) path() !pathlib.Path {
+	return self.path_ or { 
+		path := '${os.home_dir()}/hero/context/${self.config.name}'
+		mut path := pathlib.get_dir(path: path,create: false)!
+		path
+	}
 }

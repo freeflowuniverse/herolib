@@ -89,15 +89,34 @@ fn test_input_variations() {
 // check that standard formats can be inputted
 fn test_absolute_time() {
 	input_strings := {
-		'2022-12-5 20:14:35': 1670271275
-		'2022-12-5':          1670198400
-		// '2022-12':            1669842000 // Should be the beginning of december
-		// '2022':               1640984400 // should be beginning of 2022
+		'2022-12-5': 1670198400
+		' 2022-12-05 ': 1670198400
+		'2022-12-5 1': 1670198400 + 3600 
+		'2022-12-5 20': 1670198400 + 3600 * 20
+		'2022-12-5 20:14': 1670198400 + 3600 * 20 + 14 * 60 
+		'2022-12-5 20:14:35': 1670198400 +  3600 * 20 + 14 * 60 + 35
 	}
 	for key, value in input_strings {
-		thetime := new(key) or { panic('cannot get expiration for ${key}') }
+		println(" ===== ${key} ${value}")
+		thetime := new(key) or { panic('cannot get ourtime for ${key}.\n$err') }
+		assert value == get_unix_from_absolute(key)!
 		assert thetime.unix() == value, 'expiration was incorrect for ${key}'
+		
 	}
+
+	a := get_unix_from_absolute('2022-12-5')!
+	a2 := get_unix_from_absolute('2022-12-05')!
+	b := get_unix_from_absolute('2022-12-5 1')!
+	c := get_unix_from_absolute('2022-12-5 1:00')!
+	d := get_unix_from_absolute('2022-12-5 01:00')!
+	e := get_unix_from_absolute('2022-12-5 01:1')!
+
+	assert a==a2
+	assert b==a+3600
+	assert b==c
+	assert b==d
+	assert e==d+60
+	
 }
 
 fn test_from_epoch() {
@@ -120,34 +139,3 @@ fn test_parse_date() {
 	}
 }
 
-// fn test_parse_time() {
-// 	input_strings := {
-// 		'12:20':   {
-// 			'hour':   12
-// 			'minute': 20
-// 		}
-// 		'15;30':   {
-// 			'hour':   15
-// 			'minute': 30
-// 		}
-// 		'12:30pm': {
-// 			'hour':   12
-// 			'minute': 30
-// 		}
-// 		'3pm':     {
-// 			'hour':   15
-// 			'minute': 0
-// 		}
-// 		'8.40 pm': {
-// 			'hour':   20
-// 			'minute': 40
-// 		}
-// 	}
-
-// 	for key, value in input_strings {
-// 		test_value := parse(key) or {
-// 			panic('parse_time failed for ${key}, with error ${err}')
-// 		}
-// 		// assert test_value == value, 'hour, minute was incorrect for ${key}'
-// 	}
-// }
