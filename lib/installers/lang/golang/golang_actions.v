@@ -32,7 +32,7 @@ fn installed() !bool {
 fn install() ! {
 	console.print_header('install golang')
 	base.install()!
-	destroy()!
+	//destroy()!
 
 	mut url := ''
 	if osal.is_linux_arm() {
