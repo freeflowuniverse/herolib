@@ -2,17 +2,16 @@
 
 has mechanisms to print better to console, see the methods below
 
-import as 
+import as
 
 ```vlang
 import freeflowuniverse.herolib.ui.console
 
 ```
 
-
 ## Methods
 
-```v
+````v
 
 fn clear()
     //reset the console screen
@@ -86,12 +85,11 @@ fn style(c Style) string
 
 fn trim(c_ string) string
 
-```
+````
 
 ## Console Object
 
 Is used to ask feedback to users
-
 
 ```v
 
@@ -105,14 +103,14 @@ pub mut:
 }
 
 //DropDownArgs:
-// - description string 
-// - items []string 
-// - warning     string 
+// - description string
+// - items []string
+// - warning     string
 // - clear       bool = true
 
 
 fn (mut c UIConsole) ask_dropdown_int(args_ DropDownArgs) !int
-    // return the dropdown as an int 
+    // return the dropdown as an int
 
 fn (mut c UIConsole) ask_dropdown_multiple(args_ DropDownArgs) ![]string
     // result can be multiple, aloso can select all description string items       []string warning     string clear       bool = true
@@ -135,7 +133,7 @@ fn (mut c UIConsole) ask_time(args QuestionArgs) !string
 fn (mut c UIConsole) ask_date(args QuestionArgs) !string
 
 fn (mut c UIConsole) ask_yesno(args YesNoArgs) !bool
-    // yes is true, no is false 
+    // yes is true, no is false
     // args:
     // - description string
     // - question string
@@ -148,14 +146,11 @@ fn (mut c UIConsole) status() string
 
 ```
 
-
-
 ## enums
-
 
 ```v
 enum BackgroundColor {
-	default_color = 49 // 'default' is a reserved keyword in V	
+	default_color = 49 // 'default' is a reserved keyword in V
 	black         = 40
 	red           = 41
 	green         = 42
@@ -174,7 +169,7 @@ enum BackgroundColor {
 	white         = 107
 }
 enum ForegroundColor {
-	default_color = 39 // 'default' is a reserved keyword in V	
+	default_color = 39 // 'default' is a reserved keyword in V
 	white         = 97
 	black         = 30
 	red           = 31

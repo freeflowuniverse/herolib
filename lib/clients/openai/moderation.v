@@ -69,12 +69,13 @@ pub mut:
 	results []ModerationResult
 }
 
-pub fn (mut f OpenAIClient[Config]) create_moderation(input string, model ModerationModel) !ModerationResponse {
+pub fn (mut f OpenAI) create_moderation(input string, model ModerationModel) !ModerationResponse {
 	req := ModerationRequest{
 		input: input
 		model: moderation_model_str(model)
 	}
 	data := json.encode(req)
-	r := f.connection.post_json_str(prefix: 'moderations', data: data)!
+	mut conn := f.connection()!
+	r := conn.post_json_str(prefix: 'moderations', data: data)!
 	return json.decode(ModerationResponse, r)!
 }

@@ -1,4 +1,3 @@
-
 # how to run the vshell example scripts
 
 this is how we want example scripts to be, see the first line
@@ -18,4 +17,3 @@ the files are in ~/code/github/freeflowuniverse/herolib/examples for herolib
 ## important instructions
 
 - never use fn main() in a .vsh script
-

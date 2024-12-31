@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -w -n -enable-globals run
 
 import os
 import time
@@ -52,7 +52,7 @@ fn main() {
 	mut rpc := redis.rpc_get('procedure_queue')
 
 	mut actor := Actor{
-		rpc:        rpc
+		rpc: rpc
 		data_store: DataStore{}
 	}
 
@@ -172,9 +172,9 @@ fn (mut store DataStore) list_pets(params ListPetParams) []Pet {
 fn (mut store DataStore) create_pet(new_pet NewPet) Pet {
 	id := store.pets.keys().len + 1
 	pet := Pet{
-		id:   id
+		id: id
 		name: new_pet.name
-		tag:  new_pet.tag
+		tag: new_pet.tag
 	}
 	store.pets[id] = pet
 	return pet
@@ -211,10 +211,10 @@ fn (mut store DataStore) delete_order(id int) ! {
 fn (mut store DataStore) create_user(new_user NewUser) User {
 	id := store.users.keys().len + 1
 	user := User{
-		id:       id
+		id: id
 		username: new_user.username
-		email:    new_user.email
-		phone:    new_user.phone
+		email: new_user.email
+		phone: new_user.phone
 	}
 	store.users[id] = user
 	return user

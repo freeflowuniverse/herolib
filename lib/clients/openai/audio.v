@@ -60,38 +60,38 @@ pub mut:
 
 // create transcription from an audio file
 // supported audio formats are mp3, mp4, mpeg, mpga, m4a, wav, or webm
-pub fn (mut f OpenAIClient[Config]) create_transcription(args AudioArgs) !AudioResponse {
+pub fn (mut f OpenAI) create_transcription(args AudioArgs) !AudioResponse {
 	return f.create_audio_request(args, 'audio/transcriptions')
 }
 
 // create translation to english from an audio file
 // supported audio formats are mp3, mp4, mpeg, mpga, m4a, wav, or webm
-pub fn (mut f OpenAIClient[Config]) create_tranlation(args AudioArgs) !AudioResponse {
+pub fn (mut f OpenAI) create_tranlation(args AudioArgs) !AudioResponse {
 	return f.create_audio_request(args, 'audio/translations')
 }
 
-fn (mut f OpenAIClient[Config]) create_audio_request(args AudioArgs, endpoint string) !AudioResponse {
+fn (mut f OpenAI) create_audio_request(args AudioArgs, endpoint string) !AudioResponse {
 	file_content := os.read_file(args.filepath)!
 	ext := os.file_ext(args.filepath)
 	mut file_mime_type := ''
-	if ext in audio_mime_types {
-		file_mime_type = audio_mime_types[ext]
+	if ext in openai.audio_mime_types {
+		file_mime_type = openai.audio_mime_types[ext]
 	} else {
 		return error('file extenion not supported')
 	}
 
 	file_data := http.FileData{
-		filename:     os.base(args.filepath)
+		filename: os.base(args.filepath)
 		content_type: file_mime_type
-		data:         file_content
+		data: file_content
 	}
 
 	form := http.PostMultipartFormConfig{
 		files: {
 			'file': [file_data]
 		}
-		form:  {
-			'model':           audio_model
+		form: {
+			'model':           openai.audio_model
 			'prompt':          args.prompt
 			'response_format': audio_resp_type_str(args.response_format)
 			'temperature':     args.temperature.str()
@@ -102,9 +102,49 @@ fn (mut f OpenAIClient[Config]) create_audio_request(args AudioArgs, endpoint st
 	req := httpconnection.Request{
 		prefix: endpoint
 	}
-	r := f.connection.post_multi_part(req, form)!
+
+	mut conn := f.connection()!
+	r := conn.post_multi_part(req, form)!
 	if r.status_code != 200 {
 		return error('got error from server: ${r.body}')
 	}
 	return json.decode(AudioResponse, r.body)!
+}
+
+@[params]
+pub struct CreateSpeechArgs {
+pub:
+	model           ModelType = .tts_1
+	input           string      @[required]
+	voice           Voice       = .alloy
+	response_format AudioFormat = .mp3
+	speed           f32 = 1.0
+	output_path     string      @[required]
+}
+
+pub struct CreateSpeechRequest {
+pub:
+	model           string
+	input           string
+	voice           string
+	response_format string
+	speed           f32
+}
+
+pub fn (mut f OpenAI) create_speech(args CreateSpeechArgs) ! {
+	mut output_file := os.open_file(args.output_path, 'w+')!
+
+	req := CreateSpeechRequest{
+		model: modelname_str(args.model)
+		input: args.input
+		voice: voice_str(args.voice)
+		response_format: audio_format_str(args.response_format)
+		speed: args.speed
+	}
+	data := json.encode(req)
+
+	mut conn := f.connection()!
+	r := conn.post_json_str(prefix: 'audio/speech', data: data)!
+
+	output_file.write(r.bytes())!
 }

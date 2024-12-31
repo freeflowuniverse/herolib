@@ -1,28 +1,60 @@
 module openai
 
 import freeflowuniverse.herolib.data.paramsparser
-import os
+import freeflowuniverse.herolib.core.httpconnection
 
-pub const version = '0.0.0'
+pub const version = '1.14.3'
 const singleton = false
 const default = true
 
+// TODO: THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE TO STRUCT BELOW, IS STRUCTURED AS HEROSCRIPT
+pub fn heroscript_default() !string {
+	heroscript := "
+    !!openai.configure 
+        name:'openai'
+        key: 'YOUR_API_KEY'
+        "
+
+	return heroscript
+}
+
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 
-@[heap]
 pub struct OpenAI {
 pub mut:
-	name          string = 'default'
-	mail_from     string
-	mail_password string @[secret]
-	mail_port     int
-	mail_server   string
-	mail_username string
+	name    string = 'default'
+	api_key string @[secret]
+
+	conn ?&httpconnection.HTTPConnection
+}
+
+fn cfg_play(p paramsparser.Params) ! {
+	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
+	mut mycfg := OpenAI{
+		name: p.get_default('name', 'default')!
+		api_key: p.get('api_key')!
+	}
+	set(mycfg)!
 }
 
 fn obj_init(obj_ OpenAI) !OpenAI {
 	// never call get here, only thing we can do here is work on object itself
 	mut obj := obj_
-	panic('implement')
 	return obj
+}
+
+pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
+	mut c := client.conn or {
+		mut c2 := httpconnection.new(
+			name: 'openaiconnection_${client.name}'
+			url: 'https://api.openai.com/v1'
+			cache: false
+		)!
+		c2
+	}
+
+	c.default_header.set(.authorization, 'Bearer ${client.api_key}')
+
+	client.conn = c
+	return c
 }
