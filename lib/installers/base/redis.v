@@ -28,7 +28,7 @@ pub mut:
 // 	restart bool = true
 // }
 // ```
-pub fn install(args_ RedisInstallArgs) ! {
+pub fn redis_install(args_ RedisInstallArgs) ! {
 	mut args := args_
 
 	if !args.reset {

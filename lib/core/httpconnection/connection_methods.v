@@ -96,7 +96,6 @@ pub fn (mut h HTTPConnection) send(req_ Request) !Result {
 			}
 		}
 
-		println(new_req)
 		if req.debug {
 			console.print_debug('http request:\n${new_req.str()}')
 		}

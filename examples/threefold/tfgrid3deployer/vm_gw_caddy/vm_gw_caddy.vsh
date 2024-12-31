@@ -34,6 +34,9 @@ mut deployment2 := tfgrid3deployer.new_deployment(deployment_name2)!
 deployment2.add_webname(name: 'mywebname', backend: 'http://${vm1_public_ip4}:80')
 deployment2.deploy()!
 
+gw1 := deployment2.webname_get('mywebname')!
+println('gw info: ${gw1}')
+
 // Retry logic to wait for the SSH server to be up
 max_retries := 10
 mut retries := 0

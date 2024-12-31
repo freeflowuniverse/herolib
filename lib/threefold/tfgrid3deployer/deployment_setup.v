@@ -70,7 +70,6 @@ fn (mut self DeploymentSetup) match_versions(old_dls map[u32]grid_models.Deploym
 fn (mut st DeploymentSetup) setup_network_workloads(vms []VMachine, old_deployments map[u32]grid_models.Deployment) ! {
 	st.network_handler.load_network_state(old_deployments)!
 	st.network_handler.create_network(vms)!
-	println('Network handler: ${st.network_handler}')
 	data := st.network_handler.generate_workloads()!
 
 	for node_id, workload in data {
