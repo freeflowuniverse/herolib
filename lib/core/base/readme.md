@@ -1,39 +1,105 @@
-## context & sessions
+## Context & Sessions
 
-Everything we do in hero lives in a context, each context has a unique name.
+Everything we do in hero lives in a context, each context has a unique name and ID. A context can have multiple sessions, where each session represents a specific execution environment.
 
-Redis is used to manage the contexts and the sessions.
+### Context
 
-- redis db 0
-    - `context:current` curent id of the context, is also the DB if redis if redis is used
-- redis db X, x is nr of context
-    - `context:name` name of this context
-    - `context:secret` secret as is used in context (is md5 of original config secret)
-    - `context:privkey` secp256k1 privkey as is used in context (encrypted by secret)
-    - `context:params` params for a context, can have metadata
-    - `context:lastid` last id for our db
-    - `session:$id` the location of session
-        - `session:$id:params` params for the session, can have metadata
+Each context has:
+- A unique ID and name
+- Secret management (encrypted)
+- Database collection
+- Configuration storage
+- Code root path
+- Parameters
 
-Session id is $contextid:$sessionid  (e.g. 10:111)
+### Sessions
 
-**The SessionNewArgs:**
+Sessions exist within a context and provide:
+- Unique name within the context
+- Interactive mode control
+- Environment variables
+- Start/End time tracking
+- Parameter storage
+- Database access
+- Logging
 
-- context_name        string = 'default'
-- session_name        string        //default will be an incremental nr if not filled in
-- interactive         bool = true   //can ask questions, default on true
-- coderoot            string        //this will define where all code is checked out
+### Storage Structure
+
+Redis is used to manage contexts and sessions:
+
+- Redis DB X (where X is context ID):
+  - `context:config` - JSON encoded context configuration
+  - `sessions:config:$name` - JSON encoded session configuration for each session
+
+### Database Structure
+
+Each context has a database collection located at `~/hero/db/$contextid/`. Within this:
+- Each session gets its own database named `session_$name`
+- A shared `config` database exists for context-wide configuration
+
+### Hero Configuration
+
+Contexts support hero-specific configuration files:
+- Stored at `~/hero/context/$contextname/$category__$name.yaml`
+- Supports categories for organization
+- Automatically handles shell expansions
+
+### Example Usage
 
 ```v
 import freeflowuniverse.herolib.core.base
 
-mut session:=context_new(
-    coderoot:'/tmp/code'
-    interactive:true
+// Create a new context
+mut context := context_new(
+    id: 1
+    name: 'mycontext'
+    coderoot: '/tmp/code'
+    interactive: true
 )!
 
-mut session:=session_new(context:'default',session:'mysession1')!
-mut session:=session_new()! //returns default context & incremental new session
+// Create a new session in the context
+mut session := session_new(
+    context: context
+    name: 'mysession1'
+    interactive: true
+)!
 
+// Work with environment variables
+session.env_set('KEY', 'value')!
+value := session.env_get('KEY')!
+
+// Work with hero config
+context.hero_config_set('category', 'name', 'content')!
+content := context.hero_config_get('category', 'name')!
+
+// Access session database
+mut db := session.db_get()!
+
+// Access context-wide config database
+mut config_db := session.db_config_get()!
 ```
 
+### Security
+
+- Context secrets are stored as MD5 hashes
+- Support for encryption of sensitive data
+- Interactive secret configuration available
+
+### File Structure
+
+Each context and session has its own directory structure:
+- Context root: `~/hero/context/$contextname/`
+- Session directory: `~/hero/context/$contextname/$sessionname/`
+
+This structure helps organize configuration files, logs, and other session-specific data.
+
+### Logging
+
+Each session has its own logger:
+
+```v
+mut logger := session.logger()!
+logger.log(log:'My log message')
+```
+
+For detailed logging capabilities and options, see the logger documentation in `lib/core/logger/readme.md`.

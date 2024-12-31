@@ -57,8 +57,10 @@ t2.warp('+1h')! // Move 1 hour forward
 #### Absolute Time Format
 
 Supported date formats:
+
 - `YYYY-MM-DD HH:mm:ss`
 - `YYYY-MM-DD HH:mm`
+- `YYYY-MM-DD HH`
 - `YYYY-MM-DD`
 - `DD-MM-YYYY` (YYYY must be 4 digits)
 - Also supports '/' instead of '-' for dates
@@ -81,6 +83,8 @@ now := ourtime.now()
 
 // Create from string
 t := ourtime.new('2022-12-05 20:14:35')!
+t := ourtime.new('2022-12-05 20:14')!
+t := ourtime.new('2022-12-05 20')!
 
 // Create from unix timestamp
 t2 := ourtime.new_from_epoch(1670271275)

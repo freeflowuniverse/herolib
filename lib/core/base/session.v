@@ -4,13 +4,17 @@ import freeflowuniverse.herolib.data.ourtime
 // import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.dbfs
+import freeflowuniverse.herolib.core.logger
 import json
-// import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.pathlib
 // import freeflowuniverse.herolib.develop.gittools
 // import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct Session {
+mut:
+	path_ 		 ?pathlib.Path
+	logger_      ?logger.Logger
 pub mut:
 	name        string // unique id for session (session id), can be more than one per context
 	interactive bool = true
@@ -20,6 +24,7 @@ pub mut:
 	context     &Context @[skip; str: skip]
 	config      SessionConfig
 	env         map[string]string
+
 }
 
 ///////// LOAD & SAVE
@@ -86,6 +91,14 @@ pub fn (self Session) check() ! {
 
 pub fn (self Session) guid() string {
 	return '${self.context.guid()}:${self.name}'
+}
+
+pub fn (mut self Session) path() !pathlib.Path {
+	return self.path_ or { 
+		path2 := '${self.context.path()!.path}/${self.name}'
+		mut path := pathlib.get_dir(path: path2,create: true)!
+		path
+	}
 }
 
 fn (self Session) str2() string {
