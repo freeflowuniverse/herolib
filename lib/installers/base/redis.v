@@ -62,7 +62,7 @@ fn configfilepath(args InstallArgs) string {
 }
 
 fn configure(args InstallArgs) ! {
-	c := $tmpl('template/redis_config.conf')
+	c := $tmpl('templates/redis_config.conf')
 	pathlib.template_write(c, configfilepath(), true)!
 }
 

@@ -9,7 +9,7 @@ import net.http
 import freeflowuniverse.herolib.data.jsonschema { Schema }
 import freeflowuniverse.herolib.web.openapi { Context, Request, Response, Server }
 import freeflowuniverse.herolib.hero.processor { ProcedureCall, ProcessParams, Processor }
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 const spec_path = '${os.dir(@FILE)}/data/openapi.json'
 const spec_json = os.read_file(spec_path) or { panic(err) }

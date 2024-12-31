@@ -10,7 +10,7 @@ import x.json2
 import net.http
 import freeflowuniverse.herolib.data.jsonschema
 // import freeflowuniverse.herolib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 pub struct OpenAPIProxy {
 	client        Client

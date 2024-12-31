@@ -1,6 +1,6 @@
 module actor
 
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import time
 
 pub interface IActor {

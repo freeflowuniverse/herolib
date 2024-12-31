@@ -8,7 +8,7 @@ import x.json2 { Any }
 import net.http
 import freeflowuniverse.herolib.data.jsonschema { Schema }
 // import freeflowuniverse.herolib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.web.openapi { Request }
 
 pub fn openapi_request_to_action(request Request) Action {

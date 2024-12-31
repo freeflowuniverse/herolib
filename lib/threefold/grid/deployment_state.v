@@ -1,6 +1,6 @@
 module grid
 
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 struct DeploymentStateDB {
 	redis  redisclient.Redis

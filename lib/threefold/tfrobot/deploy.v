@@ -1,6 +1,6 @@
 module tfrobot
 
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 import json
 import os
 import freeflowuniverse.herolib.ui.console

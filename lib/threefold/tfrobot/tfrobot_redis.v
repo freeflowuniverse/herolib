@@ -2,7 +2,7 @@ module tfrobot
 
 import json
 // import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 pub fn config_get(configname string) !DeployConfig {
 	mut redis := redisclient.core_get()!

@@ -8,7 +8,7 @@ import x.json2
 import net.http
 import freeflowuniverse.herolib.web.openapi
 import freeflowuniverse.herolib.hero.processor
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.core.redisclient
 
 @[heap]
 struct Actor {
