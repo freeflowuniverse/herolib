@@ -53,7 +53,7 @@ pub fn install(args_ RedisInstallArgs) ! {
 	start(args)!
 }
 
-fn configfilepath(args InstallArgs) string {
+fn configfilepath(args RedisInstallArgs) string {
 	if osal.is_linux() {
 		return '/etc/redis/redis.conf'
 	} else {
@@ -61,12 +61,12 @@ fn configfilepath(args InstallArgs) string {
 	}
 }
 
-fn configure(args InstallArgs) ! {
+fn configure(args RedisInstallArgs) ! {
 	c := $tmpl('templates/redis_config.conf')
 	pathlib.template_write(c, configfilepath(), true)!
 }
 
-pub fn check(args InstallArgs) bool {
+pub fn check(args RedisInstallArgs) bool {
 	res := os.execute('redis-cli -c -p ${args.port} ping > /dev/null 2>&1')
 	if res.exit_code == 0 {
 		return true
@@ -74,7 +74,7 @@ pub fn check(args InstallArgs) bool {
 	return false
 }
 
-pub fn start(args InstallArgs) ! {
+pub fn start(args RedisInstallArgs) ! {
 	if check() {
 		return
 	}

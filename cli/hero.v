@@ -2,6 +2,7 @@ module main
 
 import os
 import cli { Command, Flag }
+import freeflowuniverse.herolib.core.herocmds
 // import freeflowuniverse.herolib.hero.cmds
 // import freeflowuniverse.herolib.hero.publishing
 import freeflowuniverse.herolib.installers.base
@@ -9,7 +10,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.ui
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.playbook
-// import freeflowuniverse.herolib.core.playcmds
+import freeflowuniverse.herolib.core.playcmds
 
 fn playcmds_do(path string) ! {
 	mut plbook := playbook.new(path: path)!
@@ -68,9 +69,9 @@ fn do() ! {
 		}
 	}
 
-	base.redis_install()!
+	base.install()!
 
-	//herocmds.cmd_bootstrap(mut cmd)
+	// herocmds.cmd_bootstrap(mut cmd)
 	// herocmds.cmd_run(mut cmd)
 	// herocmds.cmd_git(mut cmd)
 	// herocmds.cmd_init(mut cmd)
@@ -83,8 +84,8 @@ fn do() ! {
 	// herocmds.cmd_postgres(mut cmd)
 	// herocmds.cmd_mdbook(mut cmd)
 	// herocmds.cmd_luadns(mut cmd)
-	//herocmds.cmd_caddy(mut cmd)
-	//herocmds.cmd_zola(mut cmd)
+	// herocmds.cmd_caddy(mut cmd)
+	// herocmds.cmd_zola(mut cmd)
 	// herocmds.cmd_juggler(mut cmd)
 	// herocmds.cmd_generator(mut cmd)
 	// herocmds.cmd_docsorter(mut cmd)
