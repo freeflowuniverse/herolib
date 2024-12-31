@@ -46,7 +46,7 @@ pub fn (mut f OpenAI) create_embeddings(args EmbeddingCreateArgs) !EmbeddingResp
 	req := EmbeddingCreateRequest{
 		input: args.input
 		model: embedding_model_str(args.model)
-		user: args.user
+		user:  args.user
 	}
 	data := json.encode(req)
 

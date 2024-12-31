@@ -13,7 +13,7 @@ fn test_chat_completion() {
 	res := client.chat_completion(.gpt_4o_2024_08_06, Messages{
 		messages: [
 			Message{
-				role: .user
+				role:    .user
 				content: 'Say these words exactly as i write them with no punctuation: AI is getting out of hand'
 			},
 		]
@@ -50,7 +50,7 @@ fn test_files() {
 	mut client := get()!
 	uploaded_file := client.upload_file(
 		filepath: '${os.dir(@FILE) + '/testdata/testfile.txt'}'
-		purpose: .assistants
+		purpose:  .assistants
 	)!
 
 	assert uploaded_file.filename == 'testfile.txt'
@@ -61,7 +61,7 @@ fn test_files() {
 
 	uploaded_file2 := client.upload_file(
 		filepath: '${os.dir(@FILE) + '/testdata/testfile2.txt'}'
-		purpose: .assistants
+		purpose:  .assistants
 	)!
 
 	assert uploaded_file2.filename == 'testfile2.txt'
@@ -97,7 +97,7 @@ fn test_audio() {
 
 	// create speech
 	client.create_speech(
-		input: 'the quick brown fox jumps over the lazy dog'
+		input:       'the quick brown fox jumps over the lazy dog'
 		output_path: '/tmp/output.mp3'
 	)!
 

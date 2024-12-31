@@ -1,24 +1,21 @@
-
 module logger
 
 import os
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.data.ourtime
 
-
 @[params]
 pub struct SearchArgs {
 pub mut:
-	timestamp_from    ?ourtime.OurTime
-	timestamp_to    ?ourtime.OurTime
-	cat     string //can be empty 
-	log     string //any content in here will be looked for
-	logtype LogType
-	maxitems int = 10000
+	timestamp_from ?ourtime.OurTime
+	timestamp_to   ?ourtime.OurTime
+	cat            string // can be empty
+	log            string // any content in here will be looked for
+	logtype        LogType
+	maxitems       int = 10000
 }
 
-
-pub fn (mut l Logger) search(args_ SearchArgs)! []LogItem {
+pub fn (mut l Logger) search(args_ SearchArgs) ![]LogItem {
 	mut args := args_
 
 	// Format category (max 10 chars, ascii only)
@@ -48,15 +45,14 @@ pub fn (mut l Logger) search(args_ SearchArgs)! []LogItem {
 		if !file.ends_with('.log') {
 			continue
 		}
-		
+
 		// Parse dayhour from filename
-		dayhour := file[..file.len-4] // remove .log
+		dayhour := file[..file.len - 4] // remove .log
 		file_time := ourtime.new(dayhour)!
-		mut current_time:=ourtime.OurTime{}
+		mut current_time := ourtime.OurTime{}
 		mut current_item := LogItem{}
 		mut collecting := false
 
-			
 		// Skip if file is outside time range
 		if file_time.unix() < from_time || file_time.unix() > to_time {
 			continue
@@ -65,23 +61,22 @@ pub fn (mut l Logger) search(args_ SearchArgs)! []LogItem {
 		// Read and parse log file
 		content := os.read_file('${l.path.path}/${file}')!
 		lines := content.split('\n')
-		
-		for line in lines {
 
+		for line in lines {
 			if result.len >= args.maxitems {
 				return result
 			}
-						
+
 			line_trim := line.trim_space()
 			if line_trim == '' {
 				continue
 			}
 
 			// Check if this is a timestamp line
-			if !(line.starts_with(" ") || line.starts_with("E")){
+			if !(line.starts_with(' ') || line.starts_with('E')) {
 				current_time = ourtime.new(line_trim)!
 				if collecting {
-					process(mut result,current_item,current_time, args , from_time, to_time)!
+					process(mut result, current_item, current_time, args, from_time, to_time)!
 				}
 				collecting = false
 				continue
@@ -93,9 +88,9 @@ pub fn (mut l Logger) search(args_ SearchArgs)! []LogItem {
 				// Start new item
 				current_item = LogItem{
 					timestamp: current_time
-					cat: line_trim[2..12].trim_space()
-					log: line_trim[15..].trim_space()
-					logtype: if is_error { .error } else { .stdout }
+					cat:       line_trim[2..12].trim_space()
+					log:       line_trim[15..].trim_space()
+					logtype:   if is_error { .error } else { .stdout }
 				}
 				collecting = true
 			} else {
@@ -106,23 +101,22 @@ pub fn (mut l Logger) search(args_ SearchArgs)! []LogItem {
 
 		// Add last item if collecting
 		if collecting {
-			process(mut result,current_item,current_time, args , from_time, to_time)!
+			process(mut result, current_item, current_time, args, from_time, to_time)!
 		}
 	}
 
 	return result
 }
 
-fn process(mut result []LogItem, current_item LogItem,  current_time ourtime.OurTime, args SearchArgs, from_time i64, to_time i64) ! {
+fn process(mut result []LogItem, current_item LogItem, current_time ourtime.OurTime, args SearchArgs, from_time i64, to_time i64) ! {
 	// Add previous item if it matches filters
-	log_epoch:= current_item.timestamp.unix()
+	log_epoch := current_item.timestamp.unix()
 	if log_epoch < from_time || log_epoch > to_time {
 		return
 	}
-	if (args.cat == '' || current_item.cat.trim_space() == args.cat) &&
-		(args.log == '' || current_item.log.contains(args.log)) &&
-		(args.logtype == current_item.logtype) {
+	if (args.cat == '' || current_item.cat.trim_space() == args.cat)
+		&& (args.log == '' || current_item.log.contains(args.log))
+		&& args.logtype == current_item.logtype {
 		result << current_item
 	}
-
 }

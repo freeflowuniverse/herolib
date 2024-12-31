@@ -13,8 +13,8 @@ import freeflowuniverse.herolib.core.pathlib
 @[heap]
 pub struct Session {
 mut:
-	path_ 		 ?pathlib.Path
-	logger_      ?logger.Logger
+	path_   ?pathlib.Path
+	logger_ ?logger.Logger
 pub mut:
 	name        string // unique id for session (session id), can be more than one per context
 	interactive bool = true
@@ -24,7 +24,6 @@ pub mut:
 	context     &Context @[skip; str: skip]
 	config      SessionConfig
 	env         map[string]string
-
 }
 
 ///////// LOAD & SAVE
@@ -94,9 +93,9 @@ pub fn (self Session) guid() string {
 }
 
 pub fn (mut self Session) path() !pathlib.Path {
-	return self.path_ or { 
+	return self.path_ or {
 		path2 := '${self.context.path()!.path}/${self.name}'
-		mut path := pathlib.get_dir(path: path2,create: true)!
+		mut path := pathlib.get_dir(path: path2, create: true)!
 		path
 	}
 }

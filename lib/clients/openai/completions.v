@@ -57,7 +57,7 @@ pub fn (mut f OpenAI) chat_completion(model_type ModelType, msgs Messages) !Chat
 	}
 	for msg in msgs.messages {
 		mr := MessageRaw{
-			role: roletype_str(msg.role)
+			role:    roletype_str(msg.role)
 			content: msg.content
 		}
 		m.messages << mr

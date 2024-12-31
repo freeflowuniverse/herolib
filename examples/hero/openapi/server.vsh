@@ -23,7 +23,7 @@ fn main() {
 	// Initialize the server
 	mut server := &Server{
 		specification: openapi.json_decode(spec_json)!
-		handler: Handler{
+		handler:       Handler{
 			processor: Processor{
 				rpc: rpc
 			}
@@ -122,7 +122,7 @@ fn (mut handler Handler) handle(request Request) !Response {
 		if err is processor.ProcedureError {
 			return Response{
 				status: http.status_from_int(err.code()) // Map ProcedureError reason to HTTP status code
-				body: json.encode({
+				body:   json.encode({
 					'error': err.msg()
 				})
 			}
@@ -133,6 +133,6 @@ fn (mut handler Handler) handle(request Request) !Response {
 	// Convert returned procedure response to OpenAPI response
 	return Response{
 		status: http.Status.ok // Assuming success if no error
-		body: procedure_response.result
+		body:   procedure_response.result
 	}
 }

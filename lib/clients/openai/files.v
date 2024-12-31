@@ -48,16 +48,16 @@ pub fn (mut f OpenAI) upload_file(args FileUploadArgs) !File {
 	file_content := os.read_file(args.filepath)!
 
 	file_data := http.FileData{
-		filename: os.base(args.filepath)
-		data: file_content
-		content_type: openai.jsonl_mime_type
+		filename:     os.base(args.filepath)
+		data:         file_content
+		content_type: jsonl_mime_type
 	}
 
 	form := http.PostMultipartFormConfig{
 		files: {
 			'file': [file_data]
 		}
-		form: {
+		form:  {
 			'purpose': file_purpose_str(args.purpose)
 		}
 	}

@@ -31,7 +31,7 @@ pub mut:
 fn cfg_play(p paramsparser.Params) ! {
 	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
 	mut mycfg := OpenAI{
-		name: p.get_default('name', 'default')!
+		name:    p.get_default('name', 'default')!
 		api_key: p.get('api_key')!
 	}
 	set(mycfg)!
@@ -46,8 +46,8 @@ fn obj_init(obj_ OpenAI) !OpenAI {
 pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
 	mut c := client.conn or {
 		mut c2 := httpconnection.new(
-			name: 'openaiconnection_${client.name}'
-			url: 'https://api.openai.com/v1'
+			name:  'openaiconnection_${client.name}'
+			url:   'https://api.openai.com/v1'
 			cache: false
 		)!
 		c2

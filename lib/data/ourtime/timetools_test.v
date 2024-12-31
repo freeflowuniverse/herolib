@@ -89,19 +89,18 @@ fn test_input_variations() {
 // check that standard formats can be inputted
 fn test_absolute_time() {
 	input_strings := {
-		'2022-12-5': 1670198400
-		' 2022-12-05 ': 1670198400
-		'2022-12-5 1': 1670198400 + 3600 
-		'2022-12-5 20': 1670198400 + 3600 * 20
-		'2022-12-5 20:14': 1670198400 + 3600 * 20 + 14 * 60 
-		'2022-12-5 20:14:35': 1670198400 +  3600 * 20 + 14 * 60 + 35
+		'2022-12-5':          1670198400
+		' 2022-12-05 ':       1670198400
+		'2022-12-5 1':        1670198400 + 3600
+		'2022-12-5 20':       1670198400 + 3600 * 20
+		'2022-12-5 20:14':    1670198400 + 3600 * 20 + 14 * 60
+		'2022-12-5 20:14:35': 1670198400 + 3600 * 20 + 14 * 60 + 35
 	}
 	for key, value in input_strings {
-		println(" ===== ${key} ${value}")
-		thetime := new(key) or { panic('cannot get ourtime for ${key}.\n$err') }
+		println(' ===== ${key} ${value}')
+		thetime := new(key) or { panic('cannot get ourtime for ${key}.\n${err}') }
 		assert value == get_unix_from_absolute(key)!
 		assert thetime.unix() == value, 'expiration was incorrect for ${key}'
-		
 	}
 
 	a := get_unix_from_absolute('2022-12-5')!
@@ -111,12 +110,11 @@ fn test_absolute_time() {
 	d := get_unix_from_absolute('2022-12-5 01:00')!
 	e := get_unix_from_absolute('2022-12-5 01:1')!
 
-	assert a==a2
-	assert b==a+3600
-	assert b==c
-	assert b==d
-	assert e==d+60
-	
+	assert a == a2
+	assert b == a + 3600
+	assert b == c
+	assert b == d
+	assert e == d + 60
 }
 
 fn test_from_epoch() {
@@ -138,4 +136,3 @@ fn test_parse_date() {
 		assert test_value.unix() == value
 	}
 }
-

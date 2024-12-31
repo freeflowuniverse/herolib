@@ -145,8 +145,8 @@ pub fn get_unix_from_absolute(timestr_ string) !i64 {
 		return error("unrecognized time format, time must either be YYYY/MM/DD or DD/MM/YYYY, or : in stead of /. Input was:'${timestr_}'")
 	}
 
-	if timepart.trim_space() == ""{
-		timepart='00:00:00'
+	if timepart.trim_space() == '' {
+		timepart = '00:00:00'
 	}
 	timparts := timepart.split(':')
 	if timparts.len > 3 {
@@ -165,6 +165,6 @@ pub fn get_unix_from_absolute(timestr_ string) !i64 {
 		return error("could not parse date/time string '${full_string}': ${err}")
 	}
 
-	//println(" ${timparts} ${time_struct}")
+	// println(" ${timparts} ${time_struct}")
 	return time_struct.unix()
 }

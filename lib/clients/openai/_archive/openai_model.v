@@ -31,8 +31,8 @@ fn obj_init(obj_ OpenAI) !OpenAI {
 pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
 	mut c := client.conn or {
 		mut c2 := httpconnection.new(
-			name: 'openrouterclient_${client.name}'
-			url: 'https://openrouter.ai/api/v1/chat/completions'
+			name:  'openrouterclient_${client.name}'
+			url:   'https://openrouter.ai/api/v1/chat/completions'
 			cache: false
 			retry: 0
 		)!
