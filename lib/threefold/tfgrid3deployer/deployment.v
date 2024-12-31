@@ -137,11 +137,10 @@ fn (mut self TFDeployment) set_nodes() ! {
 
 	for mut webname in self.webnames {
 		nodes := filter_nodes(
-			domain:   true
-			status:   'up'
-			healthy:  true
-			node_id:  webname.requirements.node_id
-			features: ['zmachine']
+			domain:  true
+			status:  'up'
+			healthy: true
+			node_id: webname.requirements.node_id
 		)!
 
 		if nodes.len == 0 {

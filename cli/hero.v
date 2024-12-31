@@ -69,7 +69,7 @@ fn do() ! {
 		}
 	}
 
-	base.install()!
+	base.redis_install()!
 
 	// herocmds.cmd_bootstrap(mut cmd)
 	// herocmds.cmd_run(mut cmd)

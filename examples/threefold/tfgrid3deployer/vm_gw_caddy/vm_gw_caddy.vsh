@@ -11,11 +11,10 @@ installer.install()!
 
 v := tfgrid3deployer.get()!
 println('cred: ${v}')
-deployment_name := 'vm_gw_caddy'
-
+deployment_name := 'vm_caddy1'
 mut deployment := tfgrid3deployer.new_deployment(deployment_name)!
 deployment.add_machine(
-	name:       'vm_caddy'
+	name:       'vm_caddy1'
 	cpu:        1
 	memory:     2
 	planetary:  true
@@ -25,12 +24,15 @@ deployment.add_machine(
 )
 deployment.deploy()!
 
-vm1 := deployment.vm_get('vm_caddy')!
+vm1 := deployment.vm_get('vm_caddy1')!
 println('vm1 info: ${vm1}')
 
 vm1_public_ip4 := vm1.public_ip4.all_before('/')
-deployment.add_webname(name: 'mywebname', backend: 'http://${vm1_public_ip4}:80')
-deployment.deploy()!
+
+deployment_name2 := 'vm_caddy_gw'
+mut deployment2 := tfgrid3deployer.new_deployment(deployment_name2)!
+deployment2.add_webname(name: 'mywebname', backend: 'http://${vm1_public_ip4}:80')
+deployment2.deploy()!
 
 // Retry logic to wait for the SSH server to be up
 max_retries := 10
@@ -57,13 +59,13 @@ if !is_ssh_up {
 	panic('Failed to connect to the SSH server after ${max_retries} attempts.')
 }
 
-cp_cmd := 'scp -o "UserKnownHostsFile=/dev/null" ${os.dir(@FILE)}/install_caddy.sh root@${vm1_public_ip4}:~ && mkdir -p /etc/caddy && scp -o "UserKnownHostsFile=/dev/null" ${os.dir(@FILE)}/Caddyfile root@${vm1_public_ip4}:/etc/caddy/'
+cp_cmd := 'scp -o "StrictHostKeyChecking no" ${os.dir(@FILE)}/install_caddy.sh ${os.dir(@FILE)}/Caddyfile root@${vm1_public_ip4}:~'
 res1 := os.execute(cp_cmd)
 if res1.exit_code != 0 {
 	panic('failed to copy files: ${res1.output}')
 }
 
-cmd := 'ssh root@${vm1_public_ip4} -t "chmod +x ~/install_caddy.sh && ~/setup.sh" -o "UserKnownHostsFile=/dev/null"'
+cmd := 'ssh root@${vm1_public_ip4} -o "StrictHostKeyChecking no" -t "chmod +x ~/install_caddy.sh && ~/install_caddy.sh"'
 res := os.execute(cmd)
 if res.exit_code != 0 {
 	panic('failed to install and run caddy: ${res.output}')
