@@ -2,6 +2,7 @@ module osal
 
 import os
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 // import regex
 import freeflowuniverse.herolib.core.texttools
@@ -73,7 +74,7 @@ pub fn profile_path_add_hero() !string {
 
 pub fn bin_path() !string {
 	mut dest := ''
-	if is_osx() {
+	if core.is_osx()! {
 		dest = '${os.home_dir()}/hero/bin'
 		dir_ensure(dest)!
 	} else {
@@ -92,7 +93,7 @@ pub fn hero_path() !string {
 ///usr/local on linux, ${os.home_dir()}/hero on osx
 pub fn usr_local_path() !string {
 	mut dest := ''
-	if is_osx() {
+	if core.is_osx()! {
 		dest = '${os.home_dir()}/hero'
 		dir_ensure(dest)!
 	} else {
@@ -102,11 +103,11 @@ pub fn usr_local_path() !string {
 }
 
 // return the source statement if the profile exists
-pub fn profile_path_source() string {
+pub fn profile_path_source()! string {
 	if hostname() or { '' } == 'rescue' {
 		return ''
 	}
-	pp := profile_path()
+	pp := profile_path()!
 	if os.exists(pp) {
 		return 'source ${pp}'
 	}
@@ -115,11 +116,11 @@ pub fn profile_path_source() string {
 
 // return source $path &&  .
 // or empty if it doesn't exist
-pub fn profile_path_source_and() string {
+pub fn profile_path_source_and()! string {
 	if hostname() or { '' } == 'rescue' {
 		return ''
 	}
-	pp := profile_path()
+	pp := profile_path()!
 	if os.exists(pp) {
 		return '. ${pp} &&'
 	}
@@ -276,7 +277,7 @@ pub fn profile_paths_all() ![]string {
 
 pub fn profile_paths_preferred() ![]string {
 	mut toadd := []string{}
-	if is_osx() {
+	if core.is_osx()! {
 		toadd << '${os.home_dir()}/.zprofile'
 		toadd << '${os.home_dir()}/.zshrc'
 	} else {
@@ -295,8 +296,8 @@ pub fn profile_paths_preferred() ![]string {
 	return profile_files2
 }
 
-pub fn profile_path() string {
-	if is_osx() {
+pub fn profile_path()! string {
+	if core.is_osx()! {
 		return '${os.home_dir()}/.zprofile'
 	} else {
 		return '${os.home_dir()}/.bash_profile'

@@ -14,7 +14,7 @@ pub fn installll(args_ InstallArgs) ! {
 
 	version := '11.1.4'
 
-	res := os.execute('${osal.profile_path_source_and()} grafana --version')
+	res := os.execute('${osal.profile_path_source_and()!} grafana --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('grafana'))
 		if r.len != 1 {
@@ -32,7 +32,7 @@ pub fn installll(args_ InstallArgs) ! {
 		console.print_header('install grafana')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://dl.grafana.com/oss/release/grafana-${version}.linux-amd64.tar.gz'
 		} else {
 			return error('unsuported platform, only linux amd64 for now')

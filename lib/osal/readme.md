@@ -18,28 +18,28 @@ A comprehensive operating system abstraction layer for V that provides platform-
 import freeflowuniverse.herolib.osal
 
 // Get platform type
-platform := osal.platform()
+platform := core.platform()!
 if platform == .osx {
     // macOS specific code
 }
 
 // Platform-specific checks
-if osal.is_linux() {
+if core.is_linux()! {
     // Linux specific code
 }
-if osal.is_osx_arm() {
+if core.is_osx_arm()! {
     // Apple Silicon specific code
 }
 
 // CPU architecture
-cpu := osal.cputype()
+cpu := core.cputype()!
 if cpu == .arm {
     // ARM specific code
 }
 
 // System information
-hostname := osal.hostname()!
-init_system := osal.initname()!  // e.g., systemd, bash, zinit
+hostname := core.hostname()!!
+init_system := core.initname()!  // e.g., systemd, bash, zinit
 ```
 
 ## Process Execution

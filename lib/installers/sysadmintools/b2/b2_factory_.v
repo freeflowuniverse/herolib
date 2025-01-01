@@ -1,153 +1,152 @@
+
 module b2
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
+
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-	b2_global  map[string]&BackBase
-	b2_default string
+    b2_global map[string]&BackBase
+    b2_default string
 )
 
 /////////FACTORY
 
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
-}
 
-pub fn get(args_ ArgsGet) !&BackBase {
-	return &BackBase{}
-}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+
 fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
-	// unknown
-	// screen
-	// zinit
-	// tmux
-	// systemd
-	match cat {
-		.zinit {
-			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
-		}
-		.systemd {
-			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
-		}
-		else {
-			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
-		}
-	}
+    // unknown
+    // screen
+    // zinit
+    // tmux
+    // systemd
+    match cat{
+        .zinit{
+            console.print_debug("startupmanager: zinit")
+            return startupmanager.get(cat:.zinit)!
+        }
+        .systemd{
+            console.print_debug("startupmanager: systemd")
+            return startupmanager.get(cat:.systemd)!
+        }else{
+            console.print_debug("startupmanager: auto")
+            return startupmanager.get()!
+        }
+    }
 }
 
 pub fn (mut self BackBase) start() ! {
-	switch(self.name)
-	if self.running()! {
-		return
-	}
+    switch(self.name)
+    if self.running()!{
+        return
+    }
 
-	console.print_header('b2 start')
+    console.print_header('b2 start')
 
-	if !installed()! {
-		install()!
-	}
+    if ! installed_()!{
+        install_()!
+    }
 
-	configure()!
+    configure()!
 
-	start_pre()!
+    start_pre()!
 
-	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
+    for zprocess in startupcmd()!{
+        mut sm:=startupmanager_get(zprocess.startuptype)!
 
-		console.print_debug('starting b2 with ${zprocess.startuptype}...')
+        console.print_debug('starting b2 with ${zprocess.startuptype}...')
 
-		sm.new(zprocess)!
+        sm.new(zprocess)!
 
-		sm.start(zprocess.name)!
-	}
+        sm.start(zprocess.name)!
+    }
 
-	start_post()!
+    start_post()!
 
-	for _ in 0 .. 50 {
-		if self.running()! {
-			return
-		}
-		time.sleep(100 * time.millisecond)
-	}
-	return error('b2 did not install properly.')
+    for _ in 0 .. 50 {
+        if self.running()! {
+            return
+        }
+        time.sleep(100 * time.millisecond)
+    }
+    return error('b2 did not install properly.')
+
 }
 
 pub fn (mut self BackBase) install_start(model InstallArgs) ! {
-	switch(self.name)
-	self.install(model)!
-	self.start()!
+    switch(self.name)
+    self.install(model)!
+    self.start()!
 }
 
 pub fn (mut self BackBase) stop() ! {
-	switch(self.name)
-	stop_pre()!
-	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		sm.stop(zprocess.name)!
-	}
-	stop_post()!
+    switch(self.name)
+    stop_pre()!
+    for zprocess in startupcmd()!{
+        mut sm:=startupmanager_get(zprocess.startuptype)!
+        sm.stop(zprocess.name)!
+    }
+    stop_post()!
 }
 
 pub fn (mut self BackBase) restart() ! {
-	switch(self.name)
-	self.stop()!
-	self.start()!
+    switch(self.name)
+    self.stop()!
+    self.start()!
 }
 
 pub fn (mut self BackBase) running() !bool {
-	switch(self.name)
+    switch(self.name)
 
-	// walk over the generic processes, if not running return
-	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		r := sm.running(zprocess.name)!
-		if r == false {
-			return false
-		}
-	}
-	return running()!
+    //walk over the generic processes, if not running return
+    for zprocess in startupcmd()!{
+        mut sm:=startupmanager_get(zprocess.startuptype)!
+        r:=sm.running(zprocess.name)!
+        if r==false{
+            return false
+        }
+    }
+    return running()!
 }
 
 @[params]
-pub struct InstallArgs {
+pub struct InstallArgs{
 pub mut:
-	reset bool
+    reset bool
 }
 
-pub fn (mut self BackBase) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
-	}
+
+pub fn install(args InstallArgs) ! {
+    if args.reset {
+        destroy()!
+    }    
+    if ! (installed_()!){
+        install_()!    
+    }
 }
 
-pub fn (mut self BackBase) build() ! {
-	switch(self.name)
-	build()!
+pub fn destroy() ! {
+    destroy_()!
 }
 
-pub fn (mut self BackBase) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy()!
+pub fn build() ! {
+    build_()!
 }
 
-// switch instance to be used for b2
-pub fn switch(name string) {
-	b2_default = name
-}
+
+
+
+

@@ -142,7 +142,7 @@ pub fn (mut ipaddr IPAddress) ping(args_ PingArgs) bool {
 	if ipaddr.cat == IpAddressType.ipv4 {
 		cmd = 'ping -c 1 -W ${args.timeout} ${ipaddr.addr}'
 	} else {
-		if osal.is_osx() {
+		if core.is_osx()! {
 			cmd = 'ping6 -c 1 -i ${timeout} ${ipaddr.addr}'
 		} else {
 			cmd = 'ping -6 -c 1 -W ${args.timeout} ${ipaddr.addr}'

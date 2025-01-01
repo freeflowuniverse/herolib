@@ -9,7 +9,7 @@ pub fn installll(args_ InstallArgs) ! {
 	mut args := args_
 	version := '0.16.2'
 
-	res := os.execute('${osal.profile_path_source_and()} restic version')
+	res := os.execute('${osal.profile_path_source_and()!} restic version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('restic 0'))
 		if r.len != 1 {
@@ -31,11 +31,11 @@ pub fn installll(args_ InstallArgs) ! {
 	console.print_header('install restic')
 
 	mut url := ''
-	if osal.is_linux() {
+	if core.is_linux()! {
 		url = 'https://github.com/restic/restic/releases/download/v${version}/restic_${version}_linux_amd64.bz2'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/restic/restic/releases/download/v${version}/restic_${version}_darwin_arm64.bz2'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/restic/restic/releases/download/v${version}/restic_${version}_darwin_amd64.bz2'
 	} else {
 		return error('unsported platform')

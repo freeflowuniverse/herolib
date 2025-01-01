@@ -30,7 +30,7 @@ pub fn install_(args_ InstallArgs) ! {
 
 	base.install()!
 
-	res := os.execute('${osal.profile_path_source_and()} lima -v')
+	res := os.execute('${osal.profile_path_source_and()!} lima -v')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('limactl version'))
 		if r.len != 1 {
@@ -54,17 +54,17 @@ pub fn install_(args_ InstallArgs) ! {
 		qemu.install()!
 		mut url := ''
 		mut dest_on_os := '${os.home_dir()}/hero'
-		if osal.is_linux_arm() {
+		if core.is_linux_arm()! {
 			dest_on_os = '/usr/local'
 			url = 'https://github.com/lima-vm/lima/releases/download/v${version}/lima-${version}-Linux-aarch64.tar.gz'
-		} else if osal.is_linux_intel() {
+		} else if core.is_linux_intel()! {
 			dest_on_os = '/usr/local'
 			url = 'https://github.com/lima-vm/lima/releases/download/v${version}/lima-${version}-Linux-x86_64.tar.gz'
-		} else if osal.is_osx() {
+		} else if core.is_osx()! {
 			osx_install()!
-			// } else if osal.is_osx_arm() {
+			// } else if core.is_osx_arm()! {
 			// 	url = 'https://github.com/lima-vm/lima/releases/download/v${version}/lima-${version}-Darwin-arm64.tar.gz'
-			// } else if osal.is_osx_intel() {
+			// } else if core.is_osx_intel()! {
 			// 	url = 'https://github.com/lima-vm/lima/releases/download/v${version}/lima-${version}-Darwin-x86_64.tar.gz'
 		} else {
 			return error('unsported platform')

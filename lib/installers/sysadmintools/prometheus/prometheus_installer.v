@@ -14,7 +14,7 @@ pub fn install_prometheus(args_ InstallArgs) ! {
 
 	version := '2.54.0'
 
-	res := os.execute('${osal.profile_path_source_and()} prometheus --version')
+	res := os.execute('${osal.profile_path_source_and()!} prometheus --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('prometheus'))
 		if r.len != 1 {
@@ -32,7 +32,7 @@ pub fn install_prometheus(args_ InstallArgs) ! {
 		console.print_header('install prometheus')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://github.com/prometheus/prometheus/releases/download/v${version}/prometheus-${version}.linux-amd64.tar.gz'
 		} else {
 			return error('unsported platform, only linux amd64 for now')

@@ -28,9 +28,9 @@ pub fn installll(args_ S3Config) ! {
 		console.print_header('install garage')
 
 		mut url := ''
-		if osal.is_linux_arm() {
+		if core.is_linux_arm()! {
 			url = 'https://garagehq.deuxfleurs.fr/_releases/v${version}/aarch64-unknown-linux-musl/garage'
-		} else if osal.is_linux_intel() {
+		} else if core.is_linux_intel()! {
 			url = 'https://garagehq.deuxfleurs.fr/_releases/v${version}/x86_64-unknown-linux-musl/garage'
 		} else {
 			return error('unsported platform')

@@ -2,11 +2,12 @@ module osal
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core
 import os
 
 // update the package list
 pub fn package_refresh() ! {
-	platform_ := platform()
+	platform_ := core.platform()!
 
 	if cmd_exists('nix-env') {
 		// nix package manager is installed
@@ -49,8 +50,8 @@ pub fn package_install(name_ string) ! {
 	name := names.join(' ')
 	console.print_header('package install: ${name}')
 
-	platform_ := platform()
-	cpu := cputype()
+	platform_ := core.platform()!
+	cpu := core.cputype()!
 
 	if platform_ == .osx {
 		if cpu == .arm {
@@ -64,7 +65,7 @@ pub fn package_install(name_ string) ! {
 		}
 	} else if platform_ == .ubuntu {
 		// Use sudo if required (based on user's permissions)
-		use_sudo := is_sudo_required()
+		use_sudo := core.sudo_required()!
 
 		cmd := if use_sudo {
 			'sudo apt install -y ${name}  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --allow-downgrades --allow-remove-essential --allow-change-held-packages'
@@ -76,7 +77,7 @@ pub fn package_install(name_ string) ! {
 		}
 	} else if platform_ == .alpine {
 		// Use sudo if required
-		use_sudo := is_sudo_required()
+		use_sudo := core.sudo_required()!
 		cmd := if use_sudo {
 			'sudo apk add ${name}'
 		} else {
@@ -87,7 +88,7 @@ pub fn package_install(name_ string) ! {
 		}
 	} else if platform_ == .arch {
 		// Use sudo if required
-		use_sudo := is_sudo_required()
+		use_sudo := core.sudo_required()!
 		cmd := if use_sudo {
 			'sudo pacman --noconfirm -Su ${name}'
 		} else {
@@ -101,23 +102,6 @@ pub fn package_install(name_ string) ! {
 	}
 }
 
-// Method to check if sudo is required (i.e., if the user is root or has sudo privileges)
-fn is_sudo_required() bool {
-	// Check if the user is root
-	if os.getenv('USER') == 'root' {
-		return false
-	}
-
-	platform_ := platform()
-
-	if platform_ == .osx {
-		return false
-	}
-
-	// Check if the user has sudo privileges (test with `sudo -v`)
-	sudo_check := os.execute('sudo -v')
-	return sudo_check.exit_code == 0
-}
 
 // remove a package using the right commands per platform
 pub fn package_remove(name_ string) ! {
@@ -125,8 +109,8 @@ pub fn package_remove(name_ string) ! {
 	name := names.join(' ')
 	console.print_header('package remove: ${name}')
 
-	platform_ := platform()
-	cpu := cputype()
+	platform_ := core.platform()!
+	cpu := core.cputype()!
 
 	// Debugging: print out platform and cpu type
 	println('Platform: ${platform_}, CPU: ${cpu}')
@@ -137,7 +121,7 @@ pub fn package_remove(name_ string) ! {
 	}
 
 	// Determine if sudo is required by checking if the user has sudo privileges
-	use_sudo := is_sudo_required()
+	use_sudo := core.sudo_required()!
 
 	// Platform-specific package removal logic
 	if platform_ == .osx {

@@ -15,11 +15,11 @@ fn installed_() !bool {
 fn install_() ! {
 	console.print_header('install pacman')
 
-	if osal.platform() == .arch {
+	if core.platform()! == .arch {
 		return
 	}
 
-	if osal.platform() != .ubuntu {
+	if core.platform()!= .ubuntu {
 		return error('only ubuntu supported for this installer.')
 	}
 

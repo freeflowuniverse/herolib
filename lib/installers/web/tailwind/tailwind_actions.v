@@ -30,13 +30,13 @@ pub fn install_() ! {
 	console.print_header('install tailwind')
 
 	mut url := ''
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-linux-arm64'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-linux-x64'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-macos-arm64'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-macos-x64'
 	} else {
 		return error('unsported platform')

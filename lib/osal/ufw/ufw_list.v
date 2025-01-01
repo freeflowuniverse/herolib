@@ -4,7 +4,7 @@ import os
 
 pub fn ufw_status() !UFWStatus {
 	// Run the UFW status command
-	result := os.execute('sudo ufw status')
+	result := os.execute('ufw status')
 	if result.exit_code != 0 {
 		return error('Error running UFW status: ${result.output}')
 	}

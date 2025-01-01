@@ -1,79 +1,102 @@
+
 module zola
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
+
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-	zola_global  map[string]&ZolaInstaller
-	zola_default string
+    zola_global map[string]&ZolaInstaller
+    zola_default string
 )
 
 /////////FACTORY
 
+
+
 @[params]
-pub struct ArgsGet {
+pub struct ArgsGet{
 pub mut:
-	name string
+    name string
 }
 
-pub fn get(args_ ArgsGet) !&ZolaInstaller {
-	return &ZolaInstaller{}
+fn args_get (args_ ArgsGet) ArgsGet {
+    mut model:=args_
+    if model.name == ""{
+        model.name = zola_default
+    }
+    if model.name == ""{
+        model.name = "default"
+    }
+    return model
 }
+
+pub fn get(args_ ArgsGet) !&ZolaInstaller  {
+    mut args := args_get(args_)
+    if !(args.name in zola_global) {
+        if args.name=="default"{
+            if ! config_exists(args){
+                if default{
+                    mut context:=base.context() or { panic("bug") }
+                    context.hero_config_set("zola",model.name,heroscript_default()!)!
+                }
+            }
+            load(args)!
+        }
+    }
+    return zola_global[args.name] or { 
+            println(zola_global)
+            panic("could not get config for ${args.name} with name:${model.name}") 
+        }
+}
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
-	// unknown
-	// screen
-	// zinit
-	// tmux
-	// systemd
-	match cat {
-		.zinit {
-			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
-		}
-		.systemd {
-			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
-		}
-		else {
-			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
-		}
-	}
-}
+
+
 
 @[params]
-pub struct InstallArgs {
+pub struct InstallArgs{
 pub mut:
-	reset bool
+    reset bool
 }
 
-pub fn (mut self ZolaInstaller) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
-	}
+
+//switch instance to be used for zola
+pub fn switch(name string) {
+    zola_default = name
+}
+
+
+pub fn (mut self ZolaInstaller) install(args InstallArgs) ! {
+    switch(self.name)
+    if args.reset {
+        destroy_()!    
+    }   
+    if ! (installed_()!){
+        install_()! 
+    }
 }
 
 pub fn (mut self ZolaInstaller) build() ! {
-	switch(self.name)
-	build()!
+    switch(self.name)
+    build_()!
 }
 
 pub fn (mut self ZolaInstaller) destroy() ! {
-	switch(self.name)
-	destroy()!
+    switch(self.name)
+    destroy_()!
 }
 
-// switch instance to be used for zola
-pub fn switch(name string) {
-	zola_default = name
-}
+
+
+

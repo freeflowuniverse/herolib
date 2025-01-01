@@ -449,7 +449,7 @@ pub fn cmd_exists(cmd string) bool {
 }
 
 pub fn cmd_exists_profile(cmd string) bool {
-	cmd1 := '${profile_path_source_and()} which ${cmd}'
+	cmd1 := '${profile_path_source_and() or {panic(err)}} which ${cmd}'
 	res := os.execute(cmd1)
 	if res.exit_code > 0 {
 		return false

@@ -55,7 +55,7 @@ pub const version = '2.8.4'
 // }
 
 pub fn is_installed(version string) !bool {
-	res := os.execute('${osal.profile_path_source_and()} caddy version')
+	res := os.execute('${osal.profile_path_source_and()!} caddy version')
 	if res.exit_code == 0 {
 		mut r := res.output.split_into_lines().filter(it.trim_space().len > 0)
 		if r.len > 1 {
@@ -75,13 +75,13 @@ pub fn is_installed(version string) !bool {
 pub fn install_caddy_from_release() ! {
 	version := '2.8.4'
 	mut url := ''
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://github.com/caddyserver/caddy/releases/download/v${version}/caddy_${version}_linux_arm64.tar.gz'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://github.com/caddyserver/caddy/releases/download/v${version}/caddy_${version}_linux_amd64.tar.gz'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/caddyserver/caddy/releases/download/v${version}/caddy_${version}_darwin_arm64.tar.gz'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/caddyserver/caddy/releases/download/v${version}/caddy_${version}_darwin_amd64.tar.gz'
 	} else {
 		return error('unsported platform')
@@ -136,13 +136,13 @@ pub fn install_caddy_with_xcaddy(plugins []string) ! {
 
 	console.print_header('Installing xcaddy')
 	mut url := ''
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://github.com/caddyserver/xcaddy/releases/download/v${xcaddy_version}/xcaddy_${xcaddy_version}_linux_arm64.tar.gz'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://github.com/caddyserver/xcaddy/releases/download/v${xcaddy_version}/xcaddy_${xcaddy_version}_linux_amd64.tar.gz'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/caddyserver/xcaddy/releases/download/v${xcaddy_version}/xcaddy_${xcaddy_version}_mac_arm64.tar.gz'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/caddyserver/xcaddy/releases/download/v${xcaddy_version}/xcaddy_${xcaddy_version}_mac_amd64.tar.gz'
 	} else {
 		return error('unsported platform')
@@ -166,7 +166,7 @@ pub fn install_caddy_with_xcaddy(plugins []string) ! {
 
 	// Define the xcaddy command to build Caddy with plugins
 	path := '/tmp/caddyserver/caddy'
-	cmd := 'source ${osal.profile_path()} && xcaddy build v${caddy_version} ${plugins_str} --output ${path}'
+	cmd := 'source ${osal.profile_path()!} && xcaddy build v${caddy_version} ${plugins_str} --output ${path}'
 	osal.exec(cmd: cmd)!
 	osal.cmd_add(
 		cmdname: 'caddy'

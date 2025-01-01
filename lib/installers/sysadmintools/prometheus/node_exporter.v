@@ -14,7 +14,7 @@ pub fn install_node_exporter(args_ InstallArgs) ! {
 
 	version := '1.8.2'
 
-	res := os.execute('${osal.profile_path_source_and()} node_exporter --version')
+	res := os.execute('${osal.profile_path_source_and()!} node_exporter --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('node_exporter'))
 		if r.len != 1 {
@@ -32,7 +32,7 @@ pub fn install_node_exporter(args_ InstallArgs) ! {
 		console.print_header('install node_exporter')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://github.com/prometheus/node_exporter/releases/download/v${version}/node_exporter-${version}.linux-amd64.tar.gz'
 		} else {
 			return error('unsuported platform, only linux amd64 for now')

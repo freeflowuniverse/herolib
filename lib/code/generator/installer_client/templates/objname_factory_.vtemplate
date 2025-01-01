@@ -4,6 +4,7 @@ module ${model.name}
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 @if model.hasconfig
 import freeflowuniverse.herolib.data.encoderhero
 @end

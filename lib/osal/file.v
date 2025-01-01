@@ -1,6 +1,7 @@
 module osal
 
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import os
 
@@ -38,17 +39,25 @@ pub fn dir_reset(path string) ! {
 // can be \n or , separated
 pub fn rm(todelete_ string) ! {
 	for mut item in texttools.to_array(todelete_) {
-		if item.trim_space() == '' {
+		if item.trim_space() == ''|| item.trim_space().starts_with("#"){
 			continue
 		}
+		
 		item = item.replace('~', os.home_dir())
 		console.print_debug(' - rm: ${item}')
 		if item.starts_with('/') {
 			if os.exists(item) {
 				if os.is_dir(item) {
-					os.rmdir_all(item)!
+					//console.print_debug("rm deletedir: ${item}")
+					os.rmdir_all(core.sudo_path_check(item)!)!
 				} else {
-					os.rm(item)!
+					//console.print_debug("rm delete file: ${item}")
+					if core.sudo_path_ok(item)!{
+						os.rm(item)!
+					}else{
+
+					}
+					
 				}
 			}
 		} else {

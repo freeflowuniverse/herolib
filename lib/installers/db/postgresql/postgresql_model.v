@@ -39,7 +39,7 @@ fn cfg_play(p paramsparser.Params) !Postgresql {
 fn obj_init(obj_ Postgresql) !Postgresql {
 	mut obj := obj_
 	if obj.path == '' {
-		if osal.is_linux() {
+		if core.is_linux()! {
 			obj.path = '/data/postgresql/${obj.name}'
 		} else {
 			obj.path = '${os.home_dir()}/hero/var/postgresql/${obj.name}'

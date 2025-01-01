@@ -15,6 +15,18 @@ import os
 //////////////////// following actions are not specific to instance of the object
 
 fn installed_() !bool {
+    
+    res := os.execute('pnpm -v')
+    if res.exit_code != 0 {
+        return false
+    }
+    r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+    if r.len != 1 {
+        return error("couldn't parse pnpm version.\n${res.output}")
+    }
+    if texttools.version(r[0]) >= texttools.version(version) {
+        return true
+    }
     return false
 }
 

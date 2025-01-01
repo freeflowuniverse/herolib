@@ -27,7 +27,7 @@ pub fn install_(args_ InstallArgs) ! {
 	mut args := args_
 	version := '1.11.1'
 
-	res := os.execute('${osal.profile_path_source_and()} coredns version')
+	res := os.execute('${osal.profile_path_source_and()!} coredns version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('CoreDNS-'))
 		if r.len != 1 {
@@ -44,13 +44,13 @@ pub fn install_(args_ InstallArgs) ! {
 		console.print_header('install coredns')
 
 		mut url := ''
-		if osal.is_linux_arm() {
+		if core.is_linux_arm()! {
 			url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_linux_arm64.tgz'
-		} else if osal.is_linux_intel() {
+		} else if core.is_linux_intel()! {
 			url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_linux_amd64.tgz'
-		} else if osal.is_osx_arm() {
+		} else if core.is_osx_arm()! {
 			url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_darwin_arm64.tgz'
-		} else if osal.is_osx_intel() {
+		} else if core.is_osx_intel()! {
 			url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_darwin_amd64.tgz'
 		} else {
 			return error('unsported platform')

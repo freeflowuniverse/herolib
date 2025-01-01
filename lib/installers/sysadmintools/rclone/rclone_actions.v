@@ -8,7 +8,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()} rclone version')
+	res := os.execute('${osal.profile_path_source_and()!} rclone version')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -27,13 +27,13 @@ fn install_() ! {
 	console.print_header('install rclone')
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	mut url := ''
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://github.com/rclone/rclone/releases/download/v${version}/rclone-v${version}-linux-arm64.zip'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://github.com/rclone/rclone/releases/download/v${version}/rclone-v${version}-linux-amd64.zip'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://downloads.rclone.org/rclone-current-osx-amd64.zip'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/rclone/rclone/releases/download/v${version}/rclone-v${version}-osx-amd64.zip'
 	} else {
 		return error('unsported platform')

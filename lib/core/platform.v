@@ -1,8 +1,19 @@
-module osal
+module core
 
 import os
+
 // import freeflowuniverse.herolib.ui.console
 // Returns the enum value that matches the provided string for PlatformType
+
+
+pub enum PlatformType {
+	unknown
+	osx
+	ubuntu
+	alpine
+	arch
+	suse
+}
 
 pub fn platform_enum_from_string(platform string) PlatformType {
 	return match platform.to_lower() {
@@ -14,18 +25,10 @@ pub fn platform_enum_from_string(platform string) PlatformType {
 	}
 }
 
-pub enum PlatformType {
-	unknown
-	osx
-	ubuntu
-	alpine
-	arch
-	suse
-}
 
 // Returns the enum value that matches the provided string for CPUType
-pub fn cputype_enum_from_string(cpytype string) CPUType {
-	return match cpytype.to_lower() {
+pub fn cputype_enum_from_string(cputype string) CPUType {
+	return match cputype.to_lower() {
 		'intel' { .intel }
 		'arm' { .arm }
 		'intel32' { .intel32 }
@@ -42,8 +45,16 @@ pub enum CPUType {
 	arm32
 }
 
-pub fn platform() PlatformType {
-	mut logger := get_logger()
+pub fn cmd_exists(cmd string) bool {
+	cmd1 := 'which ${cmd}'
+	res := os.execute(cmd1)
+	if res.exit_code > 0 {
+		return false
+	}
+	return true
+}
+
+pub fn platform()! PlatformType {
 	mut platform_ := PlatformType.unknown
 	platform_ = platform_enum_from_string(memdb_get('platformtype'))
 	if platform_ != PlatformType.unknown {
@@ -58,7 +69,7 @@ pub fn platform() PlatformType {
 	} else if cmd_exists('pacman') {
 		platform_ = PlatformType.arch
 	} else {
-		logger.error('Unknown platform')
+		return error('Unknown platform')
 	}
 	if platform_ != PlatformType.unknown {
 		memdb_set('platformtype', platform_.str())
@@ -66,17 +77,18 @@ pub fn platform() PlatformType {
 	return platform_
 }
 
-pub fn cputype() CPUType {
-	mut logger := get_logger()
+pub fn cputype()! CPUType {
 	mut cputype_ := CPUType.unknown
 	cputype_ = cputype_enum_from_string(memdb_get('cputype'))
 	if cputype_ != CPUType.unknown {
 		return cputype_
 	}
-	sys_info := execute_stdout('uname -m') or {
-		logger.error('Failed to execute uname to get the cputype: ${err}')
-		return CPUType.unknown
+	res := os.execute('uname -m')
+	if res.exit_code >0{
+		return error("can't execute uname -m")
 	}
+	sys_info := res.output
+	
 	cputype_ = match sys_info.to_lower().trim_space() {
 		'x86_64' {
 			CPUType.intel
@@ -87,9 +99,7 @@ pub fn cputype() CPUType {
 		'aarch64' {
 			CPUType.arm
 		}
-		// TODO 32 bit ones!
 		else {
-			logger.error('Unknown cpu type ${sys_info}')
 			CPUType.unknown
 		}
 	}
@@ -100,37 +110,37 @@ pub fn cputype() CPUType {
 	return cputype_
 }
 
-pub fn is_osx() bool {
-	return platform() == .osx
+pub fn is_osx()! bool {
+	return platform()! == .osx
 }
 
-pub fn is_osx_arm() bool {
-	return platform() == .osx && cputype() == .arm
+pub fn is_osx_arm()! bool {
+	return platform()! == .osx && cputype()! == .arm
 }
 
-pub fn is_osx_intel() bool {
-	return platform() == .osx && cputype() != .intel
+pub fn is_osx_intel()! bool {
+	return platform()! == .osx && cputype()! == .intel
 }
 
-pub fn is_ubuntu() bool {
-	return platform() == .ubuntu
+pub fn is_ubuntu()! bool {
+	return platform()! == .ubuntu
 }
 
-pub fn is_linux() bool {
-	return platform() == .ubuntu || platform() == .arch || platform() == .suse
-		|| platform() == .alpine
+pub fn is_linux()! bool {
+	return platform()! == .ubuntu || platform()! == .arch || platform()! == .suse
+		|| platform()! == .alpine
 }
 
-pub fn is_linux_arm() bool {
-	// console.print_debug("islinux:${is_linux()} cputype:${cputype()}")
-	return is_linux() && cputype() == .arm
+pub fn is_linux_arm()!bool {
+	// console.print_debug("islinux:${is_linux()!} cputype:${cputype()!}")
+	return is_linux()! && cputype()! == .arm
 }
 
-pub fn is_linux_intel() bool {
-	return is_linux() && cputype() == .intel
+pub fn is_linux_intel()! bool {
+	return is_linux()! && cputype()! == .intel
 }
 
-pub fn hostname() !string {
+pub fn hostname()!string {
 	res := os.execute('hostname')
 	if res.exit_code > 0 {
 		return error("can't get hostname. Error.")

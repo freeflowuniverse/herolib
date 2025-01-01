@@ -3,7 +3,7 @@ module rust
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.base
 
@@ -15,7 +15,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-    res := os.execute('${osal.profile_path_source_and()} rustc -V')
+    res := os.execute('${osal.profile_path_source_and()!} rustc -V')
     if res.exit_code != 0 {
         return false
     }
@@ -51,7 +51,7 @@ fn install_() ! {
 
 	base.install()!
 
-	pl := osal.platform()
+	pl := core.platform()!
 
 	if pl == .ubuntu {
 		osal.package_install('build-essential,openssl,pkg-config,libssl-dev,gcc')!

@@ -30,7 +30,7 @@ fn installed_() !bool {
 
 fn install_() ! {
 	console.print_header('install zinit')
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 
@@ -53,7 +53,7 @@ fn install_() ! {
 }
 
 fn build_() ! {
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 
@@ -70,7 +70,7 @@ fn build_() ! {
 	)!
 	gitpath := repo.get_path()!
 
-	// source ${osal.profile_path()}
+	// source ${osal.profile_path()!}
 
 	cmd := '
 	source ~/.cargo/env

@@ -9,7 +9,7 @@ import freeflowuniverse.herolib.installers.ulist
 import os
 
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()} meilisearch -V')
+	res := os.execute('${osal.profile_path_source_and()!} meilisearch -V')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -28,13 +28,13 @@ fn install_() ! {
 	console.print_header('install meilisearch')
 	mut url := ''
 
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-linux-aarch64'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-linux-amd64'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-macos-apple-silicon'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-macos-amd64'
 	} else {
 		return error('unsported platform')
@@ -62,7 +62,7 @@ fn build_() ! {
 	// console.print_header('compile meilisearch')
 	// rust.install()!
 	// mut dest_on_os := '${os.home_dir()}/hero/bin'
-	// if osal.is_linux() {
+	// if core.is_linux()! {
 	// 	dest_on_os = '/usr/local/bin'
 	// }
 	// console.print_debug(' - dest path for meilisearchs is on: ${dest_on_os}')

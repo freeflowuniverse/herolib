@@ -4,6 +4,7 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
+import freeflowuniverse.herolib.core
 import time
 import os
 
@@ -39,7 +40,7 @@ pub fn redis_install(args_ RedisInstallArgs) ! {
 	console.print_header('install redis.')
 
 	if !(osal.cmd_exists_profile('redis-server')) {
-		if osal.is_linux() {
+		if core.is_linux()! {
 			osal.package_install('redis-server')!
 		} else {
 			osal.package_install('redis')!
@@ -54,7 +55,7 @@ pub fn redis_install(args_ RedisInstallArgs) ! {
 }
 
 fn configfilepath(args RedisInstallArgs) string {
-	if osal.is_linux() {
+	if core.is_linux() or {panic(err)} {
 		return '/etc/redis/redis.conf'
 	} else {
 		return '${args.datadir}/redis.conf'
@@ -83,7 +84,7 @@ pub fn start(args RedisInstallArgs) ! {
 	// remove all redis in memory
 	osal.process_kill_recursive(name: 'redis-server')!
 
-	if osal.platform() == .osx {
+	if core.platform()! == .osx {
 		osal.exec(cmd: 'redis-server ${configfilepath()} --daemonize yes')!
 		// osal.exec(cmd:"brew services start redis") or {
 		// 	osal.exec(cmd:"redis-server ${configfilepath()} --daemonize yes")!

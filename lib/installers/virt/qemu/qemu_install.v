@@ -44,7 +44,7 @@ pub fn install_(args_ InstallArgs) ! {
 
 	console.print_header('install libvirt & qemu')
 	base.install()!
-	if osal.platform() in [.arch, .ubuntu] {
+	if core.platform()! in [.arch, .ubuntu] {
 		osal.package_install('qemu,libvirt,qemu-common,qemu-img,qemu-system-arm,qemu-system-x86,qemu-tools,libguestfs')!
 		osal.exec(cmd: 'systemctl start libvirtd && systemctl enable libvirtd')!
 	} else {

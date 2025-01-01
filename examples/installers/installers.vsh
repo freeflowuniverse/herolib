@@ -5,6 +5,9 @@ import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.installers.lang.python
 import freeflowuniverse.herolib.installers.lang.nodejs
 import freeflowuniverse.herolib.installers.lang.golang
+import freeflowuniverse.herolib.core
+
+core.interactive_set()! //make sure the sudo works so we can do things even if it requires those rights
 
 
 // import freeflowuniverse.herolib.data.dbfs
@@ -34,5 +37,6 @@ import freeflowuniverse.herolib.installers.lang.golang
 // b2_installer.install()!
 
 // rust.install(reset:false)!
-
-nodejs.install(reset:false)!
+// python.install(reset:false)!
+// nodejs.install(reset:false)!
+golang.install(reset:true)!

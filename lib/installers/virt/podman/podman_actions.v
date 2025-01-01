@@ -9,7 +9,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()} podman -v')
+	res := os.execute('${osal.profile_path_source_and()!} podman -v')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -30,10 +30,10 @@ fn install_() ! {
 	destroy()!
 
 	mut url := ''
-	if osal.platform() == .osx {
+	if core.platform()! == .osx {
 		mut dest := '/tmp/podman.pkg'
 
-		if osal.cputype() == .arm {
+		if core.cputype()! == .arm {
 			url = 'https://github.com/containers/podman/releases/download/v${version}/podman-installer-macos-arm64.pkg'
 		} else {
 			url = 'https://github.com/containers/podman/releases/download/v${version}/podman-installer-macos-amd64.pkg'
@@ -52,9 +52,9 @@ fn install_() ! {
 		'
 		osal.execute_interactive(cmd)!
 		console.print_header(' - pkg installed.')
-	} else if osal.platform() == .ubuntu {
+	} else if core.platform()! == .ubuntu {
 		// is the remote tool to connect to a remote podman
-		// if osal.cputype() == .arm {
+		// if core.cputype()! == .arm {
 		// 	url = 'https://github.com/containers/podman/releases/download/v${version}/podman-remote-static-linux_arm64.tar.gz'
 		// } else {
 		// 	url = 'https://github.com/containers/podman/releases/download/v${version}/podman-remote-static-linux_amd64.tar.gz'
@@ -78,7 +78,7 @@ fn build_() ! {
 
 	// https://podman.io/docs/installation#building-from-source
 
-	if osal.platform() != .ubuntu && osal.platform() != .arch {
+	if core.platform()!= .ubuntu && core.platform()!= .arch {
 		return error('only support ubuntu and arch for now')
 	}
 	mut g := golang.get()!

@@ -30,7 +30,7 @@ pub fn installlll(args_ InstallArgs) ! {
 	console.print_header('install rfs')
 
 	mut url := ''
-	if osal.is_linux_intel() {
+	if core.is_linux_intel()! {
 		url = 'https://github.com/threefoldtech/rfs/releases/download/v${version}/rfs'
 	} else {
 		return error('unsported platform')

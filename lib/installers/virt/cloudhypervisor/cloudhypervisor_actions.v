@@ -9,7 +9,7 @@ import freeflowuniverse.herolib.installers.ulist
 import os
 
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()} cloud-hypervisor --version')
+	res := os.execute('${osal.profile_path_source_and()!} cloud-hypervisor --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('cloud-hypervisor'))
 		if r.len != 1 {
@@ -31,9 +31,9 @@ fn install_() ! {
 	console.print_header('install cloudhypervisor')
 	// mut installer := get()!
 	mut url := ''
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v${version0}/cloud-hypervisor-static-aarch64'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v${version0}/cloud-hypervisor-static'
 	} else {
 		return error('unsuported platform for cloudhypervisor')

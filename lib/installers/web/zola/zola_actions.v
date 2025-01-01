@@ -12,7 +12,7 @@ pub const version = '0.18.0'
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()} zola -V')
+	res := os.execute('${osal.profile_path_source_and()!} zola -V')
 	myversion := res.output.all_after(' ')
 	if res.exit_code == 0 {
 		v := texttools.version(myversion)
@@ -34,11 +34,11 @@ fn install_() ! {
 	tw.install()!
 
 	mut url := ''
-	if osal.is_linux() {
+	if core.is_linux()! {
 		url = 'https://github.com/getzola/zola/releases/download/v${version}/zola-v${version}-x86_64-unknown-linux-gnu.tar.gz'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/getzola/zola/releases/download/v${version}/zola-v${version}-aarch64-apple-darwin.tar.gz'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/getzola/zola/releases/download/v${version}/zola-v${version}-x86_64-apple-darwin.tar.gz'
 	} else {
 		return error('unsupported platform')

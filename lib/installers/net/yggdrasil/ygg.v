@@ -33,7 +33,7 @@ Peers:
 	config_path := '/etc/yggdrasil.conf'
 	mut args := args_
 
-	res := os.execute('${osal.profile_path_source_and()} yggdrasil -version')
+	res := os.execute('${osal.profile_path_source_and()!} yggdrasil -version')
 	if res.exit_code != 0 {
 		args.reset = true
 	}
@@ -91,7 +91,7 @@ pub fn start() ! {
 
 	mut cmd2 := ''
 
-	if osal.is_osx() {
+	if core.is_osx()! {
 		cmd2 = 'sudo -s '
 	}
 
@@ -103,7 +103,7 @@ pub fn start() ! {
 
 	console.print_debug('send done')
 
-	if osal.is_osx() {
+	if core.is_osx()! {
 		mut myui := ui.new()!
 		console.clear()
 

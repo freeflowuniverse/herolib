@@ -66,7 +66,7 @@ fn stop_post() ! {
 // checks if a certain version or above is installed
 fn installed_() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()} grafana version')
+	// res := os.execute('${osal.profile_path_source_and()!} grafana version')
 	// if res.exit_code != 0 {
 	//     return false
 	// }
@@ -98,13 +98,13 @@ fn install_() ! {
 	console.print_header('install grafana')
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// mut url := ''
-	// if osal.is_linux_arm() {
+	// if core.is_linux_arm()! {
 	//     url = 'https://github.com/grafana-dev/grafana/releases/download/v${version}/grafana_${version}_linux_arm64.tar.gz'
-	// } else if osal.is_linux_intel() {
+	// } else if core.is_linux_intel()! {
 	//     url = 'https://github.com/grafana-dev/grafana/releases/download/v${version}/grafana_${version}_linux_amd64.tar.gz'
-	// } else if osal.is_osx_arm() {
+	// } else if core.is_osx_arm()! {
 	//     url = 'https://github.com/grafana-dev/grafana/releases/download/v${version}/grafana_${version}_darwin_arm64.tar.gz'
-	// } else if osal.is_osx_intel() {
+	// } else if core.is_osx_intel()! {
 	//     url = 'https://github.com/grafana-dev/grafana/releases/download/v${version}/grafana_${version}_darwin_amd64.tar.gz'
 	// } else {
 	//     return error('unsported platform')
@@ -129,7 +129,7 @@ fn build_() ! {
 	// url := 'https://github.com/threefoldtech/grafana'
 
 	// make sure we install base on the node
-	// if osal.platform() != .ubuntu {
+	// if core.platform()!= .ubuntu {
 	//     return error('only support ubuntu for now')
 	// }
 	// golang.install()!

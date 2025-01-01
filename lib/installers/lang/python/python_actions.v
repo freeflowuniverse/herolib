@@ -3,7 +3,7 @@ module python
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.base
 
@@ -16,6 +16,17 @@ import os
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
+    res := os.execute('python3 --version')
+    if res.exit_code != 0 {
+        return false
+    }
+    r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+    if r.len != 1 {
+        return error("couldn't parse pnpm version.\n${res.output}")
+    }
+    if texttools.version(r[0].all_after_first("ython")) >= texttools.version(version) {
+        return true
+    }
     return false
 }
 
@@ -33,7 +44,7 @@ fn install_() ! {
     base.install()!
 
     osal.package_install('python3')!
-    pl := osal.platform()
+    pl := core.platform()!
     if pl == .arch {
         osal.package_install('python-pipx,sqlite')!
     } else if pl == .ubuntu {

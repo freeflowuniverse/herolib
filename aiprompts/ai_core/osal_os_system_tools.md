@@ -195,7 +195,7 @@ e.g. systemd, bash, zinit
 fn ipaddr_pub_get() !string
 Returns the ipaddress as known on the public side is using resolver4.opendns.com
 fn is_linux() bool
-fn is_linux_arm() bool
+fn is_linux_arm()! bool
 fn is_linux_intel() bool
 fn is_osx() bool
 fn is_osx_arm() bool
@@ -243,7 +243,7 @@ add the following path to a profile
 fn profile_path_add_hero() !string
 fn profile_path_source() string
 return the source statement if the profile exists
-fn profile_path_source_and() string
+fn profile_path_source_and()! string
 return source $path && . or empty if it doesn't exist
 fn sleep(duration int)
 sleep in seconds

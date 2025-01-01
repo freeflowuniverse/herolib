@@ -2,6 +2,7 @@ module screen
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import os
 import time
 
@@ -91,7 +92,7 @@ pub fn (mut self Screen) attach() ! {
 
 pub fn (mut self Screen) cmd_send(cmd string) ! {
 	mut cmd2 := "screen -S ${self.name} -p 0 -X stuff \"${cmd} \n\" "
-	if osal.is_osx() {
+	if core.is_osx()! {
 		cmd2 = "screen -S ${self.name} -p 0 -X stuff \"${cmd}\"\$'\n' "
 	}
 	res := os.execute(cmd2)

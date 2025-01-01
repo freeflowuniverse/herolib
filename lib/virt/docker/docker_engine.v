@@ -4,6 +4,8 @@ import freeflowuniverse.herolib.osal { cputype, exec, platform }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.virt.utils
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
+
 // import freeflowuniverse.herolib.installers.swarm
 
 // https://docs.docker.com/reference/
@@ -36,9 +38,9 @@ pub fn (mut e DockerEngine) init() ! {
 		exec(cmd: 'mkdir -p ${e.buildpath}', stdout: false)!
 	}
 	if e.platform == [] {
-		if platform() == .ubuntu && cputype() == .intel {
+		if core.platform()! == .ubuntu && cputype()! == .intel {
 			e.platform = [.linux_amd64]
-		} else if platform() == .osx && cputype() == .arm {
+		} else if core.platform()! == .osx && cputype()! == .arm {
 			e.platform = [.linux_arm64]
 		} else {
 			return error('only implemented ubuntu on amd and osx on arm for now for docker engine.')

@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 
 pub fn install_() ! {
-	if osal.platform() != .ubuntu || osal.platform() != .arch {
+	if core.platform()!= .ubuntu || core.platform()!= .arch {
 		return error('only support ubuntu and arch for now')
 	}
 
@@ -42,7 +42,7 @@ pub fn install_() ! {
 }
 
 pub fn start() ! {
-	if osal.platform() != .ubuntu || osal.platform() != .arch {
+	if core.platform()!= .ubuntu || core.platform()!= .arch {
 		return error('only support ubuntu and arch for now')
 	}
 

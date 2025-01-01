@@ -18,7 +18,7 @@ pub fn install_(args_ InstallArgs) ! {
 	mut args := args_
 	version := '0.14.0'
 
-	res := os.execute('${osal.profile_path_source_and()} tfrobot version')
+	res := os.execute('${osal.profile_path_source_and()!} tfrobot version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().contains('v0.'))
 		if r.len != 1 {
@@ -43,7 +43,7 @@ pub fn build_() ! {
 	g.install()!
 	console.print_header('build tfrobot')
 	mut dest_on_os := '${os.home_dir()}/hero/bin'
-	if osal.is_linux() {
+	if core.is_linux()! {
 		dest_on_os = '/usr/local/bin'
 	}
 

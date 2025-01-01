@@ -2,6 +2,7 @@ module osal
 
 import os
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 
 @[params]
 pub struct UserArgs {
@@ -33,7 +34,7 @@ pub fn user_add(args UserArgs) !int {
 		return user_id_get(args.name)!
 	}
 	mut cmd := ''
-	platform_ := platform()
+	platform_ := core.platform()!
 	if platform_ == .ubuntu {
 		cmd = 'useradd -m ${args.name} '
 	} else {

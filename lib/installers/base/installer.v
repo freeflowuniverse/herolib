@@ -2,6 +2,7 @@ module base
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 import os
 
 @[params]
@@ -14,7 +15,7 @@ pub mut:
 // install base will return true if it was already installed
 pub fn install(args_ InstallArgs) ! {
 	console.print_header('install base (reset: ${args_.reset})')
-	pl := osal.platform()
+	pl := core.platform()!
 
 	mut args := args_
 
@@ -93,7 +94,7 @@ pub fn sshkeysinstall(args InstallArgs) ! {
 
 pub fn develop(args InstallArgs) ! {
 	console.print_header('install base develop (reset: ${args.reset})')
-	pl := osal.platform()
+	pl := core.platform()!
 
 	if args.reset == false && osal.done_exists('hero_development') {
 		return

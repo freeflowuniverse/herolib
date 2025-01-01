@@ -9,7 +9,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()} buildah -v')
+	res := os.execute('${osal.profile_path_source_and()!} buildah -v')
 	if res.exit_code != 0 {
 		return false
 	}

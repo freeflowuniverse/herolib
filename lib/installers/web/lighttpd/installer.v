@@ -19,7 +19,7 @@ pub fn installll(args InstallArgs) ! {
 		return
 	}
 
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 

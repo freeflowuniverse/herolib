@@ -14,7 +14,7 @@ import os
 // checks if a certain version or above is installed
 fn installed_() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()} youki version')
+	// res := os.execute('${osal.profile_path_source_and()!} youki version')
 	// if res.exit_code != 0 {
 	//     return false
 	// }
