@@ -11,7 +11,7 @@ import os
 pub const version = '0.18.0'
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} zola -V')
 	myversion := res.output.all_after(' ')
 	if res.exit_code == 0 {
@@ -24,7 +24,7 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install zola')
 
 	// make sure we install base on the node
@@ -61,7 +61,7 @@ fn install() ! {
 }
 
 // install zola will return true if it was already installed
-fn build() ! {
+fn build_() ! {
 	rust.install()!
 	console.print_header('install zola')
 	cmd := '
@@ -80,5 +80,5 @@ fn build() ! {
 	console.print_header('zola installed')
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 }

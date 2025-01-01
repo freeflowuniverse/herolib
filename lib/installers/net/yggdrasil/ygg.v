@@ -127,7 +127,7 @@ pub fn start() ! {
 	}
 }
 
-pub fn running() !bool {
+pub fn running_() !bool {
 	mut scr := screen.new(reset: false)!
 	name := 'yggdrasil'
 

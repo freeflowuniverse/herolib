@@ -8,6 +8,7 @@ import freeflowuniverse.herolib.core.pathlib
 pub fn cmd_to_script_path(cmd Command) !string {
 	// all will be done over filessytem now
 	mut cmdcontent := texttools.dedent(cmd.cmd)
+	cmdcontent = cmdcontent.trim_space()
 	if !cmdcontent.ends_with('\n') {
 		cmdcontent += '\n'
 	}

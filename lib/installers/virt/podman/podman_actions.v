@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.installers.ulist
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} podman -v')
 	if res.exit_code != 0 {
 		return false
@@ -24,7 +24,7 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install podman')
 
 	destroy()!
@@ -73,7 +73,7 @@ fn install() ! {
 	}
 }
 
-fn build() ! {
+fn build_() ! {
 	// mut installer := get()!
 
 	// https://podman.io/docs/installation#building-from-source
@@ -155,7 +155,7 @@ fn ulist_get() !ulist.UList {
 	return ulist.UList{}
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	osal.package_remove('
        podman
        conmon

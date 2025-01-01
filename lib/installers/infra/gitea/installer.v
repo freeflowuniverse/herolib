@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 
-pub fn install() ! {
+pub fn install_() ! {
 	if osal.platform() != .ubuntu || osal.platform() != .arch {
 		return error('only support ubuntu and arch for now')
 	}

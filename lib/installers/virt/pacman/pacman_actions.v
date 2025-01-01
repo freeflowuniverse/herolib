@@ -6,13 +6,13 @@ import freeflowuniverse.herolib.ui.console
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	return osal.done_exists('install_pacman')
 }
 
 // use https://archlinux.org/mirrorlist/
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install pacman')
 
 	if osal.platform() == .arch {
@@ -83,7 +83,7 @@ fn install() ! {
 	console.print_header('install done')
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	osal.done_delete('install_pacman')!
 
 	osal.package_remove('

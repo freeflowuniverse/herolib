@@ -24,7 +24,7 @@ pub mut:
 	rotateperiod int    = 1200 // 20 min
 }
 
-pub fn install(args_ InstallArgs) ! {
+pub fn install_(args_ InstallArgs) ! {
 	mut args := args_
 	version := '2.0.7'
 

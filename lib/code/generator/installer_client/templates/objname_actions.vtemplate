@@ -4,6 +4,8 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.installers.ulist
+import freeflowuniverse.herolib.installers.base
 
 @if model.startupmanager
 import freeflowuniverse.herolib.osal.systemd
@@ -11,7 +13,6 @@ import freeflowuniverse.herolib.osal.zinit
 @end
 
 @if model.build
-import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.installers.lang.python
@@ -36,7 +37,7 @@ fn startupcmd () ![]zinit.ZProcessNewArgs{
 	
 }
 
-fn running() !bool {
+fn running_() !bool {
 	mut installer := get()!
 	//THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// this checks health of ${model.name}
@@ -80,7 +81,7 @@ fn stop_post()!{
 
 @if model.cat == .installer
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	//THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// res := os.execute('??{osal.profile_path_source_and()} ${model.name} version')
 	// if res.exit_code != 0 {
@@ -103,7 +104,7 @@ fn ulist_get() !ulist.UList {
 }
 
 //uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// installers.upload(
 	// 	cmdname: '${model.name}'
 	// 	source: '??{gitpath}/target/x86_64-unknown-linux-musl/release/${model.name}'
@@ -111,7 +112,7 @@ fn upload() ! {
 
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install ${model.name}')
 	//THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// mut url := ''
@@ -143,7 +144,7 @@ fn install() ! {
 }
 
 @if model.build
-fn build() ! {
+fn build_() ! {
 	//url := 'https://github.com/threefoldtech/${model.name}'
 
 	// make sure we install base on the node
@@ -174,7 +175,7 @@ fn build() ! {
 }
 @end
 
-fn destroy() ! {
+fn destroy_() ! {
 
 	// mut systemdfactory := systemd.new()!
 	// systemdfactory.destroy("zinit")!

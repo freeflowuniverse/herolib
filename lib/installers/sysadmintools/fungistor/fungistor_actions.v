@@ -27,7 +27,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running() !bool {
+fn running_() !bool {
 	mut installer := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// this checks health of fungistor
@@ -64,7 +64,7 @@ fn stop_post() ! {
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// res := os.execute('${osal.profile_path_source_and()} fungistor version')
 	// if res.exit_code != 0 {
@@ -87,14 +87,14 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// installers.upload(
 	//     cmdname: 'fungistor'
 	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/fungistor'
 	// )!
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install fungistor')
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// mut url := ''
@@ -125,7 +125,7 @@ fn install() ! {
 	// )!
 }
 
-fn build() ! {
+fn build_() ! {
 	// url := 'https://github.com/threefoldtech/fungistor'
 
 	// make sure we install base on the node
@@ -154,7 +154,7 @@ fn build() ! {
 	// )!
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	// mut systemdfactory := systemd.new()!
 	// systemdfactory.destroy("zinit")!
 

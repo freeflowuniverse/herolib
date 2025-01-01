@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.installers.lang.golang
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} buildah -v')
 	if res.exit_code != 0 {
 		return false
@@ -24,12 +24,12 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install buildah')
 	build()!
 }
 
-fn build() ! {
+fn build_() ! {
 	console.print_header('build buildah')
 
 	osal.package_install('runc,bats,btrfs-progs,git,go-md2man,libapparmor-dev,libglib2.0-dev,libgpgme11-dev,libseccomp-dev,libselinux1-dev,make,skopeo,libbtrfs-dev')!
@@ -64,7 +64,7 @@ fn ulist_get() !ulist.UList {
 	return ulist.UList{}
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	osal.package_remove('
        buildah
     ')!

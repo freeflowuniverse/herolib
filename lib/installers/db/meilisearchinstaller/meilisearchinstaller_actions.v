@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.installers.ulist
 // import freeflowuniverse.herolib.installers.lang.rust
 import os
 
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} meilisearch -V')
 	if res.exit_code != 0 {
 		return false
@@ -24,7 +24,7 @@ fn installed() !bool {
 	return true
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install meilisearch')
 	mut url := ''
 
@@ -55,7 +55,7 @@ fn install() ! {
 	)!
 }
 
-fn build() ! {
+fn build_() ! {
 	// mut installer := get()!
 	// url := 'https://github.com/threefoldtech/meilisearch'
 
@@ -94,7 +94,7 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// mut installer := get()!
 	// installers.upload(
 	//     cmdname: 'meilisearch'
@@ -117,7 +117,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running() !bool {
+fn running_() !bool {
 	mut installer := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// this checks health of meilisearch
@@ -151,7 +151,7 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	// mut systemdfactory := systemd.new()!
 	// systemdfactory.destroy("meilisearch")!
 

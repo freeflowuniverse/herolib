@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.installers.zinit
 import freeflowuniverse.herolib.ui.console
 
-pub fn install() ! {
+pub fn install_() ! {
 	rust.install()!
 	zinit.install()!
 	console.print_header('install rfs')

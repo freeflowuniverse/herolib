@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.core.httpconnection
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} rclone version')
 	if res.exit_code != 0 {
 		return false
@@ -23,7 +23,7 @@ fn installed() !bool {
 	return true
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install rclone')
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	mut url := ''
@@ -64,7 +64,7 @@ fn configure() ! {
 	// implement if steps need to be done for configuration
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 }
 
 fn start_pre() ! {

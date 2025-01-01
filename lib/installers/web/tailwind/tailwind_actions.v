@@ -9,7 +9,7 @@ import os
 pub const version = '3.4.12'
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('tailwind -h')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('tailwindcss v'))
@@ -26,7 +26,7 @@ fn installed() !bool {
 	return false
 }
 
-pub fn install() ! {
+pub fn install_() ! {
 	console.print_header('install tailwind')
 
 	mut url := ''
@@ -54,5 +54,5 @@ pub fn install() ! {
 	)!
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 }

@@ -11,7 +11,7 @@ import freeflowuniverse.herolib.osal
 // 	reset bool
 // }
 
-// pub fn install(args_ InstallArgs) ! {
+// pub fn install_(args_ InstallArgs) ! {
 // 	_ := args_
 // 	pl := osal.platform()
 // 	if pl == .arch {

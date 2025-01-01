@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.osal.zinit
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// res := os.execute('${osal.profile_path_source_and()} caddy version')
 	// if res.exit_code != 0 {
@@ -22,7 +22,7 @@ fn installed() !bool {
 	return true
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install caddy')
 
 	mut cfg := get()!
@@ -113,7 +113,7 @@ pub fn configure_examples(config WebConfig) ! {
 	configuration_set(content: config_file)!
 }
 
-fn running() !bool {
+fn running_() !bool {
 	mut cfg := get()!
 
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
@@ -137,7 +137,7 @@ fn running() !bool {
 	return true
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// cmd:="
 	//     systemctl disable caddy_scheduler.service

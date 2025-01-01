@@ -177,7 +177,7 @@ pub fn check() bool {
 }
 
 // install mycelium will return true if it was already installed
-pub fn build() ! {
+pub fn build_() ! {
 	rust.install()!
 	console.print_header('build mycelium')
 	if !osal.done_exists('build_mycelium') && !osal.cmd_exists('mycelium') {

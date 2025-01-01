@@ -4,126 +4,54 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
-import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
+import freeflowuniverse.herolib.installers.base
+
+
 import os
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut installer := get()!
-	mut res := []zinit.ZProcessNewArgs{}
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'rust'
-	//     cmd: 'rust server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
-
-	return res
-}
-
-fn running() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of rust
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'rust', url: url)!
-
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('rust is answering.')
-	return false
-}
-
-fn start_pre() ! {
-}
-
-fn start_post() ! {
-}
-
-fn stop_pre() ! {
-}
-
-fn stop_post() ! {
-}
 
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed() !bool {
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()} rust version')
-	// if res.exit_code != 0 {
-	//     return false
-	// }
-	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	// if r.len != 1 {
-	//     return error("couldn't parse rust version.\n${res.output}")
-	// }
-	// if texttools.version(version) == texttools.version(r[0]) {
-	//     return true
-	// }
-	return false
+fn installed_() !bool {
+    res := os.execute('${osal.profile_path_source_and()} rustc -V')
+    if res.exit_code != 0 {
+        return false
+    }
+    r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+    if r.len != 1 {
+        return error("couldn't parse rust version.\n${res.output}")
+    }
+    myversion := r[0].all_after_first("rustc").all_before("(")
+    if texttools.version(version) == texttools.version(myversion) {
+        return true
+    }
+    return false
 }
 
-// get the Upload List of the files
+//get the Upload List of the files
 fn ulist_get() !ulist.UList {
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-	return ulist.UList{}
+    //optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+    return ulist.UList{}
 }
 
-// uploads to S3 server if configured
-fn upload() ! {
-	// installers.upload(
-	//     cmdname: 'rust'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/rust'
-	// )!
+//uploads to S3 server if configured
+fn upload_() ! {
+    // installers.upload(
+    //     cmdname: 'rust'
+    //     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/rust'
+    // )!
+
 }
 
-fn install() ! {
-	console.print_header('install rust')
-	mut args := args_
-	version := '1.78.0'
-
-	res := os.execute('rustc -V')
-	if res.exit_code == 0 {
-		r := res.output.split_into_lines()
-			.filter(it.contains('rustc'))
-
-		if r.len != 1 {
-			return error("couldn't parse rust version, expected 'rustc 1.' on 1 row.\n${res.output}")
-		}
-		mut vstring := r[0] or { panic('bug') }
-		vstring = vstring.all_after_first(' ').all_before('(').trim_space()
-		if texttools.version(version) > texttools.version(vstring) {
-			args.reset = true
-		}
-	} else {
-		args.reset = true
-	}
-
-	if args.reset == false {
-		return
-	}
+fn install_() ! {
+    console.print_header('install rust')
+	version := '1.83.0'
 
 	base.install()!
 
 	pl := osal.platform()
-	console.print_header('start install rust')
 
 	if pl == .ubuntu {
 		osal.package_install('build-essential,openssl,pkg-config,libssl-dev,gcc')!
@@ -140,63 +68,48 @@ fn install() ! {
 	return
 }
 
-fn build() ! {
-	// url := 'https://github.com/threefoldtech/rust'
 
-	// make sure we install base on the node
-	// if osal.platform() != .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
+fn destroy_() ! {
 
-	// console.print_header('build rust')
+    osal.package_remove('
+       rust
+    ')!
 
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+    osal.exec(cmd:'
+        #!/bin/bash
 
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
-	// //now copy to the default bin path
-	// mut binpath := dest.file_get('...')!
-	// adds it to path
-	// osal.cmd_add(
-	//     cmdname: 'griddriver2'
-	//     source: binpath.path
-	// )!
+        # Script to uninstall Rust and Rust-related files
+        # Use at your own risk. Make sure to backup your data if necessary.
+
+        echo "Starting Rust uninstallation process..."
+
+        # Step 1: Check if rustup is installed
+        if command -v rustup > /dev/null 2>&1; then
+            echo "Rustup found. Proceeding with uninstallation."
+            rustup self uninstall -y
+        else
+            echo "Rustup is not installed. Skipping rustup uninstallation."
+        fi
+
+        # Step 2: Remove cargo and rustc binaries
+        echo "Removing cargo and rustc binaries if they exist..."
+        rm -f ~/.cargo/bin/cargo
+        rm -f ~/.cargo/bin/rustc
+
+        # Step 3: Remove Rust-related directories
+        echo "Removing Rust-related directories..."
+        rm -rf ~/.cargo
+        rm -rf ~/.rustup
+
+        echo "Rust uninstallation process completed."
+
+    ',debug:false)!
+
+    osal.rm("
+        rustc
+        rustup
+        cargo
+        ")!
+
 }
 
-fn destroy() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
-
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
-}

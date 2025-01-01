@@ -23,7 +23,7 @@ pub mut:
 	example       bool     // if true we will install examples
 }
 
-pub fn install(args_ InstallArgs) ! {
+pub fn install_(args_ InstallArgs) ! {
 	mut args := args_
 	version := '1.11.1'
 

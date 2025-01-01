@@ -12,7 +12,7 @@ import freeflowuniverse.herolib.installers.lang.python
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// res := os.execute('${osal.profile_path_source_and()} youki version')
 	// if res.exit_code != 0 {
@@ -28,13 +28,13 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install youki')
 	destroy()!
 	build()!
 }
 
-fn build() ! {
+fn build_() ! {
 	// mut installer := get()!
 	url := 'https://github.com/containers/youki'
 
@@ -73,7 +73,7 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// mut installer := get()!
 	// installers.upload(
 	//     cmdname: 'youki'
@@ -81,7 +81,7 @@ fn upload() ! {
 	// )!
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	osal.package_remove('
        runc
     ')!

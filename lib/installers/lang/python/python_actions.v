@@ -4,184 +4,84 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
-import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
+import freeflowuniverse.herolib.installers.base
+
+
+
 import os
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut installer := get()!
-	mut res := []zinit.ZProcessNewArgs{}
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'python'
-	//     cmd: 'python server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
-
-	return res
-}
-
-fn running() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of python
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'python', url: url)!
-
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('python is answering.')
-	return false
-}
-
-fn start_pre() ! {
-}
-
-fn start_post() ! {
-}
-
-fn stop_pre() ! {
-}
-
-fn stop_post() ! {
-}
 
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed() !bool {
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()} python version')
-	// if res.exit_code != 0 {
-	//     return false
-	// }
-	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	// if r.len != 1 {
-	//     return error("couldn't parse python version.\n${res.output}")
-	// }
-	// if texttools.version(version) == texttools.version(r[0]) {
-	//     return true
-	// }
-	return false
+fn installed_() !bool {
+    return false
 }
 
-// get the Upload List of the files
+//get the Upload List of the files
 fn ulist_get() !ulist.UList {
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-	return ulist.UList{}
+    //optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+    return ulist.UList{}
 }
 
-// uploads to S3 server if configured
-fn upload() ! {
-	// installers.upload(
-	//     cmdname: 'python'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/python'
-	// )!
+fn upload_() ! {
 }
 
-fn install() ! {
-	console.print_header('install python')
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// mut url := ''
-	// if osal.is_linux_arm() {
-	//     url = 'https://github.com/python-dev/python/releases/download/v${version}/python_${version}_linux_arm64.tar.gz'
-	// } else if osal.is_linux_intel() {
-	//     url = 'https://github.com/python-dev/python/releases/download/v${version}/python_${version}_linux_amd64.tar.gz'
-	// } else if osal.is_osx_arm() {
-	//     url = 'https://github.com/python-dev/python/releases/download/v${version}/python_${version}_darwin_arm64.tar.gz'
-	// } else if osal.is_osx_intel() {
-	//     url = 'https://github.com/python-dev/python/releases/download/v${version}/python_${version}_darwin_amd64.tar.gz'
-	// } else {
-	//     return error('unsported platform')
-	// }
+fn install_() ! {
+    console.print_header('install python')
+    base.install()!
 
-	// mut dest := osal.download(
-	//     url: url
-	//     minsize_kb: 9000
-	//     expand_dir: '/tmp/python'
-	// )!
+    osal.package_install('python3')!
+    pl := osal.platform()
+    if pl == .arch {
+        osal.package_install('python-pipx,sqlite')!
+    } else if pl == .ubuntu {
+        osal.package_install('python-pipx,sqlite')!
+    } else if pl == .osx {
+        osal.package_install('pipx,sqlite')!
 
-	// //dest.moveup_single_subdir()!
-
-	// mut binpath := dest.file_get('python')!
-	// osal.cmd_add(
-	//     cmdname: 'python'
-	//     source: binpath.path
-	// )!
+    } else {
+        return error('only support osx, arch & ubuntu.')
+    }
+    osal.execute_silent("pipx install uv")!
 }
 
-fn build() ! {
-	// url := 'https://github.com/threefoldtech/python'
 
-	// make sure we install base on the node
-	// if osal.platform() != .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
+fn destroy_() ! {
 
-	// console.print_header('build python')
+    panic("implement")
 
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+    // mut systemdfactory := systemd.new()!
+    // systemdfactory.destroy("zinit")!
 
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
-	// //now copy to the default bin path
-	// mut binpath := dest.file_get('...')!
-	// adds it to path
-	// osal.cmd_add(
-	//     cmdname: 'griddriver2'
-	//     source: binpath.path
-	// )!
+    // osal.process_kill_recursive(name:'zinit')!
+    // osal.cmd_delete('zinit')!
+
+    // osal.package_remove('
+    //    podman
+    //    conmon
+    //    buildah
+    //    skopeo
+    //    runc
+    // ')!
+
+    // //will remove all paths where go/bin is found
+    // osal.profile_path_add_remove(paths2delete:"go/bin")!
+
+    // osal.rm("
+    //    podman
+    //    conmon
+    //    buildah
+    //    skopeo
+    //    runc
+    //    /var/lib/containers
+    //    /var/lib/podman
+    //    /var/lib/buildah
+    //    /tmp/podman
+    //    /tmp/conmon
+    // ")!
+
+
 }
 
-fn destroy() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
-
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
-}

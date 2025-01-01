@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.installers.ulist
 // import freeflowuniverse.herolib.installers.lang.rust
 import os
 
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} cloud-hypervisor --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('cloud-hypervisor'))
@@ -27,7 +27,7 @@ fn installed() !bool {
 	return true
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install cloudhypervisor')
 	// mut installer := get()!
 	mut url := ''
@@ -59,7 +59,7 @@ fn install() ! {
 	)!
 }
 
-fn build() ! {
+fn build_() ! {
 }
 
 // get the Upload List of the files
@@ -70,7 +70,7 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// mut installer := get()!
 	// installers.upload(
 	//     cmdname: 'cloudhypervisor'
@@ -78,7 +78,7 @@ fn upload() ! {
 	// )!
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	osal.process_kill_recursive(name: 'cloud-hypervisor')!
 
 	osal.package_remove('

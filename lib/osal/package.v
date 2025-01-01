@@ -108,6 +108,12 @@ fn is_sudo_required() bool {
 		return false
 	}
 
+	platform_ := platform()
+
+	if platform_ == .osx {
+		return false
+	}
+
 	// Check if the user has sudo privileges (test with `sudo -v`)
 	sudo_check := os.execute('sudo -v')
 	return sudo_check.exit_code == 0
@@ -136,9 +142,9 @@ pub fn package_remove(name_ string) ! {
 	// Platform-specific package removal logic
 	if platform_ == .osx {
 		if cpu == .arm {
-			exec(cmd: 'arch --arm64 brew uninstall ${name}', ignore_error: false)!
+			exec(cmd: 'arch --arm64 brew uninstall ${name}', ignore_error: true)!
 		} else {
-			exec(cmd: 'brew uninstall ${name}', ignore_error: false)!
+			exec(cmd: 'brew uninstall ${name}', ignore_error: true)!
 		}
 	} else if platform_ == .ubuntu {
 		// Use sudo if required
@@ -148,7 +154,7 @@ pub fn package_remove(name_ string) ! {
 			'apt remove -y ${name} --allow-change-held-packages'
 		}
 		exec(cmd: cmd, ignore_error: false)!
-		exec(cmd: 'sudo apt autoremove -y', ignore_error: false)!
+		exec(cmd: 'sudo apt autoremove -y', ignore_error: true)!
 	} else if platform_ == .alpine {
 		// Use sudo if required
 		cmd := if use_sudo { 'sudo apk del ${name}' } else { 'apk del ${name}' }
@@ -160,7 +166,7 @@ pub fn package_remove(name_ string) ! {
 		} else {
 			'pacman --noconfirm -R ${name}'
 		}
-		exec(cmd: cmd, ignore_error: false)!
+		exec(cmd: cmd, ignore_error: true)!
 	} else {
 		return error('Only ubuntu, alpine, and osx supported for now')
 	}

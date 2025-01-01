@@ -25,7 +25,7 @@ pub const version = '2.8.4'
 // }
 
 // // install caddy will return true if it was already installed
-// pub fn install(args_ InstallArgs) ! {
+// pub fn install_(args_ InstallArgs) ! {
 // 	mut args := args_
 // 	version := '2.8.4'
 

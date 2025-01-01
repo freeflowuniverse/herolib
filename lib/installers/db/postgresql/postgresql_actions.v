@@ -3,11 +3,11 @@ module postgresql
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.osal.zinit
 
-fn installed() !bool {
+fn installed_() !bool {
 	return true
 }
 
-fn install() ! {
+fn install_() ! {
 	osal.execute_silent('podman pull docker.io/library/postgres:latest')!
 }
 
@@ -29,7 +29,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running() !bool {
+fn running_() !bool {
 	mut mydb := get()!
 	mydb.check() or { return false }
 	return true
@@ -47,7 +47,7 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	mut mydb := get()!
 	mydb.destroy()!
 

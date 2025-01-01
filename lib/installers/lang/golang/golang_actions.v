@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.installers.ulist
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	res := os.execute('${osal.profile_path_source_and()} go version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines()
@@ -29,7 +29,7 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install golang')
 	base.install()!
 	//destroy()!
@@ -62,7 +62,7 @@ fn install() ! {
 	osal.profile_path_add_remove(paths2add: '${go_dest}/bin')!
 }
 
-fn build() ! {
+fn build_() ! {
 }
 
 // get the Upload List of the files
@@ -72,7 +72,7 @@ fn ulist_get() !ulist.UList {
 	return ulist.UList{}
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	console.print_debug('golang destroy')
 
 	osal.package_remove('golang')!
