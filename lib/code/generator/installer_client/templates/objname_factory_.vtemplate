@@ -46,10 +46,10 @@ pub fn get(args_ ArgsGet) !&${model.classname}  {
     mut args := args_get(args_)
 	if !(args.name in ${model.name}_global) {
         if args.name=="default"{
-            if ! config_exists(args){
+            if ! exists!(args){
                 if default{
                     mut context:=base.context() or { panic("bug") }
-                    context.hero_config_set("${model.name}",model.name,heroscript_default()!)!
+                    context.hero_config_set("${model.name}",args.name,heroscript_default()!)!
                 }
             }
     		load(args)!
@@ -57,7 +57,7 @@ pub fn get(args_ ArgsGet) !&${model.classname}  {
 	}
 	return ${model.name}_global[args.name] or { 
             println(${model.name}_global)
-            panic("could not get config for ??{args.name} with name:??{model.name}") 
+            panic("could not get config for ??{args.name}.") 
         }
 }
 
@@ -73,9 +73,9 @@ pub fn set(o ${model.classname})! {
 }
 
 //check we find the config on the filesystem
-pub fn exists(args_ ArgsGet) bool {
+pub fn exists(args_ ArgsGet)!bool {
     mut model := args_get(args_)
-	mut context:=base.context() or { panic("bug") }
+	mut context:=base.context()!
 	return context.hero_config_exists("${model.name}",model.name)
 }
 
@@ -91,7 +91,7 @@ pub fn load(args_ ArgsGet) ! {
 pub fn save(o ${model.classname})! {
 	mut context:=base.context()!
     heroscript := encoderhero.encode[${model.classname}](o)!
-	context.hero_config_set("${model.name}",model.name,heroscript)!
+	context.hero_config_set("${model.name}",o.name,heroscript)!
 }
 
 ^^[params]
@@ -272,7 +272,7 @@ pub fn (mut self ${model.classname}) restart() ! {
 pub fn (mut self ${model.classname}) running() !bool {
     switch(self.name)
 
-    //walk over the generic processes, if not running return
+    //walk over the generic processes, if not running_ return
     for zprocess in startupcmd()!{
         mut sm:=startupmanager_get(zprocess.startuptype)!
     	r:=sm.running(zprocess.name)!
@@ -280,7 +280,7 @@ pub fn (mut self ${model.classname}) running() !bool {
             return false
         }
     }
-    return running()!
+    return running_()!
 }
 @end
 

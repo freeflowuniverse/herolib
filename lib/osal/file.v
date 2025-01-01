@@ -39,42 +39,39 @@ pub fn dir_reset(path string) ! {
 // can be \n or , separated
 pub fn rm(todelete_ string) ! {
 	for mut item in texttools.to_array(todelete_) {
-		if item.trim_space() == ''|| item.trim_space().starts_with("#"){
+		if item.trim_space() == '' || item.trim_space().starts_with('#') {
 			continue
 		}
-		if item.len <2{
-			return error("not allowed to remove anything with less than 2 chars. ${item}")
+		if item.len < 2 {
+			return error('not allowed to remove anything with less than 2 chars. ${item}')
 		}
-		
+
 		item = item.replace('~', os.home_dir())
 		console.print_debug(' - rm: ${item}')
 		if item.starts_with('/') {
 			if os.exists(item) {
-			
 				if os.is_dir(item) {
-					if core.sudo_path_ok(item)!{
-					//console.print_debug("rm deletedir: ${item}")
+					if core.sudo_path_ok(item)! {
+						// console.print_debug("rm deletedir: ${item}")
 						os.rmdir_all(item)!
-					}else{
-						if core.interactive()!{
-							execute_silent("sudo rm -rf ${item}")!
-						}else{
+					} else {
+						if core.interactive()! {
+							execute_silent('sudo rm -rf ${item}')!
+						} else {
 							return error("can't remove ${item} as sudo because non interactive")
 						}
-						
 					}
 				} else {
-					//console.print_debug("rm delete file: ${item}")
-					if core.sudo_path_ok(item)!{
+					// console.print_debug("rm delete file: ${item}")
+					if core.sudo_path_ok(item)! {
 						os.rm(item)!
-					}else{
-						if core.interactive()!{
-							execute_silent("sudo rm -f ${item}")!
-						}else{
+					} else {
+						if core.interactive()! {
+							execute_silent('sudo rm -f ${item}')!
+						} else {
 							return error("can't remove ${item} as sudo because non interactive")
-						}						
+						}
 					}
-					
 				}
 			}
 		} else {

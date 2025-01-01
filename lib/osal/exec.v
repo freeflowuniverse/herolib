@@ -25,10 +25,10 @@ fn (err JobError) msg() string {
 	if err.error_type == .args {
 		return 'Error in arguments:\n${err.job.cmd}'
 	}
-	mut msg := ""
-	if err.job.cmd.ignore_error{		 
+	mut msg := ''
+	if err.job.cmd.ignore_error {
 		return 'Ignore error for  ${err.job.cmd.scriptpath}\n'
-	}else{
+	} else {
 		if err.error_type == .timeout {
 			return 'Execution failed timeout\n${err.job}'
 		}
@@ -150,7 +150,7 @@ pub mut:
 //```
 // return Job .
 pub fn exec(cmd_ Command) !Job {
-	mut cmd:=cmd_
+	mut cmd := cmd_
 	mut job := Job{
 		cmd: cmd
 	}
@@ -169,8 +169,8 @@ pub fn exec(cmd_ Command) !Job {
 		os.execvp(scriptpath, [])!
 		return job
 	}
-	if cmd.ignore_error{
-		cmd.retry=0
+	if cmd.ignore_error {
+		cmd.retry = 0
 	}
 	if !cmd.async {
 		job.execute_retry() or {
@@ -187,7 +187,7 @@ pub fn (mut job Job) execute_retry() ! {
 	for x in 0 .. job.cmd.retry + 1 {
 		job.execute() or {
 			if x == job.cmd.retry {
-				//println(job)		
+				// println(job)		
 				return err
 			}
 		}
@@ -207,25 +207,24 @@ pub fn (mut job Job) execute() ! {
 	job.start = time.now()
 	job.status = .running
 
-
 	job.cmd.scriptpath = cmd_to_script_path(job.cmd)!
 
-	if job.cmd.debug{
+	if job.cmd.debug {
 		console.print_debug(job)
 	}
 
-	if job.cmd.debug{
-		console.print_debug(" - process execute ${job.cmd.scriptpath}")
-	}	
+	if job.cmd.debug {
+		console.print_debug(' - process execute ${job.cmd.scriptpath}')
+	}
 	mut p := os.new_process(job.cmd.scriptpath)
 
 	if job.cmd.work_folder.len > 0 {
 		p.set_work_folder(job.cmd.work_folder)
 	}
 	if job.cmd.environment.len > 0 {
-		if job.cmd.debug{
-			console.print_debug(" - process setargs ${job.cmd.environment}")
-		}			
+		if job.cmd.debug {
+			console.print_debug(' - process setargs ${job.cmd.environment}')
+		}
 		p.set_environment(job.cmd.environment)
 	}
 	p.set_redirect_stdio()
@@ -236,7 +235,7 @@ pub fn (mut job Job) execute() ! {
 	p.run()
 	job.process = p
 
-	//initial check, no point reading the output if we can't get the process starting
+	// initial check, no point reading the output if we can't get the process starting
 	// NOT OK TO DO BECAUSE IF PROCESS FINISHED WITHOUT ISSUE THEN NOT OK
 	// if ! p.is_alive() {
 	// 	if job.cmd.debug{
@@ -290,8 +289,8 @@ pub fn (mut job Job) process() ! {
 		// result=job.read()!
 		if time.now().unix() > job.start.unix() + job.cmd.timeout * 1000 {
 			// console.print_stderr("TIMEOUT TIMEOUT TIMEOUT TIMEOUT")
-			if job.cmd.debug{
-				console.print_stderr("***TIMEOUT TIMEOUT TIMEOUT TIMEOUT***")
+			if job.cmd.debug {
+				console.print_stderr('***TIMEOUT TIMEOUT TIMEOUT TIMEOUT***')
 			}
 			p.signal_pgkill()
 			p.close()
@@ -306,14 +305,14 @@ pub fn (mut job Job) process() ! {
 			}
 		}
 	} else {
-		if ! job.cmd.ignore_error && job.cmd.debug{
+		if !job.cmd.ignore_error && job.cmd.debug {
 			console.print_stderr(" - process stopped (don't know if error)")
 		}
 		job.read()!
 		job.read()!
 		job.status = .done
 		if p.code > 0 {
-			if job.cmd.debug{
+			if job.cmd.debug {
 				console.print_stderr(' ########## Process result code is > 0: ${p.code}')
 			}
 			job.exit_code = p.code
@@ -396,11 +395,11 @@ pub fn (mut job Job) close() ! {
 		os.rm(job.cmd.scriptpath)!
 	}
 
-	if job.cmd.ignore_error{
+	if job.cmd.ignore_error {
 		job.status = .done
 		return
 	}
-	if  job.cmd.raise_error && job.exit_code > 0 {
+	if job.cmd.raise_error && job.exit_code > 0 {
 		return JobError{
 			job:        job
 			error_type: .exec
@@ -449,7 +448,7 @@ pub fn cmd_exists(cmd string) bool {
 }
 
 pub fn cmd_exists_profile(cmd string) bool {
-	cmd1 := '${profile_path_source_and() or {panic(err)}} which ${cmd}'
+	cmd1 := '${profile_path_source_and() or { panic(err) }} which ${cmd}'
 	res := os.execute(cmd1)
 	if res.exit_code > 0 {
 		return false

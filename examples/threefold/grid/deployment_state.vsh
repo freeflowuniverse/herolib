@@ -1,4 +1,3 @@
-
 #!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
 struct DeploymentStateDB {
@@ -12,21 +11,21 @@ struct DeploymentState {
 	zdbs []ZDBDeployed
 }
 
-pub fn (mut db DeploymentStateDB) set(deployment_name string, key string, val string)! {
+pub fn (mut db DeploymentStateDB) set(deployment_name string, key string, val string) ! {
 	// store e.g. \n separated list of all keys per deployment_name
 	// encrypt
 	db.data['${deployment_name}_${key}'] = val
 }
 
-pub fn (db DeploymentStateDB) get(deployment_name string, key string)!string {
+pub fn (db DeploymentStateDB) get(deployment_name string, key string) !string {
 	return db.data['${deployment_name}_${key}'] or { return error('key not found') }
 }
 
-pub fn (mut db DeploymentStateDB) delete(deployment_name string, key string)! {
+pub fn (mut db DeploymentStateDB) delete(deployment_name string, key string) ! {
 	db.data.delete('${deployment_name}_${key}')
 }
 
-pub fn (db DeploymentStateDB) keys(deployment_name string)![]string {
+pub fn (db DeploymentStateDB) keys(deployment_name string) ![]string {
 	mut keys := []string{}
 	for k, _ in db.data {
 		if k.starts_with('${deployment_name}_') {
@@ -36,7 +35,7 @@ pub fn (db DeploymentStateDB) keys(deployment_name string)![]string {
 	return keys
 }
 
-pub fn (db DeploymentStateDB) load(deployment_name string)!DeploymentState {
+pub fn (db DeploymentStateDB) load(deployment_name string) !DeploymentState {
 	mut state := DeploymentState{
 		name: deployment_name
 	}

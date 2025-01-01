@@ -1,7 +1,7 @@
 !!hero_code.generate_client
     name: "postgresql_client"
     classname: "PostgresClient"
-    hasconfig: false
-    singleton: true
+    hasconfig: true
+    singleton: false
     default: true
     title: ""

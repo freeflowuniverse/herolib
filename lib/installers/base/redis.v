@@ -55,7 +55,7 @@ pub fn redis_install(args_ RedisInstallArgs) ! {
 }
 
 fn configfilepath(args RedisInstallArgs) string {
-	if core.is_linux() or {panic(err)} {
+	if core.is_linux() or { panic(err) } {
 		return '/etc/redis/redis.conf'
 	} else {
 		return '${args.datadir}/redis.conf'

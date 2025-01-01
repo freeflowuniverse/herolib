@@ -15,7 +15,7 @@ pub mut:
 // install s3cas will return true if it was already installed
 pub fn build_(args BuildArgs) ! {
 	// make sure we install base on the node
-	if core.platform()!= .ubuntu {
+	if core.platform() != .ubuntu {
 		return error('only support ubuntu for now')
 	}
 	rust.install()!

@@ -1,14 +1,12 @@
 #!/usr/bin/env -S v -n -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.installers.lang.python
 import freeflowuniverse.herolib.installers.lang.nodejs
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.core
 
-core.interactive_set()! //make sure the sudo works so we can do things even if it requires those rights
-
+core.interactive_set()! // make sure the sudo works so we can do things even if it requires those rights
 
 // import freeflowuniverse.herolib.data.dbfs
 // import freeflowuniverse.herolib.installers.lang.vlang
@@ -39,4 +37,4 @@ core.interactive_set()! //make sure the sudo works so we can do things even if i
 // rust.install(reset:false)!
 // python.install(reset:false)!
 // nodejs.install(reset:false)!
-golang.install(reset:false)!
+golang.install(reset: false)!

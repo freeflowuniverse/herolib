@@ -19,7 +19,7 @@ fn install_() ! {
 		return
 	}
 
-	if core.platform()!= .ubuntu {
+	if core.platform() != .ubuntu {
 		return error('only ubuntu supported for this installer.')
 	}
 

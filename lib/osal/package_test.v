@@ -1,4 +1,5 @@
 module osal
+
 import freeflowuniverse.herolib.core
 
 fn test_package_management() {

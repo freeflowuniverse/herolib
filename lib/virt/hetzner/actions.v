@@ -226,7 +226,7 @@ pub fn (mut h HetznerManager) server_reset(args ServerRebootArgs) !ResetInfo {
 	if serveractive {
 		for {
 			console.print_debug('wait for server ${serverinfo.server_name} to go down.')
-			if osal.ping(address: serverinfo.server_ip)!= .ok {
+			if osal.ping(address: serverinfo.server_ip) != .ok {
 				console.print_debug('server ${serverinfo.server_name} is now down, now waitig for reboot.')
 				break
 			}

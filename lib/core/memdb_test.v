@@ -25,4 +25,3 @@ fn test_memdb_exists() {
 	memdb_set('empty_key', '')
 	assert memdb_exists('empty_key') == false
 }
-

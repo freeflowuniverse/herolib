@@ -1,4 +1,4 @@
-module postgres
+module postgresql_client
 
 import freeflowuniverse.herolib.core.base
 import db.pg
@@ -49,8 +49,8 @@ import freeflowuniverse.herolib.ui.console
 // 	}
 // }
 
-struct LocalConfig {
-	name   string
-	path   string
-	passwd string
-}
+// struct LocalConfig {
+// 	name   string
+// 	path   string
+// 	passwd string
+// }

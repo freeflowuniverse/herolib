@@ -103,7 +103,7 @@ pub fn usr_local_path() !string {
 }
 
 // return the source statement if the profile exists
-pub fn profile_path_source()! string {
+pub fn profile_path_source() !string {
 	if hostname() or { '' } == 'rescue' {
 		return ''
 	}
@@ -116,7 +116,7 @@ pub fn profile_path_source()! string {
 
 // return source $path &&  .
 // or empty if it doesn't exist
-pub fn profile_path_source_and()! string {
+pub fn profile_path_source_and() !string {
 	if hostname() or { '' } == 'rescue' {
 		return ''
 	}
@@ -245,16 +245,15 @@ pub fn cmd_delete(cmd string) ! {
 		res := cmd_path(cmd2) or { '' }
 		if res.len > 0 {
 			if os.exists(res) {
-				if core.sudo_path_ok(res)!{
+				if core.sudo_path_ok(res)! {
 					os.rm(res)!
-				}else{
-					if core.interactive()!{
-						execute_silent("sudo rm -rf ${res}")!
-					}else{
+				} else {
+					if core.interactive()! {
+						execute_silent('sudo rm -rf ${res}')!
+					} else {
 						return error("can't remove ${res} as sudo because non interactive as part of cmd delete.")
 					}
 				}
-				
 			}
 		}
 	}
@@ -305,7 +304,7 @@ pub fn profile_paths_preferred() ![]string {
 	return profile_files2
 }
 
-pub fn profile_path()! string {
+pub fn profile_path() !string {
 	if core.is_osx()! {
 		return '${os.home_dir()}/.zprofile'
 	} else {

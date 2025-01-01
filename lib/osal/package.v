@@ -102,7 +102,6 @@ pub fn package_install(name_ string) ! {
 	}
 }
 
-
 // remove a package using the right commands per platform
 pub fn package_remove(name_ string) ! {
 	names := texttools.to_array(name_)

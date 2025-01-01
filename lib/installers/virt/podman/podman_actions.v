@@ -78,7 +78,7 @@ fn build_() ! {
 
 	// https://podman.io/docs/installation#building-from-source
 
-	if core.platform()!= .ubuntu && core.platform()!= .arch {
+	if core.platform() != .ubuntu && core.platform() != .arch {
 		return error('only support ubuntu and arch for now')
 	}
 	mut g := golang.get()!

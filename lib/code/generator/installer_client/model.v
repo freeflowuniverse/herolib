@@ -28,7 +28,7 @@ pub enum Cat {
 	installer
 }
 
-//creates the heroscript from the GenModel as part of GenerateArgs
+// creates the heroscript from the GenModel as part of GenerateArgs
 pub fn gen_model_set(args GenerateArgs) ! {
 	console.print_debug('Code generator set: ${args}')
 	model := args.model or { return error('model is none') }
@@ -41,7 +41,7 @@ pub fn gen_model_set(args GenerateArgs) ! {
 	pathlib.template_write(heroscript_templ, '${args.path}/.heroscript', true)!
 }
 
-//loads the heroscript and return the model
+// loads the heroscript and return the model
 pub fn gen_model_get(path string, create bool) !GenModel {
 	console.print_debug('play installer code for path: ${path}')
 

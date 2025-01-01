@@ -6,198 +6,183 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.base
-
 import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit
-
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.installers.lang.python
-
 import os
 
-fn startupcmd () ![]zinit.ZProcessNewArgs{
-    mut installer := get()!
-    mut res := []zinit.ZProcessNewArgs{}
-    //THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-    // res << zinit.ZProcessNewArgs{
-    //     name: 'gitea'
-    //     cmd: 'gitea server'
-    //     env: {
-    //         'HOME': '/root'
-    //     }    
-    // }
+fn startupcmd() ![]zinit.ZProcessNewArgs {
+	mut installer := get()!
+	mut res := []zinit.ZProcessNewArgs{}
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// res << zinit.ZProcessNewArgs{
+	//     name: 'gitea'
+	//     cmd: 'gitea server'
+	//     env: {
+	//         'HOME': '/root'
+	//     }
+	// }
 
-    return res
-    
+	return res
 }
 
 fn running_() !bool {
-    mut installer := get()!
-    //THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-    // this checks health of gitea
-    // curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-    // url:='http://127.0.0.1:${cfg.port}/api/v1'
-    // mut conn := httpconnection.new(name: 'gitea', url: url)!
+	mut installer := get()!
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// this checks health of gitea
+	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
+	// url:='http://127.0.0.1:${cfg.port}/api/v1'
+	// mut conn := httpconnection.new(name: 'gitea', url: url)!
 
-    // if cfg.secret.len > 0 {
-    //     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-    // }
-    // conn.default_header.add(.content_type, 'application/json')
-    // console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-    // r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-    // println(r)
-    // if true{panic("ssss")}
-    // tags := r['Tags'] or { return false }
-    // console.print_debug(tags)
-    // console.print_debug('gitea is answering.')
-    return false
+	// if cfg.secret.len > 0 {
+	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
+	// }
+	// conn.default_header.add(.content_type, 'application/json')
+	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
+	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
+	// println(r)
+	// if true{panic("ssss")}
+	// tags := r['Tags'] or { return false }
+	// console.print_debug(tags)
+	// console.print_debug('gitea is answering.')
+	return false
 }
 
-fn start_pre()!{
-    
+fn start_pre() ! {
 }
 
-fn start_post()!{
-    
+fn start_post() ! {
 }
 
-fn stop_pre()!{
-    
+fn stop_pre() ! {
 }
 
-fn stop_post()!{
-    
+fn stop_post() ! {
 }
-
 
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-    //THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-    // res := os.execute('${osal.profile_path_source_and()!} gitea version')
-    // if res.exit_code != 0 {
-    //     return false
-    // }
-    // r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-    // if r.len != 1 {
-    //     return error("couldn't parse gitea version.\n${res.output}")
-    // }
-    // if texttools.version(version) == texttools.version(r[0]) {
-    //     return true
-    // }
-    return false
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// res := os.execute('${osal.profile_path_source_and()!} gitea version')
+	// if res.exit_code != 0 {
+	//     return false
+	// }
+	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+	// if r.len != 1 {
+	//     return error("couldn't parse gitea version.\n${res.output}")
+	// }
+	// if texttools.version(version) == texttools.version(r[0]) {
+	//     return true
+	// }
+	return false
 }
 
-//get the Upload List of the files
+// get the Upload List of the files
 fn ulist_get() !ulist.UList {
-    //optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-    return ulist.UList{}
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
 }
 
-//uploads to S3 server if configured
+// uploads to S3 server if configured
 fn upload_() ! {
-    // installers.upload(
-    //     cmdname: 'gitea'
-    //     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/gitea'
-    // )!
-
+	// installers.upload(
+	//     cmdname: 'gitea'
+	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/gitea'
+	// )!
 }
 
 fn install_() ! {
-    console.print_header('install gitea')
-    //THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-    // mut url := ''
-    // if core.is_linux_arm()! {
-    //     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_linux_arm64.tar.gz'
-    // } else if core.is_linux_intel()! {
-    //     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_linux_amd64.tar.gz'
-    // } else if core.is_osx_arm()! {
-    //     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_darwin_arm64.tar.gz'
-    // } else if core.is_osx_intel()! {
-    //     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_darwin_amd64.tar.gz'
-    // } else {
-    //     return error('unsported platform')
-    // }
+	console.print_header('install gitea')
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// mut url := ''
+	// if core.is_linux_arm()! {
+	//     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_linux_arm64.tar.gz'
+	// } else if core.is_linux_intel()! {
+	//     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_linux_amd64.tar.gz'
+	// } else if core.is_osx_arm()! {
+	//     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_darwin_arm64.tar.gz'
+	// } else if core.is_osx_intel()! {
+	//     url = 'https://github.com/gitea-dev/gitea/releases/download/v${version}/gitea_${version}_darwin_amd64.tar.gz'
+	// } else {
+	//     return error('unsported platform')
+	// }
 
-    // mut dest := osal.download(
-    //     url: url
-    //     minsize_kb: 9000
-    //     expand_dir: '/tmp/gitea'
-    // )!
+	// mut dest := osal.download(
+	//     url: url
+	//     minsize_kb: 9000
+	//     expand_dir: '/tmp/gitea'
+	// )!
 
-    // //dest.moveup_single_subdir()!
+	// //dest.moveup_single_subdir()!
 
-    // mut binpath := dest.file_get('gitea')!
-    // osal.cmd_add(
-    //     cmdname: 'gitea'
-    //     source: binpath.path
-    // )!
+	// mut binpath := dest.file_get('gitea')!
+	// osal.cmd_add(
+	//     cmdname: 'gitea'
+	//     source: binpath.path
+	// )!
 }
 
 fn build_() ! {
-    //url := 'https://github.com/threefoldtech/gitea'
+	// url := 'https://github.com/threefoldtech/gitea'
 
-    // make sure we install base on the node
-    // if core.platform()!= .ubuntu {
-    //     return error('only support ubuntu for now')
-    // }
-    // golang.install()!
+	// make sure we install base on the node
+	// if core.platform()!= .ubuntu {
+	//     return error('only support ubuntu for now')
+	// }
+	// golang.install()!
 
-    // console.print_header('build gitea')
+	// console.print_header('build gitea')
 
-    // gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
 
-    // cmd := '
-    // cd ${gitpath}
-    // source ~/.cargo/env
-    // exit 1 #todo
-    // '
-    // osal.execute_stdout(cmd)!
-    //
-    // //now copy to the default bin path
-    // mut binpath := dest.file_get('...')!
-    // adds it to path
-    // osal.cmd_add(
-    //     cmdname: 'griddriver2'
-    //     source: binpath.path
-    // )!   
-
+	// cmd := '
+	// cd ${gitpath}
+	// source ~/.cargo/env
+	// exit 1 #todo
+	// '
+	// osal.execute_stdout(cmd)!
+	//
+	// //now copy to the default bin path
+	// mut binpath := dest.file_get('...')!
+	// adds it to path
+	// osal.cmd_add(
+	//     cmdname: 'griddriver2'
+	//     source: binpath.path
+	// )!
 }
 
 fn destroy_() ! {
+	// mut systemdfactory := systemd.new()!
+	// systemdfactory.destroy("zinit")!
 
-    // mut systemdfactory := systemd.new()!
-    // systemdfactory.destroy("zinit")!
+	// osal.process_kill_recursive(name:'zinit')!
+	// osal.cmd_delete('zinit')!
 
-    // osal.process_kill_recursive(name:'zinit')!
-    // osal.cmd_delete('zinit')!
+	// osal.package_remove('
+	//    podman
+	//    conmon
+	//    buildah
+	//    skopeo
+	//    runc
+	// ')!
 
-    // osal.package_remove('
-    //    podman
-    //    conmon
-    //    buildah
-    //    skopeo
-    //    runc
-    // ')!
+	// //will remove all paths where go/bin is found
+	// osal.profile_path_add_remove(paths2delete:"go/bin")!
 
-    // //will remove all paths where go/bin is found
-    // osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-    // osal.rm("
-    //    podman
-    //    conmon
-    //    buildah
-    //    skopeo
-    //    runc
-    //    /var/lib/containers
-    //    /var/lib/podman
-    //    /var/lib/buildah
-    //    /tmp/podman
-    //    /tmp/conmon
-    // ")!
-
-
+	// osal.rm("
+	//    podman
+	//    conmon
+	//    buildah
+	//    skopeo
+	//    runc
+	//    /var/lib/containers
+	//    /var/lib/podman
+	//    /var/lib/buildah
+	//    /tmp/podman
+	//    /tmp/conmon
+	// ")!
 }
-

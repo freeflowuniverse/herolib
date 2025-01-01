@@ -1,4 +1,5 @@
 module core
+
 import os
 import base
 
@@ -9,7 +10,7 @@ fn init_context() ! {
 	c.save()!
 }
 
-fn test_sudo_required()! {
+fn test_sudo_required() ! {
 	init_context()!
 	// Test if sudo requirement detection works
 	required := sudo_required()!
@@ -35,33 +36,30 @@ fn test_sudo_path_ok() {
 fn test_sudo_path_protected() {
 	init_context()!
 	// Test path permission checks for protected paths
-	p := "/usr/local"
-	
+	p := '/usr/local'
+
 	// Protected paths should require sudo
 	assert sudo_path_ok(p)! == false
 }
 
-
 fn test_sudo_cmd_check() {
 	init_context()!
 	assert interactive()!, 'interactive mode should be set'
-	
+
 	// Test command sudo requirement checking for non-sudo command
 	cmd := 'echo test'
-	
+
 	result := sudo_cmd_check(cmd)!
 	assert result == cmd
-
 }
 
-fn test_sudo_cmd_check_sudo_required()! {
+fn test_sudo_cmd_check_sudo_required() ! {
 	init_context()!
 	assert interactive()!, 'interactive mode should be set'
-	
+
 	// Test command sudo requirement checking for sudo-required command
 	cmd := 'ufw something'
-	
+
 	result := sudo_cmd_check(cmd)!
 	assert result == 'sudo ${cmd}'
-
 }
