@@ -24,8 +24,6 @@ fn installed_() !bool {
 
 		vstring = vstring.all_after_first('version').all_after_first('go').all_before(' ').trim_space()
 		v := texttools.version(vstring)
-		println(vstring)
-		println(v)
 		if v >= texttools.version(version) {
 			return true
 		}
@@ -59,11 +57,8 @@ fn install_() ! {
 		minsize_kb: 40000
 		expand_dir: expand_dir
 	)!
-
-	println(dest)
-	if true{exit(0)}
-
 	go_dest := '${osal.usr_local_path()!}/go'
+	println(go_dest)
 	os.mv('${expand_dir}/go', go_dest)!
 	os.rmdir_all(expand_dir)!
 	osal.profile_path_add_remove(paths2add: '${go_dest}/bin')!
@@ -90,7 +85,7 @@ fn destroy_() ! {
 	osal.rm('
         #next will find go as a binary and remove is like cmd delete
         ~/hero/bin/go
-        #/usr/local/go
+        /usr/local/go
         /root/hero/bin/go
         ~/.go
         ~/go

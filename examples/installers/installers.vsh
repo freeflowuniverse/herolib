@@ -39,4 +39,4 @@ core.interactive_set()! //make sure the sudo works so we can do things even if i
 // rust.install(reset:false)!
 // python.install(reset:false)!
 // nodejs.install(reset:false)!
-golang.install(reset:true)!
+golang.install(reset:false)!

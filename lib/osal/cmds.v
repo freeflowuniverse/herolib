@@ -245,7 +245,16 @@ pub fn cmd_delete(cmd string) ! {
 		res := cmd_path(cmd2) or { '' }
 		if res.len > 0 {
 			if os.exists(res) {
-				os.rm(res)!
+				if core.sudo_path_ok(res)!{
+					os.rm(res)!
+				}else{
+					if core.interactive()!{
+						execute_silent("sudo rm -rf ${res}")!
+					}else{
+						return error("can't remove ${res} as sudo because non interactive as part of cmd delete.")
+					}
+				}
+				
 			}
 		}
 	}

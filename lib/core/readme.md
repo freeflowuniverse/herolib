@@ -73,6 +73,7 @@ value := core.memdb_get('key')
 ```
 
 ### Sudo Operations
+
 ```v
 // Check sudo requirements
 if core.sudo_required()! {
