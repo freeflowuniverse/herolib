@@ -1,0 +1,44 @@
+module jsonschema
+
+import os
+import freeflowuniverse.herolib.core.pathlib
+
+const testdata = '${os.dir(@FILE)}/testdata'
+
+struct Pet {
+	name string
+}
+
+fn test_decode() ! {
+	mut pet_schema_file := pathlib.get_file(
+		path: '${jsonschema.testdata}/pet.json'
+	)!
+	pet_schema_str := pet_schema_file.read()!
+	pet_schema := decode(pet_schema_str)!
+	assert pet_schema == Schema{
+		typ: 'object'
+		properties: {
+			'name': Schema{
+				typ: 'string'
+			}
+		}
+		required: ['name']
+	}
+}
+
+fn test_decode_schemaref() ! {
+	mut pet_schema_file := pathlib.get_file(
+		path: '${jsonschema.testdata}/pet.json'
+	)!
+	pet_schema_str := pet_schema_file.read()!
+	pet_schemaref := decode(pet_schema_str)!
+	assert pet_schemaref == Schema{
+		typ: 'object'
+		properties: {
+			'name': Schema{
+				typ: 'string'
+			}
+		}
+		required: ['name']
+	}
+}
