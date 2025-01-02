@@ -1,9 +1,8 @@
-module codemodel
+module code
 
 import os
+import log
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.ui.console
 
 pub struct WriteCode {
 	destination string
@@ -123,14 +122,14 @@ pub fn (function Function) vgen(options WriteOptions) string {
 
 	optionals := params_.filter(it.is_optional)
 	options_struct := Struct{
-		name:   '${texttools.name_fix_snake_to_pascal(function.name)}Options'
-		attrs:  [Attribute{
+		name: '${texttools.name_fix_snake_to_pascal(function.name)}Options'
+		attrs: [Attribute{
 			name: 'params'
 		}]
 		fields: optionals.map(StructField{
-			name:        it.name
+			name: it.name
 			description: it.description
-			typ:         Type{
+			typ: Type{
 				symbol: it.typ.symbol
 			}
 		})
@@ -138,7 +137,7 @@ pub fn (function Function) vgen(options WriteOptions) string {
 	if optionals.len > 0 {
 		params_ << Param{
 			name: 'options'
-			typ:  Type{
+			typ: Type{
 				symbol: options_struct.name
 			}
 		}
@@ -146,10 +145,18 @@ pub fn (function Function) vgen(options WriteOptions) string {
 
 	params := params_.filter(!it.is_optional).map('${it.name} ${it.typ.symbol}').join(', ')
 
-	receiver := function.receiver.vgen()
+	receiver := if function.receiver.vgen() != '' {
+		'(${function.receiver.vgen()})'
+	} else {''}
+
+	// generate anon result param
+	result := Param{...function.result,
+		name: ''
+	}.vgen()
+	println('debugzo ${result}')
 
 	mut function_str := $tmpl('templates/function/function.v.template')
-
+	
 	// if options.format {
 	// 	result := os.execute_opt('echo "${function_str.replace('$', '\\$')}" | v fmt') or {
 	// 		panic('${function_str}\n${err}')
@@ -166,9 +173,9 @@ pub fn (function Function) vgen(options WriteOptions) string {
 }
 
 pub fn (param Param) vgen() string {
-	if param.name == '' {
-		return ''
-	}
+	// if param.name == '' {
+	// 	return ''
+	// }
 	sym := if param.struct_.name != '' {
 		param.struct_.get_type_symbol()
 	} else {
@@ -182,7 +189,7 @@ pub fn (param Param) vgen() string {
 	if param.mutable {
 		vstr = 'mut ${vstr}'
 	}
-	return '(${vstr})'
+	return '${vstr}'
 }
 
 // vgen_function generates a function statement for a function
@@ -220,7 +227,7 @@ pub fn (gen VGenerator) generate_struct(struct_ Struct) !string {
 	mut struct_str := $tmpl('templates/struct/struct.v.template')
 	if gen.format {
 		result := os.execute_opt('echo "${struct_str.replace('$', '\$')}" | v fmt') or {
-			console.print_debug(struct_str)
+			log.debug(struct_str)
 			panic(err)
 		}
 		return result.output

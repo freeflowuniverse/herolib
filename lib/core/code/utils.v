@@ -1,6 +1,6 @@
-module codemodel
+module code
 
-import freeflowuniverse.herolib.ui.console
+import log
 import rand
 
 pub struct GetStruct {
@@ -68,7 +68,7 @@ pub fn (func Function) generate_call(params GenerateCallParams) !string {
 		'()'
 	}
 
-	if func.result.result {
+	if func.result.is_result {
 		call += '!'
 	}
 	return call
@@ -86,7 +86,7 @@ pub fn (param Param) generate_value() !string {
 	} else if param.typ.symbol[0].is_capital() {
 		return '${param.typ.symbol}{}'
 	} else {
-		console.print_debug('mock values for types other than strings and ints are not yet supported')
+		log.debug('mock values for types other than strings and ints are not yet supported')
 	}
 	return ''
 }

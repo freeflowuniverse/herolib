@@ -1,4 +1,4 @@
-module codemodel
+module code
 
 pub struct Example {
 	function Function
