@@ -6,8 +6,7 @@ import freeflowuniverse.herolib.installers.threefold.griddriver
 import os
 import time
 
-mut installer := griddriver.get()!
-installer.install()!
+griddriver.install()!
 
 v := tfgrid3deployer.get()!
 println('cred: ${v}')
@@ -20,6 +19,6 @@ os.rm('${os.home_dir()}/hero/db/0/session_deployer/${deployment_name}')!
 
 deployment_name2 := 'vm_caddy_gw'
 mut deployment2 := tfgrid3deployer.get_deployment(deployment_name2)!
-deployment2.remove_webname('mywebname')!
+deployment2.remove_webname('gwnamecaddy')!
 deployment2.deploy()!
 os.rm('${os.home_dir()}/hero/db/0/session_deployer/${deployment_name2}')!

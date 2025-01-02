@@ -7,8 +7,7 @@ import freeflowuniverse.herolib.installers.threefold.griddriver
 import os
 import time
 
-mut installer := griddriver.get()!
-installer.install()!
+griddriver.install()!
 
 v := tfgrid3deployer.get()!
 println('cred: ${v}')
@@ -18,7 +17,7 @@ deployment.add_machine(
 	name:       'vm_caddy1'
 	cpu:        1
 	memory:     2
-	planetary:  true
+	planetary:  false
 	public_ip4: true
 	size:       10 // 10 gig
 	mycelium:   tfgrid3deployer.Mycelium{}
@@ -32,10 +31,10 @@ vm1_public_ip4 := vm1.public_ip4.all_before('/')
 
 deployment_name2 := 'vm_caddy_gw'
 mut deployment2 := tfgrid3deployer.new_deployment(deployment_name2)!
-deployment2.add_webname(name: 'mywebname', backend: 'http://${vm1_public_ip4}:80')
+deployment2.add_webname(name: 'gwnamecaddy', backend: 'http://${vm1_public_ip4}:80')
 deployment2.deploy()!
 
-gw1 := deployment2.webname_get('mywebname')!
+gw1 := deployment2.webname_get('gwnamecaddy')!
 println('gw info: ${gw1}')
 
 // Retry logic to wait for the SSH server to be up
