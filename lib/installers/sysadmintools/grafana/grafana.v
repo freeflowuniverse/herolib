@@ -1,6 +1,7 @@
 module grafana
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib

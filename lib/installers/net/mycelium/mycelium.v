@@ -1,6 +1,7 @@
 module mycelium
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
@@ -64,9 +65,9 @@ pub fn installss(args_ InstallArgs) ! {
 		)!
 	}
 
-	if args.restart {
-		stop()!
-	}
+	// if args.restart {
+	// 	stop()!
+	// }
 	start()!
 
 	console.print_debug('install mycelium ok')

@@ -3,10 +3,10 @@ module installers
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.installers.develapps.vscode
 import freeflowuniverse.herolib.installers.develapps.chrome
-import freeflowuniverse.herolib.installers.virt.podman as podman_installer
-import freeflowuniverse.herolib.installers.virt.buildah as buildah_installer
+// import freeflowuniverse.herolib.installers.virt.podman as podman_installer
+// import freeflowuniverse.herolib.installers.virt.buildah as buildah_installer
 import freeflowuniverse.herolib.installers.virt.lima
-import freeflowuniverse.herolib.installers.net.mycelium
+// import freeflowuniverse.herolib.installers.net.mycelium
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.installers.lang.golang
@@ -14,15 +14,15 @@ import freeflowuniverse.herolib.installers.lang.vlang
 import freeflowuniverse.herolib.installers.lang.herolib
 import freeflowuniverse.herolib.installers.lang.nodejs
 import freeflowuniverse.herolib.installers.lang.python
-import freeflowuniverse.herolib.installers.web.zola
+// import freeflowuniverse.herolib.installers.web.zola
 import freeflowuniverse.herolib.installers.web.tailwind
 // import freeflowuniverse.herolib.installers.hero.heroweb
 // import freeflowuniverse.herolib.installers.hero.herodev
 import freeflowuniverse.herolib.installers.sysadmintools.daguserver
 import freeflowuniverse.herolib.installers.sysadmintools.rclone
-import freeflowuniverse.herolib.installers.sysadmintools.prometheus
-import freeflowuniverse.herolib.installers.sysadmintools.grafana
-import freeflowuniverse.herolib.installers.sysadmintools.fungistor
+// import freeflowuniverse.herolib.installers.sysadmintools.prometheus
+// import freeflowuniverse.herolib.installers.sysadmintools.grafana
+// import freeflowuniverse.herolib.installers.sysadmintools.fungistor
 import freeflowuniverse.herolib.installers.sysadmintools.garage_s3
 import freeflowuniverse.herolib.installers.infra.zinit
 
@@ -118,17 +118,17 @@ pub fn install_multi(args_ InstallArgs) ! {
 			'chrome' {
 				chrome.install(reset: args.reset, uninstall: args.uninstall)!
 			}
-			'mycelium' {
-				mycelium.install(reset: args.reset)!
-				mycelium.start()!
-			}
+			// 'mycelium' {
+			// 	mycelium.install(reset: args.reset)!
+			// 	mycelium.start()!
+			// }
 			'garage_s3' {
 				mut garages3 := garage_s3.get()!
 				garages3.install(reset: args.reset)!
 			}
-			'fungistor' {
-				fungistor.install(reset: args.reset)!
-			}
+			// 'fungistor' {
+			// 	fungistor.install(reset: args.reset)!
+			// }
 			'lima' {
 				lima.install_(reset: args.reset, uninstall: args.uninstall)!
 			}
@@ -142,12 +142,12 @@ pub fn install_multi(args_ InstallArgs) ! {
 			// 	podman_installer0.install()!
 			// 	buildah_installer0.install()!
 			// }
-			'prometheus' {
-				prometheus.install(reset: args.reset)!
-			}
-			'grafana' {
-				grafana.install(reset: args.reset)!
-			}
+			// 'prometheus' {
+			// 	prometheus.install(reset: args.reset)!
+			// }
+			// 'grafana' {
+			// 	grafana.install(reset: args.reset)!
+			// }
 			'vscode' {
 				vscode.install(reset: args.reset)!
 			}
@@ -170,10 +170,10 @@ pub fn install_multi(args_ InstallArgs) ! {
 				dserver.restart()!
 				// mut dagucl:=dserver.client()!
 			}
-			'zola' {
-				mut i2 := zola.get()!
-				i2.install()! // will also install tailwind
-			}
+			// 'zola' {
+			// 	mut i2 := zola.get()!
+			// 	i2.install()! // will also install tailwind
+			// }
 			'tailwind' {
 				mut i := tailwind.get()!
 				i.install()!

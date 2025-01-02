@@ -1,6 +1,7 @@
 module zinit
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.osal.zinit
@@ -30,7 +31,7 @@ fn installed() !bool {
 
 fn install() ! {
 	console.print_header('install zinit')
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 
@@ -53,7 +54,7 @@ fn install() ! {
 }
 
 fn build() ! {
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 
@@ -94,9 +95,9 @@ fn ulist_get() !ulist.UList {
 fn upload() ! {
 }
 
-fn startupcmd() ![]ZProcessNewArgs {
+fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
-	res << ZProcessNewArgs{
+	res << zinit.ZProcessNewArgs{
 		name:        'zinit'
 		cmd:         '/usr/local/bin/zinit init'
 		startuptype: .systemd

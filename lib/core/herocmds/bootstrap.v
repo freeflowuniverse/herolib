@@ -88,12 +88,12 @@ fn cmd_bootstrap_execute(cmd Command) ! {
 		} else {
 			base.install(reset: reset)!
 		}
-		base.bash_installers_package()!
+		// base.bash_installers_package()!
 	} else {
 		mut b := builder.new()!
 		mut n := b.node_new(ipaddr: address)!
 		if develop {
-			n.crystal_install(reset: reset)!
+			// n.crystal_install(reset: reset)!
 			n.hero_install()!
 			n.dagu_install()!
 		} else {
