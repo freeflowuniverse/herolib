@@ -2,10 +2,10 @@ module playcmds
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.virt.hetzner
+// import freeflowuniverse.herolib.virt.hetzner
 // import freeflowuniverse.herolib.clients.b2
 import freeflowuniverse.herolib.biz.bizmodel
-import freeflowuniverse.herolib.hero.publishing
+// import freeflowuniverse.herolib.hero.publishing
 import freeflowuniverse.herolib.threefold.grid4.gridsimulator
 // import freeflowuniverse.herolib.installers.sysadmintools.daguserver
 import freeflowuniverse.herolib.threefold.grid4.farmingsimulator
@@ -26,7 +26,7 @@ pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 	// play_caddy(mut plbook)!
 	// play_juggler(mut plbook)!
 	// play_luadns(mut plbook)!
-	hetzner.heroplay(mut plbook)!
+	// hetzner.heroplay(mut plbook)!
 	// b2.heroplay(mut plbook)!
 
 	farmingsimulator.play(mut plbook)!
@@ -36,7 +36,7 @@ pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 	// base_install(play(mut plbook)!
 	// coredns.play(mut plbook)!
 
-	publishing.play(mut plbook)!
+	// publishing.play(mut plbook)!
 
 	// plbook.empty_check()!
 

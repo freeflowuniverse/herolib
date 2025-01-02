@@ -1,11 +1,13 @@
-!!hero_code.generate_installer
-    name: "garage_s3"
-    classname: "GarageS3"
-    hasconfig: false
-    singleton: true
-    default: true
-    title: ""
-    templates: false
-    build: true
-    startupmanager: true
 
+!!hero_code.generate_installer
+    name:'garage_s3'
+    classname:'GarageS3'
+    singleton:0
+    templates:1
+    default:1
+    title:''
+    supported_platforms:''
+    reset:0
+    startupmanager:1
+	hasconfig:1
+    build:0

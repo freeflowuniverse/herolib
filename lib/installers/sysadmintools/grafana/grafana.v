@@ -9,7 +9,7 @@ import freeflowuniverse.herolib.sysadmin.startupmanager
 import os
 import time
 
-pub fn installll(args_ InstallArgs) ! {
+pub fn install(args_ InstallArgs) ! {
 	mut args := args_
 
 	version := '11.1.4'

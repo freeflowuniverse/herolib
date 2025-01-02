@@ -11,7 +11,7 @@ import freeflowuniverse.herolib.osal.screen
 import os
 
 // install lighttpd will return true if it was already installed
-pub fn installll(args InstallArgs) ! {
+pub fn install(args InstallArgs) ! {
 	// make sure we install base on the node
 	base.install()!
 
