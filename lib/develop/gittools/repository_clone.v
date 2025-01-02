@@ -1,7 +1,6 @@
 module gittools
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
 import os
 
 @[params]

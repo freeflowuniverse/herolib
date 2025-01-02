@@ -3,7 +3,6 @@ module gittools
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal
 import os
-import time
 
 // GitRepo holds information about a single Git repository.
 @[heap]
