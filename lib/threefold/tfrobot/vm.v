@@ -4,7 +4,7 @@ module tfrobot
 import freeflowuniverse.herolib.builder
 import freeflowuniverse.herolib.osal
 // import freeflowuniverse.herolib.servers.daguserver as dagu
-import freeflowuniverse.herolib.clients.daguclient as dagu_client
+// import freeflowuniverse.herolib.clients.daguclient as dagu_client
 import freeflowuniverse.herolib.ui.console
 import time
 

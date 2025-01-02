@@ -1,6 +1,7 @@
 module podman
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.lang.golang
@@ -77,8 +78,8 @@ fn build_() ! {
 	// mut installer := get()!
 
 	// https://podman.io/docs/installation#building-from-source
-
-	if core.platform() != .ubuntu && core.platform() != .arch {
+	platform := core.platform()!
+	if platform != .ubuntu && platform != .arch {
 		return error('only support ubuntu and arch for now')
 	}
 	mut g := golang.get()!

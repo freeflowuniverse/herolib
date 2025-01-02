@@ -10,7 +10,7 @@ import os
 import time
 
 // install yggdrasil will return true if it was already installed
-pub fn installll(args_ InstallArgs) ! {
+pub fn install(args_ InstallArgs) ! {
 	peers := '
 Peers:
   [

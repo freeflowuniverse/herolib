@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.lang.python
 // import os
 
-pub fn installll(args_ InstallArgs) ! {
+pub fn install(args_ InstallArgs) ! {
 	mut args := args_
 
 	if args.reset == false && osal.done_exists('install_b2') {

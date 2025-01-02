@@ -116,9 +116,8 @@ pub fn play_mdbook(mut plbook playbook.PlayBook) ! {
 
 		mut mdbooks := mdbook.get()!
 
-		mut cfg := mdbooks.config()!
-		cfg.path_build = buildroot
-		cfg.path_publish = publishroot
+		mdbooks.path_build = buildroot
+		mdbooks.path_publish = publishroot
 
 		mdbooks.generate(
 			name:         name

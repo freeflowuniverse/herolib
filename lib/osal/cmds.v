@@ -104,7 +104,7 @@ pub fn usr_local_path() !string {
 
 // return the source statement if the profile exists
 pub fn profile_path_source() !string {
-	if hostname() or { '' } == 'rescue' {
+	if core.hostname() or { '' } == 'rescue' {
 		return ''
 	}
 	pp := profile_path()!
@@ -117,7 +117,7 @@ pub fn profile_path_source() !string {
 // return source $path &&  .
 // or empty if it doesn't exist
 pub fn profile_path_source_and() !string {
-	if hostname() or { '' } == 'rescue' {
+	if core.hostname() or { '' } == 'rescue' {
 		return ''
 	}
 	pp := profile_path()!

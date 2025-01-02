@@ -2,9 +2,9 @@ module tailwind
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.ui.console
 import time
 
 __global (
@@ -17,42 +17,38 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
-}
-
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut model := args_
-	if model.name == '' {
-		model.name = tailwind_default
-	}
-	if model.name == '' {
-		model.name = 'default'
-	}
-	return model
+	name string = 'default'
 }
 
 pub fn get(args_ ArgsGet) !&Tailwind {
-	mut args := args_get(args_)
-	if args.name !in tailwind_global {
-		if args.name == 'default' {
-			if !config_exists(args) {
-				if default {
-					mut context := base.context() or { panic('bug') }
-					context.hero_config_set('tailwind', model.name, heroscript_default()!)!
-				}
-			}
-			load(args)!
-		}
-	}
-	return tailwind_global[args.name] or {
-		println(tailwind_global)
-		panic('could not get config for ${args.name} with name:${model.name}')
-	}
+	return &Tailwind{}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+	// unknown
+	// screen
+	// zinit
+	// tmux
+	// systemd
+	match cat {
+		.zinit {
+			console.print_debug('startupmanager: zinit')
+			return startupmanager.get(cat: .zinit)!
+		}
+		.systemd {
+			console.print_debug('startupmanager: systemd')
+			return startupmanager.get(cat: .systemd)!
+		}
+		else {
+			console.print_debug('startupmanager: auto')
+			return startupmanager.get()!
+		}
+	}
+}
 
 @[params]
 pub struct InstallArgs {
@@ -60,22 +56,20 @@ pub mut:
 	reset bool
 }
 
-// switch instance to be used for tailwind
-pub fn switch(name string) {
-	tailwind_default = name
-}
-
 pub fn (mut self Tailwind) install(args InstallArgs) ! {
 	switch(self.name)
-	if args.reset {
-		destroy_()!
-	}
-	if !(installed_()!) {
+	if args.reset || (!installed_()!) {
 		install_()!
 	}
 }
 
 pub fn (mut self Tailwind) destroy() ! {
 	switch(self.name)
+
 	destroy_()!
+}
+
+// switch instance to be used for tailwind
+pub fn switch(name string) {
+	tailwind_default = name
 }

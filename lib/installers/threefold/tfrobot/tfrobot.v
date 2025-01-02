@@ -1,6 +1,7 @@
 module tfrobot
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.develop.gittools
@@ -34,7 +35,7 @@ pub fn install_(args_ InstallArgs) ! {
 
 	if args.reset {
 		console.print_header('install tfrobot')
-		build()!
+		build_()!
 	}
 }
 
