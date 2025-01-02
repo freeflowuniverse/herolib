@@ -1,6 +1,7 @@
 module tfgrid3deployer
 
 import freeflowuniverse.herolib.threefold.grid.models as grid_models
+import freeflowuniverse.herolib.threefold.gridproxy.model as gridproxy_models
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import compress.zlib
@@ -98,14 +99,16 @@ fn (mut self TFDeployment) set_nodes() ! {
 		}
 
 		nodes := filter_nodes(
-			node_ids:  node_ids
-			healthy:   true
-			free_mru:  convert_to_gigabytes(u64(vm.requirements.memory))
-			total_cru: u64(vm.requirements.cpu)
-			free_ips:  if vm.requirements.public_ip4 { u64(1) } else { none }
-			has_ipv6:  if vm.requirements.public_ip6 { vm.requirements.public_ip6 } else { none }
-			status:    'up'
-			features:  if vm.requirements.public_ip4 { [] } else { ['zmachine'] }
+			node_ids:      node_ids
+			healthy:       true
+			free_mru:      convert_to_gigabytes(u64(vm.requirements.memory))
+			total_cru:     u64(vm.requirements.cpu)
+			free_sru:      convert_to_gigabytes(u64(vm.requirements.size))
+			available_for: gridproxy_models.OptionU64(u64(self.deployer.twin_id))
+			free_ips:      if vm.requirements.public_ip4 { u64(1) } else { none }
+			has_ipv6:      if vm.requirements.public_ip6 { vm.requirements.public_ip6 } else { none }
+			status:        'up'
+			features:      if vm.requirements.public_ip4 { [] } else { ['zmachine'] }
 		)!
 
 		if nodes.len == 0 {
@@ -114,40 +117,42 @@ fn (mut self TFDeployment) set_nodes() ! {
 			}
 			return error('Requested the Grid Proxy and no nodes found.')
 		}
-		idx := rand.u32() % u32(nodes.len)
-		// println('chodes node: ${}')
-		vm.node_id = u32(nodes[idx].node_id)
+
+		vm.node_id = self.pick_node(nodes) or { return error('Failed to pick valid node: ${err}') }
 	}
 
 	for mut zdb in self.zdbs {
-		size := convert_to_gigabytes(u64(zdb.requirements.size))
 		nodes := filter_nodes(
-			free_sru: size
-			status:   'up'
-			healthy:  true
-			node_id:  zdb.requirements.node_id
+			free_sru:      convert_to_gigabytes(u64(zdb.requirements.size))
+			status:        'up'
+			healthy:       true
+			node_id:       zdb.requirements.node_id
+			available_for: gridproxy_models.OptionU64(u64(self.deployer.twin_id))
 		)!
 
 		if nodes.len == 0 {
 			return error('Requested the Grid Proxy and no nodes found.')
 		}
 
-		zdb.node_id = u32(nodes[0].node_id)
+		zdb.node_id = self.pick_node(nodes) or { return error('Failed to pick valid node: ${err}') }
 	}
 
 	for mut webname in self.webnames {
 		nodes := filter_nodes(
-			domain:  true
-			status:  'up'
-			healthy: true
-			node_id: webname.requirements.node_id
+			domain:        true
+			status:        'up'
+			healthy:       true
+			node_id:       webname.requirements.node_id
+			available_for: gridproxy_models.OptionU64(u64(self.deployer.twin_id))
 		)!
 
 		if nodes.len == 0 {
 			return error('Requested the Grid Proxy and no nodes found.')
 		}
 
-		webname.node_id = u32(nodes[0].node_id)
+		webname.node_id = self.pick_node(nodes) or {
+			return error('Failed to pick valid node: ${err}')
+		}
 	}
 }
 
@@ -200,7 +205,7 @@ fn (mut self TFDeployment) finalize_deployment(setup DeploymentSetup) ! {
 	}
 
 	if create_name_contracts.len > 0 || create_deployments.len > 0 {
-		console.print_header('Batch deploying the deployment')
+		console.print_header('Attempting batch deployment')
 		created_name_contracts_map, ret_dls := self.deployer.batch_deploy(create_name_contracts, mut
 			create_deployments, none)!
 
@@ -469,86 +474,35 @@ pub fn (mut self TFDeployment) list_deployments() !map[u32]grid_models.Deploymen
 	return dls
 }
 
-// fn (mut self TFDeployment) vm_delete(vm_name string) ! {
-// 	// delete myself, check on TFChain that deletion was indeed done
-// 	vm := self.vm_get(vm_name)!
+fn (mut self TFDeployment) pick_node(nodes []gridproxy_models.Node) !u32 {
+	mut node_id := ?u32(none)
+	mut checked := []bool{len: nodes.len}
+	mut checked_cnt := 0
+	for checked_cnt < nodes.len {
+		idx := int(rand.u32() % u32(nodes.len))
+		if checked[idx] {
+			continue
+		}
 
-// 	// get all deployments
-// 	mut dls := self.list_deployments()!
+		checked[idx] = true
+		checked_cnt += 1
+		if self.ping_node(u32(nodes[idx].twin_id)) {
+			node_id = u32(nodes[idx].node_id)
+			break
+		}
+	}
 
-// 	// load network
-// 	mut network_handler := NetworkHandler{
-// 		deployer: self.deployer
-// 	}
+	if v := node_id {
+		return v
+	} else {
+		return error('No node is reachable.')
+	}
+}
 
-// 	// network_handler.load_network_state(dls)!
-
-// 	// remove vm workload
-// 	mut vm_dl := dls[vm.node_id]
-// 	mut public_ip_name := ''
-// 	for idx, workload in vm_dl.workloads {
-// 		if workload.name == vm_name {
-// 			zmachine := json.decode(grid_models.Zmachine, workload.data)!
-// 			public_ip_name = zmachine.network.public_ip
-// 			vm_dl.workloads[idx], vm_dl.workloads[vm_dl.workloads.len - 1] = vm_dl.workloads[vm_dl.workloads.len - 1], vm_dl.workloads[idx]
-// 			vm_dl.workloads.delete_last()
-// 			break
-// 		}
-// 	}
-
-// 	for idx, workload in vm_dl.workloads {
-// 		if workload.name == public_ip_name {
-// 			vm_dl.workloads[idx], vm_dl.workloads[vm_dl.workloads.len - 1] = vm_dl.workloads[vm_dl.workloads.len - 1], vm_dl.workloads[idx]
-// 			vm_dl.workloads.delete_last()
-// 			break
-// 		}
-// 	}
-
-// 	// decide if we want to remove the node
-// 	if vm_dl.workloads.len == 1 && vm_dl.workloads[0].type_ == grid_models.workload_types.network {
-// 		mut ipv4_nodes := 0
-// 		for _, endpoint in network_handler.endpoints {
-// 			if endpoint.split('.').len == 4 {
-// 				ipv4_nodes += 1
-// 			}
-// 		}
-
-// 		if network_handler.public_node == vm.node_id && (ipv4_nodes > 1
-// 			|| network_handler.hidden_nodes.len == 0
-// 			|| (network_handler.nodes.len == 2 && network_handler.hidden_nodes.len == 1)
-// 			|| (ipv4_nodes == 1 && network_handler.hidden_nodes.len > 0)) {
-// 			// we can remove the node
-// 			dls.delete(vm.node_id)
-// 			network_handler.remove_node(vm.node_id)!
-// 		}
-// 	}
-
-// 	// use network handler to prepare network
-// 	network_workloads := network_handler.generate_workloads(self.dl_versions)!
-
-// 	// replace deloyments network workloads with the ones coming from network handler
-// 	for node_id, mut dl in dls {
-// 		network_wl := network_workloads[node_id] or { continue }
-// 		for id, _ in dl.workloads {
-// 			if dl.workloads[id].name == network_wl.name {
-// 				dl.workloads[id] = network_wl
-// 			}
-// 		}
-// 	}
-
-// 	// TODO: update deployments
-// 	/*
-// 		what issues we face:
-// 			1. Delete the network workload if not needed
-// 			2. Remove the vm node peer from the other deployments if contract is deleted
-// 			3. Deploy an access node if the deleted contract was an access node
-
-// 			node1 := dl -> hidden
-// 			node2 := dl -> hidden
-// 			node3 := dl -> public // will delete it, we need to deploy another access node for node1 and node2
-
-// 			node1 := dl -> public // Assign node1 instead of node3 and delete node1
-// 			node2 := dl -> hidden
-// 			node3 := dl -> public // will delete it, we need to deploy another access node for node1 and node2
-//  	*/
-// }
+fn (mut self TFDeployment) ping_node(twin_id u32) bool {
+	if _ := self.deployer.client.get_zos_version(twin_id) {
+		return true
+	} else {
+		return false
+	}
+}

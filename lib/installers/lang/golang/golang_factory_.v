@@ -1,11 +1,8 @@
 module golang
 
-import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	golang_global  map[string]&GolangInstaller
@@ -14,9 +11,41 @@ __global (
 
 /////////FACTORY
 
+@[params]
+pub struct ArgsGet {
+pub mut:
+	name string
+}
+
+pub fn get(args_ ArgsGet) !&GolangInstaller {
+	return &GolangInstaller{}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+	// unknown
+	// screen
+	// zinit
+	// tmux
+	// systemd
+	match cat {
+		.zinit {
+			console.print_debug('startupmanager: zinit')
+			return startupmanager.get(cat: .zinit)!
+		}
+		.systemd {
+			console.print_debug('startupmanager: systemd')
+			return startupmanager.get(cat: .systemd)!
+		}
+		else {
+			console.print_debug('startupmanager: auto')
+			return startupmanager.get()!
+		}
+	}
+}
 
 @[params]
 pub struct InstallArgs {
@@ -24,19 +53,24 @@ pub mut:
 	reset bool
 }
 
-pub fn install(args InstallArgs) ! {
-	if args.reset {
-		destroy()!
-	}
-	if !(installed_()!) {
+pub fn (mut self GolangInstaller) install(args InstallArgs) ! {
+	switch(self.name)
+	if args.reset || (!installed_()!) {
 		install_()!
 	}
 }
 
-pub fn destroy() ! {
+pub fn (mut self GolangInstaller) build() ! {
+	switch(self.name)
+	build_()!
+}
+
+pub fn (mut self GolangInstaller) destroy() ! {
+	switch(self.name)
 	destroy_()!
 }
 
-pub fn build() ! {
-	build_()!
+// switch instance to be used for golang
+pub fn switch(name string) {
+	golang_default = name
 }
