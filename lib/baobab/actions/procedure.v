@@ -1,4 +1,4 @@
-module action
+module actions
 
 // ProcedureResponse struct representing the result of a procedure call
 pub struct ProcedureResponse {
