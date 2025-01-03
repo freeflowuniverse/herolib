@@ -1,0 +1,20 @@
+import freeflowuniverse.herolib.baobab.interfaces
+import freeflowuniverse.herolib.schemas.openrpc
+
+const specification_path = os.join_path(os.dir(@@FILE), '/testdata/openrpc.json')
+const specification = openrpc.new(path: specification_path)!
+
+pub fn new_openrpc_interface() !&interfaces.OpenRPCInterface {
+	// create OpenRPC Handler with actor's client
+	client := new_client()!
+	return interfaces.new_openrpc_interface(client.Client)
+}
+
+// creates HTTP controller with the actor's OpenRPC Handler
+// and OpenRPC Specification
+pub fn new_openrpc_http_controller() !&openrpc.HTTPController {
+    return openrpc.new_http_controller(
+        specification: specification
+        handler: new_openrpc_interface()!
+    )
+}
