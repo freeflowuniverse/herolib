@@ -8,7 +8,7 @@ pub struct Request {
 pub mut:
 	jsonrpc string @[required] // JSON-RPC version, e.g., "2.0"
 	method  string @[required] // Method to invoke
-	params  string @[required] // JSON-encoded parameters
+	params  string // JSON-encoded parameters
 	id      string @[required] // Unique request ID
 }
 
@@ -32,12 +32,23 @@ pub fn (req Request) encode() string {
 	return json2.encode(req)
 }
 
+// Validates that the response does not contain both `result` and `error`.
+pub fn (req Request) validate() ! {
+	if req.jsonrpc == '' {
+		return error('request jsonrpc version not specified')
+	} else if req.id == '' {
+		return error('request id is empty')
+	} else if req.method == '' {
+		return error('request method is empty')
+	}
+}
+
 // A generic JSON-RPC request struct allowing strongly-typed parameters.
 pub struct RequestGeneric[T] {
 pub mut:
 	jsonrpc string @[required]
 	method  string @[required]
-	params  T      @[required]
+	params  T      
 	id      string @[required]
 }
 

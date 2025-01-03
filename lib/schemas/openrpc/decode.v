@@ -13,19 +13,20 @@ pub fn decode(data string) !OpenRPC {
 		}
 	}
 
-	for i, method in data_map['methods'].arr() {
+	methods_any := data_map['methods'] or {return object}
+	for i, method in methods_any.arr() {
 		method_map := method.as_map()
-		params_arr := method_map['params'].arr()
-		result := if 'result' in method_map {
-			method_map['result']
-		} else {
-			''
+		
+		if result_any := method_map['result'] {
+			object.methods[i].result = decode_content_descriptor_ref(result_any.as_map()) or {
+				return error('Failed to decode result\n${err}')
+			}
 		}
-		object.methods[i].params = params_arr.map(decode_content_descriptor_ref(it.as_map()) or {
-			return error('Failed to decode params\n${err}')
-		})
-		object.methods[i].result = decode_content_descriptor_ref(result.as_map()) or {
-			return error('Failed to decode result\n${err}')
+		if params_any := method_map['params'] {
+			params_arr := params_any.arr()
+			object.methods[i].params = params_arr.map(decode_content_descriptor_ref(it.as_map()) or {
+				return error('Failed to decode params\n${err}')
+			})
 		}
 	}
 	// object.methods = decode_method(data_map['methods'].as_array)!
@@ -50,18 +51,21 @@ pub fn decode(data string) !OpenRPC {
 
 fn decode_components(data_map map[string]Any) !Components {
 	mut components := Components{}
-	components_map := data_map['components'].as_map()
+	mut components_map := map[string]Any
+	if components_any := data_map['components'] {
+		components_map = components_any.as_map()
+	}
 
-	if 'contentDescriptors' in components_map {
-		descriptors_map := components_map['contentDescriptors'].as_map()
+	if cd_any := components_map['contentDescriptors'] {
+		descriptors_map := cd_any.as_map()
 		for key, value in descriptors_map {
 			descriptor := decode_content_descriptor_ref(value.as_map())!
 			components.content_descriptors[key] = descriptor
 		}
 	}
 
-	if 'schemas' in components_map {
-		schemas_map := components_map['schemas'].as_map()
+	if schemas_any := components_map['schemas'] {
+		schemas_map := schemas_any.as_map()
 		for key, value in schemas_map {
 			schema := jsonschema.decode(value.str())!
 			components.schemas[key] = schema
@@ -72,9 +76,9 @@ fn decode_components(data_map map[string]Any) !Components {
 }
 
 fn decode_content_descriptor_ref(data_map map[string]Any) !ContentDescriptorRef {
-	if '\$ref' in data_map {
+	if ref_any := data_map['\$ref'] {
 		return Reference{
-			ref: data_map['\$ref'].str()
+			ref: ref_any.str()
 		}
 	}
 	mut descriptor := json.decode(ContentDescriptor, data_map.str())!
