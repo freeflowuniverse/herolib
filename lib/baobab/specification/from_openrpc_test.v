@@ -1,7 +1,7 @@
 module specification
 
 import freeflowuniverse.herolib.core.code { Struct, Function }
-import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, Error }
+import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec }
 import freeflowuniverse.herolib.schemas.openapi { OpenAPI, Info, ServerSpec, Components, Operation, PathItem, PathRef }
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
 
@@ -379,7 +379,7 @@ const actor_spec = specification.ActorSpecification{
                 })
             }
             errors: [
-                openrpc.Error{
+                openrpc.ErrorSpec{
                     code: 400
                     message: 'Invalid request'
                 }
@@ -393,7 +393,7 @@ const actor_spec = specification.ActorSpecification{
                 description: 'The response of the operation.'
             }
             errors: [
-                openrpc.Error{
+                openrpc.ErrorSpec{
                     code: 400
                     message: 'Invalid input'
                 }
@@ -421,7 +421,7 @@ const actor_spec = specification.ActorSpecification{
                 })
             }
             errors: [
-                openrpc.Error{
+                openrpc.ErrorSpec{
                     code: 404
                     message: 'Pet not found'
                 }
@@ -446,7 +446,7 @@ const actor_spec = specification.ActorSpecification{
                 description: 'The response of the operation.'
             }
             errors: [
-                openrpc.Error{
+                openrpc.ErrorSpec{
                     code: 404
                     message: 'Pet not found'
                 }
@@ -488,7 +488,7 @@ const actor_spec = specification.ActorSpecification{
                 })
             }
             errors: [
-                openrpc.Error{
+                openrpc.ErrorSpec{
                     code: 404
                     message: 'Order not found'
                 }
@@ -513,7 +513,7 @@ const actor_spec = specification.ActorSpecification{
                 description: 'The response of the operation.'
             }
             errors: [
-                openrpc.Error{
+                openrpc.ErrorSpec{
                     code: 404
                     message: 'Order not found'
                 }

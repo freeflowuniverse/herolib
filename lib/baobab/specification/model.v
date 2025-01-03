@@ -1,7 +1,6 @@
 module specification
 
 import freeflowuniverse.herolib.core.code { Struct, Function }
-import freeflowuniverse.herolib.schemas.jsonschema { Schema }
 import freeflowuniverse.herolib.schemas.openrpc {ContentDescriptor, ErrorSpec}
 
 pub struct ActorSpecification {

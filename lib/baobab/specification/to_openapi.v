@@ -1,9 +1,7 @@
 module specification
 
-import freeflowuniverse.herolib.core.code { Struct, Function }
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef }
 import freeflowuniverse.herolib.schemas.openapi { Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec }
-import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec }
 
 // Converts ActorSpecification to OpenAPI
 pub fn (s ActorSpecification) to_openapi() OpenAPI {
