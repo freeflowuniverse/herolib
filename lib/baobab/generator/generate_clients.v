@@ -19,8 +19,12 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 		actor.Client
 	}
 
-	fn new_client() Client {
-		return Client{}
+	fn new_client() !Client {
+		mut redis := redisclient.new(\'localhost:6379\')!
+		mut rpc_q := redis.rpc_get(\'actor_\${name}\')
+		return Client{
+			rpc: rpc_q
+		}
 	}'}
 	
 	for method in spec.methods {
@@ -30,10 +34,10 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 	return VFile {
 		imports: [
 			Import{
-				mod: 'freeflowuniverse.herolib.data.paramsparser'
+				mod: 'freeflowuniverse.herolib.baobab.actor'
 			},
 			Import{
-				mod: 'freeflowuniverse.herolib.baobab.actor'
+				mod: 'freeflowuniverse.herolib.core.redisclient'
 			}
 		]
 		name: 'client'

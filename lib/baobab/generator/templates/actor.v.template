@@ -1,34 +1,40 @@
 import os
-import freeflowuniverse.herolib.baobab.actor {IActor, RunParams}
+import freeflowuniverse.herolib.baobab.actor
+import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.schemas.openapi
-import time
 
+const name = '@{actor_name_snake}'
 const openapi_spec_path = '@{dollar}{os.dir(@@FILE)}/specs/openapi.json'
 const openapi_spec_json = os.read_file(openapi_spec_path) or { panic(err) }
 const openapi_specification = openapi.json_decode(openapi_spec_json)!
 
+@@[heap]
 struct @{actor_name_pascal}Actor {
     actor.Actor
 }
 
-fn new() !@{actor_name_pascal}Actor {
-    return @{actor_name_pascal}Actor {
+fn new() !&@{actor_name_pascal}Actor {
+    return &@{actor_name_pascal}Actor {
         actor.new('@{actor_name_snake}')
     }
 }
 
-pub fn run() ! {
-    mut a_ := new()!
-    mut a := IActor(a_)
-    a.run()!
+pub fn (mut a @{actor_name_pascal}Actor) handle(method string, data string) !string {
+	action := a.act(
+		name: method
+		params: data
+	)!
+	return action.result
 }
 
-pub fn run_server(params RunParams) ! {
-    mut a := new()!
-    mut server := actor.new_server(
-        redis_url: 'localhost:6379'
-        redis_queue: a.name
-        openapi_spec: openapi_specification
-    )!
-    server.run(params)
+// Actor listens to the Redis queue for method invocations
+pub fn (mut a @{actor_name_pascal}Actor) run() ! {
+	mut redis := redisclient.new('localhost:6379') or { panic(err) }
+	mut rpc := redis.rpc_get(name)
+
+	println('Actor started and listening for tasks...')
+	for {
+		rpc.process(a.handle)!
+		time.sleep(time.millisecond * 100) // Prevent CPU spinning
+	}
 }

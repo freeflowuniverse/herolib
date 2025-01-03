@@ -23,6 +23,7 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 		generate_handle_file(spec)!,
 		generate_methods_file(spec)!
 		generate_client_file(spec)!
+		generate_model_file(spec)!
 	]
 
 	mut docs_files := []IFile{}
@@ -35,8 +36,10 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 				openrpc_spec := spec.to_openrpc()
 				
 				// generate openrpc code files
-				files << generate_openrpc_client_file(openrpc_spec)!
-				files << generate_openrpc_client_test_file(openrpc_spec)!
+				// files << generate_openrpc_client_file(openrpc_spec)!
+				// files << generate_openrpc_client_test_file(openrpc_spec)!
+				files << generate_http_interface_file()!
+				files << generate_openrpc_interface_file()!
 
 				// add openrpc.json to docs
 				docs_files << generate_openrpc_file(openrpc_spec)!

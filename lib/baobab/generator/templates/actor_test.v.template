@@ -1,15 +1,10 @@
 const test_port = 8101
 
 pub fn test_new() ! {
-	new() or {
-		return error('Failed to create actor:\n@{dollar}{err}')
-	}
+	new() or { return error('Failed to create actor:\n@{dollar}{err}') }
 }
 
-pub fn test_run() ! {
-	spawn run()
-}
-
-pub fn test_run_server() ! {
-	spawn run_server(port: test_port)
+pub fn test_actor_run() ! {
+	mut actor := new()!
+	spawn actor.run()
 }
