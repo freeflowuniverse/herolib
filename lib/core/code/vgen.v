@@ -143,9 +143,9 @@ pub fn (function Function) vgen(options WriteOptions) string {
 		}
 	}
 
-	params := params_.filter(!it.is_optional).map('${it.name} ${it.typ.symbol}').join(', ')
+	params := params_.filter(!it.is_optional).map(it.vgen()).join(', ')
 
-	receiver := if function.receiver.vgen() != '' {
+	receiver := if function.receiver.vgen().trim_space() != '' {
 		'(${function.receiver.vgen()})'
 	} else {''}
 
@@ -153,7 +153,6 @@ pub fn (function Function) vgen(options WriteOptions) string {
 	result := Param{...function.result,
 		name: ''
 	}.vgen()
-	println('debugzo ${result}')
 
 	mut function_str := $tmpl('templates/function/function.v.template')
 	
@@ -181,10 +180,13 @@ pub fn (param Param) vgen() string {
 	} else {
 		param.typ.symbol
 	}
-
-	mut vstr := '${param.name} ${sym}'
+	param_name := texttools.name_fix_snake(param.name)
+	mut vstr := '${param_name} ${sym}'
 	if param.typ.is_reference {
 		vstr = '&${vstr}'
+	}
+	if param.is_result {
+		vstr = '!${vstr}'
 	}
 	if param.mutable {
 		vstr = 'mut ${vstr}'
@@ -278,4 +280,6 @@ pub:
 	overwrite bool
 	document  bool
 	prefix    string
+	compile bool // whether to compile the written code
+	test bool // whether to test the written code
 }

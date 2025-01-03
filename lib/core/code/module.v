@@ -2,6 +2,7 @@ module code
 
 import freeflowuniverse.herolib.core.pathlib
 import os
+import log
 
 pub struct Module {
 pub mut:
@@ -44,7 +45,18 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 	if options.format {
 		os.execute('v fmt -w ${module_dir.path}')
 	}
+	if options.compile {
+		os.execute_opt('v -n -w -enable-globals -shared ${module_dir.path}') or {
+			log.fatal(err.msg())
+		}
+	}
+	if options.test {
+		os.execute_opt('v -n -w -enable-globals test ${module_dir.path}') or {
+			log.fatal(err.msg())
+		}
+	}
 	if options.document {
 		os.execute('v doc -f html -o ${module_dir.path}/docs ${module_dir.path}')
 	}
+
 }
