@@ -1,8 +1,7 @@
 module actor
 
-import json
-import freeflowuniverse.herolib.clients.redisclient
-import freeflowuniverse.herolib.baobab.action { ProcedureCall, ProcedureResponse }
+import freeflowuniverse.herolib.core.redisclient
+import freeflowuniverse.herolib.baobab.actions {Action}
 
 // Processor struct for managing procedure calls
 pub struct Client {
@@ -33,38 +32,18 @@ pub fn new_client(config ClientConfig) !Client {
 }
 
 // Process the procedure call
-pub fn (mut p Client) monologue(call ProcedureCall, params Params) ! {
+pub fn (mut p Client) call_to_action(action Action, params Params) !Action {
 	// Use RedisRpc's `call` to send the call and wait for the response
 	response_data := p.rpc.call(redisclient.RPCArgs{
-		cmd:     call.method
-		data:    call.params
+		cmd:     action.name
+		data:    action.params
 		timeout: u64(params.timeout * 1000) // Convert seconds to milliseconds
 		wait:    true
 	})!
-        // TODO: check error type
-}
-
-// Process the procedure call
-pub fn (mut p Client) call_to_action(action Procedure, params Params) !ProcedureResponse {
-	// Use RedisRpc's `call` to send the call and wait for the response
-	response_data := p.rpc.call(redisclient.RPCArgs{
-		cmd:     call.method
-		data:    call.params
-		timeout: u64(params.timeout * 1000) // Convert seconds to milliseconds
-		wait:    true
-	}) or {
-		// TODO: check error type
-		return ProcedureResponse{
-			error: err.msg()
-		}
-		// return ProcedureError{
-		//     reason: .timeout
-		// }
-	}
 
 	println('resp data ${response_data}')
-
-	return ProcedureResponse{
+	return Action {
+		...action
 		result: response_data
 	}
 }

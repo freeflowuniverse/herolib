@@ -1,12 +1,12 @@
 module actor
 
-import freeflowuniverse.herolib.clients.redisclient
-import time
+import freeflowuniverse.herolib.baobab.actions {Action}
 
+@[heap]
 pub interface IActor {
 	name string
 mut:
-	handle(string, string) !string
+	act(Action) !Action
 }
 
 pub struct Actor {
@@ -18,14 +18,22 @@ pub fn new(name string) Actor {
 	return Actor{name}
 }
 
-// Actor listens to the Redis queue for method invocations
-pub fn (mut actor IActor) run() ! {
-	mut redis := redisclient.new('localhost:6379') or { panic(err) }
-	mut rpc := redis.rpc_get(actor.name)
-
-	println('Actor started and listening for tasks...')
-	for {
-		rpc.process(actor.handle)!
-		time.sleep(time.millisecond * 100) // Prevent CPU spinning
-	}
+pub fn (mut a IActor) handle(method string, data string) !string {
+	action := a.act(
+		name: method
+		params: data
+	)!
+	return action.result
 }
+
+// // Actor listens to the Redis queue for method invocations
+// pub fn (mut a IActor) run() ! {
+// 	mut redis := redisclient.new('localhost:6379') or { panic(err) }
+// 	mut rpc := redis.rpc_get(a.name)
+
+// 	println('Actor started and listening for tasks...')
+// 	for {
+// 		rpc.process(a.handle)!
+// 		time.sleep(time.millisecond * 100) // Prevent CPU spinning
+// 	}
+// }
