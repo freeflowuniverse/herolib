@@ -20,7 +20,6 @@ fn handler(request jsonrpc.Request) !jsonrpc.Response {
 fn test_new_server() {
     specification := new(path: specification_path)!
     new_controller(
-        specification: specification
         handler: Handler{
             specification: specification
             handler: handler
@@ -31,7 +30,6 @@ fn test_new_server() {
 fn test_run_server() {
     specification := new(path: specification_path)!
     mut controller := new_controller(
-        specification: specification
         handler: Handler{
             specification: specification
             handler: handler
