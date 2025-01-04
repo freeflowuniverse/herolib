@@ -1,6 +1,7 @@
-module actions
+module interfaces
 
 import freeflowuniverse.herolib.schemas.jsonrpc
+import freeflowuniverse.herolib.baobab.stage {Action}
 
 pub fn action_from_jsonrpc_request(request jsonrpc.Request) Action {
 	return Action{

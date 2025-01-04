@@ -1,8 +1,7 @@
 module interfaces
 
-import freeflowuniverse.herolib.baobab.actor {Client}
+import freeflowuniverse.herolib.baobab.stage {Client}
 import freeflowuniverse.herolib.schemas.jsonrpc
-import freeflowuniverse.herolib.baobab.actions
 
 // handler for test echoes JSONRPC Request as JSONRPC Response
 fn handler(request jsonrpc.Request) !jsonrpc.Response {
@@ -24,7 +23,7 @@ pub fn new_openrpc_interface(client Client) &OpenRPCInterface {
 
 pub fn (mut i OpenRPCInterface) handle(request jsonrpc.Request) !jsonrpc.Response {
 	// Convert incoming OpenAPI request to a procedure call
-	action := actions.action_from_jsonrpc_request(request)
+	action := action_from_jsonrpc_request(request)
 	response := i.client.call_to_action(action)!
-	return actions.action_to_jsonrpc_response(response)
+	return action_to_jsonrpc_response(response)
 }

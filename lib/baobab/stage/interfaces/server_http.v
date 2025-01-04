@@ -1,7 +1,7 @@
 module interfaces
 
 import freeflowuniverse.herolib.schemas.openapi { OpenAPI }
-import freeflowuniverse.herolib.baobab.actor {Client, ClientConfig}
+import freeflowuniverse.herolib.baobab.stage {Client, ClientConfig}
 import freeflowuniverse.herolib.schemas.openrpc { OpenRPC }
 import veb
 

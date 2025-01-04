@@ -1,4 +1,4 @@
-module actions
+module stage
 
 // Error struct for error handling
 pub struct ActionError {

@@ -1,7 +1,6 @@
-module actor
+module stage
 
 import freeflowuniverse.herolib.core.redisclient
-import freeflowuniverse.herolib.baobab.actions {Action}
 
 // Processor struct for managing procedure calls
 pub struct Client {
@@ -41,7 +40,6 @@ pub fn (mut p Client) call_to_action(action Action, params Params) !Action {
 		wait:    true
 	})!
 
-	println('resp data ${response_data}')
 	return Action {
 		...action
 		result: response_data

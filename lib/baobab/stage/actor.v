@@ -1,6 +1,4 @@
-module actor
-
-import freeflowuniverse.herolib.baobab.actions {Action}
+module stage
 
 @[heap]
 pub interface IActor {
@@ -14,7 +12,7 @@ pub:
 	name string
 }
 
-pub fn new(name string) Actor {
+pub fn new_actor(name string) Actor {
 	return Actor{name}
 }
 

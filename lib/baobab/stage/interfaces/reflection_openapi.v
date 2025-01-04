@@ -1,11 +1,11 @@
-module actions
+module interfaces
 
 // import os
 // import time
 // import veb
 // import x.json2 {Any}
 // import net.http
-// import freeflowuniverse.herolib.schemas.jsonschema {Schema}
+import freeflowuniverse.herolib.baobab.stage {Action}
 import freeflowuniverse.herolib.schemas.openapi {Request}
 
 pub fn openapi_request_to_action(request Request) Action {
