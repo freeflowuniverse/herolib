@@ -1,5 +1,5 @@
 import os
-import freeflowuniverse.herolib.baobab.actor {IActor, RunParams}
+import freeflowuniverse.herolib.baobab.stage {IActor, RunParams}
 import freeflowuniverse.herolib.schemas.openapi
 
 const openapi_spec_path = '@{dollar}{os.dir(@@FILE)}/specs/openapi.json'
@@ -7,12 +7,12 @@ const openapi_spec_json = os.read_file(openapi_spec_path) or { panic(err) }
 const openapi_specification = openapi.json_decode(openapi_spec_json)!
 
 struct @{actor_name_pascal}Actor {
-    actor.Actor
+    stage.Actor
 }
 
 fn new() !@{actor_name_pascal}Actor {
     return @{actor_name_pascal}Actor {
-        actor.new('@{actor_name_snake}')
+        stage.new_actor('@{actor_name_snake}')
     }
 }
 

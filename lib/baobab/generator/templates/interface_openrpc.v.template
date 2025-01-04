@@ -1,4 +1,4 @@
-import freeflowuniverse.herolib.baobab.interfaces
+import freeflowuniverse.herolib.baobab.stage.interfaces
 import freeflowuniverse.herolib.schemas.openrpc
 
 const specification_path = os.join_path(os.dir(@@FILE), '/testdata/openrpc.json')

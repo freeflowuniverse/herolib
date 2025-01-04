@@ -1,6 +1,6 @@
 #!/usr/bin/env -S  v -n -cg -w -enable-globals run
 
-import freeflowuniverse.herolib.baobab.actors.accountant
+import freeflowuniverse.herolib.baobab.stages.accountant
 import vweb
 import freeflowuniverse.herolib.schemas.openrpc
 import os

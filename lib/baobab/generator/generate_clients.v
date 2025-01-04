@@ -1,8 +1,9 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { Param, Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.schemas.openrpc
+import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schemaref_to_type}
 import freeflowuniverse.herolib.schemas.openrpc.codegen {content_descriptor_to_parameter}
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
 import os
@@ -16,7 +17,7 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 
 	items << CustomCode {'
 	pub struct Client {
-		actor.Client
+		stage.Client
 	}
 
 	fn new_client() !Client {
@@ -34,10 +35,14 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 	return VFile {
 		imports: [
 			Import{
-				mod: 'freeflowuniverse.herolib.baobab.actor'
+				mod: 'freeflowuniverse.herolib.baobab.stage'
 			},
 			Import{
 				mod: 'freeflowuniverse.herolib.core.redisclient'
+			},
+			Import{
+				mod: 'x.json2 as json'
+				types: ['Any']
 			}
 		]
 		name: 'client'
@@ -52,14 +57,36 @@ pub fn generate_client_method(method ActorMethod) !Function {
 		method.parameters.map(it.name).join(', ')
 	} else {''}
 
-	body := "client.call_to_action(
-	method: ${name_fixed}
-	params: paramsparser.encode(${call_params}))"
+	params_stmt := if method.parameters.len == 0 {
+		''
+	} else if method.parameters.len == 1 {
+		'params := json.encode(${texttools.name_fix_snake(method.parameters[0].name)})'
+	} else {
+		'mut params_arr := []Any{}
+		params_arr = [call_params]
+		params := json.encode(params_arr.str())
+		'
+	}
 
+	mut client_call_stmt := "action := client.call_to_action(
+		name: '${name_fixed}'"
+
+	if params_stmt != '' {
+		client_call_stmt += 'params: params'
+	}
+	client_call_stmt += ')!'
+
+	result_type := schemaref_to_type(method.result.schema)!.vgen().trim_space()
+	result_stmt := if result_type == '' {
+		''
+	} else {
+		"return json.decode[${result_type}](action.result)!"
+	}
 	return Function {
 		receiver: code.new_param(v: 'mut client Client')!
-		result: code.new_param(v:'!')!
+		result: Param{...content_descriptor_to_parameter(method.result)!, is_result: true}
 		name: name_fixed
+		body: '${params_stmt}\n${client_call_stmt}\n${result_stmt}'
 		summary: method.summary
 		description: method.description
 		params: method.parameters.map(content_descriptor_to_parameter(it)!)

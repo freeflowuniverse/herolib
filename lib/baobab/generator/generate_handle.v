@@ -16,7 +16,7 @@ fn generate_handle_file(spec ActorSpecification) !VFile {
 	}
 	return VFile {
 		name: 'act'
-		imports: [Import{mod:'freeflowuniverse.herolib.baobab.actions' types:['Action']}]
+		imports: [Import{mod:'freeflowuniverse.herolib.baobab.stage' types:['Action']}]
 		items: items
 	}
 }
@@ -55,7 +55,7 @@ pub fn generate_method_handle(actor_name string, method ActorMethod) !string {
 	actor_name_pascal := texttools.name_fix_snake_to_pascal(actor_name)
 	name_fixed := texttools.name_fix_snake(method.name)
 	if name_fixed == "create_pet" {
-		println('debug ${method}')
+		println('debugzo ${method}')
 	}
 	mut handler := '// Handler for ${name_fixed}\n'
 	handler += "fn (mut actor ${actor_name_pascal}Actor) handle_${name_fixed}(data string) !string {\n"

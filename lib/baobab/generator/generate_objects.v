@@ -42,7 +42,7 @@ module generator
 // 	return a.objects.map(code.new_file(
 // 		mod: texttools.name_fix(a.name)
 // 		name: '${texttools.name_fix(it.structure.name)}_model'
-// 		// imports: [Import{mod:'freeflowuniverse.herolib.baobab.actor'}]
+// 		// imports: [Import{mod:'freeflowuniverse.herolib.baobab.stage'}]
 // 		items: [it.structure]
 // 	))
 // }
