@@ -3,6 +3,7 @@ module postgresql
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import os
 
 pub const version = '0.0.0'
