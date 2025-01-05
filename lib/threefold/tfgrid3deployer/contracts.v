@@ -19,7 +19,9 @@ pub mut:
 //   - An array of `gridproxy.Contract` containing contract information.
 //
 // Example:
-//   contracts := cn.get_my_contracts()!
+// ```
+// contracts := cn.get_my_contracts()!
+// ```
 pub fn (mut self TFDeployment) tfchain_contracts(args ContractGetArgs) ![]proxy_models.Contract {
 	net := resolve_network()!
 	args2 := gridproxy.GridProxyClientArgs{

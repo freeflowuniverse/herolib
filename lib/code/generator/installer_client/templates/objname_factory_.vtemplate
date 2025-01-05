@@ -46,7 +46,7 @@ pub fn get(args_ ArgsGet) !&${model.classname}  {
     mut args := args_get(args_)
 	if !(args.name in ${model.name}_global) {
         if args.name=="default"{
-            if ! exists!(args){
+            if ! exists(args)!{
                 if default{
                     mut context:=base.context() or { panic("bug") }
                     context.hero_config_set("${model.name}",args.name,heroscript_default()!)!
