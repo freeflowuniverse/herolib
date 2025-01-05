@@ -120,21 +120,21 @@ fn (mut parser Parser) next() {
 // move further and reset the state
 fn (mut parser Parser) next_start() ! {
 	// means we need to add paragraph because we don't know what comes next
-	if parser.doc.last() !is elements.Paragraph {
+	if parser.doc.last()! !is elements.Paragraph {
 		parser.doc.paragraph_new(mut parser.doc, '')
 	}
 	parser.next()
 }
 
 fn (mut parser Parser) next_start_lf() ! {
-	if parser.doc.last() !is elements.Paragraph {
+	if parser.doc.last()! !is elements.Paragraph {
 		parser.doc.paragraph_new(mut parser.doc, '\n')
 	}
 	parser.next()
 }
 
 fn (mut parser Parser) ensure_last_is_paragraph() ! {
-	if parser.doc.last() !is elements.Paragraph {
+	if parser.doc.last()! !is elements.Paragraph {
 		parser.doc.paragraph_new(mut parser.doc, '')
 	}
 }
