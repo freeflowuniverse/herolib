@@ -35,8 +35,6 @@ fn test_dbfs3() {
 		withkeys:   true
 		keyshashed: true
 	)!
-
-	panic('need other test')
 }
 
 fn dotest(mut db DB, mut dbcollection DBCollection) ! {
