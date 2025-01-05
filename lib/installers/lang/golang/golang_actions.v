@@ -10,8 +10,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} go version')
-
+	res := os.execute('/bin/bash -c "go version"')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines()
 			.filter(it.contains('go version'))

@@ -133,7 +133,8 @@ fn env_unset_all()
 Unsets all environment variables
 fn exec(cmd Command) !Job
 cmd is the cmd to execute can use ' ' and spaces . if \n in cmd it will write it to ext and then execute with bash . if die==false then will just return returncode,out but not return error . if stdout will show stderr and stdout . . if cmd starts with find or ls, will give to bash -c so it can execute . if cmd has no path, path will be found . . Command argument: .
-```
+
+````
 name string // to give a name to your command, good to see logs...
 cmd string
 description string
@@ -243,7 +244,7 @@ add the following path to a profile
 fn profile_path_add_hero() !string
 fn profile_path_source() string
 return the source statement if the profile exists
-fn profile_path_source_and()! string
+fn profile_path_source_and() string
 return source $path && . or empty if it doesn't exist
 fn sleep(duration int)
 sleep in seconds
@@ -437,3 +438,4 @@ name string @[required]
 }
 
 -
+````

@@ -9,8 +9,8 @@ import json
 import os
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} livekit-server -v')
+fn installed() !bool {
+	res := os.execute('${osal.profile_path_source_and()} livekit-server -v')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -25,7 +25,7 @@ fn installed_() !bool {
 	return true
 }
 
-fn install_() ! {
+fn install() ! {
 	console.print_header('install livekit')
 	mut installer := get()!
 	osal.execute_silent('
@@ -45,7 +45,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running_() !bool {
+fn running() !bool {
 	mut installer := get()!
 
 	myport := installer.nr * 2 + 7880
@@ -90,7 +90,7 @@ fn stop_post() ! {
 	// Post-stop cleanup if needed
 }
 
-fn destroy_() ! {
+fn destroy() ! {
 	mut installer := get()!
 	os.rm(installer.configpath) or {}
 	os.rm('livekit-server') or {}

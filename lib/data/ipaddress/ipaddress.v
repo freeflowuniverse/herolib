@@ -2,6 +2,7 @@ module ipaddress
 
 import os
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 
 pub struct IPNetwork {
@@ -124,7 +125,7 @@ pub mut:
 // PingArgs: retry & timeout
 // retry default 1
 // timeout default 1000 (msec)
-pub fn (mut ipaddr IPAddress) ping(args_ PingArgs) bool {
+pub fn (mut ipaddr IPAddress) ping(args_ PingArgs) !bool {
 	mut args := args_
 	if args.retry == 0 {
 		args.retry = 1
