@@ -31,7 +31,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	cmd := "
     mkdir -p ${cfg.volume_path}
-    podman run --name ${cfg.name} -e POSTGRES_USER=${cfg.user} -e POSTGRES_PASSWORD=\"${cfg.password}\" -v ${cfg.volume_path}:/var/lib/postgresql/data -p ${cfg.port}:5432 --health-cmd=\"pg_isready -U ${cfg.user}\" postgres:latest
+    podman run --name ${cfg.container_name} -e POSTGRES_USER=${cfg.user} -e POSTGRES_PASSWORD=\"${cfg.password}\" -v ${cfg.volume_path}:/var/lib/postgresql/data -p ${cfg.port}:5432 --health-cmd=\"pg_isready -U ${cfg.user}\" postgres:latest
     "
 
 	res << zinit.ZProcessNewArgs{
