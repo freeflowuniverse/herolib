@@ -1,5 +1,7 @@
 module podman
 
+import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.ui.console
@@ -22,6 +24,32 @@ pub fn get(args_ ArgsGet) !&PodmanInstaller {
 	return &PodmanInstaller{}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+	// unknown
+	// screen
+	// zinit
+	// tmux
+	// systemd
+	match cat {
+		.zinit {
+			console.print_debug('startupmanager: zinit')
+			return startupmanager.get(cat: .zinit)!
+		}
+		.systemd {
+			console.print_debug('startupmanager: systemd')
+			return startupmanager.get(cat: .systemd)!
+		}
+		else {
+			console.print_debug('startupmanager: auto')
+			return startupmanager.get()!
+		}
+	}
+}
+
 @[params]
 pub struct InstallArgs {
 pub mut:
@@ -30,17 +58,9 @@ pub mut:
 
 pub fn (mut self PodmanInstaller) install(args InstallArgs) ! {
 	switch(self.name)
-	install()!
-}
-
-pub fn (mut self PodmanInstaller) installed(args InstallArgs) bool {
-	switch(self.name)
-	return installed()
-}
-
-pub fn (mut self PodmanInstaller) build() ! {
-	switch(self.name)
-	build()!
+	if args.reset || !installed()! {
+		install()!
+	}
 }
 
 pub fn (mut self PodmanInstaller) destroy() ! {

@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core
 import os
 
 // Check if Podman is installed
-fn installed() bool {
+fn installed() !bool {
 	console.print_header('Checking if Podman is installed...')
 	result := os.execute('podman -v')
 	return result.exit_code == 0
@@ -13,7 +13,7 @@ fn installed() bool {
 
 // Install Podman
 fn install() ! {
-	if installed() {
+	if installed()! {
 		return error('Podman is already installed.')
 	}
 
@@ -26,7 +26,7 @@ fn install() ! {
 
 // Remove Podman
 fn destroy() ! {
-	if !installed() {
+	if !installed()! {
 		return error('Podman is not installed.')
 	}
 

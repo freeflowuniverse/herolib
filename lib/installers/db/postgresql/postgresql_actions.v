@@ -12,17 +12,8 @@ fn installed_() !bool {
 
 fn install_() ! {
 	console.print_header('install postgresql')
-
-	if core.platform()! != .ubuntu || core.platform()! != .arch {
-		return error('only support ubuntu and arch for now')
-	}
-
-	if osal.done_exists('podman') {
-		console.print_header('podman binary already installed')
-		return
-	}
-
-	podman_installer.install()!
+	mut podman := podman_installer.get()!
+	podman.install()!
 	osal.execute_silent('podman pull docker.io/library/postgres:latest')!
 }
 

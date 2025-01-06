@@ -12,9 +12,9 @@ import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 
 mut podman := podman_installer.get()!
 
-if podman.installed() {
-	podman.destroy()!
-} else {
-	podman.install()!
-}
+// To install
+podman.install()!
+
+// To remove
+podman.destroy()!
 ```
