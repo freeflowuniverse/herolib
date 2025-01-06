@@ -41,14 +41,14 @@ pub fn (mut server Postgresql) check() ! {
 
 	db.exec('SELECT version();') or { return error('postgresql could not do select version') }
 
-	cmd := 'podman healthcheck run ${server.name}'
+	cmd := 'podman healthcheck run ${server.container_name}'
 	result := os.execute(cmd)
 
 	if result.exit_code != 0 {
 		return error("Postgresql container isn't healthy: ${result.output}")
 	}
 
-	container_id := 'podman container inspect default --format {{.Id}}'
+	container_id := 'podman container inspect ${server.container_name} --format {{.Id}}'
 	container_id_result := os.execute(container_id)
 	if container_id_result.exit_code != 0 {
 		return error('Cannot get the container ID: ${result.output}')

@@ -4,8 +4,18 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 import freeflowuniverse.herolib.osal.zinit
+import os
 
 fn installed_() !bool {
+	mut cfg := get()!
+	mut podman := podman_installer.get()!
+	podman.install()!
+	cmd := 'podman healthcheck run ${cfg.container_name}'
+	result := os.execute(cmd)
+
+	if result.exit_code != 0 {
+		return error("Postgresql container isn't running: ${result.output}")
+	}
 	return true
 }
 
@@ -52,41 +62,13 @@ fn stop_post() ! {
 }
 
 fn destroy_() ! {
-	mut mydb := get()!
-	mydb.destroy()!
+	// remove the podman postgresql container
+	mut cfg := get()!
+	cmd := 'podman rm -f ${cfg.container_name}'
+	result := os.execute(cmd)
 
-	// mut cfg := get()!
-	// osal.rm("
-	//     ${cfg.path}
-	//     /etc/postgresql/
-	//     /etc/postgresql-common/
-	//     /var/lib/postgresql/
-	//     /etc/systemd/system/multi-user.target.wants/postgresql
-	//     /lib/systemd/system/postgresql.service
-	//     /lib/systemd/system/postgresql@.service
-	// ")!
-
-	// c := '
-
-	// #dont die
-	// set +e
-
-	// # Stop the PostgreSQL service
-	// sudo systemctl stop postgresql
-
-	// # Purge PostgreSQL packages
-	// sudo apt-get purge -y postgresql* pgdg-keyring
-
-	// # Remove all data and configurations
-	// sudo userdel -r postgres
-	// sudo groupdel postgres
-
-	// # Reload systemd configurations and reset failed systemd entries
-	// sudo systemctl daemon-reload
-	// sudo systemctl reset-failed
-
-	// echo "PostgreSQL has been removed completely"
-
-	// '
-	// osal.exec(cmd: c)!
+	if result.exit_code != 0 {
+		return error("Postgresql container isn't running: ${result.output}")
+	}
+	console.print_header('Postgresql container removed')
 }

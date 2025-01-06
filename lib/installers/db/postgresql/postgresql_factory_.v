@@ -98,7 +98,8 @@ pub fn play(args_ PlayArgs) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
-			cfg_play(p)!
+			mycfg := cfg_play(p)!
+			set(mycfg)!
 		}
 	}
 }
