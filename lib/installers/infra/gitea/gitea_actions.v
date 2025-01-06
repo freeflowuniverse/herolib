@@ -2,35 +2,27 @@ module gitea
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core
-// import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
-// import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
 import freeflowuniverse.herolib.installers.db.postgresql as postgresinstaller
+import freeflowuniverse.herolib.installers.virt.podman as podman_installer
+import freeflowuniverse.herolib.osal.zinit
 import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	cfg := get()!
-	res := os.execute('/bin/bash -c "gitea --version"')
-	if res.exit_code != 0 {
+	mut cfg := get()!
+	mut podman := podman_installer.get()!
+	podman.install()!
+
+	cmd := 'podman healthcheck run ${cfg.container_name}'
+	result := os.execute(cmd)
+
+	if result.exit_code != 0 {
 		return false
 	}
-	r := res.output.split(' ')
-	if r.len < 3 {
-		return error("couldn't parse gitea version.\n${res.output}")
-	}
-	if texttools.version(cfg.version) > texttools.version(r[2]) {
-		return false
-	}
-	return false
+	return true
 }
 
 fn install() ! {
@@ -47,27 +39,15 @@ fn install() ! {
 
 	// make sure we install base on the node
 	base.install()!
-	postgresinstaller.install()!
+
+	mut postgres := postgresinstaller.get()!
+	postgres.install()!
 
 	cfg := get()!
-	version := cfg.version
-	url := 'https://github.com/go-gitea/gitea/releases/download/v${version}/gitea-${version}-linux-amd64.xz'
-	console.print_debug(' download ${url}')
-	mut dest := osal.download(
-		url:         url
-		minsize_kb:  40000
-		reset:       true
-		expand_file: '/tmp/download/gitea'
-	)!
+	mut podman := podman_installer.get()!
+	podman.install()!
 
-	binpath := pathlib.get_file(path: dest.path, create: false)!
-	osal.cmd_add(
-		cmdname: 'gitea'
-		source:  binpath.path
-	)!
-
-	osal.done_set('gitea_install', 'OK')!
-
+	osal.execute_silent('podman pull docker.io/gitea/gitea:${cfg.version}')!
 	console.print_header('gitea installed properly.')
 }
 
@@ -88,7 +68,7 @@ fn stop_post() ! {
 }
 
 fn destroy() ! {
-	server := get()!
+	mut server := get()!
 	server.stop()!
 
 	osal.process_kill_recursive(name: 'gitea')!

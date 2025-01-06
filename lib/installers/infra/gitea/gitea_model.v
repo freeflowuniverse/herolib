@@ -37,7 +37,8 @@ pub mut:
 	name string = 'default'
 
 	// reset           bool
-	version         string = '1.22.4'
+	container_name  string = 'herocontainer_gitea'
+	version         string = 'latest'
 	path            string = '/data/gitea'
 	passwd          string
 	postgresql_name string = 'default'
@@ -66,7 +67,7 @@ fn cfg_play(p paramsparser.Params) !GiteaServer {
 		mail_from:       p.get_default('mail_from', 'git@meet.tf')!
 		smtp_addr:       p.get_default('smtp_addr', 'smtp-relay.brevo.com')!
 		smtp_login:      p.get('smtp_login')!
-		smpt_port:       p.get_int_default('smpt_port', 587)!
+		smtp_port:       p.get_int_default('smtp_port', 587)!
 		smtp_passwd:     p.get('smtp_passwd')!
 		domain:          p.get('domain')!
 		jwt_secret:      p.get('jwt_secret')!
