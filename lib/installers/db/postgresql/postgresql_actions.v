@@ -1,6 +1,9 @@
 module postgresql
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
+import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 import freeflowuniverse.herolib.osal.zinit
 
 fn installed_() !bool {
@@ -8,6 +11,18 @@ fn installed_() !bool {
 }
 
 fn install_() ! {
+	console.print_header('install postgresql')
+
+	if core.platform()! != .ubuntu || core.platform()! != .arch {
+		return error('only support ubuntu and arch for now')
+	}
+
+	if osal.done_exists('podman') {
+		console.print_header('podman binary already installed')
+		return
+	}
+
+	podman_installer.install()!
 	osal.execute_silent('podman pull docker.io/library/postgres:latest')!
 }
 

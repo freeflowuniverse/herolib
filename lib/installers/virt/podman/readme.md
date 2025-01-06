@@ -1,20 +1,20 @@
-# podman
+# Podman
 
+Podman is a lightweight container manager that allows users to manage and run containers without requiring a daemon, providing flexibility and security for containerized applications.
 
+## Using Podman in VLang
 
-To get started
+The following example demonstrates how to use the Podman installer in a VLang script. It checks if Podman is installed, removes it if found, or installs it if not.
 
+### Example Code (VLang)
 ```vlang
-
-
 import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 
-mut podman_installer0:= podman_installer.get()!
+mut podman := podman_installer.get()!
 
-podman_installer0.destroy()! //will remove all
-podman_installer0.install()!
-
+if podman.installed() {
+	podman.destroy()!
+} else {
+	podman.install()!
+}
 ```
-
-
-
