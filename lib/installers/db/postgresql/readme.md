@@ -8,7 +8,7 @@ To get started
 
 
 
-import freeflowuniverse.crystallib.installers.something. postgresql
+import freeflowuniverse.herolib.installers.something. postgresql
 
 mut installer:= postgresql.get()!
 

@@ -8,7 +8,7 @@ To get started
 
 
 
-import freeflowuniverse.crystallib.installers.something. gitea
+import freeflowuniverse.herolib.installers.something. gitea
 
 mut installer:= gitea.get()!
 

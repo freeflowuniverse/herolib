@@ -1,7 +1,6 @@
 module postgresql
 
-import freeflowuniverse.crystallib.data.paramsparser
-import os
+import freeflowuniverse.herolib.data.paramsparser
 
 pub const version = '1.14.3'
 const singleton = true
@@ -22,18 +21,19 @@ pub fn heroscript_default() !string {
 
 pub struct Postgresql {
 pub mut:
-	name        string = 'default'
-	user        string = 'postgres'
-	password    string = 'postgres'
-	host        string = 'localhost'
-	volume_path string = '/var/lib/postgresql/data'
-	port        int    = 5432
+	name         string = 'default'
+	user         string = 'postgres'
+	password     string = 'postgres'
+	host         string = 'localhost'
+	volume_path  string = '/var/lib/postgresql/data'
+	port         int    = 5432
+	container_id string
 }
 
 fn cfg_play(p paramsparser.Params) !Postgresql {
 	mut mycfg := Postgresql{
 		name:        p.get_default('name', 'default')!
-		username:    p.get_default('user', 'postgres')!
+		user:        p.get_default('user', 'postgres')!
 		password:    p.get_default('password', 'postgres')!
 		host:        p.get_default('host', 'localhost')!
 		port:        p.get_int_default('port', 5432)!

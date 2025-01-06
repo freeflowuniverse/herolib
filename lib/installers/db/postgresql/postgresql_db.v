@@ -8,15 +8,15 @@ import os
 import net
 
 pub fn (mut server Postgresql) path_config() !pathlib.Path {
-	return pathlib.get_dir(path: '${server.path}/config', create: true)!
+	return pathlib.get_dir(path: '${server.volume_path}/config', create: true)!
 }
 
 pub fn (mut server Postgresql) path_data() !pathlib.Path {
-	return pathlib.get_dir(path: '${server.path}/data', create: true)!
+	return pathlib.get_dir(path: '${server.volume_path}/data', create: true)!
 }
 
 pub fn (mut server Postgresql) path_export() !pathlib.Path {
-	return pathlib.get_dir(path: '${server.path}/exports', create: true)!
+	return pathlib.get_dir(path: '${server.volume_path}/exports', create: true)!
 }
 
 fn is_port_open(host string, port int) bool {
@@ -30,7 +30,7 @@ pub fn (mut server Postgresql) db() !pg.DB {
 		return error('PostgreSQL is not listening on port 5432')
 	}
 
-	conn_string := 'postgresql://root:${server.passwd}@localhost:5432/postgres?connect_timeout=5'
+	conn_string := 'postgresql://${server.user}:${server.password}@${server.host}:${server.port}/postgres?connect_timeout=5'
 	mut db := pg.connect_with_conninfo(conn_string)!
 	// console.print_header("Database connected: ${db}")
 	return db
