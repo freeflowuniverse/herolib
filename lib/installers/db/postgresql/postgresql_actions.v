@@ -10,11 +10,12 @@ fn installed_() !bool {
 	mut cfg := get()!
 	mut podman := podman_installer.get()!
 	podman.install()!
+
 	cmd := 'podman healthcheck run ${cfg.container_name}'
 	result := os.execute(cmd)
 
 	if result.exit_code != 0 {
-		return error("Postgresql container isn't running: ${result.output}")
+		return false
 	}
 	return true
 }
@@ -37,7 +38,6 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	res << zinit.ZProcessNewArgs{
 		name:        'postgresql'
 		cmd:         cmd
-		workdir:     cfg.volume_path
 		startuptype: .zinit
 	}
 	return res
