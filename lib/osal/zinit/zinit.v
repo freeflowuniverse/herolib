@@ -91,8 +91,11 @@ fn (mut zinit Zinit) cmd_write(name string, cmd string, cat string, env map[stri
 
 pub fn (mut zinit Zinit) get(name_ string) !ZProcess {
 	name := texttools.name_fix(name_)
-	// console.print_debug(zinit)
-	return zinit.processes[name] or { return error("cannot find process in zinit:'${name}'") }
+	if zinit.processes.keys().contains(name) {
+		return zinit.processes[name]
+	}
+
+	return error("cannot find process in zinit:'${name}'")
 }
 
 pub fn (mut zinit Zinit) exists(name_ string) bool {
