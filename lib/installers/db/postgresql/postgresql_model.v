@@ -1,63 +1,50 @@
 module postgresql
 
-import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal
-import freeflowuniverse.herolib.core
+import freeflowuniverse.crystallib.data.paramsparser
 import os
 
-pub const version = '0.0.0'
+pub const version = '1.14.3'
 const singleton = true
 const default = true
 
 pub fn heroscript_default() !string {
 	heroscript := "
     !!postgresql.configure 
-        name:'default'
-        passwd:'mysecret'
-        path:''
+        name:'postgresql'
+        user: 'postgres'
+        password: 'postgres'
+        host: 'localhost'
+        port: 5432
+        volume_path:'/var/lib/postgresql/data'
         "
 	return heroscript
 }
 
 pub struct Postgresql {
 pub mut:
-	name         string = 'default'
-	path         string
-	passwd       string
-	container_id string
+	name        string = 'default'
+	user        string = 'postgres'
+	password    string = 'postgres'
+	host        string = 'localhost'
+	volume_path string = '/var/lib/postgresql/data'
+	port        int    = 5432
 }
 
 fn cfg_play(p paramsparser.Params) !Postgresql {
 	mut mycfg := Postgresql{
-		name:   p.get_default('name', 'default')!
-		passwd: p.get('passwd')!
-		path:   p.get_default('path', '')!
+		name:        p.get_default('name', 'default')!
+		username:    p.get_default('user', 'postgres')!
+		password:    p.get_default('password', 'postgres')!
+		host:        p.get_default('host', 'localhost')!
+		port:        p.get_int_default('port', 5432)!
+		volume_path: p.get_default('path', '/var/lib/postgresql/data')!
 	}
 	return mycfg
 }
 
 fn obj_init(obj_ Postgresql) !Postgresql {
 	mut obj := obj_
-	if obj.path == '' {
-		if core.is_linux()! {
-			obj.path = '/data/postgresql/${obj.name}'
-		} else {
-			obj.path = '${os.home_dir()}/hero/var/postgresql/${obj.name}'
-		}
-	}
-	osal.dir_ensure(obj.path)!
 	return obj
 }
 
-// called before start if done
-fn configure() ! {
-	// t2 := $tmpl('templates/pg_hba.conf')
-	// mut p2 := server.path_config.file_get_new('pg_hba.conf')!
-	// p2.write(t2)!
-
-	// mut t3 := $tmpl('templates/postgresql.conf')
-	// t3 = t3.replace('@@', '$') // to fix templating issues
-	// mut p3 := server.path_config.file_get_new('postgresql.conf')!
-	// p3.write(t3)!
-}
+fn configure() ! {}

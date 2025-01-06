@@ -2,7 +2,6 @@ module postgresql
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 import freeflowuniverse.herolib.osal.zinit
 
@@ -20,16 +19,15 @@ fn install_() ! {
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut cfg := get()!
 	mut res := []zinit.ZProcessNewArgs{}
-	db_user := 'root'
 	cmd := "
-    mkdir -p ${cfg.path}
-    podman run --name ${cfg.name} -e POSTGRES_USER=${db_user} -e POSTGRES_PASSWORD=\"${cfg.passwd}\" -v ${cfg.path}:/var/lib/postgresql/data -p 5432:5432 --health-cmd=\"pg_isready -U ${db_user}\" postgres:latest
+    mkdir -p ${cfg.volume_path}
+    podman run --name ${cfg.name} -e POSTGRES_USER=${cfg.user} -e POSTGRES_PASSWORD=\"${cfg.password}\" -v ${cfg.volume_path}:/var/lib/postgresql/data -p ${cfg.port}:5432 --health-cmd=\"pg_isready -U ${cfg.user}\" postgres:latest
     "
 
 	res << zinit.ZProcessNewArgs{
 		name:        'postgresql'
 		cmd:         cmd
-		workdir:     cfg.path
+		workdir:     cfg.volume_path
 		startuptype: .zinit
 	}
 	return res

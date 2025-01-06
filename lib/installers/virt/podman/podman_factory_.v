@@ -1,11 +1,8 @@
 module podman
 
-import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.ui.console
-import time
 
 __global (
 	podman_global  map[string]&PodmanInstaller
