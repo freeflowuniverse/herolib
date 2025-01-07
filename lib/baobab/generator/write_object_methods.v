@@ -3,7 +3,6 @@ module generator
 import freeflowuniverse.herolib.baobab.specification {BaseObject}
 import freeflowuniverse.herolib.core.code { VFile, CodeItem, Function, Import, Param, Param, Struct, StructField, Type }
 import freeflowuniverse.herolib.core.texttools
-import os
 
 const id_param = Param{
 	name: 'id'
@@ -12,41 +11,41 @@ const id_param = Param{
 	}
 }
 
-pub fn generate_object_code(actor Struct, object BaseObject) VFile {
-	obj_name := texttools.name_fix_pascal_to_snake(object.structure.name)
-	object_type := object.structure.name
+// pub fn generate_object_code(actor Struct, object BaseObject) VFile {
+// 	obj_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_type := object.structure.name
 
-	mut items := []CodeItem{}
-	items = [generate_new_method(actor, object), generate_get_method(actor, object),
-		generate_set_method(actor, object), generate_delete_method(actor, object),
-		generate_list_result_struct(actor, object), generate_list_method(actor, object)]
+// 	mut items := []CodeItem{}
+// 	items = [generate_new_method(actor, object), generate_get_method(actor, object),
+// 		generate_set_method(actor, object), generate_delete_method(actor, object),
+// 		generate_list_result_struct(actor, object), generate_list_method(actor, object)]
 
-	items << generate_object_methods(actor, object)
-	mut file := code.new_file(
-		mod: texttools.name_fix(actor.name)
-		name: obj_name
-		imports: [
-			Import{
-				mod: object.structure.mod
-				types: [object_type]
-			},
-			Import{
-				mod: 'freeflowuniverse.herolib.baobab.backend'
-				types: ['FilterParams']
-			},
-		]
-		items: items
-	)
+// 	items << generate_object_methods(actor, object)
+// 	mut file := code.new_file(
+// 		mod: texttools.name_fix(actor.name)
+// 		name: obj_name
+// 		imports: [
+// 			Import{
+// 				mod: object.structure.mod
+// 				types: [object_type]
+// 			},
+// 			Import{
+// 				mod: 'freeflowuniverse.herolib.baobab.backend'
+// 				types: ['FilterParams']
+// 			},
+// 		]
+// 		items: items
+// 	)
 
-	if object.structure.fields.any(it.attrs.any(it.name == 'index')) {
-		// can't filter without indices
-		filter_params := generate_filter_params(actor, object)
-		file.items << filter_params.map(CodeItem(it))
-		file.items << generate_filter_method(actor, object)
-	}
+// 	if object.structure.fields.any(it.attrs.any(it.name == 'index')) {
+// 		// can't filter without indices
+// 		filter_params := generate_filter_params(actor, object)
+// 		file.items << filter_params.map(CodeItem(it))
+// 		file.items << generate_filter_method(actor, object)
+// 	}
 
-	return file
-}
+// 	return file
+// }
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_get_method(actor Struct, object BaseObject) Function {
@@ -309,41 +308,41 @@ fn generate_filter_method(actor Struct, object BaseObject) Function {
 	}
 }
 
-// generate_object_methods generates CRUD actor methods for a provided structure
-fn generate_object_methods(actor Struct, object BaseObject) []Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
-	object_type := object.structure.name
+// // generate_object_methods generates CRUD actor methods for a provided structure
+// fn generate_object_methods(actor Struct, object BaseObject) []Function {
+// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_type := object.structure.name
 
-	mut funcs := []Function{}
-	for method in object.methods {
-		mut params := [Param{
-			name: 'id'
-			typ: Type{
-				symbol: 'u32'
-			}
-		}]
-		params << method.params
-		funcs << Function{
-			name: method.name
-			description: method.description
-			receiver: Param{
-				name: 'actor'
-				typ: Type{
-					symbol: actor.name
-				}
-				mutable: true
-			}
-			params: params
-			result: method.result
-			body: 'obj := actor.backend.get[${method.receiver.typ.symbol}](id)!
-			obj.${method.name}(${method.params.map(it.name).join(',')})
-			actor.backend.set[${method.receiver.typ.symbol}](obj)!
-			'
-		}
-	}
+// 	mut funcs := []Function{}
+// 	for method in object.methods {
+// 		mut params := [Param{
+// 			name: 'id'
+// 			typ: Type{
+// 				symbol: 'u32'
+// 			}
+// 		}]
+// 		params << method.params
+// 		funcs << Function{
+// 			name: method.name
+// 			description: method.description
+// 			receiver: Param{
+// 				name: 'actor'
+// 				typ: Type{
+// 					symbol: actor.name
+// 				}
+// 				mutable: true
+// 			}
+// 			params: params
+// 			result: method.result
+// 			body: 'obj := actor.backend.get[${method.receiver.typ.symbol}](id)!
+// 			obj.${method.name}(${method.params.map(it.name).join(',')})
+// 			actor.backend.set[${method.receiver.typ.symbol}](obj)!
+// 			'
+// 		}
+// 	}
 
-	return funcs
-}
+// 	return funcs
+// }
 
 @[params]
 struct GenerateParamGetters {
