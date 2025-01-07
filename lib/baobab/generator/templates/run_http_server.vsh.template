@@ -1,0 +1,4 @@
+#!/usr/bin/env -S v -w -n -enable-globals run
+import pet_store_actor
+
+pet_store_actor.run_http_server()!
