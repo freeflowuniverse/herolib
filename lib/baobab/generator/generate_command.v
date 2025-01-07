@@ -33,7 +33,6 @@ pub fn generate_cmd_function(spec ActorSpecification) string {
 			name: '${actor_name_snake}'
 			usage: ''
 			description: '${spec.description}'
-			execute: cmd_execute
 		}
 	"
 	
@@ -72,7 +71,7 @@ pub fn generate_method_cmd_function(actor_name string, method ActorMethod) strin
 		'result := ${actor_name_snake}.${method_name_snake}()!'
 	}
 	return '
-		fn cmd_${method_name_snake}(cmd Command) ! {
+		fn cmd_${method_name_snake}_execute(cmd Command) ! {
 			${method_call}
 		}
 	'

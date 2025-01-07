@@ -2,12 +2,8 @@ module generator
 
 import json
 import freeflowuniverse.herolib.core.code { VFile, File, Function, Module, Struct }
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.baobab.specification {ActorSpecification}
 import freeflowuniverse.herolib.schemas.openrpc { Components, OpenRPC }
 import freeflowuniverse.herolib.schemas.openrpc.codegen { generate_client_file, generate_client_test_file }
-import freeflowuniverse.herolib.schemas.jsonschema { SchemaRef }
 
 pub fn generate_openrpc_file(spec OpenRPC) !File {
 	return File {

@@ -16,12 +16,12 @@ import freeflowuniverse.herolib.schemas.openrpc {OpenRPC}
 
 
 pub fn generate_module(o OpenRPC, receiver Struct, methods_map map[string]Function, objects_map map[string]Struct) !Module {
-	openrpc_json := o.encode()!
-	openrpc_file := File{
-		name: 'openrpc'
-		extension: 'json'
-		content: openrpc_json
-	}
+	// openrpc_json := o.encode()!
+	// openrpc_file := File{
+	// 	name: 'openrpc'
+	// 	extension: 'json'
+	// 	content: openrpc_json
+	// }
 
 	client_file := generate_client_file(o, objects_map)!
 	client_test_file := generate_client_test_file(o, methods_map, objects_map)!

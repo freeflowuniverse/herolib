@@ -4,9 +4,6 @@ import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.schemas.openapi
 
 const name = '@{actor_name_snake}'
-const openapi_spec_path = '@{dollar}{os.dir(@@FILE)}/specs/openapi.json'
-const openapi_spec_json = os.read_file(openapi_spec_path) or { panic(err) }
-const openapi_specification = openapi.json_decode(openapi_spec_json)!
 
 @@[heap]
 struct @{actor_name_pascal}Actor {

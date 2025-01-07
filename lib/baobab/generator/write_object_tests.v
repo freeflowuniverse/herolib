@@ -4,7 +4,6 @@ import freeflowuniverse.herolib.core.code { VFile, CustomCode, Function, Import,
 import freeflowuniverse.herolib.baobab.specification {BaseObject}
 import rand
 import freeflowuniverse.herolib.core.texttools
-import os
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 pub fn generate_object_test_code(actor Struct, object BaseObject) !VFile {

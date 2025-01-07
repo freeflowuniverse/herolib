@@ -1,8 +1,5 @@
 module openrpc
 
-import veb
-import freeflowuniverse.herolib.schemas.jsonrpc
-
 // Main controller for handling RPC requests
 pub struct WebSocketController {
 pub mut:

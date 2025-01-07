@@ -1,6 +1,5 @@
 module openrpc
 
-import x.json2
 import freeflowuniverse.herolib.schemas.jsonrpc
 
 pub struct Handler {

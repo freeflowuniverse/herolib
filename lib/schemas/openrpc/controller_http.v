@@ -39,12 +39,12 @@ pub fn (mut c HTTPController) run(params RunParams) {
 pub fn (mut c HTTPController) index(mut ctx Context) veb.Result {
     // Decode JSONRPC Request from POST data
     request := jsonrpc.decode_request(ctx.req.data) or {
-        return ctx.server_error('Failed to decode JSONRPC Request ${err.msg}')
+        return ctx.server_error('Failed to decode JSONRPC Request ${err.msg()}')
     }
 
     // Process the JSONRPC request with the OpenRPC handler
     response := c.handler.handle(request) or {
-        return ctx.server_error('Handler error: ${err.msg}')
+        return ctx.server_error('Handler error: ${err.msg()}')
     }
 
     // Encode and return the handler's JSONRPC Response

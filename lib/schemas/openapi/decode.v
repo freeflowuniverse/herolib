@@ -199,6 +199,6 @@ fn json_decode_content(content_ map[string]MediaType, content_map map[string]Any
 // 	return arr
 // }
 
-fn (o OpenAPI) json_encode() string {
+pub fn (o OpenAPI) encode_json() string {
 	return json.encode(o).replace('ref', '\$ref')
 }

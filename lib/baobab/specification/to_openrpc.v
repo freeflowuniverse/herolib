@@ -3,7 +3,6 @@ module specification
 import freeflowuniverse.herolib.schemas.openrpc {OpenRPC, Components}
 import freeflowuniverse.herolib.schemas.jsonschema {SchemaRef}
 import freeflowuniverse.herolib.schemas.jsonschema.codegen { struct_to_schema }
-import freeflowuniverse.herolib.schemas.openapi {OpenAPI}
 
 // pub fn from_openrpc(spec openrpc.OpenRPC) !ActorSpecification {
 // 	// Extract Actor metadata from OpenRPC info
