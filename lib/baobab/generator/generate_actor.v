@@ -2,9 +2,7 @@ module generator
 
 import freeflowuniverse.herolib.core.code { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.schemas.openrpc
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification, ActorInterface}
-import os
 import json
 
 @[params]
@@ -19,6 +17,7 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	files = [
 		generate_readme_file(spec)!,
 		generate_actor_file(spec)!,
+		generate_specs_file(spec.name, params.interfaces)!,
 		generate_actor_test_file(spec)!,
 		generate_handle_file(spec)!,
 		generate_methods_file(spec)!
@@ -38,12 +37,31 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 				// generate openrpc code files
 				// files << generate_openrpc_client_file(openrpc_spec)!
 				// files << generate_openrpc_client_test_file(openrpc_spec)!
-				files << generate_http_interface_file()!
-				files << generate_openrpc_interface_file()!
+				iface_file, iface_test_file := generate_openrpc_interface_files()
+				files << iface_file
+				files << iface_test_file
 
 				// add openrpc.json to docs
 				docs_files << generate_openrpc_file(openrpc_spec)!
-			} 
+			}
+			.openapi {
+				// convert actor spec to openrpc spec
+				openapi_spec := spec.to_openapi()
+				
+				// generate openrpc code files
+				iface_file, iface_test_file := generate_openapi_interface_files()
+				files << iface_file
+				files << iface_test_file
+
+				// add openrpc.json to docs
+				docs_files << generate_openapi_file(openapi_spec)!
+			}
+			.http {
+				// generate openrpc code files
+				iface_file, iface_test_file := generate_http_interface_files()
+				files << iface_file
+				files << iface_test_file
+			}
 			.command {
 				files << generate_command_file(spec)!
 			}
@@ -52,6 +70,7 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 			}
 		}
 	}
+
 
 	// folder with docs
 	docs_folder := Folder {
@@ -64,7 +83,10 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	return code.new_module(
 		name: '${name_fixed}_actor'
 		files: files
-		folders: [docs_folder]
+		folders: [
+			docs_folder,
+			generate_scripts_folder()
+		]
 	)
 }
 
@@ -98,13 +120,15 @@ fn generate_actor_test_file(spec ActorSpecification) !VFile {
 	}
 }
 
-
-pub fn generate_openapi_file(spec ActorSpecification) !File {
-	openapi_spec := spec.to_openapi()
-	openapi_json := json.encode(openapi_spec)
-	return File{
-		name: 'openapi'
-		extension: 'json'
-		content: openapi_json
+fn generate_specs_file(name string, interfaces []ActorInterface) !VFile {
+	support_openrpc := ActorInterface.openrpc in interfaces
+	support_openapi := ActorInterface.openapi in interfaces
+	dollar := '$'
+	actor_name_snake := texttools.name_fix_snake(name)
+	actor_name_pascal := texttools.name_fix_snake_to_pascal(name)
+	actor_code := $tmpl('./templates/specifications.v.template')
+	return VFile {
+		name: 'specifications'
+		items: [CustomCode{actor_code}]
 	}
 }

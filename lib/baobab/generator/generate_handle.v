@@ -5,8 +5,6 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.schemas.openrpc {ContentDescriptor}
 import freeflowuniverse.herolib.schemas.jsonschema.codegen {schemaref_to_type}
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
-import os
-import json
 
 fn generate_handle_file(spec ActorSpecification) !VFile {
 	mut items := []CodeItem{}

@@ -1,0 +1,17 @@
+import freeflowuniverse.herolib.baobab.stage.interfaces
+import freeflowuniverse.herolib.schemas.openapi
+
+pub fn new_openapi_interface() !&interfaces.OpenAPIInterface {
+	// create OpenAPI Handler with actor's client
+	client := new_client()!
+	return interfaces.new_openapi_interface(client.Client)
+}
+
+// creates HTTP controller with the actor's OpenAPI Handler
+// and OpenAPI Specification
+pub fn new_openapi_http_controller() !&openapi.HTTPController {
+    return openapi.new_http_controller(
+        specification: openapi_specification
+        handler: new_openapi_interface()!
+    )
+}

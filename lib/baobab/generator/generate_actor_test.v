@@ -2,7 +2,6 @@ module generator
 
 import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.baobab.specification
-import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.schemas.openrpc
 import freeflowuniverse.herolib.schemas.jsonschema
 import os
@@ -233,6 +232,32 @@ fn test_generate_plain_actor_module() {
 fn test_generate_actor_module_with_openrpc_interface() {
     // plain actor module without interfaces
 	actor_module := generate_actor_module(actor_spec, interfaces: [.openrpc])!
+	actor_module.write(destination, 
+        format: true
+        overwrite: true
+        compile: true
+        test: true
+    )!
+}
+
+fn test_generate_actor_module_with_openapi_interface() {
+    // plain actor module without interfaces
+	actor_module := generate_actor_module(actor_spec, 
+        interfaces: [.openapi]
+    )!
+	actor_module.write(destination, 
+        format: true
+        overwrite: true
+        compile: true
+        test: true
+    )!
+}
+
+fn test_generate_actor_module_with_all_interfaces() {
+    // plain actor module without interfaces
+	actor_module := generate_actor_module(actor_spec, 
+        interfaces: [.openapi, .openrpc, .http]
+    )!
 	actor_module.write(destination, 
         format: true
         overwrite: true

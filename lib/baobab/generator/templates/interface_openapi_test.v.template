@@ -1,0 +1,7 @@
+fn test_new_openapi_interface() ! {
+	new_openapi_interface()!
+}
+
+fn test_new_openapi_http_controller() ! {
+	new_openapi_http_controller()!
+}

@@ -1,77 +1,48 @@
 module interfaces
 
-import veb
-import freeflowuniverse.herolib.schemas.openapi { Context, Controller, OpenAPI, Request, Response }
-import os
-import time
-import json
-import x.json2
-import net.http
-import freeflowuniverse.herolib.schemas.jsonschema
-import freeflowuniverse.herolib.core.redisclient
+import rand
+import x.json2 as json {Any}
+import freeflowuniverse.herolib.baobab.stage {Action, Client}
+import freeflowuniverse.herolib.schemas.jsonrpc
+import freeflowuniverse.herolib.schemas.openapi
 
-// pub struct OpenAPIProxy {
-// pub:
-// 	client        Client
-// 	specification OpenAPI
-// }
+pub struct OpenAPIInterface {
+pub mut:
+	client Client
+}
 
-// // creates and OpenAPI Proxy Controller
-// pub fn new_openapi_proxy(proxy OpenAPIProxy) OpenAPIProxy {
-// 	return proxy
-// }
+pub fn new_openapi_interface(client Client) &OpenAPIInterface {
+	return &OpenAPIInterface{client}
+}
 
-// // creates and OpenAPI Proxy Controller
-// pub fn (proxy OpenAPIProxy) controller() &Controller {
-// 	// Initialize the server
-// 	mut controller := &Controller{
-// 		specification: proxy.specification
-// 		handler:       Handler{
-// 			client: proxy.client
-// 		}
-// 	}
-// 	return controller
-// }
+pub fn (mut i OpenAPIInterface) handle(request openapi.Request) !openapi.Response {
+	// Convert incoming OpenAPI request to a procedure call
+	action := action_from_openapi_request(request)
+	response := i.client.call_to_action(action)!
+	return action_to_openapi_response(response)
+}
 
-// @[params]
-// pub struct RunParams {
-// pub:
-// 	port int = 8080
-// }
+pub fn action_from_openapi_request(request openapi.Request) Action {
+	mut params := []Any{}
+	if request.arguments.len > 0 {
+		params << request.arguments.values()
+	}
+	if request.body != '' {
+		params << request.body
+	}
+	if request.parameters.len > 0 {
+		params << json.encode(request.parameters)
+	}
+	
+	return Action {
+		id: rand.uuid_v4()
+		name: request.operation.operation_id
+		params: json.encode(params.str())
+	}
+}
 
-// fn (proxy OpenAPIProxy) run(params RunParams) {
-// 	mut controller := proxy.controller()
-// 	veb.run[Controller, Context](mut controller, params.port)
-// }
-
-// pub struct Handler {
-// pub mut:
-// 	client Client
-// }
-
-// fn (mut handler Handler) handle(request Request) !Response {
-// 	// Convert incoming OpenAPI request to a procedure call
-// 	call := rpc.openapi_request_to_procedure_call(request)
-
-// 	// Process the procedure call
-// 	procedure_response := handler.client.dialogue(call, Params{
-// 		timeout: 30 // Set timeout in seconds
-// 	}) or {
-// 		// Handle ProcedureError
-// 		if err is ProcedureError {
-// 			return Response{
-// 				status: http.status_from_int(err.code()) // Map ProcedureError reason to HTTP status code
-// 				body:   json.encode({
-// 					'error': err.msg()
-// 				})
-// 			}
-// 		}
-// 		return error('Unexpected error: ${err}')
-// 	}
-
-// 	// Convert returned procedure response to OpenAPI response
-// 	return Response{
-// 		status: http.Status.ok // Assuming success if no error
-// 		body:   procedure_response.result
-// 	}
-// }
+pub fn action_to_openapi_response(action Action) openapi.Response {
+	return openapi.Response {
+		body: action.result
+	}
+}

@@ -2,6 +2,7 @@ module openapi
 
 import net.http {CommonHeader}
 import x.json2 {Any}
+import freeflowuniverse.herolib.schemas.jsonrpc
 
 pub struct Request {
 pub:
@@ -22,32 +23,44 @@ pub mut:
 	header	http.Header @[omitempty; str: skip; json:'-']// Response headers
 }
 
-pub interface IHandler {
-mut:
-    handle(Request) !Response
-}
-
 pub struct Handler {
 pub:
-	routes map[string]fn (Request) !Response // Map of route handlers
+	specification OpenAPI @[required] // The OpenRPC specification
+pub mut:
+    handler IHandler
 }
 
-// Handle a request and return a response
-pub fn (handler Handler) handle(request Request) !Response {
-    // Match the route based on the request path
-    if route_handler := handler.routes[request.path] {
-        // Call the corresponding route handler
-        return route_handler(request)
-    }
-
-    // Return 404 if no route matches
-    return Response{
-        status: .not_found
-        body: 'Not Found'
-        header: http.new_header(
-			key: CommonHeader.content_type,
-			value: 'text/plain'
-		)
-    }
+pub interface IHandler {
+mut:
+	handle(Request) !Response // Custom handler for other methods
 }
 
+@[params]
+pub struct HandleParams {
+	timeout int = 60 // Timeout in seconds
+	retry   int  // Number of retries
+}
+
+// Handle a JSON-RPC request and return a response
+pub fn (mut h Handler) handle(req Request, params HandleParams) !Response {
+	// Validate the method exists in the specification
+	// if req.method !in h.specification.methods.map(it.name) {
+	// 	// Return 404 if no route matches
+	// 	return Response{
+	// 		status: .not_found
+	// 		body: 'Not Found'
+	// 		header: http.new_header(
+	// 			key: CommonHeader.content_type,
+	// 			value: 'text/plain'
+	// 		)
+	// 	}
+	// }
+
+	// Enforce timeout and retries (dummy implementation)
+	if params.timeout < 0 || params.retry < 0 {
+		panic('implement')
+	}
+
+	// Forward the request to the custom handler
+	return h.handler.handle(req)
+}

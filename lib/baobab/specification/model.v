@@ -18,6 +18,7 @@ pub enum ActorInterface {
 	openapi
 	webui
 	command
+	http
 }
 
 pub struct ActorMethod {
