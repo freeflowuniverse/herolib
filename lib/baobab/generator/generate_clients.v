@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Param, Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { Param, Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode, Result }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schemaref_to_type}
 import freeflowuniverse.herolib.schemas.openrpc.codegen {content_descriptor_to_parameter}
@@ -51,7 +51,7 @@ pub fn generate_client_method(method ActorMethod) !Function {
 	name_fixed := texttools.name_fix_snake(method.name)
 
 	call_params := if method.parameters.len > 0 {
-		method.parameters.map(it.name).join(', ')
+		method.parameters.map(texttools.name_fix_snake(it.name)).join(', ')
 	} else {''}
 
 	params_stmt := if method.parameters.len == 0 {
@@ -60,7 +60,7 @@ pub fn generate_client_method(method ActorMethod) !Function {
 		'params := json.encode(${texttools.name_fix_snake(method.parameters[0].name)})'
 	} else {
 		'mut params_arr := []Any{}
-		params_arr = [call_params]
+		params_arr = [${call_params}]
 		params := json.encode(params_arr.str())
 		'
 	}
@@ -79,9 +79,10 @@ pub fn generate_client_method(method ActorMethod) !Function {
 	} else {
 		"return json.decode[${result_type}](action.result)!"
 	}
+	result_param := content_descriptor_to_parameter(method.result)!
 	return Function {
 		receiver: code.new_param(v: 'mut client Client')!
-		result: Param{...content_descriptor_to_parameter(method.result)!, is_result: true}
+		result: Param{...result_param, typ: Result{result_param.typ}}
 		name: name_fixed
 		body: '${params_stmt}\n${client_call_stmt}\n${result_stmt}'
 		summary: method.summary

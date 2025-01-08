@@ -1,4 +1,4 @@
-@{struct_.description}
+// @{struct_.description}
 @if struct_.attrs.len > 0
 [
 @for attr in struct_.attrs 
