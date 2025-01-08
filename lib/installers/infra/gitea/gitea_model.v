@@ -12,6 +12,7 @@ pub fn heroscript_default() !string {
 	heroscript := "
     !!gitea.configure 
         name:'gitea'
+        version:'1.22.6'
         path: '/data/gitea'
         passwd: '12345678'
         postgresql_name: 'default'
@@ -37,8 +38,7 @@ pub mut:
 	name string = 'default'
 
 	// reset           bool
-	container_name  string = 'herocontainer_gitea'
-	version         string = 'latest'
+	version         string = '1.22.6'
 	path            string = '/data/gitea'
 	passwd          string
 	postgresql_name string = 'default'
@@ -61,6 +61,7 @@ fn cfg_play(p paramsparser.Params) !GiteaServer {
 	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
 	mut mycfg := GiteaServer{
 		name:            p.get_default('name', 'default')!
+		version:         p.get_default('version', '1.22.6')!
 		path:            p.get_default('path', '/data/gitea')!
 		passwd:          p.get('passwd')!
 		postgresql_name: p.get_default('postgresql_name', 'default')!

@@ -12,11 +12,10 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	mut cfg := get()!
 	mut podman := podman_installer.get()!
 	podman.install()!
 
-	cmd := 'podman healthcheck run ${cfg.container_name}'
+	cmd := 'gitea version'
 	result := os.execute(cmd)
 
 	if result.exit_code != 0 {
@@ -26,17 +25,12 @@ fn installed() !bool {
 }
 
 fn install() ! {
-	console.print_header('install gitea')
-
-	if core.platform()! != .ubuntu || core.platform()! != .arch {
-		return error('only support ubuntu and arch for now')
-	}
-
-	if osal.done_exists('gitea_install') {
+	if installed()! {
 		console.print_header('gitea binaraies already installed')
 		return
 	}
 
+	console.print_header('install gitea')
 	// make sure we install base on the node
 	base.install()!
 
@@ -44,10 +38,32 @@ fn install() ! {
 	postgres.install()!
 
 	cfg := get()!
-	mut podman := podman_installer.get()!
-	podman.install()!
+	platform := core.platform()!
+	mut download_link := ''
 
-	osal.execute_silent('podman pull docker.io/gitea/gitea:${cfg.version}')!
+	is_linux_intel := core.is_linux_intel()!
+	is_osx_arm := core.is_osx_arm()!
+
+	if is_linux_intel {
+		download_link = 'https://dl.gitea.com/gitea/${cfg.version}/gitea-${cfg.version}-linux-amd64'
+	}
+
+	if is_osx_arm {
+		download_link = 'https://dl.gitea.com/gitea/${cfg.version}/gitea-${cfg.version}-darwin-10.12-amd64'
+	}
+
+	if download_link.len == 0 {
+		return error('unsupported platform')
+	}
+
+	binary := osal.download(url: download_link, name: 'gitea', dest: '/tmp/gitea') or {
+		return error('failed to download gitea due to: ${err}')
+	}
+
+	osal.cmd_add(cmdname: 'gitea', source: binary.path) or {
+		return error('failed to add gitea to the path due to: ${err}')
+	}
+
 	console.print_header('gitea installed properly.')
 }
 

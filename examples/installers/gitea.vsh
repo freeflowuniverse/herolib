@@ -1,13 +1,32 @@
 #!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.installers.infra.gitea
+import freeflowuniverse.herolib.installers.infra.gitea as gitea_installer
 
-mut g := gitea.new(
-	passwd:           '123'
-	postgresql_path:  '/tmp/db'
-	postgresql_reset: true
-	domain:           'git.meet.tf'
-	appname:          'ourworld'
+// First of all, we need to set the gitea configuration
+heroscript := "
+!!gitea.configure 
+	name:'default'
+	version:'1.22.6'
+	path: '/data/gitea'
+	passwd: '12345678'
+	postgresql_name: 'default'
+	mail_from: 'git@meet.tf'
+	smtp_addr: 'smtp-relay.brevo.com'
+	smtp_login: 'admin'
+	smpt_port: 587
+	smtp_passwd: '12345678'
+	domain: 'meet.tf'
+	jwt_secret: ''
+	lfs_jwt_secret: ''
+	internal_token: ''
+	secret_key: ''
+"
+
+gitea_installer.play(
+	name:       'default'
+	heroscript: heroscript
 )!
-// postgresql will be same passwd
-g.restart()!
+
+// Then we need to get an instace of the installer and call the install
+mut gitea := gitea_installer.get(name: 'default')!
+gitea.install()!
