@@ -34,10 +34,10 @@ pub fn inflate_types(mut code []CodeItem) {
 pub fn inflate_struct_fields(code []CodeItem, mut struct_ CodeItem) {
 	for mut field in (struct_ as Struct).fields {
 		// TODO: fix inflation for imported types
-		if field.typ.symbol.starts_with_capital() {
+		if field.typ.symbol().starts_with_capital() {
 			field.structure = get_struct(
 				code: code
-				name: field.typ.symbol
+				name: field.typ.symbol()
 			) or { continue }
 		}
 	}
@@ -51,7 +51,7 @@ pub:
 
 pub fn (func Function) generate_call(params GenerateCallParams) !string {
 	mut call := ''
-	if func.result.typ.symbol != '' {
+	if func.result.typ.symbol() != '' {
 		call = 'result := '
 	}
 	call += if params.receiver != '' {
@@ -79,12 +79,12 @@ pub struct GenerateValueParams {
 }
 
 pub fn (param Param) generate_value() !string {
-	if param.typ.symbol == 'string' {
+	if param.typ.symbol() == 'string' {
 		return "'mock_string_${rand.string(3)}'"
-	} else if param.typ.symbol == 'int' || param.typ.symbol == 'u32' {
+	} else if param.typ.symbol() == 'int' || param.typ.symbol() == 'u32' {
 		return '42'
-	} else if param.typ.symbol[0].is_capital() {
-		return '${param.typ.symbol}{}'
+	} else if param.typ.symbol()[0].is_capital() {
+		return '${param.typ.symbol()}{}'
 	} else {
 		log.debug('mock values for types other than strings and ints are not yet supported')
 	}

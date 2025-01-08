@@ -55,7 +55,7 @@ pub fn generate_handler_test_file(o OpenRPC, receiver Struct, method_map map[str
 		if method.params.len == 0 {
 			continue
 		}
-		if method.params[0].typ.symbol[0].is_capital() {
+		if method.params[0].typ.symbol()[0].is_capital() {
 			continue
 		}
 		method_handle_test := Function{
@@ -64,7 +64,7 @@ pub fn generate_handler_test_file(o OpenRPC, receiver Struct, method_map map[str
 				is_result: true
 			}
 			body: "mut handler := ${receiver.name}Handler {${handler_name}.get(name: actor_name)!}
-		request := new_jsonrpcrequest[${method.params[0].typ.symbol}]('${method.name}', ${get_mock_value(method.params[0].typ.symbol)!})
+		request := new_jsonrpcrequest[${method.params[0].typ.symbol()}]('${method.name}', ${get_mock_value(method.params[0].typ.symbol())!})
 		response_json := handler.handle(request.to_json())!"
 		}
 		handle_tests << method_handle_test

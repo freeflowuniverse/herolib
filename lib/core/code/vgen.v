@@ -43,21 +43,8 @@ pub fn (import_ Import) vgen() string {
 }
 
 // TODO: enfore that cant be both mutable and shared
-pub fn (type_ Type) vgen() string {
-	mut type_str := ''
-	if type_.is_mutable {
-		type_str += 'mut '
-	} else if type_.is_shared {
-		type_str += 'shared '
-	}
-
-	if type_.is_optional {
-		type_str += '?'
-	} else if type_.is_result {
-		type_str += '!'
-	}
-
-	return '${type_str} ${type_.symbol}'
+pub fn (t Type) vgen() string {
+	return t.symbol()
 }
 
 pub fn (field StructField) vgen() string {
@@ -73,7 +60,7 @@ pub fn (field StructField) get_type_symbol() string {
 	mut field_str := if field.structure.name != '' {
 		field.structure.get_type_symbol()
 	} else {
-		field.typ.symbol
+		field.typ.symbol()
 	}
 
 	if field.is_ref {
@@ -111,12 +98,10 @@ pub fn vgen_generics(generics map[string]string) string {
 pub fn (function Function) vgen(options WriteOptions) string {
 	mut params_ := function.params.map(Param{
 		...it
-		typ: Type{
-			symbol: if it.struct_.name != '' {
-				it.struct_.name
-			} else {
-				it.typ.symbol
-			}
+		typ: if it.struct_.name != '' {
+			type_from_symbol(it.struct_.name)
+		} else {
+			it.typ
 		}
 	})
 
@@ -129,17 +114,13 @@ pub fn (function Function) vgen(options WriteOptions) string {
 		fields: optionals.map(StructField{
 			name: it.name
 			description: it.description
-			typ: Type{
-				symbol: it.typ.symbol
-			}
+			typ: it.typ
 		})
 	}
 	if optionals.len > 0 {
 		params_ << Param{
 			name: 'options'
-			typ: Type{
-				symbol: options_struct.name
-			}
+			typ: type_from_symbol(options_struct.name)
 		}
 	}
 
@@ -172,22 +153,9 @@ pub fn (function Function) vgen(options WriteOptions) string {
 }
 
 pub fn (param Param) vgen() string {
-	// if param.name == '' {
-	// 	return ''
-	// }
-	sym := if param.struct_.name != '' {
-		param.struct_.get_type_symbol()
-	} else {
-		param.typ.symbol
-	}
+	sym := param.typ.symbol()
 	param_name := texttools.name_fix_snake(param.name)
 	mut vstr := '${param_name} ${sym}'
-	if param.typ.is_reference {
-		vstr = '&${vstr}'
-	}
-	if param.is_result {
-		vstr = '!${vstr}'
-	}
 	if param.mutable {
 		vstr = 'mut ${vstr}'
 	}
@@ -196,19 +164,6 @@ pub fn (param Param) vgen() string {
 
 // vgen_function generates a function statement for a function
 pub fn (struct_ Struct) vgen() string {
-	gen := VGenerator{false}
-	return gen.generate_struct(struct_) or { panic(err) }
-	// mut struct_str := $tmpl('templates/struct/struct.v.template')
-	// return struct_str
-	// result := os.execute_opt('echo "${struct_str.replace('$', '\$')}" | v fmt') or {panic(err)}
-	// return result.output
-}
-
-pub struct VGenerator {
-	format bool
-}
-
-pub fn (gen VGenerator) generate_struct(struct_ Struct) !string {
 	name := if struct_.generics.len > 0 {
 		'${struct_.name}${vgen_generics(struct_.generics)}'
 	} else {
@@ -221,13 +176,13 @@ pub fn (gen VGenerator) generate_struct(struct_ Struct) !string {
 		''
 	}
 
-	priv_fields := struct_.fields.filter(!it.is_mut && !it.is_pub).map(gen.generate_struct_field(it))
-	pub_fields := struct_.fields.filter(!it.is_mut && it.is_pub).map(gen.generate_struct_field(it))
-	mut_fields := struct_.fields.filter(it.is_mut && !it.is_pub).map(gen.generate_struct_field(it))
-	pub_mut_fields := struct_.fields.filter(it.is_mut && it.is_pub).map(gen.generate_struct_field(it))
+	priv_fields := struct_.fields.filter(!it.is_mut && !it.is_pub).map(generate_struct_field(it))
+	pub_fields := struct_.fields.filter(!it.is_mut && it.is_pub).map(generate_struct_field(it))
+	mut_fields := struct_.fields.filter(it.is_mut && !it.is_pub).map(generate_struct_field(it))
+	pub_mut_fields := struct_.fields.filter(it.is_mut && it.is_pub).map(generate_struct_field(it))
 
 	mut struct_str := $tmpl('templates/struct/struct.v.template')
-	if gen.format {
+	if false {
 		result := os.execute_opt('echo "${struct_str.replace('$', '\$')}" | v fmt') or {
 			log.debug(struct_str)
 			panic(err)
@@ -235,9 +190,13 @@ pub fn (gen VGenerator) generate_struct(struct_ Struct) !string {
 		return result.output
 	}
 	return struct_str
+	// mut struct_str := $tmpl('templates/struct/struct.v.template')
+	// return struct_str
+	// result := os.execute_opt('echo "${struct_str.replace('$', '\$')}" | v fmt') or {panic(err)}
+	// return result.output
 }
 
-pub fn (gen VGenerator) generate_struct_field(field StructField) string {
+pub fn generate_struct_field(field StructField) string {
 	symbol := field.get_type_symbol()
 	mut vstr := '${field.name} ${symbol}'
 	if field.description != '' {
@@ -248,29 +207,6 @@ pub fn (gen VGenerator) generate_struct_field(field StructField) string {
 
 pub fn (custom CustomCode) vgen() string {
 	return custom.text
-}
-
-// vgen_function generates a function statement for a function
-pub fn (result Result) vgen() string {
-	result_type := if result.structure.name != '' {
-		result.structure.get_type_symbol()
-	} else if result.typ.symbol == 'void' {
-		''
-	} else {
-		if result.typ.is_array {
-			'[]${result.typ.symbol}'
-		} else {
-			result.typ.symbol
-		}
-	}
-	str := if result.result {
-		'!'
-	} else if result.typ.is_result {
-		'!'
-	} else {
-		''
-	}
-	return '${str}${result_type}'
 }
 
 @[params]

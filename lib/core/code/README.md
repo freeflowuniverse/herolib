@@ -27,7 +27,7 @@ code_md := ''
 // describes the struct in markdown format
 for struct in structs {
     code_md += '# ${struct.name}'
-    code_md += 'Type: ${struct.typ.symbol}'
+    code_md += 'Type: ${struct.typ.symbol()}'
     code_md += '## Fields:'
     for field in struct.fields {
         code_md += '- ${field.name}'

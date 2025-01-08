@@ -28,6 +28,66 @@ pub mut:
 	struct_     Struct  @[omitempty]
 }
 
+pub type Type = Array | Object | Result | Integer | Alias | String
+
+pub struct Integer {
+	bytes u8
+}
+
+pub fn type_from_symbol(symbol_ string) Type {
+	mut symbol := symbol_.trim_space()
+	if symbol.starts_with('[]') {
+		return Array{type_from_symbol(symbol.all_after('[]'))}
+	} else if symbol == 'int' {
+		return Integer{}
+	} else if symbol == 'string' {
+		return String{}
+	}
+	return Object{symbol}
+}
+
+pub fn (t Type) symbol() string {
+	return match t {
+		Array { '[]${t.typ.symbol()}' }
+		Object { t.name }
+		Result { '!${t.typ.symbol()}'}
+		Integer {'int'}
+		Alias {t.name}
+		String {'string'}
+	}
+}
+
+pub struct String {}
+
+pub struct Array {
+pub:
+	typ Type
+}
+
+pub struct Object {
+pub:
+	name string
+}
+
+pub struct Result {
+pub:
+	typ Type
+}
+
+// // todo: maybe make 'is_' fields methods?
+// pub struct Type {
+// pub mut:
+// 	is_reference bool   @[str: skip]
+// 	is_map       bool   @[str: skip]
+// 	is_array     bool
+// 	is_mutable   bool   @[str: skip]
+// 	is_shared    bool   @[str: skip]
+// 	is_optional  bool   @[str: skip]
+// 	is_result    bool   @[str: skip]
+// 	symbol       string
+// 	mod          string @[str: skip]
+// }
+
 @[params]
 pub struct Params{
 pub:
@@ -37,16 +97,6 @@ pub:
 pub fn new_param(params Params) !Param {
 	// TODO: implement function from file line
 	return parse_param(params.v)!
-}
-
-pub struct Result {
-pub mut:
-	typ         Type    @[omitempty]
-	description string  @[omitempty]
-	name        string  @[omitempty]
-	result      bool    @[omitempty] // whether is result type
-	optional    bool    @[omitempty] // whether is result type
-	structure   Struct  @[omitempty]
 }
 
 pub fn new_function(code string) !Function {

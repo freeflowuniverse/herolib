@@ -76,9 +76,7 @@ pub fn parse_param(code_ string) !Param {
 	if split.len == 1 {
 		// means anonymous param
 		return Param{
-			typ: Type{
-				symbol: split[0]
-			}
+			typ: type_from_symbol(split[0])
 			mutable: is_mut
 		}
 	}
@@ -87,39 +85,9 @@ pub fn parse_param(code_ string) !Param {
 	}
 	return Param{
 		name: split[0]
-		typ: Type{
-			symbol: split[1]
-		}
+		typ: type_from_symbol(split[1])
 		mutable: is_mut
 	}
-}
-
-pub fn parse_result(code_ string) !Result {
-	code := code_.replace(' ', '').trim_space()
-
-	return Result{
-		result: code_.starts_with('!')
-		optional: code_.starts_with('?')
-		typ: Type{
-			symbol: code.trim('!?')
-			is_optional: code.starts_with('?')
-			is_result: code.starts_with('!')
-		}
-	}
-}
-
-// todo: maybe make 'is_' fields methods?
-pub struct Type {
-pub mut:
-	is_reference bool   @[str: skip]
-	is_map       bool   @[str: skip]
-	is_array     bool
-	is_mutable   bool   @[str: skip]
-	is_shared    bool   @[str: skip]
-	is_optional  bool   @[str: skip]
-	is_result    bool   @[str: skip]
-	symbol       string
-	mod          string @[str: skip]
 }
 
 pub struct Alias {

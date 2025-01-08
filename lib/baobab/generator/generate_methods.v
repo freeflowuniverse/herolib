@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Folder, IFile, VFile, CodeItem, File, Function, Param, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { Array, Folder, IFile, VFile, CodeItem, File, Function, Param, Import, Module, Struct, CustomCode, Result }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.schemas.openrpc.codegen {content_descriptor_to_parameter}
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
@@ -42,10 +42,11 @@ pub fn generate_methods_file(spec ActorSpecification) !VFile {
 // returns bodyless method prototype
 pub fn generate_method_function(actor_name string, method ActorMethod) !Function {
 	actor_name_pascal := texttools.name_fix_snake_to_pascal(actor_name)
+	result_param := content_descriptor_to_parameter(method.result)!
 	return Function{
 		name: texttools.name_fix_snake(method.name)
 		receiver: code.new_param(v: 'mut actor ${actor_name_pascal}Actor')!
-		result: Param{...content_descriptor_to_parameter(method.result)!, is_result: true}
+		result: Param {...result_param, typ: Result{result_param.typ}}
 		summary: method.summary
 		description: method.description
 		params: method.parameters.map(content_descriptor_to_parameter(it)!)
@@ -80,7 +81,7 @@ fn generate_base_object_new_body(method ActorMethod) !string {
 fn generate_base_object_get_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	result := content_descriptor_to_parameter(method.result)!
-	return 'return actor.osis.get[${result.typ.vgen()}](${parameter.name})!'
+	return 'return actor.osis.get[${result.typ.vgen()}](${texttools.name_fix_snake(parameter.name)})!'
 }
 
 fn generate_base_object_set_body(method ActorMethod) !string {
@@ -90,10 +91,12 @@ fn generate_base_object_set_body(method ActorMethod) !string {
 
 fn generate_base_object_delete_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'return actor.osis.delete(${parameter.name})!'
+	return 'actor.osis.delete(${texttools.name_fix_snake(parameter.name)})!'
 }
 
 fn generate_base_object_list_body(method ActorMethod) !string {
 	result := content_descriptor_to_parameter(method.result)!
-	return 'return actor.osis.list[${result.typ.vgen()}]()!'
+	
+	base_object_type := (result.typ as Array).typ
+	return 'return actor.osis.list[${base_object_type.symbol()}]()!'
 }

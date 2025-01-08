@@ -1,6 +1,6 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code { Alias, Attribute, CodeItem, Struct, StructField, Type }
+import freeflowuniverse.herolib.core.code { Alias, Attribute, CodeItem, Struct, StructField, Type, type_from_symbol, Object, Array}
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef, Reference }
 
 const vtypes = {
@@ -35,7 +35,7 @@ pub fn schema_to_structs(schema Schema) ![]string {
 			typesymbol = ref_to_symbol(ref)
 		} else {
 			property = property_ as Schema
-			typesymbol = schema_to_type(property)!
+			typesymbol = schema_to_type(property)!.symbol()
 			// recursively encode property if object
 			// todo: handle duplicates
 			if property.typ == 'object' {
@@ -54,34 +54,36 @@ pub fn schema_to_structs(schema Schema) ![]string {
 }
 
 // schema_to_type generates a typesymbol for the schema
-pub fn schema_to_type(schema Schema) !string {
-	mut property_str := ''
+pub fn schema_to_type(schema Schema) !Type {
 	if schema.typ == 'null' {
-		return ''
+		Type{}
 	}
-	if schema.typ == 'object' {
-		if schema.title == '' {
-			return error('Object schemas must define a title.')
-		}
-		// todo: enforce uppercase
-		property_str = schema.title
-	} else if schema.typ == 'array' {
+	mut property_str := ''
+	return match schema.typ {
+		'object' {
+			if schema.title == '' {
+				return error('Object schemas must define a title.')
+			}
+			Object{schema.title}
+		} 
+		'array' {
 		// todo: handle multiple item schemas
-		if schema.items is SchemaRef {
-			// items := schema.items as SchemaRef
-			if schema.items is Schema {
-				items_schema := schema.items as Schema
-				property_str = '[]${items_schema.typ}'
+			if schema.items is []SchemaRef {
+				return error('items of type []SchemaRef not implemented')
+			}
+			Array {
+				typ: schemaref_to_type(schema.items as SchemaRef)!
+			}
+		} else {
+			if schema.typ in vtypes.keys() {
+				type_from_symbol(vtypes[schema.typ])
+			} else if schema.title != '' {
+				type_from_symbol(schema.title)
+			} else {
+				return error('unknown type `${schema.typ}` ')
 			}
 		}
-	} else if schema.typ in vtypes.keys() {
-		property_str = vtypes[schema.typ]
-	} else if schema.title != '' {
-		property_str = schema.title
-	} else {
-		return error('unknown type `${schema.typ}` ')
-	}
-	return property_str
+	} 
 }
 
 pub fn schema_to_code(schema Schema) !CodeItem {
@@ -91,9 +93,7 @@ pub fn schema_to_code(schema Schema) !CodeItem {
 	if schema.typ in vtypes {
 		return Alias{
 			name: schema.title
-			typ: Type{
-				symbol: vtypes[schema.typ]
-			}
+			typ: type_from_symbol(vtypes[schema.typ])
 		}
 	}
 	if schema.typ == 'array' {
@@ -102,17 +102,13 @@ pub fn schema_to_code(schema Schema) !CodeItem {
 				items_schema := schema.items as Schema
 				return Alias{
 					name: schema.title
-					typ: Type{
-						symbol: '[]${items_schema.typ}'
-					}
+					typ: type_from_symbol('[]${items_schema.typ}')
 				}
 			} else if schema.items is Reference {
 				items_ref := schema.items as Reference
 				return Alias{
 					name: schema.title
-					typ: Type{
-						symbol: '[]${ref_to_symbol(items_ref)}'
-					}
+					typ: type_from_symbol('[]${ref_to_symbol(items_ref)}')
 				}
 			}
 		}
@@ -144,9 +140,7 @@ pub fn ref_to_field(schema_ref SchemaRef, name string) !StructField {
 	if schema_ref is Reference {
 		return StructField{
 			name: name
-			typ: Type{
-				symbol: ref_to_symbol(schema_ref)
-			}
+			typ: type_from_symbol(ref_to_symbol(schema_ref))
 		}
 	} else if schema_ref is Schema {
 		mut field := StructField{
@@ -158,7 +152,7 @@ pub fn ref_to_field(schema_ref SchemaRef, name string) !StructField {
 			field.anon_struct = schema_to_struct(schema_ref as Schema)!
 			return field
 		} else if schema_ref.typ in vtypes {
-			field.typ.symbol = vtypes[schema_ref.typ]
+			field.typ = type_from_symbol(vtypes[schema_ref.typ])
 			return field
 		}
 		return error('Schema type ${schema_ref.typ} not supported for code generation')
@@ -170,9 +164,7 @@ pub fn schemaref_to_type(schema_ref SchemaRef) !Type {
 	return if schema_ref is Reference {
 		ref_to_type_from_reference(schema_ref as Reference)
 	} else {
-		Type{
-			symbol: schema_to_type(schema_ref as Schema)!
-		}
+		schema_to_type(schema_ref as Schema)!
 	}
 }
 
@@ -181,7 +173,5 @@ pub fn ref_to_symbol(reference Reference) string {
 }
 
 pub fn ref_to_type_from_reference(reference Reference) Type {
-	return Type{
-		symbol: ref_to_symbol(reference)
-	}
+	return type_from_symbol(ref_to_symbol(reference))
 }
