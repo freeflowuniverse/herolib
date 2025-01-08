@@ -1,6 +1,6 @@
 module jsonschema
 
-type Items = SchemaRef | []SchemaRef
+pub type Items = SchemaRef | []SchemaRef
 
 pub type SchemaRef = Reference | Schema
 

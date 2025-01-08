@@ -29,6 +29,7 @@ pub:
 
 // Contact information for the exposed API.
 pub struct Contact {
+pub:
 	name  string @[omitempty] // The identifying name of the contact person/organization.
 	email string @[omitempty] // The URL pointing to the contact information. MUST be in the format of a URL.
 	url   string @[omitempty] // The email address of the contact person/organization. MUST be in the format of an email address.
@@ -36,6 +37,7 @@ pub struct Contact {
 
 // License information for the exposed API.
 pub struct License {
+pub:
 	name string @[omitempty] // The license name used for the API.
 	url  string @[omitempty] // A URL to the license used for the API. MUST be in the format of a URL.
 }

@@ -2,6 +2,7 @@ module specification
 
 import freeflowuniverse.herolib.schemas.openrpc { OpenRPC, Method, ContentDescriptor, ErrorSpec }
 import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema, SchemaRef }
+import freeflowuniverse.herolib.core.texttools
 
 // Helper function: Convert OpenRPC Method to ActorMethod
 fn openrpc_method_to_actor_method(method Method) ActorMethod {
@@ -76,16 +77,23 @@ pub fn from_openrpc(spec OpenRPC) !ActorSpecification {
 
 	// Process methods
 	for method in spec.methods {
-		methods << openrpc_method_to_actor_method(method)
+		methods << openrpc_method_to_actor_method(spec.inflate_method(method))
 	}
 
 	// Process objects (schemas)
 	// structs := extract_structs_from_openrpc(spec)
-	// for structure in structs {
-	// 	objects << BaseObject{
-	// 		structure: structure
-	// 	}
-	// }
+	for key, schema in spec.components.schemas {
+		if schema is Schema {
+			if schema.typ == 'object' {
+				objects << BaseObject{
+					schema: Schema {...schema, 
+						title: texttools.name_fix_pascal(key)
+						id: texttools.name_fix_snake(key)
+					}
+				}
+			}
+		}
+	}
 
 	return ActorSpecification{
 		name: spec.info.title

@@ -2,6 +2,7 @@ module specification
 
 import freeflowuniverse.herolib.core.code { Struct, Function }
 import freeflowuniverse.herolib.schemas.openrpc {ContentDescriptor, ErrorSpec}
+import freeflowuniverse.herolib.schemas.jsonschema {Schema}
 
 pub struct ActorSpecification {
 pub mut:
@@ -33,7 +34,5 @@ pub:
 
 pub struct BaseObject {
 pub:
-	structure Struct      @[omitempty]
-	methods   []Function  @[omitempty]
-	children  []Struct    @[omitempty]
+	schema Schema
 }

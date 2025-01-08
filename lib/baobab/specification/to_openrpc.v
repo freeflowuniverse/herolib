@@ -43,10 +43,10 @@ import freeflowuniverse.herolib.schemas.jsonschema.codegen { struct_to_schema }
 pub fn (specification ActorSpecification) to_openrpc() OpenRPC {
 	mut schemas := map[string]SchemaRef{}
 	for obj in specification.objects {
-		schemas[obj.structure.name] = struct_to_schema(obj.structure)
-		for child in obj.children {
-			schemas[child.name] = struct_to_schema(child)
-		}
+		schemas[obj.schema.id] = obj.schema
+		// for child in obj.children {
+		// 	schemas[child.name] = struct_to_schema(child)
+		// }
 	}
 	return OpenRPC{
 		info: openrpc.Info{

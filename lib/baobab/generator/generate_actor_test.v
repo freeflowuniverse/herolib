@@ -8,212 +8,147 @@ import os
 
 const actor_spec = specification.ActorSpecification{
     name: 'Pet Store'
-    description: 'A sample API for a pet store'
-    interfaces: [.openapi]
+    structure: code.Struct{}
+    interfaces: [.openrpc]
     methods: [
         specification.ActorMethod{
-            name: 'listPets'
+            name: 'list_pets'
             summary: 'List all pets'
-            parameters: [
-                openrpc.ContentDescriptor{
-                    name: 'limit'
-                    summary: 'Maximum number of pets to return'
-                    description: 'Maximum number of pets to return'
-                    schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        typ: 'integer'
-                        format: 'int32'
-                    })
-                }
-            ]
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-                schema: jsonschema.SchemaRef(jsonschema.Reference{
-                    ref: '#/components/schemas/Pets'
+            parameters: [openrpc.ContentDescriptor{
+                name: 'limit'
+                description: 'How many items to return at one time (max 100)'
+                required: false
+                schema: jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'integer'
+                    minimum: 1
                 })
-            }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 400
-                    message: 'Invalid request'
-                }
-            ]
-        },
-        specification.ActorMethod{
-            name: 'createPet'
-            summary: 'Create a new pet'
+            }]
             result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-            }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 400
-                    message: 'Invalid input'
-                }
-            ]
-        },
-        specification.ActorMethod{
-            name: 'getPet'
-            summary: 'Get a pet by ID'
-            parameters: [
-                openrpc.ContentDescriptor{
-                    name: 'petId'
-                    summary: 'ID of the pet to retrieve'
-                    description: 'ID of the pet to retrieve'
-                    schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        typ: 'integer'
-                        format: 'int64'
-                    })
-                }
-            ]
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-                schema: jsonschema.SchemaRef(jsonschema.Reference{
-                    ref: '#/components/schemas/Pet'
-                })
-            }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 404
-                    message: 'Pet not found'
-                }
-            ]
-        },
-        specification.ActorMethod{
-            name: 'deletePet'
-            summary: 'Delete a pet by ID'
-            parameters: [
-                openrpc.ContentDescriptor{
-                    name: 'petId'
-                    summary: 'ID of the pet to delete'
-                    description: 'ID of the pet to delete'
-                    schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        typ: 'integer'
-                        format: 'int64'
-                    })
-                }
-            ]
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-            }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 404
-                    message: 'Pet not found'
-                }
-            ]
-        },
-        specification.ActorMethod{
-            name: 'listOrders'
-            summary: 'List all orders'
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
+                name: 'pets'
+                description: 'A paged array of pets'
                 schema: jsonschema.SchemaRef(jsonschema.Schema{
                     typ: 'array'
                     items: jsonschema.Items(jsonschema.SchemaRef(jsonschema.Reference{
-                        ref: '#/components/schemas/Order'
+                        ref: '#/components/schemas/Pet'
                     }))
                 })
             }
         },
         specification.ActorMethod{
-            name: 'getOrder'
-            summary: 'Get an order by ID'
+            name: 'create_pet'
+            summary: 'Create a pet'
             parameters: [
                 openrpc.ContentDescriptor{
-                    name: 'orderId'
-                    summary: 'ID of the order to retrieve'
-                    description: 'ID of the order to retrieve'
+                    name: 'newPetName'
+                    description: 'Name of pet to create'
+                    required: true
                     schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        typ: 'integer'
-                        format: 'int64'
+                        typ: 'string'
+                    })
+                },
+                openrpc.ContentDescriptor{
+                    name: 'newPetTag'
+                    description: 'Pet tag to create'
+                    schema: jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
                     })
                 }
             ]
             result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-                schema: jsonschema.SchemaRef(jsonschema.Reference{
-                    ref: '#/components/schemas/Order'
+                name: 'petId'
+                description: 'The ID of the created pet'
+                schema: jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'integer'
                 })
             }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 404
-                    message: 'Order not found'
-                }
-            ]
         },
         specification.ActorMethod{
-            name: 'deleteOrder'
-            summary: 'Delete an order by ID'
+            name: 'get_pet'
+            summary: 'Info for a specific pet'
+            parameters: [openrpc.ContentDescriptor{
+                name: 'petId'
+                description: 'The ID of the pet to retrieve'
+                required: true
+                schema: jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'integer'
+                })
+            }]
+            result: openrpc.ContentDescriptor{
+                name: 'pet'
+                description: 'The pet details'
+                schema: jsonschema.SchemaRef(jsonschema.Reference{
+                    ref: '#/components/schemas/Pet'
+                })
+            }
+        },
+        specification.ActorMethod{
+            name: 'update_pet'
+            summary: 'Update a pet'
             parameters: [
                 openrpc.ContentDescriptor{
-                    name: 'orderId'
-                    summary: 'ID of the order to delete'
-                    description: 'ID of the order to delete'
+                    name: 'petId'
+                    description: 'The ID of the pet to update'
+                    required: true
                     schema: jsonschema.SchemaRef(jsonschema.Schema{
                         typ: 'integer'
-                        format: 'int64'
+                    })
+                },
+                openrpc.ContentDescriptor{
+                    name: 'updatedPetName'
+                    description: 'New name for the pet'
+                    schema: jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
+                    })
+                },
+                openrpc.ContentDescriptor{
+                    name: 'updatedPetTag'
+                    description: 'New tag for the pet'
+                    schema: jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
                     })
                 }
             ]
             result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
+                name: 'pet'
+                description: 'The updated pet object'
+                schema: jsonschema.SchemaRef(jsonschema.Reference{
+                    ref: '#/components/schemas/Pet'
+                })
             }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 404
-                    message: 'Order not found'
-                }
-            ]
         },
         specification.ActorMethod{
-            name: 'createUser'
-            summary: 'Create a user'
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-            }
+            name: 'delete_pet'
+            summary: 'Delete a pet'
+            parameters: [openrpc.ContentDescriptor{
+                name: 'petId'
+                description: 'The ID of the pet to delete'
+                required: true
+                schema: jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'integer'
+                })
+            }]
         }
     ]
-    objects: [
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'Pet'
+    objects: [specification.BaseObject{
+        schema: jsonschema.Schema{
+            id: 'pet'
+            title: 'Pet'
+            description: 'A pet object'
+            typ: 'object'
+            properties: {
+                'id': jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'integer'
+                }),
+                'name': jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'string'
+                }),
+                'tag': jsonschema.SchemaRef(jsonschema.Schema{
+                    typ: 'string'
+                })
             }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'NewPet'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'Pets'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'Order'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'User'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'NewUser'
-            }
+            required: ['id', 'name']
         }
-    ]
+    }]
 }
 
 const destination = '${os.dir(@FILE)}/testdata'

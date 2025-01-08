@@ -33,7 +33,7 @@ pub fn (s ActorSpecification) to_openapi() OpenAPI {
 
 	mut schemas := map[string]SchemaRef{}
 	for object in s.objects {
-		schemas[object.structure.name] = object.to_schema()
+		schemas[object.schema.id] = object.to_schema()
 	}
 
 	return OpenAPI{

@@ -97,11 +97,7 @@ pub fn from_openapi(spec OpenAPI) !ActorSpecification {
 
 	// Extract objects from OpenAPI components.schemas
 	for name, schema in spec.components.schemas {
-		objects << BaseObject{
-			structure: openapi_schema_to_struct(name, schema),
-			methods: []Function{}, // Add related methods if applicable
-			children: []Struct{},  // Add nested structures if defined
-		}
+		objects << BaseObject{schema as Schema}
 	}
 
 	return ActorSpecification{
