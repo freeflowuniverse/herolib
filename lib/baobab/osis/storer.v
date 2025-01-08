@@ -1,56 +1,15 @@
 module osis
 
-import freeflowuniverse.herolib.data.dbfs
-import db.sqlite
+import freeflowuniverse.herolib.data.ourdb {OurDB}
 import os
 
 pub struct Storer {
-pub:
-	directory string
-	db_filesystem dbfs.DBCollection
-	db_sqlite sqlite.DB
+pub mut:
+	db OurDB
 }
 
-@[params]
-pub struct StorerConfig {
-	context_id u32
-	secret string
-	directory string = '${os.home_dir()}/hero/baobab/storer' // Directory of the storer
-}
-
-pub fn new_storer(config StorerConfig) !Storer {
+pub fn new_storer() !Storer {
 	return Storer {
-		directory: config.directory
-		db_filesystem: dbfs.get(
-			dbpath: '${config.directory}/dbfs/${config.context_id}'
-			secret: config.secret
-			contextid: config.context_id
-		)!
+		db: ourdb.new()!
 	}
-}
-
-@[params]
-pub struct StorageParams {
-	// database_type DatabaseType
-	encrypted bool
-}
-
-pub fn (mut storer Storer) new(object RootObject, params StorageParams) !u32 {
-	panic('implement')
-}
-
-pub fn (mut storer Storer) get(id u32, params StorageParams) !RootObject {
-	panic('implement')
-}
-
-pub fn (mut storer Storer) set(object RootObject, params StorageParams) ! {
-	panic('implement')
-}
-
-pub fn (mut storer Storer) delete(id u32, params StorageParams) ! {
-	panic('implement')
-}
-
-pub fn (mut storer Storer) list(ids []u32, params StorageParams) ![]RootObject {
-	panic('implement')
 }

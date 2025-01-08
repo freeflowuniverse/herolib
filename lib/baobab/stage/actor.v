@@ -1,5 +1,7 @@
 module stage
 
+import freeflowuniverse.herolib.baobab.osis {OSIS}
+
 @[heap]
 pub interface IActor {
 	name string
@@ -10,10 +12,15 @@ mut:
 pub struct Actor {
 pub:
 	name string
+mut:
+	osis OSIS
 }
 
-pub fn new_actor(name string) Actor {
-	return Actor{name}
+pub fn new_actor(name string) !Actor {
+	return Actor{
+		osis: osis.new()!
+		name: name
+	}
 }
 
 pub fn (mut a IActor) handle(method string, data string) !string {

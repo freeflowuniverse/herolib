@@ -20,7 +20,3 @@ pub:
 	secret string
 	reset bool
 }
-
-pub fn (mut backend OSIS) reset_all() ! {
-	panic('implement')
-}
