@@ -30,3 +30,4 @@ gitea_installer.play(
 // Then we need to get an instace of the installer and call the install
 mut gitea := gitea_installer.get(name: 'default')!
 gitea.install()!
+gitea.start()!

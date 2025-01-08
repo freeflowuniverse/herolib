@@ -170,7 +170,7 @@ pub fn (mut self GiteaServer) start() ! {
 		}
 		time.sleep(100 * time.millisecond)
 	}
-	return error('gitea did not install properly.')
+	return error('cannot start gitea')
 }
 
 pub fn (mut self GiteaServer) install_start(args InstallArgs) ! {

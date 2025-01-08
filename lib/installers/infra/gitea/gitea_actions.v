@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.db.postgresql as postgresinstaller
+import freeflowuniverse.herolib.installers.db.postgresql as postgres_installer
 import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 import freeflowuniverse.herolib.osal.zinit
 import os
@@ -15,13 +15,30 @@ fn installed() !bool {
 	mut podman := podman_installer.get()!
 	podman.install()!
 
-	cmd := 'gitea version'
+	cmd := 'gitea -v'
 	result := os.execute(cmd)
 
 	if result.exit_code != 0 {
 		return false
 	}
 	return true
+}
+
+fn install_postgres(cfg GiteaServer) ! {
+	postgres_heroscript := "
+!!postgresql.configure 
+	name: '${cfg.database_name}'
+	user: '${cfg.database_user}'
+	password: '${cfg.database_passwd}'
+	host: '${cfg.database_host}'
+	port: ${cfg.database_port}
+	volume_path:'/var/lib/postgresql/data'
+	container_name: 'herocontainer_postgresql'
+"
+
+	postgres_installer.play(heroscript: postgres_heroscript)!
+	mut postgres := postgres_installer.get()!
+	postgres.install()!
 }
 
 fn install() ! {
@@ -31,13 +48,12 @@ fn install() ! {
 	}
 
 	console.print_header('install gitea')
+	cfg := get()!
+
 	// make sure we install base on the node
 	base.install()!
+	install_postgres(cfg)!
 
-	mut postgres := postgresinstaller.get()!
-	postgres.install()!
-
-	cfg := get()!
 	platform := core.platform()!
 	mut download_link := ''
 
@@ -109,6 +125,9 @@ fn upload() ! {
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
+	server := get()!
+	cfg_file := $tmpl('./templates/app.ini')
+	// TODO: We need to finish the work here
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// res << zinit.ZProcessNewArgs{
 	//     name: 'gitea'
