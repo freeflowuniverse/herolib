@@ -76,8 +76,14 @@ fn install() ! {
 		return error('failed to download gitea due to: ${err}')
 	}
 
-	osal.cmd_add(cmdname: 'gitea', source: binary.path) or {
-		return error('failed to add gitea to the path due to: ${err}')
+	mut res := os.execute('sudo cp ${binary.path} /usr/local/bin/gitea')
+	if res.exit_code != 0 {
+		return error('failed to add gitea to the path due to: ${res.output}')
+	}
+
+	res = os.execute('sudo chmod +x /usr/local/bin/gitea')
+	if res.exit_code != 0 {
+		return error('failed to make gitea executable due to: ${res.output}')
 	}
 
 	console.print_header('gitea installed properly.')
