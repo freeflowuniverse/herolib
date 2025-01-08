@@ -109,55 +109,26 @@ fn destroy() ! {
 
 // get the Upload List of the files
 fn ulist_get() !ulist.UList {
-	// mut installer := get()!
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
 	return ulist.UList{}
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
-	// mut installer := get()!
-	// installers.upload(
-	//     cmdname: 'gitea'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/gitea'
-	// )!
-}
+fn upload() ! {}
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	server := get()!
-	cfg_file := $tmpl('./templates/app.ini')
-	// TODO: We need to finish the work here
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'gitea'
-	//     cmd: 'gitea server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
-
+	file_content := $tmpl('./templates/app.ini')
+	mut file := os.open_file('/tmp/gitea_app.ini', 'w')!
+	file.write(file_content.bytes())!
+	res << zinit.ZProcessNewArgs{
+		name: 'gitea'
+		cmd:  'gitea --config /tmp/gitea_app.ini'
+	}
 	return res
 }
 
 fn running() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of gitea
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'gitea', url: url)!
-
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('gitea is answering.')
-	return false
+	res := os.execute('curl -fsSL http://localhost:3000/api/v1/version || exit 1')
+	return res.exit_code == 0
 }
