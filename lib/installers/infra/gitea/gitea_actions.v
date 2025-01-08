@@ -39,6 +39,7 @@ fn install_postgres(cfg GiteaServer) ! {
 	postgres_installer.play(heroscript: postgres_heroscript)!
 	mut postgres := postgres_installer.get()!
 	postgres.install()!
+	postgres.start()!
 }
 
 fn install() ! {
@@ -48,33 +49,34 @@ fn install() ! {
 	}
 
 	console.print_header('install gitea')
-	cfg := get()!
+	server := get()!
 
 	// make sure we install base on the node
 	base.install()!
-	install_postgres(cfg)!
+	install_postgres(server)!
 
-	platform := core.platform()!
 	mut download_link := ''
 
 	is_linux_intel := core.is_linux_intel()!
 	is_osx_arm := core.is_osx_arm()!
 
 	if is_linux_intel {
-		download_link = 'https://dl.gitea.com/gitea/${cfg.version}/gitea-${cfg.version}-linux-amd64'
+		download_link = 'https://dl.gitea.com/gitea/${server.version}/gitea-${server.version}-linux-amd64'
 	}
 
 	if is_osx_arm {
-		download_link = 'https://dl.gitea.com/gitea/${cfg.version}/gitea-${cfg.version}-darwin-10.12-amd64'
+		download_link = 'https://dl.gitea.com/gitea/${server.version}/gitea-${server.version}-darwin-10.12-amd64'
 	}
 
 	if download_link.len == 0 {
 		return error('unsupported platform')
 	}
 
-	binary := osal.download(url: download_link, name: 'gitea', dest: '/tmp/gitea') or {
-		return error('failed to download gitea due to: ${err}')
-	}
+	binary := osal.download(
+		url:  download_link
+		name: 'gitea'
+		dest: '/tmp/gitea'
+	) or { return error('failed to download gitea due to: ${err}') }
 
 	mut res := os.execute('sudo cp ${binary.path} /usr/local/bin/gitea')
 	if res.exit_code != 0 {
@@ -85,6 +87,11 @@ fn install() ! {
 	if res.exit_code != 0 {
 		return error('failed to make gitea executable due to: ${res.output}')
 	}
+
+	// create config file
+	file_content := $tmpl('./templates/app.ini')
+	mut file := os.open_file('/tmp/gitea_app.ini', 'w')!
+	file.write(file_content.bytes())!
 
 	console.print_header('gitea installed properly.')
 }
@@ -123,18 +130,55 @@ fn upload() ! {}
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
-	server := get()!
-	file_content := $tmpl('./templates/app.ini')
-	mut file := os.open_file('/tmp/gitea_app.ini', 'w')!
-	file.write(file_content.bytes())!
+	cfg := get()!
 	res << zinit.ZProcessNewArgs{
 		name: 'gitea'
-		cmd:  'gitea --config /tmp/gitea_app.ini'
+		// cmd:     'GITEA_WORK_DIR=${cfg.path} sudo -u git /var/lib/git/gitea web -c /tmp/gitea_app.ini'
+		cmd:     '
+
+# Variables
+GITEA_USER="${cfg.run_user}"
+GITEA_HOME="${cfg.path}"
+GITEA_BINARY="/usr/local/bin/gitea"
+GITEA_CONFIG="/tmp/gitea_app.ini"
+GITEA_DATA_PATH="\$GITEA_HOME/data"
+GITEA_CUSTOM_PATH="\$GITEA_HOME/custom"
+GITEA_LOG_PATH="\$GITEA_HOME/log"
+
+# Ensure the script is run as root
+if [[ \$EUID -ne 0 ]]; then
+    echo "This script must be run as root."
+    exit 1
+fi
+
+echo "Setting up Gitea..."
+
+# Create Gitea user if it doesn\'t exist
+if ! id -u "\$GITEA_USER" &>/dev/null; then
+    echo "Creating Gitea user..."
+	sudo adduser --system --shell /bin/bash --group --disabled-password --home "/var/lib/${cfg.run_user}" ${cfg.run_user}
+else
+    echo "Gitea user already exists."
+fi
+
+# Create necessary directories
+echo "Creating directories..."
+mkdir -p "\$GITEA_DATA_PATH" "\$GITEA_CUSTOM_PATH" "\$GITEA_LOG_PATH"
+chown -R "\$GITEA_USER:\$GITEA_USER" "\$GITEA_HOME"
+chmod -R 750 "\$GITEA_HOME"
+
+chown "\$GITEA_USER:\$GITEA_USER" "\$GITEA_CONFIG"
+chmod 640 "\$GITEA_CONFIG"
+
+GITEA_WORK_DIR=\$GITEA_HOME sudo -u git gitea web -c \$GITEA_CONFIG
+		
+'
+		workdir: cfg.path
 	}
 	return res
 }
 
 fn running() !bool {
-	res := os.execute('curl -fsSL http://localhost:3000/api/v1/version || exit 1')
+	res := os.execute('curl -fsSL http://localhost:3000 || exit 1')
 	return res.exit_code == 0
 }

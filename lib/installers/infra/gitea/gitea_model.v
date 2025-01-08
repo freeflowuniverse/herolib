@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.core.pathlib
 
 const singleton = true
-const default = false
+const default = true
 
 // TODO: THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE TO STRUCT BELOW, IS STRUCTURED AS HEROSCRIPT
 pub fn heroscript_default() !string {
@@ -13,7 +13,8 @@ pub fn heroscript_default() !string {
     !!gitea.configure 
         name:'gitea'
         version:'1.22.6'
-        path: '/data/gitea'
+		run_user: 'git'
+        path: '/var/lib/git'
         passwd: '12345678'
         postgresql_name: 'default'
         mail_from: 'git@meet.tf'
@@ -44,7 +45,8 @@ pub mut:
 
 	// reset           bool
 	version        string = '1.22.6'
-	path           string = '/data/gitea'
+	run_user       string = 'git'
+	path           string = '/var/lib/git'
 	passwd         string
 	mail_from      string = 'git@meet.tf'
 	smtp_addr      string = 'smtp-relay.brevo.com'
@@ -73,7 +75,8 @@ fn cfg_play(p paramsparser.Params) !GiteaServer {
 	mut mycfg := GiteaServer{
 		name:           p.get_default('name', 'default')!
 		version:        p.get_default('version', '1.22.6')!
-		path:           p.get_default('path', '/data/gitea')!
+		run_user:       p.get_default('run_user', 'git')!
+		path:           p.get_default('path', '/var/lib/git')!
 		passwd:         p.get('passwd')!
 		mail_from:      p.get_default('mail_from', 'git@meet.tf')!
 		smtp_addr:      p.get_default('smtp_addr', 'smtp-relay.brevo.com')!
