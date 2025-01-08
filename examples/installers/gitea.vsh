@@ -13,7 +13,7 @@ heroscript := "
 	mail_from: 'git@meet.tf'
 	smtp_addr: 'smtp-relay.brevo.com'
 	smtp_login: 'admin'
-	smpt_port: 587
+	smtp_port: 587
 	smtp_passwd: '12345678'
 	domain: 'meet.tf'
 	jwt_secret: ''
