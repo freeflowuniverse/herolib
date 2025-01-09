@@ -10,13 +10,21 @@ import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 import freeflowuniverse.herolib.osal.zinit
 import os
 
+const postgres_container_name = 'herocontainer_postgresql'
+
 // checks if a certain version or above is installed
 fn installed() !bool {
 	mut podman := podman_installer.get()!
 	podman.install()!
 
-	cmd := 'gitea -v'
-	result := os.execute(cmd)
+	// We need to check also if postgres is installed
+	mut result := os.execute('podman healthcheck run ${postgres_container_name}')
+
+	if result.exit_code != 0 {
+		return false
+	}
+
+	result = os.execute('gitea -v')
 
 	if result.exit_code != 0 {
 		return false
@@ -33,7 +41,7 @@ fn install_postgres(cfg GiteaServer) ! {
 	host: '${cfg.database_host}'
 	port: ${cfg.database_port}
 	volume_path:'/var/lib/postgresql/data'
-	container_name: 'herocontainer_postgresql'
+	container_name: '${postgres_container_name}'
 "
 
 	postgres_installer.play(heroscript: postgres_heroscript)!
@@ -90,7 +98,7 @@ fn install() ! {
 
 	// create config file
 	file_content := $tmpl('./templates/app.ini')
-	mut file := os.open_file('/tmp/gitea_app.ini', 'w')!
+	mut file := os.open_file('/etc/gitea_app.ini', 'w')!
 	file.write(file_content.bytes())!
 
 	console.print_header('gitea installed properly.')
@@ -133,14 +141,14 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	cfg := get()!
 	res << zinit.ZProcessNewArgs{
 		name: 'gitea'
-		// cmd:     'GITEA_WORK_DIR=${cfg.path} sudo -u git /var/lib/git/gitea web -c /tmp/gitea_app.ini'
+		// cmd:     'GITEA_WORK_DIR=${cfg.path} sudo -u git /var/lib/git/gitea web -c /etc/gitea_app.ini'
 		cmd:     '
 
 # Variables
 GITEA_USER="${cfg.run_user}"
 GITEA_HOME="${cfg.path}"
 GITEA_BINARY="/usr/local/bin/gitea"
-GITEA_CONFIG="/tmp/gitea_app.ini"
+GITEA_CONFIG="/etc/gitea_app.ini"
 GITEA_DATA_PATH="\$GITEA_HOME/data"
 GITEA_CUSTOM_PATH="\$GITEA_HOME/custom"
 GITEA_LOG_PATH="\$GITEA_HOME/log"
@@ -154,11 +162,14 @@ fi
 echo "Setting up Gitea..."
 
 # Create Gitea user if it doesn\'t exist
-if ! id -u "\$GITEA_USER" &>/dev/null; then
-    echo "Creating Gitea user..."
-	sudo adduser --system --shell /bin/bash --group --disabled-password --home "/var/lib/${cfg.run_user}" ${cfg.run_user}
+if id -u "\$GITEA_USER" &>/dev/null; then
+    echo "User \$GITEA_USER already exists."
 else
-    echo "Gitea user already exists."
+    echo "Creating Gitea user..."
+    if ! sudo adduser --system --shell /bin/bash --group --disabled-password --home "/var/lib/\$GITEA_USER" "\$GITEA_USER"; then
+        echo "Failed to create user \$GITEA_USER."
+        exit 1
+    fi
 fi
 
 # Create necessary directories
@@ -171,8 +182,14 @@ chown "\$GITEA_USER:\$GITEA_USER" "\$GITEA_CONFIG"
 chmod 640 "\$GITEA_CONFIG"
 
 GITEA_WORK_DIR=\$GITEA_HOME sudo -u git gitea web -c \$GITEA_CONFIG
-		
 '
+		workdir: cfg.path
+	}
+	res << zinit.ZProcessNewArgs{
+		name:    'restart_gitea'
+		cmd:     'sleep 30 && zinit restart gitea && exit 1'
+		after:   ['gitea']
+		oneshot: true
 		workdir: cfg.path
 	}
 	return res

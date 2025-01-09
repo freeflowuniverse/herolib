@@ -41,10 +41,7 @@ pub fn get(args_ ArgsGet) !&Postgresql {
 		}
 		config_load()!
 	}
-	return postgresql_global[args.name] or {
-		println(postgresql_global)
-		panic('bug in get from factory: ')
-	}
+	return postgresql_global[args.name] or { panic('bug in get from factory: ') }
 }
 
 fn config_exists(args_ ArgsGet) bool {
