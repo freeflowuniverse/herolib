@@ -29,6 +29,6 @@ import freeflowuniverse.herolib.installers.infra.gitea as gitea_installer
 
 // Then we need to get an instace of the installer and call the install
 mut gitea := gitea_installer.get()!
-println('gitea configs: ${gitea}')
+// println('gitea configs: ${gitea}')
 gitea.install()!
 gitea.start()!
