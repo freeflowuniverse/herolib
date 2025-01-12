@@ -68,15 +68,24 @@ fn test_export() {
 
 	col1_path := '${export_dir}/col1'
 	expected_col1_path := '${export_expected_dir}/col1'
-	assert os.read_file('${col1_path}/.collection')! == os.read_file('${expected_col1_path}/.collection')!
+	assert os.read_file('${col1_path}/.collection')! == "name:col1 src:'${tree_dir}/dir1'"
 	assert os.read_file('${col1_path}/.linkedpages')! == os.read_file('${expected_col1_path}/.linkedpages')!
-	assert os.read_file('${col1_path}/errors.md')! == os.read_file('${expected_col1_path}/errors.md')!
+	assert os.read_file('${col1_path}/errors.md')! == '# Errors
+
+
+## page_not_found
+
+path: ${tree_dir}/dir1/dir2/file1.md
+
+msg: page col3:file5.md not found
+
+'
 	assert os.read_file('${col1_path}/file1.md')! == os.read_file('${expected_col1_path}/file1.md')!
 	assert os.read_file('${col1_path}/file2.md')! == os.read_file('${expected_col1_path}/file2.md')!
 
 	col2_path := '${export_dir}/col2'
 	expected_col2_path := '${export_expected_dir}/col2'
 	assert os.read_file('${col2_path}/.linkedpages')! == ''
-	assert os.read_file('${col2_path}/.collection')! == os.read_file('${expected_col2_path}/.collection')!
+	assert os.read_file('${col2_path}/.collection')! == "name:col2 src:'${tree_dir}/dir3'"
 	assert os.read_file('${col2_path}/file3.md')! == ''
 }

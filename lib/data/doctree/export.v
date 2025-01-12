@@ -2,7 +2,6 @@ module doctree
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.data.doctree.collection { Collection }
-import freeflowuniverse.herolib.data.doctree.collection.data
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
 
@@ -43,8 +42,8 @@ pub fn (mut tree Tree) export(args TreeExportArgs) ! {
 
 	if args.concurrent {
 		mut ths := []thread !{}
-		for _, col in tree.collections {
-			ths << spawn fn (col Collection, dest_path pathlib.Path, file_paths map[string]string, args TreeExportArgs) ! {
+		for _, mut col in tree.collections {
+			ths << spawn fn (mut col Collection, dest_path pathlib.Path, file_paths map[string]string, args TreeExportArgs) ! {
 				col.export(
 					destination:    dest_path
 					file_paths:     file_paths
@@ -53,7 +52,7 @@ pub fn (mut tree Tree) export(args TreeExportArgs) ! {
 					exclude_errors: args.exclude_errors
 					// TODO: replacer: tree.replacer
 				)!
-			}(col, dest_path, file_paths, args)
+			}(mut col, dest_path, file_paths, args)
 		}
 		for th in ths {
 			th.wait() or { panic(err) }
