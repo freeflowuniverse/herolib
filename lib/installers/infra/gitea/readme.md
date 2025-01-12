@@ -7,21 +7,12 @@ To get started
 ```vlang
 
 
-import freeflowuniverse.herolib.installers.something.gitea as gitea_installer
 
-heroscript:="
-!!gitea.configure name:'test'
-    password: '1234'
-    port: 7701
+import freeflowuniverse.herolib.installers.something. gitea
 
-!!gitea.start name:'test' reset:1 
-"
+mut installer:= gitea.get()!
 
-gitea_installer.play(heroscript=heroscript)!
-
-//or we can call the default and do a start with reset
-//mut installer:= gitea_installer.get()!
-//installer.start(reset:true)!
+installer.start()!
 
 
 
@@ -30,8 +21,9 @@ gitea_installer.play(heroscript=heroscript)!
 
 ## example heroscript
 
+
 ```hero
-!!gitea.configure
+!!gitea.install
     homedir: '/home/user/gitea'
     username: 'admin'
     password: 'secretpassword'

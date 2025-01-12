@@ -5,16 +5,16 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal
 
 __global (
-	zinit_global_manager []Zinit
+	zinit_global_manager []&Zinit
 )
 
-pub fn new() !Zinit {
+pub fn new() !&Zinit {
 	if zinit_global_manager.len == 0 {
 		mut z := Zinit{
 			path:     pathlib.get_dir(path: '/etc/zinit', create: true)!
 			pathcmds: pathlib.get_dir(path: '/etc/zinit/cmds', create: true)!
 		}
-		zinit_global_manager << z
+		zinit_global_manager << &z
 		z.load()!
 	}
 	return zinit_global_manager[0]

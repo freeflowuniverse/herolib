@@ -1,11 +1,12 @@
 module fungistor
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import os
 
-pub fn installlll(args_ InstallArgs) ! {
+pub fn installl(args_ InstallArgs) ! {
 	mut args := args_
 	version := '2.0.6'
 

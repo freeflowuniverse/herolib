@@ -17,14 +17,13 @@ pub mut:
 	replacer       ?regext.ReplaceInstructions
 }
 
-pub fn (c Collection) export(args CollectionExportArgs) ! {
+pub fn (mut c Collection) export(args CollectionExportArgs) ! {
 	dir_src := pathlib.get_dir(path: args.destination.path + '/' + c.name, create: true)!
 
 	mut cfile := pathlib.get_file(path: dir_src.path + '/.collection', create: true)! // will auto save it
 	cfile.write("name:${c.name} src:'${c.path.path}'")!
 
-	mut errors := c.errors.clone()
-	errors << export_pages(c.path.path, c.pages.values(),
+	c.errors << export_pages(c.path.path, c.pages.values(),
 		dir_src:        dir_src
 		file_paths:     args.file_paths
 		keep_structure: args.keep_structure
@@ -36,7 +35,7 @@ pub fn (c Collection) export(args CollectionExportArgs) ! {
 	c.export_linked_pages(dir_src)!
 
 	if !args.exclude_errors {
-		c.errors_report('${dir_src.path}/errors.md', errors)!
+		c.errors_report('${dir_src.path}/errors.md')!
 	}
 }
 

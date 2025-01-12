@@ -9,6 +9,7 @@ import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.ui
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.core.playcmds
 
@@ -48,7 +49,7 @@ fn do() ! {
 		toinstall = true
 	}
 
-	if osal.is_osx() {
+	if core.is_osx()! {
 		if !osal.cmd_exists('brew') {
 			console.clear()
 			mut myui := ui.new()!

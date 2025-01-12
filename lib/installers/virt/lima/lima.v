@@ -1,6 +1,7 @@
 module lima
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
@@ -51,7 +52,7 @@ pub fn install_(args_ InstallArgs) ! {
 
 	if args.reset {
 		console.print_header('install lima')
-		qemu.install()!
+		qemu.install_()!
 		mut url := ''
 		mut dest_on_os := '${os.home_dir()}/hero'
 		if core.is_linux_arm()! {

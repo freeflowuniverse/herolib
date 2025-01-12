@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import os
 
-pub fn installll(args_ InstallArgs) ! {
+pub fn install(args_ InstallArgs) ! {
 	mut args := args_
 	version := '0.16.2'
 
