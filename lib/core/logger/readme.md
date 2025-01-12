@@ -47,18 +47,27 @@ results := l.search(
 
 ## Log Format
 
-```
-$time
-    $cat       - $msg
-	   $cat       - first line of message
-				    second line of message
-				    third line ... 
-E   $cat       - first line of message
-E				second line of message
-E 				third line ... 
-```		 
+Each log file is named using the format `YYYY-MM-DD-HH.log` and contains entries in the following format:
 
-- time is expressed in '1980-07-11 21:23:42' == time_to_test.format_ss()
-- if cat has '-' inside it will be converted to '_'
-- $cat max 10 chars, and always takes the 10 chars so that the logs are nicely formatted
-- the first char is ' ' or 'E' , E means its the logtype error
+```
+21:23:42
+ system     - This is a normal log message
+ system     - This is a multi-line message
+              second line with proper indentation
+              third line maintaining alignment
+E error_cat - This is an error message
+E             second line of error
+E             third line of error
+```
+
+### Format Rules
+
+- Time stamps (HH:MM:SS) are written once per second when the log time changes
+- Categories are:
+  - Limited to 10 characters maximum
+  - Padded with spaces to exactly 10 characters
+  - Any `-` in category names are converted to `_`
+- Each line starts with either:
+  - ` ` (space) for normal logs (LogType.stdout)
+  - `E` for error logs (LogType.error)
+- Multi-line messages maintain consistent indentation (14 spaces after the prefix)
