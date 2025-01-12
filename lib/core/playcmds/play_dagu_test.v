@@ -27,5 +27,5 @@ const dagu_script = "
 fn test_play_dagu() ! {
 	mut plbook := playbook.new(text: dagu_script)!
 	play_dagu(mut plbook)!
-	panic('s')
+	// panic('s')
 }
