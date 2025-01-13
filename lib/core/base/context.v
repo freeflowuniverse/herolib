@@ -70,8 +70,8 @@ pub fn (mut self Context) redis() !&redisclient.Redis {
 			// make sure we are on the right db
 			r.selectdb(int(self.config.id))!
 		}
-		self.redis_ = &r
-		&r
+		self.redis_ = r
+		r
 	}
 
 	return r2

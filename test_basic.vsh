@@ -169,9 +169,6 @@ lib/code
 lib/clients
 lib/core
 lib/develop
-lib/markdownparser/
-lib/ourdb/
-lib/gittools
 // lib/crypt
 '
 
@@ -180,6 +177,7 @@ tests_ignore := '
 notifier_test.v
 clients/meilisearch
 clients/zdb
+clients/openai
 systemd_process_test.v
 '
 

@@ -3,7 +3,7 @@ import freeflowuniverse.herolib.core.redisclient
 fn setup() !&redisclient.Redis {
 	mut redis := redisclient.core_get()!
 	redis.selectdb(10) or { panic(err) }
-	return &redis
+	return redis
 }
 
 fn cleanup(mut redis redisclient.Redis) ! {
