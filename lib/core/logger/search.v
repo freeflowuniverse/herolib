@@ -30,7 +30,6 @@ pub fn (mut l Logger) search(args_ SearchArgs) ![]LogItem {
 	// Get time range
 	from_time := timestamp_from.unix()
 	to_time := timestamp_to.unix()
-
 	if from_time > to_time {
 		return error('from_time cannot be after to_time: ${from_time} <  ${to_time}')
 	}
@@ -82,20 +81,30 @@ pub fn (mut l Logger) search(args_ SearchArgs) ![]LogItem {
 				continue
 			}
 
+			if collecting && line.len > 14 && line[13] == `-` {
+				process(mut result, current_item, current_time, args, from_time, to_time)!
+				collecting = false
+			}
+
 			// Parse log line
 			is_error := line.starts_with('E')
 			if !collecting {
 				// Start new item
 				current_item = LogItem{
 					timestamp: current_time
-					cat:       line_trim[2..12].trim_space()
-					log:       line_trim[15..].trim_space()
+					cat:       line[2..12].trim_space()
+					log:       line[15..].trim_space()
 					logtype:   if is_error { .error } else { .stdout }
 				}
+				// println('new current item: ${current_item}')
 				collecting = true
 			} else {
 				// Continuation line
-				current_item.log += '\n' + line_trim[15..]
+				if line_trim.len < 16 {
+					current_item.log += '\n'
+				} else {
+					current_item.log += '\n' + line[15..]
+				}
 			}
 		}
 

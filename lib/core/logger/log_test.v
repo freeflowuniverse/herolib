@@ -81,16 +81,25 @@ fn test_logger() {
 		create: false
 	)!
 
-	println('/tmp/testlogs/${files[0]}')
-
 	content := file.read()!.trim_space()
 
-	items := logger.search()!
-	assert items.len == 6 // still wrong: TODO
+	items_stdout := logger.search(
+		timestamp_from: ourtime.new('2022-11-1 20:14:35')!
+		timestamp_to:   ourtime.new('2025-11-1 20:14:35')!
+		logtype:        .stdout
+	)!
+	assert items_stdout.len == 2
+
+	items_error := logger.search(
+		timestamp_from: ourtime.new('2022-11-1 20:14:35')!
+		timestamp_to:   ourtime.new('2025-11-1 20:14:35')!
+		logtype:        .error
+	)!
+	assert items_error.len == 4
 }
 
 fn testsuite_end() {
-	if os.exists('/tmp/testlogs') {
-		os.rmdir_all('/tmp/testlogs')!
-	}
+	// if os.exists('/tmp/testlogs') {
+	// 	os.rmdir_all('/tmp/testlogs')!
+	// }
 }
