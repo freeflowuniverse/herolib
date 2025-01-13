@@ -3,11 +3,11 @@ module redisclient
 // original code see https://github.com/patrickpissurno/vredis/blob/master/vredis_test.v
 // credits see there as well (-:
 import net
-// import sync
+import sync
 // import strconv
 
 __global (
-	redis_connections []Redis
+	redis_connections []&Redis
 )
 
 const default_read_timeout = net.infinite_timeout
@@ -18,15 +18,16 @@ pub:
 	addr string
 mut:
 	socket net.TcpConn
+	mtx    sync.RwMutex
 }
 
 // https://redis.io/topics/protocol
 // examples:
 //   localhost:6379
 //   /tmp/redis-default.sock
-pub fn new(addr string) !Redis {
-	// lock redis_connections {	
-	for mut conn in redis_connections {
+pub fn new(addr string) !&Redis {
+	// lock redis_cowritennections {	
+	for conn in redis_connections {
 		if conn.addr == addr {
 			return conn
 		}
@@ -34,10 +35,13 @@ pub fn new(addr string) !Redis {
 	// means there is no connection yet
 	mut r := Redis{
 		addr: addr
+		mtx:  sync.RwMutex{}
 	}
+	r.mtx.init()
+
 	r.socket_connect()!
-	redis_connections << r
-	return r
+	redis_connections << &r
+	return &r
 	//}
 	// panic("bug")
 }
@@ -47,7 +51,7 @@ pub fn reset() ! {
 	for mut conn in redis_connections {
 		conn.disconnect()
 	}
-	redis_connections = []Redis{}
+	redis_connections = []&Redis{}
 	//}
 }
 
