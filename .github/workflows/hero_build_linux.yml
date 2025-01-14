@@ -1,4 +1,4 @@
-name: Build Hero & Run tests
+name: Build Hero on Linux & Run tests
 
 permissions:
   contents: write
@@ -22,7 +22,7 @@ jobs:
           #   os: macos-latest
           #   short-name: macos-arm64
           # - target: x86_64-apple-darwin
-          #   os: macos-latest
+          #   os: macos-13
           #   short-name: macos-i64
     runs-on: ${{ matrix.os }}
     steps:
@@ -47,30 +47,24 @@ jobs:
           ln -s $GITHUB_WORKSPACE/lib ~/.vmodules/freeflowuniverse/herolib
 
           echo "Installing secp256k1..."
-          if [ "${{ matrix.os }}" = "macos-latest" ]; then
-              brew install secp256k1
-          elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-              # Install build dependencies
-              sudo apt-get install -y build-essential wget autoconf libtool
+          # Install build dependencies
+          sudo apt-get install -y build-essential wget autoconf libtool
 
-              # Download and extract secp256k1
-              cd /tmp
-              wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
-              tar -xvf v0.3.2.tar.gz
+          # Download and extract secp256k1
+          cd /tmp
+          wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
+          tar -xvf v0.3.2.tar.gz
 
-              # Build and install
-              cd secp256k1-0.3.2/
-              ./autogen.sh
-              ./configure
-              make -j 5
-              sudo make install
+          # Build and install
+          cd secp256k1-0.3.2/
+          ./autogen.sh
+          ./configure
+          make -j 5
+          sudo make install
 
-              # Cleanup
-              rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
-          else
-              echo "secp256k1 installation not implemented for ${OSNAME}"
-              exit 1
-          fi
+          # Cleanup
+          rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
+
           echo "secp256k1 installation complete!"
 
       - name: Install and Start Redis
@@ -82,32 +76,18 @@ jobs:
           # Install Redis
           sudo apt-get update
           sudo apt-get install -y redis
+            
+          # Start Redis
+          redis-server --daemonize yes
+
           # Print versions
           redis-cli --version
           redis-server --version
-          # Start Redis
-          sudo systemctl start redis-server
-          redis-cli ping
 
       - name: Build Hero
         run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            v -cg -enable-globals -w -n cli/hero.v
-          # else if [ "${{ matrix.os }}" = "macos-latest" ]; then
-          #   v -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals cli/hero.v
-          fi
+          v -cg -enable-globals -w -n cli/hero.v
 
       - name: Do all the basic tests
         run: |
-          alias vtest='v -stats -enable-globals -n -w -cg -gc none -no-retry-compilation -cc tcc test'
           ./test_basic.vsh
-
-      # - name: Upload to S3
-      #   run: |
-      #     echo 'export S3KEYID=${{ secrets.S3KEYID }}' > ${HOME}/mysecrets.sh
-      #     echo 'export S3APPID=${{ secrets.S3APPID }}' >> ${HOME}/mysecrets.sh
-      #     set -e && cat ${HOME}/mysecrets.sh
-      #     sudo bash +x scripts/githubactions.sh
-
-      - name: Extract tag name
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
