@@ -23,7 +23,7 @@ trap cleanup EXIT
 # Attempt to build the Docker image
 BUILD_LOG=$(mktemp)
 set +e
-docker build --progress=plain -t "$DOCKER_IMAGE_NAME" . 
+docker build --name herolib --progress=plain -t "$DOCKER_IMAGE_NAME" . 
 BUILD_EXIT_CODE=$?
 set -e
 
@@ -31,7 +31,7 @@ set -e
 if [ $BUILD_EXIT_CODE -ne 0 ]; then
   echo -e "\\n[ERROR] Docker build failed.\n"
   echo -e "remove the part which didn't build in the Dockerfile, the run again and to debug do:"
-  echo docker run --name debug -it --entrypoint=/bin/bash "debug-image"
+  echo docker run --name herolib -it --entrypoint=/bin/bash "herolib"
   exit $BUILD_EXIT_CODE
 else
   echo -e "\\n[INFO] Docker build completed successfully."

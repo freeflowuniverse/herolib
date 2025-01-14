@@ -8,4 +8,4 @@ if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
 fi
 tmux new-session -d -s "$TMUX_SESSION" "/usr/local/bin/openvscode-server --host 0.0.0.0 --without-connection-token"
 
-
+exec /bin/bash

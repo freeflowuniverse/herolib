@@ -26,6 +26,6 @@ RUN /tmp/install_herolib.vsh && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["/usr/local/bin/ourinit.sh"]
+ENTRYPOINT ["/bin/bash"]
 CMD ["/bin/bash"]
 

@@ -76,7 +76,7 @@ else
     fi
 
     # Install default plugins
-    PLUGINS=("ms-python.python" "esbenp.prettier-vscode")
+    PLUGINS=("ms-python.python" "esbenp.prettier-vscode" "saoudrizwan.claude-dev" "yzhang.markdown-all-in-one" "ms-vscode-remote.remote-ssh" "ms-vscode.remote-explorer" "charliermarsh.ruff" "qwtel.sqlite-viewer" "vosca.vscode-v-analyzer" "tomoki1207.pdf")
     for PLUGIN in "${PLUGINS[@]}"; do
         "$INSTALL_DIR/bin/openvscode-server" --install-extension "$PLUGIN"
     done
