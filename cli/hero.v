@@ -1,7 +1,7 @@
 module main
 
 import os
-import cli { Command, Flag }
+import cli { Command }
 import freeflowuniverse.herolib.core.herocmds
 // import freeflowuniverse.herolib.hero.cmds
 // import freeflowuniverse.herolib.hero.publishing
@@ -33,14 +33,6 @@ fn do() ! {
 		description: 'Your HERO toolset.'
 		version:     '2.0.0'
 	}
-
-	cmd.add_flag(Flag{
-		flag:        .string
-		name:        'url'
-		abbrev:      'u'
-		global:      true
-		description: 'url of playbook'
-	})
 
 	// herocmds.cmd_run_add_flags(mut cmd)
 
