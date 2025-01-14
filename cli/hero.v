@@ -88,7 +88,7 @@ fn do() ! {
 	// herocmds.cmd_caddy(mut cmd)
 	// herocmds.cmd_zola(mut cmd)
 	// herocmds.cmd_juggler(mut cmd)
-	// herocmds.cmd_generator(mut cmd)
+	herocmds.cmd_generator(mut cmd)
 	// herocmds.cmd_docsorter(mut cmd)
 	// cmd.add_command(publishing.cmd_publisher(pre_func))
 	cmd.setup()
