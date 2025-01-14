@@ -78,7 +78,7 @@ pub fn (zdb ZDBDeployed) ping() bool {
 	panic('implement')
 }
 
-pub fn (zdb ZDBDeployed) redisclient() !redisclient.Redis {
+pub fn (zdb ZDBDeployed) redisclient() !&redisclient.Redis {
 	redis_addr := '${zdb.mycelium_ip}:6379'
 	return redisclient.new(redis_addr)!
 }
