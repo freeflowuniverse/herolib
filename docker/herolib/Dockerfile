@@ -40,6 +40,7 @@ RUN mkdir -p /var/run/sshd && \
     echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config && \
     chown -R root:root  /root/.ssh && \
     chmod -R 700 /root/.ssh/ && \
+    touch /root/.ssh/authorized_keys \
     chmod 600 /root/.ssh/authorized_keys && \
     service ssh start    
 
