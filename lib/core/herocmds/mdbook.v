@@ -88,7 +88,7 @@ fn cmd_mdbook_execute(cmd Command) ! {
 		mut plbook, _ := plbook_run(cmd)!
 		// get name from the book.generate action
 		if name == '' {
-			mut a := plbook.action_get(actor: 'mdbook', name: 'define')!
+			mut a := plbook.action_get(actor: 'book', name: 'define')!
 			name = a.params.get('name') or { '' }
 		}
 	} else {
