@@ -1,0 +1,1 @@
+docker run -it --init -p 4000:3000 -v "$(pwd):/home/workspace:cached" gitpod/openvscode-server

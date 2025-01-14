@@ -1,8 +1,9 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
-
+#!/usr/bin/env -S v -n -w -no-retry-compilation -d use_openssl -enable-globals run
+//#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+//-parallel-cc
 import os
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.develop.performance
+// import freeflowuniverse.herolib.develop.performance
 
 mut silent := false
 
@@ -11,6 +12,9 @@ coderoot := if 'CODEROOT' in os.environ() {
 } else {
 	os.join_path(os.home_dir(), 'code')
 }
+
+// timer := performance.new('gittools')
+
 
 mut gs := gittools.get()!
 if coderoot.len > 0 {
@@ -23,5 +27,4 @@ mypath := gs.do(
 	cmd:       'list'
 )!
 
-timer := performance.new('gittools')
-timer.timeline()
+// timer.timeline()

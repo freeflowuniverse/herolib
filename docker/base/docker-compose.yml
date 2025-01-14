@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_service
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: planetfirst
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  herolib:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: herolib
+    volumes:
+      - ~/code:/root/code
+    stdin_open: true
+    tty: true
+    ports:
+      - "8100:4100"
+      - "8101:4101"
+      - "8102:4102"
+      - "6379:4379"
+      - "3000:4000"
+volumes:
+  postgres_data:
+
+
