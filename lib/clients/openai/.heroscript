@@ -1,7 +1,8 @@
+
 !!hero_code.generate_client
-    name: "openai"
-    classname: "OpenAI"
-    hasconfig: false
-    singleton: false
-    default: true
-    title: ""
+    name:'openai'
+    classname:'OpenAI'
+    singleton:0
+    default:1
+	hasconfig:1
+    reset:0

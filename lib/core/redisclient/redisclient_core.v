@@ -18,7 +18,7 @@ pub fn get_redis_url(url string) !RedisURL {
 	}
 }
 
-pub fn core_get(url RedisURL) !Redis {
+pub fn core_get(url RedisURL) !&Redis {
 	mut r := new('${url.address}:${url.port}')!
 	return r
 }

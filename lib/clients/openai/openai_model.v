@@ -2,6 +2,7 @@ module openai
 
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.httpconnection
+import os
 
 pub const version = '1.14.3'
 const singleton = false
@@ -12,7 +13,7 @@ pub fn heroscript_default() !string {
 	heroscript := "
     !!openai.configure 
         name:'openai'
-        key: 'YOUR_API_KEY'
+        api_key: ${os.getenv('OPENAI_API_KEY')}
         "
 
 	return heroscript
@@ -49,6 +50,7 @@ pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
 			name:  'openaiconnection_${client.name}'
 			url:   'https://api.openai.com/v1'
 			cache: false
+			retry: 20
 		)!
 		c2
 	}
