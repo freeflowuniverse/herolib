@@ -48,11 +48,12 @@ pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
 	console.print_lf(1)
 
 	// Display header with optional argument filtering information
-	header := if args.str().len > 0 {
-		'Repositories: ${gitstructure.config.coderoot} [${args.str()}]'
-	} else {
-		'Repositories: ${gitstructure.config.coderoot}'
-	}
+	// header := if args.str().len > 0 {
+	// 	'Repositories: ${gitstructure.config.coderoot} [${args.str()}]'
+	// } else {
+	// 	'Repositories: ${gitstructure.config.coderoot}'
+	// }
+	header:='Repositories: ${gitstructure.config.coderoot}'
 	console.print_header(header)
 
 	// Print the repository information in a formatted array

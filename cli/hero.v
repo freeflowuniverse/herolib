@@ -74,7 +74,7 @@ fn do() ! {
 
 	// herocmds.cmd_bootstrap(mut cmd)
 	// herocmds.cmd_run(mut cmd)
-	// herocmds.cmd_git(mut cmd)
+	herocmds.cmd_git(mut cmd)
 	// herocmds.cmd_init(mut cmd)
 	// herocmds.cmd_imagedownsize(mut cmd)
 	// herocmds.cmd_biztools(mut cmd)

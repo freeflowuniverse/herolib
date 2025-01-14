@@ -14,7 +14,7 @@ COPY scripts/ourinit.sh /usr/local/bin/
 RUN chmod +x /tmp/install_v.sh /tmp/install_herolib.vsh
 
 RUN apt-get update && apt-get install -y \
-    curl bash sudo mc wget tmux
+    curl bash sudo mc wget tmux htop
 
 RUN bash /tmp/install_v.sh
 
@@ -24,6 +24,7 @@ RUN bash /tmp/install_vscode.sh
 
 RUN /tmp/install_herolib.vsh && \
     apt-get clean && \
+    echo "PS1='HERO: \w \$ '" >>  ~/.bashrc \
     rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/bin/bash"]
