@@ -22,18 +22,6 @@ RUN yes y | bash /tmp/install_v.sh --analyzer
 
 RUN bash /tmp/install_vscode.sh
 
-RUN /tmp/install_herolib.vsh && \
-    mkdir -p /var/run/sshd && \
-    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
-    echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config && \
-    chown -R root:root  /root/.ssh && \
-    chmod -R 700 /root/.ssh/ && \
-    chmod 600 /root/.ssh/authorized_keys && \
-    service ssh start && \
-    apt-get clean && \
-    echo "PS1='HERO: \w \$ '" >>  ~/.bashrc \
-    rm -rf /var/lib/apt/lists/*
-
 #SSH
 RUN mkdir -p /var/run/sshd && \
     echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
@@ -43,6 +31,12 @@ RUN mkdir -p /var/run/sshd && \
     touch /root/.ssh/authorized_keys \
     chmod 600 /root/.ssh/authorized_keys && \
     service ssh start    
+
+RUN /tmp/install_herolib.vsh && \
+    apt-get clean && \
+    echo "PS1='HERO: \w \$ '" >>  ~/.bashrc \
+    rm -rf /var/lib/apt/lists/*
+
 
 ENTRYPOINT ["/bin/bash"]
 CMD ["/bin/bash"]
