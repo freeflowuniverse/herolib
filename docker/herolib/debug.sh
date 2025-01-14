@@ -15,4 +15,5 @@ docker run --name herolib -it \
   -p 4101:8101 \
   -p 4102:8102 \
   -p 4379:6379 \
+  -p 4022:22 \
   -p 4000:3000 herolib

@@ -57,5 +57,5 @@ fi
 echo
 echo " ** WE NOW LOGIN TO THE CONTAINER ** "
 echo
-docker exec -it herolib bash -c "PS1='HERO: \w \$ ' /bin/bash"
+docker exec -it herolib bash
 
