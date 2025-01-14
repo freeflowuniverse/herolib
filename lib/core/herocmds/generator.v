@@ -21,7 +21,7 @@ pub fn cmd_generator(mut cmdroot Command) {
 	})
 
 	cmd_run.add_flag(Flag{
-		flag:        .bool
+		flag:        .string
 		required:    false
 		name:        'path'
 		abbrev:      'p'
