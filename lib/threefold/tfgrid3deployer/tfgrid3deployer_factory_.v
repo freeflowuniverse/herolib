@@ -13,7 +13,7 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string = 'default'
+	name string
 }
 
 fn args_get(args_ ArgsGet) ArgsGet {
@@ -30,16 +30,18 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&TFGridDeployer {
 	mut args := args_get(args_)
 	if args.name !in tfgrid3deployer_global {
-		if !config_exists() {
-			if default {
-				config_save()!
+		if args.name == 'default' {
+			if !config_exists(args) {
+				if default {
+					config_save(args)!
+				}
 			}
+			config_load(args)!
 		}
-		config_load()!
 	}
 	return tfgrid3deployer_global[args.name] or {
 		println(tfgrid3deployer_global)
-		panic('bug in get from factory: ')
+		panic('could not get config for tfgrid3deployer with name:${args.name}')
 	}
 }
 
@@ -64,22 +66,16 @@ fn config_save(args_ ArgsGet) ! {
 
 fn set(o TFGridDeployer) ! {
 	mut o2 := obj_init(o)!
-	tfgrid3deployer_global['default'] = &o2
+	tfgrid3deployer_global[o.name] = &o2
+	tfgrid3deployer_default = o.name
 }
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-	name       string = 'default'
 	heroscript string // if filled in then plbook will be made out of it
 	plbook     ?playbook.PlayBook
 	reset      bool
-
-	start     bool
-	stop      bool
-	restart   bool
-	delete    bool
-	configure bool // make sure there is at least one installed
 }
 
 pub fn play(args_ PlayArgs) ! {
@@ -94,8 +90,7 @@ pub fn play(args_ PlayArgs) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
-			mycfg := cfg_play(p)!
-			set(mycfg)!
+			cfg_play(p)!
 		}
 	}
 }
