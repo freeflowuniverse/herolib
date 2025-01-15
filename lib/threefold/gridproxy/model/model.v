@@ -102,5 +102,3 @@ pub fn (u DropTFTUnit) str() string {
 	}
 	return '${u64(u)} dTFT' // Short for dropTFT (1 TFT = 10_000_000 drops). dylan suggests the name and i'm using this till we have an officail name!
 }
-
-struct EmptyOption {}

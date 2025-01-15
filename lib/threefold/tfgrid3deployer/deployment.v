@@ -131,11 +131,11 @@ fn (mut self TFDeployment) set_nodes() ! {
 			free_mru:      convert_to_gigabytes(u64(vm.requirements.memory))
 			total_cru:     u64(vm.requirements.cpu)
 			free_sru:      convert_to_gigabytes(u64(vm.requirements.size))
-			available_for: gridproxy_models.OptionU64(u64(self.deployer.twin_id))
+			available_for: u64(self.deployer.twin_id)
 			free_ips:      if vm.requirements.public_ip4 { u64(1) } else { none }
 			has_ipv6:      if vm.requirements.public_ip6 { vm.requirements.public_ip6 } else { none }
 			status:        'up'
-			features:      if vm.requirements.public_ip4 { [] } else { ['zmachine'] }
+			features:      if vm.requirements.public_ip4 { ['zmachine'] } else { [] }
 		)!
 
 		if nodes.len == 0 {
@@ -158,7 +158,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			status:        'up'
 			healthy:       true
 			node_id:       zdb.requirements.node_id
-			available_for: gridproxy_models.OptionU64(u64(self.deployer.twin_id))
+			available_for: u64(self.deployer.twin_id)
 		)!
 
 		if nodes.len == 0 {
@@ -178,7 +178,8 @@ fn (mut self TFDeployment) set_nodes() ! {
 			status:        'up'
 			healthy:       true
 			node_id:       webname.requirements.node_id
-			available_for: gridproxy_models.OptionU64(u64(self.deployer.twin_id))
+			available_for: u64(self.deployer.twin_id)
+			features:      ['zmachine']
 		)!
 
 		if nodes.len == 0 {
