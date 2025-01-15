@@ -116,7 +116,6 @@ pub fn play(args_ PlayArgs) ! {
         for install_action in install_actions {
             mut p := install_action.params
             cfg_play(p)!
-            console.print_debug("install action ${args.name}.configure\n??{mycfg}")
         }
     }
     @end
