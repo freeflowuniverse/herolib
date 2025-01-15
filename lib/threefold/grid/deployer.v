@@ -235,7 +235,7 @@ pub fn (mut d Deployer) wait_deployment(node_id u32, mut dl models.Deployment, w
 		if (time.now() - start).minutes() > 5 {
 			return error('failed to deploy deployment: contractID: ${contract_id}, some workloads are not ready after wating 5 minutes')
 		} else {
-			d.logger.info('Waiting for deployment to become ready')
+			d.logger.info('Waiting for deployment with contract ${contract_id} to become ready')
 			time.sleep(500 * time.millisecond)
 		}
 	}

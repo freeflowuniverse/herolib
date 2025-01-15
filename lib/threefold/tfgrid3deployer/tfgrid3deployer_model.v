@@ -39,7 +39,7 @@ pub mut:
 	network  Network
 }
 
-fn cfg_play(p paramsparser.Params) !TFGridDeployer {
+fn cfg_play(p paramsparser.Params) ! {
 	network_str := p.get_default('network', 'main')!
 	network := match network_str {
 		'dev' { Network.dev }
@@ -53,7 +53,7 @@ fn cfg_play(p paramsparser.Params) !TFGridDeployer {
 		mnemonic: p.get_default('mnemonic', '')!
 		network:  network
 	}
-	return mycfg
+	set(mycfg)!
 }
 
 fn obj_init(obj_ TFGridDeployer) !TFGridDeployer {

@@ -90,6 +90,11 @@ fn (mut st DeploymentSetup) setup_network_workloads(vms []VMachine, old_deployme
 // Returns:
 // - None
 fn (mut self DeploymentSetup) setup_vm_workloads(machines []VMachine) ! {
+	if machines.len == 0 {
+		return
+	}
+
+	console.print_header('Preparing Zmachine workloads.')
 	mut used_ip_octets := map[u32][]u8{}
 	for machine in machines {
 		mut req := machine.requirements
@@ -100,7 +105,6 @@ fn (mut self DeploymentSetup) setup_vm_workloads(machines []VMachine) ! {
 			self.set_public_ip_workload(machine.node_id, public_ip_name, req)!
 		}
 
-		console.print_header('Creating Zmachine workload.')
 		self.set_zmachine_workload(machine, public_ip_name, mut used_ip_octets)!
 	}
 }
@@ -114,10 +118,14 @@ fn (mut self DeploymentSetup) setup_vm_workloads(machines []VMachine) ! {
 //
 // Each ZDB is processed to convert the requirements into a grid workload and associated with a healthy node.
 fn (mut self DeploymentSetup) setup_zdb_workloads(zdbs []ZDB) ! {
+	if zdbs.len == 0 {
+		return
+	}
+
+	console.print_header('Preparing ZDB workloads.')
 	for zdb in zdbs {
 		// Retrieve ZDB requirements from the result
 		mut req := zdb.requirements
-		console.print_header('Creating a ZDB workload for `${req.name}` DB.')
 
 		// Create the Zdb model with the size converted to bytes
 		zdb_model := grid_models.Zdb{
@@ -150,6 +158,11 @@ fn (mut self DeploymentSetup) setup_zdb_workloads(zdbs []ZDB) ! {
 // Returns:
 // - None
 fn (mut self DeploymentSetup) setup_webname_workloads(webnames []WebName) ! {
+	if webnames.len == 0 {
+		return
+	}
+
+	console.print_header('Preparing WebName workloads.')
 	for wn in webnames {
 		req := wn.requirements
 
@@ -238,7 +251,7 @@ fn (mut self DeploymentSetup) set_zmachine_workload(vmachine VMachine, public_ip
 // - public_ip_name: Name of the public IP to assign to the workload
 fn (mut self DeploymentSetup) set_public_ip_workload(node_id u32, public_ip_name string, vm VMRequirements) ! {
 	// Add the public IP workload
-	console.print_header('Creating Public IP workload.')
+	console.print_header('Preparing Public IP workload for node ${node_id}.')
 	public_ip_workload := grid_models.PublicIP{
 		v4: vm.public_ip4
 		v6: vm.public_ip6
@@ -257,7 +270,6 @@ fn (mut self DeploymentSetup) set_public_ip_workload(node_id u32, public_ip_name
 // Throws:
 // - Error if failed to assign a private IP in the subnet
 fn (mut self DeploymentSetup) assign_private_ip(node_id u32, mut used_ip_octets map[u32][]u8) !string {
-	console.print_header('Assign private IP to node ${node_id}.')
 	ip := self.network_handler.wg_subnet[node_id].split('/')[0]
 	mut split_ip := ip.split('.')
 	last_octet := ip.split('.').last().u8()
@@ -268,7 +280,6 @@ fn (mut self DeploymentSetup) assign_private_ip(node_id u32, mut used_ip_octets 
 		split_ip[3] = '${candidate}'
 		used_ip_octets[node_id] << candidate
 		ip_ := split_ip.join('.')
-		console.print_header('Private IP Assigned: ${ip_}.')
 		return ip_
 	}
 	return error('failed to assign private IP in subnet: ${self.network_handler.wg_subnet[node_id]}')
