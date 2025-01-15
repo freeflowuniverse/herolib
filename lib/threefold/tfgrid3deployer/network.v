@@ -43,7 +43,7 @@ fn (mut self NetworkHandler) create_network(vmachines []VMachine) ! {
 		}
 	}
 
-	console.print_header('Loaded nodes: ${self.nodes}.')
+	console.print_header('Network nodes: ${self.nodes}.')
 	self.setup_wireguard_data()!
 	self.setup_access_node()!
 }
@@ -110,15 +110,24 @@ fn (mut self NetworkHandler) setup_access_node() ! {
 	console.print_header('No public nodes found based on your specs.')
 	console.print_header('Requesting the Proxy to assign a public node.')
 
-	mut myfilter := gridproxy.nodefilter()!
-	myfilter.ipv4 = true // Only consider nodes with IPv4
-	myfilter.status = 'up'
-	myfilter.healthy = true
+	nodes := filter_nodes(
+		ipv4:          true
+		status:        'up'
+		healthy:       true
+		available_for: u64(self.deployer.twin_id)
+		features:      [
+			'zmachine',
+		]
+	)!
+	if nodes.len == 0 {
+		return error('Requested the Grid Proxy and no nodes found.')
+	}
 
-	nodes := filter_nodes(myfilter)!
-	access_node := nodes[0]
-
+	access_node := pick_node(mut self.deployer, nodes) or {
+		return error('Failed to pick valid node: ${err}')
+	}
 	self.public_node = u32(access_node.node_id)
+
 	console.print_header('Public node ${self.public_node}')
 
 	self.nodes << self.public_node

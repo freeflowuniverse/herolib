@@ -145,7 +145,9 @@ fn (mut self TFDeployment) set_nodes() ! {
 			return error('Requested the Grid Proxy and no nodes found.')
 		}
 
-		vm.node_id = self.pick_node(nodes) or { return error('Failed to pick valid node: ${err}') }
+		vm.node_id = u32(pick_node(mut self.deployer, nodes) or {
+			return error('Failed to pick valid node: ${err}')
+		}.node_id)
 	}
 
 	for mut zdb in self.zdbs {
@@ -165,7 +167,9 @@ fn (mut self TFDeployment) set_nodes() ! {
 			return error('Requested the Grid Proxy and no nodes found.')
 		}
 
-		zdb.node_id = self.pick_node(nodes) or { return error('Failed to pick valid node: ${err}') }
+		zdb.node_id = u32(pick_node(mut self.deployer, nodes) or {
+			return error('Failed to pick valid node: ${err}')
+		}.node_id)
 	}
 
 	for mut webname in self.webnames {
@@ -186,9 +190,9 @@ fn (mut self TFDeployment) set_nodes() ! {
 			return error('Requested the Grid Proxy and no nodes found.')
 		}
 
-		webname.node_id = self.pick_node(nodes) or {
+		webname.node_id = u32(pick_node(mut self.deployer, nodes) or {
 			return error('Failed to pick valid node: ${err}')
-		}
+		}.node_id)
 	}
 }
 
@@ -507,37 +511,4 @@ pub fn (mut self TFDeployment) list_deployments() !map[u32]grid_models.Deploymen
 	}
 
 	return dls
-}
-
-fn (mut self TFDeployment) pick_node(nodes []gridproxy_models.Node) !u32 {
-	mut node_id := ?u32(none)
-	mut checked := []bool{len: nodes.len}
-	mut checked_cnt := 0
-	for checked_cnt < nodes.len {
-		idx := int(rand.u32() % u32(nodes.len))
-		if checked[idx] {
-			continue
-		}
-
-		checked[idx] = true
-		checked_cnt += 1
-		if self.ping_node(u32(nodes[idx].twin_id)) {
-			node_id = u32(nodes[idx].node_id)
-			break
-		}
-	}
-
-	if v := node_id {
-		return v
-	} else {
-		return error('No node is reachable.')
-	}
-}
-
-fn (mut self TFDeployment) ping_node(twin_id u32) bool {
-	if _ := self.deployer.client.get_zos_version(twin_id) {
-		return true
-	} else {
-		return false
-	}
 }
