@@ -163,7 +163,6 @@ pub fn to_map[T](t T) map[string]string {
 			encode_val(field.name, value, mut m)
 		}
 	}
-	println('encoded map: ${m}')
 	return m
 }
 
