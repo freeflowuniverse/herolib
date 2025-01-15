@@ -75,12 +75,35 @@ pub fn get_deployment(name string) !TFDeployment {
 	return dl
 }
 
+pub fn delete_deployment(name string) ! {
+	mut deployer := get_deployer()!
+	mut dl := TFDeployment{
+		name:     name
+		kvstore:  KVStoreFS{}
+		deployer: &deployer
+	}
+
+	dl.load() or { return error('Faild to load the deployment due to: ${err}') }
+
+	console.print_header('Current deployment contracts: ${dl.contracts}')
+	mut contracts := []u64{}
+	contracts << dl.contracts.name
+	contracts << dl.contracts.node.values()
+	contracts << dl.contracts.rent.values()
+
+	dl.deployer.client.batch_cancel_contracts(contracts)!
+	console.print_header('Deployment contracts are canceled successfully.')
+
+	dl.kvstore.delete(dl.name)!
+	console.print_header('Deployment is deleted successfully.')
+}
+
 pub fn (mut self TFDeployment) deploy() ! {
 	console.print_header('Starting deployment process.')
 	self.set_nodes()!
 	old_deployment := self.list_deployments()!
 
-	println('old_deployment ${old_deployment}')
+	console.print_header('old contract ids: ${old_deployment.keys()}')
 
 	mut setup := new_deployment_setup(self.network, self.vms, self.zdbs, self.webnames,
 		old_deployment, mut self.deployer)!
@@ -92,6 +115,10 @@ pub fn (mut self TFDeployment) deploy() ! {
 
 fn (mut self TFDeployment) set_nodes() ! {
 	for mut vm in self.vms {
+		if vm.node_id != 0 {
+			continue
+		}
+
 		mut node_ids := []u64{}
 
 		for node_id in vm.requirements.nodes {
@@ -122,6 +149,10 @@ fn (mut self TFDeployment) set_nodes() ! {
 	}
 
 	for mut zdb in self.zdbs {
+		if zdb.node_id != 0 {
+			continue
+		}
+
 		nodes := filter_nodes(
 			free_sru:      convert_to_gigabytes(u64(zdb.requirements.size))
 			status:        'up'
@@ -138,6 +169,10 @@ fn (mut self TFDeployment) set_nodes() ! {
 	}
 
 	for mut webname in self.webnames {
+		if webname.node_id != 0 {
+			continue
+		}
+
 		nodes := filter_nodes(
 			domain:        true
 			status:        'up'
@@ -205,7 +240,6 @@ fn (mut self TFDeployment) finalize_deployment(setup DeploymentSetup) ! {
 	}
 
 	if create_name_contracts.len > 0 || create_deployments.len > 0 {
-		console.print_header('Attempting batch deployment')
 		created_name_contracts_map, ret_dls := self.deployer.batch_deploy(create_name_contracts, mut
 			create_deployments, none)!
 

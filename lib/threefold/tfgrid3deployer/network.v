@@ -169,17 +169,10 @@ fn (mut self NetworkHandler) setup_wireguard_data() ! {
 		}
 
 		self.wg_ports[node_id] = self.deployer.assign_wg_port(node_id)!
-		console.print_header('Assign Wireguard port for node ${node_id}.')
 
-		console.print_header('Generate Wireguard keys for node ${node_id}.')
 		self.wg_keys[node_id] = self.deployer.client.generate_wg_priv_key()!
-		console.print_header('Wireguard keys for node ${node_id} are ${self.wg_keys[node_id]}.')
 
-		console.print_header('Calculate subnet for node ${node_id}.')
 		self.wg_subnet[node_id] = self.calculate_subnet()!
-		console.print_header('Node ${node_id} subnet is ${self.wg_subnet[node_id]}.')
-
-		console.print_header('Node ${node_id} public config ${public_config}.')
 
 		if public_config.ipv4.len != 0 {
 			self.endpoints[node_id] = public_config.ipv4.split('/')[0]
