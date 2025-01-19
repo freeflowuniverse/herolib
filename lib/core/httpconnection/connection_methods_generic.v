@@ -12,6 +12,20 @@ pub fn (mut h HTTPConnection) post_json_generic[T](req Request) !T {
 	return json.decode(T, data) or { return error("couldn't decode json for ${req} for ${data}") }
 }
 
+// TODO
+pub fn (mut h HTTPConnection) put_json_generic[T](req Request) !T {
+	// data := h.put_json_str(req)!
+	// return json.decode(T, data) or { return error("couldn't decode json for ${req} for ${data}") }
+	return T{}
+}
+
+// TODO
+pub fn (mut h HTTPConnection) delete_json_generic[T](req Request) !T {
+	// data := h.delete_json_str(req)!
+	// return json.decode(T, data) or { return error("couldn't decode json for ${req} for ${data}") }
+	return T{}
+}
+
 pub fn (mut h HTTPConnection) get_json_list_generic[T](req Request) ![]T {
 	mut r := []T{}
 	for item in h.get_json_list(req)! {
