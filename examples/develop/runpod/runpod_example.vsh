@@ -6,14 +6,16 @@ import freeflowuniverse.herolib.clients.runpod
 // Example 1: Create client with direct API key
 mut rp := runpod.get_or_create(
 	name:    'example1'
-	api_key: 'rpa_1G9W44SJM2A70ILYQSPAPEKDCTT181SRZGZK03A22lpazg'
+	api_key: 'rpa_JDYDWBS0PDTC55T1BYT1PX85CL4D5YEBZ48LETRXyf4gxr'
 )!
 
 // Create a new pod
-
 pod_response := rp.create_pod(
-	name:       'test-pod'
+	name:       'RunPod Tensorflow'
 	image_name: 'runpod/tensorflow'
+	env: [
+		{"JUPYTER_PASSWORD": "rn51hunbpgtltcpac3ol"}
+	]
 )!
 
 println('Created pod with ID: ${pod_response.id}')

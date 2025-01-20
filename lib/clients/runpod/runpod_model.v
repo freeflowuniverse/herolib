@@ -23,11 +23,31 @@ pub mut:
 	base_url string = 'https://api.runpod.io/v1'
 }
 
+enum CloudType {
+	all
+	secure
+	community
+}
+
+fn (ct CloudType) to_string() string {
+	return match ct {
+		.all {
+			'ALL'
+		}
+		.secure {
+			'SECURE'
+		}
+		.community {
+			'COMMUNITY'
+		}
+	}
+}
+
 // Input structure for the mutation
 @[params]
 pub struct PodFindAndDeployOnDemandRequest {
 pub mut:
-	cloud_type           string              = 'ALL'              @[json: 'cloudType']
+	cloud_type           CloudType           = .all           @[json: 'cloudType']
 	gpu_count            int                 = 1                 @[json: 'gpuCount']
 	volume_in_gb         int                 = 40                 @[json: 'volumeInGb']
 	container_disk_in_gb int                 = 40                 @[json: 'containerDiskInGb']
@@ -69,7 +89,10 @@ pub fn new(api_key string) !&RunPod {
 
 // create_endpoint creates a new endpoint
 pub fn (mut rp RunPod) create_pod(pod PodFindAndDeployOnDemandRequest) !PodFindAndDeployOnDemandResponse {
-	response := rp.create_pod_request(pod)!
+	response_type := PodFindAndDeployOnDemandResponse{}
+	request_type := pod
+	response := rp.create_pod_request[PodFindAndDeployOnDemandRequest, PodFindAndDeployOnDemandResponse](request_type,
+		response_type)!
 	return response
 }
 
