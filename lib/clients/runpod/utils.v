@@ -3,7 +3,7 @@ module runpod
 import freeflowuniverse.herolib.core.httpconnection
 import json
 
-fn (mut rp RunPod) get_field_name(field FieldData) string {
+fn get_field_name(field FieldData) string {
 	mut field_name := ''
 	// Process attributes to fetch the JSON field name or fallback to field name
 	if field.attrs.len > 0 {
@@ -20,53 +20,49 @@ fn (mut rp RunPod) get_field_name(field FieldData) string {
 	return field_name
 }
 
-fn (mut rp RunPod) get_request_fields[T](struct_ T) string {
+fn get_request_fields[T](struct_ T) string {
 	// Start the current level
 	mut body_ := '{ '
 	mut fields := []string{}
 
 	$for field in T.fields {
 		mut string_ := ''
-		string_ += rp.get_field_name(field)
-		string_ += ': '
-
-		$if field.is_enum {
-			string_ += struct_.$(field.name).to_string()
-		}
-
+		omit := 'omitempty' in field.attrs
+		mut empty_string := false
 		$if field.typ is string {
-			item := struct_.$(field.name)
-			string_ += "\"${item}\""
+			empty_string = struct_.$(field.name) == ''
 		}
+		if !omit || !empty_string {
+			string_ += get_field_name(field)
+			string_ += ': '
 
-		$if field.typ is int {
-			item := struct_.$(field.name)
-			string_ += '${item}'
-		}
-
-		// TODO: Loop only on the env map
-		$if field.is_array {
-			for i in struct_.$(field.name) {
-				for k, v in i {
-					string_ += '[{ '
-					string_ += "key: \"${k}\", value: \"${v}\""
-					string_ += ' }]'
+			$if field.is_enum {
+				string_ += struct_.$(field.name).to_string()
+			} $else $if field.typ is string {
+				item := struct_.$(field.name)
+				string_ += "\"${item}\""
+			} $else $if field.is_array {
+				string_ += '['
+				for i in struct_.$(field.name) {
+					string_ += get_request_fields(i)
 				}
+				string_ += ']'
+			} $else $if field.is_struct {
+				string_ += get_request_fields(struct_.$(field.name))
+			} $else {
+				item := struct_.$(field.name)
+				string_ += '${item}'
 			}
-		}
 
-		$if field.is_struct {
-			rp.get_request_fields(struct_.$(field.name))
+			fields << string_
 		}
-
-		fields << string_
 	}
 	body_ += fields.join(', ')
 	body_ += ' }'
 	return body_
 }
 
-fn (mut rp RunPod) get_response_fields[R](struct_ R) string {
+fn get_response_fields[R](struct_ R) string {
 	// Start the current level
 	mut body_ := '{ '
 
@@ -74,9 +70,9 @@ fn (mut rp RunPod) get_response_fields[R](struct_ R) string {
 		$if field.is_struct {
 			// Recursively process nested structs
 			body_ += '${field.name} '
-			body_ += rp.get_response_fields(struct_.$(field.name))
+			body_ += get_response_fields(struct_.$(field.name))
 		} $else {
-			body_ += rp.get_field_name(field)
+			body_ += get_field_name(field)
 			body_ += ' '
 		}
 	}
@@ -84,16 +80,28 @@ fn (mut rp RunPod) get_response_fields[R](struct_ R) string {
 	return body_
 }
 
-fn (mut rp RunPod) build_query[T, R](request T, response R) string {
+pub enum QueryType {
+	query
+	mutation
+}
+
+@[params]
+pub struct BuildQueryArgs {
+pub:
+	query_type  QueryType // query or mutation
+	method_name string
+}
+
+fn build_query[T, R](args BuildQueryArgs, request T, response R) string {
 	// Convert input to JSON
 	// input_json := json.encode(request)
 
 	// Build the GraphQL mutation string
-	mut request_fields := rp.get_request_fields(request)
-	mut response_fields := rp.get_response_fields(response)
+	mut request_fields := get_request_fields(request)
+	mut response_fields := get_response_fields(response)
 
 	// Wrap the query correctly
-	query := 'mutation { podFindAndDeployOnDemand(input: ${request_fields}) ${response_fields} }'
+	query := '${args.query_type.to_string()} { ${args.method_name}(input: ${request_fields}) ${response_fields} }'
 
 	// Wrap in the final structure
 	gql := GqlQuery{
@@ -102,6 +110,17 @@ fn (mut rp RunPod) build_query[T, R](request T, response R) string {
 
 	// Return the final GraphQL query as a JSON string
 	return json.encode(gql)
+}
+
+fn (q QueryType) to_string() string {
+	return match q {
+		.query {
+			'query'
+		}
+		.mutation {
+			'mutation'
+		}
+	}
 }
 
 enum HTTPMethod {

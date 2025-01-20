@@ -28,19 +28,25 @@ struct GqlQuery {
 }
 
 // GraphQL response wrapper
-struct GqlResponse {
-	data GqlResponseData
+struct GqlResponse[T] {
+	data map[string]T
 }
 
-struct GqlResponseData {
-	pod_find_and_deploy_on_demand PodFindAndDeployOnDemandResponse @[json: 'podFindAndDeployOnDemand']
-}
+// struct GqlResponseData[T] {
+// 	pod_find_and_deploy_on_demand T @[json: 'podFindAndDeployOnDemand']
+// }
 
-fn (mut rp RunPod) create_pod_request[T, R](request T, response R) !R {
-	gql := rp.build_query[T, R](request, response)
+fn (mut rp RunPod) create_pop_find_and_deploy_on_demand_request(request PodFindAndDeployOnDemandRequest) !PodFindAndDeployOnDemandResponse {
+	gql := build_query(BuildQueryArgs{
+		query_type:  .mutation
+		method_name: 'podFindAndDeployOnDemand'
+	}, request, PodFindAndDeployOnDemandResponse{})
 	println('gql: ${gql}')
-	response_ := rp.make_request[GqlResponse](.post, '/graphql', gql)!
+	response_ := rp.make_request[GqlResponse[PodFindAndDeployOnDemandResponse]](.post,
+		'/graphql', gql)!
 	println('response: ${json.encode(response_)}')
-	return response
+	return response_.data['podFindAndDeployOnDemand'] or {
+		return error('Could not find podFindAndDeployOnDemand in response data: ${response_.data}')
+	}
 	// return response.data.pod_find_and_deploy_on_demand
 }

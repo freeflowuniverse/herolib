@@ -23,7 +23,7 @@ pub mut:
 	base_url string = 'https://api.runpod.io/v1'
 }
 
-enum CloudType {
+pub enum CloudType {
 	all
 	secure
 	community
@@ -47,34 +47,41 @@ fn (ct CloudType) to_string() string {
 @[params]
 pub struct PodFindAndDeployOnDemandRequest {
 pub mut:
-	cloud_type           CloudType           = .all           @[json: 'cloudType']
-	gpu_count            int                 = 1                 @[json: 'gpuCount']
-	volume_in_gb         int                 = 40                 @[json: 'volumeInGb']
-	container_disk_in_gb int                 = 40                 @[json: 'containerDiskInGb']
-	min_vcpu_count       int                 = 2                 @[json: 'minVcpuCount']
-	min_memory_in_gb     int                 = 15                 @[json: 'minMemoryInGb']
-	gpu_type_id          string              = 'NVIDIA RTX A6000'              @[json: 'gpuTypeId']
-	name                 string              = 'RunPod Tensorflow'              @[json: 'name']
-	image_name           string              = 'runpod/tensorflow'              @[json: 'imageName']
-	docker_args          string              = ''              @[json: 'dockerArgs']
-	ports                string              = '8888/http'              @[json: 'ports']
-	volume_mount_path    string              = '/workspace'              @[json: 'volumeMountPath']
-	env                  []map[string]string = [] @[json: 'env']
+	cloud_type           CloudType = .all                  @[json: 'cloudType']
+	gpu_count            int       = 1                        @[json: 'gpuCount']
+	volume_in_gb         int       = 40                        @[json: 'volumeInGb']
+	container_disk_in_gb int       = 40                        @[json: 'containerDiskInGb']
+	min_vcpu_count       int       = 2                        @[json: 'minVcpuCount']
+	min_memory_in_gb     int       = 15                        @[json: 'minMemoryInGb']
+	gpu_type_id          string    = 'NVIDIA RTX A6000'                     @[json: 'gpuTypeId']
+	name                 string    = 'RunPod Tensorflow'                     @[json: 'name']
+	image_name           string    = 'runpod/tensorflow'                     @[json: 'imageName']
+	docker_args          string    = ''                     @[json: 'dockerArgs']
+	ports                string    = '8888/http'                     @[json: 'ports']
+	volume_mount_path    string    = '/workspace'                     @[json: 'volumeMountPath']
+	env                  []EnvironmentVariableInput @[json: 'env']
+}
+
+pub struct EnvironmentVariableInput {
+pub:
+	key   string
+	value string
 }
 
 // Represents the nested machine structure in the response
-struct Machine {
+pub struct Machine {
+pub:
 	pod_host_id string @[json: 'podHostId']
 }
 
 // Response structure for the mutation
 pub struct PodFindAndDeployOnDemandResponse {
 pub:
-	id         string              @[json: 'id']
-	image_name string              @[json: 'imageName']
-	env        []map[string]string @[json: 'env']
-	machine_id int                 @[json: 'machineId']
-	machine    Machine             @[json: 'machine']
+	id         string   @[json: 'id']
+	image_name string   @[json: 'imageName']
+	env        []string @[json: 'env']
+	machine_id int      @[json: 'machineId']
+	machine    Machine  @[json: 'machine']
 }
 
 // new creates a new RunPod client
@@ -88,76 +95,58 @@ pub fn new(api_key string) !&RunPod {
 }
 
 // create_endpoint creates a new endpoint
-pub fn (mut rp RunPod) create_pod(pod PodFindAndDeployOnDemandRequest) !PodFindAndDeployOnDemandResponse {
+pub fn (mut rp RunPod) create_on_demand_pod(pod PodFindAndDeployOnDemandRequest) !PodFindAndDeployOnDemandResponse {
 	response_type := PodFindAndDeployOnDemandResponse{}
 	request_type := pod
-	response := rp.create_pod_request[PodFindAndDeployOnDemandRequest, PodFindAndDeployOnDemandResponse](request_type,
-		response_type)!
+	response := rp.create_pop_find_and_deploy_on_demand_request(request_type)!
 	return response
 }
 
-// // list_endpoints lists all endpoints
-// pub fn (mut rp RunPod) list_endpoints() ![]Endpoint {
-// 	response := rp.list_endpoints_request()!
-// 	endpoints := json.decode([]Endpoint, response) or {
-// 		return error('Failed to parse endpoints from response: ${response}')
-// 	}
-// 	return endpoints
-// }
+@[params]
+pub struct PodRentInterruptableInput {
+pub mut:
+	port                  int                        @[json: 'port']
+	network_volume_id     string                     @[json: 'networkVolumeId'; omitempty]
+	start_jupyter         bool                       @[json: 'startJupyter']
+	start_ssh             bool                       @[json: 'startSsh']
+	bid_per_gpu           f32                        @[json: 'bidPerGpu']
+	cloud_type            CloudType                  @[json: 'cloudType']
+	container_disk_in_gb  int                        @[json: 'containerDiskInGb']
+	country_code          string                     @[json: 'countryCode'; omitempty]
+	docker_args           string                     @[json: 'dockerArgs'; omitempty]
+	env                   []EnvironmentVariableInput @[json: 'env']
+	gpu_count             int                        @[json: 'gpuCount']
+	gpu_type_id           string                     @[json: 'gpuTypeId'; omitempty]
+	image_name            string                     @[json: 'imageName'; omitempty]
+	min_disk              int                        @[json: 'minDisk']
+	min_download          int                        @[json: 'minDownload']
+	min_memory_in_gb      int                        @[json: 'minMemoryInGb']
+	min_upload            int                        @[json: 'minUpload']
+	min_vcpu_count        int                        @[json: 'minVcpuCount']
+	name                  string                     @[json: 'name'; omitempty]
+	ports                 string                     @[json: 'ports'; omitempty]
+	stop_after            string                     @[json: 'stopAfter'; omitempty]
+	support_public_ip     bool                       @[json: 'supportPublicIp']
+	template_id           string                     @[json: 'templateId'; omitempty]
+	terminate_after       string                     @[json: 'terminateAfter'; omitempty]
+	volume_in_gb          int                        @[json: 'volumeInGb']
+	volume_key            string                     @[json: 'volumeKey'; omitempty]
+	volume_mount_path     string                     @[json: 'volumeMountPath'; omitempty]
+	data_center_id        string                     @[json: 'dataCenterId'; omitempty]
+	cuda_version          string                     @[json: 'cudeVersion'; omitempty]
+	allowed_cuda_versions []string                   @[json: 'allowedCudaVersions']
+}
 
-// // get_endpoint gets an endpoint by ID
-// pub fn (mut rp RunPod) get_endpoint(id string) !Endpoint {
-// 	response := rp.get_endpoint_request(id)!
-// 	endpoint := json.decode(Endpoint, response) or {
-// 		return error('Failed to parse endpoint from response: ${response}')
-// 	}
-// 	return endpoint
-// }
-
-// // delete_endpoint deletes an endpoint
-// pub fn (mut rp RunPod) delete_endpoint(id string) ! {
-// 	rp.delete_endpoint_request(id)!
-// }
-
-// // list_gpu_instances lists available GPU instances
-// pub fn (mut rp RunPod) list_gpu_instances() ![]GPUInstance {
-// 	response := rp.list_gpu_instances_request()!
-// 	instances := json.decode([]GPUInstance, response) or {
-// 		return error('Failed to parse GPU instances from response: ${response}')
-// 	}
-// 	return instances
-// }
-
-// // run_on_endpoint runs a request on an endpoint
-// pub fn (mut rp RunPod) run_on_endpoint(endpoint_id string, request RunRequest) !RunResponse {
-// 	response := rp.run_on_endpoint_request(endpoint_id, request)!
-// 	run_response := json.decode(RunResponse, response) or {
-// 		return error('Failed to parse run response: ${response}')
-// 	}
-// 	return run_response
-// }
-
-// // get_run_status gets the status of a run
-// pub fn (mut rp RunPod) get_run_status(endpoint_id string, run_id string) !RunResponse {
-// 	response := rp.get_run_status_request(endpoint_id, run_id)!
-// 	run_response := json.decode(RunResponse, response) or {
-// 		return error('Failed to parse run status response: ${response}')
-// 	}
-// 	return run_response
-// }
-
-// // cfg_play configures a RunPod instance from heroscript parameters
-// fn cfg_play(p paramsparser.Params) ! {
-// 	mut rp := RunPod{
-// 		name:     p.get_default('name', 'default')!
-// 		api_key:  p.get('api_key')!
-// 		base_url: p.get_default('base_url', 'https://api.runpod.io/v1')!
-// 	}
-// 	set(rp)!
-// }
-
-// fn obj_init(obj_ RunPod) !RunPod {
-// 	// never call get here, only thing we can do here is work on object itself
-// 	mut obj := obj_
-// 	return obj
-// }
+pub fn (mut rp RunPod) create_spot_pod(input PodRentInterruptableInput) !PodFindAndDeployOnDemandResponse {
+	gql := build_query(BuildQueryArgs{
+		query_type:  .mutation
+		method_name: 'podRentInterruptable'
+	}, input, PodFindAndDeployOnDemandResponse{})
+	println('gql: ${gql}')
+	response_ := rp.make_request[GqlResponse[PodFindAndDeployOnDemandResponse]](.post,
+		'/graphql', gql)!
+	println('response: ${response_}')
+	return response_.data['podRentInterruptable'] or {
+		return error('Could not find podRentInterruptable in response data: ${response_.data}')
+	}
+}
