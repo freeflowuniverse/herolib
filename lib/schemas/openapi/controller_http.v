@@ -4,11 +4,17 @@ import veb
 import freeflowuniverse.herolib.schemas.jsonschema {Schema}
 import x.json2 {Any}
 import net.http
+import os
+
+const templates = os.join_path(os.dir(@FILE), 'templates')
 
 pub struct HTTPController {
+    veb.StaticHandler
     Handler // Handles OpenAPI requests
 pub:
+    base_url string
     specification OpenAPI
+    specification_path string
 }
 
 pub struct Context {
@@ -16,15 +22,27 @@ pub struct Context {
 }
 
 // Creates a new HTTPController instance
-pub fn new_http_controller(c HTTPController) &HTTPController {
-	return &HTTPController{
+pub fn new_http_controller(c HTTPController) !&HTTPController {
+	mut ctrl := HTTPController{
         ...c,
         Handler: c.Handler
     }
+
+    if c.specification_path != '' {
+        if !os.exists(c.specification_path) {
+            return error('OpenAPI Specification not found in path.')
+        }
+        ctrl.serve_static('/openapi.json', c.specification_path)!
+    }
+    return &ctrl
+}
+
+pub fn (mut c HTTPController) index(mut ctx Context) veb.Result {
+return ctx.html($tmpl('templates/swagger.html'))
 }
 
 @['/:path...'; get; post; put; delete; patch]
-pub fn (mut c HTTPController) index(mut ctx Context, path string) veb.Result {
+pub fn (mut c HTTPController) endpoints(mut ctx Context, path string) veb.Result {
 	println('Requested path: $path')
 
     // Extract the HTTP method

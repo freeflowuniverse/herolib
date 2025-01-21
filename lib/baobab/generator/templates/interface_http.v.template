@@ -4,14 +4,33 @@ import freeflowuniverse.herolib.schemas.openrpc { OpenRPC }
 import freeflowuniverse.herolib.baobab.stage.interfaces { HTTPServer, Context }
 import veb
 
-pub fn new_http_server() !&HTTPServer {
+@@[params]
+pub struct ServerParams {
+pub:
+    base_url string
+    port int = 8080
+}
+
+pub fn new_http_server(params ServerParams) !&HTTPServer {
     mut s := interfaces.new_http_server()!
-	mut openrpc_controller := new_openrpc_http_controller()!
+    @if openrpc
+	mut openrpc_controller := new_openrpc_http_controller(ServerParams{
+        ...params,
+        base_url: '@{dollar}{params.base_url}/openrpc'
+    })!
 	s.register_controller[openrpc.HTTPController, Context]('/openrpc', mut openrpc_controller)!
+    @end
+    @if openapi
+    mut openapi_controller := new_openapi_http_controller(ServerParams{
+        ...params,
+        base_url: '@{dollar}{params.base_url}/openapi'
+    })!
+	s.register_controller[openapi.HTTPController, Context]('/openapi', mut openapi_controller)!
+    @end
     return s
 }
 
-pub fn run_http_server() ! {
-    mut server := new_http_server()!
-	veb.run[HTTPServer, Context](mut server, 8082)
+pub fn run_http_server(params ServerParams) ! {
+    mut server := new_http_server(params)!
+	veb.run[HTTPServer, Context](mut server, params.port)
 }
