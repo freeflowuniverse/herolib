@@ -1,5 +1,22 @@
 module runpod
 
+// Represents the nested machine structure in the response
+pub struct Machine {
+pub:
+	pod_host_id string @[json: 'podHostId']
+}
+
+// Response structure for the mutation
+pub struct PodResult {
+pub:
+	id             string   @[json: 'id']
+	image_name     string   @[json: 'imageName']
+	env            []string @[json: 'env']
+	machine_id     int      @[json: 'machineId']
+	machine        Machine  @[json: 'machine']
+	desired_status string   @[json: 'desiredStatus']
+}
+
 // Input structure for the mutation
 @[params]
 pub struct PodFindAndDeployOnDemandRequest {
@@ -19,7 +36,7 @@ pub mut:
 	env                  []EnvironmentVariableInput @[json: 'env']
 }
 
-// create_endpoint creates a new endpoint
+// Create On-Demand Pod
 pub fn (mut rp RunPod) create_on_demand_pod(input PodFindAndDeployOnDemandRequest) !PodResult {
 	return rp.create_pod_find_and_deploy_on_demand_request(input)!
 }
@@ -59,6 +76,19 @@ pub mut:
 	allowed_cuda_versions []string                   @[json: 'allowedCudaVersions']
 }
 
+// Create Spot Pod
 pub fn (mut rp RunPod) create_spot_pod(input PodRentInterruptableInput) !PodResult {
 	return rp.create_create_spot_pod_request(input)!
+}
+
+@[params]
+pub struct PodResume {
+pub mut:
+	pod_id    string @[json: 'podId']
+	gpu_count int    @[json: 'gpuCount']
+}
+
+// Start On-Demand Pod
+pub fn (mut rp RunPod) start_on_demand_pod(input PodResume) !PodResult {
+	return rp.start_on_demand_pod_request(input)!
 }

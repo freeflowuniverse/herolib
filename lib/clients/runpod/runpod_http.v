@@ -41,3 +41,17 @@ fn (mut rp RunPod) create_create_spot_pod_request(input PodRentInterruptableInpu
 		return error('Could not find podRentInterruptable in response data: ${response_.data}')
 	}
 }
+
+// Start On-Demand Pod
+fn (mut rp RunPod) start_on_demand_pod_request(input PodResume) !PodResult {
+	gql := build_query(
+		query_type:     .mutation
+		method_name:    'podResume'
+		request_model:  input
+		response_model: PodResult{}
+	)
+	response_ := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
+	return response_.data['podResume'] or {
+		return error('Could not find podRentInterruptable in response data: ${response_.data}')
+	}
+}

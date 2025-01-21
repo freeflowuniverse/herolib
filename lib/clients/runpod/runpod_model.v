@@ -49,22 +49,6 @@ pub:
 	value string
 }
 
-// Represents the nested machine structure in the response
-pub struct Machine {
-pub:
-	pod_host_id string @[json: 'podHostId']
-}
-
-// Response structure for the mutation
-pub struct PodResult {
-pub:
-	id         string   @[json: 'id']
-	image_name string   @[json: 'imageName']
-	env        []string @[json: 'env']
-	machine_id int      @[json: 'machineId']
-	machine    Machine  @[json: 'machine']
-}
-
 // new creates a new RunPod client
 pub fn new(api_key string) !&RunPod {
 	if api_key == '' {
