@@ -18,7 +18,8 @@ import os
 // and maintains a linked list of previous values for history tracking
 // Returns the ID used (either x if specified, or auto-incremented if x=0)
 @[params]
-struct OurDBSetArgs {
+pub struct OurDBSetArgs {
+pub:
 	id   ?u32
 	data []u8 @[required]
 }

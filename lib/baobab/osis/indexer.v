@@ -2,10 +2,8 @@ module osis
 
 import json
 import db.sqlite
-import db.pg
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
-import orm
 
 pub struct Indexer {
 	db sqlite.DB
@@ -27,10 +25,18 @@ pub fn reset(path string) ! {
 	db_file.delete()!
 }
 
+pub fn (mut i Indexer) new_generic[T](id u32, object T) !u32 {
+	return i.new(get_table[T](), id, get_indices[T](object))!
+}
+
 // new creates a new root object entry in the root_objects table,
 // and the table belonging to the type of root object with columns for index fields
-pub fn (mut backend Indexer) new(object RootObject) !u32 {
-	panic('implement')
+pub fn (mut i Indexer) new(table string, id u32, indices map[string]string) !u32 {
+	insert_query := 'INSERT into ${table} (${indices.keys().join(',')}) values (${indices.values().join(',')})'
+	i.db.exec(insert_query) or {
+		return error('Error inserting object ${id} into table ${table}\n${err}')
+	}
+	return 0
 }
 
 // save the session to redis & mem
@@ -90,4 +96,21 @@ fn (mut backend Indexer) table_exists(table_name string) !bool {
 // get_table_name returns the name of the table belonging to a root struct
 fn get_table_name(object RootObject) string {
 	panic('implement')
+}
+
+// get_table_name returns the name of the table belonging to a root struct
+fn get_table[T]() string {
+	return typeof[T]()
+}
+
+// returns the lists of the indices of a root objects db table, and corresponding values
+pub fn get_indices[T](object T) map[string]string {
+	mut indices := map[string]string
+	$for field in T.fields {
+		if field.attrs.contains('index') {
+			value := object.$(field.name)
+			indices[field.name] = '${value}'
+		}
+	}
+	return indices
 }

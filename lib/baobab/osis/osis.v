@@ -1,10 +1,6 @@
 module osis
 
 import os
-import db.sqlite
-import db.pg
-import freeflowuniverse.herolib.data.dbfs
-import freeflowuniverse.herolib.data.encoderhero
 
 pub fn (mut o OSIS) generic_new[T](obj T) !u32 {
 	id := o.indexer.generic_new[T](obj)!
@@ -13,8 +9,8 @@ pub fn (mut o OSIS) generic_new[T](obj T) !u32 {
 }
 
 pub fn (mut o OSIS) new[T](obj T) !u32 {
-	id := o.indexer.generic_new[T](obj)!
-	o.storer.generic_new[T](obj)!
+	id := o.storer.new_generic[T](obj)!
+	o.indexer.new_generic[T](id, obj)!
 	return id
 }
 
@@ -22,7 +18,7 @@ pub fn (mut o OSIS) generic_get[T](id u32) !T {
 	return o.storer.generic_get[T](id)!
 }
 
-pub fn (mut o OSIS) get[T](id int) !T {
+pub fn (mut o OSIS) get[T](id u32) !T {
 	return o.storer.generic_get[T](u32(id))!
 }
 
@@ -36,7 +32,7 @@ pub fn (mut o OSIS) generic_delete[T](id u32) ! {
 	o.storer.generic_delete[T](id)!
 }
 
-pub fn (mut o OSIS) delete(id int) ! {
+pub fn (mut o OSIS) delete(id u32) ! {
 	o.storer.delete(u32(id))!
 }
 
