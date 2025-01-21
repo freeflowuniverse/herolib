@@ -3,9 +3,21 @@ module runpod
 import freeflowuniverse.herolib.core.httpconnection
 import json
 
+// Represents the main structure for interacting with the RunPod API.
+// Provides utilities to manage HTTP connections and perform GraphQL queries.
+fn (mut rp RunPod) httpclient() !&httpconnection.HTTPConnection {
+	mut http_conn := httpconnection.new(
+		name:  'runpod_vclient_${rp.name}'
+		url:   rp.base_url
+		cache: true
+		retry: 3
+	)!
+	return http_conn
+}
+
+// Retrieves the field name from the `FieldData` struct, either from its attributes or its name.
 fn get_field_name(field FieldData) string {
 	mut field_name := ''
-	// Process attributes to fetch the JSON field name or fallback to field name
 	if field.attrs.len > 0 {
 		for attr in field.attrs {
 			attrs := attr.trim_space().split(':')
@@ -20,8 +32,8 @@ fn get_field_name(field FieldData) string {
 	return field_name
 }
 
+// Constructs JSON-like request fields from a struct.
 fn get_request_fields[T](struct_ T) string {
-	// Start the current level
 	mut body_ := '{ '
 	mut fields := []string{}
 
@@ -62,8 +74,8 @@ fn get_request_fields[T](struct_ T) string {
 	return body_
 }
 
+// Constructs JSON-like response fields for a given struct.
 fn get_response_fields[R](struct_ R) string {
-	// Start the current level
 	mut body_ := '{ '
 
 	$for field in R.fields {
@@ -80,11 +92,13 @@ fn get_response_fields[R](struct_ R) string {
 	return body_
 }
 
+// Enum representing the type of GraphQL operation.
 pub enum QueryType {
 	query
 	mutation
 }
 
+// Struct for building GraphQL queries with request and response models.
 @[params]
 pub struct BuildQueryArgs[T, R] {
 pub:
@@ -94,11 +108,8 @@ pub:
 	response_model R @[required]
 }
 
+// Builds a GraphQL query or mutation string from provided arguments.
 fn build_query[T, R](args BuildQueryArgs[T, R]) string {
-	// Convert input to JSON
-	// input_json := json.encode(request)
-
-	// Build the GraphQL mutation string
 	mut request_fields := get_request_fields(args.request_model)
 	mut response_fields := get_response_fields(args.response_model)
 
@@ -114,6 +125,7 @@ fn build_query[T, R](args BuildQueryArgs[T, R]) string {
 	return json.encode(gql)
 }
 
+// Converts the `QueryType` enum to its string representation.
 fn (q QueryType) to_string() string {
 	return match q {
 		.query {
@@ -125,6 +137,7 @@ fn (q QueryType) to_string() string {
 	}
 }
 
+// Enum representing HTTP methods.
 enum HTTPMethod {
 	get
 	post
@@ -132,6 +145,7 @@ enum HTTPMethod {
 	delete
 }
 
+// Sends an HTTP request to the RunPod API with the specified method, path, and data.
 fn (mut rp RunPod) make_request[T](method HTTPMethod, path string, data string) !T {
 	mut request := httpconnection.Request{
 		prefix:     path

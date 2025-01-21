@@ -1,21 +1,10 @@
 module runpod
 
-import freeflowuniverse.herolib.core.httpconnection
-import json
-
-fn (mut rp RunPod) httpclient() !&httpconnection.HTTPConnection {
-	mut http_conn := httpconnection.new(
-		name:  'runpod_${rp.name}'
-		url:   'https://api.runpod.io'
-		cache: true
-		retry: 3
-	)!
-
-	// Add authorization header
-	http_conn.default_header.add(.authorization, 'Bearer ${rp.api_key}')
-	return http_conn
-}
-
+// #### Internally method doing a network call to create a new on-demand pod.
+// - Build the required query based pn the input sent by the user and send the request.
+// - Decode the response received from the API into two objects `Data` and `Error`.
+// - The data field should contains the pod details same as `PodResult` struct.
+// - The error field should contain the error message.
 fn (mut rp RunPod) create_pod_find_and_deploy_on_demand_request(request PodFindAndDeployOnDemandRequest) !PodResult {
 	gql := build_query(
 		query_type:     .mutation
@@ -29,6 +18,11 @@ fn (mut rp RunPod) create_pod_find_and_deploy_on_demand_request(request PodFindA
 	}
 }
 
+// #### Internally method doing a network call to create a new spot pod.
+// - Build the required query based pn the input sent by the user and send the request.
+// - Decode the response received from the API into two objects `Data` and `Error`.
+// - The data field should contains the pod details same as `PodResult` struct.
+// - The error field should contain the error message.
 fn (mut rp RunPod) create_create_spot_pod_request(input PodRentInterruptableInput) !PodResult {
 	gql := build_query(
 		query_type:     .mutation
@@ -42,7 +36,11 @@ fn (mut rp RunPod) create_create_spot_pod_request(input PodRentInterruptableInpu
 	}
 }
 
-// Start On-Demand Pod
+// #### Internally method doing a network call to start on demand pod.
+// - Build the required query based pn the input sent by the user and send the request.
+// - Decode the response received from the API into two objects `Data` and `Error`.
+// - The data field should contains the pod details same as `PodResult` struct.
+// - The error field should contain the error message.
 fn (mut rp RunPod) start_on_demand_pod_request(input PodResume) !PodResult {
 	gql := build_query(
 		query_type:     .mutation
@@ -52,6 +50,24 @@ fn (mut rp RunPod) start_on_demand_pod_request(input PodResume) !PodResult {
 	)
 	response_ := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
 	return response_.data['podResume'] or {
+		return error('Could not find podRentInterruptable in response data: ${response_.data}')
+	}
+}
+
+// #### Internally method doing a network call to start spot pod.
+// - Build the required query based pn the input sent by the user and send the request.
+// - Decode the response received from the API into two objects `Data` and `Error`.
+// - The data field should contains the pod details same as `PodResult` struct.
+// - The error field should contain the error message.
+fn (mut rp RunPod) start_spot_pod_request(input PodResume) !PodResult {
+	gql := build_query(
+		query_type:     .mutation
+		method_name:    'podBidResume'
+		request_model:  input
+		response_model: PodResult{}
+	)
+	response_ := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
+	return response_.data['podBidResume'] or {
 		return error('Could not find podRentInterruptable in response data: ${response_.data}')
 	}
 }

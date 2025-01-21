@@ -33,7 +33,7 @@ on_demand_pod_response := rp.create_on_demand_pod(
 println('Created pod with ID: ${on_demand_pod_response.id}')
 
 // create a spot pod
-spot_pod_resp := rp.create_spot_pod(
+spot_pod_response := rp.create_spot_pod(
 	port:                 1826
 	bid_per_gpu:          0.2
 	cloud_type:           .secure
@@ -55,8 +55,16 @@ spot_pod_resp := rp.create_spot_pod(
 		},
 	]
 )!
-println('Created spot pod with ID: ${spot_pod_resp.id}')
+println('Created spot pod with ID: ${spot_pod_response.id}')
 
 // start on-demand pod
 start_on_demand_pod := rp.start_on_demand_pod(pod_id: '${on_demand_pod_response.id}', gpu_count: 1)!
-println('Started pod with ID: ${start_on_demand_pod.id}')
+println('Started on demand pod with ID: ${start_on_demand_pod.id}')
+
+// start spot pod
+start_spot_pod := rp.start_spot_pod(
+	pod_id:      '${spot_pod_response.id}'
+	gpu_count:   1
+	bid_per_gpu: 0.2
+)!
+println('Started spot pod with ID: ${start_on_demand_pod.id}')
