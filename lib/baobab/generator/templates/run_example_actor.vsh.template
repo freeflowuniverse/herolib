@@ -1,0 +1,6 @@
+#!/usr/bin/env -S v -w -n -enable-globals run
+
+import pet_store_actor
+
+mut actor := pet_store_actor.new_example()!
+actor.run()!

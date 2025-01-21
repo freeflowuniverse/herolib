@@ -75,7 +75,7 @@ fn is_base_object_list_method(method ActorMethod) bool {
 
 fn generate_base_object_new_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'return actor.osis.new[${parameter.typ.vgen()}](${parameter.name})!'
+	return 'return actor.osis.new[${parameter.typ.vgen()}](${texttools.name_fix_snake(parameter.name)})!'
 }
 
 fn generate_base_object_get_body(method ActorMethod) !string {

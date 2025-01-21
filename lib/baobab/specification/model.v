@@ -1,7 +1,7 @@
 module specification
 
 import freeflowuniverse.herolib.core.code { Struct, Function }
-import freeflowuniverse.herolib.schemas.openrpc {ContentDescriptor, ErrorSpec}
+import freeflowuniverse.herolib.schemas.openrpc {ExamplePairing, ContentDescriptor, ErrorSpec}
 import freeflowuniverse.herolib.schemas.jsonschema {Schema}
 
 pub struct ActorSpecification {
@@ -27,6 +27,7 @@ pub:
 	name        string   @[omitempty]
 	description string   @[omitempty]
 	summary 	string
+	example		ExamplePairing
 	parameters 	[]ContentDescriptor
 	result 		ContentDescriptor
 	errors 		[]ErrorSpec

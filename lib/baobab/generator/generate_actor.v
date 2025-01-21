@@ -17,9 +17,11 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	files = [
 		generate_readme_file(spec)!,
 		generate_actor_file(spec)!,
-		generate_specs_file(spec.name, params.interfaces)!,
 		generate_actor_test_file(spec)!,
+		generate_actor_example_file(spec)!,
+		generate_specs_file(spec.name, params.interfaces)!,
 		generate_handle_file(spec)!,
+		generate_handle_example_file(spec)!,
 		generate_methods_file(spec)!
 		generate_client_file(spec)!
 		generate_model_file(spec)!
@@ -37,11 +39,12 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 				// generate openrpc code files
 				// files << generate_openrpc_client_file(openrpc_spec)!
 				// files << generate_openrpc_client_test_file(openrpc_spec)!
-				iface_file, iface_test_file := generate_openrpc_interface_files()
+				iface_file, iface_test_file := generate_openrpc_interface_files(params.interfaces)
 				files << iface_file
 				files << iface_test_file
 
 				// add openrpc.json to docs
+				// TODO
 				docs_files << generate_openrpc_file(openrpc_spec)!
 			}
 			.openapi {
@@ -49,16 +52,19 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 				openapi_spec := spec.to_openapi()
 				
 				// generate openrpc code files
-				iface_file, iface_test_file := generate_openapi_interface_files()
+				iface_file, iface_test_file := generate_openapi_interface_files(params.interfaces)
 				files << iface_file
 				files << iface_test_file
 
 				// add openrpc.json to docs
+				// TODO
 				docs_files << generate_openapi_file(openapi_spec)!
 			}
 			.http {
+				// interfaces that have http controllers
+				controllers := params.interfaces.filter(it == .openrpc || it == .openapi)
 				// generate openrpc code files
-				iface_file, iface_test_file := generate_http_interface_files()
+				iface_file, iface_test_file := generate_http_interface_files(controllers)
 				files << iface_file
 				files << iface_test_file
 			}
@@ -105,6 +111,17 @@ fn generate_actor_file(spec ActorSpecification) !VFile {
 	actor_code := $tmpl('./templates/actor.v.template')
 	return VFile {
 		name: 'actor'
+		items: [CustomCode{actor_code}]
+	}
+}
+
+fn generate_actor_example_file(spec ActorSpecification) !VFile {
+	dollar := '$'
+	actor_name_snake := texttools.name_fix_snake(spec.name)
+	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
+	actor_code := $tmpl('./templates/actor_example.v.template')
+	return VFile {
+		name: 'actor_example'
 		items: [CustomCode{actor_code}]
 	}
 }

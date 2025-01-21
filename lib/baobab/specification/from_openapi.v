@@ -3,7 +3,7 @@ module specification
 import freeflowuniverse.herolib.core.code { Struct, Function }
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef }
 import freeflowuniverse.herolib.schemas.openapi { Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec }
-import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec }
+import freeflowuniverse.herolib.schemas.openrpc { ExamplePairing, Example, ExampleRef, ContentDescriptor, ErrorSpec }
 
 // Helper function: Convert OpenAPI parameter to ContentDescriptor
 fn openapi_param_to_content_descriptor(param Parameter) ContentDescriptor {
@@ -16,19 +16,54 @@ fn openapi_param_to_content_descriptor(param Parameter) ContentDescriptor {
 	}
 }
 
+// Helper function: Convert OpenAPI parameter to ContentDescriptor
+fn openapi_param_to_example(param Parameter) ?Example {
+	if param.schema is Schema {
+		if param.schema.example.str() != '' {
+			return Example{
+				name: 'Example ${param.name}',
+				description: 'Example ${param.description}',
+				value: param.schema.example
+			}
+		}
+	}
+	return none
+}
+
 // Helper function: Convert OpenAPI operation to ActorMethod
 fn openapi_operation_to_actor_method(op Operation, method_name string, path string) ActorMethod {
 	mut parameters := []ContentDescriptor{}
+	mut example_parameters:= []Example{}
+	
 	for param in op.parameters {
 		parameters << openapi_param_to_content_descriptor(param)
+		example_parameters << openapi_param_to_example(param) or {
+			continue
+		}
 	}
+
+	response_200 := op.responses['200'].content['application/json']
 
 	mut result := ContentDescriptor{
 		name: "result",
 		description: "The response of the operation.",
 		required: true,
-		schema: op.responses['200'].content['application/json'].schema
+		schema: response_200.schema
 	}
+
+	example_result := if response_200.example.str() != '' {
+		Example{
+			name: 'Example response',
+			value: response_200.example
+		}
+	} else {Example{}}
+
+	pairing := if example_result != Example{} || example_parameters.len > 0 {
+		ExamplePairing{
+			params: example_parameters.map(ExampleRef(it))
+			result: ExampleRef(example_result)
+		} 
+	} else {ExamplePairing{}}
 
 	mut errors := []ErrorSpec{}
 	for status, response in op.responses {
@@ -49,6 +84,7 @@ fn openapi_operation_to_actor_method(op Operation, method_name string, path stri
 		description: op.description,
 		summary: op.summary,
 		parameters: parameters,
+		example: pairing
 		result: result,
 		errors: errors,
 	}

@@ -1,5 +1,6 @@
 module specification
 
+import x.json2 as json {Any}
 import freeflowuniverse.herolib.core.code { Struct, Function }
 import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec }
 import freeflowuniverse.herolib.schemas.openapi { OpenAPI, Info, ServerSpec, Components, Operation, PathItem, PathRef }
@@ -36,6 +37,7 @@ const openapi_spec = openapi.OpenAPI{
 						schema: Schema{
 							typ: 'integer'
 							format: 'int32'
+							example: 10
 						}
 					}
 				]
@@ -47,6 +49,10 @@ const openapi_spec = openapi.OpenAPI{
 								schema: Reference{
 									ref: '#/components/schemas/Pets'
 								}
+								example: json.raw_decode('[
+									{ "id": 1, "name": "Fluffy", "tag": "dog" },
+									{ "id": 2, "name": "Whiskers", "tag": "cat" }
+								]')!
 							}
 						}
 					}
@@ -65,6 +71,7 @@ const openapi_spec = openapi.OpenAPI{
 							schema: Reference{
 								ref: '#/components/schemas/NewPet'
 							}
+							example: json.raw_decode('{ "name": "Bella", "tag": "dog" }')!
 						}
 					}
 				}
@@ -76,6 +83,7 @@ const openapi_spec = openapi.OpenAPI{
 								schema: Reference{
 									ref: '#/components/schemas/Pet'
 								}
+								example: json.raw_decode('{ "id": 3, "name": "Bella", "tag": "dog" }')!
 							}
 						}
 					}
@@ -98,6 +106,7 @@ const openapi_spec = openapi.OpenAPI{
 						schema: Schema{
 							typ: 'integer'
 							format: 'int64'
+							example: 1
 						}
 					}
 				]
@@ -109,6 +118,7 @@ const openapi_spec = openapi.OpenAPI{
 								schema: Reference{
 									ref: '#/components/schemas/Pet'
 								}
+								example: json.raw_decode('{ "id": 1, "name": "Fluffy", "tag": "dog" }')!
 							}
 						}
 					}
@@ -129,6 +139,7 @@ const openapi_spec = openapi.OpenAPI{
 						schema: Schema{
 							typ: 'integer'
 							format: 'int64'
+							example: 1
 						}
 					}
 				]
@@ -142,238 +153,89 @@ const openapi_spec = openapi.OpenAPI{
 				}
 			}
 		}
-		'/orders': openapi.PathItem{
-			get: openapi.Operation{
-				summary: 'List all orders'
-				operation_id: 'listOrders'
-				responses: {
-					'200': openapi.ResponseSpec{
-						description: 'A list of orders'
-						content: {
-							'application/json': openapi.MediaType{
-								schema: Schema{
-									typ: 'array'
-									items: SchemaRef(Reference{
-										ref: '#/components/schemas/Order'
-									})
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		'/orders/{orderId}': openapi.PathItem{
-			get: openapi.Operation{
-				summary: 'Get an order by ID'
-				operation_id: 'getOrder'
-				parameters: [
-					openapi.Parameter{
-						name: 'orderId'
-						in_: 'path'
-						description: 'ID of the order to retrieve'
-						required: true
-						schema: Schema{
-							typ: 'integer'
-							format: 'int64'
-						}
-					}
-				]
-				responses: {
-					'200': openapi.ResponseSpec{
-						description: 'An order'
-						content: {
-							'application/json': openapi.MediaType{
-								schema: Reference{
-									ref: '#/components/schemas/Order'
-								}
-							}
-						}
-					}
-					'404': openapi.ResponseSpec{
-						description: 'Order not found'
-					}
-				}
-			}
-			delete: openapi.Operation{
-				summary: 'Delete an order by ID'
-				operation_id: 'deleteOrder'
-				parameters: [
-					openapi.Parameter{
-						name: 'orderId'
-						in_: 'path'
-						description: 'ID of the order to delete'
-						required: true
-						schema: Schema{
-							typ: 'integer'
-							format: 'int64'
-						}
-					}
-				]
-				responses: {
-					'204': openapi.ResponseSpec{
-						description: 'Order deleted'
-					}
-					'404': openapi.ResponseSpec{
-						description: 'Order not found'
-					}
-				}
-			}
-		}
-		'/users': openapi.PathItem{
-			post: openapi.Operation{
-				summary: 'Create a user'
-				operation_id: 'createUser'
-				request_body: openapi.RequestBody{
-					required: true
-					content: {
-						'application/json': openapi.MediaType{
-							schema: Reference{
-								ref: '#/components/schemas/NewUser'
-							}
-						}
-					}
-				}
-				responses: {
-					'201': openapi.ResponseSpec{
-						description: 'User created'
-						content: {
-							'application/json': openapi.MediaType{
-								schema: Reference{
-									ref: '#/components/schemas/User'
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 	components: openapi.Components{
-	schemas: {
-		'Pet': SchemaRef(Schema{
-			typ: 'object'
-			required: ['id', 'name']
-			properties: {
-				'id': SchemaRef(Schema{
-					typ: 'integer'
-					format: 'int64'
-				})
-				'name': SchemaRef(Schema{
-					typ: 'string'
-				})
-				'tag': SchemaRef(Schema{
-					typ: 'string'
-				})
-			}
-		})
-		'NewPet': SchemaRef(Schema{
-			typ: 'object'
-			required: ['name']
-			properties: {
-				'name': SchemaRef(Schema{
-					typ: 'string'
-				})
-				'tag': SchemaRef(Schema{
-					typ: 'string'
-				})
-			}
-		})
-		'Pets': SchemaRef(Schema{
-			typ: 'array'
-			items: SchemaRef(Reference{
-				ref: '#/components/schemas/Pet'
+		schemas: {
+			'Pet': SchemaRef(Schema{
+				typ: 'object'
+				required: ['id', 'name']
+				properties: {
+					'id': SchemaRef(Schema{
+						typ: 'integer'
+						format: 'int64'
+					})
+					'name': SchemaRef(Schema{
+						typ: 'string'
+					})
+					'tag': SchemaRef(Schema{
+						typ: 'string'
+					})
+				}
 			})
-		})
-		'Order': SchemaRef(Schema{
-			typ: 'object'
-			required: ['id', 'petId', 'quantity', 'shipDate']
-			properties: {
-				'id': SchemaRef(Schema{
-					typ: 'integer'
-					format: 'int64'
+			'NewPet': SchemaRef(Schema{
+				typ: 'object'
+				required: ['name']
+				properties: {
+					'name': SchemaRef(Schema{
+						typ: 'string'
+					})
+					'tag': SchemaRef(Schema{
+						typ: 'string'
+					})
+				}
+			})
+			'Pets': SchemaRef(Schema{
+				typ: 'array'
+				items: SchemaRef(Reference{
+					ref: '#/components/schemas/Pet'
 				})
-				'petId': SchemaRef(Schema{
-					typ: 'integer'
-					format: 'int64'
-				})
-				'quantity': SchemaRef(Schema{
-					typ: 'integer'
-					format: 'int32'
-				})
-				'shipDate': SchemaRef(Schema{
-					typ: 'string'
-					format: 'date-time'
-				})
-				'status': SchemaRef(Schema{
-					typ: 'string'
-					enum_: ['placed', 'approved', 'delivered']
-				})
-				'complete': SchemaRef(Schema{
-					typ: 'boolean'
-				})
-			}
-		})
-		'User': SchemaRef(Schema{
-			typ: 'object'
-			required: ['id', 'username']
-			properties: {
-				'id': SchemaRef(Schema{
-					typ: 'integer'
-					format: 'int64'
-				})
-				'username': SchemaRef(Schema{
-					typ: 'string'
-				})
-				'email': SchemaRef(Schema{
-					typ: 'string'
-				})
-				'phone': SchemaRef(Schema{
-					typ: 'string'
-				})
-			}
-		})
-		'NewUser': SchemaRef(Schema{
-			typ: 'object'
-			required: ['username']
-			properties: {
-				'username': SchemaRef(Schema{
-					typ: 'string'
-				})
-				'email': SchemaRef(Schema{
-					typ: 'string'
-				})
-				'phone': SchemaRef(Schema{
-					typ: 'string'
-				})
-			}
-		})
+			})
+		}
 	}
-}
 }
 
 const actor_spec = specification.ActorSpecification{
     name: 'Pet Store API'
     description: 'A sample API for a pet store'
+    structure: code.Struct{}
     interfaces: [.openapi]
     methods: [
         specification.ActorMethod{
             name: 'listPets'
             summary: 'List all pets'
+            example: openrpc.ExamplePairing{
+                params: [
+                    openrpc.ExampleRef(openrpc.Example{
+                        name: 'Example limit'
+                        description: 'Example Maximum number of pets to return'
+                        value: 10
+                    })
+                ]
+                result: openrpc.ExampleRef(openrpc.Example{
+                    name: 'Example response'
+                    value: json.raw_decode('[
+                        {"id": 1, "name": "Fluffy", "tag": "dog"},
+                        {"id": 2, "name": "Whiskers", "tag": "cat"}
+                    ]')!
+                })
+            }
             parameters: [
                 openrpc.ContentDescriptor{
                     name: 'limit'
                     summary: 'Maximum number of pets to return'
                     description: 'Maximum number of pets to return'
+                    required: false
                     schema: jsonschema.SchemaRef(jsonschema.Schema{
                         typ: 'integer'
                         format: 'int32'
+                        example: 10
                     })
                 }
             ]
             result: openrpc.ContentDescriptor{
                 name: 'result'
                 description: 'The response of the operation.'
+                required: true
                 schema: jsonschema.SchemaRef(jsonschema.Reference{
                     ref: '#/components/schemas/Pets'
                 })
@@ -388,9 +250,16 @@ const actor_spec = specification.ActorSpecification{
         specification.ActorMethod{
             name: 'createPet'
             summary: 'Create a new pet'
+            example: openrpc.ExamplePairing{
+                result: openrpc.ExampleRef(openrpc.Example{
+                    name: 'Example response'
+                    value: '[]'
+                })
+            }
             result: openrpc.ContentDescriptor{
                 name: 'result'
                 description: 'The response of the operation.'
+                required: true
             }
             errors: [
                 openrpc.ErrorSpec{
@@ -402,20 +271,36 @@ const actor_spec = specification.ActorSpecification{
         specification.ActorMethod{
             name: 'getPet'
             summary: 'Get a pet by ID'
+            example: openrpc.ExamplePairing{
+                params: [
+                    openrpc.ExampleRef(openrpc.Example{
+                        name: 'Example petId'
+                        description: 'Example ID of the pet to retrieve'
+                        value: 1
+                    })
+                ]
+                result: openrpc.ExampleRef(openrpc.Example{
+                    name: 'Example response'
+                    value: json.raw_decode('{"id": 1, "name": "Fluffy", "tag": "dog"}')!
+                })
+            }
             parameters: [
                 openrpc.ContentDescriptor{
                     name: 'petId'
                     summary: 'ID of the pet to retrieve'
                     description: 'ID of the pet to retrieve'
+                    required: true
                     schema: jsonschema.SchemaRef(jsonschema.Schema{
                         typ: 'integer'
                         format: 'int64'
+                        example: 1
                     })
                 }
             ]
             result: openrpc.ContentDescriptor{
                 name: 'result'
                 description: 'The response of the operation.'
+                required: true
                 schema: jsonschema.SchemaRef(jsonschema.Reference{
                     ref: '#/components/schemas/Pet'
                 })
@@ -430,20 +315,32 @@ const actor_spec = specification.ActorSpecification{
         specification.ActorMethod{
             name: 'deletePet'
             summary: 'Delete a pet by ID'
+            example: openrpc.ExamplePairing{
+                params: [
+                    openrpc.ExampleRef(openrpc.Example{
+                        name: 'Example petId'
+                        description: 'Example ID of the pet to delete'
+                        value: 1
+                    })
+                ]
+            }
             parameters: [
                 openrpc.ContentDescriptor{
                     name: 'petId'
                     summary: 'ID of the pet to delete'
                     description: 'ID of the pet to delete'
+                    required: true
                     schema: jsonschema.SchemaRef(jsonschema.Schema{
                         typ: 'integer'
                         format: 'int64'
+                        example: 1
                     })
                 }
             ]
             result: openrpc.ContentDescriptor{
                 name: 'result'
                 description: 'The response of the operation.'
+                required: true
             }
             errors: [
                 openrpc.ErrorSpec{
@@ -451,117 +348,53 @@ const actor_spec = specification.ActorSpecification{
                     message: 'Pet not found'
                 }
             ]
-        },
-        specification.ActorMethod{
-            name: 'listOrders'
-            summary: 'List all orders'
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-                schema: jsonschema.SchemaRef(jsonschema.Schema{
-                    typ: 'array'
-                    items: jsonschema.Items(jsonschema.SchemaRef(jsonschema.Reference{
-                        ref: '#/components/schemas/Order'
-                    }))
-                })
-            }
-        },
-        specification.ActorMethod{
-            name: 'getOrder'
-            summary: 'Get an order by ID'
-            parameters: [
-                openrpc.ContentDescriptor{
-                    name: 'orderId'
-                    summary: 'ID of the order to retrieve'
-                    description: 'ID of the order to retrieve'
-                    schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        typ: 'integer'
-                        format: 'int64'
-                    })
-                }
-            ]
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-                schema: jsonschema.SchemaRef(jsonschema.Reference{
-                    ref: '#/components/schemas/Order'
-                })
-            }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 404
-                    message: 'Order not found'
-                }
-            ]
-        },
-        specification.ActorMethod{
-            name: 'deleteOrder'
-            summary: 'Delete an order by ID'
-            parameters: [
-                openrpc.ContentDescriptor{
-                    name: 'orderId'
-                    summary: 'ID of the order to delete'
-                    description: 'ID of the order to delete'
-                    schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        typ: 'integer'
-                        format: 'int64'
-                    })
-                }
-            ]
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-            }
-            errors: [
-                openrpc.ErrorSpec{
-                    code: 404
-                    message: 'Order not found'
-                }
-            ]
-        },
-        specification.ActorMethod{
-            name: 'createUser'
-            summary: 'Create a user'
-            result: openrpc.ContentDescriptor{
-                name: 'result'
-                description: 'The response of the operation.'
-            }
         }
     ]
     objects: [
         specification.BaseObject{
-            structure: code.Struct{
-                name: 'Pet'
+            schema: jsonschema.Schema{
+                typ: 'object'
+                properties: {
+                    'id': jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'integer'
+                        format: 'int64'
+                    }),
+                    'name': jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
+                    }),
+                    'tag': jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
+                    })
+                }
+                required: ['id', 'name']
             }
         },
         specification.BaseObject{
-            structure: code.Struct{
-                name: 'NewPet'
+            schema: jsonschema.Schema{
+                typ: 'object'
+                properties: {
+                    'name': jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
+                    }),
+                    'tag': jsonschema.SchemaRef(jsonschema.Schema{
+                        typ: 'string'
+                    })
+                }
+                required: ['name']
             }
         },
         specification.BaseObject{
-            structure: code.Struct{
-                name: 'Pets'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'Order'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'User'
-            }
-        },
-        specification.BaseObject{
-            structure: code.Struct{
-                name: 'NewUser'
+            schema: jsonschema.Schema{
+                typ: 'array'
+                items: jsonschema.Items(jsonschema.SchemaRef(jsonschema.Reference{
+                    ref: '#/components/schemas/Pet'
+                }))
             }
         }
     ]
 }
 
 pub fn test_from_openapi() ! {
+	// panic(from_openapi(openapi_spec)!)
 	assert from_openapi(openapi_spec)! == actor_spec
 }

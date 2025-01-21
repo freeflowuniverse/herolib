@@ -47,11 +47,52 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 	}
 }
 
+pub fn generate_example_client_file(spec ActorSpecification) !VFile {
+	actor_name_snake := texttools.name_fix_snake(spec.name)
+	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
+	
+	mut items := []CodeItem{}
+
+	items << CustomCode {'
+	pub struct ExampleClient {
+		stage.Client
+	}
+
+	fn new_example_client() !ExampleClient {
+		mut redis := redisclient.new(\'localhost:6379\')!
+		mut rpc_q := redis.rpc_get(\'actor_example_\${name}\')
+		return Client{
+			rpc: rpc_q
+		}
+	}'}
+	
+	for method in spec.methods {
+		items << generate_client_method(method)!
+	}
+	
+	return VFile {
+		imports: [
+			Import{
+				mod: 'freeflowuniverse.herolib.baobab.stage'
+			},
+			Import{
+				mod: 'freeflowuniverse.herolib.core.redisclient'
+			},
+			Import{
+				mod: 'x.json2 as json'
+				types: ['Any']
+			}
+		]
+		name: 'client_example'
+		items: items
+	}
+}
+
 pub fn generate_client_method(method ActorMethod) !Function {
 	name_fixed := texttools.name_fix_snake(method.name)
 
 	call_params := if method.parameters.len > 0 {
-		method.parameters.map(texttools.name_fix_snake(it.name)).join(', ')
+		method.parameters.map(texttools.name_fix_snake(it.name)).map('Any(${it})').join(', ')
 	} else {''}
 
 	params_stmt := if method.parameters.len == 0 {

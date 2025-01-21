@@ -2,9 +2,25 @@ module generator
 
 import freeflowuniverse.herolib.core.code { Result, Object, Param, Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.schemas.openrpc {ContentDescriptor}
+import freeflowuniverse.herolib.schemas.openrpc {Example, ContentDescriptor}
 import freeflowuniverse.herolib.schemas.jsonschema.codegen {schemaref_to_type}
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
+
+fn generate_handle_example_file(spec ActorSpecification) !VFile {
+	mut items := []CodeItem{}
+	items << CustomCode{generate_handle_example_function(spec)}
+	for method in spec.methods {
+		items << generate_example_method_handle(spec.name, method)!
+	}
+	return VFile {
+		name: 'act_example'
+		imports: [
+			Import{mod:'freeflowuniverse.herolib.baobab.stage' types:['Action']}
+			Import{mod:'x.json2 as json'}
+		]
+		items: items
+	}
+}
 
 fn generate_handle_file(spec ActorSpecification) !VFile {
 	mut items := []CodeItem{}
@@ -33,7 +49,7 @@ pub fn generate_handle_function(spec ActorSpecification) string {
 		params := method.parameters.map(it.name).join(', ')
 
 		// Generate route case
-		route := generate_route_case(method.name, operation_id)
+		route := generate_route_case(operation_id, 'handle_${operation_id}')
 		routes << route
 	}
 
@@ -42,6 +58,36 @@ pub fn generate_handle_function(spec ActorSpecification) string {
 		'// AUTO-GENERATED FILE - DO NOT EDIT MANUALLY',
 		'',
 		'pub fn (mut actor ${actor_name_pascal}Actor) act(action Action) !Action {',
+		'    return match action.name {',
+		routes.join('\n'),
+		'        else {',
+		'            return error("Unknown operation: \${action.name}")',
+		'        }',
+		'    }',
+		'}',
+	].join('\n')
+}
+
+pub fn generate_handle_example_function(spec ActorSpecification) string {
+	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
+	mut operation_handlers := []string{}
+	mut routes := []string{}
+
+	// Iterate over OpenAPI paths and operations
+	for method in spec.methods {
+		operation_id := method.name
+		params := method.parameters.map(it.name).join(', ')
+
+		// Generate route case
+		route := generate_route_case(operation_id, 'handle_${operation_id}_example')
+		routes << route
+	}
+
+	// Combine the generated handlers and main router into a single file
+	return [
+		'// AUTO-GENERATED FILE - DO NOT EDIT MANUALLY',
+		'',
+		'pub fn (mut actor ${actor_name_pascal}Actor) act_example(action Action) !Action {',
 		'    return match action.name {',
 		routes.join('\n'),
 		'        else {',
@@ -83,6 +129,30 @@ pub fn generate_method_handle(actor_name string, method ActorMethod) !Function {
 	}
 }
 
+fn method_is_void(method ActorMethod) !bool {
+	return schemaref_to_type(method.result.schema)!.vgen().trim_space() == ''
+}
+
+pub fn generate_example_method_handle(actor_name string, method ActorMethod) !Function {
+	actor_name_pascal := texttools.name_fix_snake_to_pascal(actor_name)
+	name_fixed := texttools.name_fix_snake(method.name)
+	body := if !method_is_void(method)! {
+		if method.example.result is Example {
+			'return Action{...action, result: json.encode(\'${method.example.result.value}\')}'
+		} else {
+			"return action"
+		}
+	} else { "return action" }
+	return Function {
+		name: 'handle_${name_fixed}_example'
+		description: '// Handler for ${name_fixed}\n'
+		receiver: Param{name: 'actor', mutable: true, typ: Object{'${actor_name_pascal}Actor'}}
+		params: [Param{name: 'action', typ: Object{'Action'}}]
+		result: Param{typ: Result{Object{'Action'}}}
+		body: body
+	}
+}
+
 fn generate_call_stmt(method ActorMethod) !string {
 	mut call_stmt := if schemaref_to_type(method.result.schema)!.vgen().trim_space() != '' {
 		'${texttools.name_fix_snake(method.result.name)} := '
@@ -96,7 +166,7 @@ fn generate_call_stmt(method ActorMethod) !string {
 fn generate_return_stmt(method ActorMethod) !string {
 	if schemaref_to_type(method.result.schema)!.vgen().trim_space() != '' {
 		return 'return Action{...action, result: json.encode(${texttools.name_fix_snake(method.result.name)})}'
-	} 
+	}
 	return "return action"
 }
 
@@ -104,7 +174,7 @@ fn generate_return_stmt(method ActorMethod) !string {
 fn generate_decode_stmt(name string, param ContentDescriptor) !string {
 	param_type := schemaref_to_type(param.schema)!
 	if param_type is Object {
-		return 'json.decode[${schemaref_to_type(param.schema)!.vgen()}](${name})'
+		return 'json.decode[${schemaref_to_type(param.schema)!.vgen()}](${name})!'
 	}
 	// else if param.schema.typ == 'array' {
 	// 	return 'json2.decode[${schemaref_to_type(param.schema)!.vgen()}](${name})'
@@ -116,7 +186,7 @@ fn generate_decode_stmt(name string, param ContentDescriptor) !string {
 }
 
 // Helper function to generate a case block for the main router
-fn generate_route_case(method string, operation_id string) string {
-	name_fixed := texttools.name_fix_snake(operation_id)
-	return "'${operation_id}' {actor.handle_${name_fixed}(action)}"
+fn generate_route_case(case string, handler_name string) string {
+	name_fixed := texttools.name_fix_snake(handler_name)
+	return "'${case}' {actor.${name_fixed}(action)}"
 }

@@ -3,21 +3,14 @@ import freeflowuniverse.herolib.baobab.stage
 import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.schemas.openapi
 
-const name = '@{actor_name_snake}'
-
-@@[heap]
-struct @{actor_name_pascal}Actor {
-    stage.Actor
-}
-
-pub fn new() !&@{actor_name_pascal}Actor {
+pub fn new_example() !&@{actor_name_pascal}Actor {
     return &@{actor_name_pascal}Actor {
-		Actor: stage.new_actor('@{actor_name_snake}')!
+		Actor: stage.new_actor('example_@{actor_name_snake}')!
     }
 }
 
-pub fn (mut a @{actor_name_pascal}Actor) handle(method string, data string) !string {
-	action := a.act(
+pub fn (mut a @{actor_name_pascal}Actor) handle_example(method string, data string) !string {
+	action := a.act_example(
 		name: method
 		params: data
 	)!
@@ -25,11 +18,11 @@ pub fn (mut a @{actor_name_pascal}Actor) handle(method string, data string) !str
 }
 
 // Actor listens to the Redis queue for method invocations
-pub fn (mut a @{actor_name_pascal}Actor) run() ! {
+pub fn (mut a @{actor_name_pascal}Actor) run_example() ! {
 	mut redis := redisclient.new('localhost:6379') or { panic(err) }
-	mut rpc := redis.rpc_get('actor_@{dollar}{name}')
+	mut rpc := redis.rpc_get('actor_@{dollar}{a.name}')
 
-	println('Actor started and listening for tasks...')
+	println('Example actor started and listening for tasks...')
 	for {
 		rpc.process(a.handle)!
 		time.sleep(time.millisecond * 100) // Prevent CPU spinning

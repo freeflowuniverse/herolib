@@ -1,8 +1,11 @@
 module generator
 
+import freeflowuniverse.herolib.baobab.specification {ActorInterface}
 import freeflowuniverse.herolib.core.code { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
 
-fn generate_openrpc_interface_files() (VFile, VFile) {
+fn generate_openrpc_interface_files(interfaces []ActorInterface) (VFile, VFile) {
+	http := ActorInterface.http in interfaces
+
 	iface_file := VFile {
 		name: 'interface_openrpc'
 		items: [CustomCode{$tmpl('./templates/interface_openrpc.v.template')}]
@@ -14,7 +17,9 @@ fn generate_openrpc_interface_files() (VFile, VFile) {
 	return iface_file, iface_test_file
 }
 
-fn generate_openapi_interface_files() (VFile, VFile) {
+fn generate_openapi_interface_files(interfaces []ActorInterface) (VFile, VFile) {
+	http := ActorInterface.http in interfaces
+	
 	iface_file := VFile {
 		name: 'interface_openapi'
 		items: [CustomCode{$tmpl('./templates/interface_openapi.v.template')}]
@@ -26,7 +31,11 @@ fn generate_openapi_interface_files() (VFile, VFile) {
 	return iface_file, iface_test_file
 }
 
-fn generate_http_interface_files() (VFile, VFile) {
+fn generate_http_interface_files(controllers []ActorInterface) (VFile, VFile) {
+	dollar := '$'
+	openapi := ActorInterface.openapi in controllers
+	openrpc := ActorInterface.openrpc in controllers
+
 	iface_file := VFile {
 		name: 'interface_http'
 		items: [CustomCode{$tmpl('./templates/interface_http.v.template')}]
