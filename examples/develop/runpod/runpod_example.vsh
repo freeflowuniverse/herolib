@@ -35,7 +35,7 @@ spot_pod_resp := rp.create_spot_pod(
 	min_memory_in_gb:     15
 	gpu_type_id:          'NVIDIA RTX A6000'
 	name:                 'RunPod Pytorch'
-	image_name:           'runpod/pytorch'
+	image_name:           'runpod/pytorc2h'
 	docker_args:          ''
 	ports:                '8888/http'
 	volume_mount_path:    '/workspace'

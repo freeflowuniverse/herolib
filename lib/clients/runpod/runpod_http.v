@@ -16,37 +16,28 @@ fn (mut rp RunPod) httpclient() !&httpconnection.HTTPConnection {
 	return http_conn
 }
 
-// Represents the entire mutation and input structure
-struct PodFindAndDeployOnDemand[T, V] {
-	input    T @[json: 'input']
-	response V @[json: 'response']
-}
-
-// GraphQL query structs
-struct GqlQuery {
-	query string
-}
-
-// GraphQL response wrapper
-struct GqlResponse[T] {
-	data map[string]T
-}
-
-// struct GqlResponseData[T] {
-// 	pod_find_and_deploy_on_demand T @[json: 'podFindAndDeployOnDemand']
-// }
-
-fn (mut rp RunPod) create_pop_find_and_deploy_on_demand_request(request PodFindAndDeployOnDemandRequest) !PodFindAndDeployOnDemandResponse {
-	gql := build_query(BuildQueryArgs{
-		query_type:  .mutation
-		method_name: 'podFindAndDeployOnDemand'
-	}, request, PodFindAndDeployOnDemandResponse{})
-	println('gql: ${gql}')
-	response_ := rp.make_request[GqlResponse[PodFindAndDeployOnDemandResponse]](.post,
-		'/graphql', gql)!
-	println('response: ${json.encode(response_)}')
+fn (mut rp RunPod) create_pod_find_and_deploy_on_demand_request(request PodFindAndDeployOnDemandRequest) !PodResult {
+	gql := build_query(
+		query_type:     .mutation
+		method_name:    'podFindAndDeployOnDemand'
+		request_model:  request
+		response_model: PodResult{}
+	)
+	response_ := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
 	return response_.data['podFindAndDeployOnDemand'] or {
 		return error('Could not find podFindAndDeployOnDemand in response data: ${response_.data}')
 	}
-	// return response.data.pod_find_and_deploy_on_demand
+}
+
+fn (mut rp RunPod) create_create_spot_pod_request(input PodRentInterruptableInput) !PodResult {
+	gql := build_query(
+		query_type:     .mutation
+		method_name:    'podRentInterruptable'
+		request_model:  input
+		response_model: PodResult{}
+	)
+	response_ := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
+	return response_.data['podRentInterruptable'] or {
+		return error('Could not find podRentInterruptable in response data: ${response_.data}')
+	}
 }

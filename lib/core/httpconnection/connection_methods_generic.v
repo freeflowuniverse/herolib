@@ -9,7 +9,6 @@ pub fn (mut h HTTPConnection) get_json_generic[T](req Request) !T {
 
 pub fn (mut h HTTPConnection) post_json_generic[T](req Request) !T {
 	data := h.post_json_str(req)!
-	println('data: ${data}')
 	return json.decode(T, data) or { return error("couldn't decode json for ${req} for ${data}") }
 }
 

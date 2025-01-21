@@ -86,19 +86,21 @@ pub enum QueryType {
 }
 
 @[params]
-pub struct BuildQueryArgs {
+pub struct BuildQueryArgs[T, R] {
 pub:
-	query_type  QueryType // query or mutation
-	method_name string
+	query_type     QueryType // query or mutation
+	method_name    string
+	request_model  T @[required]
+	response_model R @[required]
 }
 
-fn build_query[T, R](args BuildQueryArgs, request T, response R) string {
+fn build_query[T, R](args BuildQueryArgs[T, R]) string {
 	// Convert input to JSON
 	// input_json := json.encode(request)
 
 	// Build the GraphQL mutation string
-	mut request_fields := get_request_fields(request)
-	mut response_fields := get_response_fields(response)
+	mut request_fields := get_request_fields(args.request_model)
+	mut response_fields := get_response_fields(args.response_model)
 
 	// Wrap the query correctly
 	query := '${args.query_type.to_string()} { ${args.method_name}(input: ${request_fields}) ${response_fields} }'
@@ -159,5 +161,10 @@ fn (mut rp RunPod) make_request[T](method HTTPMethod, path string, data string) 
 			response = http.delete_json_generic[T](request)!
 		}
 	}
+
+	if response.errors.len > 0 {
+		return error('Error while sending the request due to: ${response.errors[0]['message']}')
+	}
+
 	return response
 }
