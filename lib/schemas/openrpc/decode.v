@@ -1,11 +1,10 @@
 module openrpc
 
-import json
 import x.json2 { Any }
 import freeflowuniverse.herolib.schemas.jsonschema { Reference, decode_schemaref }
 
 pub fn decode(data string) !OpenRPC {
-	mut object := json.decode(OpenRPC, data) or { return error('Failed to decode json\n${err}') }
+	mut object := json2.decode[OpenRPC](data) or { return error('Failed to decode json\n${err}') }
 	data_map := json2.raw_decode(data)!.as_map()
 	if 'components' in data_map {
 		object.components = decode_components(data_map) or {
@@ -81,7 +80,7 @@ fn decode_content_descriptor_ref(data_map map[string]Any) !ContentDescriptorRef 
 			ref: ref_any.str()
 		}
 	}
-	mut descriptor := json.decode(ContentDescriptor, data_map.str())!
+	mut descriptor := json2.decode[ContentDescriptor](data_map.str())!
 	if schema_any := data_map['schema'] {
 		descriptor.schema = decode_schemaref(schema_any.as_map())!
 	}

@@ -1,5 +1,6 @@
 module openrpc
 
+import x.json2 as json {Any}
 import freeflowuniverse.herolib.schemas.jsonschema { Reference, SchemaRef }
 
 // This is the root object of the OpenRPC document.
@@ -112,15 +113,16 @@ pub mut:
 	result      ExampleRef   @[omitempty] // Example result. When undefined, the example pairing represents usage of the method as a notification.
 }
 
-type ExampleRef = Example | Reference
+pub type ExampleRef = Example | Reference
 
 // The Example object is an object that defines an example that is intended to match the schema of a given Content Descriptor.
 // Question: how to handle any type for value?
 pub struct Example {
+pub:
 	name           string @[omitempty]                      // Cannonical name of the example.
 	summary        string @[omitempty]                      // Short description for the example.
 	description    string @[omitempty]                      // A verbose explanation of the example.
-	value          string @[omitempty]                      // Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON, use a string value to contain the example, escaping where necessary.
+	value          Any @[omitempty; json: '-']                      // Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON, use a string value to contain the example, escaping where necessary.
 	external_value string @[json: externalValue; omitempty] // A URL that points to the literal example. This provides the capability to reference examples that cannot easily be included in JSON documents. The value field and externalValue field are mutually exclusive.
 }
 

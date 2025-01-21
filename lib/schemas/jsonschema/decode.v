@@ -1,11 +1,10 @@
 module jsonschema
 
-import json
 import x.json2 { Any }
 
 pub fn decode(data string) !Schema {
 	schema_map := json2.raw_decode(data)!.as_map()
-	mut schema := json.decode(Schema, data)!
+	mut schema := json2.decode[Schema](data)!
 	for key, value in schema_map {
 		if key == 'properties' {
 			schema.properties = decode_schemaref_map(value.as_map())!

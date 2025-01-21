@@ -1,5 +1,7 @@
 module jsonschema
 
+import x.json2 as json {Any}
+
 pub type Items = SchemaRef | []SchemaRef
 
 pub type SchemaRef = Reference | Schema
@@ -33,4 +35,5 @@ pub mut:
     minimum               int                  @[omitempty]
     exclusive_minimum     int                  @[json: 'exclusiveMinimum'; omitempty]
     enum_                 []string             @[json: 'enum'; omitempty]
+    example Any @[json: '-']
 }

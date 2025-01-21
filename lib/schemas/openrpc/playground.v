@@ -1,6 +1,6 @@
 module openrpc
 
-import json
+import x.json2 as json
 // import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools

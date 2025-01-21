@@ -8,8 +8,10 @@ import freeflowuniverse.herolib.schemas.jsonrpc
 
 const specification_path = os.join_path(os.dir(@FILE), '/testdata/openrpc.json')
 
+pub struct TestHandler {}
+
 // handler for test echoes JSONRPC Request as JSONRPC Response
-fn handler(request jsonrpc.Request) !jsonrpc.Response {
+pub fn (h TestHandler) handle(request jsonrpc.Request) !jsonrpc.Response {
     return jsonrpc.Response {
         jsonrpc: request.jsonrpc
         id: request.id
@@ -18,21 +20,20 @@ fn handler(request jsonrpc.Request) !jsonrpc.Response {
 }
 
 fn test_new_server() {
-    specification := new(path: specification_path)!
-    new_controller(
-        handler: Handler{
-            specification: specification
-            handler: handler
+    new_http_controller(
+        Handler: Handler{
+            specification: new(path: specification_path)!
+            handler:TestHandler{}
         }
     )
 }
 
 fn test_run_server() {
     specification := new(path: specification_path)!
-    mut controller := new_controller(
-        handler: Handler{
+    mut controller := new_http_controller(
+        Handler: Handler{
             specification: specification
-            handler: handler
+            handler: TestHandler{}
         }
     )
     spawn controller.run()

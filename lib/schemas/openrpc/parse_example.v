@@ -2,7 +2,6 @@ module openrpc
 
 import freeflowuniverse.herolib.schemas.jsonschema { Reference }
 import freeflowuniverse.herolib.core.code { Struct, StructField }
-import json
 import x.json2
 
 pub fn parse_example_pairing(text_ string) !ExamplePairing {
@@ -19,10 +18,10 @@ pub fn parse_example_pairing(text_ string) !ExamplePairing {
 		} else {
 			text.all_after('assert').all_before('(').trim_space()
 		}
-		value := text.all_after('==').all_before('//').trim_space()
+		text.all_after('==').all_before('//').trim_space()
 		pairing.params = parse_pairing_params(text.all_after('(').all_before(')'))
 		pairing.result = parse_pairing_result(text)
-		description := text.all_after('//').trim_space()
+		pairing.description = text.all_after('//').trim_space()
 	}
 
 	return pairing
@@ -58,7 +57,7 @@ pub fn parse_pairing_params(text_ string) []ExampleRef {
 	} else if text.contains(':') {
 		examples << Example{
 			name: ''
-			value: json.encode(text)
+			value: json2.encode(text)
 		}
 	} else {
 		examples1 := text.split(',').map(it.trim_space()).map(ExampleRef(Example{
@@ -79,7 +78,7 @@ pub fn parse_pairing_result(text_ string) ExampleRef {
 	} else if text.contains(':') {
 		return Example{
 			name: ''
-			value: json.encode(text)
+			value: json2.encode(text)
 		}
 	}
 	return Example{}

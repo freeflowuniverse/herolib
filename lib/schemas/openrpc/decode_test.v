@@ -1,6 +1,5 @@
 module openrpc
 
-import json
 import x.json2
 import os
 import freeflowuniverse.herolib.core.pathlib

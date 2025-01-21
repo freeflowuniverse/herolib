@@ -1,6 +1,6 @@
 module openrpc
 
-import json
+import x.json2 as json
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef }
 
 const blank_openrpc = '{
