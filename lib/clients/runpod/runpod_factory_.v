@@ -18,8 +18,8 @@ pub mut:
 	api_key string // RunPod API key
 }
 
-// get_or_create gets an existing RunPod instance or creates a new one
-pub fn get_or_create(args_ ArgsGet) !&RunPod {
+// The get method gets an existing RunPod instance or creates a new one
+pub fn get(args_ ArgsGet) !&RunPod {
 	mut args := args_
 
 	if args.name == '' {

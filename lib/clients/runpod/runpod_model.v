@@ -10,7 +10,7 @@ pub fn heroscript_default() !string {
     !!runpod.configure
         name:'default'
         api_key:''
-        base_url:'https://api.runpod.io/v1'
+        base_url:'https://api.runpod.io/'
     "
 }
 
@@ -20,7 +20,7 @@ pub struct RunPod {
 pub mut:
 	name     string = 'default'
 	api_key  string
-	base_url string = 'https://api.runpod.io/v1'
+	base_url string = 'https://api.runpod.io/'
 }
 
 pub enum CloudType {

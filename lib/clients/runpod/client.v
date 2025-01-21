@@ -38,7 +38,7 @@ pub mut:
 
 // Create On-Demand Pod
 pub fn (mut rp RunPod) create_on_demand_pod(input PodFindAndDeployOnDemandRequest) !PodResult {
-	return rp.create_pod_find_and_deploy_on_demand_request(input)!
+	return rp.create_on_demand_pod_request(input)!
 }
 
 @[params]
@@ -78,15 +78,14 @@ pub mut:
 
 // Create Spot Pod
 pub fn (mut rp RunPod) create_spot_pod(input PodRentInterruptableInput) !PodResult {
-	return rp.create_create_spot_pod_request(input)!
+	return rp.create_spot_pod_request(input)!
 }
 
 @[params]
 pub struct PodResume {
 pub mut:
-	pod_id      string @[json: 'podId']
-	gpu_count   int    @[json: 'gpuCount']
-	bid_per_gpu f32    @[json: 'bidPerGpu']
+	pod_id    string @[json: 'podId']
+	gpu_count int    @[json: 'gpuCount']
 }
 
 // Start On-Demand Pod
@@ -94,7 +93,20 @@ pub fn (mut rp RunPod) start_on_demand_pod(input PodResume) !PodResult {
 	return rp.start_on_demand_pod_request(input)!
 }
 
+@[params]
+pub struct PodBidResume {
+pub mut:
+	pod_id      string @[json: 'podId']
+	gpu_count   int    @[json: 'gpuCount']
+	bid_per_gpu f32    @[json: 'bidPerGpu']
+}
+
 // Start Spot Pod
-pub fn (mut rp RunPod) start_spot_pod(input PodResume) !PodResult {
+pub fn (mut rp RunPod) start_spot_pod(input PodBidResume) !PodResult {
 	return rp.start_spot_pod_request(input)!
+}
+
+// Stop Pod
+pub fn (mut rp RunPod) stop_pod(input PodResume) !PodResult {
+	return rp.stop_pod_request(input)!
 }

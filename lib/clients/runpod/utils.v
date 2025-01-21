@@ -12,6 +12,7 @@ fn (mut rp RunPod) httpclient() !&httpconnection.HTTPConnection {
 		cache: true
 		retry: 3
 	)!
+	http_conn.default_header.add(.authorization, 'Bearer ${rp.api_key}')
 	return http_conn
 }
 
@@ -110,11 +111,26 @@ pub:
 
 // Builds a GraphQL query or mutation string from provided arguments.
 fn build_query[T, R](args BuildQueryArgs[T, R]) string {
-	mut request_fields := get_request_fields(args.request_model)
-	mut response_fields := get_response_fields(args.response_model)
+	mut request_fields := T{}
+	mut response_fields := R{}
 
-	// Wrap the query correctly
-	query := '${args.query_type.to_string()} { ${args.method_name}(input: ${request_fields}) ${response_fields} }'
+	if args.request_model {
+		request_fields = get_request_fields(args.request_model)
+	}
+
+	if args.response_model {
+		response_fields = get_response_fields(args.response_model)
+	}
+
+	mut query := ''
+
+	if args.request_model  && args.response_model{
+		query := '${args.query_type.to_string()} { ${args.method_name}(input: ${request_fields}) ${response_fields} }'
+	}
+
+	if args.response_model && !args.request_model{
+		query := '${args.query_type.to_string()} { ${response_fields} }'	
+	}
 
 	// Wrap in the final structure
 	gql := GqlQuery{
