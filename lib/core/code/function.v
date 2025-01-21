@@ -28,51 +28,6 @@ pub mut:
 	struct_     Struct  @[omitempty]
 }
 
-pub type Type = Array | Object | Result | Integer | Alias | String
-
-pub struct Integer {
-	bytes u8
-}
-
-pub fn type_from_symbol(symbol_ string) Type {
-	mut symbol := symbol_.trim_space()
-	if symbol.starts_with('[]') {
-		return Array{type_from_symbol(symbol.all_after('[]'))}
-	} else if symbol == 'int' {
-		return Integer{}
-	} else if symbol == 'string' {
-		return String{}
-	}
-	return Object{symbol}
-}
-
-pub fn (t Type) symbol() string {
-	return match t {
-		Array { '[]${t.typ.symbol()}' }
-		Object { t.name }
-		Result { '!${t.typ.symbol()}'}
-		Integer {'int'}
-		Alias {t.name}
-		String {'string'}
-	}
-}
-
-pub struct String {}
-
-pub struct Array {
-pub:
-	typ Type
-}
-
-pub struct Object {
-pub:
-	name string
-}
-
-pub struct Result {
-pub:
-	typ Type
-}
 
 // // todo: maybe make 'is_' fields methods?
 // pub struct Type {

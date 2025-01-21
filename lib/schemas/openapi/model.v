@@ -1,5 +1,6 @@
 module openapi
 
+import x.json2 as json {Any}
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
 
 // todo: report bug: when comps is optional, doesnt work
@@ -83,7 +84,7 @@ pub:
 // }```
 pub struct ServerSpec {
 pub:
-	url         string                            @[required] // A URL to the target host. This URL supports ServerSpec Variables and MAY be relative, to indicate that the host location is relative to the location where the OpenAPI document is being served. Variable substitutions will be made when a variable is named in {brackets}.
+	url         string  @[required] // A URL to the target host. This URL supports ServerSpec Variables and MAY be relative, to indicate that the host location is relative to the location where the OpenAPI document is being served. Variable substitutions will be made when a variable is named in {brackets}.
 	description string // An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.
 	variables   map[string]ServerVariable // A map between a variable name and its value. The value is used for substitution in the server’s URL template.
 }
@@ -208,7 +209,7 @@ pub mut:
 pub struct MediaType {
 pub mut:
 	schema   SchemaRef // The schema defining the content of the request, response, or parameter.
-	example  string // Example of the media type. The example object SHOULD be in the correct format as specified by the media type. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains an example, the example value SHALL override the example provided by the schema.
+	example  Any @[json: '-']// Example of the media type. The example object SHOULD be in the correct format as specified by the media type. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains an example, the example value SHALL override the example provided by the schema.
 	examples map[string]ExampleRef // Examples of the media type. Each example object SHOULD match the media type and specified schema if present. The examples field is mutually exclusive of the example field. Furthermore, if referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.
 	encoding map[string]Encoding   //	A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding object SHALL only apply to requestBody objects when the media type is multipart or application/x-www-form-urlencoded.
 }

@@ -6,6 +6,8 @@ import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef, Referenc
 const vtypes = {
 	'integer': 'int'
 	'string':  'string'
+	'u32':  'u32'
+	'boolean': 'bool'
 }
 
 pub fn schema_to_v(schema Schema) !string {
@@ -75,7 +77,20 @@ pub fn schema_to_type(schema Schema) !Type {
 				typ: schemaref_to_type(schema.items as SchemaRef)!
 			}
 		} else {
-			if schema.typ in vtypes.keys() {
+			if schema.typ == 'integer' && schema.format != '' {
+				match schema.format {
+					'int8' { code.type_i8 }
+					'uint8' { code.type_u8 }
+					'int16' { code.type_i16 }
+					'uint16' { code.type_u16 }
+					'int32' { code.type_i32 }
+					'uint32' { code.type_u32 }
+					'int64' { code.type_i64 }
+					'uint64' { code.type_u64 }
+					else { code.Integer{} } // Default to 'int' if the format doesn't match any known type
+				}
+			}
+			else if schema.typ in vtypes.keys() {
 				type_from_symbol(vtypes[schema.typ])
 			} else if schema.title != '' {
 				type_from_symbol(schema.title)
