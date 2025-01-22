@@ -36,7 +36,7 @@ pub fn get(args_ ArgsGet) !&MailClient {
 			if !config_exists(args) {
 				if default {
 					mut context := base.context() or { panic('bug') }
-					context.hero_config_set('mailclient', model.name, heroscript_default()!)!
+					context.hero_config_set('mailclient', args.name, heroscript_default())!
 				}
 			}
 			load(args)!
@@ -44,7 +44,7 @@ pub fn get(args_ ArgsGet) !&MailClient {
 	}
 	return mailclient_global[args.name] or {
 		println(mailclient_global)
-		panic('could not get config for ${args.name} with name:${model.name}')
+		panic('could not get config for ${args.name} with name:${args.name}')
 	}
 }
 
@@ -70,12 +70,12 @@ pub fn load(args_ ArgsGet) ! {
 	play(heroscript: heroscript)!
 }
 
-// save the config to the filesystem in the context
-pub fn save(o MailClient) ! {
-	mut context := base.context()!
-	heroscript := encoderhero.encode[MailClient](o)!
-	context.hero_config_set('mailclient', model.name, heroscript)!
-}
+// // save the config to the filesystem in the context
+// pub fn save(o MailClient) ! {
+// 	mut context := base.context()!
+// 	heroscript := encoderhero.encode[MailClient](o)!
+// 	context.hero_config_set('mailclient', model.name, heroscript)!
+// }
 
 @[params]
 pub struct PlayArgs {
@@ -89,7 +89,7 @@ pub fn play(args_ PlayArgs) ! {
 	mut model := args_
 
 	if model.heroscript == '' {
-		model.heroscript = heroscript_default()!
+		model.heroscript = heroscript_default()
 	}
 	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
 
@@ -97,10 +97,7 @@ pub fn play(args_ PlayArgs) ! {
 	if configure_actions.len > 0 {
 		for config_action in configure_actions {
 			mut p := config_action.params
-			mycfg := cfg_play(p)!
-			console.print_debug('install action mailclient.configure\n${mycfg}')
-			set(mycfg)!
-			save(mycfg)!
+			cfg_play(p)!
 		}
 	}
 }
