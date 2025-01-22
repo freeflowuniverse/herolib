@@ -85,7 +85,7 @@ print("==RESULT==")
 print(json_string)
 ```
 
-> see `crystallib/examples/lang/python/pythonexample.vsh`
+> see `herolib/examples/lang/python/pythonexample.vsh`
 
 
 ## remark

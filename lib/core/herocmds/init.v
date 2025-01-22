@@ -13,8 +13,8 @@ pub fn cmd_init(mut cmdroot Command) {
 Initialization Helpers for Hero
 
 -r will reset everything e.g. done states (when installing something)
--d will put the platform in development mode, get V, crystallib, hero...
--c will compile hero on local platform (requires local crystallib)
+-d will put the platform in development mode, get V, herolib, hero...
+-c will compile hero on local platform (requires local herolib)
 
 '
 		description:   'initialize hero environment (reset, development mode, )'
@@ -58,7 +58,7 @@ Initialization Helpers for Hero
 		required:    false
 		name:        'gitpull'
 		abbrev:      'gp'
-		description: 'will try to pull git repos for crystallib.'
+		description: 'will try to pull git repos for herolib.'
 	})
 
 	cmd_run.add_flag(Flag{
