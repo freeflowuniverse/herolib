@@ -29,7 +29,7 @@ pub enum CloudType {
 	community
 }
 
-fn (ct CloudType) to_string() string {
+fn (ct CloudType) str() string {
 	return match ct {
 		.all {
 			'ALL'
@@ -44,7 +44,7 @@ fn (ct CloudType) to_string() string {
 }
 
 pub struct EnvironmentVariableInput {
-pub:
+pub mut:
 	key   string
 	value string
 }
