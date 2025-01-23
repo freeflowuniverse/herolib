@@ -40,7 +40,7 @@ pub fn cmd_installers(mut cmdroot Command) {
 		required:    false
 		name:        'gitpull'
 		abbrev:      'gp'
-		description: 'e.g. in crystallib or other git repo pull changes.'
+		description: 'e.g. in herolib or other git repo pull changes.'
 	})
 
 	cmd_run.add_flag(Flag{
@@ -48,7 +48,7 @@ pub fn cmd_installers(mut cmdroot Command) {
 		required:    false
 		name:        'gitreset'
 		abbrev:      'gr'
-		description: 'e.g. in crystallib or other git repo pull & reset changes.'
+		description: 'e.g. in herolib or other git repo pull & reset changes.'
 	})
 	cmdroot.add_command(cmd_run)
 }

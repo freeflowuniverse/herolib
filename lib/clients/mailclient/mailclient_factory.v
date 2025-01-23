@@ -1,6 +1,6 @@
 module mailclient
 
-// import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.core.base
 // import freeflowuniverse.herolib.core.playbook
 
 // __global (
@@ -45,11 +45,11 @@ module mailclient
 // 	mailclient_default = name
 // }
 
-// fn config_exists(args_ ArgsGet) bool {
-// 	mut args := args_get(args_)
-// 	mut context := base.context() or { panic('bug') }
-// 	return context.hero_config_exists('mailclient', args.name)
-// }
+fn config_exists(args_ ArgsGet) bool {
+	mut args := args_get(args_)
+	mut context := base.context() or { panic('bug') }
+	return context.hero_config_exists('mailclient', args.name)
+}
 
 // fn config_load(args_ ArgsGet) ! {
 // 	mut args := args_get(args_)

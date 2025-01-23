@@ -73,7 +73,7 @@ to call in code
 
 import freeflowuniverse.herolib.core.generator.generic
 
-generic.scan(path:"~/code/github/freeflowuniverse/crystallib/crystallib/installers",force:true)!
+generic.scan(path:"~/code/github/freeflowuniverse/herolib/herolib/installers",force:true)!
 
 
 ```
@@ -81,6 +81,6 @@ generic.scan(path:"~/code/github/freeflowuniverse/crystallib/crystallib/installe
 to run from bash
 
 ```bash
-~/code/github/freeflowuniverse/crystallib/scripts/fix_installers.vsh
+~/code/github/freeflowuniverse/herolib/scripts/fix_installers.vsh
 ```
 

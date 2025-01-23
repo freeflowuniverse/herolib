@@ -26,4 +26,8 @@ fn (kvs KVStoreFS) get(key string) ![]u8 {
 }
 
 fn (kvs KVStoreFS) delete(key string) ! {
+	mut mycontext := context.context_new()!
+	mut session := mycontext.session_new(name: 'deployer')!
+	mut db := session.db_get()!
+	db.delete(key: key) or { return error('Cannot set the key due to: ${err}') }
 }

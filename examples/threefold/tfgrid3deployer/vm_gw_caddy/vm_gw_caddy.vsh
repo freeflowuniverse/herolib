@@ -29,12 +29,9 @@ println('vm1 info: ${vm1}')
 
 vm1_public_ip4 := vm1.public_ip4.all_before('/')
 
-deployment_name2 := 'vm_caddy_gw'
-mut deployment2 := tfgrid3deployer.new_deployment(deployment_name2)!
-deployment2.add_webname(name: 'gwnamecaddy', backend: 'http://${vm1_public_ip4}:80')
-deployment2.deploy()!
-
-gw1 := deployment2.webname_get('gwnamecaddy')!
+deployment.add_webname(name: 'gwnamecaddy', backend: 'http://${vm1_public_ip4}:80')
+deployment.deploy()!
+gw1 := deployment.webname_get('gwnamecaddy')!
 println('gw info: ${gw1}')
 
 // Retry logic to wait for the SSH server to be up
