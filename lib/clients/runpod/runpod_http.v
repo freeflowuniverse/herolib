@@ -1,33 +1,15 @@
 module runpod
 
 import x.json2
-import json
+import net.http { Method }
+import freeflowuniverse.herolib.core.httpconnection
 
-// fn main() {
-// 	mut fields := []Field{}
-// 	fields << new_field('gpuTypes', {
-// 		'id': '"NVIDIA GeForce RTX 3090"'
-// 	}, [
-// 		new_field('displayName', {}, []),
-// 		new_field('d', {}, []),
-// 		new_field('communmemoryInGb', {}, []),
-// 		new_field('secureClouityCloud', {}, []),
-// 		new_field('lowestPrice', {
-// 			'gpuCount': '1'
-// 		}, [
-// 			new_field('minimumBidPrice', {}, []),
-// 			new_field('uninterruptablePrice', {}, []),
-// 		]),
-// 	])
-
-// 	// Create Query Builder
-// 	mut builder := QueryBuilder{}
-// 	builder.add_operation(.query, fields, {})
-
-// 	// Build and print the query
-// 	query := builder.build_query()
-// 	println('query: ${query}')
-// }
+// GraphQL response wrapper
+struct GqlResponse[T] {
+pub mut:
+	data   map[string]T
+	errors []map[string]string
+}
 
 // #### Internally method doing a network call to create a new on-demand pod.
 // - Build the required query based pn the input sent by the user and send the request.
@@ -38,50 +20,39 @@ fn (mut rp RunPod) create_on_demand_pod_request(input PodFindAndDeployOnDemandRe
 	mut fields := []Field{}
 	mut machine_fields := []Field{}
 	mut output_fields := []Field{}
-	mut arguments := map[string]string{}
 	mut builder := QueryBuilder{}
 
-	// $for field in input.fields {
-	// 	// TODO: Handle option fields
-	// 	// TODO: Handle the skip chars \
+	machine_fields << new_field(name: 'podHostId')
+	output_fields << new_field(name: 'id')
+	output_fields << new_field(name: 'imageName')
+	output_fields << new_field(name: 'env')
+	output_fields << new_field(name: 'machineId')
+	output_fields << new_field(name: 'desiredStatus')
+	output_fields << new_field(name: 'machine', sub_fields: machine_fields)
+	fields << new_field(
+		name:       'podFindAndDeployOnDemand'
+		arguments:  {
+			'input': '\$arguments'
+		}
+		sub_fields: output_fields
+	)
 
-	// 	item := input.$(field.name)
-	// 	arguments[get_field_name(field)] = '${item}'
-	// }
+	builder.add_operation(
+		operation: .mutation
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodFindAndDeployOnDemandInput'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
 
-	machine_fields << new_field('podHostId', {}, [])
-	output_fields << new_field('id', {}, [])
-	output_fields << new_field('imageName', {}, [])
-	output_fields << new_field('env', {}, [])
-	output_fields << new_field('machineId', {}, [])
-	output_fields << new_field('desiredStatus', {}, [])
-	output_fields << new_field('machine', {}, machine_fields)
-	fields << new_field('podFindAndDeployOnDemand', {
-		'input': '\$arguments'
-	}, output_fields)
-
-	builder.add_operation(.mutation, fields, {
-		'\$arguments': 'PodFindAndDeployOnDemandInput'
-	})
-
-	query := builder.build_query()
-	encoded_input := json.encode(input)
-	decoded_input := json2.raw_decode(encoded_input)!.as_map()
-	mut q_map := map[string]json2.Any{}
-	mut variables := map[string]json2.Any{}
-
-	variables['arguments'] = decoded_input
-	q_map['query'] = json2.Any(query)
-	q_map['variables'] = json2.Any(variables)
-
-	q := json2.encode(q_map)
-
-	println('query: ${q}')
-	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', q)!
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
 	return response.data['podFindAndDeployOnDemand'] or {
 		return error('Could not find "podFindAndDeployOnDemand" in response data: ${response.data}')
 	}
-	// return PodResult{}
 }
 
 // #### Internally method doing a network call to create a new spot pod.
@@ -90,17 +61,42 @@ fn (mut rp RunPod) create_on_demand_pod_request(input PodFindAndDeployOnDemandRe
 // - The data field should contains the pod details same as `PodResult` struct.
 // - The error field should contain the error message.
 fn (mut rp RunPod) create_spot_pod_request(input PodRentInterruptableInput) !PodResult {
-	// gql := build_query(
-	// 	query_type:     .mutation
-	// 	method_name:    'podRentInterruptable'
-	// 	request_model:  input
-	// 	response_model: PodResult{}
-	// )
-	// response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
-	// return response.data['podRentInterruptable'] or {
-	// 	return error('Could not find "podRentInterruptable" in response data: ${response.data}')
-	// }
-	return PodResult{}
+	mut fields := []Field{}
+	mut machine_fields := []Field{}
+	mut output_fields := []Field{}
+	mut builder := QueryBuilder{}
+
+	machine_fields << new_field(name: 'podHostId')
+	output_fields << new_field(name: 'id')
+	output_fields << new_field(name: 'imageName')
+	output_fields << new_field(name: 'env')
+	output_fields << new_field(name: 'machineId')
+	output_fields << new_field(name: 'desiredStatus')
+	output_fields << new_field(name: 'machine', sub_fields: machine_fields)
+	fields << new_field(
+		name:       'podRentInterruptable'
+		arguments:  {
+			'input': '\$arguments'
+		}
+		sub_fields: output_fields
+	)
+
+	builder.add_operation(
+		operation: .mutation
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodRentInterruptableInput!'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
+
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
+	return response.data['podRentInterruptable'] or {
+		return error('Could not find "podRentInterruptable" in response data: ${response.data}')
+	}
 }
 
 // #### Internally method doing a network call to start on demand pod.
@@ -108,18 +104,43 @@ fn (mut rp RunPod) create_spot_pod_request(input PodRentInterruptableInput) !Pod
 // - Decode the response received from the API into two objects `Data` and `Error`.
 // - The data field should contains the pod details same as `PodResult` struct.
 // - The error field should contain the error message.
-fn (mut rp RunPod) start_on_demand_pod_request(input PodResume) !PodResult {
-	// gql := build_query(
-	// 	query_type:     .mutation
-	// 	method_name:    'podResume'
-	// 	request_model:  input
-	// 	response_model: PodResult{}
-	// )
-	// response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
-	// return response.data['podResume'] or {
-	// 	return error('Could not find "podResume" in response data: ${response.data}')
-	// }
-	return PodResult{}
+fn (mut rp RunPod) start_on_demand_pod_request(input PodResumeInput) !PodResult {
+	mut fields := []Field{}
+	mut machine_fields := []Field{}
+	mut output_fields := []Field{}
+	mut builder := QueryBuilder{}
+
+	machine_fields << new_field(name: 'podHostId')
+	output_fields << new_field(name: 'id')
+	output_fields << new_field(name: 'imageName')
+	output_fields << new_field(name: 'env')
+	output_fields << new_field(name: 'machineId')
+	output_fields << new_field(name: 'desiredStatus')
+	output_fields << new_field(name: 'machine', sub_fields: machine_fields)
+	fields << new_field(
+		name:       'podResume'
+		arguments:  {
+			'input': '\$arguments'
+		}
+		sub_fields: output_fields
+	)
+
+	builder.add_operation(
+		operation: .mutation
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodResumeInput!'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
+
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
+	return response.data['podResume'] or {
+		return error('Could not find "podResume" in response data: ${response.data}')
+	}
 }
 
 // #### Internally method doing a network call to start spot pod.
@@ -127,18 +148,43 @@ fn (mut rp RunPod) start_on_demand_pod_request(input PodResume) !PodResult {
 // - Decode the response received from the API into two objects `Data` and `Error`.
 // - The data field should contains the pod details same as `PodResult` struct.
 // - The error field should contain the error message.
-fn (mut rp RunPod) start_spot_pod_request(input PodBidResume) !PodResult {
-	// gql := build_query(
-	// 	query_type:     .mutation
-	// 	method_name:    'podBidResume'
-	// 	request_model:  input
-	// 	response_model: PodResult{}
-	// )
-	// response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
-	// return response.data['podBidResume'] or {
-	// 	return error('Could not find "podBidResume" in response data: ${response.data}')
-	// }
-	return PodResult{}
+fn (mut rp RunPod) start_spot_pod_request(input PodBidResumeInput) !PodResult {
+	mut fields := []Field{}
+	mut machine_fields := []Field{}
+	mut output_fields := []Field{}
+	mut builder := QueryBuilder{}
+
+	machine_fields << new_field(name: 'podHostId')
+	output_fields << new_field(name: 'id')
+	output_fields << new_field(name: 'imageName')
+	output_fields << new_field(name: 'env')
+	output_fields << new_field(name: 'machineId')
+	output_fields << new_field(name: 'desiredStatus')
+	output_fields << new_field(name: 'machine', sub_fields: machine_fields)
+	fields << new_field(
+		name:       'podBidResume'
+		arguments:  {
+			'input': '\$arguments'
+		}
+		sub_fields: output_fields
+	)
+
+	builder.add_operation(
+		operation: .mutation
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodBidResumeInput!'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
+
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
+	return response.data['podBidResume'] or {
+		return error('Could not find "podBidResume" in response data: ${response.data}')
+	}
 }
 
 // #### Internally method doing a network call to stop a pod.
@@ -146,16 +192,163 @@ fn (mut rp RunPod) start_spot_pod_request(input PodBidResume) !PodResult {
 // - Decode the response received from the API into two objects `Data` and `Error`.
 // - The data field should contains the pod details same as `PodResult` struct.
 // - The error field should contain the error message.
-fn (mut rp RunPod) stop_pod_request(input PodResume) !PodResult {
-	// gql := build_query(
-	// 	query_type:     .mutation
-	// 	method_name:    'podStop'
-	// 	request_model:  input
-	// 	response_model: PodResult{}
-	// )
-	// response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', gql)!
-	// return response.data['podStop'] or {
-	// 	return error('Could not find "podStop" in response data: ${response.data}')
-	// }
-	return PodResult{}
+fn (mut rp RunPod) stop_pod_request(input PodStopInput) !PodResult {
+	mut fields := []Field{}
+	mut machine_fields := []Field{}
+	mut output_fields := []Field{}
+	mut builder := QueryBuilder{}
+
+	machine_fields << new_field(name: 'podHostId')
+	output_fields << new_field(name: 'id')
+	output_fields << new_field(name: 'imageName')
+	output_fields << new_field(name: 'env')
+	output_fields << new_field(name: 'machineId')
+	output_fields << new_field(name: 'desiredStatus')
+	output_fields << new_field(name: 'machine', sub_fields: machine_fields)
+	fields << new_field(
+		name:       'podStop'
+		arguments:  {
+			'input': '\$arguments'
+		}
+		sub_fields: output_fields
+	)
+
+	builder.add_operation(
+		operation: .mutation
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodStopInput!'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
+
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
+	return response.data['podStop'] or {
+		return error('Could not find "podStop" in response data: ${response.data}')
+	}
+}
+
+fn (mut rp RunPod) terminate_pod_request(input PodTerminateInput) ! {
+	mut fields := []Field{}
+	mut builder := QueryBuilder{}
+
+	fields << new_field(
+		name:      'podTerminate'
+		arguments: {
+			'input': '\$arguments'
+		}
+	)
+
+	builder.add_operation(
+		operation: .mutation
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodTerminateInput!'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
+
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
+	_ := response.data['podTerminate'] or {
+		return error('Could not find "podTerminate" in response data: ${response.data}')
+	}
+}
+
+fn (mut rp RunPod) get_pod_request(input PodFilter) !PodResult {
+	mut fields := []Field{}
+	mut machine_fields := []Field{}
+	mut output_fields := []Field{}
+	mut builder := QueryBuilder{}
+
+	machine_fields << new_field(name: 'podHostId')
+	output_fields << new_field(name: 'id')
+	output_fields << new_field(name: 'imageName')
+	output_fields << new_field(name: 'env')
+	output_fields << new_field(name: 'machineId')
+	output_fields << new_field(name: 'desiredStatus')
+	output_fields << new_field(name: 'machine', sub_fields: machine_fields)
+	fields << new_field(
+		name:       'pod'
+		arguments:  {
+			'input': '\$arguments'
+		}
+		sub_fields: output_fields
+	)
+
+	builder.add_operation(
+		operation: .query
+		fields:    fields
+		variables: {
+			'\$arguments': 'PodFilter'
+		}
+	)
+	mut variables := {
+		'arguments': json2.Any(type_to_map(input)!)
+	}
+	query := builder.build_query(variables: variables)
+
+	response := rp.make_request[GqlResponse[PodResult]](.post, '/graphql', query)!
+	return response.data['pod'] or {
+		return error('Could not find "pod" in response data: ${response.data}')
+	}
+}
+
+// Represents the main structure for interacting with the RunPod API.
+// Provides utilities to manage HTTP connections and perform GraphQL queries.
+fn (mut rp RunPod) httpclient() !&httpconnection.HTTPConnection {
+	mut http_conn := httpconnection.new(
+		name:  'runpod_vclient_${rp.name}'
+		url:   rp.base_url
+		cache: true
+		retry: 3
+	)!
+	http_conn.default_header.add(.authorization, 'Bearer ${rp.api_key}')
+	return http_conn
+}
+
+// Sends an HTTP request to the RunPod API with the specified method, path, and data.
+fn (mut rp RunPod) make_request[T](method Method, path string, data string) !T {
+	mut request := httpconnection.Request{
+		prefix:     path
+		data:       data
+		debug:      true
+		dataformat: .json
+	}
+
+	mut http_client := rp.httpclient()!
+	mut response := T{}
+
+	match method {
+		.get {
+			request.method = .get
+			response = http_client.get_json_generic[T](request)!
+		}
+		.post {
+			request.method = .post
+			response = http_client.post_json_generic[T](request)!
+		}
+		.put {
+			request.method = .put
+			response = http_client.put_json_generic[T](request)!
+		}
+		.delete {
+			request.method = .delete
+			response = http_client.delete_json_generic[T](request)!
+		}
+		else {
+			return error('unsupported method: ${method}')
+		}
+	}
+
+	if response.errors.len > 0 {
+		return error('Error while sending the request due to: ${response.errors[0]['message']}')
+	}
+
+	return response
 }

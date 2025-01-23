@@ -1,5 +1,8 @@
 module runpod
 
+import freeflowuniverse.herolib.data.paramsparser
+import os
+
 pub const version = '1.14.3'
 const singleton = false
 const default = true
@@ -9,7 +12,7 @@ pub fn heroscript_default() !string {
 	return "
     !!runpod.configure
         name:'default'
-        api_key:''
+        api_key:'${os.getenv('RUNPOD_API_KEY')}'
         base_url:'https://api.runpod.io/'
     "
 }
@@ -23,50 +26,18 @@ pub mut:
 	base_url string = 'https://api.runpod.io/'
 }
 
-pub enum CloudType {
-	all
-	secure
-	community
-}
-
-fn (ct CloudType) str() string {
-	return match ct {
-		.all {
-			'ALL'
-		}
-		.secure {
-			'SECURE'
-		}
-		.community {
-			'COMMUNITY'
-		}
+fn cfg_play(p paramsparser.Params) ! {
+	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
+	mut mycfg := RunPod{
+		name:     p.get_default('name', 'default')!
+		api_key:  p.get_default('api_key', os.getenv('RUNPOD_API_KEY'))!
+		base_url: p.get_default('base_url', 'https://api.runpod.io/')!
 	}
+	set(mycfg)!
 }
 
-pub struct EnvironmentVariableInput {
-pub mut:
-	key   string
-	value string
-}
-
-// new creates a new RunPod client
-pub fn new(api_key string) !&RunPod {
-	if api_key == '' {
-		return error('API key is required')
-	}
-	return &RunPod{
-		api_key: api_key
-	}
-}
-
-// GraphQL query structs
-struct GqlQuery {
-	query string
-}
-
-// GraphQL response wrapper
-struct GqlResponse[T] {
-pub mut:
-	data   map[string]T
-	errors []map[string]string
+fn obj_init(obj_ RunPod) !RunPod {
+	// never call get here, only thing we can do here is work on object itself
+	mut obj := obj_
+	return obj
 }
