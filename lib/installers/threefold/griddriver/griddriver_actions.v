@@ -46,7 +46,7 @@ fn build_() ! {
 		pull:  true
 	)!
 
-	mut path := repo.get_path()!
+	mut path := repo.path()
 	path = '${path}/griddriver'
 
 	cmd := '/bin/bash -c "cd ${path} && . ${path}/build.sh"'

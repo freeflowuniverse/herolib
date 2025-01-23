@@ -54,7 +54,7 @@ pub fn new(args_ SimulatorArgs) !Simulator {
 			reload: false
 		)!
 
-		args.path = repo.get_path()!
+		args.path = repo.path()
 	}
 
 	if args.path.len > 0 {

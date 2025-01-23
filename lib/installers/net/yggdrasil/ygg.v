@@ -47,7 +47,7 @@ Peers:
 			reset: false
 		)!
 
-		mut path := repo.get_path()!
+		mut path := repo.path()
 
 		osal.exec(cmd: 'cd ${path} && PATH=\$PATH:/usr/local/go/bin ./build')!
 

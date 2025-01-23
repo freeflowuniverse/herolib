@@ -58,7 +58,7 @@ pub fn (mut repo GitRepo) need_push_or_pull() !bool {
 	last_local_commit := repo.get_last_local_commit() or {
 		return error('Failed to get last local commit: ${err}')
 	}
-	println('commit status: ${repo.name} ${last_local_commit} ${last_remote_commit}')
+	//println('commit status: ${repo.name} ${last_local_commit} ${last_remote_commit}')
 	return last_local_commit != last_remote_commit
 }
 

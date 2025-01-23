@@ -24,7 +24,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 			pull:  args.git_pull
 			reset: args.git_reset
 		)!
-		args.path = repo.get_path()!
+		args.path = repo.path()
 	}
 
 	// walk over directory

@@ -34,7 +34,7 @@ pub fn (repo GitRepo) patho() !pathlib.Path {
 // gets the path of a given url within a repo
 // ex: 'https://git.ourworld.tf/ourworld_holding/info_ourworld/src/branch/main/books/cocreation/SUMMARY.md'
 // returns <repo_path>/books/cocreation/SUMMARY.md
-fn (mut repo GitRepo) get_path_of_url(url string) !string {
+pub fn (mut repo GitRepo) get_path_of_url(url string) !string {
 	// Split the URL into components
 	url_parts := url.split('/')
 

@@ -4,6 +4,6 @@
 import os
 import freeflowuniverse.herolib.develop.gittools
 
-mut gs := gittools.get(reload:false)!
+mut gs := gittools.get(reload:true)!
 
 gs.repos_print()!

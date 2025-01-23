@@ -238,7 +238,7 @@ fn (mut self GitStructure) coderoot() !pathlib.Path {
 ////// CONFIG
 
 // Load config from redis
-fn (mut self GitStructure) config() !GitStructureConfig {
+pub fn (mut self GitStructure) config() !GitStructureConfig {
 	mut config := self.config_ or { 
 		mut redis := redis_get()
 		data:=redis.get("${self.cache_key()}:config")!

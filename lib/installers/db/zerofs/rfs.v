@@ -15,7 +15,7 @@ pub fn install_() ! {
 
 		mut gs := gittools.new()!
 		mut repo := gs.get_repo(url: 'https://github.com/threefoldtech/rfs', reset: true)!
-		path := repo.get_path()!
+		path := repo.path()
 		cmd := '
 		cd ${path}
 		rustup target add x86_64-unknown-linux-musl

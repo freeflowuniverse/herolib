@@ -100,7 +100,7 @@ fn play_book_publish(p Params) ! {
 
 fn get_summary_path(summary_url string) !string {
 	mut gs := gittools.get()!
-	repo := gs.get_repo(url: summary_url, reset: false, pull: false)!
+	mut repo := gs.get_repo(url: summary_url, reset: false, pull: false)!
 
 	// get the path corresponding to the summary_url dir/file
 	summary_path := repo.get_path_of_url(summary_url)!

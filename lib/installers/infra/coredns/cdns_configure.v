@@ -13,7 +13,7 @@ pub fn configure(args_ InstallArgs) ! {
 		mut repo := gs.get_repo(
 			url: args.config_url
 		)!
-		repo_path = repo.get_path()!
+		repo_path = repo.path()
 
 		args.config_path = repo_path
 	}
@@ -26,7 +26,7 @@ pub fn configure(args_ InstallArgs) ! {
 		mut repo := gs.get_repo(
 			url: args.dnszones_url
 		)!
-		repo_path = repo.get_path()!
+		repo_path = repo.path()
 		args.dnszones_path = repo_path
 	}
 

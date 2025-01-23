@@ -50,7 +50,7 @@ fn build_() ! {
 		pull:  true
 	)!
 
-	mut gitpath := repo.get_path()!
+	mut gitpath := repo.path()
 
 	cmd := '
     cd ${gitpath}

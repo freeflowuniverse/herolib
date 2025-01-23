@@ -30,7 +30,7 @@ pub fn install(args InstallArgs) ! {
 	vlang.v_analyzer_install(reset: args.reset)!
 
 	mut gs := gittools.get()!
-	gs.config.light = true // means we clone depth 1
+	gs.config()!.light = true // means we clone depth 1
 
 	mut repo := gs.get_repo(
 		pull:  args.git_pull
@@ -44,7 +44,7 @@ pub fn install(args InstallArgs) ! {
 	// 	url:   'https://github.com/freeflowuniverse/webcomponents/tree/main/webcomponents'
 	// )!
 
-	mut path1 := repo.get_path()!
+	mut path1 := repo.path()
 	// mut path2 := repo2.get_path()!
 
 	mut path1p := pathlib.get_dir(path: path1, create: false)!
