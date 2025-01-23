@@ -91,3 +91,7 @@ jobs:
       - name: Do all the basic tests
         run: |
           ./test_basic.vsh
+        env:
+          LIVEKIT_API_KEY: ${{secrets.LIVEKIT_API_KEY}}
+          LIVEKIT_API_SECRET: ${{secrets.LIVEKIT_API_SECRET}}
+          LIVEKIT_URL: ${{secrets.LIVEKIT_URL}}
