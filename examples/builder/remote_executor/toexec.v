@@ -1,12 +1,11 @@
 module main
 
-import freeflowuniverse.herolib.osal
-import freeflowuniverse.herolib.installers.base
+import freeflowuniverse.herolib.core
 
 fn do() ! {
 	// base.uninstall_brew()!
 	// println("something")
-	if osal.is_osx() {
+	if core.is_osx()! {
 		println('IS OSX')
 	}
 
