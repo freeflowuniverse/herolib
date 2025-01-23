@@ -42,7 +42,7 @@ fn test_clone_repo() {
 	repo_setup_tests = setup_repo()!
 	mut gs := gittools.new(coderoot: repo_setup_tests.coderoot)!
 	repo_tests = gs.get_repo(url: repo_setup_tests.repo_url)!
-	repo_path_tests = repo_tests.get_path()!
+	repo_path_tests = repo_tests.path()
 	assert os.exists(repo_path_tests) == true
 }
 
@@ -91,7 +91,7 @@ fn test_tag_create() {
 @[test]
 fn test_has_changes_add_changes_commit_changes() {
 	file_name := create_new_file(repo_path_tests)!
-	assert repo_tests.has_changes()! == true
+	assert repo_tests.has_changes == true
 	mut unstaged_changes := repo_tests.get_changes_unstaged()!
 	assert unstaged_changes.len == 1
 	mut staged_changes := repo_tests.get_changes_staged()!
@@ -113,7 +113,7 @@ fn test_has_changes_add_changes_commit_changes() {
 @[test]
 fn test_push_changes() {
 	file_name := create_new_file(repo_path_tests)!
-	assert repo_tests.has_changes()! == true
+	assert repo_tests.has_changes == true
 	mut unstaged_changes := repo_tests.get_changes_unstaged()!
 	assert unstaged_changes.len == 1
 	mut staged_changes := repo_tests.get_changes_staged()!
@@ -142,7 +142,7 @@ fn test_multiple_commits_and_push() {
 	repo_tests.commit('feat: Added ${file_name_2} file.')!
 
 	repo_tests.push()!
-	assert repo_tests.has_changes()! == false
+	assert repo_tests.has_changes == false
 }
 
 // Test committing with valid changes.
@@ -165,7 +165,7 @@ fn test_commit_with_valid_changes() {
 // - Attempts to commit and expects a failure.
 @[test]
 fn test_commit_without_changes() {
-	assert repo_tests.has_changes()! == false
+	assert repo_tests.has_changes == false
 	assert repo_tests.need_commit()! == false
 	repo_tests.commit('Initial commit') or {
 		assert false, 'Commit should be done with some changes'
@@ -223,7 +223,7 @@ fn test_remove_changes() {
 	assert staged_changes.len == 0
 
 	file_name := create_new_file(repo_path_tests)!
-	assert repo_tests.has_changes()! == true
+	assert repo_tests.has_changes == true
 
 	unstaged_changes = repo_tests.get_changes_unstaged()!
 	assert unstaged_changes.len == 1

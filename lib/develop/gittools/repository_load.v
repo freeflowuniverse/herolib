@@ -2,11 +2,10 @@ module gittools
 
 import time
 import freeflowuniverse.herolib.ui.console
-
+import os
 @[params]
 pub struct StatusUpdateArgs {
 	reload       bool
-	ssh_key_name string // name of ssh key to be used when loading
 }
 
 pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
@@ -27,14 +26,18 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 // Load repo information
 // Does not check cache, it is the callers responsibility to check cache and load accordingly.
 fn (mut repo GitRepo) load() ! {
-	console.print_debug('load ${repo.get_key()}')
+	console.print_debug('load ${repo.cache_key()}')
 	repo.init()!
+	if os.exists("${repo.path()}/.git") == false{
+		return error("Can't find git in repo ${repo.path()}")
+	}
 	repo.exec('git fetch --all') or {
-		return error('Cannot fetch repo: ${repo.get_path()!}. Error: ${err}')
+		return error('Cannot fetch repo: ${repo.path()}. Error: ${err}')
 	}
 	repo.load_branches()!
 	repo.load_tags()!
 	repo.last_load = int(time.now().unix())
+	repo.has_changes = repo.detect_changes()!
 	repo.cache_set()!
 }
 

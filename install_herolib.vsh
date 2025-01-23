@@ -68,4 +68,10 @@ addtoscript('alias vtest=', 'alias vtest=\'v -stats -enable-globals -n -w -cg -g
     eprintln('Failed to add vtest alias: ${err}')
 }
 
+addtoscript('HOME/hero/bin', 'export PATH="\$PATH:\$HOME/hero/bin"') or {
+    eprintln('Failed to add path to hero, ${err}')
+}
+
+//  ulimit -n 32000
+
 println('Added vtest alias to shell configuration')

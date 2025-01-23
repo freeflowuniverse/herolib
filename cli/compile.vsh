@@ -66,7 +66,7 @@ os.chmod('hero', 0o755) or { panic('Failed to make hero binary executable: ${err
 
 // Ensure destination directory exists
 os.mkdir_all(os.dir(heropath)) or { panic('Failed to create directory ${os.dir(heropath)}: ${err}') }
-
+println(heropath)
 // Copy to destination paths
 os.cp('hero', heropath) or { panic('Failed to copy hero binary to ${heropath}: ${err}') }
 os.cp('hero', '/tmp/hero') or { panic('Failed to copy hero binary to /tmp/hero: ${err}') }
