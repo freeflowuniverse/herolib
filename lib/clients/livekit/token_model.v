@@ -39,7 +39,7 @@ pub struct AccessToken {
 		api_secret string
 		grants     ClaimGrants
 		identity   string
-		ttl        int | string
+		ttl        int
 }
 
 // Method to add a video grant to the token
