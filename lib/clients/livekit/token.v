@@ -23,9 +23,9 @@ pub fn (client Client) new_access_token(options AccessTokenOptions) !AccessToken
 		api_key: client.api_key
 		api_secret: client.api_secret
 		identity: options.identity
-		ttl: ttl
+		ttl: options.ttl
 		grants: ClaimGrants{
-			exp: time.now().unix()+ttl
+			exp: time.now().unix()+ options.ttl
 			iss: client.api_key
 			sub: options.name
 			name: options.name
