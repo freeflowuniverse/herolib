@@ -45,8 +45,7 @@ compile_cmd := if os.user_os() == 'macos' {
     if prod_mode {
         'v -enable-globals -w -n -prod hero.v'
     } else {
-        'v -w -cg -no-retry-compilation -cc tcc -d use_openssl -enable-globals hero.v'
-        // -gc none 
+        'v -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals hero.v'
     }
 } else {
     if prod_mode {
