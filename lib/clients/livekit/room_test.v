@@ -18,5 +18,4 @@ fn new_test_client() Client {
 fn test_client_list_rooms() ! {
     client := new_test_client()
     rooms := client.list_rooms()!
-    panic(rooms)
 }
