@@ -3,8 +3,12 @@ module livekit
 import os
 import freeflowuniverse.herolib.osal
 
+const env_file = '${os.dir(@FILE)}/.env'
+
 fn testsuite_begin() ! {
-    osal.load_env_file('${os.dir(@FILE)}/.env')!
+    if os.exists(env_file) {
+        osal.load_env_file(env_file)!
+    }
 }
 
 fn new_test_client() Client {
