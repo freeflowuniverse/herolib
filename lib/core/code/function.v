@@ -15,45 +15,6 @@ pub mut:
 	has_return  bool     @[omitempty]
 }
 
-pub struct Param {
-pub mut:
-	required    bool    @[omitempty]
-	mutable     bool    @[omitempty]
-	is_shared   bool    @[omitempty]
-	is_optional bool    @[omitempty]
-	is_result   bool    @[omitempty]
-	description string  @[omitempty]
-	name        string  @[omitempty]
-	typ         Type    @[omitempty]
-	struct_     Struct  @[omitempty]
-}
-
-
-// // todo: maybe make 'is_' fields methods?
-// pub struct Type {
-// pub mut:
-// 	is_reference bool   @[str: skip]
-// 	is_map       bool   @[str: skip]
-// 	is_array     bool
-// 	is_mutable   bool   @[str: skip]
-// 	is_shared    bool   @[str: skip]
-// 	is_optional  bool   @[str: skip]
-// 	is_result    bool   @[str: skip]
-// 	symbol       string
-// 	mod          string @[str: skip]
-// }
-
-@[params]
-pub struct Params{
-pub:
-	v string
-}
-
-pub fn new_param(params Params) !Param {
-	// TODO: implement function from file line
-	return parse_param(params.v)!
-}
-
 pub fn new_function(code string) !Function {
 	// TODO: implement function from file line
 	return parse_function(code)!

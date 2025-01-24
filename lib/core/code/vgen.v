@@ -152,15 +152,6 @@ pub fn (function Function) vgen(options WriteOptions) string {
 	}
 }
 
-pub fn (param Param) vgen() string {
-	sym := param.typ.symbol()
-	param_name := texttools.name_fix_snake(param.name)
-	mut vstr := '${param_name} ${sym}'
-	if param.mutable {
-		vstr = 'mut ${vstr}'
-	}
-	return '${vstr}'
-}
 
 // vgen_function generates a function statement for a function
 pub fn (struct_ Struct) vgen() string {

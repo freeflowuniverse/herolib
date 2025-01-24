@@ -51,7 +51,9 @@ const type_f64 = Float{
 }
 
 
-pub type Type = Array | Object | Result | Integer | Alias | String
+pub type Type = Array | Object | Result | Integer | Alias | String | Boolean
+
+pub struct Boolean{}
 
 pub struct Integer {
 	bytes u8
@@ -88,6 +90,7 @@ pub fn (t Type) symbol() string {
         }
 		Alias {t.name}
 		String {'string'}
+        Boolean {'bool'}
 	}
 }
 
@@ -106,4 +109,16 @@ pub:
 pub struct Result {
 pub:
 	typ Type
+}
+
+pub fn (t Type) typescript() string {
+	return match t {
+		Array { '[]${t.typ.symbol()}' }
+		Object { t.name }
+		Result { '!${t.typ.symbol()}'}
+		Boolean { 'boolean'}
+		Integer { 'number' }
+		Alias {t.name}
+		String {'string'}
+	}
 }
