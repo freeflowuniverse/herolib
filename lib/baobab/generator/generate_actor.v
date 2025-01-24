@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { Folder, IFolder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification, ActorInterface}
 import json
@@ -13,6 +13,7 @@ pub:
 
 pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	mut files := []IFile{}
+	mut folders := []IFolder{}
 	
 	files = [
 		generate_readme_file(spec)!,
@@ -56,9 +57,9 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 				files << iface_file
 				files << iface_test_file
 
-				// add openrpc.json to docs
-				// TODO
+				// add openapi.json to docs
 				docs_files << generate_openapi_file(openapi_spec)!
+				folders << typescript_client_folder(spec)
 			}
 			.http {
 				// interfaces that have http controllers
@@ -79,20 +80,18 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 
 
 	// folder with docs
-	docs_folder := Folder {
+	folders << Folder {
 		name: 'docs'
 		files: docs_files
 	}
+	folders << generate_scripts_folder()
 	
 	// create module with code files and docs folder
 	name_fixed := texttools.name_fix_snake(spec.name)
 	return code.new_module(
 		name: '${name_fixed}_actor'
 		files: files
-		folders: [
-			docs_folder,
-			generate_scripts_folder()
-		]
+		folders: folders
 	)
 }
 

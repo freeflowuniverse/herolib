@@ -1,13 +1,13 @@
 module generator
 
+import x.json2 as json
+import arrays
 import freeflowuniverse.herolib.core.code
-import freeflowuniverse.herolib.baobab.specification
+import freeflowuniverse.herolib.baobab.specification 
 import freeflowuniverse.herolib.schemas.openrpc
 import freeflowuniverse.herolib.schemas.jsonschema
-import os
-import x.json2 as json {Any}
 
-const actor_spec = specification.ActorSpecification{
+const specification = specification.ActorSpecification{
     name: 'Pet Store'
     description: 'A sample API for a pet store'
     structure: code.Struct{}
@@ -76,32 +76,8 @@ const actor_spec = specification.ActorSpecification{
             ]
         },
         specification.ActorMethod{
-            name: 'newPet'
+            name: 'createPet'
             summary: 'Create a new pet'
-            parameters: [
-                openrpc.ContentDescriptor{
-                    name: 'result'
-                    description: 'The response of the operation.'
-                    required: true
-                    schema: jsonschema.SchemaRef(jsonschema.Schema{
-                        id: 'pet'
-                        title: 'Pet'
-                        typ: 'object'
-                        properties: {
-                            'id': jsonschema.SchemaRef(jsonschema.Reference{
-                                ref: '#/components/schemas/PetId'
-                            }),
-                            'name': jsonschema.SchemaRef(jsonschema.Schema{
-                                typ: 'string'
-                            }),
-                            'tag': jsonschema.SchemaRef(jsonschema.Schema{
-                                typ: 'string'
-                            })
-                        }
-                        required: ['id', 'name']
-                    })
-                }
-            ]
             example: openrpc.ExamplePairing{
                 result: openrpc.ExampleRef(openrpc.Example{
                     name: 'Example response'
@@ -109,14 +85,9 @@ const actor_spec = specification.ActorSpecification{
                 })
             }
             result: openrpc.ContentDescriptor{
-                name: 'petId'
-                summary: 'ID of the created pet'
-                description: 'ID of the created pet'
+                name: 'result'
+                description: 'The response of the operation.'
                 required: true
-                schema: jsonschema.SchemaRef(jsonschema.Schema{
-                    ...jsonschema.schema_u32,
-                    example: 1
-                })
             }
             errors: [
                 openrpc.ErrorSpec{
@@ -226,48 +197,6 @@ const actor_spec = specification.ActorSpecification{
     ]
 }
 
-const destination = '${os.dir(@FILE)}/testdata'
-
-fn test_generate_plain_actor_module() {
-    // plain actor module without interfaces
-	actor_module := generate_actor_module(actor_spec)!
-	actor_module.write(destination, 
-        format: true
-        overwrite: true
-        test: true
-    )!
-}
-
-fn test_generate_actor_module_with_openrpc_interface() {
-    // plain actor module without interfaces
-	actor_module := generate_actor_module(actor_spec, interfaces: [.openrpc])!
-	actor_module.write(destination, 
-        format: true
-        overwrite: true
-        test: true
-    )!
-}
-
-fn test_generate_actor_module_with_openapi_interface() {
-    // plain actor module without interfaces
-	actor_module := generate_actor_module(actor_spec, 
-        interfaces: [.openapi]
-    )!
-	actor_module.write(destination, 
-        format: true
-        overwrite: true
-        test: true
-    )!
-}
-
-fn test_generate_actor_module_with_all_interfaces() {
-    // plain actor module without interfaces
-	actor_module := generate_actor_module(actor_spec, 
-        interfaces: [.openapi, .openrpc, .http]
-    )!
-	actor_module.write(destination, 
-        format: true
-        overwrite: true
-        test: true
-    )!
+fn test_typescript_client_folder() {
+	client := typescript_client_folder(specification)
 }

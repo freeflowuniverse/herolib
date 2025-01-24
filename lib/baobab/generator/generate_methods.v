@@ -16,19 +16,13 @@ pub fn generate_methods_file(spec ActorSpecification) !VFile {
 		method_fn := generate_method_function(spec.name, method)!
 		// check if method is a Base Object CRUD Method and
 		// if so generate the method's body
-		body := if is_base_object_new_method(method) {
-			generate_base_object_new_body(method)!
-		} else if is_base_object_get_method(method) {
-			generate_base_object_get_body(method)!
-		} else if is_base_object_set_method(method) {
-			generate_base_object_set_body(method)!
-		} else if is_base_object_delete_method(method) {
-			generate_base_object_delete_body(method)!
-		} else if is_base_object_list_method(method) {
-			generate_base_object_list_body(method)!
-		} else {
-			// default actor method body
-			"panic('implement')"
+		body := match spec.method_type(method) {
+			.base_object_new { base_object_new_body(method)! }
+			.base_object_get { base_object_get_body(method)! }
+			.base_object_set { base_object_set_body(method)! }
+			.base_object_delete { base_object_delete_body(method)! }
+			.base_object_list { base_object_list_body(method)! }
+			else {"panic('implement')"}
 		}
 		items << Function{...method_fn, body: body}
 	}
@@ -53,50 +47,29 @@ pub fn generate_method_function(actor_name string, method ActorMethod) !Function
 	}
 }
 
-fn is_base_object_new_method(method ActorMethod) bool {
-	return method.name.starts_with('new')
-}
-
-fn is_base_object_get_method(method ActorMethod) bool {
-	return method.name.starts_with('get')
-}
-
-fn is_base_object_set_method(method ActorMethod) bool {
-	return method.name.starts_with('set')
-}
-
-fn is_base_object_delete_method(method ActorMethod) bool {
-	return method.name.starts_with('delete')
-}
-
-fn is_base_object_list_method(method ActorMethod) bool {
-	return method.name.starts_with('list')
-}
-
-fn generate_base_object_new_body(method ActorMethod) !string {
+fn base_object_new_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	return 'return actor.osis.new[${parameter.typ.vgen()}](${texttools.name_fix_snake(parameter.name)})!'
 }
 
-fn generate_base_object_get_body(method ActorMethod) !string {
+fn base_object_get_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	result := content_descriptor_to_parameter(method.result)!
 	return 'return actor.osis.get[${result.typ.vgen()}](${texttools.name_fix_snake(parameter.name)})!'
 }
 
-fn generate_base_object_set_body(method ActorMethod) !string {
+fn base_object_set_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	return 'return actor.osis.set[${parameter.typ.vgen()}](${parameter.name})!'
 }
 
-fn generate_base_object_delete_body(method ActorMethod) !string {
+fn base_object_delete_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	return 'actor.osis.delete(${texttools.name_fix_snake(parameter.name)})!'
 }
 
-fn generate_base_object_list_body(method ActorMethod) !string {
+fn base_object_list_body(method ActorMethod) !string {
 	result := content_descriptor_to_parameter(method.result)!
-	
 	base_object_type := (result.typ as Array).typ
 	return 'return actor.osis.list[${base_object_type.symbol()}]()!'
 }

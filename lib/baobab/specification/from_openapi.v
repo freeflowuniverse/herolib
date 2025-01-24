@@ -133,7 +133,7 @@ pub fn from_openapi(spec OpenAPI) !ActorSpecification {
 
 	// Extract objects from OpenAPI components.schemas
 	for name, schema in spec.components.schemas {
-		objects << BaseObject{schema as Schema}
+		objects << BaseObject{schema: schema as Schema}
 	}
 
 	return ActorSpecification{
