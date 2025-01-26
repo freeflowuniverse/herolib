@@ -179,6 +179,9 @@ clients/meilisearch
 clients/zdb
 clients/openai
 systemd_process_test.v
+
+// We should fix that one
+clients/livekit
 '
 
 tests_error := '

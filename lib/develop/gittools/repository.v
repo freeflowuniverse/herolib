@@ -63,7 +63,7 @@ pub fn (mut gitstructure GitStructure) repo_new_from_gitlocation(git_location Gi
 		status_local:  GitRepoStatusLocal{}
 		status_wanted: GitRepoStatusWanted{}
 	}
-	gitstructure.repos[repo.name] = &repo
+	gitstructure.repos[repo.cache_key()] = &repo
 
 	return &repo
 }
