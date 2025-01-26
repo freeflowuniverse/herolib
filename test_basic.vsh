@@ -185,7 +185,6 @@ clients/livekit
 '
 
 tests_error := '
-net_test.v
 osal/package_test.v
 rpc_test.v
 screen_test.v
