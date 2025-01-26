@@ -171,3 +171,190 @@ pub fn (mut va VastAI) create_instance(args CreateInstanceArgs) !CreateInstanceR
 
 	return instance_resp
 }
+
+@[params]
+pub struct StopInstanceArgs {
+pub:
+	id    int @[required]
+	state string
+}
+
+pub struct StopInstanceResponse {
+pub:
+	success bool
+	msg     string
+}
+
+// Stops a running container and updates its status to 'stopped'.
+pub fn (mut va VastAI) stop_instance(args StopInstanceArgs) !StopInstanceResponse {
+	// Get HTTP client
+	mut http_client := va.httpclient()!
+	payload := {
+		'state': args.state
+	}
+
+	// Make request
+	resp := http_client.send(
+		method: .put
+		prefix: '/instances/${args.id}/?'
+		data:   json.encode(payload)
+	)!
+
+	if resp.code != 200 {
+		return error('request failed with code ${resp.code}: ${resp.data}')
+	}
+
+	// Parse response
+	instance_resp := json.decode(StopInstanceResponse, resp.data)!
+
+	return instance_resp
+}
+
+@[params]
+pub struct DestroyInstanceArgs {
+pub:
+	id int @[required]
+}
+
+pub struct DestroyInstanceResponse {
+pub:
+	success bool
+	msg     string
+}
+
+// Destroys an instance.
+pub fn (mut va VastAI) destroy_instance(args DestroyInstanceArgs) !DestroyInstanceResponse {
+	// Get HTTP client
+	mut http_client := va.httpclient()!
+
+	// Make request
+	resp := http_client.send(
+		method: .delete
+		prefix: '/instances/${args.id}/?'
+	)!
+
+	if resp.code != 200 {
+		return error('request failed with code ${resp.code}: ${resp.data}')
+	}
+
+	// Parse response
+	instance_resp := json.decode(DestroyInstanceResponse, resp.data)!
+
+	return instance_resp
+}
+
+@[params]
+pub struct AttachSshKeyToInstanceArgs {
+pub:
+	id      int @[required]
+	ssh_key string
+}
+
+pub struct AttachSshKeyToInstanceResponse {
+pub:
+	success bool
+	msg     string
+}
+
+// Attach SSH Key to Instance
+pub fn (mut va VastAI) attach_sshkey_to_instance(args AttachSshKeyToInstanceArgs) !AttachSshKeyToInstanceResponse {
+	// Get HTTP client
+	mut http_client := va.httpclient()!
+	payload := {
+		'ssh_key': args.ssh_key
+	}
+
+	// Make request
+	resp := http_client.send(
+		method: .post
+		prefix: '/instances/${args.id}/ssh/?'
+		data:   json.encode(payload)
+	)!
+
+	if resp.code != 200 {
+		return error('request failed with code ${resp.code}: ${resp.data}')
+	}
+
+	// Parse response
+	instance_resp := json.decode(AttachSshKeyToInstanceResponse, resp.data)!
+
+	return instance_resp
+}
+
+@[params]
+pub struct LaunchInstanceArgs {
+pub:
+	num_gpus int    @[required]
+	gpu_name string @[required]
+	region   string @[required]
+	image    string @[required]
+	disk     int    @[required]
+	env      ?string
+	args     ?[]string
+}
+
+// Launch an instance, This endpoint launches an instance based on the specified parameters, selecting the first available offer that meets the criteria.
+pub fn (mut va VastAI) launch_instance(args LaunchInstanceArgs) !CreateInstanceResponse {
+	// Get HTTP client
+	mut http_client := va.httpclient()!
+
+	// Make request
+	resp := http_client.send(
+		method: .put
+		prefix: '/launch_instance/?'
+		data:   json.encode(args)
+	)!
+
+	if resp.code != 200 {
+		return error('request failed with code ${resp.code}: ${resp.data}')
+	}
+
+	// Parse response
+	instance_resp := json.decode(CreateInstanceResponse, resp.data)!
+
+	return instance_resp
+}
+
+@[params]
+pub struct StartInstancesArgs {
+pub:
+	ids []int @[json: 'IDs'; required]
+}
+
+pub struct StartInstancesResponse {
+pub:
+	success bool
+	msg     string
+}
+
+// Start Instances, Start a list of instances specified by their IDs.
+pub fn (mut va VastAI) start_instances(args StartInstancesArgs) !StartInstancesResponse {
+	// Get HTTP client
+	mut http_client := va.httpclient()!
+	// Make request
+	resp := http_client.send(
+		method: .post
+		prefix: '/instances/start'
+		data:   json.encode(args)
+	)!
+
+	if resp.code != 200 {
+		return error('request failed with code ${resp.code}: ${resp.data}')
+	}
+
+	// Parse response
+	instance_resp := json.decode(StartInstancesResponse, resp.data)!
+
+	return instance_resp
+}
+
+@[params]
+pub struct StartInstanceArgs {
+pub:
+	id int @[required]
+}
+
+// Start Instance, Start an instance specified by its ID.
+pub fn (mut va VastAI) start_instance(args StartInstanceArgs) !StartInstancesResponse {
+	return va.start_instances(StartInstancesArgs{ ids: [args.id] })
+}
