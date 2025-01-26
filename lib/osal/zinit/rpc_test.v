@@ -4,11 +4,12 @@ import os
 import time
 
 fn test_zinit() {
+	this_dir := os.dir(@FILE)
 	// you need to have zinit in your path to run this test
-	spawn os.execute('zinit -s herolib/osal/zinit/zinit/zinit.sock init -c herolib/osal/zinit/zinit')
+	spawn os.execute('zinit -s ${this_dir}/zinit/zinit.sock init -c ${this_dir}/zinit')
 	time.sleep(time.second)
 
-	client := new_rpc_client('herolib/osal/zinit/zinit/zinit.sock')
+	client := new_rpc_client(socket_path: '${this_dir}/zinit/zinit.sock')
 
 	mut ls := client.list()!
 	mut want_ls := {
@@ -57,4 +58,7 @@ fn test_zinit() {
 	time.sleep(time.millisecond * 10)
 	st = client.status('service_1')!
 	assert st.state.contains('SIGTERM')
+
+	// Remove the socet file
+	os.rm('${this_dir}/zinit/zinit.sock')!
 }

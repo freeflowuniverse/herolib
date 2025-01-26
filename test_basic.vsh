@@ -185,8 +185,6 @@ clients/livekit
 '
 
 tests_error := '
-osal/package_test.v
-rpc_test.v
 screen_test.v
 tmux_session_test.v
 tmux_window_test.v
