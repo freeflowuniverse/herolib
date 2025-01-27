@@ -185,7 +185,6 @@ clients/livekit
 '
 
 tests_error := '
-tmux_session_test.v
 tmux_window_test.v
 tmux_test.v
 startupmanager_test.v
