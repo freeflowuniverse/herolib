@@ -185,7 +185,6 @@ clients/livekit
 '
 
 tests_error := '
-screen_test.v
 tmux_session_test.v
 tmux_window_test.v
 tmux_test.v
