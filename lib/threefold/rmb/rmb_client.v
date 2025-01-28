@@ -1,6 +1,6 @@
 module rmb
 
-// import freeflowuniverse.herolib.clients.httpconnection
+// import freeflowuniverse.herolib.core.httpconnection
 import freeflowuniverse.herolib.core.redisclient { RedisURL }
 import os
 
