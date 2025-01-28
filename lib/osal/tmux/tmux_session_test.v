@@ -1,7 +1,7 @@
 module tmux
 
 import freeflowuniverse.herolib.osal
-import freeflowuniverse.herolib.installers.tmux
+// import freeflowuniverse.herolib.installers.tmux
 
 // fn testsuite_end() {
 
@@ -26,13 +26,13 @@ fn test_session_create() {
 
 	mut s := Session{
 		tmux:    &tmux
-		windows: map[string]&Window{}
+		windows: []&Window{}
 		name:    'testsession'
 	}
 
 	mut s2 := Session{
 		tmux:    &tmux
-		windows: map[string]&Window{}
+		windows: []&Window{}
 		name:    'testsession2'
 	}
 

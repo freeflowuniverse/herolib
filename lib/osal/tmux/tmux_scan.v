@@ -58,6 +58,9 @@ pub fn (mut t Tmux) scan() ! {
 
 	cmd_list_session := "tmux list-sessions -F '#{session_name}'"
 	exec_list := osal.exec(cmd: cmd_list_session, stdout: false, name: 'tmux_list') or {
+		if err.msg().contains('no server running') {
+			return
+		}
 		return error('could not execute list sessions.\n${err}')
 	}
 
@@ -80,7 +83,7 @@ pub fn (mut t Tmux) scan() ! {
 	}
 
 	console.print_debug(t)
-
+	println('t: ${t}')
 	// mut done := map[string]bool{}
 	cmd := "tmux list-panes -a -F '#{session_name}|#{window_name}|#{window_id}|#{pane_active}|#{pane_id}|#{pane_pid}|#{pane_start_command}'"
 	out := osal.execute_silent(cmd) or { return error("Can't execute ${cmd} \n${err}") }

@@ -23,20 +23,20 @@ pub fn new(args TmuxNewArgs) !Tmux {
 	mut t := Tmux{
 		sessionid: args.sessionid
 	}
-	t.load()!
+	// t.load()!
 	t.scan()!
 	return t
 }
 
-// loads tmux session, populate the object
-pub fn (mut tmux Tmux) load() ! {
-	isrunning := tmux.is_running()!
-	if !isrunning {
-		tmux.start()!
-	}
-	// console.print_debug("SCAN")
-	tmux.scan()!
-}
+// // loads tmux session, populate the object
+// pub fn (mut tmux Tmux) load() ! {
+// 	// isrunning := tmux.is_running()!
+// 	// if !isrunning {
+// 	// 	tmux.start()!
+// 	// }
+// 	// console.print_debug("SCAN")
+// 	tmux.scan()!
+// }
 
 pub fn (mut t Tmux) stop() ! {
 	$if debug {
@@ -91,19 +91,18 @@ pub fn (mut t Tmux) windows_get() []&Window {
 
 // checks whether tmux server is running
 pub fn (mut t Tmux) is_running() !bool {
-	res := osal.exec(cmd: 'tmux info', stdout: false, name: 'tmux_info', raise_error: false) or {
-		panic('bug')
+	res := os.execute('tmux info')
+	if res.exit_code != 0 {
+		if res.output.contains('no server running') {
+			// console.print_debug(" TMUX NOT RUNNING")
+			return false
+		}
+		if res.output.contains('no current client') {
+			return true
+		}
+		return error('could not execute tmux info.\n${res.output}')
 	}
-	if res.error.contains('no server running') {
-		// console.print_debug(" TMUX NOT RUNNING")
-		return false
-	}
-	if res.error.contains('no current client') {
-		return true
-	}
-	if res.exit_code > 0 {
-		return error('could not execute tmux info.\n${res}')
-	}
+
 	return true
 }
 

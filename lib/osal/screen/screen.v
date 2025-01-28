@@ -31,17 +31,25 @@ pub enum ScreenStatus {
 pub fn (self Screen) status() !ScreenStatus {
 	// Command to list screen sessions
 	cmd := 'screen -ls'
-	response := osal.execute_silent(cmd)!
+
+	ls_response := os.execute(cmd)
+	if ls_response.exit_code != 0 {
+		if ls_response.output.contains('No Sockets found') {
+			return .inactive
+		}
+
+		return error('failed to list screen sessions: ${ls_response.output}')
+	}
 
 	// Check if the screen session exists by looking for the session name in the output
-	if !response.contains(self.name) {
+	if !ls_response.output.contains(self.name) {
 		return .inactive
 	}
 
 	// Command to send a dummy command to the screen session and check response
-	cmd_check := "screen -S ${self.name} -X eval \"stuff \\\"\\003\\\"; sleep 0.1; stuff \\\"ps\\n\\\"\""
+	cmd_check := "screen -S ${self.name} -X stuff $'\003' && sleep 0.1 && screen -S ${self.name} -X stuff $'ps\n'"
 	osal.execute_silent(cmd_check)!
-
+	time.sleep(100 * time.millisecond)
 	// Command to check if there is an active process in the screen session
 	cmd_ps := 'screen -S ${self.name} -X hardcopy -h /tmp/screen_output; cat /tmp/screen_output'
 	ps_response := osal.execute_silent(cmd_ps)!
