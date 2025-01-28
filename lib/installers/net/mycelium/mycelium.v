@@ -1,6 +1,7 @@
 module mycelium
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
@@ -19,7 +20,7 @@ pub fn installss(args_ InstallArgs) ! {
 
 	version := '0.5.6'
 
-	res := os.execute('${osal.profile_path_source_and()} mycelium -V')
+	res := os.execute('${osal.profile_path_source_and()!} mycelium -V')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('mycelium'))
 		if r.len != 1 {
@@ -36,13 +37,13 @@ pub fn installss(args_ InstallArgs) ! {
 		console.print_header('install mycelium')
 
 		mut url := ''
-		if osal.is_linux_arm() {
+		if core.is_linux_arm()! {
 			url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-aarch64-unknown-linux-musl.tar.gz'
-		} else if osal.is_linux_intel() {
+		} else if core.is_linux_intel()! {
 			url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-x86_64-unknown-linux-musl.tar.gz'
-		} else if osal.is_osx_arm() {
+		} else if core.is_osx_arm()! {
 			url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-aarch64-apple-darwin.tar.gz'
-		} else if osal.is_osx_intel() {
+		} else if core.is_osx_intel()! {
 			url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-x86_64-apple-darwin.tar.gz'
 		} else {
 			return error('unsported platform')
@@ -64,9 +65,9 @@ pub fn installss(args_ InstallArgs) ! {
 		)!
 	}
 
-	if args.restart {
-		stop()!
-	}
+	// if args.restart {
+	// 	stop()!
+	// }
 	start()!
 
 	console.print_debug('install mycelium ok')
@@ -80,7 +81,7 @@ pub fn restart() ! {
 pub fn stop() ! {
 	name := 'mycelium'
 	console.print_debug('stop ${name}')
-	if osal.is_osx() {
+	if core.is_osx()! {
 		mut scr := screen.new(reset: false)!
 		scr.kill(name)!
 	} else {
@@ -94,19 +95,19 @@ pub fn start(args InstallArgs) ! {
 		console.print_header('mycelium was already running')
 		return
 	}
-	myinitname := osal.initname()!
+	myinitname := core.initname()!
 	name := 'mycelium'
 	console.print_debug('start ${name} (startupmanger:${myinitname})')
 
 	mut cmd := ''
 
-	if osal.is_osx() {
+	if core.is_osx()! {
 		cmd = 'sudo -s '
 	}
 
 	cmd += 'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers tcp://188.40.132.242:9651 quic://185.69.166.7:9651 tcp://65.21.231.58:9651 --tun-name utun9'
 	console.print_debug(cmd)
-	if osal.is_osx() {
+	if core.is_osx()! {
 		// do not change, because we need this on osx at least
 
 		mut scr := screen.new(reset: false)!
@@ -152,7 +153,7 @@ pub fn start(args InstallArgs) ! {
 }
 
 pub fn check() bool {
-	// if osal.is_osx() {
+	// if core.is_osx()! {
 	// 	mut scr := screen.new(reset: false) or {return False}
 	// 	name := 'mycelium'
 	// 	if !scr.exists(name) {
@@ -177,7 +178,7 @@ pub fn check() bool {
 }
 
 // install mycelium will return true if it was already installed
-pub fn build() ! {
+pub fn build_() ! {
 	rust.install()!
 	console.print_header('build mycelium')
 	if !osal.done_exists('build_mycelium') && !osal.cmd_exists('mycelium') {

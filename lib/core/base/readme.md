@@ -1,39 +1,76 @@
-## context & sessions
+# Base Module
 
-Everything we do in hero lives in a context, each context has a unique name.
+The Base module is a foundational component of the Hero framework that provides essential context and session management functionality.
 
-Redis is used to manage the contexts and the sessions.
+## Features
 
-- redis db 0
-    - `context:current` curent id of the context, is also the DB if redis if redis is used
-- redis db X, x is nr of context
-    - `context:name` name of this context
-    - `context:secret` secret as is used in context (is md5 of original config secret)
-    - `context:privkey` secp256k1 privkey as is used in context (encrypted by secret)
-    - `context:params` params for a context, can have metadata
-    - `context:lastid` last id for our db
-    - `session:$id` the location of session
-        - `session:$id:params` params for the session, can have metadata
+- **Context Management**: Handles application context with support for:
+  - Parameter management
+  - Redis integration
+  - Database collections
+  - Configuration storage and retrieval
+  - Path management
 
-Session id is $contextid:$sessionid  (e.g. 10:111)
+- **Session Handling**: Provides session management capabilities through the Base and Session structures
 
-**The SessionNewArgs:**
+- **Configuration Management**: 
+  - heroscript configuration system
+  - Support for environment variable expansion
 
-- context_name        string = 'default'
-- session_name        string        //default will be an incremental nr if not filled in
-- interactive         bool = true   //can ask questions, default on true
-- coderoot            string        //this will define where all code is checked out
+- **Security Features**:
+  - Secret management
+  - AES symmetric encryption/decryption
+  - Secure configuration storage
 
-```v
-import freeflowuniverse.herolib.core.base
+- **Database Integration**:
+  - Redis database support with automatic database selection
+  - File-based database collections
+  - Key-value storage capabilities
 
-mut session:=context_new(
-    coderoot:'/tmp/code'
-    interactive:true
-)!
+## Core Components
 
-mut session:=session_new(context:'default',session:'mysession1')!
-mut session:=session_new()! //returns default context & incremental new session
+### Context
 
-```
+The `Context` struct is the central component that manages:
+- Application parameters
+- Database connections
+- Redis client
+- File paths
+- Configuration settings
 
+### Base
+
+The `Base` struct provides:
+- Session management
+- Instance tracking
+- Configuration type handling
+
+## Usage
+
+The base module is typically used as a foundation for other Hero framework components. It provides the necessary infrastructure for:
+
+- Managing application state
+- Handling configurations
+- Managing database connections
+- Securing sensitive data
+- Organizing application resources
+
+## Configuration
+
+The module supports various configuration options through the `ContextConfig` struct:
+- `id`: Unique identifier for the context
+- `name`: Context name (defaults to 'default')
+- `params`: Parameter string
+- `coderoot`: Root path for code
+- `interactive`: Interactive mode flag
+- `secret`: Hashed secret for encryption
+- `db_path`: Path to database collection
+- `encrypt`: Encryption flag
+
+## Security
+
+The module includes built-in security features:
+- Secret management with encryption
+- Secure configuration storage
+- MD5 hashing for secrets
+- AES symmetric encryption for sensitive data

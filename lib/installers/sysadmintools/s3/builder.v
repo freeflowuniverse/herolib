@@ -13,9 +13,9 @@ pub mut:
 }
 
 // install s3cas will return true if it was already installed
-pub fn build(args BuildArgs) ! {
+pub fn build_(args BuildArgs) ! {
 	// make sure we install base on the node
-	if osal.platform() != .ubuntu {
+	if core.platform() != .ubuntu {
 		return error('only support ubuntu for now')
 	}
 	rust.install()!
@@ -32,7 +32,7 @@ pub fn build(args BuildArgs) ! {
 		pull:  true
 	)!
 
-	mut path := repo.get_path()!
+	mut path := repo.path()
 
 	cmd := '
 	set -ex

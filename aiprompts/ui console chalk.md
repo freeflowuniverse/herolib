@@ -1,14 +1,14 @@
 # module ui.console.chalk
 
-
 Chalk offers functions:- `console.color_fg(text string, color string)` - To change the foreground color.
+
 - `console.color_bg(text string, color string)` - To change the background color.
 - `console.style(text string, style string)` - To change the text style.
 
 Example:
 
 ```vlang
-import freeflowuniverse.crystallib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 # basic usage
 println('I am really ' + console.color_fg('happy', 'green'))
@@ -18,6 +18,7 @@ println('I am really ' + console.color_fg(console.style('ANGRY', 'bold'), 'red')
 ```
 
 Available colors:- black
+
 - red
 - green
 - yellow
@@ -36,6 +37,7 @@ Available colors:- black
 - white
 
 Available styles:- bold
+
 - dim
 - underline
 - blink

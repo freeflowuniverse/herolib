@@ -34,13 +34,15 @@ pub mut:
 }
 
 // list current models available in Open AI
-pub fn (mut f OpenAIClient[Config]) list_models() !Models {
-	r := f.connection.get(prefix: 'models')!
+pub fn (mut f OpenAI) list_models() !Models {
+	mut conn := f.connection()!
+	r := conn.get(prefix: 'models')!
 	return json.decode(Models, r)!
 }
 
 // returns details of a model using the model id
-pub fn (mut f OpenAIClient[Config]) get_model(model string) !Model {
-	r := f.connection.get(prefix: 'models/' + model)!
+pub fn (mut f OpenAI) get_model(model string) !Model {
+	mut conn := f.connection()!
+	r := conn.get(prefix: 'models/' + model)!
 	return json.decode(Model, r)!
 }

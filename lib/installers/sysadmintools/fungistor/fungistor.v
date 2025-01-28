@@ -1,11 +1,12 @@
 module fungistor
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import os
 
-pub fn installlll(args_ InstallArgs) ! {
+pub fn installl(args_ InstallArgs) ! {
 	mut args := args_
 	version := '2.0.6'
 
@@ -30,7 +31,7 @@ pub fn installlll(args_ InstallArgs) ! {
 	console.print_header('install rfs')
 
 	mut url := ''
-	if osal.is_linux_intel() {
+	if core.is_linux_intel()! {
 		url = 'https://github.com/threefoldtech/rfs/releases/download/v${version}/rfs'
 	} else {
 		return error('unsported platform')

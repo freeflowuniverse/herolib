@@ -1,26 +1,26 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.codemodel { CustomCode, File, Folder, IFile, Module, VFile }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.data.markdownparser
-import freeflowuniverse.herolib.data.markdownparser.elements { Header }
+import freeflowuniverse.herolib.data.markdownparser.elements
 import freeflowuniverse.herolib.rpc.openrpc
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.hero.baobab.specification {ActorMethod, ActorSpecification}
+import freeflowuniverse.herolib.hero.baobab.specification { ActorSpecification }
 import os
 import json
 
 pub fn generate_actor_module(spec ActorSpecification) !Module {
 	mut files := []IFile{}
-	
+
 	files = [
 		generate_readme_file(spec)!,
 		generate_actor_file(spec)!,
 		generate_actor_test_file(spec)!,
 		generate_handle_file(spec)!,
-		generate_methods_file(spec)!
-		generate_client_file(spec)!
+		generate_methods_file(spec)!,
+		generate_client_file(spec)!,
 	]
 
 	mut docs_files := []IFile{}
@@ -31,14 +31,14 @@ pub fn generate_actor_module(spec ActorSpecification) !Module {
 			.openrpc {
 				// convert actor spec to openrpc spec
 				openrpc_spec := spec.to_openrpc()
-				
+
 				// generate openrpc code files
 				files << generate_openrpc_client_file(openrpc_spec)!
 				files << generate_openrpc_client_test_file(openrpc_spec)!
 
 				// add openrpc.json to docs
 				docs_files << generate_openrpc_file(openrpc_spec)!
-			} 
+			}
 			.command {
 				files << generate_command_file(spec)!
 			}
@@ -49,25 +49,25 @@ pub fn generate_actor_module(spec ActorSpecification) !Module {
 	}
 
 	// folder with docs
-	docs_folder := Folder {
-		name: 'docs'
+	docs_folder := Folder{
+		name:  'docs'
 		files: docs_files
 	}
-	
+
 	// create module with code files and docs folder
 	name_fixed := texttools.name_fix_snake(spec.name)
 	return codemodel.new_module(
-		name: '${name_fixed}_actor'
-		files: files
+		name:    '${name_fixed}_actor'
+		files:   files
 		folders: [docs_folder]
 	)
 }
 
 fn generate_readme_file(spec ActorSpecification) !File {
 	return File{
-		name: 'README'
+		name:      'README'
 		extension: 'md'
-		content: '# ${spec.name}\n${spec.description}'
+		content:   '# ${spec.name}\n${spec.description}'
 	}
 }
 
@@ -76,8 +76,8 @@ fn generate_actor_file(spec ActorSpecification) !VFile {
 	actor_name_snake := texttools.name_fix_snake(spec.name)
 	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
 	code := $tmpl('./templates/actor.v.template')
-	return VFile {
-		name: 'actor'
+	return VFile{
+		name:  'actor'
 		items: [CustomCode{code}]
 	}
 }
@@ -87,19 +87,18 @@ fn generate_actor_test_file(spec ActorSpecification) !VFile {
 	actor_name_snake := texttools.name_fix_snake(spec.name)
 	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
 	code := $tmpl('./templates/actor_test.v.template')
-	return VFile {
-		name: 'actor_test'
+	return VFile{
+		name:  'actor_test'
 		items: [CustomCode{code}]
 	}
 }
-
 
 pub fn generate_openapi_file(spec ActorSpecification) !File {
 	openapi_spec := spec.to_openapi()
 	openapi_json := json.encode(openapi_spec)
 	return File{
-		name: 'openapi'
+		name:      'openapi'
 		extension: 'json'
-		content: openapi_json
+		content:   openapi_json
 	}
 }

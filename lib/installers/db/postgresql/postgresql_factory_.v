@@ -2,9 +2,9 @@ module postgresql
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.ui.console
 import time
 
 __global (
@@ -17,121 +17,86 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
 fn args_get(args_ ArgsGet) ArgsGet {
-	mut model := args_
-	if model.name == '' {
-		model.name = postgresql_default
+	mut args := args_
+	if args.name == '' {
+		args.name = postgresql_default
 	}
-	if model.name == '' {
-		model.name = 'default'
+	if args.name == '' {
+		args.name = 'default'
 	}
-	return model
+	return args
 }
 
 pub fn get(args_ ArgsGet) !&Postgresql {
-	mut model := args_get(args_)
-	if model.name !in postgresql_global {
-		if model.name == 'default' {
-			if !config_exists(model) {
-				if default {
-					config_save(model)!
-				}
+	mut args := args_get(args_)
+	if args.name !in postgresql_global {
+		if !config_exists() {
+			if default {
+				config_save()!
 			}
-			config_load(model)!
 		}
+		config_load()!
 	}
-	return postgresql_global[model.name] or {
-		println(postgresql_global)
-		panic('could not get config for postgresql with name:${model.name}')
-	}
+	return postgresql_global[args.name] or { panic('bug in get from factory: ') }
 }
 
 fn config_exists(args_ ArgsGet) bool {
-	mut model := args_get(args_)
+	mut args := args_get(args_)
 	mut context := base.context() or { panic('bug') }
-	return context.hero_config_exists('postgresql', model.name)
+	return context.hero_config_exists('postgresql', args.name)
 }
 
 fn config_load(args_ ArgsGet) ! {
-	mut model := args_get(args_)
+	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('postgresql', model.name)!
+	mut heroscript := context.hero_config_get('postgresql', args.name)!
 	play(heroscript: heroscript)!
 }
 
 fn config_save(args_ ArgsGet) ! {
-	mut model := args_get(args_)
+	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_set('postgresql', model.name, heroscript_default()!)!
+	context.hero_config_set('postgresql', args.name, heroscript_default()!)!
 }
 
 fn set(o Postgresql) ! {
 	mut o2 := obj_init(o)!
-	postgresql_global[o.name] = &o2
-	postgresql_default = o.name
+	postgresql_global['default'] = &o2
 }
 
 @[params]
 pub struct PlayArgs {
 pub mut:
+	name       string = 'default'
 	heroscript string // if filled in then plbook will be made out of it
 	plbook     ?playbook.PlayBook
 	reset      bool
+
+	start     bool
+	stop      bool
+	restart   bool
+	delete    bool
+	configure bool // make sure there is at least one installed
 }
 
 pub fn play(args_ PlayArgs) ! {
-	mut model := args_
+	mut args := args_
 
-	if model.heroscript == '' {
-		model.heroscript = heroscript_default()!
+	if args.heroscript == '' {
+		args.heroscript = heroscript_default()!
 	}
-	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut install_actions := plbook.find(filter: 'postgresql.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
 			mycfg := cfg_play(p)!
-			console.print_debug('install action postgresql.configure\n${mycfg}')
 			set(mycfg)!
-		}
-	}
-
-	mut other_actions := plbook.find(filter: 'postgresql.')!
-	for other_action in other_actions {
-		if other_action.name in ['destroy', 'install', 'build'] {
-			mut p := other_action.params
-			reset := p.get_default_false('reset')
-			if other_action.name == 'destroy' || reset {
-				console.print_debug('install action postgresql.destroy')
-				destroy()!
-			}
-			if other_action.name == 'install' {
-				console.print_debug('install action postgresql.install')
-				install()!
-			}
-		}
-		if other_action.name in ['start', 'stop', 'restart'] {
-			mut p := other_action.params
-			name := p.get('name')!
-			mut postgresql_obj := get(name: name)!
-			console.print_debug('action object:\n${postgresql_obj}')
-			if other_action.name == 'start' {
-				console.print_debug('install action postgresql.${other_action.name}')
-				postgresql_obj.start()!
-			}
-
-			if other_action.name == 'stop' {
-				console.print_debug('install action postgresql.${other_action.name}')
-				postgresql_obj.stop()!
-			}
-			if other_action.name == 'restart' {
-				console.print_debug('install action postgresql.${other_action.name}')
-				postgresql_obj.restart()!
-			}
 		}
 	}
 }
@@ -176,8 +141,8 @@ pub fn (mut self Postgresql) start() ! {
 
 	console.print_header('postgresql start')
 
-	if !installed()! {
-		install()!
+	if !installed_()! {
+		install_()!
 	}
 
 	configure()!
@@ -205,9 +170,9 @@ pub fn (mut self Postgresql) start() ! {
 	return error('postgresql did not install properly.')
 }
 
-pub fn (mut self Postgresql) install_start(model InstallArgs) ! {
+pub fn (mut self Postgresql) install_start(args InstallArgs) ! {
 	switch(self.name)
-	self.install(model)!
+	self.install(args)!
 	self.start()!
 }
 
@@ -238,7 +203,7 @@ pub fn (mut self Postgresql) running() !bool {
 			return false
 		}
 	}
-	return running()!
+	return running_()!
 }
 
 @[params]
@@ -247,17 +212,18 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self Postgresql) install(model InstallArgs) ! {
+pub fn (mut self Postgresql) install(args InstallArgs) ! {
 	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+	if args.reset || (!installed_()!) {
+		install_()!
 	}
 }
 
 pub fn (mut self Postgresql) destroy() ! {
 	switch(self.name)
+
 	self.stop() or {}
-	destroy()!
+	destroy_()!
 }
 
 // switch instance to be used for postgresql

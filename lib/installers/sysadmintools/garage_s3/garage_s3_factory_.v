@@ -2,9 +2,9 @@ module garage_s3
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.ui.console
 import time
 
 __global (
@@ -17,11 +17,91 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
+}
+
+fn args_get(args_ ArgsGet) ArgsGet {
+	mut args := args_
+	if args.name == '' {
+		args.name = garage_s3_default
+	}
+	if args.name == '' {
+		args.name = 'default'
+	}
+	return args
 }
 
 pub fn get(args_ ArgsGet) !&GarageS3 {
-	return &GarageS3{}
+	mut args := args_get(args_)
+	if args.name !in garage_s3_global {
+		if !config_exists() {
+			if default {
+				config_save()!
+			}
+		}
+		config_load()!
+	}
+	return garage_s3_global[args.name] or {
+		println(garage_s3_global)
+		panic('bug in get from factory: ')
+	}
+}
+
+fn config_exists(args_ ArgsGet) bool {
+	mut args := args_get(args_)
+	mut context := base.context() or { panic('bug') }
+	return context.hero_config_exists('garage_s3', args.name)
+}
+
+fn config_load(args_ ArgsGet) ! {
+	mut args := args_get(args_)
+	mut context := base.context()!
+	mut heroscript := context.hero_config_get('garage_s3', args.name)!
+	play(heroscript: heroscript)!
+}
+
+fn config_save(args_ ArgsGet) ! {
+	mut args := args_get(args_)
+	mut context := base.context()!
+	context.hero_config_set('garage_s3', args.name, heroscript_default()!)!
+}
+
+fn set(o GarageS3) ! {
+	mut o2 := obj_init(o)!
+	garage_s3_global['default'] = &o2
+}
+
+@[params]
+pub struct PlayArgs {
+pub mut:
+	name       string = 'default'
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
+
+	start     bool
+	stop      bool
+	restart   bool
+	delete    bool
+	configure bool // make sure there is at least one installed
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+
+	if args.heroscript == '' {
+		args.heroscript = heroscript_default()!
+	}
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+
+	mut install_actions := plbook.find(filter: 'garage_s3.configure')!
+	if install_actions.len > 0 {
+		for install_action in install_actions {
+			mut p := install_action.params
+			mycfg := cfg_play(p)!
+			set(mycfg)!
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +128,12 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 			return startupmanager.get()!
 		}
 	}
+}
+
+// load from disk and make sure is properly intialized
+pub fn (mut self GarageS3) reload() ! {
+	switch(self.name)
+	self = obj_init(self)!
 }
 
 pub fn (mut self GarageS3) start() ! {
@@ -87,9 +173,9 @@ pub fn (mut self GarageS3) start() ! {
 	return error('garage_s3 did not install properly.')
 }
 
-pub fn (mut self GarageS3) install_start(model InstallArgs) ! {
+pub fn (mut self GarageS3) install_start(args InstallArgs) ! {
 	switch(self.name)
-	self.install(model)!
+	self.install(args)!
 	self.start()!
 }
 
@@ -120,7 +206,7 @@ pub fn (mut self GarageS3) running() !bool {
 			return false
 		}
 	}
-	return running()!
+	return running_()!
 }
 
 @[params]
@@ -129,22 +215,18 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self GarageS3) install(model InstallArgs) ! {
+pub fn (mut self GarageS3) install(args InstallArgs) ! {
 	switch(self.name)
-	if model.reset || (!installed()!) {
+	if args.reset || (!installed()!) {
 		install()!
 	}
 }
 
-pub fn (mut self GarageS3) build() ! {
-	switch(self.name)
-	build()!
-}
-
 pub fn (mut self GarageS3) destroy() ! {
 	switch(self.name)
+
 	self.stop() or {}
-	destroy()!
+	destroy_()!
 }
 
 // switch instance to be used for garage_s3

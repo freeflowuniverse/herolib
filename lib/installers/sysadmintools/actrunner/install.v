@@ -5,11 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import os
 
-pub fn installlll(args_ InstallArgs) ! {
+pub fn installl(args_ InstallArgs) ! {
 	mut args := args_
 	version := '0.2.10'
 
-	res := os.execute('${osal.profile_path_source_and()} actrunner -v')
+	res := os.execute('${osal.profile_path_source_and()!} actrunner -v')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('act_runner version'))
 		if r.len != 1 {
@@ -31,13 +31,13 @@ pub fn installlll(args_ InstallArgs) ! {
 	console.print_header('install actrunner')
 
 	mut url := ''
-	if osal.is_linux_arm() {
+	if core.is_linux_arm()! {
 		url = 'https://dl.gitea.com/act_runner/${version}/act_runner-${version}-linux-arm64'
-	} else if osal.is_linux_intel() {
+	} else if core.is_linux_intel()! {
 		url = 'https://dl.gitea.com/act_runner/${version}/act_runner-${version}-linux-amd64'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://dl.gitea.com/act_runner/${version}/act_runner-${version}-darwin-arm64'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://dl.gitea.com/act_runner/${version}/act_runner-${version}-darwin-amd64'
 	} else {
 		return error('unsported platform')

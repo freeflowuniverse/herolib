@@ -10,18 +10,3 @@ __global (
 )
 
 /////////FACTORY
-
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
-}
-
-pub fn get(args_ ArgsGet) !&ZeroDBClient {
-	return &ZeroDBClient{}
-}
-
-// switch instance to be used for zerodb_client
-pub fn switch(name string) {
-	zerodb_client_default = name
-}

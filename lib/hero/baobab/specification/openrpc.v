@@ -1,9 +1,9 @@
 module specification
 
-import freeflowuniverse.herolib.rpc.openrpc {OpenRPC}
-import freeflowuniverse.herolib.web.openapi {OpenAPI}
+import freeflowuniverse.herolib.rpc.openrpc { OpenRPC }
+import freeflowuniverse.herolib.web.openapi
 
-pub fn from_openrpc(spec openrpc.OpenRPC) !ActorSpecification {
+pub fn from_openrpc(spec OpenRPC) !ActorSpecification {
 	// Extract Actor metadata from OpenRPC info
 	// actor_name := openrpc_doc.info.title
 	// actor_description := openrpc_doc.info.description
@@ -38,11 +38,8 @@ pub fn from_openrpc(spec openrpc.OpenRPC) !ActorSpecification {
 	}
 }
 
-
 pub fn (s ActorSpecification) to_openrpc() OpenRPC {
-	return OpenRPC {
-
-	}
+	return OpenRPC{}
 }
 
 // pub fn (actor Actor) generate_openrpc() OpenRPC {

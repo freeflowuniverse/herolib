@@ -24,11 +24,11 @@ pub mut:
 	rotateperiod int    = 1200 // 20 min
 }
 
-pub fn install(args_ InstallArgs) ! {
+pub fn install_(args_ InstallArgs) ! {
 	mut args := args_
 	version := '2.0.7'
 
-	res := os.execute('${osal.profile_path_source_and()} zdb --version')
+	res := os.execute('${osal.profile_path_source_and()!} zdb --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().len > 0)
 		if r.len != 3 {
@@ -46,7 +46,7 @@ pub fn install(args_ InstallArgs) ! {
 		console.print_header('install zdb')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://github.com/threefoldtech/0-db/releases/download/v${version}/zdb-${version}-linux-amd64-static'
 		} else {
 			return error('unsported platform, only linux 64 for zdb for now')

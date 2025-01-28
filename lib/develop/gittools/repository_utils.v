@@ -1,6 +1,5 @@
 module gittools
 
-import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.osal.sshagent
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
@@ -14,22 +13,28 @@ pub mut:
 	create bool
 }
 
-fn (repo GitRepo) get_key() string {
-	return '${repo.gs.key}:${repo.provider}:${repo.account}:${repo.name}'
+//get the key in redis where json cached info is
+pub fn (mut repo GitRepo) cache_key() string {
+	return '${repo.gs.cache_key()}:${repo.provider}:${repo.account}:${repo.name}'
 }
 
-fn (repo GitRepo) get_cache_key() string {
-	return 'git:repos:${repo.gs.key}:${repo.provider}:${repo.account}:${repo.name}'
+//get path where the repo is on the fs
+pub fn (repo GitRepo) path() string {
+	mut repo_:=repo
+	mypath:=repo_.gs.coderoot.path
+	return '${mypath}/${repo.provider}/${repo.account}/${repo.name}'
 }
 
-pub fn (repo GitRepo) get_path() !string {
-	return '${repo.gs.coderoot.path}/${repo.provider}/${repo.account}/${repo.name}'
+//get herolib path object
+pub fn (repo GitRepo) patho() !pathlib.Path {
+	return pathlib.get_dir(path: repo.path(), create: false)!
 }
+
 
 // gets the path of a given url within a repo
 // ex: 'https://git.ourworld.tf/ourworld_holding/info_ourworld/src/branch/main/books/cocreation/SUMMARY.md'
 // returns <repo_path>/books/cocreation/SUMMARY.md
-pub fn (repo GitRepo) get_path_of_url(url string) !string {
+pub fn (mut repo GitRepo) get_path_of_url(url string) !string {
 	// Split the URL into components
 	url_parts := url.split('/')
 
@@ -41,9 +46,7 @@ pub fn (repo GitRepo) get_path_of_url(url string) !string {
 
 	if repo_root_idx == -1 {
 		// maybe default repo url (without src and blob)
-		return repo.get_path() or {
-			return error('Invalid URL format: Cannot find repository path')
-		}
+		return repo.path()
 	}
 
 	// Ensure that the repository path starts after the branch
@@ -55,17 +58,18 @@ pub fn (repo GitRepo) get_path_of_url(url string) !string {
 	path_in_repo := url_parts[repo_root_idx + 3..].join('/')
 
 	// Construct the full path
-	return '${repo.get_path()!}/${path_in_repo}'
+	return '${repo.path()}/${path_in_repo}'
 }
 
 // Relative path inside the gitstructure, pointing to the repo
 pub fn (repo GitRepo) get_relative_path() !string {
 	mut mypath := repo.patho()!
-	return mypath.path_relative(repo.gs.coderoot.path) or { panic("couldn't get relative path") }
+	mut repo_:=repo
+	return mypath.path_relative(repo_.gs.coderoot.path) or { panic("couldn't get relative path") }
 }
 
-pub fn (repo GitRepo) get_parent_dir(args GetParentDir) !string {
-	repo_path := repo.get_path()!
+pub fn (mut repo GitRepo) get_parent_dir(args GetParentDir) !string {
+	repo_path := repo.path()
 	parent_dir := os.dir(repo_path)
 	if !os.exists(parent_dir) && !args.create {
 		return error('Parent directory does not exist: ${parent_dir}')
@@ -114,9 +118,6 @@ fn (self GitRepo) get_http_url() !string {
 }
 
 // Return rich path object from our library hero lib
-pub fn (repo GitRepo) patho() !pathlib.Path {
-	return pathlib.get_dir(path: repo.get_path()!, create: false)!
-}
 
 pub fn (mut repo GitRepo) display_current_status() ! {
 	staged_changes := repo.get_changes_staged()!
@@ -139,13 +140,13 @@ pub fn (mut repo GitRepo) display_current_status() ! {
 }
 
 // Opens SourceTree for the Git repo
-pub fn (repo GitRepo) sourcetree() ! {
-	sourcetree.open(path: repo.get_path()!)!
+pub fn (mut repo GitRepo) sourcetree() ! {
+	sourcetree.open(path: repo.path())!
 }
 
 // Opens Visual Studio Code for the repo
-pub fn (repo GitRepo) open_vscode() ! {
-	path := repo.get_path()!
+pub fn (mut repo GitRepo) open_vscode() ! {
+	path := repo.path()
 	mut vs_code := vscode.new(path)
 	vs_code.open()!
 }

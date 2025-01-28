@@ -1,6 +1,7 @@
 module prometheus
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
@@ -14,7 +15,7 @@ pub fn install_prom2json(args_ InstallArgs) ! {
 
 	version := '1.4.0'
 
-	res := os.execute('${osal.profile_path_source_and()} prom2json --help')
+	res := os.execute('${osal.profile_path_source_and()!} prom2json --help')
 	if res.exit_code != 0 {
 		args.reset = true
 	}
@@ -23,7 +24,7 @@ pub fn install_prom2json(args_ InstallArgs) ! {
 		console.print_header('install prom2json')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://github.com/prometheus/prom2json/releases/download/v${version}/prom2json-${version}.linux-amd64.tar.gz'
 		} else {
 			return error('unsuported platform, only linux amd64 for now')

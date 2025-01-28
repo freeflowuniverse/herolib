@@ -5,9 +5,9 @@ import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
 
 // install docker will return true if it was already installed
-pub fn install() ! {
+pub fn install_() ! {
 	console.print_header('package install install docker')
-	if osal.platform() != .ubuntu {
+	if core.platform() != .ubuntu {
 		return error('only support ubuntu for now')
 	}
 

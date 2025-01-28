@@ -27,7 +27,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running() !bool {
+fn running_() !bool {
 	mut installer := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// this checks health of b2
@@ -64,9 +64,9 @@ fn stop_post() ! {
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()} b2 version')
+	// res := os.execute('${osal.profile_path_source_and()!} b2 version')
 	// if res.exit_code != 0 {
 	//     return false
 	// }
@@ -87,24 +87,24 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// installers.upload(
 	//     cmdname: 'b2'
 	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/b2'
 	// )!
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install b2')
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// mut url := ''
-	// if osal.is_linux_arm() {
+	// if core.is_linux_arm()! {
 	//     url = 'https://github.com/b2-dev/b2/releases/download/v${version}/b2_${version}_linux_arm64.tar.gz'
-	// } else if osal.is_linux_intel() {
+	// } else if core.is_linux_intel()! {
 	//     url = 'https://github.com/b2-dev/b2/releases/download/v${version}/b2_${version}_linux_amd64.tar.gz'
-	// } else if osal.is_osx_arm() {
+	// } else if core.is_osx_arm()! {
 	//     url = 'https://github.com/b2-dev/b2/releases/download/v${version}/b2_${version}_darwin_arm64.tar.gz'
-	// } else if osal.is_osx_intel() {
+	// } else if core.is_osx_intel()! {
 	//     url = 'https://github.com/b2-dev/b2/releases/download/v${version}/b2_${version}_darwin_amd64.tar.gz'
 	// } else {
 	//     return error('unsported platform')
@@ -125,11 +125,11 @@ fn install() ! {
 	// )!
 }
 
-fn build() ! {
+fn build_() ! {
 	// url := 'https://github.com/threefoldtech/b2'
 
 	// make sure we install base on the node
-	// if osal.platform() != .ubuntu {
+	// if core.platform()!= .ubuntu {
 	//     return error('only support ubuntu for now')
 	// }
 	// golang.install()!
@@ -154,7 +154,7 @@ fn build() ! {
 	// )!
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	// mut systemdfactory := systemd.new()!
 	// systemdfactory.destroy("zinit")!
 

@@ -9,8 +9,8 @@ import freeflowuniverse.herolib.core.texttools
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
-	res := os.execute('${osal.profile_path_source_and()} griddriver --version')
+fn installed_() !bool {
+	res := os.execute('/bin/bash -c "griddriver --version"')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -27,12 +27,12 @@ fn installed() !bool {
 	return true
 }
 
-fn install() ! {
+fn install_() ! {
 	// console.print_header('install griddriver')
 	build()!
 }
 
-fn build() ! {
+fn build_() ! {
 	console.print_header('build griddriver')
 	mut installer := golang.get()!
 	installer.install()!
@@ -41,12 +41,12 @@ fn build() ! {
 	url := 'https://github.com/threefoldtech/web3gw/tree/development_integration/griddriver'
 
 	mut repo := gs.get_repo(
-		url: url
+		url:   url
 		reset: true
-		pull: true
+		pull:  true
 	)!
 
-	mut path := repo.get_path()!
+	mut path := repo.path()
 	path = '${path}/griddriver'
 
 	cmd := '/bin/bash -c "cd ${path} && . ${path}/build.sh"'
@@ -66,7 +66,7 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 	// mut installer := get()!
 	// installers.upload(
 	//     cmdname: 'griddriver'
@@ -74,7 +74,7 @@ fn upload() ! {
 	// )!
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	// mut installer := get()!
 	// cmd:="
 	//     systemctl disable griddriver_scheduler.service

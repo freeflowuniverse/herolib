@@ -1,6 +1,7 @@
 module zola
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.base
@@ -11,8 +12,8 @@ import os
 pub const version = '0.18.0'
 
 // checks if a certain version or above is installed
-fn installed() !bool {
-	res := os.execute('${osal.profile_path_source_and()} zola -V')
+fn installed_() !bool {
+	res := os.execute('${osal.profile_path_source_and()!} zola -V')
 	myversion := res.output.all_after(' ')
 	if res.exit_code == 0 {
 		v := texttools.version(myversion)
@@ -24,7 +25,7 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install zola')
 
 	// make sure we install base on the node
@@ -34,11 +35,11 @@ fn install() ! {
 	tw.install()!
 
 	mut url := ''
-	if osal.is_linux() {
+	if core.is_linux()! {
 		url = 'https://github.com/getzola/zola/releases/download/v${version}/zola-v${version}-x86_64-unknown-linux-gnu.tar.gz'
-	} else if osal.is_osx_arm() {
+	} else if core.is_osx_arm()! {
 		url = 'https://github.com/getzola/zola/releases/download/v${version}/zola-v${version}-aarch64-apple-darwin.tar.gz'
-	} else if osal.is_osx_intel() {
+	} else if core.is_osx_intel()! {
 		url = 'https://github.com/getzola/zola/releases/download/v${version}/zola-v${version}-x86_64-apple-darwin.tar.gz'
 	} else {
 		return error('unsupported platform')
@@ -61,7 +62,7 @@ fn install() ! {
 }
 
 // install zola will return true if it was already installed
-fn build() ! {
+fn build_() ! {
 	rust.install()!
 	console.print_header('install zola')
 	cmd := '
@@ -80,5 +81,5 @@ fn build() ! {
 	console.print_header('zola installed')
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 }

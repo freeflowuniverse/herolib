@@ -16,7 +16,7 @@ pub mut:
 pub fn new(args_ NewArgs) !CEngine {
 	mut args := args_
 
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only linux supported as host for now')
 	}
 

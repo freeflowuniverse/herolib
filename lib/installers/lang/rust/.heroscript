@@ -6,6 +6,6 @@
     default: true
     title: ""
     templates: false
-    build: true
-    startupmanager: true
+    build: false
+    startupmanager: false
 

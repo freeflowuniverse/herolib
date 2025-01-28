@@ -29,7 +29,7 @@ pub mut:
 pub fn new(args_ PlayBookNewArgs) !PlayBook {
 	mut args := args_
 
-	mut c := base.context()!
+	mut c := base.context() or { return error('failed to get context: ${err}') }
 
 	mut s := c.session_new()!
 

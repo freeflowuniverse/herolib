@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.installers.zinit
 import freeflowuniverse.herolib.ui.console
 
-pub fn install() ! {
+pub fn install_() ! {
 	rust.install()!
 	zinit.install()!
 	console.print_header('install rfs')
@@ -15,7 +15,7 @@ pub fn install() ! {
 
 		mut gs := gittools.new()!
 		mut repo := gs.get_repo(url: 'https://github.com/threefoldtech/rfs', reset: true)!
-		path := repo.get_path()!
+		path := repo.path()
 		cmd := '
 		cd ${path}
 		rustup target add x86_64-unknown-linux-musl

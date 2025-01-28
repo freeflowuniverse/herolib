@@ -36,13 +36,8 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		debug:        args.debug
 		ssh_key_name: args.ssh_key_name
 	}
-	// Retrieve the configuration from Redis.
-	rediskey_ := rediskey(args.coderoot)
-	mut redis := redis_get()
-	datajson := json.encode(cfg)
-	redis.set(rediskey_, datajson)!
 
-	return get(coderoot: args.coderoot, reload: args.reload)
+	return get(coderoot: args.coderoot,reload:args.reload,cfg:cfg)
 }
 
 @[params]
@@ -50,6 +45,7 @@ pub struct GitStructureArgGet {
 pub mut:
 	coderoot string
 	reload   bool
+	cfg  ?GitStructureConfig
 }
 
 // Retrieve a GitStructure instance based on the given arguments.
@@ -58,46 +54,29 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	if args.coderoot == '' {
 		args.coderoot = '${os.home_dir()}/code'
 	}
-	if args.reload {
-		cachereset()!
-	}
-	rediskey_ := rediskey(args.coderoot)
-	// println(rediskey_)
+
+	rediskey_ := cache_key(args.coderoot)
 
 	// Return existing instance if already created.
 	if rediskey_ in gsinstances {
 		mut gs := gsinstances[rediskey_] or {
 			panic('Unexpected error: key not found in gsinstances')
 		}
-		if args.reload {
-			gs.load()!
-		}
+		gs.load(args.reload)!
 		return gs
 	}
-
-	mut redis := redis_get()
-	mut datajson := redis.get(rediskey_) or { '' }
-
-	if datajson == '' {
-		if args_.coderoot == '' {
-			return new()!
-		}
-		return error("can't find repostructure for coderoot: ${args.coderoot}")
-	}
-
-	mut config := json.decode(GitStructureConfig, datajson) or { GitStructureConfig{} }
 
 	// Create and load the GitStructure instance.
 	mut gs := GitStructure{
 		key:      rediskey_
-		config:   config
 		coderoot: pathlib.get_dir(path: args.coderoot, create: true)!
 	}
 
-	if args.reload {
-		gs.load()!
-	} else {
-		gs.init()!
+	gs.config()! //will load the config, don't remove
+	gs.load(false)!
+
+	if gs.repos.keys().len == 0 || args.reload {
+		gs.load(true)!
 	}
 
 	gsinstances[rediskey_] = &gs
@@ -105,25 +84,3 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	return gsinstances[rediskey_] or { panic('bug') }
 }
 
-// Reset the configuration cache for Git structures.
-pub fn configreset() ! {
-	mut redis := redis_get()
-	key_check := 'git:config:*'
-	keys := redis.keys(key_check)!
-
-	for key in keys {
-		redis.del(key)!
-	}
-}
-
-// Reset all caches and configurations for all Git repositories.
-pub fn cachereset() ! {
-	key_check := 'git:repos:**'
-	mut redis := redis_get()
-	keys := redis.keys(key_check)!
-
-	for key in keys {
-		redis.del(key)!
-	}
-	configreset()!
-}

@@ -2,7 +2,6 @@ module rclone
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 
 __global (
 	rclone_global  map[string]&RCloneClient
@@ -14,86 +13,88 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
 fn args_get(args_ ArgsGet) ArgsGet {
-	mut model := args_
-	if model.name == '' {
-		model.name = rclone_default
+	mut args := args_
+	if args.name == '' {
+		args.name = rclone_default
 	}
-	if model.name == '' {
-		model.name = 'default'
+	if args.name == '' {
+		args.name = 'default'
 	}
-	return model
+	return args
 }
 
 pub fn get(args_ ArgsGet) !&RCloneClient {
-	mut model := args_get(args_)
-	if model.name !in rclone_global {
-		if model.name == 'default' {
-			if !config_exists(model) {
-				if default {
-					config_save(model)!
-				}
+	mut args := args_get(args_)
+	if args.name !in rclone_global {
+		if !config_exists() {
+			if default {
+				config_save()!
 			}
-			config_load(model)!
 		}
+		config_load()!
 	}
-	return rclone_global[model.name] or {
+	return rclone_global[args.name] or {
 		println(rclone_global)
-		panic('could not get config for rclone with name:${model.name}')
+		panic('bug in get from factory: ')
 	}
 }
 
 fn config_exists(args_ ArgsGet) bool {
-	mut model := args_get(args_)
+	mut args := args_get(args_)
 	mut context := base.context() or { panic('bug') }
-	return context.hero_config_exists('rclone', model.name)
+	return context.hero_config_exists('rclone', args.name)
 }
 
 fn config_load(args_ ArgsGet) ! {
-	mut model := args_get(args_)
+	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('rclone', model.name)!
+	mut heroscript := context.hero_config_get('rclone', args.name)!
 	play(heroscript: heroscript)!
 }
 
 fn config_save(args_ ArgsGet) ! {
-	mut model := args_get(args_)
+	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_set('rclone', model.name, heroscript_default()!)!
+	context.hero_config_set('rclone', args.name, heroscript_default()!)!
 }
 
 fn set(o RCloneClient) ! {
 	mut o2 := obj_init(o)!
-	rclone_global[o.name] = &o2
-	rclone_default = o.name
+	rclone_global['default'] = &o2
 }
 
 @[params]
 pub struct PlayArgs {
 pub mut:
+	name       string = 'default'
 	heroscript string // if filled in then plbook will be made out of it
 	plbook     ?playbook.PlayBook
 	reset      bool
+
+	start     bool
+	stop      bool
+	restart   bool
+	delete    bool
+	configure bool // make sure there is at least one installed
 }
 
 pub fn play(args_ PlayArgs) ! {
-	mut model := args_
+	mut args := args_
 
-	if model.heroscript == '' {
-		model.heroscript = heroscript_default()!
+	if args.heroscript == '' {
+		args.heroscript = heroscript_default()!
 	}
-	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut install_actions := plbook.find(filter: 'rclone.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
-			mycfg := cfg_play(p)!
-			console.print_debug('install action rclone.configure\n${mycfg}')
-			set(mycfg)!
+			cfg_play(p)!
 		}
 	}
 }

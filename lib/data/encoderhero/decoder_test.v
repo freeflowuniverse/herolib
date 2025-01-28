@@ -110,7 +110,7 @@ const person = Person{
 	id:       1
 	name:     'Bob'
 	age:      21
-	birthday: time.new_time(
+	birthday: time.new(
 		day:   12
 		month: 12
 		year:  2012

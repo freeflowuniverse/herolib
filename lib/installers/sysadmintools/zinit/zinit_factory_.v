@@ -14,16 +14,6 @@ __global (
 
 /////////FACTORY
 
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
-}
-
-pub fn get(args_ ArgsGet) !&Zinit {
-	return &Zinit{}
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +48,8 @@ pub fn (mut self Zinit) start() ! {
 
 	console.print_header('zinit start')
 
-	if !installed()! {
-		install()!
+	if !installed_()! {
+		install_()!
 	}
 
 	configure()!
@@ -129,25 +119,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self Zinit) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+pub fn install(args InstallArgs) ! {
+	if args.reset {
+		destroy()!
+	}
+	if !(installed_()!) {
+		install_()!
 	}
 }
 
-pub fn (mut self Zinit) build() ! {
-	switch(self.name)
-	build()!
+pub fn destroy() ! {
+	destroy_()!
 }
 
-pub fn (mut self Zinit) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy()!
-}
-
-// switch instance to be used for zinit
-pub fn switch(name string) {
-	zinit_default = name
+pub fn build() ! {
+	build_()!
 }

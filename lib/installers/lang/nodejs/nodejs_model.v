@@ -3,7 +3,7 @@ module nodejs
 import freeflowuniverse.herolib.data.paramsparser
 import os
 
-pub const version = '0.0.0'
+pub const version = '9.15.2'
 const singleton = true
 const default = true
 

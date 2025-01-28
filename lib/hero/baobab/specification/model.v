@@ -1,15 +1,15 @@
 module specification
 
-import freeflowuniverse.herolib.core.codemodel { Struct, Function }
+import freeflowuniverse.herolib.core.codemodel { Function, Struct }
 
 pub struct ActorSpecification {
 pub mut:
-	name        string      @[omitempty]
-	description string      @[omitempty]
-	structure   Struct      @[omitempty]
-	interfaces []ActorInterface @[omitempty]
-	methods     []ActorMethod @[omitempty]
-	objects     []BaseObject @[omitempty]
+	name        string           @[omitempty]
+	description string           @[omitempty]
+	structure   Struct           @[omitempty]
+	interfaces  []ActorInterface @[omitempty]
+	methods     []ActorMethod    @[omitempty]
+	objects     []BaseObject     @[omitempty]
 }
 
 pub enum ActorInterface {
@@ -28,7 +28,7 @@ pub:
 
 pub struct BaseObject {
 pub:
-	structure Struct      @[omitempty]
-	methods   []Function  @[omitempty]
-	children  []Struct    @[omitempty]
+	structure Struct     @[omitempty]
+	methods   []Function @[omitempty]
+	children  []Struct   @[omitempty]
 }

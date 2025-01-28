@@ -1,6 +1,7 @@
 module prometheus
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
@@ -14,7 +15,7 @@ pub fn install_alertmanager(args_ InstallArgs) ! {
 
 	version := '0.27.0'
 
-	res := os.execute('${osal.profile_path_source_and()} alertmanager --version')
+	res := os.execute('${osal.profile_path_source_and()!} alertmanager --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('alertmanager'))
 		if r.len != 1 {
@@ -32,7 +33,7 @@ pub fn install_alertmanager(args_ InstallArgs) ! {
 		console.print_header('install alertmanager')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://github.com/prometheus/alertmanager/releases/download/v${version}/alertmanager-${version}.linux-amd64.tar.gz'
 		} else {
 			return error('unsported platform, only linux amd64 for now')

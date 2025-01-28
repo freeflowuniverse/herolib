@@ -11,9 +11,9 @@ import freeflowuniverse.herolib.osal
 // 	reset bool
 // }
 
-// pub fn install(args_ InstallArgs) ! {
+// pub fn install_(args_ InstallArgs) ! {
 // 	_ := args_
-// 	pl := osal.platform()
+// 	pl := core.platform()!
 // 	if pl == .arch {
 // 		osal.package_install('npm')!
 // 	} else {

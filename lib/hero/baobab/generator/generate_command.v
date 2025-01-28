@@ -1,8 +1,8 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.codemodel { CodeItem, CustomCode, Import, VFile }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.hero.baobab.specification {ActorMethod, ActorSpecification}
+import freeflowuniverse.herolib.hero.baobab.specification { ActorMethod, ActorSpecification }
 
 pub fn generate_command_file(spec ActorSpecification) !VFile {
 	mut items := []CodeItem{}
@@ -10,21 +10,21 @@ pub fn generate_command_file(spec ActorSpecification) !VFile {
 	for i in spec.methods {
 		items << CustomCode{generate_method_cmd_function(spec.name, i)}
 	}
-	return VFile {
-		name: 'command'
+	return VFile{
+		name:    'command'
 		imports: [
 			Import{
 				mod: 'freeflowuniverse.herolib.ui.console'
 			},
 			Import{
-				mod: 'cli'
+				mod:   'cli'
 				types: ['Command', 'Flag']
-			}
+			},
 		]
-		items: items
+		items:   items
 	}
 }
-	
+
 pub fn generate_cmd_function(spec ActorSpecification) string {
 	actor_name_snake := texttools.name_fix_snake(spec.name)
 	mut cmd_function := "
@@ -36,7 +36,7 @@ pub fn generate_cmd_function(spec ActorSpecification) string {
 			execute: cmd_execute
 		}
 	"
-	
+
 	mut method_cmds := []string{}
 	for method in spec.methods {
 		method_cmds << generate_method_cmd(method)
@@ -65,7 +65,7 @@ pub fn generate_method_cmd_function(actor_name string, method ActorMethod) strin
 
 	actor_name_snake := texttools.name_fix_snake(actor_name)
 	method_name_snake := texttools.name_fix_snake(method.name)
-	
+
 	method_call := if method.func.result.typ.symbol == '' {
 		'${actor_name_snake}.${method_name_snake}()!'
 	} else {

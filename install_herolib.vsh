@@ -64,8 +64,14 @@ os.symlink('${abs_dir_of_script}/lib', '${os.home_dir()}/.vmodules/freeflowunive
 println('Herolib installation completed successfully!')
 
 // Add vtest alias
-addtoscript('alias vtest=', 'alias vtest=\'v -stats -enable-globals -n -w -cg -gc none -no-retry-compilation -cc tcc test\' %') or {
+addtoscript('alias vtest=', 'alias vtest=\'v -stats -enable-globals -n -w -cg -gc none -no-retry-compilation -cc tcc test\' ') or {
     eprintln('Failed to add vtest alias: ${err}')
 }
+
+addtoscript('HOME/hero/bin', 'export PATH="\$PATH:\$HOME/hero/bin"') or {
+    eprintln('Failed to add path to hero, ${err}')
+}
+
+//  ulimit -n 32000
 
 println('Added vtest alias to shell configuration')

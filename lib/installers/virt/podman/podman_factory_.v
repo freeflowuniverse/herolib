@@ -1,11 +1,8 @@
 module podman
 
-import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	podman_global  map[string]&PodmanInstaller
@@ -17,7 +14,7 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
 pub fn get(args_ ArgsGet) !&PodmanInstaller {
@@ -56,16 +53,11 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self PodmanInstaller) install(model InstallArgs) ! {
+pub fn (mut self PodmanInstaller) install(args InstallArgs) ! {
 	switch(self.name)
-	if model.reset || (!installed()!) {
+	if args.reset || !installed()! {
 		install()!
 	}
-}
-
-pub fn (mut self PodmanInstaller) build() ! {
-	switch(self.name)
-	build()!
 }
 
 pub fn (mut self PodmanInstaller) destroy() ! {

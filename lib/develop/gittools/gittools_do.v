@@ -61,8 +61,8 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut ui := gui.new()!
 
 	if args.cmd == 'reload' {
-		console.print_header(' - reload gitstructure ${gs.config.coderoot}')
-		gs.load(reload: true)!
+		console.print_header(' - reload gitstructure ${gs.config()!.coderoot}')
+		gs.load(true)!
 		return ''
 	}
 
@@ -87,7 +87,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		mut g := gs.get_repo(url: args.url)!
 		g.load()!
 		if args.cmd == 'cd' {
-			return g.get_path()!
+			return g.path()
 		}
 		if args.reset {
 			g.remove_changes()!
@@ -105,7 +105,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			g.push()!
 		}
 		if args.cmd == 'pull' || args.cmd == 'clone' || args.cmd == 'push' {
-			gpath := g.get_path()!
+			gpath := g.path()
 			console.print_debug('git do ok, on path ${gpath}')
 			return gpath
 		}
@@ -119,7 +119,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		if repos.len > 4 {
 			return error('more than 4 repo found for cmd:${args.cmd}')
 		}
-		for r in repos {
+		for mut r in repos {
 			if args.cmd == 'edit' {
 				r.open_vscode()!
 			}

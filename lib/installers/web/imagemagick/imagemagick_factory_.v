@@ -14,16 +14,6 @@ __global (
 
 /////////FACTORY
 
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
-}
-
-pub fn get(args_ ArgsGet) !&ImageMagick {
-	return &ImageMagick{}
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +48,8 @@ pub fn (mut self ImageMagick) start() ! {
 
 	console.print_header('imagemagick start')
 
-	if !installed()! {
-		install()!
+	if !installed_()! {
+		install_()!
 	}
 
 	configure()!
@@ -129,25 +119,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self ImageMagick) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+pub fn install(args InstallArgs) ! {
+	if args.reset {
+		destroy()!
+	}
+	if !(installed_()!) {
+		install_()!
 	}
 }
 
-pub fn (mut self ImageMagick) build() ! {
-	switch(self.name)
-	build()!
+pub fn destroy() ! {
+	destroy_()!
 }
 
-pub fn (mut self ImageMagick) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy()!
-}
-
-// switch instance to be used for imagemagick
-pub fn switch(name string) {
-	imagemagick_default = name
+pub fn build() ! {
+	build_()!
 }

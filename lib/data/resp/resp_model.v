@@ -70,7 +70,7 @@ fn (v RArray) strlist() []string {
 	return res
 }
 
-type RValue = RArray | RBString | RError | RInt | RNil | RString
+pub type RValue = RArray | RBString | RError | RInt | RNil | RString
 
 pub fn (v RValue) int() int {
 	match v {

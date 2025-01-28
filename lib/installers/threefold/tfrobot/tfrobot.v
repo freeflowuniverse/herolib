@@ -1,6 +1,7 @@
 module tfrobot
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.develop.gittools
@@ -14,11 +15,11 @@ pub mut:
 	uninstall bool
 }
 
-pub fn install(args_ InstallArgs) ! {
+pub fn install_(args_ InstallArgs) ! {
 	mut args := args_
 	version := '0.14.0'
 
-	res := os.execute('${osal.profile_path_source_and()} tfrobot version')
+	res := os.execute('${osal.profile_path_source_and()!} tfrobot version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().contains('v0.'))
 		if r.len != 1 {
@@ -34,16 +35,16 @@ pub fn install(args_ InstallArgs) ! {
 
 	if args.reset {
 		console.print_header('install tfrobot')
-		build()!
+		build_()!
 	}
 }
 
-pub fn build() ! {
+pub fn build_() ! {
 	mut g := golang.get()!
 	g.install()!
 	console.print_header('build tfrobot')
 	mut dest_on_os := '${os.home_dir()}/hero/bin'
-	if osal.is_linux() {
+	if core.is_linux()! {
 		dest_on_os = '/usr/local/bin'
 	}
 
@@ -54,7 +55,7 @@ pub fn build() ! {
 		pull:  true
 	)!
 
-	mut path := repo.get_path()!
+	mut path := repo.path()
 
 	cmd := '
 	cd ${path}

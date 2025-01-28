@@ -1,19 +1,19 @@
 module generator
 
 import json
-import freeflowuniverse.herolib.core.codemodel { VFile, File, Function, Module, Struct }
+import freeflowuniverse.herolib.core.codemodel { File, Function, Struct, VFile }
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.hero.baobab.specification {ActorSpecification}
-import freeflowuniverse.herolib.rpc.openrpc { Components, OpenRPC }
-import freeflowuniverse.herolib.data.jsonschema { SchemaRef }
+import freeflowuniverse.herolib.hero.baobab.specification
+import freeflowuniverse.herolib.rpc.openrpc { OpenRPC }
+import freeflowuniverse.herolib.data.jsonschema
 
 pub fn generate_openrpc_file(spec OpenRPC) !File {
-	return File {
-		name: 'openrpc'
+	return File{
+		name:      'openrpc'
 		extension: 'json'
-		content: json.encode(spec)
-	}	
+		content:   json.encode(spec)
+	}
 }
 
 pub fn generate_openrpc_client_file(spec OpenRPC) !VFile {
@@ -22,12 +22,12 @@ pub fn generate_openrpc_client_file(spec OpenRPC) !VFile {
 	// 	objects_map[object.structure.name] = object.structure
 	// }
 	client_file := spec.generate_client_file(objects_map)!
-	return VFile {
-		...client_file,
+	return VFile{
+		...client_file
 		name: 'client_openrpc'
-	}	
+	}
 }
-	
+
 pub fn generate_openrpc_client_test_file(spec OpenRPC) !VFile {
 	mut objects_map := map[string]Struct{}
 	// for object in spec.objects {
@@ -38,10 +38,10 @@ pub fn generate_openrpc_client_test_file(spec OpenRPC) !VFile {
 	// 	methods_map[method.func.name] = method.func
 	// }
 	file := spec.generate_client_test_file(methods_map, objects_map)!
-	return VFile {
-		...file,
+	return VFile{
+		...file
 		name: 'client_openrpc_test'
-	}	
+	}
 }
 
 // pub fn (actor Actor) generate_openrpc_code() !Module {

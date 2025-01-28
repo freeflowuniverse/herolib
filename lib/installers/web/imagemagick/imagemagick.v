@@ -8,7 +8,7 @@ import os
 const installername = os.base(os.dir(@FILE))
 
 // install imagemagick will return true if it was already installed
-pub fn install() ! {
+pub fn install_() ! {
 	console.print_header('install ${installername}')
 	if !osal.done_exists('install_${installername}') {
 		osal.package_install('imagemagick')!

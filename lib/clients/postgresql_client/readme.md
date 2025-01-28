@@ -1,76 +1,113 @@
-# postgres client
+# PostgreSQL Client
 
-## use hero to work with postgres
+The PostgreSQL client provides a simple interface to interact with PostgreSQL databases through HeroScript.
 
-```bash
+## Configuration
 
-Usage: hero postgres [flags] [commands]
+The PostgreSQL client can be configured using HeroScript. Configuration settings are stored on the filesystem for future use.
 
-manage postgresql
-
-Flags:
-  -help               Prints help information.
-  -man                Prints the auto-generated manpage.
-
-Commands:
-  exec                execute a query
-  check               check the postgresql connection
-  configure           configure a postgresl connection.
-  backup              backup
-  print               print configure info.
-  list                list databases
-
-```
-
-## configure
-
-the postgres configuration is stored on the filesystem for further use, can be configured as follows
+### Basic Configuration Example
 
 ```v
-import freeflowuniverse.herolib.clients.postgres
+#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
 
-postgres.configure(name:'default',
-	user :'root'
-	port : 5432
-	host  : 'localhost'
-	password : 'ssss'
-	dbname :'postgres')!
+import freeflowuniverse.herolib.core
+import os
+import freeflowuniverse.herolib.clients.postgresql_client
 
-mut db:=postgres.get(name:'default')!
+heroscript := "
+!!postgresql_client.configure 
+    name:'test'
+    user: 'root'
+    port: 5432
+    host: 'localhost'
+    password: '1234'
+    dbname: 'postgres'
+"
 
+// Process the heroscript
+postgresql_client.play(heroscript:heroscript)!
+
+// Get the configured client
+mut db_client := postgresql_client.get(name:"test")!
+
+println(db_client)
 ```
 
-## configure through heroscript
+### Configuration Parameters
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| name | Unique identifier for this configuration | 'default' |
+| user | PostgreSQL user | 'root' |
+| port | PostgreSQL server port | 5432 |
+| host | PostgreSQL server host | 'localhost' |
+| password | PostgreSQL user password | '' |
+| dbname | Default database name | 'postgres' |
+
+## Database Operations
+
+### Check Connection
 
 ```v
-import freeflowuniverse.herolib.clients.postgres
-
-heroscript:='
-!!postgresclient.define name:'default'
-	//TO IMPLEMENT
-'
-
-
-postgres.configure(heroscript:heroscript)!
-
-
-//can also be done through get directly
-mut cl:=postgres.get(reset:true,name:'default',heroscript:heroscript)
-
+// Check if connection is working
+db_client.check()!
 ```
 
-
-## some postgresql cmds
+### Database Management
 
 ```v
-import freeflowuniverse.herolib.clients.postgres
+// Check if database exists
+exists := db_client.db_exists('mydb')!
 
-mut cl:=postgres.get()! //will default get postgres client with name 'default'
+// Create database
+db_client.db_create('mydb')!
 
-cl.db_exists("mydb")!
+// Delete database
+db_client.db_delete('mydb')!
 
+// List all databases
+db_names := db_client.db_names()!
 ```
 
-## use the good module of v
+### Query Execution
 
-- [https://modules.vlang.io/db.pg.html#DB.exec](https://modules.vlang.io/db.pg.html#DB.exec)
+```v
+// Execute a query
+rows := db_client.exec('SELECT * FROM mytable;')!
+
+// Query without semicolon is automatically appended
+rows := db_client.exec('SELECT * FROM mytable')!
+```
+
+## Backup Functionality
+
+The client provides functionality to backup databases:
+
+```v
+// Backup a specific database
+db_client.backup(dbname: 'mydb', dest: '/path/to/backup/dir')!
+
+// Backup all databases
+db_client.backup(dest: '/path/to/backup/dir')!
+```
+
+Backups are created in custom PostgreSQL format (.bak files) which can be restored using pg_restore.
+
+## Default Configuration
+
+If no configuration is provided, the client uses these default settings:
+
+```v
+heroscript := "
+!!postgresql_client.configure 
+    name:'default'
+    user: 'root'
+    port: 5432
+    host: 'localhost'
+    password: ''
+    dbname: 'postgres'
+"
+```
+
+You can override these defaults by providing your own configuration using the HeroScript configure command.

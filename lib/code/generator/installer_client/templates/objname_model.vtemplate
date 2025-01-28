@@ -112,7 +112,7 @@ pub mut:
 }
 
 @if model.hasconfig
-fn cfg_play(p paramsparser.Params) ! {
+fn cfg_play(p paramsparser.Params) !${model.classname} {
     //THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
     mut mycfg := ${model.classname}{
         name: p.get_default('name', 'default')!
@@ -123,6 +123,7 @@ fn cfg_play(p paramsparser.Params) ! {
         mail_username: p.get('mail_username')!
     }
     set(mycfg)!
+    return mycfg
 }     
 @end
 

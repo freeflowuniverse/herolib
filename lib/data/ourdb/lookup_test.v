@@ -218,7 +218,11 @@ fn test_export_import() {
 	assert result2.file_nr == 0
 
 	// Verify incremental was imported
-	assert lut2.incremental! == 2
+	if v := lut2.incremental {
+		assert v == 2
+	} else {
+		assert false, 'incremental should have a value'
+	}
 }
 
 fn test_export_import_sparse() {
@@ -285,7 +289,11 @@ fn test_incremental_memory() {
 	id1 := lut.get_next_id()!
 	lut.set(id1, loc1)!
 	assert id1 == 0
-	assert lut.incremental! == 1
+	if v := lut.incremental {
+		assert v == 1
+	} else {
+		assert false, 'incremental should have a value'
+	}
 
 	// Set at x=1 should not increment and return specified ID
 	loc2 := Location{
@@ -295,7 +303,11 @@ fn test_incremental_memory() {
 	id2 := lut.get_next_id()!
 	lut.set(id2, loc2)!
 	assert id2 == 1
-	assert lut.incremental! == 2
+	if v := lut.incremental {
+		assert v == 2
+	} else {
+		assert false, 'incremental should have a value'
+	}
 
 	// Another set at x=0 should increment and return new ID
 	loc3 := Location{
@@ -306,7 +318,11 @@ fn test_incremental_memory() {
 	id3 := lut.get_next_id()!
 	lut.set(id3, loc3)!
 	assert id3 == 2
-	assert lut.incremental! == 3
+	if v := lut.incremental {
+		assert v == 3
+	} else {
+		assert false, 'incremental should have a value'
+	}
 
 	// Test persistence through export/import
 	export_path := os.join_path(test_dir, 'inc_export.lut')
@@ -316,7 +332,11 @@ fn test_incremental_memory() {
 
 	mut lut2 := new_lookup(config)!
 	lut2.import_data(export_path)!
-	assert lut2.incremental! == 3
+	if v := lut2.incremental {
+		assert v == 3
+	} else {
+		assert false, 'incremental should have a value'
+	}
 
 	// Further operations should continue from last value
 	loc4 := Location{
@@ -326,7 +346,11 @@ fn test_incremental_memory() {
 	id4 := lut2.get_next_id()!
 	lut2.set(id4, loc4)!
 	assert id4 == 3
-	assert lut2.incremental! == 4
+	if v := lut2.incremental {
+		assert v == 4
+	} else {
+		assert false, 'incremental should have a value'
+	}
 }
 
 fn test_incremental_disk() {
@@ -338,7 +362,11 @@ fn test_incremental_disk() {
 	mut lut := new_lookup(config)!
 
 	// Initial value should be 0
-	assert lut.incremental! == 0
+	if v := lut.incremental {
+		assert v == 0
+	} else {
+		assert false, 'incremental should have a value'
+	}
 	assert os.exists(lut.get_inc_file_path()!)
 	inc_content := os.read_file(lut.get_inc_file_path()!)!
 	assert inc_content == '0'
@@ -351,7 +379,11 @@ fn test_incremental_disk() {
 	id1 := lut.get_next_id()!
 	lut.set(id1, loc1)!
 	assert id1 == 0
-	assert lut.incremental! == 1
+	if v := lut.incremental {
+		assert v == 1
+	} else {
+		assert false, 'incremental should have a value'
+	}
 	inc_content1 := os.read_file(lut.get_inc_file_path()!)!
 	assert inc_content1 == '1'
 
@@ -363,13 +395,21 @@ fn test_incremental_disk() {
 	id2 := lut.get_next_id()!
 	lut.set(id2, loc2)!
 	assert id2 == 1
-	assert lut.incremental! == 2
+	if v := lut.incremental {
+		assert v == 2
+	} else {
+		assert false, 'incremental should have a value'
+	}
 	inc_content2 := os.read_file(lut.get_inc_file_path()!)!
 	assert inc_content2 == '2'
 
 	// Test persistence by creating new instance
 	mut lut2 := new_lookup(config)!
-	assert lut2.incremental! == 2
+	if v := lut2.incremental {
+		assert v == 2
+	} else {
+		assert false, 'incremental should have a value'
+	}
 
 	// Further operations at x=0 should continue from last value
 	loc3 := Location{
@@ -379,7 +419,11 @@ fn test_incremental_disk() {
 	id3 := lut2.get_next_id()!
 	lut2.set(id3, loc3)!
 	assert id3 == 2
-	assert lut2.incremental! == 3
+	if v := lut2.incremental {
+		assert v == 3
+	} else {
+		assert false, 'incremental should have a value'
+	}
 	inc_content3 := os.read_file(lut.get_inc_file_path()!)!
 	assert inc_content3 == '3'
 }
@@ -405,6 +449,10 @@ fn test_multiple_sets() {
 	}
 
 	// Verify incremental is 5
-	assert lut.incremental! == 5
+	if v := lut.incremental {
+		assert v == 5
+	} else {
+		assert false, 'incremental should have a value'
+	}
 	assert ids == [u32(0), 1, 2, 3, 4]
 }

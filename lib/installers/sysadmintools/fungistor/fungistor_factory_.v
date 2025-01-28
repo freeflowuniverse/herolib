@@ -14,16 +14,6 @@ __global (
 
 /////////FACTORY
 
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
-}
-
-pub fn get(args_ ArgsGet) !&FungiStor {
-	return &FungiStor{}
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +48,8 @@ pub fn (mut self FungiStor) start() ! {
 
 	console.print_header('fungistor start')
 
-	if !installed()! {
-		install()!
+	if !installed_()! {
+		install_()!
 	}
 
 	configure()!
@@ -129,25 +119,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self FungiStor) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+pub fn install(args InstallArgs) ! {
+	if args.reset {
+		destroy()!
+	}
+	if !(installed_()!) {
+		install_()!
 	}
 }
 
-pub fn (mut self FungiStor) build() ! {
-	switch(self.name)
-	build()!
+pub fn destroy() ! {
+	destroy_()!
 }
 
-pub fn (mut self FungiStor) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy()!
-}
-
-// switch instance to be used for fungistor
-pub fn switch(name string) {
-	fungistor_default = name
+pub fn build() ! {
+	build_()!
 }

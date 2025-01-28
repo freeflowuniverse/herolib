@@ -1,7 +1,9 @@
 module osal
 
+import freeflowuniverse.herolib.core
+
 fn test_package_management() {
-	platform_ := platform()
+	platform_ := core.platform()!
 
 	if platform_ == .osx {
 		// Check if brew is installed

@@ -1,13 +1,13 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.codemodel { CodeItem, CustomCode, VFile }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.data.markdownparser
-import freeflowuniverse.herolib.data.markdownparser.elements { Header }
+import freeflowuniverse.herolib.data.markdownparser.elements
 import freeflowuniverse.herolib.rpc.openrpc
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.hero.baobab.specification {ActorMethod, ActorSpecification}
+import freeflowuniverse.herolib.hero.baobab.specification { ActorMethod, ActorSpecification }
 import os
 import json
 
@@ -17,8 +17,8 @@ fn generate_handle_file(spec ActorSpecification) !VFile {
 	for method in spec.methods {
 		items << CustomCode{generate_method_handle(spec.name, method)!}
 	}
-	return VFile {
-		name: 'act'
+	return VFile{
+		name:  'act'
 		items: items
 	}
 }
@@ -57,7 +57,7 @@ pub fn generate_method_handle(actor_name string, method ActorMethod) !string {
 	actor_name_pascal := texttools.name_fix_snake_to_pascal(actor_name)
 	name_fixed := texttools.name_fix_snake(method.name)
 	mut handler := '// Handler for ${name_fixed}\n'
-	handler += "fn (mut actor ${actor_name_pascal}Actor) handle_${name_fixed}(data string) !string {\n"
+	handler += 'fn (mut actor ${actor_name_pascal}Actor) handle_${name_fixed}(data string) !string {\n'
 	if method.func.params.len > 0 {
 		handler += '    params := json.decode(${method.func.params[0].typ.symbol}, data) or { return error("Invalid input data: \${err}") }\n'
 		handler += '    result := actor.${name_fixed}(params)\n'
