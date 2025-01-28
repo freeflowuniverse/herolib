@@ -1,8 +1,8 @@
 module docker
 
 import freeflowuniverse.herolib.crypt.openssl
-import freeflowuniverse.herolib.clients.httpconnection
-import freeflowuniverse.herolib.osal { exec }
+import freeflowuniverse.herolib.core.httpconnection
+import freeflowuniverse.herolib.osal
 import os
 import freeflowuniverse.herolib.ui.console
 
@@ -84,13 +84,15 @@ pub fn (mut e DockerEngine) registry_add(args DockerRegistryArgs) ! {
 	e.registries << registry
 
 	// delete all previous containers, uses wildcards see https://modules.vlang.io/index.html#string.match_glob
-	e.container_delete(name: 'docker_registry*')!
+
+	e.container_delete(name: 'docker_registry*') or {
+		if !(err as ContainerGetError).notfound {
+			return err
+		}
+		println('No containers to matching docker registry')
+	}
 
 	composer.start()!
-
-	exec(cmd: 'curl https://localhost:5000/v2/ -k', retry: 4) or {
-		return error('could not start docker registry, did not answer')
-	}
 
 	mut conn := httpconnection.new(
 		name:  'localdockerhub'
@@ -98,16 +100,6 @@ pub fn (mut e DockerEngine) registry_add(args DockerRegistryArgs) ! {
 		retry: 10
 	)!
 
-	// r := conn.get_json_dict(mut prefix: 'errors')!
-
-	// r := conn.get_json_dict(mut prefix: 'errors')!
-	r := conn.get(method: .get)!
-	console.print_debug('Sdsd')
-	console.print_debug(r)
-
-	if true {
-		panic('sdsd')
-	}
-
-	// now we need to check if we can connect
+	res := conn.get()!
+	println(res)
 }

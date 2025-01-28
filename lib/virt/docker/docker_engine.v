@@ -4,6 +4,7 @@ import freeflowuniverse.herolib.osal { exec }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.virt.utils
 import freeflowuniverse.herolib.core
+import time
 
 // import freeflowuniverse.herolib.installers.swarm
 
@@ -54,6 +55,29 @@ pub fn (mut e DockerEngine) load() ! {
 	e.containers_load()!
 }
 
+// load all images, they can be consulted in e.images
+// see obj: DockerImage as result in e.images
+pub fn (mut e DockerEngine) images_load() ! {
+	e.images = []DockerImage{}
+	mut lines := osal.execute_silent("docker images --format '{{.ID}}||{{.Repository}}||{{.Tag}}||{{.Digest}}||{{.Size}}||{{.CreatedAt}}'")!
+	for line in lines.split_into_lines() {
+		fields := line.split('||').map(utils.clear_str)
+		if fields.len != 6 {
+			panic('docker image needs to output 6 parts.\n${fields}')
+		}
+		mut image := DockerImage{
+			engine: &e
+		}
+		image.id = fields[0]
+		image.repo = fields[1]
+		image.tag = fields[2]
+		image.digest = utils.parse_digest(fields[3]) or { '' }
+		image.size = utils.parse_size_mb(fields[4]) or { 0 }
+		image.created = utils.parse_time(fields[5]) or { time.now() }
+		e.images << image
+	}
+}
+
 // load all containers, they can be consulted in e.containers
 // see obj: DockerContainer as result in e.containers
 pub fn (mut e DockerEngine) containers_load() ! {
@@ -65,7 +89,7 @@ pub fn (mut e DockerEngine) containers_load() ! {
 		stdout:             false
 	)!
 	lines := ljob.output
-	for line in lines {
+	for line in lines.split_into_lines() {
 		if line.trim_space() == '' {
 			continue
 		}
@@ -142,22 +166,23 @@ pub fn (err ContainerGetError) code() int {
 //   image_id string
 pub fn (mut e DockerEngine) containers_get(args_ ContainerGetArgs) ![]&DockerContainer {
 	mut args := args_
-	args.name = texttools.name_fix(args.name)
+	e.containers_load()!
 	mut res := []&DockerContainer{}
-	for _, c in e.containers {
+	for i, c in e.containers {
+		container := c
 		if args.name.contains('*') || args.name.contains('?') || args.name.contains('[') {
-			if c.name.match_glob(args.name) {
-				res << &c
+			if container.name.match_glob(args.name) {
+				res << &e.containers[i]
 				continue
 			}
 		} else {
-			if c.name == args.name || c.id == args.id {
-				res << &c
+			if container.name == args.name || container.id == args.id {
+				res << &e.containers[i]
 				continue
 			}
 		}
-		if args.image_id.len > 0 && c.image.id == args.image_id {
-			res << &c
+		if args.image_id.len > 0 && container.image.id == args.image_id {
+			res << &e.containers[i]
 		}
 	}
 	if res.len == 0 {
@@ -172,8 +197,8 @@ pub fn (mut e DockerEngine) containers_get(args_ ContainerGetArgs) ![]&DockerCon
 // get container from memory, can use match_glob see https://modules.vlang.io/index.html#string.match_glob
 pub fn (mut e DockerEngine) container_get(args_ ContainerGetArgs) !&DockerContainer {
 	mut args := args_
-	args.name = texttools.name_fix(args.name)
 	mut res := e.containers_get(args)!
+
 	if res.len > 1 {
 		return ContainerGetError{
 			args:     args
@@ -211,7 +236,7 @@ pub fn (mut e DockerEngine) containers_delete(args ContainerGetArgs) ! {
 // import a container into an image, run docker container with it
 // image_repo examples ['myimage', 'myimage:latest']
 // if DockerContainerCreateArgs contains a name, container will be created and restarted
-pub fn (mut e DockerEngine) container_import(path string, mut args DockerContainerCreateArgs) !&DockerContainer {
+pub fn (mut e DockerEngine) container_import(path string, args DockerContainerCreateArgs) !&DockerContainer {
 	mut image := args.image_repo
 	if args.image_tag != '' {
 		image = image + ':${args.image_tag}'
