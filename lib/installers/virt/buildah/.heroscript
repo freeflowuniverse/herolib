@@ -1,4 +1,3 @@
-
 !!hero_code.generate_installer
     name:'buildah'
     classname:'BuildahInstaller'
@@ -10,4 +9,4 @@
     reset:0
     startupmanager:0
 	hasconfig:0
-    build:1
+    build:0
