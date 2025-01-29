@@ -1,23 +1,38 @@
 module tfgrid3deployer
 
 import freeflowuniverse.herolib.threefold.grid.models as grid_models
-import freeflowuniverse.herolib.threefold.gridproxy
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import json
 import rand
 
 // NetworkInfo struct to represent network details
+
+pub struct NetworkRequirements{
+pub:
+	name     string = 'net' + rand.string(5)
+	user_access_endpoints int
+}
+@[params]
 pub struct NetworkSpecs {
 pub mut:
-	name     string = 'net' + rand.string(5)
+	requirements NetworkRequirements
 	ip_range string = '10.10.0.0/16'
 	mycelium string = rand.hex(64)
+	user_access_configs []UserAccessConfig
+}
+
+struct UserAccessConfig{
+pub: 
+	ip string
+	secret_key string
+	public_key string
 }
 
 struct NetworkHandler {
 mut:
-	network_name              string
+	req NetworkRequirements
+	// network_name              string
 	nodes                     []u32
 	ip_range                  string
 	wg_ports                  map[u32]u16
@@ -28,6 +43,9 @@ mut:
 	hidden_nodes              []u32
 	none_accessible_ip_ranges []string
 	mycelium                  string
+
+	// user_access_endopoints int
+	user_access_configs []UserAccessConfig
 
 	deployer &grid.Deployer @[skip; str: skip]
 }
@@ -62,7 +80,7 @@ fn (mut self NetworkHandler) generate_workload(node_id u32, peers []grid_models.
 	}
 
 	return network_workload.to_workload(
-		name:        self.network_name
+		name:        self.req.name
 		description: 'VGridClient network workload'
 	)
 }
@@ -89,7 +107,7 @@ fn (mut self NetworkHandler) setup_access_node() ! {
 	// - Check the new deployment if its node is hidden take the saved one
 	// - if the access node is already set, that means we have set its values e.g. the wireguard port, keys
 
-	if self.hidden_nodes.len < 1 || self.nodes.len == 1 {
+	if self.req.user_access_endpoints == 0 && (self.hidden_nodes.len < 1 || self.nodes.len == 1) {
 		self.public_node = 0
 		return
 	}
@@ -145,7 +163,6 @@ fn (mut self NetworkHandler) setup_access_node() ! {
 }
 
 fn (mut self NetworkHandler) setup_wireguard_data() ! {
-	// TODO: We need to set the extra node
 	console.print_header('Setting up network workload.')
 	self.hidden_nodes, self.none_accessible_ip_ranges = [], []
 
@@ -194,6 +211,22 @@ fn (mut self NetworkHandler) setup_wireguard_data() ! {
 			self.none_accessible_ip_ranges << wireguard_routing_ip(self.wg_subnet[node_id])
 		}
 	}
+
+	to_create_user_access := self.req.user_access_endpoints - self.user_access_configs.len
+	if to_create_user_access < 0{
+		// TODO: support removing user access
+		return error('removing user access is not supported')
+	}
+
+	for i := 0; i<to_create_user_access; i++{
+		wg_keys := self.deployer.client.generate_wg_priv_key()!
+		self.user_access_configs << UserAccessConfig{
+			ip: self.calculate_subnet()!
+			secret_key: wg_keys[0]
+			public_key: wg_keys[1]
+		}
+	}
+
 }
 
 fn (mut self NetworkHandler) prepare_public_node_peers(node_id u32) ![]grid_models.Peer {
@@ -230,6 +263,17 @@ fn (mut self NetworkHandler) prepare_public_node_peers(node_id u32) ![]grid_mode
 				endpoint:             ''
 			}
 		}
+
+		for user_access in self.user_access_configs {
+			routing_ip := wireguard_routing_ip(subnet)
+
+			peers << grid_models.Peer{
+				subnet:               user_access.ip
+				wireguard_public_key: user_access.public_key
+				allowed_ips:          [user_access.ip, routing_ip]
+				endpoint:             ''
+			}
+		}
 	}
 
 	return peers
@@ -237,10 +281,16 @@ fn (mut self NetworkHandler) prepare_public_node_peers(node_id u32) ![]grid_mode
 
 fn (mut self NetworkHandler) calculate_subnet() !string {
 	mut parts := self.ip_range.split('/')[0].split('.')
+	user_access_subnets := self.user_access_configs.map(it.ip)
+	node_subnets := self.wg_subnet.values()
+	mut used_subnets := []string{}
+	used_subnets << node_subnets.clone() 
+	used_subnets << user_access_subnets.clone()
+
 	for i := 2; i <= 255; i += 1 {
 		parts[2] = '${i}'
 		candidate := parts.join('.') + '/24'
-		if !self.wg_subnet.values().contains(candidate) {
+		if !used_subnets.contains(candidate) {
 			return candidate
 		}
 	}
@@ -319,8 +369,4 @@ fn (mut self NetworkHandler) generate_workloads() !map[u32]grid_models.Workload 
 	return workloads
 }
 
-fn (mut n NetworkHandler) remove_node(node_id u32) ! {
-}
 
-fn (mut n NetworkHandler) add_node() ! {
-}

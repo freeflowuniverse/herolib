@@ -51,7 +51,7 @@ pub fn new_deployment(name string) !TFDeployment {
 	kvstore := KVStoreFS{}
 
 	if _ := kvstore.get(name) {
-		return error('Deployment with the same name is already exist.')
+		return error('Deployment with the same name "${name}" already exists.')
 	}
 
 	deployer := get_deployer()!
@@ -114,6 +114,7 @@ pub fn (mut self TFDeployment) deploy() ! {
 }
 
 fn (mut self TFDeployment) set_nodes() ! {
+	// TODO: each request should run in a separate thread
 	for mut vm in self.vms {
 		if vm.node_id != 0 {
 			continue
@@ -511,4 +512,9 @@ pub fn (mut self TFDeployment) list_deployments() !map[u32]grid_models.Deploymen
 	}
 
 	return dls
+}
+
+
+pub fn (mut self TFDeployment) configure_network(req NetworkRequirements)!{
+	self.network.requirements = req
 }

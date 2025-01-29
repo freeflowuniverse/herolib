@@ -9,6 +9,7 @@ pub mut:
 	node_id ?u32
 	// must be in the format ip:port if tls_passthrough is set, otherwise the format should be http://ip[:port]
 	backend         string @[required]
+	use_wireguard bool
 	tls_passthrough bool
 }
 

@@ -36,6 +36,7 @@ fn new_deployment_setup(network_specs NetworkSpecs, vms []VMachine, zdbs []ZDB, 
 			network_name: network_specs.name
 			mycelium:     network_specs.mycelium
 			ip_range:     network_specs.ip_range
+			user_access_configs: network_specs.user_access_configs.clone()
 		}
 	}
 
