@@ -11,11 +11,12 @@ griddriver.install()!
 
 v := tfgrid3deployer.get()!
 println('cred: ${v}')
-deployment_name := 'vm_caddy1'
+deployment_name := 'wireguard_dep_example'
 mut deployment := tfgrid3deployer.new_deployment(deployment_name)!
-deployment.add_network(ip_range: '1.1.1.1/16', user_access: 5)
+
+deployment.configure_network(user_access_endpoints: 3)!
 deployment.add_machine(
-	name:       'vm_caddy1'
+	name:       'vm1'
 	cpu:        1
 	memory:     2
 	planetary:  false
@@ -25,12 +26,22 @@ deployment.add_machine(
 )
 deployment.deploy()!
 
-vm1 := deployment.vm_get('vm_caddy1')!
+vm1 := deployment.vm_get('vm1')!
 println('vm1 info: ${vm1}')
 
-vm1_public_ip4 := vm1.public_ip4.all_before('/')
+user_access_configs := deployment.get_user_access_configs()
+for config in user_access_configs {
+	println('config:\n------\n${config.print_wg_config()}\n------\n')
+}
 
-deployment.add_webname(name: 'gwnamecaddy', backend: 'http://${vm1_public_ip4}:80', use_wireguard: true)
+deployment.add_webname(
+	name:                  'gwoverwg'
+	backend:               'http://${vm1.wireguard_ip}:8000'
+	use_wireguard_network: true
+)
 deployment.deploy()!
-gw1 := deployment.webname_get('gwnamecaddy')!
+
+gw1 := deployment.webname_get('gwoverwg')!
 println('gw info: ${gw1}')
+
+// tfgrid3deployer.delete_deployment(deployment_name)!

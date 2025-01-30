@@ -1,7 +1,6 @@
 module tfgrid3deployer
 
 import freeflowuniverse.herolib.threefold.grid.models as grid_models
-import freeflowuniverse.herolib.threefold.gridproxy.model as gridproxy_models
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import compress.zlib
@@ -9,7 +8,6 @@ import encoding.hex
 import x.crypto.chacha20
 import crypto.sha256
 import json
-import rand
 
 struct GridContracts {
 pub mut:
@@ -285,10 +283,10 @@ fn (mut self TFDeployment) finalize_deployment(setup DeploymentSetup) ! {
 		}
 	}
 
-	self.update_state(name_contracts_map, returned_deployments)!
+	self.update_state(setup, name_contracts_map, returned_deployments)!
 }
 
-fn (mut self TFDeployment) update_state(name_contracts_map map[string]u64, dls map[u32]&grid_models.Deployment) ! {
+fn (mut self TFDeployment) update_state(setup DeploymentSetup, name_contracts_map map[string]u64, dls map[u32]&grid_models.Deployment) ! {
 	mut workloads := map[u32]map[string]&grid_models.Workload{}
 
 	for node_id, deployment in dls {
@@ -339,6 +337,10 @@ fn (mut self TFDeployment) update_state(name_contracts_map map[string]u64, dls m
 		wn.node_contract_id = dls[wn.node_id].contract_id
 		wn.name_contract_id = name_contracts_map[wn.requirements.name]
 	}
+
+	self.network.ip_range = setup.network_handler.ip_range
+	self.network.mycelium = setup.network_handler.mycelium
+	self.network.user_access_configs = setup.network_handler.user_access_configs.clone()
 }
 
 pub fn (mut self TFDeployment) vm_get(vm_name string) !VMachine {
@@ -514,7 +516,10 @@ pub fn (mut self TFDeployment) list_deployments() !map[u32]grid_models.Deploymen
 	return dls
 }
 
-
-pub fn (mut self TFDeployment) configure_network(req NetworkRequirements)!{
+pub fn (mut self TFDeployment) configure_network(req NetworkRequirements) ! {
 	self.network.requirements = req
+}
+
+pub fn (mut self TFDeployment) get_user_access_configs() []UserAccessConfig {
+	return self.network.user_access_configs
 }
