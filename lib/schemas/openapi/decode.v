@@ -83,10 +83,8 @@ pub fn json_decode_path(path_ PathItem, path_map map[string]Any) !PathItem {
 
 pub fn json_decode_operation(operation_ Operation, operation_map map[string]Any) !Operation {
 	mut operation := operation_
-	
 	if request_body_any := operation_map['requestBody'] {
 		request_body_map := request_body_any.as_map()
-
 		if content_any := request_body_map['content'] {
 			mut request_body := json.decode(RequestBody, request_body_any.str())!
 			// mut request_body := operation.request_body as RequestBody 
@@ -134,11 +132,12 @@ fn json_decode_content(content_ map[string]MediaType, content_map map[string]Any
 	mut content := content_.clone()
 	for key, item in content_map {
 		media_type_map := item.as_map()
-		mut media_type := content[key]
-		if schema_any := media_type_map['schema'] {
-			media_type.schema = jsonschema.decode_schemaref(schema_any.as_map())!
+		if mut media_type := content[key] {
+			if schema_any := media_type_map['schema'] {
+				media_type.schema = jsonschema.decode_schemaref(schema_any.as_map())!
+			}
+			content[key] = media_type
 		}
-		content[key] = media_type
 	}
 	return content
 }

@@ -8,7 +8,7 @@ pub type SchemaRef = Reference | Schema
 
 pub struct Reference {
 pub:
-	ref string @[json: 'ref']
+	ref string @[json: '\$ref']
 }
 
 pub type Number = int
@@ -21,10 +21,10 @@ pub mut:
     title                 string               @[omitempty]
     description           string               @[omitempty]
     typ                   string               @[json: 'type'; omitempty]
-    properties            map[string]SchemaRef @[omitempty]
+    properties            map[string]SchemaRef @[json: '-'; omitempty]
     additional_properties SchemaRef            @[json: 'additionalProperties'; omitempty]
     required              []string             @[omitempty]
-    items                 Items                @[omitempty]
+    items                 Items                @[json: '-'; omitempty]
     defs                  map[string]SchemaRef @[omitempty]
     one_of                []SchemaRef          @[json: 'oneOf'; omitempty]
     format                string               @[omitempty]

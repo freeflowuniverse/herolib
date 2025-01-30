@@ -1,5 +1,6 @@
 module openapi
 
+import maps
 import x.json2 as json {Any}
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
 
@@ -121,6 +122,15 @@ pub mut:
 	path_items       map[string]PathItemRef // An object to hold reusable Path Item Object.
 }
 
+pub fn (s OpenAPI) dereference_schema(ref Reference) !Schema {
+	schema_ref := s.components.schemas[ref.ref.all_after_last('/')] or {
+		return error('Reference ${ref} not found in schema')
+	}
+	if schema_ref is Schema {
+		return schema_ref
+	}
+	return error('Reference references another reference')
+}
 
 type Items = SchemaRef | []SchemaRef
 
@@ -174,6 +184,15 @@ pub mut:
 	deprecated    bool @[omitempty]// Declares this operation to be deprecated. Consumers SHOULD refrain from usage of the declared operation. Default value is false.
 	security      []SecurityRequirement @[omitempty] //	A declaration of which security mechanisms can be used for this operation. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. To make security optional, an empty security requirement ({}) can be included in the array. This definition overrides any declared top-level security. To remove a top-level security declaration, an empty array can be used.
 	servers       []ServerSpec @[omitempty]// An alternative server array to service this operation. If an alternative server object is specified at the Path Item Object or Root level, it will be overridden by this value.
+}
+
+// returns errors responses amongst a map of response specs
+pub fn (r map[string]ResponseSpec) errors() map[string]ResponseSpec {
+	return maps.filter(r, fn (k string, v ResponseSpec) bool {
+		return if k.is_int() {
+			k.int() >= 400 && k.int()< 600
+		} else { false }
+	})
 }
 
 // TODO: currently using map[string]ResponseSpec
