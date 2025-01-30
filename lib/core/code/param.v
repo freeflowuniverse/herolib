@@ -12,7 +12,6 @@ pub mut:
 	description string  @[omitempty]
 	name        string  @[omitempty]
 	typ         Type    @[omitempty]
-	struct_     Struct  @[omitempty]
 }
 
 
@@ -54,7 +53,7 @@ pub fn (param Param) vgen() string {
 pub fn (p Param) typescript() string {
 	name := texttools.name_fix_snake(p.name)
 	suffix := if p.is_optional {'?'} else {''}
-	return '${name}${suffix}: ${p.typ.typescript()};'
+	return '${name}${suffix}: ${p.typ.typescript()}'
 }
 
 

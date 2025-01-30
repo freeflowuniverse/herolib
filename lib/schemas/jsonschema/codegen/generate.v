@@ -54,9 +54,6 @@ pub fn struct_to_schema(struct_ Struct) SchemaRef {
 }
 
 pub fn param_to_schema(param Param) SchemaRef {
-	if param.struct_ != Struct{} {
-		return struct_to_schema(param.struct_)
-	}
 	return typesymbol_to_schema(param.typ.symbol())
 }
 

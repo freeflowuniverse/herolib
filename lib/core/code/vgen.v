@@ -96,16 +96,8 @@ pub fn vgen_generics(generics map[string]string) string {
 
 // vgen_function generates a function statement for a function
 pub fn (function Function) vgen(options WriteOptions) string {
-	mut params_ := function.params.map(Param{
-		...it
-		typ: if it.struct_.name != '' {
-			type_from_symbol(it.struct_.name)
-		} else {
-			it.typ
-		}
-	})
-
-	optionals := params_.filter(it.is_optional)
+	mut params_ := function.params.clone()
+	optionals := function.params.filter(it.is_optional)
 	options_struct := Struct{
 		name: '${texttools.name_fix_snake_to_pascal(function.name)}Options'
 		attrs: [Attribute{

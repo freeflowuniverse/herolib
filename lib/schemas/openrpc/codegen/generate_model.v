@@ -16,7 +16,7 @@ pub fn generate_model(o OpenRPC) ![]CodeItem {
 			if schema.title == '' {
 				schema.title = texttools.name_fix_snake_to_pascal(key)
 			}
-			structs << schema_to_code(schema)!
+			structs << schema_to_code(schema)
 		}
 	}
 	return structs

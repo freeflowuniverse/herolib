@@ -10,9 +10,9 @@ const vtypes = {
 	'boolean': 'bool'
 }
 
-pub fn schema_to_v(schema Schema) !string {
+pub fn schema_to_v(schema Schema) string {
 	module_name := 'schema.title.'
-	structs := schema_to_structs(schema)!
+	structs := schema_to_structs(schema)
 	// todo: report bug: return $tmpl(...)
 	encoded := $tmpl('templates/schema.vtemplate')
 	return encoded
@@ -22,7 +22,7 @@ pub fn schema_to_v(schema Schema) !string {
 // if a schema has nested object type schemas or defines object type schemas,
 // recursively encodes object type schemas and pushes to the array of structs.
 // returns an array of schemas that have been encoded into V structs.
-pub fn schema_to_structs(schema Schema) ![]string {
+pub fn schema_to_structs(schema Schema) []string {
 	mut schemas := []string{}
 	mut properties := ''
 
@@ -37,11 +37,11 @@ pub fn schema_to_structs(schema Schema) ![]string {
 			typesymbol = ref_to_symbol(ref)
 		} else {
 			property = property_ as Schema
-			typesymbol = schema_to_type(property)!.symbol()
+			typesymbol = schema_to_type(property).symbol()
 			// recursively encode property if object
 			// todo: handle duplicates
 			if property.typ == 'object' {
-				structs := schema_to_structs(property)!
+				structs := schema_to_structs(property)
 				schemas << structs
 			}
 		}
@@ -56,7 +56,7 @@ pub fn schema_to_structs(schema Schema) ![]string {
 }
 
 // schema_to_type generates a typesymbol for the schema
-pub fn schema_to_type(schema Schema) !Type {
+pub fn schema_to_type(schema Schema) Type {
 	if schema.typ == 'null' {
 		Type{}
 	}
@@ -64,17 +64,17 @@ pub fn schema_to_type(schema Schema) !Type {
 	return match schema.typ {
 		'object' {
 			if schema.title == '' {
-				return error('Object schemas must define a title.')
+				panic('Object schemas must define a title.')
 			}
 			Object{schema.title}
 		} 
 		'array' {
 		// todo: handle multiple item schemas
 			if schema.items is []SchemaRef {
-				return error('items of type []SchemaRef not implemented')
+				panic('items of type []SchemaRef not implemented')
 			}
 			Array {
-				typ: schemaref_to_type(schema.items as SchemaRef)!
+				typ: schemaref_to_type(schema.items as SchemaRef)
 			}
 		} else {
 			if schema.typ == 'integer' && schema.format != '' {
@@ -95,15 +95,15 @@ pub fn schema_to_type(schema Schema) !Type {
 			} else if schema.title != '' {
 				type_from_symbol(schema.title)
 			} else {
-				return error('unknown type `${schema.typ}` ')
+				panic('unknown type `${schema.typ}` ')
 			}
 		}
 	} 
 }
 
-pub fn schema_to_code(schema Schema) !CodeItem {
+pub fn schema_to_code(schema Schema) CodeItem {
 	if schema.typ == 'object' {
-		return CodeItem(schema_to_struct(schema)!)
+		return CodeItem(schema_to_struct(schema))
 	}
 	if schema.typ in vtypes {
 		return Alias{
@@ -128,14 +128,14 @@ pub fn schema_to_code(schema Schema) !CodeItem {
 			}
 		}
 	}
-	return error('Schema type ${schema.typ} not supported for code generation')
+	panic('Schema type ${schema.typ} not supported for code generation')
 }
 
-pub fn schema_to_struct(schema Schema) !Struct {
+pub fn schema_to_struct(schema Schema) Struct {
 	mut fields := []StructField{}
 
 	for key, val in schema.properties {
-		mut field := ref_to_field(val, key)!
+		mut field := ref_to_field(val, key)
 		if field.name in schema.required {
 			field.attrs << Attribute{
 				name: 'required'
@@ -151,7 +151,7 @@ pub fn schema_to_struct(schema Schema) !Struct {
 	}
 }
 
-pub fn ref_to_field(schema_ref SchemaRef, name string) !StructField {
+pub fn ref_to_field(schema_ref SchemaRef, name string) StructField {
 	if schema_ref is Reference {
 		return StructField{
 			name: name
@@ -164,22 +164,22 @@ pub fn ref_to_field(schema_ref SchemaRef, name string) !StructField {
 		}
 		if schema_ref.typ == 'object' {
 			// then it is an anonymous struct
-			field.anon_struct = schema_to_struct(schema_ref as Schema)!
+			field.anon_struct = schema_to_struct(schema_ref as Schema)
 			return field
 		} else if schema_ref.typ in vtypes {
 			field.typ = type_from_symbol(vtypes[schema_ref.typ])
 			return field
 		}
-		return error('Schema type ${schema_ref.typ} not supported for code generation')
+		panic('Schema type ${schema_ref.typ} not supported for code generation')
 	}
-	return error('Schema type not supported for code generation')
+	panic('Schema type not supported for code generation')
 }
 
-pub fn schemaref_to_type(schema_ref SchemaRef) !Type {
+pub fn schemaref_to_type(schema_ref SchemaRef) Type {
 	return if schema_ref is Reference {
 		ref_to_type_from_reference(schema_ref as Reference)
 	} else {
-		schema_to_type(schema_ref as Schema)!
+		schema_to_type(schema_ref as Schema)
 	}
 }
 

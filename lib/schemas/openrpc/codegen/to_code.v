@@ -29,7 +29,7 @@ pub fn method_to_function(method Method) !Function {
 pub fn content_descriptor_to_parameter(cd ContentDescriptor) !code.Param {
 	return code.Param{
 		name: cd.name
-		typ: schemaref_to_type(cd.schema)!
+		typ: schemaref_to_type(cd.schema)
 	}
 }
 

@@ -5,55 +5,56 @@ struct Float {
 }
 
 // Integer types
-const type_i8 = Integer{
+pub const type_i8 = Integer{
     bytes: 8
 }
 
-const type_u8 = Integer{
+pub const type_u8 = Integer{
     bytes: 8
     signed: false
 }
 
-const type_i16 = Integer{
+pub const type_i16 = Integer{
     bytes: 16
 }
 
-const type_u16 = Integer{
+pub const type_u16 = Integer{
     bytes: 16
     signed: false
 }
 
-const type_i32 = Integer{
+pub const type_i32 = Integer{
     bytes: 32
 }
 
-const type_u32 = Integer{
+pub const type_u32 = Integer{
     bytes: 32
     signed: false
 }
 
-const type_i64 = Integer{
+pub const type_i64 = Integer{
     bytes: 64
 }
 
-const type_u64 = Integer{
+pub const type_u64 = Integer{
     bytes: 64
     signed: false
 }
 
 // Floating-point types
-const type_f32 = Float{
+pub const type_f32 = Float{
     bytes: 32
 }
 
-const type_f64 = Float{
+pub const type_f64 = Float{
     bytes: 64
 }
 
-
-pub type Type = Array | Object | Result | Integer | Alias | String | Boolean
+pub type Type = Array | Object | Result | Integer | Alias | String | Boolean | Void
 
 pub struct Boolean{}
+
+pub struct Void{}
 
 pub struct Integer {
 	bytes u8
@@ -68,6 +69,8 @@ pub fn type_from_symbol(symbol_ string) Type {
 		return Integer{}
 	} else if symbol == 'string' {
 		return String{}
+	} else if symbol == 'bool' || symbol == 'boolean' {
+		return Boolean{}
 	}
 	return Object{symbol}
 }
@@ -91,6 +94,7 @@ pub fn (t Type) symbol() string {
 		Alias {t.name}
 		String {'string'}
         Boolean {'bool'}
+		Void {''}
 	}
 }
 
@@ -113,12 +117,13 @@ pub:
 
 pub fn (t Type) typescript() string {
 	return match t {
-		Array { '[]${t.typ.symbol()}' }
+		Array { '${t.typ.typescript()}[]' }
 		Object { t.name }
-		Result { '!${t.typ.symbol()}'}
+		Result { '${t.typ.typescript()}'}
 		Boolean { 'boolean'}
 		Integer { 'number' }
 		Alias {t.name}
 		String {'string'}
+		Void {''}
 	}
 }
