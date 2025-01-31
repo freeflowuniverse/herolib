@@ -7,31 +7,31 @@ pub struct HeroRunner {
 mut:
 	redis &redisclient.Redis
 pub mut:
-	jobs    &JobManager
-	agents  &AgentManager
+	jobs     &JobManager
+	agents   &AgentManager
 	services &ServiceManager
-	groups  &GroupManager
+	groups   &GroupManager
 }
 
 // new creates a new HeroRunner instance
 pub fn new() !&HeroRunner {
 	mut redis := redisclient.core_get()!
-	
+
 	mut hr := &HeroRunner{
-		redis: redis
-		jobs: &JobManager{
+		redis:    redis
+		jobs:     &JobManager{
 			redis: redis
 		}
-		agents: &AgentManager{
+		agents:   &AgentManager{
 			redis: redis
 		}
 		services: &ServiceManager{
 			redis: redis
 		}
-		groups: &GroupManager{
+		groups:   &GroupManager{
 			redis: redis
 		}
 	}
-	
+
 	return hr
 }

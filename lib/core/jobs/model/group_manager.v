@@ -3,9 +3,7 @@ module model
 import freeflowuniverse.herolib.core.redisclient
 import json
 
-const (
-	groups_key = 'herorunner:groups' // Redis key for storing groups
-)
+const groups_key = 'herorunner:groups' // Redis key for storing groups
 
 // GroupManager handles all group-related operations
 pub struct GroupManager {
@@ -16,7 +14,7 @@ mut:
 // new creates a new Group instance
 pub fn (mut m GroupManager) new() Group {
 	return Group{
-		guid: '' // Empty GUID to be filled by caller
+		guid:    '' // Empty GUID to be filled by caller
 		members: []string{}
 	}
 }
@@ -37,18 +35,19 @@ pub fn (mut m GroupManager) get(guid string) !Group {
 // list returns all groups
 pub fn (mut m GroupManager) list() ![]Group {
 	mut groups := []Group{}
-	
+
 	// Get all groups from Redis hash
 	groups_map := m.redis.hgetall(groups_key)!
-	
+
 	// Convert each JSON value to Group struct
 	for _, group_json in groups_map {
 		group := json.decode(Group, group_json)!
 		groups << group
 	}
-	
+
 	return groups
 }
+
 // delete removes a group by its GUID
 pub fn (mut m GroupManager) delete(guid string) ! {
 	m.redis.hdel(groups_key, guid)!
@@ -59,7 +58,7 @@ pub fn (mut m GroupManager) add_member(guid string, member string) ! {
 	mut group := m.get(guid)!
 	if member !in group.members {
 		group.members << member
-		m.update(group)!
+		m.set(group)!
 	}
 }
 
@@ -67,38 +66,34 @@ pub fn (mut m GroupManager) add_member(guid string, member string) ! {
 pub fn (mut m GroupManager) remove_member(guid string, member string) ! {
 	mut group := m.get(guid)!
 	group.members = group.members.filter(it != member)
-	m.update(group)!
+	m.set(group)!
 }
 
-// get_user_groups returns all groups that a user is a member of (directly or indirectly)
 pub fn (mut m GroupManager) get_user_groups(user_pubkey string) ![]Group {
 	mut user_groups := []Group{}
 	mut checked_groups := map[string]bool{}
-	
 	groups := m.list()!
-	
-	// Recursive function to check group membership
-	fn check_group_membership(group Group, user string, groups []Group, mut checked map[string]bool, mut result []Group) {
-		if group.guid in checked {
-			return
-		}
-		checked[group.guid] = true
-		
-		if user in group.members {
-			result << group
-			// Check parent groups
-			for parent_group in groups {
-				if group.guid in parent_group.members {
-					check_group_membership(parent_group, user, groups, mut checked, mut result)
-				}
-			}
-		}
-	}
-	
 	// Check each group
 	for group in groups {
 		check_group_membership(group, user_pubkey, groups, mut checked_groups, mut user_groups)
 	}
-	
 	return user_groups
+}
+
+// Recursive function to check group membership
+fn check_group_membership(group Group, user string, groups []Group, mut checked map[string]bool, mut result []Group) {
+	if group.guid in checked {
+		return
+	}
+	checked[group.guid] = true
+
+	if user in group.members {
+		result << group
+		// Check parent groups
+		for parent_group in groups {
+			if group.guid in parent_group.members {
+				check_group_membership(parent_group, user, groups, mut checked, mut result)
+			}
+		}
+	}
 }

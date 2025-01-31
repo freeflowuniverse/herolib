@@ -3,21 +3,21 @@ module model
 // Service represents a service that can be provided by agents
 pub struct Service {
 pub mut:
-	actor       string           // name of the actor providing the service
-	actions     []ServiceAction  // available actions for this service
-	description string           // optional description
-	status      ServiceState     // current state of the service
+	actor       string          // name of the actor providing the service
+	actions     []ServiceAction // available actions for this service
+	description string          // optional description
+	status      ServiceState    // current state of the service
 	acl         ?ACL            // access control list for the service
 }
 
 // ServiceAction represents an action that can be performed by a service
 pub struct ServiceAction {
 pub mut:
-	action          string            // which action
-	description     string            // optional description
-	params          map[string]string // e.g. name:'name of the vm' ...
-	params_example  map[string]string // e.g. name:'myvm'
-	acl             ?ACL             // if not used then everyone can use
+	action         string            // which action
+	description    string            // optional description
+	params         map[string]string // e.g. name:'name of the vm' ...
+	params_example map[string]string // e.g. name:'myvm'
+	acl            ?ACL              // if not used then everyone can use
 }
 
 // ACL represents an access control list

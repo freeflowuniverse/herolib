@@ -3,9 +3,7 @@ module model
 import freeflowuniverse.herolib.core.redisclient
 import json
 
-const (
-	services_key = 'herorunner:services' // Redis key for storing services
-)
+const services_key = 'herorunner:services' // Redis key for storing services
 
 // ServiceManager handles all service-related operations
 pub struct ServiceManager {
@@ -16,9 +14,9 @@ mut:
 // new creates a new Service instance
 pub fn (mut m ServiceManager) new() Service {
 	return Service{
-		actor: '' // Empty actor name to be filled by caller
+		actor:   '' // Empty actor name to be filled by caller
 		actions: []ServiceAction{}
-		status: .ok
+		status:  .ok
 	}
 }
 
@@ -38,16 +36,16 @@ pub fn (mut m ServiceManager) get(actor string) !Service {
 // list returns all services
 pub fn (mut m ServiceManager) list() ![]Service {
 	mut services := []Service{}
-	
+
 	// Get all services from Redis hash
 	services_map := m.redis.hgetall(services_key)!
-	
+
 	// Convert each JSON value to Service struct
 	for _, service_json in services_map {
 		service := json.decode(Service, service_json)!
 		services << service
 	}
-	
+
 	return services
 }
 
@@ -60,13 +58,13 @@ pub fn (mut m ServiceManager) delete(actor string) ! {
 pub fn (mut m ServiceManager) update_status(actor string, status ServiceState) ! {
 	mut service := m.get(actor)!
 	service.status = status
-	m.update(service)!
+	m.set(service)!
 }
 
 // get_by_action returns all services that provide a specific action
 pub fn (mut m ServiceManager) get_by_action(action string) ![]Service {
 	mut matching_services := []Service{}
-	
+
 	services := m.list()!
 	for service in services {
 		for act in service.actions {
@@ -76,14 +74,14 @@ pub fn (mut m ServiceManager) get_by_action(action string) ![]Service {
 			}
 		}
 	}
-	
+
 	return matching_services
 }
 
 // check_access verifies if a user has access to a service action
 pub fn (mut m ServiceManager) check_access(actor string, action string, user_pubkey string, groups []string) !bool {
 	service := m.get(actor)!
-	
+
 	// Find the specific action
 	mut service_action := ServiceAction{}
 	mut found := false
@@ -97,21 +95,21 @@ pub fn (mut m ServiceManager) check_access(actor string, action string, user_pub
 	if !found {
 		return error('Action ${action} not found in service ${actor}')
 	}
-	
+
 	// If no ACL is defined, access is granted
 	if service_action.acl == none {
 		return true
 	}
-	
+
 	acl := service_action.acl or { return true }
-	
+
 	// Check each ACE in the ACL
 	for ace in acl.ace {
 		// Check if user is directly listed
 		if user_pubkey in ace.users {
 			return ace.right != 'block'
 		}
-		
+
 		// Check if any of user's groups are listed
 		for group in groups {
 			if group in ace.groups {
@@ -119,6 +117,6 @@ pub fn (mut m ServiceManager) check_access(actor string, action string, user_pub
 			}
 		}
 	}
-	
+
 	return false
 }

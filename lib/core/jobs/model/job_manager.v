@@ -4,9 +4,7 @@ import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.data.ourtime
 import json
 
-const (
-	jobs_key = 'herorunner:jobs' // Redis key for storing jobs
-)
+const jobs_key = 'herorunner:jobs' // Redis key for storing jobs
 
 // JobManager handles all job-related operations
 pub struct JobManager {
@@ -17,13 +15,13 @@ mut:
 // new creates a new Job instance
 pub fn (mut m JobManager) new() Job {
 	return Job{
-		guid: '' // Empty GUID to be filled by caller
+		guid:   '' // Empty GUID to be filled by caller
 		status: JobStatus{
-			guid: ''
-			created: ourtime.Time{}
-			start: ourtime.Time{}
-			end: ourtime.Time{}
-			status: .created
+			guid:    ''
+			created: ourtime.now()
+			start:   ourtime.OurTime{}
+			end:     ourtime.OurTime{}
+			status:  .created
 		}
 	}
 }
@@ -44,16 +42,16 @@ pub fn (mut m JobManager) get(guid string) !Job {
 // list returns all jobs
 pub fn (mut m JobManager) list() ![]Job {
 	mut jobs := []Job{}
-	
+
 	// Get all jobs from Redis hash
 	jobs_map := m.redis.hgetall(jobs_key)!
-	
+
 	// Convert each JSON value to Job struct
 	for _, job_json in jobs_map {
 		job := json.decode(Job, job_json)!
 		jobs << job
 	}
-	
+
 	return jobs
 }
 
@@ -66,5 +64,5 @@ pub fn (mut m JobManager) delete(guid string) ! {
 pub fn (mut m JobManager) update_status(guid string, status Status) ! {
 	mut job := m.get(guid)!
 	job.status.status = status
-	m.update(job)!
+	m.set(job)!
 }
