@@ -22,28 +22,18 @@ fn (mut db OurDB) db_file_select(file_nr u16) ! {
 
 	path := '${db.path}/${file_nr}.db'
 
-	if db.file_nr == file_nr {
-		// make sure file is opened
-		if !db.file.is_opened {
-			if !os.exists(path) {
-				db.create_new_db_file(file_nr)!
-			}
-
-			mut file := os.open_file(path, 'r+')!
-			db.file = file
-		}
-		return
-	}
-
+	// Always close the current file if it's open
 	if db.file.is_opened {
 		db.file.close()
 	}
 
+	// Create file if it doesn't exist
 	if !os.exists(path) {
 		db.create_new_db_file(file_nr)!
 	}
-	mut file := os.open_file(path, 'r+')!
 
+	// Open the file fresh
+	mut file := os.open_file(path, 'r+')!
 	db.file = file
 	db.file_nr = file_nr
 }
@@ -85,6 +75,7 @@ pub fn (mut db OurDB) set_(x u32, old_location Location, data []u8) ! {
 		file_nr:  file_nr
 		position: u32(db.file.tell()!)
 	}
+	println('Writing data at position: ${new_location.position}, file_nr: ${file_nr}')
 
 	// Calculate CRC of data
 	crc := calculate_crc(data)
@@ -118,6 +109,9 @@ pub fn (mut db OurDB) set_(x u32, old_location Location, data []u8) ! {
 
 	// Update lookup table with new position
 	db.lookup.set(x, new_location)!
+	
+	// Ensure lookup table is synced
+	//db.save()!
 }
 
 // get retrieves data at specified location
@@ -150,6 +144,7 @@ fn (mut db OurDB) get_(location Location) ![]u8 {
 	if data_read_bytes != int(size) {
 		return error('failed to read data bytes')
 	}
+	println('Reading data from position: ${location.position}, file_nr: ${location.file_nr}, size: ${size}, data: ${data}')
 
 	// Verify CRC
 	calculated_crc := calculate_crc(data)

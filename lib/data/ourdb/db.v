@@ -18,7 +18,8 @@ import os
 // and maintains a linked list of previous values for history tracking
 // Returns the ID used (either x if specified, or auto-incremented if x=0)
 @[params]
-struct OurDBSetArgs {
+pub struct OurDBSetArgs {
+pub mut:
 	id   ?u32
 	data []u8 @[required]
 }
@@ -91,6 +92,15 @@ pub fn (mut db OurDB) delete(x u32) ! {
 	db.lookup.delete(x)!
 }
 
+// get_next_id returns the next id which will be used when storing
+pub fn (mut db OurDB) get_next_id() !u32 {
+	if !db.incremental_mode {
+		return error('incremental mode is not enabled')
+	}
+	next_id := db.lookup.get_next_id()!
+	return next_id 
+}
+
 // close closes the database file
 fn (mut db OurDB) lookup_dump_path() string {
 	return '${db.path}/lookup_dump.db'
@@ -115,6 +125,7 @@ fn (mut db OurDB) close() ! {
 	db.close_()
 }
 
-fn (mut db OurDB) destroy() ! {
+pub fn (mut db OurDB) destroy() ! {
+	db.close() or {}
 	os.rmdir_all(db.path)!
 }
