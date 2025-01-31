@@ -1,9 +1,9 @@
-module jobs
+module model
 
 import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.data.ourtime
 
-fn test_runner.agents() {
+fn test_agents_model() {
 
 	mut runner:=new()!
 

@@ -1,8 +1,8 @@
-module jobs
+module model
 
 import freeflowuniverse.herolib.core.redisclient
 
-fn test_runner.groups() {
+fn test_groups() {
 	mut runner:=new()!
 
 	// Create a new group using the manager

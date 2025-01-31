@@ -1,8 +1,8 @@
-module jobs
+module model
 
 import freeflowuniverse.herolib.core.redisclient
 
-fn test_runner.services() {
+fn test_services() {
 	mut runner:=new()!
 
 	// Create a new service using the manager

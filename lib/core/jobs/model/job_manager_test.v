@@ -1,9 +1,9 @@
-module jobs
+module model
 
 import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.data.ourtime
 
-fn test_runner.jobs() {
+fn test_jobs() {
 	mut runner:=new()!
 
 	// Create a new job using the manager

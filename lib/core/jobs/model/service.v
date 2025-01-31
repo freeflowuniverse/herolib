@@ -1,4 +1,4 @@
-module jobs
+module model
 
 // Service represents a service that can be provided by agents
 pub struct Service {

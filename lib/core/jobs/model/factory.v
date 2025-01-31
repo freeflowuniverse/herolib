@@ -1,4 +1,4 @@
-module jobs
+module model
 
 import freeflowuniverse.herolib.core.redisclient
 

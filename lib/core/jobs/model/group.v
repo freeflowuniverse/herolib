@@ -1,4 +1,4 @@
-module jobs
+module model
 
 // Group represents a collection of members (users or other groups)
 pub struct Group {
