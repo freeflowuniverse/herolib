@@ -5,13 +5,13 @@ fn test_basic_operations() ! {
 
 	// Test creating nodes with properties
 	mut person1_id := gdb.create_node({
-		'name': 'Alice',
-		'age': '30'
+		'name': 'Alice'
+		'age':  '30'
 	})!
 
 	mut person2_id := gdb.create_node({
-		'name': 'Bob',
-		'age': '25'
+		'name': 'Bob'
+		'age':  '25'
 	})!
 
 	// Test retrieving nodes
@@ -51,8 +51,8 @@ fn test_basic_operations() ! {
 
 	// Test updating node properties
 	gdb.update_node(person1_id, {
-		'name': 'Alice',
-		'age': '31'
+		'name': 'Alice'
+		'age':  '31'
 	})!
 	updated_alice := gdb.get_node(person1_id)!
 	assert updated_alice.properties['age'] == '31'
@@ -86,42 +86,54 @@ fn test_complex_graph() ! {
 
 	// Create nodes representing people
 	mut alice_id := gdb.create_node({
-		'name': 'Alice',
-		'age': '30',
+		'name': 'Alice'
+		'age':  '30'
 		'city': 'New York'
 	})!
 
 	mut bob_id := gdb.create_node({
-		'name': 'Bob',
-		'age': '25',
+		'name': 'Bob'
+		'age':  '25'
 		'city': 'Boston'
 	})!
 
 	mut charlie_id := gdb.create_node({
-		'name': 'Charlie',
-		'age': '35',
+		'name': 'Charlie'
+		'age':  '35'
 		'city': 'New York'
 	})!
 
 	// Create nodes representing companies
 	mut company1_id := gdb.create_node({
-		'name': 'TechCorp',
+		'name':     'TechCorp'
 		'industry': 'Technology'
 	})!
 
 	mut company2_id := gdb.create_node({
-		'name': 'FinCo',
+		'name':     'FinCo'
 		'industry': 'Finance'
 	})!
 
 	// Create relationships
-	gdb.create_edge(alice_id, bob_id, 'KNOWS', {'since': '2020'})!
-	gdb.create_edge(bob_id, charlie_id, 'KNOWS', {'since': '2019'})!
-	gdb.create_edge(charlie_id, alice_id, 'KNOWS', {'since': '2018'})!
+	gdb.create_edge(alice_id, bob_id, 'KNOWS', {
+		'since': '2020'
+	})!
+	gdb.create_edge(bob_id, charlie_id, 'KNOWS', {
+		'since': '2019'
+	})!
+	gdb.create_edge(charlie_id, alice_id, 'KNOWS', {
+		'since': '2018'
+	})!
 
-	gdb.create_edge(alice_id, company1_id, 'WORKS_AT', {'role': 'Engineer'})!
-	gdb.create_edge(bob_id, company2_id, 'WORKS_AT', {'role': 'Analyst'})!
-	gdb.create_edge(charlie_id, company1_id, 'WORKS_AT', {'role': 'Manager'})!
+	gdb.create_edge(alice_id, company1_id, 'WORKS_AT', {
+		'role': 'Engineer'
+	})!
+	gdb.create_edge(bob_id, company2_id, 'WORKS_AT', {
+		'role': 'Analyst'
+	})!
+	gdb.create_edge(charlie_id, company1_id, 'WORKS_AT', {
+		'role': 'Manager'
+	})!
 
 	// Test querying by property
 	ny_people := gdb.query_nodes_by_property('city', 'New York')!
@@ -159,7 +171,7 @@ fn test_edge_cases() ! {
 
 	// Test node with many properties
 	mut large_props := map[string]string{}
-	for i in 0..100 {
+	for i in 0 .. 100 {
 		large_props['key${i}'] = 'value${i}'
 	}
 	large_node_id := gdb.create_node(large_props)!

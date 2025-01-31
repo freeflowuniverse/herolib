@@ -9,7 +9,7 @@ The PostgreSQL client can be configured using HeroScript. Configuration settings
 ### Basic Configuration Example
 
 ```v
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.core
 import os

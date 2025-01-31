@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -cc gcc -n -w -gc none -no-retry-compilation -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -cc gcc -n -w -gc none  -d use_openssl -enable-globals run
 
 import os
 import flag
@@ -119,7 +119,7 @@ fn dotest(path string, base_dir string, mut cache TestCache) ! {
 		return
 	}
 
-	cmd := 'v -stats -enable-globals -n -w -gc none -no-retry-compilation test ${norm_path}'
+	cmd := 'v -stats -enable-globals -n -w -gc none  test ${norm_path}'
 	println(cmd)
 	result := os.execute(cmd)
 	eprintln(result)

@@ -1,7 +1,7 @@
 module radixtree
 
 fn test_basic_operations() ! {
-	mut rt := new(path:'/tmp/radixtree_test',reset:true)!
+	mut rt := new(path: '/tmp/radixtree_test', reset: true)!
 
 	// Test insert and search
 	rt.insert('test', 'value1'.bytes())!
@@ -20,15 +20,15 @@ fn test_basic_operations() ! {
 
 	// Test delete
 	rt.delete('test')!
-	mut ok:=false
+	mut ok := false
 	if _ := rt.search('test') {
-		ok=true
+		ok = true
 	}
 	assert ok
 }
 
 fn test_prefix_matching() ! {
-	mut rt := new(path:'/tmp/radixtree_test_prefix')!
+	mut rt := new(path: '/tmp/radixtree_test_prefix')!
 
 	// Insert keys with common prefixes
 	rt.insert('team', 'value1'.bytes())!
@@ -47,7 +47,7 @@ fn test_prefix_matching() ! {
 
 	// Delete middle key and verify others still work
 	rt.delete('test')!
-	
+
 	if _ := rt.search('test') {
 		assert false, 'Expected error after deletion'
 	}
@@ -60,7 +60,7 @@ fn test_prefix_matching() ! {
 }
 
 fn test_edge_cases() ! {
-	mut rt := new(path:'/tmp/radixtree_test_edge')!
+	mut rt := new(path: '/tmp/radixtree_test_edge')!
 
 	// Test empty key
 	rt.insert('', 'empty'.bytes())!
@@ -89,7 +89,7 @@ fn test_edge_cases() ! {
 }
 
 fn test_multiple_operations() ! {
-	mut rt := new(path:'/tmp/radixtree_test_multiple')!
+	mut rt := new(path: '/tmp/radixtree_test_multiple')!
 
 	// Insert multiple keys
 	keys := ['abc', 'abcd', 'abcde', 'bcd', 'bcde']
@@ -110,7 +110,7 @@ fn test_multiple_operations() ! {
 	// Verify remaining keys
 	remaining := ['abc', 'abcde', 'bcd']
 	expected := ['value1', 'value3', 'value4']
-	
+
 	for i, key in remaining {
 		value := rt.search(key)!
 		assert value.bytestr() == expected[i]

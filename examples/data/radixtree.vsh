@@ -1,8 +1,8 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.data.radixtree
 
-mut rt := radixtree.new(path:'/tmp/radixtree_test',reset:true)!
+mut rt := radixtree.new(path: '/tmp/radixtree_test', reset: true)!
 
 // Show initial state
 println('\nInitial state:')
@@ -21,12 +21,10 @@ rt.print_tree()!
 
 // Test search
 if value := rt.search('test') {
-    println('\nFound value: ${value.bytestr()}')
+	println('\nFound value: ${value.bytestr()}')
 } else {
-    println('\nError: ${err}')
+	println('\nError: ${err}')
 }
-
-
 
 println('\nInserting key "test2" with value "value2"')
 rt.insert('test2', 'value2'.bytes())!

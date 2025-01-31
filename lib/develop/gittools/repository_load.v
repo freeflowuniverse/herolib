@@ -3,9 +3,10 @@ module gittools
 import time
 import freeflowuniverse.herolib.ui.console
 import os
+
 @[params]
 pub struct StatusUpdateArgs {
-	reload       bool
+	reload bool
 }
 
 pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
@@ -28,7 +29,7 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 fn (mut repo GitRepo) load() ! {
 	console.print_debug('load ${repo.cache_key()}')
 	repo.init()!
-	if os.exists("${repo.path()}/.git") == false{
+	if os.exists('${repo.path()}/.git') == false {
 		return error("Can't find git in repo ${repo.path()}")
 	}
 	repo.exec('git fetch --all') or {

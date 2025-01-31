@@ -70,7 +70,7 @@ jobs:
 
       - name: Build Hero
         run: |
-          v -w -cg -gc none -no-retry-compilation -d use_openssl -enable-globals cli/hero.v -o cli/hero-${{ matrix.target }}
+          v -w -cg -gc none  -d use_openssl -enable-globals cli/hero.v -o cli/hero-${{ matrix.target }}
 
       - name: Upload
         uses: actions/upload-artifact@v4

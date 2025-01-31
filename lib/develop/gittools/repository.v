@@ -18,7 +18,7 @@ pub mut:
 	config        GitRepoConfig       // Repository-specific configuration
 	last_load     int                 // Epoch timestamp of the last load from reality
 	deploysshkey  string              // to use with git
-	has_changes   bool 
+	has_changes   bool
 }
 
 // this is the status we want, we need to work towards off
@@ -121,9 +121,7 @@ pub fn (mut repo GitRepo) pull(args_ PullCheckoutArgs) ! {
 		repo.checkout()!
 	}
 
-	repo.exec('git pull') or {
-		return error('Cannot pull repo: ${repo.path()}. Error: ${err}')
-	}
+	repo.exec('git pull') or { return error('Cannot pull repo: ${repo.path()}. Error: ${err}') }
 
 	if args_.submodules {
 		repo.update_submodules()!
@@ -299,7 +297,7 @@ fn (mut repo GitRepo) update_submodules() ! {
 fn (repo GitRepo) exec(cmd_ string) !string {
 	repo_path := repo.path()
 	cmd := 'cd ${repo_path} && ${cmd_}'
-	//console.print_debug(cmd)
+	// console.print_debug(cmd)
 	r := os.execute(cmd)
 	if r.exit_code != 0 {
 		return error('Repo failed to exec cmd: ${cmd}\n${r.output})')

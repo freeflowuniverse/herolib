@@ -1,20 +1,18 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.data.ourdb
 
-
 const test_dir = '/tmp/ourdb'
 
-
 mut db := ourdb.new(
-    record_nr_max:   16777216 - 1 // max size of records
-    record_size_max: 1024
-    path:            test_dir
-    reset:           true
+	record_nr_max:   16777216 - 1 // max size of records
+	record_size_max: 1024
+	path:            test_dir
+	reset:           true
 )!
 
 defer {
-    db.destroy() or { panic('failed to destroy db: ${err}') }
+	db.destroy() or { panic('failed to destroy db: ${err}') }
 }
 
 // Test set and get
@@ -24,12 +22,12 @@ id := db.set(data: test_data)!
 retrieved := db.get(id)!
 assert retrieved == test_data
 
-assert id==0
+assert id == 0
 
 // Test overwrite
 new_data := 'Updated data'.bytes()
-id2 := db.set(id:0, data: new_data)!
-assert id2==0
+id2 := db.set(id: 0, data: new_data)!
+assert id2 == 0
 
 // // Verify lookup table has the correct location
 // location := db.lookup.get(id2)!

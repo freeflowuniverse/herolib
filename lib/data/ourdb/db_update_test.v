@@ -19,7 +19,7 @@ fn test_db_update() {
 	)!
 
 	defer {
-		db.destroy() or {  }
+		db.destroy() or {}
 	}
 
 	// Test set and get
@@ -29,17 +29,17 @@ fn test_db_update() {
 	retrieved := db.get(id)!
 	assert retrieved == test_data
 
-	assert id==0
+	assert id == 0
 
 	// Test overwrite
 	new_data := 'Updated data'.bytes()
-	id2 := db.set(id:0, data: new_data)!
-	assert id2==0
-	
+	id2 := db.set(id: 0, data: new_data)!
+	assert id2 == 0
+
 	// Verify lookup table has the correct location
 	location := db.lookup.get(id2)!
 	println('Location after update - file_nr: ${location.file_nr}, position: ${location.position}')
-	
+
 	// Get and verify the updated data
 	retrieved2 := db.get(id2)!
 	println('Retrieved data: ${retrieved2}')

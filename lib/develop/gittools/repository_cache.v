@@ -21,9 +21,7 @@ fn (mut repo GitRepo) cache_get() ! {
 	mut repo_json := ''
 	mut redis_client := redis_get()
 	cache_key := repo.cache_key()
-	repo_json = redis_client.get(cache_key) or {
-		return 
-	}
+	repo_json = redis_client.get(cache_key) or { return }
 
 	if repo_json.len > 0 {
 		mut cached := json.decode(GitRepo, repo_json)!

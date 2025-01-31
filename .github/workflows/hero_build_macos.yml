@@ -59,7 +59,7 @@ jobs:
 
       - name: Build Hero
         run: |
-          v -w -cg -gc none -no-retry-compilation -d use_openssl -enable-globals cli/hero.v
+          v -w -cg -gc none  -d use_openssl -enable-globals cli/hero.v
 
       - name: Do all the basic tests
         run: |

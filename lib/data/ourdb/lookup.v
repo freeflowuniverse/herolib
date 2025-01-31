@@ -90,7 +90,7 @@ fn (lut LookupTable) get(x u32) !Location {
 	entry_size := lut.keysize
 	if lut.lookuppath.len > 0 {
 		// Check file size first
-		file_size := os.file_size(lut.get_data_file_path()!) //THIS SLOWS DOWN, NEED TO DO SOMETHING MORE INTELLIGENCE ONCE
+		file_size := os.file_size(lut.get_data_file_path()!) // THIS SLOWS DOWN, NEED TO DO SOMETHING MORE INTELLIGENCE ONCE
 		start_pos := x * entry_size
 
 		if start_pos + entry_size > file_size {
@@ -325,7 +325,7 @@ fn (mut lut LookupTable) import_data(path string) ! {
 				incremental_file_name))!
 			// Update the incremental value in memory
 			inc_str := os.read_file(os.join_path(path, incremental_file_name))!
-			//println('inc_str: ${inc_str}')
+			// println('inc_str: ${inc_str}')
 			lut.incremental = inc_str.u32()
 		}
 		return

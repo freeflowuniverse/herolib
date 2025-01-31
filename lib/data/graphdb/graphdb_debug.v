@@ -3,10 +3,10 @@ module graphdb
 // Gets detailed information about a node
 pub fn (mut gdb GraphDB) debug_node(id u32) !string {
 	node := gdb.get_node(id)!
-	
+
 	mut info := '\nNode Details (ID: ${id})\n'
 	info += '===================\n'
-	
+
 	// Properties
 	info += '\nProperties:\n'
 	if node.properties.len == 0 {
@@ -81,13 +81,13 @@ pub fn (mut gdb GraphDB) debug_edge(id u32) !string {
 	edge := gdb.get_edge(id)!
 	from_node := gdb.get_node(edge.from_node)!
 	to_node := gdb.get_node(edge.to_node)!
-	
+
 	mut info := '\nEdge Details (ID: ${id})\n'
 	info += '===================\n'
-	
+
 	// Basic info
 	info += '\nType: ${edge.edge_type}\n'
-	
+
 	// Connected nodes
 	info += '\nFrom Node (ID: ${edge.from_node}):\n'
 	if name := from_node.properties['name'] {
@@ -125,10 +125,10 @@ pub fn (mut gdb GraphDB) debug_edge(id u32) !string {
 // Prints the current state of the database
 pub fn (mut gdb GraphDB) debug_db() ! {
 	mut next_id := gdb.db.get_next_id()!
-	
+
 	println('\nGraph Database State')
 	println('===================')
-	
+
 	// Print all nodes
 	println('\nNodes:')
 	println('------')
@@ -153,13 +153,13 @@ pub fn (mut gdb GraphDB) debug_db() ! {
 			if edge := deserialize_edge(edge_data) {
 				mut from_name := ''
 				mut to_name := ''
-				
+
 				if from_node := gdb.get_node(edge.from_node) {
 					if name := from_node.properties['name'] {
 						from_name = ' (${name})'
 					}
 				}
-				
+
 				if to_node := gdb.get_node(edge.to_node) {
 					if name := to_node.properties['name'] {
 						to_name = ' (${name})'
@@ -195,7 +195,7 @@ pub fn (mut gdb GraphDB) print_graph_from(start_id u32, visited map[u32]bool) ! 
 	my_visited[start_id] = true
 
 	node := gdb.get_node(start_id)!
-	
+
 	mut node_info := 'Node(${start_id})'
 	if name := node.properties['name'] {
 		node_info += ' (${name})'
@@ -206,7 +206,7 @@ pub fn (mut gdb GraphDB) print_graph_from(start_id u32, visited map[u32]bool) ! 
 	for edge_ref in node.edges_out {
 		edge := gdb.get_edge(edge_ref.edge_id)!
 		mut edge_info := '  -[${edge.edge_type}]->'
-		
+
 		if edge.properties.len > 0 {
 			edge_info += ' {'
 			mut first := true
@@ -219,7 +219,7 @@ pub fn (mut gdb GraphDB) print_graph_from(start_id u32, visited map[u32]bool) ! 
 			}
 			edge_info += '}'
 		}
-		
+
 		println(edge_info)
 		gdb.print_graph_from(edge.to_node, my_visited)!
 	}
@@ -229,7 +229,7 @@ pub fn (mut gdb GraphDB) print_graph_from(start_id u32, visited map[u32]bool) ! 
 pub fn (mut gdb GraphDB) print_graph() ! {
 	println('\nGraph Structure')
 	println('===============')
-	
+
 	mut visited := map[u32]bool{}
 	mut next_id := gdb.db.get_next_id()!
 

@@ -9,26 +9,24 @@ import json
 
 pub struct GitStructureConfig {
 pub mut:
-	coderoot     string //just to be informative, its not used
+	coderoot     string // just to be informative, its not used
 	light        bool = true // If true, clones only the last history for all branches (clone with only 1 level deep)
 	log          bool = true // If true, logs git commands/statements
 	debug        bool = true
 	ssh_key_name string
 }
 
-
 // GitStructure holds information about repositories within a specific code root.
 // This structure keeps track of loaded repositories, their configurations, and their status.
 @[heap]
 pub struct GitStructure {
 mut:
-	config_   ?GitStructureConfig  // Configuration settings for the git structure.
+	config_ ?GitStructureConfig // Configuration settings for the git structure.
 pub mut:
 	key      string              // Unique key representing the git structure (default is hash of $home/code).	
 	repos    map[string]&GitRepo // Map of repositories
-	coderoot pathlib.Path  		
+	coderoot pathlib.Path
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
@@ -41,53 +39,52 @@ pub mut:
 pub fn (mut gitstructure GitStructure) load(reload bool) ! {
 	mut processed_paths := []string{}
 
-	if reload{
-		gitstructure.repos=map[string]&GitRepo{}
+	if reload {
+		gitstructure.repos = map[string]&GitRepo{}
 	}
 	gitstructure.load_recursive(gitstructure.coderoot.path, mut processed_paths)!
 
-	if reload{
+	if reload {
 		gitstructure.cache_reset()!
 	}
 
 	//	mut ths := []thread !{}
-	//need to make sure redis is empty before doing the threads
+	// need to make sure redis is empty before doing the threads
 	redisclient.reset()!
-	redisclient.checkempty()	
+	redisclient.checkempty()
 
 	for _, mut repo in gitstructure.repos {
 		// mut myfunction := fn (mut repo GitRepo) ! {
 		// }
-		//ths << spawn myfunction(mut repo_)
+		// ths << spawn myfunction(mut repo_)
 		repo.status_update(reload: reload) or {
-			msg:="Error in git repo: ${repo.path()}\n${err}"
+			msg := 'Error in git repo: ${repo.path()}\n${err}'
 			console.print_stderr(msg)
 			return error(msg)
 		}
 	}
 
 	// pp.work_on_items(todo)
-	//console.print_debug('loaded all threads for git on ${gitstructure.coderoot}')
+	// console.print_debug('loaded all threads for git on ${gitstructure.coderoot}')
 	// for th in ths {
 	// 	th.wait()!
 	// }
 
-    // for x in pp.get_results[SResult]() {
-    //     println('result: ${x.s}')
-    // }	
+	// for x in pp.get_results[SResult]() {
+	//     println('result: ${x.s}')
+	// }	
 
 	// console.print_debug("threads finished")
 
-	//now we need to load them back in our memory because these were done in sub process
+	// now we need to load them back in our memory because these were done in sub process
 	// for _, mut r in gitstructure.repos {
 	// 	r.cache_get()!
 	// }
 
-
 	// gitstructure.init()!
 }
 
-// Recursively loads repositories from the provided path, updating their statuses, does not check the status 
+// Recursively loads repositories from the provided path, updating their statuses, does not check the status
 //
 // Args:
 // - path (string): The path to search for repositories.
@@ -135,7 +132,6 @@ fn (mut gitstructure GitStructure) load_recursive(path string, mut processed_pat
 		}
 	}
 }
-
 
 @[params]
 pub struct RepoInitParams {
@@ -192,76 +188,72 @@ pub fn (mut gitstructure GitStructure) get_working_repo() ?GitRepo {
 	return gitstructure.repo_init_from_path_(curdir.path) or { return none }
 }
 
-
-//key in redis used to store all config info
+// key in redis used to store all config info
 fn cache_key(coderoot string) string {
 	key := md5.hexhash(coderoot)
 	return 'git:${key}'
 }
 
-//key in redis used to store all config info
+// key in redis used to store all config info
 pub fn (mut self GitStructure) cache_key() string {
 	return cache_key(self.coderoot.path)
 }
 
-//load from cache
+// load from cache
 pub fn (mut self GitStructure) cache_load() ! {
 	// Retrieve the configuration from Redis.
 	mut redis := redis_get()
-	keys := redis.keys("${self.cache_key()}:repos")!
-	self.repos = map[string]&GitRepo{} //reset
+	keys := redis.keys('${self.cache_key()}:repos')!
+	self.repos = map[string]&GitRepo{} // reset
 	for key in keys {
-		data:=redis.get(key)!
-		mut r:=json.decode(GitRepo,data)!		
+		data := redis.get(key)!
+		mut r := json.decode(GitRepo, data)!
 		self.repos[key] = &r
 	}
 }
 
-
 // Reset all caches and configurations for all Git repositories.
 pub fn (mut self GitStructure) cache_reset() ! {
 	mut redis := redis_get()
-	keys := redis.keys("${self.cache_key()}:**")!
+	keys := redis.keys('${self.cache_key()}:**')!
 	for key in keys {
 		redis.del(key)!
 	}
 }
 
-
 // Load config from redis
 fn (mut self GitStructure) coderoot() !pathlib.Path {
-	mut coderoot := pathlib.get_dir(path:self.coderoot.path,create:true)!
+	mut coderoot := pathlib.get_dir(path: self.coderoot.path, create: true)!
 	return coderoot
 }
-
 
 ////// CONFIG
 
 // Load config from redis
 pub fn (mut self GitStructure) config() !GitStructureConfig {
-	mut config := self.config_ or { 
+	mut config := self.config_ or {
 		mut redis := redis_get()
-		data:=redis.get("${self.cache_key()}:config")!
-		mut c:= GitStructureConfig{}
-		if data.len>0{
-			c = json.decode(GitStructureConfig,data)!	
+		data := redis.get('${self.cache_key()}:config')!
+		mut c := GitStructureConfig{}
+		if data.len > 0 {
+			c = json.decode(GitStructureConfig, data)!
 		}
-	 	c
+		c
 	}
+
 	return config
 }
 
 // Reset the configuration cache for Git structures.
 pub fn (mut self GitStructure) config_reset() ! {
 	mut redis := redis_get()
-	redis.del("${self.cache_key()}:config")!
+	redis.del('${self.cache_key()}:config')!
 }
 
-
-//save to the cache
+// save to the cache
 pub fn (mut self GitStructure) config_save() ! {
 	// Retrieve the configuration from Redis.
 	mut redis := redis_get()
 	datajson := json.encode(self.config)
-	redis.set("${self.cache_key()}:config", datajson)!
+	redis.set('${self.cache_key()}:config', datajson)!
 }

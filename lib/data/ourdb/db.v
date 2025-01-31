@@ -97,7 +97,7 @@ pub fn (mut db OurDB) get_next_id() !u32 {
 		return error('incremental mode is not enabled')
 	}
 	next_id := db.lookup.get_next_id()!
-	return next_id 
+	return next_id
 }
 
 // close closes the database file

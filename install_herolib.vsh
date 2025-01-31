@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag
@@ -64,7 +64,7 @@ os.symlink('${abs_dir_of_script}/lib', '${os.home_dir()}/.vmodules/freeflowunive
 println('Herolib installation completed successfully!')
 
 // Add vtest alias
-addtoscript('alias vtest=', 'alias vtest=\'v -stats -enable-globals -n -w -cg -gc none -no-retry-compilation -cc tcc test\' ') or {
+addtoscript('alias vtest=', 'alias vtest=\'v -stats -enable-globals -n -w -cg -gc none  -cc tcc test\' ') or {
     eprintln('Failed to add vtest alias: ${err}')
 }
 

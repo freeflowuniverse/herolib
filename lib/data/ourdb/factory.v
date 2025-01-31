@@ -24,12 +24,12 @@ const header_size = 12
 @[params]
 pub struct OurDBConfig {
 pub:
-	record_nr_max   u32 = 16777216 - 1    // max size of records
-	record_size_max u32 = 1024 * 4        // max size in bytes of a record, is 4 KB default
-	file_size       u32 = 500 * (1 << 20) // 500MB
-	path            string // directory where we will stor the DB
+	record_nr_max    u32 = 16777216 - 1    // max size of records
+	record_size_max  u32 = 1024 * 4        // max size in bytes of a record, is 4 KB default
+	file_size        u32 = 500 * (1 << 20) // 500MB
+	path             string // directory where we will stor the DB
 	incremental_mode bool = true
-	reset bool
+	reset            bool
 }
 
 // new_memdb creates a new memory database with the given path and lookup table
@@ -56,7 +56,7 @@ pub fn new(args OurDBConfig) !OurDB {
 		incremental_mode: args.incremental_mode
 	)!
 
-	if args.reset{
+	if args.reset {
 		os.rmdir_all(args.path) or {}
 	}
 

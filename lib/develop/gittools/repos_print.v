@@ -14,7 +14,7 @@ fn get_repo_status(gr GitRepo) !string {
 	if repo.need_push_or_pull()! {
 		statuses << 'PULL'
 	}
-	
+
 	return statuses.join(', ')
 }
 
@@ -54,7 +54,7 @@ pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
 	// } else {
 	// 	'Repositories: ${gitstructure.config()!.coderoot}'
 	// }
-	header:='Repositories: ${gitstructure.config()!.coderoot}'
+	header := 'Repositories: ${gitstructure.config()!.coderoot}'
 	console.print_header(header)
 
 	// Print the repository information in a formatted array
