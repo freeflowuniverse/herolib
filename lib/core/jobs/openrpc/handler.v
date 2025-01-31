@@ -32,7 +32,7 @@ pub fn (mut s OpenRPCServer) start() ! {
 		// Send response back to Redis using response queue
 		response_json := json.encode(response)
 		key:='${rpc_queue}:${request.id}'
-		println("response: ${} put on return queue ${key} ")
+		println("response: \n${response}\n put on return queue ${key} ")
 		mut response_queue := &redisclient.RedisQueue{
 			key: key
 			redis: s.redis
