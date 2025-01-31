@@ -72,6 +72,15 @@ pub fn (mut rt RadixTree) insert(key string, value []u8) ! {
 	mut current_id := rt.root_id
 	mut offset := 0
 
+	// Handle empty key case
+	if key.len == 0 {
+		mut root_node := deserialize_node(rt.db.get(current_id)!)!
+		root_node.is_leaf = true
+		root_node.value = value
+		rt.db.set(id: current_id, data: serialize_node(root_node))!
+		return
+	}
+
 	for offset < key.len {
 		mut node := deserialize_node(rt.db.get(current_id)!)!
 		
@@ -190,6 +199,15 @@ pub fn (mut rt RadixTree) insert(key string, value []u8) ! {
 pub fn (mut rt RadixTree) search(key string) ![]u8 {
 	mut current_id := rt.root_id
 	mut offset := 0
+
+	// Handle empty key case
+	if key.len == 0 {
+		root_node := deserialize_node(rt.db.get(current_id)!)!
+		if root_node.is_leaf {
+			return root_node.value
+		}
+		return error('Key not found')
+	}
 
 	for offset < key.len {
 		node := deserialize_node(rt.db.get(current_id)!)!

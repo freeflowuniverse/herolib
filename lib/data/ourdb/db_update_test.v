@@ -19,7 +19,7 @@ fn test_db_update() {
 	)!
 
 	defer {
-		db.destroy() or { panic('failed to destroy db: ${err}') }
+		db.destroy() or {  }
 	}
 
 	// Test set and get

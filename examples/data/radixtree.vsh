@@ -25,3 +25,11 @@ if value := rt.search('test') {
 } else {
     println('\nError: ${err}')
 }
+
+
+
+println('\nInserting key "test2" with value "value2"')
+rt.insert('test2', 'value2'.bytes())!
+
+// Print tree structure
+rt.print_tree()!

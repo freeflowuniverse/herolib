@@ -75,7 +75,7 @@ pub fn (mut db OurDB) set_(x u32, old_location Location, data []u8) ! {
 		file_nr:  file_nr
 		position: u32(db.file.tell()!)
 	}
-	println('Writing data at position: ${new_location.position}, file_nr: ${file_nr}')
+	//println('Writing data at position: ${new_location.position}, file_nr: ${file_nr}')
 
 	// Calculate CRC of data
 	crc := calculate_crc(data)
@@ -144,7 +144,7 @@ fn (mut db OurDB) get_(location Location) ![]u8 {
 	if data_read_bytes != int(size) {
 		return error('failed to read data bytes')
 	}
-	println('Reading data from position: ${location.position}, file_nr: ${location.file_nr}, size: ${size}, data: ${data}')
+	//println('Reading data from position: ${location.position}, file_nr: ${location.file_nr}, size: ${size}, data: ${data}')
 
 	// Verify CRC
 	calculated_crc := calculate_crc(data)

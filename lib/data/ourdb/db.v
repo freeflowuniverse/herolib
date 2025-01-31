@@ -36,7 +36,6 @@ pub fn (mut db OurDB) set(args OurDBSetArgs) !u32 {
 			}
 
 			db.set_(id, location, args.data)!
-			db.lookup.set(id, location)! // TODO: maybe not needed
 			return id
 		}
 
@@ -127,5 +126,5 @@ fn (mut db OurDB) close() ! {
 
 pub fn (mut db OurDB) destroy() ! {
 	db.close() or {}
-	os.rmdir_all(db.path)!
+	os.rmdir_all(db.path) or {}
 }

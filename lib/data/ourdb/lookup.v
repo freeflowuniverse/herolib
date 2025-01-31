@@ -325,7 +325,7 @@ fn (mut lut LookupTable) import_data(path string) ! {
 				incremental_file_name))!
 			// Update the incremental value in memory
 			inc_str := os.read_file(os.join_path(path, incremental_file_name))!
-			println('inc_str: ${inc_str}')
+			//println('inc_str: ${inc_str}')
 			lut.incremental = inc_str.u32()
 		}
 		return
