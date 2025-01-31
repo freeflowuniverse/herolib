@@ -5,7 +5,9 @@ import json
 
 pub fn (mut h OpenRPCServer) handle_request_group(request OpenRPCRequest) !OpenRPCResponse {
 	mut response:=rpc_response_new(request.id)
-	match request.method {
+	method:=request.method.all_after_first("group.")
+	println("request group:'${method}'")
+	match method {
 		'new' {
 			group := h.runner.groups.new()
 			response.result = json.encode(group)

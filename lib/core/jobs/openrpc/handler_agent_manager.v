@@ -8,7 +8,11 @@ pub fn (mut h OpenRPCServer) handle_request_agent(request OpenRPCRequest) !OpenR
 
 	mut response:=rpc_response_new(request.id)
 
-	match request.method {
+	method:=request.method.all_after_first("agent.")
+
+	println("request agent:'${method}'")
+
+	match method{
 		'new' {
 			agent := h.runner.agents.new()
 			response.result = json.encode(agent)

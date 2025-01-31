@@ -5,8 +5,11 @@ import json
 
 pub fn (mut h OpenRPCServer) handle_request_job(request OpenRPCRequest) !OpenRPCResponse {
 	mut response:=rpc_response_new(request.id)
+
+	method:=request.method.all_after_first("job.")
+	println("request job:'${method}'")
 	println(request)
-	match request.method {
+	match method {
 		'new' {
 			job := h.runner.jobs.new()
 			response.result = json.encode(job)

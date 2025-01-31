@@ -5,8 +5,9 @@ import json
 
 pub fn (mut h OpenRPCServer) handle_request_service(request OpenRPCRequest) !OpenRPCResponse {
 	mut response:=rpc_response_new(request.id)
-
-	match request.method {
+	method:=request.method.all_after_first("service.")
+	println("request service:'${method}'")
+	match method{
 		'new' {
 			service := h.runner.services.new()
 			response.result = json.encode(service)
