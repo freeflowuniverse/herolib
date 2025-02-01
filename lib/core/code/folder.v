@@ -5,6 +5,7 @@ import freeflowuniverse.herolib.core.pathlib
 pub interface IFolder {
 	name string
 	files []IFile
+	modules []Module
 	write(string, WriteOptions) !
 }
 
@@ -12,6 +13,7 @@ pub struct Folder {
 pub:
 	name string
 	files []IFile
+	modules []Module
 }
 
 pub fn (f Folder) write(path string, options WriteOptions) ! {
@@ -26,5 +28,8 @@ pub fn (f Folder) write(path string, options WriteOptions) ! {
 
 	for file in f.files {
 		file.write(dir.path, options)!
+	}
+	for mod in f.modules {
+		mod.write(dir.path, options)!
 	}
 }

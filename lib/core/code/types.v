@@ -127,3 +127,8 @@ pub fn (t Type) typescript() string {
 		Void {''}
 	}
 }
+
+// TODO: enfore that cant be both mutable and shared
+pub fn (t Type) vgen() string {
+	return t.symbol()
+}

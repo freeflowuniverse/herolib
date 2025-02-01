@@ -42,7 +42,7 @@ pub fn new_param(params Params) !Param {
 
 pub fn (param Param) vgen() string {
 	sym := param.typ.symbol()
-	param_name := texttools.name_fix_snake(param.name)
+	param_name := texttools.snake_case(param.name)
 	mut vstr := '${param_name} ${sym}'
 	if param.mutable {
 		vstr = 'mut ${vstr}'
@@ -51,7 +51,7 @@ pub fn (param Param) vgen() string {
 }
 
 pub fn (p Param) typescript() string {
-	name := texttools.name_fix_snake(p.name)
+	name := texttools.camel_case(p.name)
 	suffix := if p.is_optional {'?'} else {''}
 	return '${name}${suffix}: ${p.typ.typescript()}'
 }

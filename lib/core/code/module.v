@@ -9,6 +9,7 @@ pub mut:
 	name       string
 	files      []IFile
 	folders    []IFolder
+	modules []Module
 	// model   VFile
 	// methods VFile
 }
@@ -40,6 +41,10 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 
 	for folder in mod.folders {
 		folder.write(module_dir.path, options)!
+	}
+
+	for mod_ in mod.modules {
+		mod_.write(module_dir.path, options)!
 	}
 
 	if options.format {

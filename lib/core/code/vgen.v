@@ -42,46 +42,6 @@ pub fn (import_ Import) vgen() string {
 	return 'import ${import_.mod} ${types_str}'
 }
 
-// TODO: enfore that cant be both mutable and shared
-pub fn (t Type) vgen() string {
-	return t.symbol()
-}
-
-pub fn (field StructField) vgen() string {
-	symbol := field.get_type_symbol()
-	mut vstr := '${field.name} ${symbol}'
-	if field.description != '' {
-		vstr += '// ${field.description}'
-	}
-	return vstr
-}
-
-pub fn (field StructField) get_type_symbol() string {
-	mut field_str := if field.structure.name != '' {
-		field.structure.get_type_symbol()
-	} else {
-		field.typ.symbol()
-	}
-
-	if field.is_ref {
-		field_str = '&${field_str}'
-	}
-
-	return field_str
-}
-
-pub fn (structure Struct) get_type_symbol() string {
-	mut symbol := if structure.mod != '' {
-		'${structure.mod.all_after_last('.')}.${structure.name}'
-	} else {
-		structure.name
-	}
-	if structure.generics.len > 0 {
-		symbol = '${symbol}${vgen_generics(structure.generics)}'
-	}
-
-	return symbol
-}
 
 pub fn vgen_generics(generics map[string]string) string {
 	if generics.keys().len == 0 {
@@ -99,7 +59,7 @@ pub fn (function Function) vgen(options WriteOptions) string {
 	mut params_ := function.params.clone()
 	optionals := function.params.filter(it.is_optional)
 	options_struct := Struct{
-		name: '${texttools.name_fix_snake_to_pascal(function.name)}Options'
+		name: '${texttools.snake_case_to_pascal(function.name)}Options'
 		attrs: [Attribute{
 			name: 'params'
 		}]
@@ -159,10 +119,10 @@ pub fn (struct_ Struct) vgen() string {
 		''
 	}
 
-	priv_fields := struct_.fields.filter(!it.is_mut && !it.is_pub).map(generate_struct_field(it))
-	pub_fields := struct_.fields.filter(!it.is_mut && it.is_pub).map(generate_struct_field(it))
-	mut_fields := struct_.fields.filter(it.is_mut && !it.is_pub).map(generate_struct_field(it))
-	pub_mut_fields := struct_.fields.filter(it.is_mut && it.is_pub).map(generate_struct_field(it))
+	priv_fields := struct_.fields.filter(!it.is_mut && !it.is_pub).map(it.vgen())
+	pub_fields := struct_.fields.filter(!it.is_mut && it.is_pub).map(it.vgen())
+	mut_fields := struct_.fields.filter(it.is_mut && !it.is_pub).map(it.vgen())
+	pub_mut_fields := struct_.fields.filter(it.is_mut && it.is_pub).map(it.vgen())
 
 	mut struct_str := $tmpl('templates/struct/struct.v.template')
 	if false {
@@ -177,15 +137,6 @@ pub fn (struct_ Struct) vgen() string {
 	// return struct_str
 	// result := os.execute_opt('echo "${struct_str.replace('$', '\$')}" | v fmt') or {panic(err)}
 	// return result.output
-}
-
-pub fn generate_struct_field(field StructField) string {
-	symbol := field.get_type_symbol()
-	mut vstr := '${field.name} ${symbol}'
-	if field.description != '' {
-		vstr += '// ${field.description}'
-	}
-	return vstr
 }
 
 pub fn (custom CustomCode) vgen() string {
