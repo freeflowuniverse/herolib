@@ -1,6 +1,7 @@
 module openapi
 
 import maps
+import net.http
 import x.json2 as json {Any}
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
 
@@ -87,14 +88,14 @@ pub struct ServerSpec {
 pub:
 	url         string  @[required] // A URL to the target host. This URL supports ServerSpec Variables and MAY be relative, to indicate that the host location is relative to the location where the OpenAPI document is being served. Variable substitutions will be made when a variable is named in {brackets}.
 	description string // An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.
-	variables   map[string]ServerVariable // A map between a variable name and its value. The value is used for substitution in the server’s URL template.
+	variables   map[string]ServerVariable @[omitempty]// A map between a variable name and its value. The value is used for substitution in the server’s URL template.
 }
 
 // An object representing a ServerSpec Variable for server URL template substitution.
 pub struct ServerVariable {
 pub:
-	enum_       []string @[json: 'enum']              // An enumeration of string values to be used if the substitution options are from a limited set.
-	default_    string   @[json: 'default'; required] // The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. Note this behavior is different than the Schema Object’s treatment of default values, because in those cases parameter values are optional.
+	enum_       []string @[json: 'enum'; omitempty]              // An enumeration of string values to be used if the substitution options are from a limited set.
+	default_    string   @[json: 'default'; required; omitempty] // The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. Note this behavior is different than the Schema Object’s treatment of default values, because in those cases parameter values are optional.
 	description string   @[omitempty]                 // An optional description for the server variable. GitHub Flavored Markdown syntax MAY be used for rich text representation.
 }
 
@@ -110,16 +111,16 @@ pub type PathRef = Path | Reference
 
 pub struct Components {
 pub mut:
-	schemas          map[string]SchemaRef         //	An object to hold reusable Schema Objects.
-	responses        map[string]ResponseRef       //	An object to hold reusable ResponseSpec Objects.
-	parameters       map[string]ParameterRef      // An object to hold reusable Parameter Objects.
-	examples         map[string]ExampleRef        //	An object to hold reusable Example Objects.
-	request_bodies   map[string]RequestBodyRef    // An object to hold reusable Request Body Objects.
-	headers          map[string]HeaderRef         //	An object to hold reusable Header Objects.
-	security_schemes map[string]SecuritySchemeRef // An object to hold reusable Security Scheme Objects.
-	links            map[string]LinkRef     // An object to hold reusable Link Objects.
-	callbacks        map[string]CallbackRef //	An object to hold reusable Callback Objects.
-	path_items       map[string]PathItemRef // An object to hold reusable Path Item Object.
+	schemas          map[string]SchemaRef      @[omitempty]   //	An object to hold reusable Schema Objects.
+	responses        map[string]ResponseRef   @[omitempty]    //	An object to hold reusable ResponseSpec Objects.
+	parameters       map[string]ParameterRef  @[omitempty]    // An object to hold reusable Parameter Objects.
+	examples         map[string]ExampleRef  @[omitempty]      //	An object to hold reusable Example Objects.
+	request_bodies   map[string]RequestBodyRef @[omitempty]   // An object to hold reusable Request Body Objects.
+	headers          map[string]HeaderRef   @[omitempty]      //	An object to hold reusable Header Objects.
+	security_schemes map[string]SecuritySchemeRef @[omitempty]// An object to hold reusable Security Scheme Objects.
+	links            map[string]LinkRef   @[omitempty]  // An object to hold reusable Link Objects.
+	callbacks        map[string]CallbackRef @[omitempty]//	An object to hold reusable Callback Objects.
+	path_items       map[string]PathItemRef @[omitempty]// An object to hold reusable Path Item Object.
 }
 
 pub fn (s OpenAPI) dereference_schema(ref Reference) !Schema {
@@ -152,6 +153,75 @@ pub type LinkRef = Link | Reference
 pub type CallbackRef = Callback | Reference
 pub type PathItemRef = PathItem | Reference
 // type RequestRef = Reference | Request
+
+pub struct OperationInfo {
+pub:
+	operation Operation
+	path string
+	method http.Method
+}
+
+pub fn (s OpenAPI) get_operations() []OperationInfo {
+	return maps.flat_map[string, PathItem, OperationInfo](s.paths, fn(path string, item PathItem) []OperationInfo {
+		return item.get_operations().map(OperationInfo{...it, path: path})
+	})
+}
+
+// get all operations for path as list of tuple [](http.Method, openapi.Operation)
+pub fn (item PathItem) get_operations() []OperationInfo {
+mut ops := []OperationInfo
+
+if !item.get.is_empty() {
+	ops << OperationInfo{
+		method: .get
+		operation: item.get
+	}
+}
+if !item.post.is_empty() {
+	ops << OperationInfo{
+		method: .post
+		operation: item.post
+	}
+}
+if !item.put.is_empty() {
+	ops << OperationInfo{
+		method: .put
+		operation: item.put
+	}
+}
+if !item.delete.is_empty() {
+	ops << OperationInfo{
+		method: .delete
+		operation: item.delete
+	}
+}
+if !item.patch.is_empty() {
+	ops << OperationInfo{
+		method: .patch
+		operation: item.patch
+	}
+}
+if !item.head.is_empty() {
+	ops << OperationInfo{
+		method: .head
+		operation: item.head
+	}
+}
+if !item.options.is_empty() {
+	ops << OperationInfo{
+		method: .options
+		operation: item.options
+	}
+}
+if !item.trace.is_empty() {
+	ops << OperationInfo{
+		method: .trace
+		operation: item.trace
+	}
+}
+
+return ops
+}
 
 pub struct PathItem {
 pub mut:
@@ -186,6 +256,38 @@ pub mut:
 	servers       []ServerSpec @[omitempty]// An alternative server array to service this operation. If an alternative server object is specified at the Path Item Object or Root level, it will be overridden by this value.
 }
 
+fn (o Operation) is_empty() bool {
+	return o == Operation{}
+}
+
+// shorthand to get the schema of a payload
+pub fn (o Operation) payload_schema() ?Schema {
+	if o.request_body is RequestBody {
+		if payload_media_type := o.request_body.content['application/json'] {
+			if payload_media_type.schema is Schema {
+				return payload_media_type.schema
+			} else {
+				panic('this should never happen')
+			}
+		}
+	}
+	return none
+}
+
+// shorthand to get the schema of a response
+pub fn (o Operation) response_schema() ?Schema {
+	if response_spec := o.responses['200']{
+		if payload_media_type := response_spec.content['application/json'] {
+			if payload_media_type.schema is Schema {
+				return payload_media_type.schema
+			} else {
+				panic('this should never happen')
+			}
+		}
+	}
+	return none
+}
+
 // returns errors responses amongst a map of response specs
 pub fn (r map[string]ResponseSpec) errors() map[string]ResponseSpec {
 	return maps.filter(r, fn (k string, v ResponseSpec) bool {
@@ -208,7 +310,7 @@ pub:
 
 pub struct Link {
 pub:
-	link string
+	link string @[omitempty]
 }
 
 pub struct Header {
@@ -219,18 +321,18 @@ pub:
 pub struct ResponseSpec {
 pub mut:
 	description string                @[required] // A description of the response. CommonMark syntax MAY be used for rich text representation.
-	headers     map[string]HeaderRef // Maps a header name to its definition. [RFC7230] states header names are case insensitive. If a response header is defined with the name "Content-Type", it SHALL be ignored.
-	content     map[string]MediaType  // A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/*
-	links       map[string]LinkRef    // A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects.
+	headers     map[string]HeaderRef @[omitempty]// Maps a header name to its definition. [RFC7230] states header names are case insensitive. If a response header is defined with the name "Content-Type", it SHALL be ignored.
+	content     map[string]MediaType  @[omitempty]// A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/*
+	links       map[string]LinkRef    @[omitempty]// A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects.
 }
 
 // TODO: media type example any field
 pub struct MediaType {
 pub mut:
-	schema   SchemaRef // The schema defining the content of the request, response, or parameter.
-	example  Any @[json: '-']// Example of the media type. The example object SHOULD be in the correct format as specified by the media type. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains an example, the example value SHALL override the example provided by the schema.
-	examples map[string]ExampleRef // Examples of the media type. Each example object SHOULD match the media type and specified schema if present. The examples field is mutually exclusive of the example field. Furthermore, if referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.
-	encoding map[string]Encoding   //	A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding object SHALL only apply to requestBody objects when the media type is multipart or application/x-www-form-urlencoded.
+	schema   SchemaRef @[omitempty] // The schema defining the content of the request, response, or parameter.
+	example  Any @[json: '-'; omitempty]// Example of the media type. The example object SHOULD be in the correct format as specified by the media type. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains an example, the example value SHALL override the example provided by the schema.
+	examples map[string]ExampleRef @[omitempty]// Examples of the media type. Each example object SHOULD match the media type and specified schema if present. The examples field is mutually exclusive of the example field. Furthermore, if referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.
+	encoding map[string]Encoding  @[omitempty] //	A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding object SHALL only apply to requestBody objects when the media type is multipart or application/x-www-form-urlencoded.
 }
 
 pub struct Encoding {
@@ -249,7 +351,7 @@ pub mut:
 	description       string @[omitempty]// A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.
 	required          bool   @[omitempty]// Determines whether this parameter is mandatory. If the parameter location is "path", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.
 	deprecated        bool   @[omitempty]// Specifies that a parameter is deprecated and SHOULD be transitioned out of usage. Default value is false.
-	allow_empty_value bool   @[json: 'allowEmptyValue'] //	Sets the ability to pass empty-valued parameters. This is valid only for query parameters and allows sending a parameter with an empty value. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Use of this property is NOT RECOMMENDED, as it is likely to be removed in a later revision.
+	allow_empty_value bool   @[json: 'allowEmptyValue'; omitempty] //	Sets the ability to pass empty-valued parameters. This is valid only for query parameters and allows sending a parameter with an empty value. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Use of this property is NOT RECOMMENDED, as it is likely to be removed in a later revision.
 	schema            SchemaRef // The schema defining the type used for the parameter.
 }
 

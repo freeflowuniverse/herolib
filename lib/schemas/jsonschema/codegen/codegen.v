@@ -70,11 +70,15 @@ pub fn schema_to_type(schema Schema) Type {
 		} 
 		'array' {
 		// todo: handle multiple item schemas
-			if schema.items is []SchemaRef {
-				panic('items of type []SchemaRef not implemented')
-			}
-			Array {
-				typ: schemaref_to_type(schema.items as SchemaRef)
+			if items := schema.items {
+				if items is []SchemaRef {
+					panic('items of type []SchemaRef not implemented')
+				}
+				Array {
+					typ: schemaref_to_type(items as SchemaRef)
+				}
+			} else {
+				panic('items should not be none for arrays')
 			}
 		} else {
 			if schema.typ == 'integer' && schema.format != '' {
@@ -112,20 +116,24 @@ pub fn schema_to_code(schema Schema) CodeItem {
 		}
 	}
 	if schema.typ == 'array' {
-		if schema.items is SchemaRef {
-			if schema.items is Schema {
-				items_schema := schema.items as Schema
+		if items := schema.items {
+		if items is SchemaRef {
+			if items is Schema {
+				items_schema := items as Schema
 				return Alias{
 					name: schema.title
 					typ: type_from_symbol('[]${items_schema.typ}')
 				}
-			} else if schema.items is Reference {
-				items_ref := schema.items as Reference
+			} else if items is Reference {
+				items_ref := items as Reference
 				return Alias{
 					name: schema.title
 					typ: type_from_symbol('[]${ref_to_symbol(items_ref)}')
 				}
 			}
+		}
+		} else {
+			panic('items of type []SchemaRef not implemented')
 		}
 	}
 	panic('Schema type ${schema.typ} not supported for code generation')

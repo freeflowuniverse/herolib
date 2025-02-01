@@ -103,6 +103,7 @@ pub fn (mut c HTTPController) endpoints(mut ctx Context, path string) veb.Result
         // Use OpenAPI spec to determine the response status for the error
         return ctx.handle_error(operation.responses, err)
     }
+    println('debugzo2 ${response}')
 
     // Return the response to the client
     ctx.res.set_status(response.status)

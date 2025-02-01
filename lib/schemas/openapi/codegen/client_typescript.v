@@ -22,6 +22,7 @@ pub struct GenerationParams {
 pub:
 	// by default the TS Client Genrator generates empty bodies
 	// for client methods
+	custom_client_code string // custom code to be injected into client class
 	body_generator BodyGenerator = generate_empty_body
 }
 
@@ -54,6 +55,8 @@ pub fn ts_client_model_file(schemas []Schema) File {
 
 // generates a methods.ts file for given actor methods
 pub fn ts_client_methods_file(spec OpenAPI, params GenerationParams) File {
+	
+	
 	// spec := spec_.validate()
 	mut files := []File{}
 	mut methods := []string{}
@@ -62,20 +65,20 @@ pub fn ts_client_methods_file(spec OpenAPI, params GenerationParams) File {
 	// for the objects existing CRUD+LF methods
 	for path, item in spec.paths {
 		if item.get.responses.len > 0 {
-			methods << ts_client_fn(item.get, path, .get)
+			methods << ts_client_fn(item.get, path, .get, params)
 		} 
 		if item.put.responses.len > 0 {
-			methods << ts_client_fn(item.put, path, .put)
+			methods << ts_client_fn(item.put, path, .put, params)
 		}
 		if item.post.responses.len > 0 {	
-			methods << ts_client_fn(item.post, path, .post)
+			methods << ts_client_fn(item.post, path, .post, params)
 		}
 		if item.delete.responses.len > 0 {
-			methods << ts_client_fn(item.delete, path, .delete)
+			methods << ts_client_fn(item.delete, path, .delete, params)
 		}
 	}
 
-	client_code := 'export class ${texttools.pascal_case(spec.info.title)}Client {\n${methods.join_lines()}\n}'
+	client_code := 'export class ${texttools.pascal_case(spec.info.title)}Client {\n${params.custom_client_code}\n${methods.join_lines()}\n}'
 	
 	return File {
 		name: 'methods'

@@ -87,7 +87,7 @@ module codegen
 // 		description: function.result.description
 // 	}
 
-// 	pascal_name := texttools.name_fix_snake_to_pascal(function.name)
+// 	pascal_name := texttools.snake_case_to_pascal(function.name)
 // 	function_name := if function.mod != '' {
 // 		'${function.mod}.${pascal_name}'
 // 	} else {

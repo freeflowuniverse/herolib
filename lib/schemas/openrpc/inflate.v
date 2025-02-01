@@ -32,9 +32,14 @@ pub fn (s OpenRPC) inflate_schema(schema_ref SchemaRef) Schema {
 		s.inflate_schema(s.components.schemas[schema_name])
 	} else { schema_ref as Schema}
 
+	if items := schema.items {
+		return Schema {
+			...schema,
+			items: s.inflate_items(items)
+		}
+	}
 	return Schema {
 		...schema,
-		items: s.inflate_items(schema.items)
 	}
 }
 

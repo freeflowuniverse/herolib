@@ -9,6 +9,7 @@ pub struct Params {
 pub:
 	path string // path to openrpc.json file
 	text string // content of openrpc specification text
+	process bool // whether to process spec
 }
 
 pub fn new(params Params) !OpenAPI {
@@ -25,11 +26,15 @@ pub fn new(params Params) !OpenAPI {
 	} else { params.text }
 
 	specification := json_decode(text)!
-	return process(specification)!
+	return if params.process {
+		process(specification)!
+	} else {specification}
 }
 
-fn process(spec OpenAPI) !OpenAPI {
-	mut processed := OpenAPI{...spec}
+pub fn process(spec OpenAPI) !OpenAPI {
+	mut processed := OpenAPI{...spec
+		paths: spec.paths.clone()
+	}
 
 	for key, schema in spec.components.schemas {
 		if schema is Schema {
@@ -65,8 +70,13 @@ fn process(spec OpenAPI) !OpenAPI {
 }
 
 fn (spec OpenAPI) process_operation(op Operation, method string, path string) !Operation {
-	mut processed := Operation{...op}
+	mut processed := Operation{...op
+		responses: op.responses.clone()	
+	}
 
+	if op.is_empty() {
+		return op
+	}
 	if processed.operation_id == '' {
 		processed.operation_id = generate_operation_id(method, path)
 	}
@@ -74,11 +84,25 @@ fn (spec OpenAPI) process_operation(op Operation, method string, path string) !O
 	if op.request_body is RequestBody {
 		if content := op.request_body.content['application/json'] {
 			if content.schema is Reference {
-				mut req_body_ := RequestBody{...op.request_body}
+				mut req_body_ := RequestBody{...op.request_body
+					content: op.request_body.content.clone()
+				}
 				req_body_.content['application/json'].schema = SchemaRef(spec.dereference_schema(content.schema)!)
 				processed.request_body = RequestBodyRef(req_body_)
 			}
 		}
+	}
+
+	if response_spec := processed.responses['200']{
+		mut processed_rs := ResponseSpec{...response_spec
+			content: response_spec.content.clone()
+		}
+		if media_type := processed_rs.content['application/json'] {
+			if media_type.schema is Reference {
+				processed_rs.content['application/json'].schema = SchemaRef(spec.dereference_schema(media_type.schema)!)
+			}
+		}
+		processed.responses['200'] = processed_rs
 	}
 
 	return processed
@@ -88,10 +112,11 @@ fn (spec OpenAPI) process_operation(op Operation, method string, path string) !O
 fn generate_operation_id(method string, path string) string {
     // Convert HTTP method and path into a camelCase string
     method_part := method.to_lower()
-    path_part := path.all_before('{')
+    path_part := texttools.snake_case(path.all_before('{')
         .replace('/', '_') // Replace slashes with underscores
         .replace('{', '')  // Remove braces around path parameters
         .replace('}', '')  // Remove braces around path parameters
+	)
 
-    return texttools.camel_case('${method_part}_${path_part}')
+    return '${method_part}_${path_part}'
 }

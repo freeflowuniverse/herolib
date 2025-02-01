@@ -199,5 +199,24 @@ fn json_decode_content(content_ map[string]MediaType, content_map map[string]Any
 // }
 
 pub fn (o OpenAPI) encode_json() string {
-	return json.encode(o).replace('ref', '\$ref')
+	split := json.encode_pretty(o).split_into_lines()
+
+	mut joint := []string{}
+	for i, line in split {
+		if i == split.len - 1 {
+			joint << split[i]
+			break
+		}
+		if split[i+1].trim_space().starts_with('"_type"') {
+			if !split[i].trim_space().starts_with('"_type"') {
+				joint << split[i].trim_string_right(',')
+			}
+			continue
+		} else if split[i].trim_space().starts_with('"_type"') {
+			continue
+		}
+		joint << split[i]
+	}
+	
+	return joint.join_lines()
 }

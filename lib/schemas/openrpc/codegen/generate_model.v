@@ -14,7 +14,7 @@ pub fn generate_model(o OpenRPC) ![]CodeItem {
 		if schema_ is Schema {
 			mut schema := schema_
 			if schema.title == '' {
-				schema.title = texttools.name_fix_snake_to_pascal(key)
+				schema.title = texttools.snake_case_to_pascal(key)
 			}
 			structs << schema_to_code(schema)
 		}
