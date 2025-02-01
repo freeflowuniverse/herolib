@@ -84,12 +84,7 @@ pub fn name_fix_no_underscore(name string) string {
 	return x
 }
 
-pub fn name_fix_snake(name string) string {
-	name_ := name_fix_dot_notation_to_pascal(name)
-	return name_fix_pascal_to_snake(name_)
-}
-
-pub fn name_fix_snake_to_pascal(name string) string {
+pub fn snake_case_to_pascal(name string) string {
 	x := name.replace('_', ' ')
 	p := x.title().replace(' ', '')
 	return p
@@ -102,7 +97,7 @@ pub fn name_fix_dot_notation_to_pascal(name string) string {
 }
 
 pub fn name_fix_pascal(name string) string {
-	name_ := name_fix_snake_to_pascal(name)
+	name_ := snake_case_to_pascal(name)
 	return name_fix_dot_notation_to_pascal(name_)
 }
 
