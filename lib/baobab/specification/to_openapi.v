@@ -1,34 +1,25 @@
 module specification
 
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef }
-import freeflowuniverse.herolib.schemas.openapi { Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec }
+import freeflowuniverse.herolib.schemas.openapi { MediaType, ResponseSpec, Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec }
+import net.http
 
 // Converts ActorSpecification to OpenAPI
 pub fn (s ActorSpecification) to_openapi() OpenAPI {
+	if openapi_spec := s.openapi {
+		return openapi_spec
+	}
 	mut paths := map[string]PathItem{}
 
 	// Map ActorMethods to paths
 	for method in s.methods {
-		mut op := Operation{
-			summary: method.summary,
-			description: method.description,
-			operation_id: method.name,
+		op := method.to_openapi_operation()
+		paths['${method.http_path()}'] = match method.http_method() {
+			.get { PathItem {get: op} }
+			else { panic('unsupported http method') }
 		}
-
-		// Convert parameters to OpenAPI format
-		for param in method.parameters {
-			op.parameters << Parameter{
-				name: param.name,
-				in_: 'query', // Default to query parameters; adjust based on function context
-				description: param.description,
-				required: param.required,
-				schema: param.schema,
-			}
-		}
-
 		// Assign operation to corresponding HTTP method
 		// TODO: what about other verbs
-		paths['/${method.name}'] = PathItem{get: op}
 	}
 
 	mut schemas := map[string]SchemaRef{}
@@ -59,4 +50,42 @@ pub fn (s ActorSpecification) to_openapi() OpenAPI {
 
 fn (bo BaseObject) to_schema() Schema {
 	return Schema{}
+}
+
+fn (m ActorMethod) http_path() string {
+	return m.name
+}
+
+fn (m ActorMethod) http_method() http.Method {
+	return .get
+}
+
+fn (method ActorMethod) to_openapi_operation() Operation {
+	mut op := Operation{
+		summary: method.summary,
+		description: method.description,
+		operation_id: method.name,
+	}
+
+	// Convert parameters to OpenAPI format
+	for param in method.parameters {
+		op.parameters << Parameter{
+			name: param.name,
+			in_: 'query', // Default to query parameters; adjust based on function context
+			description: param.description,
+			required: param.required,
+			schema: param.schema,
+		}
+	}
+
+	// if method.is_void()
+	op.responses['200'] = ResponseSpec {
+		description: method.description
+		content: {
+			'application/json': MediaType {
+				schema: method.result.schema
+			}
+		}
+	}
+	return op
 }

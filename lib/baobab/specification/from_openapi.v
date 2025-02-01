@@ -31,18 +31,18 @@ fn openapi_param_to_example(param Parameter) ?Example {
 }
 
 // Helper function: Convert OpenAPI operation to ActorMethod
-fn openapi_operation_to_actor_method(op Operation, method_name string, path string) ActorMethod {
+fn openapi_operation_to_actor_method(info openapi.OperationInfo) ActorMethod {
 	mut parameters := []ContentDescriptor{}
 	mut example_parameters:= []Example{}
 	
-	for param in op.parameters {
+	for param in info.operation.parameters {
 		parameters << openapi_param_to_content_descriptor(param)
 		example_parameters << openapi_param_to_example(param) or {
 			continue
 		}
 	}
 
-	response_200 := op.responses['200'].content['application/json']
+	response_200 := info.operation.responses['200'].content['application/json']
 
 	mut result := ContentDescriptor{
 		name: "result",
@@ -66,7 +66,7 @@ fn openapi_operation_to_actor_method(op Operation, method_name string, path stri
 	} else {ExamplePairing{}}
 
 	mut errors := []ErrorSpec{}
-	for status, response in op.responses {
+	for status, response in info.operation.responses {
 		if status.int() >= 400 {
 			error_schema := if response.content.len > 0 {
 				response.content.values()[0].schema
@@ -80,9 +80,9 @@ fn openapi_operation_to_actor_method(op Operation, method_name string, path stri
 	}
 
 	return ActorMethod{
-		name: method_name,
-		description: op.description,
-		summary: op.summary,
+		name: info.operation.operation_id,
+		description: info.operation.description,
+		summary: info.operation.summary,
 		parameters: parameters,
 		example: pairing
 		result: result,
@@ -99,37 +99,39 @@ fn openapi_schema_to_struct(name string, schema SchemaRef) Struct {
 }
 
 // Converts OpenAPI to ActorSpecification
-pub fn from_openapi(spec OpenAPI) !ActorSpecification {
-	mut methods := []ActorMethod{}
+pub fn from_openapi(spec_raw OpenAPI) !ActorSpecification {
+	spec := openapi.process(spec_raw)!
 	mut objects := []BaseObject{}
 
+	// get all operations for path as list of tuple [](path_string, http.Method, openapi.Operation)
+	
 	// Extract methods from OpenAPI paths
-	for path, item in spec.paths {
-		if item.get.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.get, item.get.operation_id, path)
-		}
-		if item.post.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.post, item.post.operation_id, path)
-		}
-		if item.put.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.put, item.put.operation_id, path)
-		}
-		if item.delete.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.delete, item.delete.operation_id, path)
-		}
-		if item.patch.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.patch, item.patch.operation_id, path)
-		}
-		if item.head.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.head, item.head.operation_id, path)
-		}
-		if item.options.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.options, item.options.operation_id, path)
-		}
-		if item.trace.operation_id != '' {
-			methods << openapi_operation_to_actor_method(item.trace, item.trace.operation_id, path)
-		}
-	}
+	// for path, item in spec.paths {
+	// 	if item.get.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.get, item.get.operation_id, path)
+	// 	}
+	// 	if item.post.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.post, item.post.operation_id, path)
+	// 	}
+	// 	if item.put.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.put, item.put.operation_id, path)
+	// 	}
+	// 	if item.delete.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.delete, item.delete.operation_id, path)
+	// 	}
+	// 	if item.patch.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.patch, item.patch.operation_id, path)
+	// 	}
+	// 	if item.head.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.head, item.head.operation_id, path)
+	// 	}
+	// 	if item.options.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.options, item.options.operation_id, path)
+	// 	}
+	// 	if item.trace.operation_id != '' {
+	// 		methods << openapi_operation_to_actor_method(item.trace, item.trace.operation_id, path)
+	// 	}
+	// }
 
 	// Extract objects from OpenAPI components.schemas
 	for name, schema in spec.components.schemas {
@@ -137,11 +139,12 @@ pub fn from_openapi(spec OpenAPI) !ActorSpecification {
 	}
 
 	return ActorSpecification{
+		openapi: spec_raw
 		name: spec.info.title,
 		description: spec.info.description,
 		structure: Struct{}, // Assuming no top-level structure for this use case
 		interfaces: [.openapi], // Default to OpenAPI for input
-		methods: methods,
+		methods: spec.get_operations().map(openapi_operation_to_actor_method(it)),
 		objects: objects,
 	}
 }

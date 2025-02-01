@@ -1,11 +1,14 @@
 module specification
 
 import freeflowuniverse.herolib.core.code { Struct, Function }
+import freeflowuniverse.herolib.schemas.openapi
 import freeflowuniverse.herolib.schemas.openrpc {ExamplePairing, ContentDescriptor, ErrorSpec}
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference}
 
 pub struct ActorSpecification {
 pub mut:
+	openapi ?openapi.OpenAPI
+	openrpc ?openrpc.OpenRPC
 	name        string      @[omitempty]
 	description string      @[omitempty]
 	structure   Struct      @[omitempty]

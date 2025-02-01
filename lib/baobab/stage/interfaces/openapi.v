@@ -18,7 +18,12 @@ pub fn new_openapi_interface(client Client) &OpenAPIInterface {
 pub fn (mut i OpenAPIInterface) handle(request openapi.Request) !openapi.Response {
 	// Convert incoming OpenAPI request to a procedure call
 	action := action_from_openapi_request(request)
-	response := i.client.call_to_action(action)!
+    println('debugzo3 ${action}')
+	response := i.client.call_to_action(action) or {
+		println('debugzo3.5 ${err.msg()}')
+		return err
+	}
+    println('debugzo4 ${response}')
 	return action_to_openapi_response(response)
 }
 

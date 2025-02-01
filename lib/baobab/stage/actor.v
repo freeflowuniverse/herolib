@@ -12,6 +12,7 @@ mut:
 pub struct Actor {
 pub:
 	name string
+	redis_url string = 'localhost:6379'
 mut:
 	osis OSIS
 }
