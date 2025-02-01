@@ -1,0 +1,27 @@
+#!/bin/bash
+
+DIR="@{dollar}(cd "@{dollar}(dirname "@{dollar}{BASH_SOURCE[0]}")" && pwd)"
+echo "@{dollar}DIR"
+
+chmod +x @{dollar}{DIR}/run_actor.vsh
+@{dollar}{DIR}/run_actor.vsh
+ACTOR_PID=@{dollar}!
+
+chmod +x @{dollar}{DIR}/run_http_server.vsh
+@{dollar}{DIR}/run_http_server.vsh
+HTTP_SERVER_PID=@{dollar}!
+
+# Function to clean up when script is killed
+cleanup() {
+    echo "Stopping background processes..."
+    kill "@{dollar}ACTOR_PID" "@{dollar}HTTP_SERVER_PID" 2>/dev/null
+    wait
+    echo "All processes stopped."
+    exit 0
+}
+
+# Trap SIGINT (Ctrl+C), SIGTERM, and SIGQUIT to call cleanup
+trap cleanup SIGINT SIGTERM SIGQUIT
+
+# Wait for processes to finish
+wait

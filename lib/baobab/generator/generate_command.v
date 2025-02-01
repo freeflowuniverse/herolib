@@ -26,7 +26,7 @@ pub fn generate_command_file(spec ActorSpecification) !VFile {
 }
 	
 pub fn generate_cmd_function(spec ActorSpecification) string {
-	actor_name_snake := texttools.name_fix_snake(spec.name)
+	actor_name_snake := texttools.snake_case(spec.name)
 	mut cmd_function := "
 	pub fn cmd() Command {
 		mut cmd := Command{
@@ -47,7 +47,7 @@ pub fn generate_cmd_function(spec ActorSpecification) string {
 }
 
 pub fn generate_method_cmd(method ActorMethod) string {
-	method_name_snake := texttools.name_fix_snake(method.name)
+	method_name_snake := texttools.snake_case(method.name)
 	return "		
 		mut cmd_${method_name_snake} := Command{
 			sort_flags: true
@@ -62,8 +62,8 @@ pub fn generate_method_cmd_function(actor_name string, method ActorMethod) strin
 	mut operation_handlers := []string{}
 	mut routes := []string{}
 
-	actor_name_snake := texttools.name_fix_snake(actor_name)
-	method_name_snake := texttools.name_fix_snake(method.name)
+	actor_name_snake := texttools.snake_case(actor_name)
+	method_name_snake := texttools.snake_case(method.name)
 	
 	method_call := if method.result.name == '' {
 		'${actor_name_snake}.${method_name_snake}()!'

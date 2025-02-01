@@ -27,7 +27,7 @@ pub fn (mut a @{actor_name_pascal}Actor) handle(method string, data string) !str
 // Actor listens to the Redis queue for method invocations
 pub fn (mut a @{actor_name_pascal}Actor) run() ! {
 	mut redis := redisclient.new('localhost:6379') or { panic(err) }
-	mut rpc := redis.rpc_get('actor_@{dollar}{name}')
+	mut rpc := redis.rpc_get('actor_@{dollar}{a.name}')
 
 	println('Actor started and listening for tasks...')
 	for {

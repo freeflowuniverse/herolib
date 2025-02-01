@@ -7,8 +7,8 @@ import freeflowuniverse.herolib.schemas.openrpc.codegen {content_descriptor_to_p
 import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
 
 pub fn generate_client_file(spec ActorSpecification) !VFile {
-	actor_name_snake := texttools.name_fix_snake(spec.name)
-	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
+	actor_name_snake := texttools.snake_case(spec.name)
+	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
 	
 	mut items := []CodeItem{}
 
@@ -48,17 +48,17 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 }
 
 pub fn generate_example_client_file(spec ActorSpecification) !VFile {
-	actor_name_snake := texttools.name_fix_snake(spec.name)
-	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
+	actor_name_snake := texttools.snake_case(spec.name)
+	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
 	
 	mut items := []CodeItem{}
 
 	items << CustomCode {'
-	pub struct ExampleClient {
+	pub struct Client {
 		stage.Client
 	}
 
-	fn new_example_client() !ExampleClient {
+	fn new_client() !Client {
 		mut redis := redisclient.new(\'localhost:6379\')!
 		mut rpc_q := redis.rpc_get(\'actor_example_\${name}\')
 		return Client{
@@ -83,22 +83,24 @@ pub fn generate_example_client_file(spec ActorSpecification) !VFile {
 				types: ['Any']
 			}
 		]
-		name: 'client_example'
+		name: 'client'
 		items: items
 	}
 }
 
+
+
 pub fn generate_client_method(method ActorMethod) !Function {
-	name_fixed := texttools.name_fix_snake(method.name)
+	name_fixed := texttools.snake_case(method.name)
 
 	call_params := if method.parameters.len > 0 {
-		method.parameters.map(texttools.name_fix_snake(it.name)).map('Any(${it})').join(', ')
+		method.parameters.map(texttools.snake_case(it.name)).map('Any(${it})').join(', ')
 	} else {''}
 
 	params_stmt := if method.parameters.len == 0 {
 		''
 	} else if method.parameters.len == 1 {
-		'params := json.encode(${texttools.name_fix_snake(method.parameters[0].name)})'
+		'params := json.encode(${texttools.snake_case(method.parameters[0].name)})'
 	} else {
 		'mut params_arr := []Any{}
 		params_arr = [${call_params}]
@@ -114,7 +116,7 @@ pub fn generate_client_method(method ActorMethod) !Function {
 	}
 	client_call_stmt += ')!'
 
-	result_type := schemaref_to_type(method.result.schema)!.vgen().trim_space()
+	result_type := schemaref_to_type(method.result.schema).vgen().trim_space()
 	result_stmt := if result_type == '' {
 		''
 	} else {

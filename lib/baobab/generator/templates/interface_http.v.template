@@ -23,9 +23,19 @@ pub fn new_http_server(params ServerParams) !&HTTPServer {
     @if openapi
     mut openapi_controller := new_openapi_http_controller(ServerParams{
         ...params,
-        base_url: '@{dollar}{params.base_url}/openapi'
+        base_url: '@{dollar}{params.base_url}/openapi/v1'
     })!
-	s.register_controller[openapi.HTTPController, Context]('/openapi', mut openapi_controller)!
+    mut openapi_example_controller := new_openapi_http_controller(ServerParams{
+        ...params,
+        base_url: '@{dollar}{params.base_url}/openapi/example'
+    })!
+    mut openapi_playground_controller := openapi.new_playground_controller(
+        base_url: '@{dollar}{params.base_url}/playground/openapi'
+        specification_path: openapi_spec_path
+    )!
+	s.register_controller[openapi.HTTPController, Context]('/openapi/v1', mut openapi_controller)!
+	s.register_controller[openapi.HTTPController, Context]('/openapi/example', mut openapi_example_controller)!
+	s.register_controller[openapi.PlaygroundController, Context]('/playground/openapi', mut openapi_playground_controller)!
     @end
     return s
 }

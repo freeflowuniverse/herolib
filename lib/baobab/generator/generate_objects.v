@@ -1,7 +1,7 @@
 module generator
 
 // pub fn generate_object_code(actor Struct, object BaseObject) VFile {
-// 	obj_name := texttools.name_fix_snake(object.structure.name)
+// 	obj_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	mut items := []CodeItem{}

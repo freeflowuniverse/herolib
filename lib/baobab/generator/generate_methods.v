@@ -8,8 +8,8 @@ import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecific
 const crud_prefixes = ['new', 'get', 'set', 'delete', 'list']
 
 pub fn generate_methods_file(spec ActorSpecification) !VFile {
-	actor_name_snake := texttools.name_fix_snake(spec.name)
-	actor_name_pascal := texttools.name_fix_snake_to_pascal(spec.name)
+	actor_name_snake := texttools.snake_case(spec.name)
+	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
 	
 	mut items := []CodeItem{}
 	for method in spec.methods {
@@ -35,10 +35,10 @@ pub fn generate_methods_file(spec ActorSpecification) !VFile {
 
 // returns bodyless method prototype
 pub fn generate_method_function(actor_name string, method ActorMethod) !Function {
-	actor_name_pascal := texttools.name_fix_snake_to_pascal(actor_name)
+	actor_name_pascal := texttools.snake_case_to_pascal(actor_name)
 	result_param := content_descriptor_to_parameter(method.result)!
 	return Function{
-		name: texttools.name_fix_snake(method.name)
+		name: texttools.snake_case(method.name)
 		receiver: code.new_param(v: 'mut actor ${actor_name_pascal}Actor')!
 		result: Param {...result_param, typ: Result{result_param.typ}}
 		summary: method.summary
@@ -49,13 +49,13 @@ pub fn generate_method_function(actor_name string, method ActorMethod) !Function
 
 fn base_object_new_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'return actor.osis.new[${parameter.typ.vgen()}](${texttools.name_fix_snake(parameter.name)})!'
+	return 'return actor.osis.new[${parameter.typ.vgen()}](${texttools.snake_case(parameter.name)})!'
 }
 
 fn base_object_get_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	result := content_descriptor_to_parameter(method.result)!
-	return 'return actor.osis.get[${result.typ.vgen()}](${texttools.name_fix_snake(parameter.name)})!'
+	return 'return actor.osis.get[${result.typ.vgen()}](${texttools.snake_case(parameter.name)})!'
 }
 
 fn base_object_set_body(method ActorMethod) !string {
@@ -65,7 +65,7 @@ fn base_object_set_body(method ActorMethod) !string {
 
 fn base_object_delete_body(method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'actor.osis.delete(${texttools.name_fix_snake(parameter.name)})!'
+	return 'actor.osis.delete(${texttools.snake_case(parameter.name)})!'
 }
 
 fn base_object_list_body(method ActorMethod) !string {
