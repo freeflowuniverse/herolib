@@ -49,7 +49,7 @@ pub fn (mut gitstructure GitStructure) load(reload bool) ! {
 	}
 
 	//	mut ths := []thread !{}
-	// need to make sure redis is empty before doing the threads
+	// need to make sure redis is empty before doing the threads, is not removing the cache
 	redisclient.reset()!
 	redisclient.checkempty()
 

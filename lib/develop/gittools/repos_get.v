@@ -143,3 +143,32 @@ fn repo_match_check(repo GitRepo, args ReposGetArgs) bool {
 		&& (args.account.len == 0 || repo.account == args.account)
 		&& (args.provider.len == 0 || repo.provider == args.provider)
 }
+
+
+
+// Retrieves a single repository path based on the provided arguments (goes inside repo).
+// if pull will force a pull, if it can't will be error, if reset will remove the changes
+// If the repository does not exist, it will clone it
+//
+// Args:
+//```
+// ReposGetArgs {
+// name     string // Specific repository name to retrieve.
+// account  string // Git account associated with the repository.
+// provider string // Git provider (e.g., GitHub).
+// pull     bool   // Pull the last changes.
+// reset    bool   // Reset the changes.
+// reload   bool   // Reload the repo into redis cache
+// url      string // Repository URL, used if cloning is needed.
+//```
+//
+// Returns:
+// - &GitRepo: Reference to the retrieved or cloned repository.
+//
+// Raises:
+// - Error: If multiple repositories are found with similar names or if cloning fails.
+pub fn (mut gitstructure GitStructure) get_path(args_ ReposGetArgs) !string {
+	mut r:=gitstructure.get_repo(args_)!
+	mut mypath:=r.get_path_of_url(args_.url)!	
+	return mypath
+}

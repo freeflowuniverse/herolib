@@ -8,7 +8,7 @@ mut r := engine.recipe_new(name: 'dev_tools', platform: .alpine)
 
 r.add_from(image: 'alpine', tag: 'latest')!
 
-r.add_package(name: 'git,vim')!
+r.add_package(name: 'git,mc')!
 
 r.add_zinit()!
 

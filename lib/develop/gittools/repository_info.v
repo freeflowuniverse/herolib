@@ -35,7 +35,6 @@ pub fn (repo GitRepo) get_changes_staged() ![]string {
 
 // Check if there are any unstaged or untracked changes in the repository.
 pub fn (mut repo GitRepo) detect_changes() !bool {
-	repo.status_update()!
 	r0 := repo.get_changes_unstaged()!
 	r1 := repo.get_changes_staged()!
 	if r0.len + r1.len > 0 {
