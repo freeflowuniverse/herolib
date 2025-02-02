@@ -16,7 +16,7 @@ pub mut:
 	remove_when_done bool = true // remove the container when it shuts down
 	image_repo string
 	image_tag  string
-	command    string = '/bin/bash'
+	command    string
 }
 
 

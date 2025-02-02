@@ -72,6 +72,7 @@ pub fn (mut b DockerBuilderRecipe) add_package(args PackageArgs) ! {
 		}
 	}
 
+
 	// lets now check of the package has already not been set before
 	for package0 in b.items {
 		if package0 is PackageItem {
@@ -79,12 +80,13 @@ pub fn (mut b DockerBuilderRecipe) add_package(args PackageArgs) ! {
 				for packagenamecompare in package.names {
 					if packagenamecompare == packagename {
 						// we found a double
-						return error('Cannot add the package again, there is a double. ${packagename} \n${b}')
+						continue
 					}
 				}
 			}
 		}
 	}
+
 	// console.print_debug(package)
 	if package.names.len == 0 {
 		return error('could not find package names.\n ${b}\nARGS:\n${args}')

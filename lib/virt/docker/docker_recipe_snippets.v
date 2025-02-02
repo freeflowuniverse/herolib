@@ -60,30 +60,42 @@ pub fn (mut r DockerBuilderRecipe) add_vbuilder() ! {
 
 // add ssh server and init scripts (note: zinit needs to be installed)
 pub fn (mut r DockerBuilderRecipe) add_sshserver() ! {
-	r.add_package(name: 'openssh-server')!
+	r.add_package(name: 'openssh-server, bash')!
 
 	r.add_zinit_cmd(
 		name:    'sshd-setup'
 		oneshot: true
 		exec:    "
+			rm -rf /etc/ssh
+			mkdir -p /etc/ssh
 			mkdir -p /run/sshd
-			ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
-			ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
-			ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa -b 521
 			ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
+			cat > /etc/ssh/sshd_config << 'EOF'
+HostKey /etc/ssh/ssh_host_ed25519_key
+PermitRootLogin prohibit-password
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+X11Forwarding no
+AllowTcpForwarding yes
+AllowAgentForwarding yes
+EOF
 		"
 	)!
 
 	r.add_zinit_cmd(
 		name:  'ssh-keys'
 		after: 'sshd-setup'
+		oneshot: true
 		exec:  '
 			if [ ! -d /root/.ssh ]; then
 				mkdir -m 700 /root/.ssh
 			fi
 
-			echo \$SSH_KEY >> /root/.ssh/authorized_keys
-			chmod 600 /root/.ssh/authorized_keys
+			if [ ! -z "\$SSH_KEY" ]; then
+				echo \$SSH_KEY >> /root/.ssh/authorized_keys
+				chmod 600 /root/.ssh/authorized_keys
+			fi
 		'
 	)!
 
