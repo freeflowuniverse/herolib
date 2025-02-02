@@ -101,6 +101,22 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteNewArgs) !&DocSite {
 
 	}
 
+	mut gs := gittools.new()!
+	mut r := gs.get_repo(url: 'https://github.com/freeflowuniverse/docusaurus_template.git')!
+	mut template_path := r.patho()!
+
+	// First ensure cfg directory exists in src, if not copy from template
+	if !os.exists("${args.path}/cfg") {
+		mut template_cfg := template_path.dir_get("cfg")!
+		template_cfg.copy(dest:"${args.path}/cfg")!
+	}
+
+	if !os.exists("${args.path}/docs") {
+		mut template_cfg := template_path.dir_get("docs")!
+		template_cfg.copy(dest:"${args.path}/docs")!
+	}
+
+
 	mut myconfig:=load_config("${args.path}/cfg")!
 
 	if myconfig.main.name.len==0{
@@ -163,10 +179,19 @@ pub fn (mut site DocSite) generate() ! {
 	// 		'
 	// 	retry: 0
 	// )!
-	for item in ["src","static","cfg","docs"]{
+
+
+	// Now copy all directories that exist in src to build
+	for item in ["src","static","cfg"]{
 		if os.exists("${site.path_src.path}/${item}"){
 			mut aa:= site.path_src.dir_get(item)!
 			aa.copy(dest:"${site.path_build.path}/${item}")!
+		}
+	}
+	for item in ["docs"]{
+		if os.exists("${site.path_src.path}/${item}"){
+			mut aa:= site.path_src.dir_get(item)!
+			aa.copy(dest:"${site.path_build.path}/${item}",delete:true)!
 		}
 	}
 
@@ -181,7 +206,7 @@ fn (mut site DocSite) template_install() ! {
 	//always start from template first
 	for item in ["src","static","cfg"]{
 		mut aa:= template_path.dir_get(item)!
-		aa.copy(dest:"${site.path_build.path}/${item}")!
+		aa.copy(dest:"${site.path_build.path}/${item}",delete:true)!
 	}
 
 	for item in ['package.json', 'sidebars.ts', 'tsconfig.json','docusaurus.config.ts'] {
@@ -227,4 +252,3 @@ fn (mut site DocSite) template_install() ! {
 
 
 }
-
