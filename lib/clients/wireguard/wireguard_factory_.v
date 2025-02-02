@@ -28,23 +28,17 @@ fn args_get(args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&WireGuard {
-	println('Before the args get')
 	mut args := args_get(args_)
-	println('Before the bigger if')
 	if args.name !in wireguard_global {
-		println('Before the if connd')
 		if args.name == 'wireguard' {
-			println('Before saving')
 			if !config_exists(args) {
 				if default {
 					println('When saving')
 					config_save(args)!
 				}
 			}
-			println('When loading')
 			config_load(args)!
 		}
-		println('After all')
 	}
 	return wireguard_global[args.name] or {
 		println(wireguard_global)

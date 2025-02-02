@@ -30,7 +30,7 @@ pub mut:
 }
 
 pub fn (wg WireGuard) show() !WGShow {
-	cmd := 'wg show'
+	cmd := 'sudo wg show'
 	res := os.execute(cmd)
 	if res.exit_code != 0 {
 		return error('failed to execute show command due to: ${res.output}')
@@ -60,12 +60,11 @@ pub:
 }
 
 pub fn (wg WireGuard) start(args StartArgs) ! {
-	if os.exists(args.config_file_path) {
+	if !os.exists(args.config_file_path) {
 		return error('File ${args.config_file_path} does not exists.')
 	}
 
-	cmd := 'sudo wg-quick up ${args.config_file_path}'
-	println('cmd: ${cmd}')
+	cmd := 'wg-quick up ${args.config_file_path}'
 	res := os.execute(cmd)
 	if res.exit_code != 0 {
 		return error('failed to execute start command due to: ${res.output}')
@@ -79,11 +78,11 @@ pub:
 }
 
 pub fn (wg WireGuard) down(args DownArgs) ! {
-	if os.exists(args.config_file_path) {
+	if !os.exists(args.config_file_path) {
 		return error('File ${args.config_file_path} does not exists.')
 	}
 
-	cmd := 'sudo wg-quick down ${args.config_file_path}'
+	cmd := 'wg-quick down ${args.config_file_path}'
 	res := os.execute(cmd)
 	if res.exit_code != 0 {
 		return error('failed to execute down command due to: ${res.output}')
