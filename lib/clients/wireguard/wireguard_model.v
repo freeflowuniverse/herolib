@@ -20,13 +20,13 @@ pub fn heroscript_default() !string {
 @[heap]
 pub struct WireGuard {
 pub mut:
-	name string = 'default'
+	name string = 'wireguard'
 }
 
 fn cfg_play(p paramsparser.Params) ! {
 	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
 	mut mycfg := WireGuard{
-		name: p.get_default('name', 'default')!
+		name: p.get_default('name', 'wireguard')!
 	}
 	set(mycfg)!
 }
