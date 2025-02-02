@@ -8,6 +8,7 @@ pub:
 	continent   string @[max_len: 2]
 	population  i64
 	timezone    string @[max_len: 40]
+	import_date i64    // Epoch timestamp of last import
 }
 
 pub struct City {

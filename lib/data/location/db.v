@@ -29,7 +29,7 @@ pub fn new_location_db(reset bool) !LocationDB {
 
 // init_tables drops and recreates all tables
 fn (mut l LocationDB) init_tables(reset bool) ! {
-	if reset{
+	if reset {
 		l.db.exec('DROP TABLE IF EXISTS AlternateName')!
 		l.db.exec('DROP TABLE IF EXISTS City')!
 		l.db.exec('DROP TABLE IF EXISTS Country')!
@@ -40,6 +40,11 @@ fn (mut l LocationDB) init_tables(reset bool) ! {
 		create table City
 		create table AlternateName
 	}!
+
+	// When resetting, ensure all countries have import_date set to 0
+	if reset {
+		l.db.exec('UPDATE Country SET import_date = 0')!
+	}
 }
 
 // close closes the database connection

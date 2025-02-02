@@ -9,8 +9,12 @@ println('Location database initialized')
 // Initialize the database (downloads and imports data)
 // This only needs to be done once or when updating data
 println('Downloading and importing location data (this may take a few minutes)...')
-loc.download_and_import() or { panic(err) }
+
+//the arg is if we redownload
+loc.download_and_import(false) or { panic(err) }
 println('Data import complete')
+
+
 
 // // Example 1: Search for a city
 // println('\nSearching for London...')

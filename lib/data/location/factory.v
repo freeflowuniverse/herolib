@@ -15,8 +15,8 @@ pub fn new(reset bool) !Location {
 }
 
 // init_database downloads and imports the initial dataset
-pub fn (mut l Location) download_and_import() ! {
-	l.db.download_and_import_data()!
+pub fn (mut l Location) download_and_import(redownload bool) ! {
+	l.db.download_and_import_data(redownload)!
 }
 
 // Example usage:

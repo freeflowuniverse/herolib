@@ -2,6 +2,7 @@ module location
 
 import os
 import io
+import time
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
@@ -11,8 +12,12 @@ const (
 )
 
 // download_and_import_data downloads and imports GeoNames data
-pub fn (mut l LocationDB) download_and_import_data() ! {
+pub fn (mut l LocationDB) download_and_import_data(redownload bool) ! {
 	// Download country info
+
+	if redownload{
+		l.reset_import_dates()!
+	}
 
 	country_file := osal.download(
 		url: '${geonames_url}/countryInfo.txt'
@@ -23,6 +28,42 @@ pub fn (mut l LocationDB) download_and_import_data() ! {
 
 	l.import_cities()!
 
+}
+
+// reset_import_dates sets all country import_dates to 0
+pub fn (mut l LocationDB) reset_import_dates() ! {
+	l.db.exec('BEGIN TRANSACTION')!
+	l.db.exec('UPDATE Country SET import_date = 0')!
+	l.db.exec('COMMIT')!
+	console.print_header('Reset all country import dates to 0')
+}
+
+// should_import_cities checks if a city should be imported based on its last import date on country level
+fn (mut l LocationDB) should_import_cities(iso2 string) !bool {
+	console.print_debug('Checking if should import country: ${iso2}')
+	
+	country := sql l.db {
+		select from Country where iso2 == "${iso2}" limit 1
+	} or { []Country{} }
+
+	console.print_debug('SQL query result: ${country.len} records found')
+
+	if country.len == 0 {
+		console.print_debug('No existing record found for ${iso2}, will import')
+		return true // New country, should import
+	}
+
+	// Check if last import was more than a month ago
+	now := time.now().unix()
+	one_month := i64(30 * 24 * 60 * 60) // 30 days in seconds
+	last_import := country[0].import_date
+	time_since_import := now - last_import
+	
+	console.print_debug('Last import: ${last_import}, Time since import: ${time_since_import} seconds (${time_since_import/86400} days)')
+	should_import := (time_since_import > one_month) || (last_import == 0)
+	console.print_debug('Should import ${iso2}: ${should_import}')
+	
+	return should_import
 }
 
 // import_country_data imports country information from a file
@@ -99,7 +140,6 @@ fn (mut l LocationDB) import_cities() ! {
 	console.print_header('Starting Cities Import')
 
 	// Query all countries from the database
-
 	mut countries := sql l.db {
 		select from Country
 	}!
@@ -109,6 +149,13 @@ fn (mut l LocationDB) import_cities() ! {
 		iso2 := country.iso2.to_upper()
 		console.print_header('Processing country: ${country.name} (${iso2})')
 
+		// Check if we need to import cities for this country
+		should_import := l.should_import_cities(iso2)!
+		if !should_import {
+			console.print_debug('Skipping ${country.name} (${iso2}) - recently imported')
+			continue
+		}
+
 		// Download and process cities for this country
 		cities_file := osal.download(
 			url: '${geonames_url}/${iso2}.zip'
@@ -117,9 +164,16 @@ fn (mut l LocationDB) import_cities() ! {
 			minsize_kb: 2
 		)!
 
-		println(cities_file)
-
 		l.import_city_data("${l.tmp_dir.path}/${iso2}/${iso2}.txt")!
+
+		// Update the country's import date after successful city import
+		now := time.now().unix()
+		l.db.exec('BEGIN TRANSACTION')!
+		sql l.db {
+			update Country set import_date = now where iso2 == iso2
+		}!
+		l.db.exec('COMMIT')!
+		console.print_debug('Updated import date for ${country.name} (${iso2}) to ${now}')
 	}
 }
 
