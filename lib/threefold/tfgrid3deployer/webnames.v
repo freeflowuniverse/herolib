@@ -8,9 +8,9 @@ pub mut:
 	name                  string @[required]
 	node_id               ?u32
 	use_wireguard_network bool
+	use_hetzner_node      bool
 	// must be in the format ip:port if tls_passthrough is set, otherwise the format should be http://ip[:port]
 	backend         string @[required]
-	use_wireguard   bool
 	tls_passthrough bool
 }
 
