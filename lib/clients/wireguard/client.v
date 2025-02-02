@@ -64,7 +64,7 @@ pub fn (wg WireGuard) start(args StartArgs) ! {
 		return error('File ${args.config_file_path} does not exists.')
 	}
 
-	cmd := 'wg-quick up ${args.config_file_path}'
+	cmd := 'sudo wg-quick up ${args.config_file_path}'
 	res := os.execute(cmd)
 	if res.exit_code != 0 {
 		return error('failed to execute start command due to: ${res.output}')
@@ -82,7 +82,7 @@ pub fn (wg WireGuard) down(args DownArgs) ! {
 		return error('File ${args.config_file_path} does not exists.')
 	}
 
-	cmd := 'wg-quick down ${args.config_file_path}'
+	cmd := 'sudo wg-quick down ${args.config_file_path}'
 	res := os.execute(cmd)
 	if res.exit_code != 0 {
 		return error('failed to execute down command due to: ${res.output}')
