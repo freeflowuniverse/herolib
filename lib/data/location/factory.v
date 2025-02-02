@@ -7,40 +7,16 @@ mut:
 }
 
 // new creates a new Location instance
-pub fn new() !Location {
-	db := new_location_db()!
+pub fn new(reset bool) !Location {
+	db := new_location_db(reset)!
 	return Location{
 		db: db
 	}
 }
 
 // init_database downloads and imports the initial dataset
-pub fn (mut l Location) init_database() ! {
+pub fn (mut l Location) download_and_import() ! {
 	l.db.download_and_import_data()!
-}
-
-// search searches for locations based on the provided options
-pub fn (l Location) search(query string, country_code string, limit int, fuzzy bool) ![]SearchResult {
-	opts := SearchOptions{
-		query: query
-		country_code: country_code
-		limit: limit
-		fuzzy: fuzzy
-	}
-	return l.db.search_locations(opts)
-}
-
-// search_near searches for locations near the given coordinates
-pub fn (l Location) search_near(lat f64, lon f64, radius f64, limit int) ![]SearchResult {
-	opts := CoordinateSearchOptions{
-		coordinates: Coordinates{
-			latitude: lat
-			longitude: lon
-		}
-		radius: radius
-		limit: limit
-	}
-	return l.db.search_by_coordinates(opts)
 }
 
 // Example usage:
