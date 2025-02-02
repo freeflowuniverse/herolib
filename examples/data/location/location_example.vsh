@@ -41,7 +41,7 @@ println('Data import complete')
 // us_cities := loc.search('New', 'US', 5, true) or { panic(err) }
 // for result in us_cities {
 // 	println('${result.city.name}, ${result.country.name}')
-// 	println('State: ${result.city.admin1_code}')
+// 	println('State: ${result.city.state_name} (${result.city.state_code})')
 // 	println('Population: ${result.city.population}')
 // 	println('---')
 // }
