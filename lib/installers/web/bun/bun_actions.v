@@ -15,15 +15,18 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-    res := os.execute('${osal.profile_path_source_and()!} bun -version')
+    checkcmd:='${osal.profile_path_source_and()!} bun -version'
+    res := os.execute(checkcmd)
     if res.exit_code != 0 {
+        println(res)
+        println(checkcmd)
         return false
     }
     r := res.output.split_into_lines().filter(it.trim_space().len > 0)
     if r.len != 1 {
         return error("couldn't parse bun version.\n${res.output}")
     }
-    // println(" ${texttools.version(version)} <= ${texttools.version(r[0])}")
+    println(" ${texttools.version(version)} <= ${texttools.version(r[0])}")
     if texttools.version(version) <= texttools.version(r[0]) {
         return true
     }

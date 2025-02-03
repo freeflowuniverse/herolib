@@ -109,22 +109,24 @@ pub fn profile_path_source() !string {
 	}
 	pp := profile_path()!
 	if os.exists(pp) {
-		return 'source ${pp}'
+		res := os.execute("source ${pp}")
+		if res.exit_code != 0 {
+			console.print_stderr("WARNING: your profile is corrupt: ${pp}")
+			return error("profile corrupt")
+		}else{
+			return 'source ${pp}'
+		}
 	}
 	return ''
 }
 
 // return source $path &&  .
 // or empty if it doesn't exist
-pub fn profile_path_source_and() !string {
-	if core.hostname() or { '' } == 'rescue' {
-		return ''
+pub fn profile_path_source_and() !string {	
+	p:=profile_path_source() or { 
+		return ""
 	}
-	pp := profile_path()!
-	if os.exists(pp) {
-		return '. ${pp} &&'
-	}
-	return ''
+	return '${p} && '
 }
 
 fn profile_paths_get(content string) []string {
