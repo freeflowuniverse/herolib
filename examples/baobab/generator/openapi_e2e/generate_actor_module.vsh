@@ -21,3 +21,5 @@ actor_module.write(example_dir,
 	format: true
 	overwrite: true
 )!
+
+os.execvp('bash', ['${example_dir}/meeting_scheduler_actor/scripts/run.sh'])!

@@ -4,12 +4,23 @@ DIR="@{dollar}(cd "@{dollar}(dirname "@{dollar}{BASH_SOURCE[0]}")" && pwd)"
 echo "@{dollar}DIR"
 
 chmod +x @{dollar}{DIR}/run_actor.vsh
-@{dollar}{DIR}/run_actor.vsh
+@{dollar}{DIR}/run_actor.vsh > /dev/null 2>&1 &
 ACTOR_PID=@{dollar}!
 
 chmod +x @{dollar}{DIR}/run_http_server.vsh
-@{dollar}{DIR}/run_http_server.vsh
+@{dollar}{DIR}/run_http_server.vsh > /dev/null 2>&1 &
 HTTP_SERVER_PID=@{dollar}!
+
+# Print desired output
+echo "Actor Redis Interface running on redis://localhost:6379"
+echo "* /queues/${actor_name} -> Action Interface"
+
+echo ""
+echo "Actor HTTP Server running on http://localhost:8080"
+echo "* /playground/openapi -> OpenAPI Playground"
+echo "* /openapi -> OpenAPI Interface"
+echo "* /docs -> Documentation"
+echo ""
 
 # Function to clean up when script is killed
 cleanup() {
