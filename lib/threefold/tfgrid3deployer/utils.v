@@ -58,19 +58,19 @@ pub fn filter_nodes(args FilterNodesArgs) ![]gridproxy_models.Node {
 
 	mut filter := args.NodeFilter
 	if args.on_hetzner {
-		farm_ids := get_hetzner_farm_ids()!
-		filter.farm_ids = farm_ids
+		filter.features << ['zmachine-light']
 	}
-	nodes := gp_client.get_nodes(args.NodeFilter)!
+
+	nodes := gp_client.get_nodes(filter)!
 	return nodes
 }
 
-fn get_hetzner_farm_ids() ![]u64 {
-	// get farm ids that are know to be hetzner's
-	// if we need to iterate over all farms, maybe we should use multi-threading
-	panic('Not implemented')
-	return []
-}
+// fn get_hetzner_node_ids(nodes []gridproxy_models.Node) ![]u64 {
+// 	// get farm ids that are know to be hetzner's
+// 	// if we need to iterate over all nodes, maybe we should use multi-threading
+// 	panic('Not Implemented')
+// 	return []
+// }
 
 fn convert_to_gigabytes(bytes u64) u64 {
 	return bytes * 1024 * 1024 * 1024
