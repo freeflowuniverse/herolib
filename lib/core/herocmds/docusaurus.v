@@ -81,25 +81,25 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		// build_path: '/tmp/docusaurus_build'
 	)!
 
-	if build{
-		// Create a new docusaurus site
-		mut site := docs.build(
-			url:url
-		)!
-	}
+    if build{
+        // Create a new docusaurus site
+        _ := docs.build(
+            url:url
+        )!
+    }
 
-	if builddev{
-		// Create a new docusaurus site
-		mut site := docs.build_dev(
-			url:url
-		)!
-	}
+    if builddev{
+        // Create a new docusaurus site
+        _ := docs.build_dev(
+            url:url
+        )!
+    }
 
-	if dev{
-		// Create a new docusaurus site
-		mut site := docs.dev(
-			url:url
-		)!
-	}	
+    if dev{
+        // Create a new docusaurus site
+        _ := docs.dev(
+            url:url
+        )!
+    }
 
 }

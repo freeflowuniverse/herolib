@@ -89,5 +89,6 @@ fn hero_upload() ! {
 }
 
 fn main() {
+	//os.execute_or_panic('${os.home_dir()}/code/github/freeflowuniverse/herolib/cli/compile.vsh -p')
 	hero_upload() or { eprintln(err) exit(1) }
 }

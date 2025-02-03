@@ -29,10 +29,10 @@ fn installed() !bool {
 }
 
 fn install() ! {
-	console.print_header('install garage_s3')
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	mut url := ''
+    console.print_header('install garage_s3')
+    //mut installer := get()!
+    // THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+    mut url := ''
 	if core.is_linux_arm()! {
 		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_arm64.tar.gz'
 	} else if core.is_linux_intel()! {
@@ -75,9 +75,9 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 }
 
 fn running_() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of garage_s3
+    _ := get()!
+    // THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+    // this checks health of garage_s3
 	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
 	// url:='http://127.0.0.1:${cfg.port}/api/v1'
 	// mut conn := httpconnection.new(name: 'garage_s3', url: url)!

@@ -50,8 +50,8 @@ fn install_() ! {
 
 	expand_dir := '/tmp/golang'
 
-	// the downloader is cool, it will check the download succeeds and also check the minimum size
-	dest := osal.download(
+    // the downloader is cool, it will check the download succeeds and also check the minimum size
+    _ := osal.download(
 		url:        url
 		minsize_kb: 40000
 		expand_dir: expand_dir

@@ -159,9 +159,9 @@ pub mut:
 }
 
 pub fn (mut site DocSite) error(args ErrorArgs) {
-	path2 := pathlib.get(args.path)
-	e := SiteError{
-		path: args.path
+   // path2 := pathlib.get(args.path)
+    e := SiteError{
+        path: args.path
 		msg:  args.msg
 		cat:  args.cat
 	}

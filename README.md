@@ -16,7 +16,7 @@ bash /tmp/install_v.sh --analyzer --herolib
 
 ```bash
 
-#~/code/github/freeflowuniverse/herolib/install_v.sh --help
+~/code/github/freeflowuniverse/herolib/install_v.sh --help
 
 V & HeroLib Installer Script
 
