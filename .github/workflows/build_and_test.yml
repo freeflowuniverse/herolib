@@ -1,4 +1,4 @@
-name: Build Hero on Linux & Run tests
+name: Build Hero & Run tests
 
 permissions:
   contents: write
@@ -15,15 +15,12 @@ jobs:
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
             short-name: linux-i64
-          # - target: aarch64-unknown-linux-musl
-          #   os: ubuntu-latest
-          #   short-name: linux-arm64
-          # - target: aarch64-apple-darwin
-          #   os: macos-latest
-          #   short-name: macos-arm64
-          # - target: x86_64-apple-darwin
-          #   os: macos-13
-          #   short-name: macos-i64
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            short-name: macos-arm64
+          - target: x86_64-apple-darwin
+            os: macos-13
+            short-name: macos-i64
     runs-on: ${{ matrix.os }}
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -41,7 +38,7 @@ jobs:
 
       - name: Build Hero
         run: |
-          v -cg -enable-globals -w -n cli/hero.v
+          v -w -cg -gc none -no-retry-compilation -d use_openssl -enable-globals cli/hero.v
 
       - name: Do all the basic tests
         run: |

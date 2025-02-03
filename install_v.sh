@@ -101,7 +101,7 @@ function package_install {
     if [[ "${OSNAME}" == "ubuntu" ]]; then
         sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
     elif [[ "${OSNAME}" == "darwin"* ]]; then
-        sudo brew install $command_name
+        brew install $command_name
     elif [[ "${OSNAME}" == "alpine"* ]]; then
         sudo apk add $command_name
     elif [[ "${OSNAME}" == "arch"* ]]; then
@@ -183,7 +183,8 @@ function os_update {
             unset NONINTERACTIVE
         fi
         set +e
-        sudo brew install mc redis curl tmux screen htop wget rclone tcc
+        brew update
+        brew install mc redis curl tmux screen htop wget rclone tcc
         set -e
     elif [[ "${OSNAME}" == "alpine"* ]]; then
         sudo apk update screen git htop tmux
@@ -235,7 +236,7 @@ function hero_lib_get {
 function install_secp256k1 {
     echo "Installing secp256k1..."
     if [[ "${OSNAME}" == "darwin"* ]]; then
-        sudo brew install secp256k1
+        brew install secp256k1
     elif [[ "${OSNAME}" == "ubuntu" ]]; then
         # Install build dependencies
         sudo apt-get install -y build-essential wget autoconf libtool
@@ -343,7 +344,7 @@ check_and_start_redis() {
             echo "redis is already running."
         else
             echo "redis is not running. Starting it..."
-            sudo brew services start redis
+            brew services start redis
         fi
     elif [[ "${OSNAME}" == "alpine"* ]]; then
         if rc-service "redis" status | grep -q "running"; then
