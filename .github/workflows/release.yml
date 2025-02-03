@@ -29,44 +29,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Vlang
-        run: |
-          git clone --depth=1 https://github.com/vlang/v
-          cd v
-          make
-          sudo ./v symlink
-          cd ..
+        run: ./install_v.sh --github-actions
 
       - name: Setup Herolib
-        run: |
-          mkdir -p ~/.vmodules/freeflowuniverse
-          ln -s $GITHUB_WORKSPACE/lib ~/.vmodules/freeflowuniverse/herolib
-
-          echo "Installing secp256k1..."
-          if [[ ${{ matrix.os }} == 'macos-latest' || ${{ matrix.os }} == 'macos-13' ]]; then
-            brew install secp256k1
-
-          elif [[ ${{ matrix.os }} == 'ubuntu-latest' ]]; then
-            # Install build dependencies
-            sudo apt-get install -y build-essential wget autoconf libtool
-
-            # Download and extract secp256k1
-            cd /tmp
-            wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
-            tar -xvf v0.3.2.tar.gz
-
-            # Build and install
-            cd secp256k1-0.3.2/
-            ./autogen.sh
-            ./configure
-            make -j 5
-            sudo make install
-
-          else
-            echo "Unsupported OS: ${{ matrix.os }}"
-            exit 1
-          fi
-
-          echo "secp256k1 installation complete!"
+        run: ./install_herolib.vsh
 
       - name: Build Hero
         run: |
