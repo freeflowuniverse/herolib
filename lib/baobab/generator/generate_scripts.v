@@ -10,6 +10,7 @@ pub fn generate_scripts_folder(name string, example bool) Folder {
 		name: 'scripts'
 		files: [
 			generate_run_script(actor_name),
+			generate_docs_script(actor_name),
 			generate_run_actor_script(actor_name),
 			// generate_run_example_actor_script(actor_name),
 			generate_run_http_server_script(actor_name, example),
@@ -26,6 +27,16 @@ fn generate_run_script(actor_name string) File {
         name: 'run'
 		extension:'sh'
         content: $tmpl('./templates/run.sh.template')
+    }
+}
+
+// Function to generate a script for running an actor
+fn generate_docs_script(actor_name string) File {
+    dollar := '$'
+    return File{
+        name: 'docs'
+		extension:'vsh'
+        content: $tmpl('./templates/docs.vsh.template')
     }
 }
 
