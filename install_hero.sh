@@ -18,7 +18,41 @@ else
 fi
 
 if [[ "${OSNAME}" == "darwin"* ]]; then
-    [ -f /usr/local/bin/hero ] && rm /usr/local/bin/hero
+    # Check if /usr/local/bin/hero exists and remove it
+    if [ -f /usr/local/bin/hero ]; then
+        rm /usr/local/bin/hero || { echo "Error: Failed to remove existing hero binary"; exit 1; }
+    fi
+
+    # Check if brew is installed
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew is required but not installed."
+        read -p "Would you like to install Homebrew? (y/n) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "Installing Homebrew..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+                echo "Error: Failed to install Homebrew"
+                exit 1
+            }
+        else
+            echo "Homebrew is required to continue. Installation aborted."
+            exit 1
+        fi
+    fi
+
+    # Update Homebrew
+    echo "Updating Homebrew..."
+    if ! brew update; then
+        echo "Error: Failed to update Homebrew. Please check your internet connection and try again."
+        exit 1
+    fi
+
+    # Upgrade Homebrew packages
+    echo "Upgrading Homebrew packages..."
+    if ! brew upgrade; then
+        echo "Error: Failed to upgrade Homebrew packages. Please check your internet connection and try again."
+        exit 1
+    fi
 fi
 
 if [ -z "$url" ]; then

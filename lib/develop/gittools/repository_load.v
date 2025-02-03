@@ -31,7 +31,7 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 // Load repo information
 // Does not check cache, it is the callers responsibility to check cache and load accordingly.
 fn (mut repo GitRepo) load() ! {
-	console.print_debug('load ${repo.cache_key()}')
+	console.print_header('load ${repo.cache_key()}')
 	repo.init() or {
 		return error('Failed to initialize repo during load operation: ${err}')
 	}
