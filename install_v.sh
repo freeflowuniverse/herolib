@@ -8,11 +8,12 @@ print_help() {
     echo "Usage: $0 [options]"
     echo
     echo "Options:"
-    echo "  -h, --help     Show this help message"
-    echo "  --reset        Force reinstallation of V"
-    echo "  --remove       Remove V installation and exit"
-    echo "  --analyzer     Install/update v-analyzer"
-    echo "  --herolib      Install our herolib"
+    echo "  -h, --help          Show this help message"
+    echo "  --reset             Force reinstallation of V"
+    echo "  --remove            Remove V installation and exit"
+    echo "  --analyzer          Install/update v-analyzer"
+    echo "  --herolib           Install our herolib"
+    echo "  --github-actions    Install for github actions" 
     echo
     echo "Examples:"
     echo "  $0"
@@ -21,6 +22,7 @@ print_help() {
     echo "  $0 --analyzer        "
     echo "  $0 --herolib         "
     echo "  $0 --reset --analyzer # Fresh install of both"
+    echo "  $0 --github-actions" 
     echo
 }
 
@@ -29,6 +31,7 @@ RESET=false
 REMOVE=false
 INSTALL_ANALYZER=false
 HEROLIB=false
+IS_GITHUB_ACTIONS=false
 
 for arg in "$@"; do
     case $arg in
@@ -47,6 +50,9 @@ for arg in "$@"; do
             ;;            
         --analyzer)
             INSTALL_ANALYZER=true
+            ;;
+        --github-actions)
+            IS_GITHUB_ACTIONS=true
             ;;
         *)
             echo "Unknown option: $arg"
@@ -93,22 +99,19 @@ function package_check_install {
 function package_install {
     local command_name="$1"
     if [[ "${OSNAME}" == "ubuntu" ]]; then
-        apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
     elif [[ "${OSNAME}" == "darwin"* ]]; then
-        brew install $command_name
+        sudo brew install $command_name
     elif [[ "${OSNAME}" == "alpine"* ]]; then
-        apk add $command_name
+        sudo apk add $command_name
     elif [[ "${OSNAME}" == "arch"* ]]; then
-        pacman --noconfirm -Su $command_name
+        sudo pacman --noconfirm -Su $command_name
     else
         echo "platform : ${OSNAME} not supported"
         exit 1
     fi
 }
 
-is_github_actions() {
-    [ -d "/home/runner" ] || [ -d "$HOME/runner" ]
-}
 
 
 function myplatform {
@@ -146,26 +149,26 @@ myplatform
 function os_update {
     echo ' - os update'
     if [[ "${OSNAME}" == "ubuntu" ]]; then
-        if is_github_actions; then
+        if [ "$IS_GITHUB_ACTIONS" = true ]; then
             echo "github actions"
         else
-            rm -f /var/lib/apt/lists/lock
-            rm -f /var/cache/apt/archives/lock
-            rm -f /var/lib/dpkg/lock*		
+            sudo rm -f /var/lib/apt/lists/lock
+            sudo rm -f /var/cache/apt/archives/lock
+            sudo rm -f /var/lib/dpkg/lock*		
         fi    
         export TERM=xterm
         export DEBIAN_FRONTEND=noninteractive
         dpkg --configure -a
-        apt update -y
-        if is_github_actions; then
+        sudo apt update -y
+        if [ "$IS_GITHUB_ACTIONS" = true ]; then
             echo "** IN GITHUB ACTIONS, DON'T DO UPDATE"
         else
             set +e
             echo "** UPDATE"
-            apt-mark hold grub-efi-amd64-signed
+            sudo apt-mark hold grub-efi-amd64-signed
             set -e
-            apt upgrade  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
-            apt autoremove  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+            sudo apt upgrade  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+            sudo apt autoremove  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
         fi 
         #apt install apt-transport-https ca-certificates curl software-properties-common  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
         package_install "apt-transport-https ca-certificates curl wget software-properties-common tmux"
@@ -180,16 +183,16 @@ function os_update {
             unset NONINTERACTIVE
         fi
         set +e
-        brew install mc redis curl tmux screen htop wget rclone tcc
+        sudo brew install mc redis curl tmux screen htop wget rclone tcc
         set -e
     elif [[ "${OSNAME}" == "alpine"* ]]; then
-        apk update screen git htop tmux
-        apk add mc curl rsync htop redis bash bash-completion screen git rclone
+        sudo apk update screen git htop tmux
+        sudo apk add mc curl rsync htop redis bash bash-completion screen git rclone
         sed -i 's#/bin/ash#/bin/bash#g' /etc/passwd             
     elif [[ "${OSNAME}" == "arch"* ]]; then
-        pacman -Syy --noconfirm
-        pacman -Syu --noconfirm
-        pacman -Su --noconfirm arch-install-scripts gcc mc git tmux curl htop redis wget screen net-tools git sudo htop ca-certificates lsb-release screen rclone
+        sudo pacman -Syy --noconfirm
+        sudo pacman -Syu --noconfirm
+        sudo pacman -Su --noconfirm arch-install-scripts gcc mc git tmux curl htop redis wget screen net-tools git sudo htop ca-certificates lsb-release screen rclone
 
         # Check if builduser exists, create if not
         if ! id -u builduser > /dev/null 2>&1; then
@@ -232,10 +235,10 @@ function hero_lib_get {
 function install_secp256k1 {
     echo "Installing secp256k1..."
     if [[ "${OSNAME}" == "darwin"* ]]; then
-        brew install secp256k1
+        sudo brew install secp256k1
     elif [[ "${OSNAME}" == "ubuntu" ]]; then
         # Install build dependencies
-        apt-get install -y build-essential wget autoconf libtool
+        sudo apt-get install -y build-essential wget autoconf libtool
 
         # Download and extract secp256k1
         cd "${DIR_BUILD}"
@@ -247,7 +250,7 @@ function install_secp256k1 {
         ./autogen.sh
         ./configure
         make -j 5
-        make install
+        sudo make install
 
         # Cleanup
         cd ..
@@ -340,14 +343,14 @@ check_and_start_redis() {
             echo "redis is already running."
         else
             echo "redis is not running. Starting it..."
-            brew services start redis
+            sudo brew services start redis
         fi
     elif [[ "${OSNAME}" == "alpine"* ]]; then
         if rc-service "redis" status | grep -q "running"; then
             echo "redis is already running."
         else
             echo "redis is not running. Starting it..."
-            rc-service "redis" start
+            sudo rc-service "redis" start
         fi
     elif [[ "${OSNAME}" == "arch"* ]]; then
         if systemctl is-active --quiet "redis"; then
