@@ -1,7 +1,8 @@
 # AI Web UI
 
 - make docker build (see docker_ubuntu example)
-  - start from docker_ubuntu
+  - start from docker_ubuntu 
+  - for build use our vlanf approach (example see docker_ubuntu, make sure we have our zinit & ssh working)
   - install the web UI: openwebui (not by docker but use uv to install this software)
   - use https://github.com/astral-sh/uv for the python part
   - as last step, clean it all up (remove apt cache, ...)
