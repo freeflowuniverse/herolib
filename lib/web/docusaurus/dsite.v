@@ -1,6 +1,8 @@
 module docusaurus
 
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.screen
+
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
@@ -32,7 +34,7 @@ pub mut:
 	// publish_path string
 	build_path   string	
 	production   bool
-	watch_changes bool
+	watch_changes bool = true
 }
 
 pub fn (mut f DocusaurusFactory) build_dev(args_ DSiteNewArgs) !&DocSite {
@@ -64,17 +66,42 @@ pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
 pub fn (mut f DocusaurusFactory) dev(args_ DSiteNewArgs) !&DocSite {
 	mut s:=f.add(args_)!
 	s.generate()!
-	osal.exec(
-		cmd: '	
-			cd ${s.path_build.path}
-			bash develop.sh
-			'
-		retry: 0
-	)!		
-	if args.watch_changes{
-		//TODO: use lib/osal/notifier module to see all changes in docs directory of the source, when changes copy the file to the dest
-		//TODO: only look at files not starting with # and ending with .md, also for images (.png, .jpeg, .jpg)
-	}
+
+	// Create screen session for docusaurus development server
+	mut screen_name := 'docusaurus_${s.args.nameshort}'
+	mut sf := screen.new()!
+	
+	// Add and start a new screen session
+	mut scr := sf.add(
+		name: screen_name
+		cmd: '/bin/bash'
+		start: true
+		attach: false
+	)!
+
+	// Send commands to the screen session
+	scr.cmd_send('cd ${s.path_build.path}')!
+	scr.cmd_send('bash develop.sh')!
+
+	// Print instructions for user
+	console.print_header(' Docusaurus Development Server')
+	console.print_item('Development server is running in a screen session.')
+	console.print_item('To view the server output:')
+	console.print_item('  1. Attach to screen: screen -r ${screen_name}')
+	console.print_item('  2. To detach from screen: Press Ctrl+A then D')
+	console.print_item('  3. To list all screens: screen -ls')
+
+	// Start the watcher in a separate thread
+	//mut tf:=spawn watch_docs(docs_path, s.path_src.path, s.path_build.path)
+	//tf.wait()!
+	println("\n")
+
+	if args_.watch_changes {
+		docs_path := '${s.path_src.path}/docs'
+		watch_docs(docs_path, s.path_src.path, s.path_build.path)!
+	}	
+
+
 	return s
 }
 
@@ -215,13 +242,15 @@ fn (mut site DocSite) template_install() ! {
 	}
 
 	for item in ['package.json', 'sidebars.ts', 'tsconfig.json','docusaurus.config.ts'] {
-		mut aa:= template_path.file_get(item)!
-		aa.copy(dest:"${site.path_build.path}/${item}")! //TODO: use normal os.copy
+		src_path := os.join_path(template_path.path, item)
+		dest_path := os.join_path(site.path_build.path, item)
+		os.cp(src_path, dest_path) or { return error('Failed to copy ${item} to build path: ${err}') }
 	}
 
 	for item in ['.gitignore'] {
-		mut aa:= template_path.file_get(item)!
-		aa.copy(dest:"${site.path_src.path}/${item}")! //TODO: use normal os.copy
+		src_path := os.join_path(template_path.path, item)
+		dest_path := os.join_path(site.path_src.path, item)
+		os.cp(src_path, dest_path) or { return error('Failed to copy ${item} to source path: ${err}') }
 	}
 
 	cfg := site.config

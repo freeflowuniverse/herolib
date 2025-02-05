@@ -12,7 +12,7 @@ pub enum NotifyEvent {
 }
 
 // NotifyCallback is the function signature for event callbacks
-pub type NotifyCallback = fn (event NotifyEvent, path string)
+pub type NotifyCallback = fn (event NotifyEvent, path string , args map[string]string)
 
 // WatchEntry represents a watched path and its associated callback
 struct WatchEntry {
@@ -28,6 +28,7 @@ pub mut:
 	name        string
 	watch_list  []WatchEntry
 	is_watching bool
+	args 		map[string]string
 }
 
 // new creates a new Notifier instance
@@ -84,10 +85,15 @@ pub fn (mut n Notifier) start() ! {
 	}
 
 	n.is_watching = true
+
+	if  n.watch_list.len>1{
+		return error("only support watchers with len 1 for now")
+	}
 	
 	// Start a watcher for each path
 	for mut entry in n.watch_list {
-		go n.watch_path(mut entry)
+		//spawn n.watch_path(mut entry)
+		n.watch_path(mut entry)
 	}
 }
 
@@ -134,7 +140,7 @@ fn (mut n Notifier) watch_path(mut entry WatchEntry) {
 				}
 
 				if cb := entry.callback {
-					cb(event, path)
+					cb(event, path,n.args)
 				}
 			}
 		}

@@ -7,8 +7,8 @@ import os
 import time
 
 @[heap]
-struct Screen {
-mut:
+pub struct Screen {
+pub mut:
 	cmd   string
 	name  string
 	pid   int
@@ -16,7 +16,7 @@ mut:
 	// factory ?&ScreensFactory @[skip; str: skip]
 }
 
-enum ScreenState {
+pub enum ScreenState {
 	unknown
 	detached
 }
