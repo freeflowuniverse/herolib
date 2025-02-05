@@ -150,10 +150,13 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				need_pull0 = true
 			}
 
-			if args.cmd in ["push","pull","commit"] &&  (need_push0 || need_pull0 || g.need_commit()!) {
+			if args.cmd in ["push","pull","commit"] &&  (g.need_commit()!) {
 				need_commit0 = true
 			}
 		}
+
+		//console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")		
+		//exit(0)
 
 		mut ok := false
 		if need_commit0 || need_pull0 || need_push0 {
@@ -225,7 +228,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				g.commit(msg)!
 				has_changed = true
 			}
-			if need_push_repo {
+			if need_pull_repo {
 				if args.reset {
 					console.print_header(' - remove changes ${g.account}/${g.name}')
 					g.remove_changes()!
@@ -234,7 +237,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				g.pull()!
 				has_changed = true
 			}
-			if need_pull_repo {
+			if need_push_repo {
 				console.print_header(' - push ${g.account}/${g.name}')
 				g.push()!
 				has_changed = true
