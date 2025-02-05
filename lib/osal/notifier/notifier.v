@@ -35,7 +35,7 @@ pub mut:
 pub fn new(name string) !&Notifier {
 	// Check if fswatch is installed
 	if !os.exists_in_system_path('fswatch') {
-		return error('fswatch is not installed. Please install it first.')
+		return error('fswatch is not installed. Please install it first (brew install fswatch).')
 	}
 
 	return &Notifier{
