@@ -7,6 +7,8 @@ pub fn (mut site DocSite) clean(args ErrorArgs) ! {
 	toclean := "
 		/node_modules
 
+		babel.config.js
+
 		# Production
 		/build
 
@@ -31,9 +33,13 @@ pub fn (mut site DocSite) clean(args ErrorArgs) ! {
 
 		build.sh
 		build_dev.sh
+		build-dev.sh		
 		develop.sh
+		install.sh
 
-		docusaurus.config.ts
+		package.json
+		package-lock.json
+		pnpm-lock.yaml
 
 		sidebars.ts
 

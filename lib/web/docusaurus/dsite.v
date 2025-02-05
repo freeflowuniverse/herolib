@@ -65,10 +65,12 @@ pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
 
 pub fn (mut f DocusaurusFactory) dev(args_ DSiteNewArgs) !&DocSite {
 	mut s:=f.add(args_)!
+
+	s.clean()!
 	s.generate()!
 
 	// Create screen session for docusaurus development server
-	mut screen_name := 'docusaurus_${s.args.nameshort}'
+	mut screen_name := 'docusaurus'
 	mut sf := screen.new()!
 	
 	// Add and start a new screen session
@@ -77,6 +79,7 @@ pub fn (mut f DocusaurusFactory) dev(args_ DSiteNewArgs) !&DocSite {
 		cmd: '/bin/bash'
 		start: true
 		attach: false
+		reset: true
 	)!
 
 	// Send commands to the screen session
