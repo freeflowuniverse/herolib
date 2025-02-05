@@ -41,6 +41,7 @@ pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
 
 	// Collect repository information based on the provided criteria
 	for _, repo in gitstructure.get_repos(args)! {
+		//repo.status_update()!
 		repo_data << format_repo_info(repo)!
 	}
 

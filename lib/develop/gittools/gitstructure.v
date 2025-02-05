@@ -48,8 +48,6 @@ pub fn (mut gitstructure GitStructure) load(reload bool) ! {
 		gitstructure.cache_reset()!
 	}
 
-	//	mut ths := []thread !{}
-	// need to make sure redis is empty before doing the threads, is not removing the cache
 	redisclient.reset()!
 	redisclient.checkempty()
 
@@ -64,24 +62,6 @@ pub fn (mut gitstructure GitStructure) load(reload bool) ! {
 		}
 	}
 
-	// pp.work_on_items(todo)
-	// console.print_debug('loaded all threads for git on ${gitstructure.coderoot}')
-	// for th in ths {
-	// 	th.wait()!
-	// }
-
-	// for x in pp.get_results[SResult]() {
-	//     println('result: ${x.s}')
-	// }	
-
-	// console.print_debug("threads finished")
-
-	// now we need to load them back in our memory because these were done in sub process
-	// for _, mut r in gitstructure.repos {
-	// 	r.cache_get()!
-	// }
-
-	// gitstructure.init()!
 }
 
 // Recursively loads repositories from the provided path, updating their statuses, does not check the status

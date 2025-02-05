@@ -18,6 +18,10 @@ pub fn (mut repo GitRepo) cache_key() string {
 	return '${repo.gs.cache_key()}:${repo.provider}:${repo.account}:${repo.name}'
 }
 
+pub fn (mut repo GitRepo) print_key() string {
+	return '${repo.provider}:${repo.account}:${repo.name}'
+}
+
 // get path where the repo is on the fs
 pub fn (repo GitRepo) path() string {
 	mut repo_ := repo

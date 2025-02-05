@@ -54,10 +54,9 @@ pub fn new(args_ SimulatorArgs) !Simulator {
 		mut gs := gittools.new()!
 		mut repo := gs.get_repo(
 			url:    args.git_url
-			pull:   args.git_pull
-			reset:  args.git_reset
-			reload: false
-		)!
+            pull:   args.git_pull
+            reset:  args.git_reset
+        )!
 
 		args.path = repo.path()
 	}

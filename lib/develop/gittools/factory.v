@@ -37,6 +37,7 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		ssh_key_name: args.ssh_key_name
 	}
 
+
 	return get(coderoot: args.coderoot, reload: args.reload, cfg: cfg)
 }
 
@@ -53,6 +54,11 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	mut args := args_
 	if args.coderoot == '' {
 		args.coderoot = '${os.home_dir()}/code'
+	}
+
+	//make sure coderoot exists
+	if ! os.exists(args.coderoot){
+		os.mkdir_all(args.coderoot)!
 	}
 
 	rediskey_ := cache_key(args.coderoot)

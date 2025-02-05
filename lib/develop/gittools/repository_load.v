@@ -31,7 +31,7 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 // Load repo information
 // Does not check cache, it is the callers responsibility to check cache and load accordingly.
 fn (mut repo GitRepo) load() ! {
-	console.print_header('load ${repo.cache_key()}')
+	console.print_header('load ${repo.print_key()}')
 	repo.init() or {
 		return error('Failed to initialize repo during load operation: ${err}')
 	}
@@ -109,13 +109,13 @@ fn (mut repo GitRepo) load_tags() ! {
 	tags_result := repo.exec('git tag --list') or {
 		return error('Failed to list tags: ${err}. Please ensure git is installed and repository is accessible.')
 	}
-
+	//println(tags_result)
 	for line in tags_result.split('\n') {
 		line_trimmed := line.trim_space()
 		if line_trimmed != '' {
 			parts := line_trimmed.split(' ')
 			if parts.len < 2 {
-				console.print_debug('Skipping malformed tag line: ${line_trimmed}')
+				//console.print_debug('Skipping malformed tag line: ${line_trimmed}')
 				continue
 			}
 			commit_hash := parts[0].trim_space()

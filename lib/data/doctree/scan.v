@@ -35,10 +35,9 @@ pub fn (mut tree Tree) scan(args_ TreeScannerArgs) ! {
 		mut gs := gittools.get(coderoot: args.git_root)!
 		mut repo := gs.get_repo(
 			url:    args.git_url
-			pull:   args.git_pull
-			reset:  args.git_reset
-			reload: false
-		)!
+            pull:   args.git_pull
+            reset:  args.git_reset
+        )!
 		args.path = repo.get_path_of_url(args.git_url)!
 	}
 
@@ -90,10 +89,9 @@ pub fn (mut tree Tree) scan_concurrent(args_ TreeScannerArgs) ! {
 		mut gs := gittools.get(coderoot: args.git_root)!
 		mut repo := gs.get_repo(
 			url:    args.git_url
-			pull:   args.git_pull
-			reset:  args.git_reset
-			reload: false
-		)!
+            pull:   args.git_pull
+            reset:  args.git_reset
+        )!
 		args.path = repo.get_path_of_url(args.git_url)!
 	}
 
