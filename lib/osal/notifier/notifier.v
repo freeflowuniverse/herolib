@@ -1,6 +1,5 @@
 module notifier
 
-import os.notify
 import os
 import time
 
@@ -20,24 +19,27 @@ struct WatchEntry {
 pub mut:
 	path     string
 	callback ?NotifyCallback
-	fd       int
+	pid      int
 }
 
-// Notifier manages file system notifications
+// Notifier manages file system notifications using fswatch
 pub struct Notifier {
 pub mut:
 	name        string
-	watcher     notify.FdNotifier
 	watch_list  []WatchEntry
 	is_watching bool
 }
 
 // new creates a new Notifier instance
 pub fn new(name string) !&Notifier {
+	// Check if fswatch is installed
+	if !os.exists_in_system_path('fswatch') {
+		return error('fswatch is not installed. Please install it first.')
+	}
+
 	return &Notifier{
-		name:        name
-		watcher:     notify.new()!
-		watch_list:  []WatchEntry{}
+		name: name
+		watch_list: []WatchEntry{}
 		is_watching: false
 	}
 }
@@ -48,16 +50,10 @@ pub fn (mut n Notifier) add_watch(path string, callback NotifyCallback) ! {
 		return error('Path does not exist: ${path}')
 	}
 
-	mut f := os.open(path)!
-	fd := f.fd
-	f.close()
-
-	n.watcher.add(fd, .write | .read, .edge_trigger)!
-
 	n.watch_list << WatchEntry{
-		path:     path
+		path: path
 		callback: callback
-		fd:       fd
+		pid: 0
 	}
 
 	println('Added watch for: ${path}')
@@ -67,7 +63,9 @@ pub fn (mut n Notifier) add_watch(path string, callback NotifyCallback) ! {
 pub fn (mut n Notifier) remove_watch(path string) ! {
 	for i, entry in n.watch_list {
 		if entry.path == path {
-			n.watcher.remove(entry.fd) or { return err }
+			if entry.pid > 0 {
+				os.system('kill ${entry.pid}')
+			}
 			n.watch_list.delete(i)
 			println('Removed watch for: ${path}')
 			return
@@ -86,31 +84,62 @@ pub fn (mut n Notifier) start() ! {
 	}
 
 	n.is_watching = true
-	go n.watch_loop()
+	
+	// Start a watcher for each path
+	for mut entry in n.watch_list {
+		go n.watch_path(mut entry)
+	}
 }
 
 // stop stops watching for events
 pub fn (mut n Notifier) stop() {
 	n.is_watching = false
+	// Kill all fswatch processes
+	for entry in n.watch_list {
+		if entry.pid > 0 {
+			os.system('kill ${entry.pid}')
+		}
+	}
 }
 
-fn (mut n Notifier) watch_loop() {
+fn (mut n Notifier) watch_path(mut entry WatchEntry) {
+	// Start fswatch process
+	mut p := os.new_process('/opt/homebrew/bin/fswatch')
+	p.set_args(['-x', '--event-flags', entry.path])
+	p.set_redirect_stdio()
+	p.run()
+	
+	entry.pid = p.pid
+
 	for n.is_watching {
-		event := n.watcher.wait(time.Duration(time.hour * 1))
-		println(event)
-		panic('implement')
-		// for entry in n.watch_list {
-		// 	if event.fd == entry.fd {
-		// 		mut notify_event := NotifyEvent.modify
-		// 		if event.kind == .create {
-		// 			notify_event = .create
-		// 		} else if event.kind == .write {
-		// 			notify_event = .write
-		// 		}
-		// 		if entry.callback != none {
-		// 			entry.callback(notify_event, entry.path)
-		// 		}
-		// 	}
-		// }
+		line := p.stdout_read()
+		if line.len > 0 {
+			parts := line.split(' ')
+			if parts.len >= 2 {
+				path := parts[0]
+				flags := parts[1]
+
+				mut event := NotifyEvent.modify // Default to modify
+
+				// Parse fswatch event flags
+				// See: https://emcrisostomo.github.io/fswatch/doc/1.17.1/fswatch.html#Event-Flags
+				if flags.contains('Created') {
+					event = .create
+				} else if flags.contains('Removed') {
+					event = .delete
+				} else if flags.contains('Renamed') {
+					event = .rename
+				} else if flags.contains('Updated') || flags.contains('Modified') {
+					event = .modify
+				}
+
+				if cb := entry.callback {
+					cb(event, path)
+				}
+			}
+		}
+		time.sleep(100 * time.millisecond)
 	}
+
+	p.close()
 }

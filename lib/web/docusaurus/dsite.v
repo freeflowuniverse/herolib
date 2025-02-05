@@ -32,6 +32,7 @@ pub mut:
 	// publish_path string
 	build_path   string	
 	production   bool
+	watch_changes bool
 }
 
 pub fn (mut f DocusaurusFactory) build_dev(args_ DSiteNewArgs) !&DocSite {
@@ -70,6 +71,10 @@ pub fn (mut f DocusaurusFactory) dev(args_ DSiteNewArgs) !&DocSite {
 			'
 		retry: 0
 	)!		
+	if args.watch_changes{
+		//TODO: use lib/osal/notifier module to see all changes in docs directory of the source, when changes copy the file to the dest
+		//TODO: only look at files not starting with # and ending with .md, also for images (.png, .jpeg, .jpg)
+	}
 	return s
 }
 
