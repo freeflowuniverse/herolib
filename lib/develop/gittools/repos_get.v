@@ -8,15 +8,15 @@ import time
 @[params]
 pub struct ReposGetArgs {
 pub mut:
-	filter   string // Optional filter for repository names
-	name     string // Specific repository name to retrieve.
-	account  string // Git account associated with the repository.
-	provider string // Git provider (e.g., GitHub).
-	pull     bool   // Pull the last changes.
-	reset    bool   // Reset the changes.
-	status_clean   bool   //make sure each cache status is but on 0, if we also do status_update this will result in a reload
-	status_update bool //make sure each repo get's status updated
-	url      string // Repository URL
+	filter        string // Optional filter for repository names
+	name          string // Specific repository name to retrieve.
+	account       string // Git account associated with the repository.
+	provider      string // Git provider (e.g., GitHub).
+	pull          bool   // Pull the last changes.
+	reset         bool   // Reset the changes.
+	status_clean  bool   // make sure each cache status is but on 0, if we also do status_update this will result in a reload
+	status_update bool   // make sure each repo get's status updated
+	url           string // Repository URL
 }
 
 // Retrieves a list of repositories from the git structure that match the provided arguments.
@@ -42,7 +42,7 @@ pub fn (mut gitstructure GitStructure) get_repos(args_ ReposGetArgs) ![]&GitRepo
 
 	mut res := []&GitRepo{}
 
-	for _, repo in gitstructure.repos {		
+	for _, repo in gitstructure.repos {
 		if args.url.len > 0 {
 			// if being mathed from url load repo info
 			git_location := gitstructure.gitlocation_from_url(args.url)!
@@ -56,17 +56,17 @@ pub fn (mut gitstructure GitStructure) get_repos(args_ ReposGetArgs) ![]&GitRepo
 		}
 	}
 
-	for mut repo in res{
-		if args.status_clean{
+	for mut repo in res {
+		if args.status_clean {
 			repo.cache_last_load_clear()!
 		}
-		if args.status_update{
+		if args.status_update {
 			repo.status_update()!
 		}
-		if args.reset{
+		if args.reset {
 			repo.reset()!
-		}else{
-			if args.pull{
+		} else {
+			if args.pull {
 				repo.pull()!
 			}
 		}
@@ -126,21 +126,18 @@ pub fn (mut gitstructure GitStructure) get_repo(args_ ReposGetArgs) !&GitRepo {
 // Returns:
 // - bool: True if the repository matches, false otherwise.
 fn repo_match_check(repo GitRepo, args ReposGetArgs) !bool {
-	mut r:=  (args.name.len == 0 || repo.name == args.name)
+	mut r := (args.name.len == 0 || repo.name == args.name)
 		&& (args.account.len == 0 || repo.account == args.account)
 		&& (args.provider.len == 0 || repo.provider == args.provider)
 	relpath := repo.get_relative_path()!
-	if r{
-		if args.filter != '' && ! (relpath.contains(args.filter)) {
+	if r {
+		if args.filter != '' && !(relpath.contains(args.filter)) {
 			return false
 		}
 	}
 
 	return r
-
 }
-
-
 
 // Retrieves a single repository path based on the provided arguments (goes inside repo).
 // if pull will force a pull, if it can't will be error, if reset will remove the changes
@@ -164,7 +161,7 @@ fn repo_match_check(repo GitRepo, args ReposGetArgs) !bool {
 // Raises:
 // - Error: If multiple repositories are found with similar names or if cloning fails.
 pub fn (mut gitstructure GitStructure) get_path(args_ ReposGetArgs) !string {
-	mut r:=gitstructure.get_repo(args_)!
-	mut mypath:=r.get_path_of_url(args_.url)!	
+	mut r := gitstructure.get_repo(args_)!
+	mut mypath := r.get_path_of_url(args_.url)!
 	return mypath
 }

@@ -37,7 +37,6 @@ pub mut:
 	command         string
 }
 
-
 // create/start container (first need to get a dockercontainer before we can start)
 pub fn (mut container DockerContainer) start() ! {
 	exec(cmd: 'docker start ${container.id}')!

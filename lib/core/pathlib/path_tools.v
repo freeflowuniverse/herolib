@@ -76,7 +76,7 @@ pub fn (mut path Path) expand(dest string) !Path {
 
 	if path.name().to_lower().ends_with('.tar.gz') || path.name().to_lower().ends_with('.tgz') {
 		cmd := 'tar -xzvf ${path.path} -C ${desto.path}'
-		//console.print_debug(cmd)
+		// console.print_debug(cmd)
 		res := os.execute(cmd)
 		if res.exit_code > 0 {
 			return error('Could not expand.\n${res}')
@@ -136,7 +136,7 @@ pub fn find_common_ancestor(paths_ []string) string {
 		}
 	}
 	paths := paths_.map(os.abs_path(os.real_path(it))) // get the real path (symlinks... resolved)
-	//console.print_debug(paths.str())
+	// console.print_debug(paths.str())
 	parts := paths[0].split('/')
 	mut totest_prev := '/'
 	for i in 1 .. parts.len {
@@ -223,7 +223,7 @@ pub fn (mut path Path) move(args MoveArgs) ! {
 // that last dir needs to move 1 up
 pub fn (mut path Path) moveup_single_subdir() ! {
 	mut plist := path.list(recursive: false, ignoredefault: true, dirs_only: true)!
-	//console.print_debug(plist.str())
+	// console.print_debug(plist.str())
 	if plist.paths.len != 1 {
 		return error('could not find one subdir in ${path.path} , so cannot move up')
 	}

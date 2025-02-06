@@ -4,10 +4,10 @@ import freeflowuniverse.herolib.core.jobs.model
 import json
 
 pub fn (mut h OpenRPCServer) handle_request_service(request OpenRPCRequest) !OpenRPCResponse {
-	mut response:=rpc_response_new(request.id)
-	method:=request.method.all_after_first("service.")
+	mut response := rpc_response_new(request.id)
+	method := request.method.all_after_first('service.')
 	println("request service:'${method}'")
-	match method{
+	match method {
 		'new' {
 			service := h.runner.services.new()
 			response.result = json.encode(service)
@@ -65,12 +65,10 @@ pub fn (mut h OpenRPCServer) handle_request_service(request OpenRPCRequest) !Ope
 			}
 			// Parse groups array from JSON string
 			groups := json.decode([]string, request.params[3])!
-			has_access := h.runner.services.check_access(
-				request.params[0], // actor
-				request.params[1], // action
-				request.params[2], // user_pubkey
-				groups
-			)!
+			has_access := h.runner.services.check_access(request.params[0], // actor
+			 request.params[1], // action
+			 request.params[2], // user_pubkey
+			 groups)!
 			response.result = json.encode(has_access)
 		}
 		else {

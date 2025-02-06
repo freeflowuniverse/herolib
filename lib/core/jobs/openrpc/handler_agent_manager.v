@@ -3,16 +3,14 @@ module openrpc
 import freeflowuniverse.herolib.core.jobs.model
 import json
 
-
 pub fn (mut h OpenRPCServer) handle_request_agent(request OpenRPCRequest) !OpenRPCResponse {
+	mut response := rpc_response_new(request.id)
 
-	mut response:=rpc_response_new(request.id)
-
-	method:=request.method.all_after_first("agent.")
+	method := request.method.all_after_first('agent.')
 
 	println("request agent:'${method}'")
 
-	match method{
+	match method {
 		'new' {
 			agent := h.runner.agents.new()
 			response.result = json.encode(agent)

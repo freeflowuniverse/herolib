@@ -27,11 +27,11 @@ pub mut:
 // JobStatus represents the current state of a job
 pub struct JobStatus {
 pub mut:
-	guid    string       // unique id for the job
+	guid    string          // unique id for the job
 	created ourtime.OurTime // when we created the job
 	start   ourtime.OurTime // when the job needs to start
 	end     ourtime.OurTime // when the job ended, can be in error
-	status  Status       // current status of the job
+	status  Status          // current status of the job
 }
 
 // JobDependency represents a dependency on another job

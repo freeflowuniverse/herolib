@@ -4,8 +4,8 @@ import freeflowuniverse.herolib.core.jobs.model
 import json
 
 pub fn (mut h OpenRPCServer) handle_request_group(request OpenRPCRequest) !OpenRPCResponse {
-	mut response:=rpc_response_new(request.id)
-	method:=request.method.all_after_first("group.")
+	mut response := rpc_response_new(request.id)
+	method := request.method.all_after_first('group.')
 	println("request group:'${method}'")
 	match method {
 		'new' {

@@ -39,9 +39,9 @@ fn (mut repo GitRepo) cache_delete() ! {
 	return
 }
 
-//put the data of last load on 0, means first time a git status check will be done it will update its info
+// put the data of last load on 0, means first time a git status check will be done it will update its info
 fn (mut repo GitRepo) cache_last_load_clear() ! {
 	repo.cache_get()!
 	repo.last_load = 0
-	repo.cache_set()!	
+	repo.cache_set()!
 }

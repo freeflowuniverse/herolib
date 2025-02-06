@@ -84,10 +84,10 @@ EOF
 	)!
 
 	r.add_zinit_cmd(
-		name:  'ssh-keys'
-		after: 'sshd-setup'
+		name:    'ssh-keys'
+		after:   'sshd-setup'
 		oneshot: true
-		exec:  '
+		exec:    '
 			if [ ! -d /root/.ssh ]; then
 				mkdir -m 700 /root/.ssh
 			fi

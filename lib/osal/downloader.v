@@ -26,10 +26,10 @@ pub mut:
 pub fn download(args_ DownloadArgs) !pathlib.Path {
 	mut args := args_
 
-	args.dest = args.dest.trim(" ").trim_right("/")
-	args.expand_dir = args.expand_dir.trim(" ").trim_right("/")	
-	args.expand_file = args.expand_file.replace("//","/")
-	args.dest = args.dest.replace("//","/")
+	args.dest = args.dest.trim(' ').trim_right('/')
+	args.expand_dir = args.expand_dir.trim(' ').trim_right('/')
+	args.expand_file = args.expand_file.replace('//', '/')
+	args.dest = args.dest.replace('//', '/')
 
 	console.print_header('download: ${args.url}')
 	if args.name == '' {
@@ -77,23 +77,23 @@ pub fn download(args_ DownloadArgs) !pathlib.Path {
 		// Clean up all related files when resetting
 		if os.exists(args.dest) {
 			if os.is_dir(args.dest) {
-				os.rmdir_all(args.dest) or { }
+				os.rmdir_all(args.dest) or {}
 			} else {
-				os.rm(args.dest) or { }
+				os.rm(args.dest) or {}
 			}
 		}
 		if os.exists(args.dest + '_') {
 			if os.is_dir(args.dest + '_') {
-				os.rmdir_all(args.dest + '_') or { }
+				os.rmdir_all(args.dest + '_') or {}
 			} else {
-				os.rm(args.dest + '_') or { }
+				os.rm(args.dest + '_') or {}
 			}
 		}
 		if os.exists(args.dest + '.meta') {
 			if os.is_dir(args.dest + '.meta') {
-				os.rmdir_all(args.dest + '.meta') or { }
+				os.rmdir_all(args.dest + '.meta') or {}
 			} else {
-				os.rm(args.dest + '.meta') or { }
+				os.rm(args.dest + '.meta') or {}
 			}
 		}
 		// Recreate meta file after cleanup
@@ -119,9 +119,9 @@ pub fn download(args_ DownloadArgs) !pathlib.Path {
 		// Clean up any existing temporary file/directory before download
 		if os.exists(dest0.path) {
 			if os.is_dir(dest0.path) {
-				os.rmdir_all(dest0.path) or { }
+				os.rmdir_all(dest0.path) or {}
 			} else {
-				os.rm(dest0.path) or { }
+				os.rm(dest0.path) or {}
 			}
 		}
 		cmd := '

@@ -4,7 +4,7 @@ import os
 import strings
 
 pub fn (mut site DocSite) clean(args ErrorArgs) ! {
-	toclean := "
+	toclean := '
 		/node_modules
 
 		babel.config.js
@@ -44,7 +44,7 @@ pub fn (mut site DocSite) clean(args ErrorArgs) ! {
 		sidebars.ts
 
 		tsconfig.json
-		"
+		'
 
 	mut sb := strings.new_builder(200)
 	for line in toclean.split_into_lines() {
@@ -74,9 +74,7 @@ pub fn (mut site DocSite) clean(args ErrorArgs) ! {
 				for file in files {
 					if file.starts_with(base_pattern) {
 						file_path := os.join_path(base_dir, file)
-						os.rm(file_path) or {
-							sb.writeln('Failed to remove ${file_path}: ${err}')
-						}
+						os.rm(file_path) or { sb.writeln('Failed to remove ${file_path}: ${err}') }
 					}
 				}
 			}
@@ -90,11 +88,8 @@ pub fn (mut site DocSite) clean(args ErrorArgs) ! {
 					sb.writeln('Failed to remove directory ${full_path}: ${err}')
 				}
 			} else {
-				os.rm(full_path) or {
-					sb.writeln('Failed to remove file ${full_path}: ${err}')
-				}
+				os.rm(full_path) or { sb.writeln('Failed to remove file ${full_path}: ${err}') }
 			}
 		}
 	}
-
 }

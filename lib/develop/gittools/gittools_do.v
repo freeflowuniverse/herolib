@@ -20,10 +20,10 @@ pub mut:
 	msg       string
 	url       string
 	branch    string
-	path string //path to start from
+	path      string // path to start from
 	recursive bool
 	pull      bool
-	reload    bool //means reload the info into the cache
+	reload    bool // means reload the info into the cache
 	script    bool = true // run non interactive
 	reset     bool = true // means we will lose changes (only relevant for clone, pull)
 }
@@ -45,15 +45,14 @@ pub mut:
 //```
 pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut args := args_
-	//console.print_debug('git do ${args.cmd}')
+	// console.print_debug('git do ${args.cmd}')
 
 	if args.path == '' {
 		args.path = os.getwd()
 	}
 
-
-	//see if its one repo we are in, based on current path
-	if args.repo == '' && args.account == '' && args.provider == '' && args.filter == '' {		
+	// see if its one repo we are in, based on current path
+	if args.repo == '' && args.account == '' && args.provider == '' && args.filter == '' {
 		mut curdiro := pathlib.get_dir(path: args.path, create: false)!
 		mut parentpath := curdiro.parent_find('.git') or { pathlib.Path{} }
 		if parentpath.path != '' {
@@ -63,10 +62,10 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			args.provider = r0.provider
 		}
 	}
-	//see if a url was used means we are in 1 repo
-	if args.url.len > 0 {	
-		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == ''){
-			return error("when specify url cannot specify repo, account, profider or filter")
+	// see if a url was used means we are in 1 repo
+	if args.url.len > 0 {
+		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {
+			return error('when specify url cannot specify repo, account, profider or filter')
 		}
 		mut r0 := gs.get_repo(url: args.url)!
 		args.repo = r0.name
@@ -85,9 +84,9 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		provider: args.provider
 	)!
 
-	//reset the status for the repo
-	if args.reload{
-		for mut repo in repos{
+	// reset the status for the repo
+	if args.reload {
+		for mut repo in repos {
 			repo.cache_last_load_clear()!
 		}
 	}
@@ -102,7 +101,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		return ''
 	}
 
-	//means we are on 1 repo
+	// means we are on 1 repo
 	if args.cmd in 'sourcetree,edit'.split(',') {
 		if repos.len == 0 {
 			return error('please specify at least 1 repo for cmd:${args.cmd}')
@@ -122,7 +121,6 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	}
 
 	if args.cmd in 'pull,push,commit,delete'.split(',') {
-
 		gs.repos_print(
 			filter:   args.filter
 			name:     args.repo
@@ -141,22 +139,21 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 
 		// check on repos who needs what
 		for mut g in repos {
-
-			if args.cmd in ["push"] && g.need_push_or_pull()! {
+			if args.cmd == 'push' && g.need_push_or_pull()! {
 				need_push0 = true
 			}
 
-			if args.cmd in ["push","pull"] && (need_push0 || g.need_push_or_pull()!){
+			if args.cmd in ['push', 'pull'] && (need_push0 || g.need_push_or_pull()!) {
 				need_pull0 = true
 			}
 
-			if args.cmd in ["push","pull","commit"] &&  (g.need_commit()!) {
+			if args.cmd in ['push', 'pull', 'commit'] && (g.need_commit()!) {
 				need_commit0 = true
 			}
 		}
 
-		//console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")		
-		//exit(0)
+		// console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")		
+		// exit(0)
 
 		mut ok := false
 		if need_commit0 || need_pull0 || need_push0 {
@@ -179,8 +176,8 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			} else {
 				if need_commit0 || need_pull0 || need_push0 {
 					ok = ui.ask_yesno(question: 'Is above ok?')!
-				}else{
-					console.print_green("nothing to do")
+				} else {
+					console.print_green('nothing to do')
 				}
 			}
 
@@ -188,7 +185,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				return error('cannot continue with action, you asked me to stop.\n${args}')
 			}
 
-			if need_commit0{
+			if need_commit0 {
 				if args.msg.len == 0 && args.script {
 					return error('message needs to be specified for commit.')
 				}
@@ -198,7 +195,6 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 					)!
 				}
 			}
-
 		}
 
 		if args.cmd == 'delete' {
@@ -215,12 +211,12 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 
 		mut has_changed := false
 		for mut g in repos {
-			
-			need_push_repo := need_push0 && g.need_push_or_pull()! 
+			need_push_repo := need_push0 && g.need_push_or_pull()!
 			need_pull_repo := need_push_repo || (need_pull0 && g.need_push_or_pull()!)
-			need_commit_repo := need_push_repo || need_pull_repo || (need_commit0 && g.need_commit()!)
+			need_commit_repo := need_push_repo || need_pull_repo
+				|| (need_commit0 && g.need_commit()!)
 
-			//console.print_debug(" --- git_do ${g.cache_key()} \n    need_commit_repo:${need_commit_repo} \n    need_pull_repo:${need_pull_repo}  \n    need_push_repo:${need_push_repo}")		
+			// console.print_debug(" --- git_do ${g.cache_key()} \n    need_commit_repo:${need_commit_repo} \n    need_pull_repo:${need_pull_repo}  \n    need_push_repo:${need_push_repo}")		
 
 			if need_commit_repo {
 				mut msg := args.msg

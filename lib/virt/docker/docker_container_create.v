@@ -3,7 +3,6 @@ module docker
 import freeflowuniverse.herolib.osal { exec }
 import freeflowuniverse.herolib.virt.utils
 
-
 @[params]
 pub struct DockerContainerCreateArgs {
 pub mut:
@@ -14,11 +13,10 @@ pub mut:
 	env              map[string]string // map of environment variables that will be passed to the container
 	privileged       bool
 	remove_when_done bool = true // remove the container when it shuts down
-	image_repo string
-	image_tag  string
-	command    string
+	image_repo       string
+	image_tag        string
+	command          string
 }
-
 
 pub fn (mut e DockerEngine) container_create(args DockerContainerCreateArgs) !&DockerContainer {
 	// Validate required parameters
@@ -67,7 +65,7 @@ pub fn (mut e DockerEngine) container_create(args DockerContainerCreateArgs) !&D
 		image += ':${args.image_tag}'
 	} else {
 		// Check if image exists with 'local' tag first
-		mut local_check := exec(cmd: 'docker images ${args.image_repo}:local -q',debug:true)!
+		mut local_check := exec(cmd: 'docker images ${args.image_repo}:local -q', debug: true)!
 		if local_check.output != '' {
 			image += ':local'
 		} else {
@@ -83,7 +81,7 @@ pub fn (mut e DockerEngine) container_create(args DockerContainerCreateArgs) !&D
 	}
 
 	// Verify image exists locally
-	mut image_check := exec(cmd: 'docker images ${image} -q')!	
+	mut image_check := exec(cmd: 'docker images ${image} -q')!
 	if image_check.output == '' {
 		return error('Docker image not found: ${image}. Please ensure the image exists locally or can be pulled from a registry.')
 	}
@@ -123,7 +121,7 @@ pub fn (mut e DockerEngine) container_create(args DockerContainerCreateArgs) !&D
 		mycmd += ' ${command}'
 	}
 	// Execute docker run command
-	exec(cmd: mycmd) or { 
+	exec(cmd: mycmd) or {
 		return error('Failed to create Docker container:
 Command: ${mycmd}
 Error: ${err}
@@ -139,10 +137,10 @@ Please check the error message and try again.')
 	e.containers_load() or {
 		return error('Container created but failed to reload container list: ${err}')
 	}
-	
+
 	mut container := e.container_get(name: args.name) or {
 		return error('Container created but not found in container list. This may indicate the container failed to start properly. Check container logs with: docker logs ${args.name}')
 	}
-	
+
 	return container
 }

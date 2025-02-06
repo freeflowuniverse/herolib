@@ -21,10 +21,10 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 	// })
 
 	cmd_run.add_flag(Flag{
-		flag:        .string
-		required:    false
-		name:        'url'
-		abbrev:      'u'
+		flag:     .string
+		required: false
+		name:     'url'
+		abbrev:   'u'
 		// default: ''
 		description: 'Url where docusaurus source is.'
 	})
@@ -45,6 +45,14 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		description: 'build dev version and publish.'
 	})
 
+	cmd_run.add_flag(Flag{
+		flag:        .bool
+		required:    false
+		name:        'update'
+		abbrev:      'p'
+		description: 'update your environment the template and the repo you are working on (git pull).'
+	})
+
 
 	cmd_run.add_flag(Flag{
 		flag:        .bool
@@ -58,9 +66,9 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 }
 
 fn cmd_docusaurus_execute(cmd Command) ! {
-	// mut reset := cmd.flags.get_bool('reset') or { false }
+	mut update := cmd.flags.get_bool('update') or { false }
 	mut url := cmd.flags.get_string('url') or { '' }
-	
+
 	// mut path := cmd.flags.get_string('path') or { '' }
 	// if path == '' {
 	// 	path = os.getwd()
@@ -76,30 +84,29 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// 	exit(1)
 	// }
 
+	mut docs := docusaurus.new(update:update)!
 
-	mut docs := docusaurus.new(
-		// build_path: '/tmp/docusaurus_build'
-	)!
+	if build {
+		// Create a new docusaurus site
+		_ := docs.build(
+			url: url
+			update:update
+		)!
+	}
 
-    if build{
-        // Create a new docusaurus site
-        _ := docs.build(
-            url:url
-        )!
-    }
+	if builddev {
+		// Create a new docusaurus site
+		_ := docs.build_dev(
+			url: url
+			update:update
+		)!
+	}
 
-    if builddev{
-        // Create a new docusaurus site
-        _ := docs.build_dev(
-            url:url
-        )!
-    }
-
-    if dev{
-        // Create a new docusaurus site
-        _ := docs.dev(
-            url:url
-        )!
-    }
-
+	if dev {
+		// Create a new docusaurus site
+		_ := docs.dev(
+			url: url
+			update:update
+		)!
+	}
 }

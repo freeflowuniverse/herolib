@@ -12,7 +12,7 @@ pub enum NotifyEvent {
 }
 
 // NotifyCallback is the function signature for event callbacks
-pub type NotifyCallback = fn (event NotifyEvent, path string , args map[string]string)
+pub type NotifyCallback = fn (event NotifyEvent, path string, args map[string]string)
 
 // WatchEntry represents a watched path and its associated callback
 struct WatchEntry {
@@ -28,7 +28,7 @@ pub mut:
 	name        string
 	watch_list  []WatchEntry
 	is_watching bool
-	args 		map[string]string
+	args        map[string]string
 }
 
 // new creates a new Notifier instance
@@ -39,8 +39,8 @@ pub fn new(name string) !&Notifier {
 	}
 
 	return &Notifier{
-		name: name
-		watch_list: []WatchEntry{}
+		name:        name
+		watch_list:  []WatchEntry{}
 		is_watching: false
 	}
 }
@@ -52,9 +52,9 @@ pub fn (mut n Notifier) add_watch(path string, callback NotifyCallback) ! {
 	}
 
 	n.watch_list << WatchEntry{
-		path: path
+		path:     path
 		callback: callback
-		pid: 0
+		pid:      0
 	}
 
 	println('Added watch for: ${path}')
@@ -86,13 +86,13 @@ pub fn (mut n Notifier) start() ! {
 
 	n.is_watching = true
 
-	if  n.watch_list.len>1{
-		return error("only support watchers with len 1 for now")
+	if n.watch_list.len > 1 {
+		return error('only support watchers with len 1 for now')
 	}
-	
+
 	// Start a watcher for each path
 	for mut entry in n.watch_list {
-		//spawn n.watch_path(mut entry)
+		// spawn n.watch_path(mut entry)
 		n.watch_path(mut entry)
 	}
 }
@@ -114,7 +114,7 @@ fn (mut n Notifier) watch_path(mut entry WatchEntry) {
 	p.set_args(['-x', '--event-flags', entry.path])
 	p.set_redirect_stdio()
 	p.run()
-	
+
 	entry.pid = p.pid
 
 	for n.is_watching {
@@ -140,7 +140,7 @@ fn (mut n Notifier) watch_path(mut entry WatchEntry) {
 				}
 
 				if cb := entry.callback {
-					cb(event, path,n.args)
+					cb(event, path, n.args)
 				}
 			}
 		}

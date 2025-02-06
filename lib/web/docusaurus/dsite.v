@@ -1,15 +1,14 @@
 module docusaurus
 
-import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.osal.screen
-
 import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.develop.gittools
 import json
+import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct DocSite {
@@ -35,6 +34,7 @@ pub mut:
 	build_path   string	
 	production   bool
 	watch_changes bool = true
+	update   bool
 }
 
 pub fn (mut f DocusaurusFactory) build_dev(args_ DSiteNewArgs) !&DocSite {
@@ -93,6 +93,13 @@ pub fn (mut f DocusaurusFactory) dev(args_ DSiteNewArgs) !&DocSite {
 	console.print_item('  1. Attach to screen: screen -r ${screen_name}')
 	console.print_item('  2. To detach from screen: Press Ctrl+A then D')
 	console.print_item('  3. To list all screens: screen -ls')
+	console.print_item('The site content is on::')	
+	console.print_item('  1. location of documents: ${s.path_src.path}/docs')
+	if osal.cmd_exists("code"){
+		console.print_item('  2. We opened above dir in vscode.')
+		osal.exec(cmd:'code ${s.path_src.path}/docs')!
+	}
+	
 
 	// Start the watcher in a separate thread
 	//mut tf:=spawn watch_docs(docs_path, s.path_src.path, s.path_build.path)
@@ -137,7 +144,7 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteNewArgs) !&DocSite {
 	}
 
 	mut gs := gittools.new()!
-	mut r := gs.get_repo(url: 'https://github.com/freeflowuniverse/docusaurus_template.git')!
+	mut r := gs.get_repo(url: 'https://github.com/freeflowuniverse/docusaurus_template.git',pull:args.update)!
 	mut template_path := r.patho()!
 
 	// First ensure cfg directory exists in src, if not copy from template

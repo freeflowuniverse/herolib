@@ -112,7 +112,6 @@ pub fn cmd_git(mut cmdroot Command) {
 			abbrev:      'l'
 			description: 'reload the data in cache.'
 		})
-
 	}
 
 	mut allcmdscommit := [&push_command, &pull_command, &commit_command]
@@ -228,7 +227,6 @@ pub fn cmd_git(mut cmdroot Command) {
 fn cmd_git_execute(cmd Command) ! {
 	mut is_silent := cmd.flags.get_bool('silent') or { false }
 	mut reload := cmd.flags.get_bool('load') or { false }
-
 
 	if is_silent || cmd.name == 'cd' {
 		console.silent_set()

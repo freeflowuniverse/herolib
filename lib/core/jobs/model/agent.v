@@ -17,10 +17,10 @@ pub mut:
 // AgentStatus represents the current state of an agent
 pub struct AgentStatus {
 pub mut:
-	guid            string       // unique id for the job
+	guid            string          // unique id for the job
 	timestamp_first ourtime.OurTime // when agent came online
 	timestamp_last  ourtime.OurTime // last time agent let us know that he is working
-	status          AgentState   // current state of the agent
+	status          AgentState      // current state of the agent
 }
 
 // AgentService represents a service provided by an agent

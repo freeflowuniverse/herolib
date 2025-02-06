@@ -42,8 +42,8 @@ fn upload_() ! {
 }
 
 fn install_() ! {
-    console.print_header('install rust')
-    base.install()!
+	console.print_header('install rust')
+	base.install()!
 
 	pl := core.platform()!
 

@@ -72,7 +72,6 @@ pub fn (mut b DockerBuilderRecipe) add_package(args PackageArgs) ! {
 		}
 	}
 
-
 	// lets now check of the package has already not been set before
 	for package0 in b.items {
 		if package0 is PackageItem {

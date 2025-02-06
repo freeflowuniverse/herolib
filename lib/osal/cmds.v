@@ -109,11 +109,11 @@ pub fn profile_path_source() !string {
 	}
 	pp := profile_path()!
 	if os.exists(pp) {
-		res := os.execute("source ${pp}")
+		res := os.execute('source ${pp}')
 		if res.exit_code != 0 {
-			console.print_stderr("WARNING: your profile is corrupt: ${pp}")
-			return error("profile corrupt")
-		}else{
+			console.print_stderr('WARNING: your profile is corrupt: ${pp}')
+			return error('profile corrupt')
+		} else {
 			return 'source ${pp}'
 		}
 	}
@@ -122,10 +122,8 @@ pub fn profile_path_source() !string {
 
 // return source $path &&  .
 // or empty if it doesn't exist
-pub fn profile_path_source_and() !string {	
-	p:=profile_path_source() or { 
-		return ""
-	}
+pub fn profile_path_source_and() !string {
+	p := profile_path_source() or { return '' }
 	return '${p} && '
 }
 

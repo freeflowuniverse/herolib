@@ -61,7 +61,6 @@ pub fn (mut gitstructure GitStructure) load(reload bool) ! {
 			return error(msg)
 		}
 	}
-
 }
 
 // Recursively loads repositories from the provided path, updating their statuses, does not check the status

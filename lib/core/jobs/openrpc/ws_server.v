@@ -10,26 +10,26 @@ pub struct WSServer {
 mut:
 	redis &redisclient.Redis
 	queue &redisclient.RedisQueue
-	port int = 8080 // Default port, can be configured
+	port  int = 8080 // Default port, can be configured
 }
 
 // Create new WebSocket server
-pub fn new_ws_server( port int) !&WSServer {
-	mut redis:= redisclient.core_get()!
+pub fn new_ws_server(port int) !&WSServer {
+	mut redis := redisclient.core_get()!
 	return &WSServer{
 		redis: redis
 		queue: &redisclient.RedisQueue{
-			key: rpc_queue
+			key:   rpc_queue
 			redis: redis
-		}	
-		port: port
+		}
+		port:  port
 	}
 }
 
 // Start the WebSocket server
 pub fn (mut s WSServer) start() ! {
 	mut ws_server := websocket.new_server(.ip, s.port, '')
-	
+
 	// Handle new WebSocket connections
 	ws_server.on_connect(fn (mut ws websocket.ServerClient) !bool {
 		println('New WebSocket client connected')
@@ -59,18 +59,18 @@ pub fn (mut s WSServer) start() ! {
 		// Generate unique request ID if not provided
 		mut req_id := request.id
 		if req_id == 0 {
-			req_id = rand.i32_in_range(1,10000000)!
+			req_id = rand.i32_in_range(1, 10000000)!
 		}
 
 		println('WebSocket put on queue: \'${rpc_queue}\' (msg: ${msg.payload.bytestr()})')
 		// Send request to Redis queue
 		s.queue.add(msg.payload.bytestr())!
 
-		returnkey:='${rpc_queue}:${req_id}'
+		returnkey := '${rpc_queue}:${req_id}'
 		mut queue_return := &redisclient.RedisQueue{
-			key: returnkey
+			key:   returnkey
 			redis: s.redis
-		}			
+		}
 
 		// Wait for response
 		response := queue_return.get(30)!
@@ -89,7 +89,5 @@ pub fn (mut s WSServer) start() ! {
 
 	// Start server
 	println('WebSocket server listening on port ${s.port}')
-	ws_server.listen() or {
-		return error('Failed to start WebSocket server: ${err}')
-	}
+	ws_server.listen() or { return error('Failed to start WebSocket server: ${err}') }
 }

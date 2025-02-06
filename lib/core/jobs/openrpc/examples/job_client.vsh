@@ -9,7 +9,6 @@ import term
 
 const ws_url = 'ws://localhost:8080'
 
-
 // Helper function to send request and receive response
 fn send_request(mut ws websocket.Client, request OpenRPCRequest) !OpenRPCResponse {
 	// Send request
@@ -31,7 +30,7 @@ fn send_request(mut ws websocket.Client, request OpenRPCRequest) !OpenRPCRespons
 	}
 
 	response_text := msg.payload.bytestr()
-	
+
 	// Parse response
 	response := json.decode(OpenRPCResponse, response_text) or {
 		eprintln(term.red('Failed to decode response: ${err}'))
@@ -42,24 +41,23 @@ fn send_request(mut ws websocket.Client, request OpenRPCRequest) !OpenRPCRespons
 
 // OpenRPC request/response structures (copied from handler.v)
 struct OpenRPCRequest {
-	jsonrpc string    [required]
-	method  string    [required]
+	jsonrpc string @[required]
+	method  string @[required]
 	params  []string
-	id      int       [required]
+	id      int @[required]
 }
 
 struct OpenRPCResponse {
-	jsonrpc string    [required]
+	jsonrpc string @[required]
 	result  string
 	error   string
-	id      int       [required]
+	id      int @[required]
 }
-
 
 // Initialize and configure WebSocket client
 fn init_client() !&websocket.Client {
 	mut ws := websocket.new_client(ws_url)!
-	
+
 	ws.on_open(fn (mut ws websocket.Client) ! {
 		println(term.green('Connected to WebSocket server and ready...'))
 	})
@@ -90,9 +88,7 @@ fn init_client() !&websocket.Client {
 // Main client logic
 mut ws := init_client()!
 defer {
-	ws.close(1000, 'normal') or {
-		eprintln(term.red('Error closing connection: ${err}'))
-	}
+	ws.close(1000, 'normal') or { eprintln(term.red('Error closing connection: ${err}')) }
 }
 println(term.green('Connected to ${ws_url}'))
 
@@ -100,9 +96,9 @@ println(term.green('Connected to ${ws_url}'))
 println(term.blue('\nCreating new job...'))
 new_job := send_request(mut ws, OpenRPCRequest{
 	jsonrpc: '2.0'
-	method: 'job.new'
-	params: []string{}
-	id: rand.i32_in_range(1,10000000)!
+	method:  'job.new'
+	params:  []string{}
+	id:      rand.i32_in_range(1, 10000000)!
 }) or {
 	eprintln(term.red('Failed to create new job: ${err}'))
 	exit(1)
@@ -123,16 +119,16 @@ updated_job.guid = 'test-job-1'
 updated_job.actor = 'vm_manager'
 updated_job.action = 'start'
 updated_job.params = {
-	'name': 'test-vm'
+	'name':   'test-vm'
 	'memory': '2048'
 }
 
 // Save job
 set_response := send_request(mut ws, OpenRPCRequest{
 	jsonrpc: '2.0'
-	method: 'job.set'
-	params: [json.encode(updated_job)]
-	id: rand.int()
+	method:  'job.set'
+	params:  [json.encode(updated_job)]
+	id:      rand.int()
 }) or {
 	eprintln(term.red('Failed to save job: ${err}'))
 	exit(1)
@@ -144,9 +140,9 @@ println(json.encode_pretty(set_response))
 println(term.blue('\nUpdating job status...'))
 update_response := send_request(mut ws, OpenRPCRequest{
 	jsonrpc: '2.0'
-	method: 'job.update_status'
-	params: ['test-job-1', 'running']
-	id: rand.int()
+	method:  'job.update_status'
+	params:  ['test-job-1', 'running']
+	id:      rand.int()
 }) or {
 	eprintln(term.red('Failed to update job status: ${err}'))
 	exit(1)
@@ -158,9 +154,9 @@ println(json.encode_pretty(update_response))
 println(term.blue('\nRetrieving job...'))
 get_response := send_request(mut ws, OpenRPCRequest{
 	jsonrpc: '2.0'
-	method: 'job.get'
-	params: ['test-job-1']
-	id: rand.int()
+	method:  'job.get'
+	params:  ['test-job-1']
+	id:      rand.int()
 }) or {
 	eprintln(term.red('Failed to retrieve job: ${err}'))
 	exit(1)
@@ -172,9 +168,9 @@ println(json.encode_pretty(get_response))
 println(term.blue('\nListing all jobs...'))
 list_response := send_request(mut ws, OpenRPCRequest{
 	jsonrpc: '2.0'
-	method: 'job.list'
-	params: []string{}
-	id: rand.int()
+	method:  'job.list'
+	params:  []string{}
+	id:      rand.int()
 }) or {
 	eprintln(term.red('Failed to list jobs: ${err}'))
 	exit(1)

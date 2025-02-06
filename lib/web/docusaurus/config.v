@@ -33,7 +33,7 @@ pub mut:
 
 pub struct Main {
 pub mut:
-	name		   string
+	name           string
 	title          string
 	tagline        string
 	favicon        string
@@ -89,7 +89,7 @@ pub fn load_config(cfg_dir string) !Config {
 
 	return Config{
 		footer: footer
-		main: main
+		main:   main
 		navbar: navbar
 	}
 }
