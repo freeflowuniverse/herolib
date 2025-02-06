@@ -50,7 +50,7 @@ jobs:
           v -cg -enable-globals -w -n cli/hero.v
 
       - name: Upload Binary as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: hero-linux
           path: hero
