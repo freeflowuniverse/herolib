@@ -1,10 +1,28 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-
+import freeflowuniverse.herolib.clients.postgresql_client
 import freeflowuniverse.herolib.data.location
 
+// Configure PostgreSQL client
+heroscript := "
+!!postgresql_client.configure 
+	name:'test'
+	user: 'postgres'
+	port: 5432
+	host: 'localhost'
+	password: '1234'
+	dbname: 'postgres'
+"
+
+// Process the heroscript configuration
+postgresql_client.play(heroscript: heroscript)!
+
+// Get the configured client
+mut db_client := postgresql_client.get(name: "test")!
+
+
 // Create a new location instance
-mut loc := location.new(false) or { panic(err) }
+mut loc := location.new(mut db_client, false) or { panic(err) }
 println('Location database initialized')
 
 // Initialize the database (downloads and imports data)

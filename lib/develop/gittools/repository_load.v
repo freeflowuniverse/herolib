@@ -94,20 +94,20 @@ fn (mut repo GitRepo) load_branches() ! {
 
 // Helper to load remote tags
 fn (mut repo GitRepo) load_tags() ! {
-	tags_result := repo.exec('git show-ref --tags') or {
-	    return error('Failed to list tags: ${err}. Please ensure git is installed and repository is accessible.')
+	tags_result := repo.exec('git tag --list') or {
+		return error('Failed to list tags: ${err}. Please ensure git is installed and repository is accessible.')
 	}
+	//println(tags_result)
 	for line in tags_result.split('\n') {
-	    line_trimmed := line.trim_space()
-	    if line_trimmed == '' {
-	        continue
-	    }
-	    if parts := line_trimmed.split(' refs/tags/') {
-	        if parts.len != 2 {
-	            continue
-	        }
-	        commit_hash := parts[0].trim_space()
-	        tag_name := parts[1].trim_space()
+		line_trimmed := line.trim_space()
+		if line_trimmed != '' {
+			parts := line_trimmed.split(' ')
+			if parts.len < 2 {
+				//console.print_debug('Skipping malformed tag line: ${line_trimmed}')
+				continue
+			}
+			commit_hash := parts[0].trim_space()
+			tag_name := parts[1].all_after('refs/tags/').trim_space()
 
 			// Update remote tags info
 			repo.status_remote.tags[tag_name] = commit_hash
