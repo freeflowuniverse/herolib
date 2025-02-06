@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Hero
         run: |
-          v -cg -enable-globals -w -n cli/hero.v
+          v -cg -enable-globals -w -n -o cli/hero.v
 
       - name: Upload Binary as Artifact
         uses: actions/upload-artifact@v4
