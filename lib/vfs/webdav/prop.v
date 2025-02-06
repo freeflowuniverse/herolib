@@ -5,14 +5,20 @@ import encoding.xml
 import os
 import time
 import vweb
-import net.urllib
 
 fn (mut app App) generate_response_element(path string, depth int) xml.XMLNode {
-	name := os.file_name(path)
-	href_link := urllib.path_escape(name)
+	mut path_ := path.all_after(app.root_dir.path)
+	if !path_.starts_with('/') {
+		path_ = '/${path_}'
+	}
+
+	if os.is_dir(path) && path_ != '/' {
+		path_ = '${path_}/'
+	}
+
 	href := xml.XMLNode{
 		name:     'D:href'
-		children: ['${href_link}']
+		children: [path_]
 	}
 
 	propstat := app.generate_propstat_element(path, depth)
@@ -55,18 +61,10 @@ fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
 
 	stat := os.stat(path)!
 
-	// name := match os.is_dir(path) {
-	// 	true {
-	// 		os.base(path)
-	// 	}
-	// 	false {
-	// 		os.file_name(path)
-	// 	}
-	// }
-	// display_name := xml.XMLNode{
-	// 	name:     'D:displayname'
-	// 	children: ['${name}']
-	// }
+	display_name := xml.XMLNode{
+		name:     'D:displayname'
+		children: ['${os.file_name(path)}']
+	}
 
 	content_length := if os.is_dir(path) { 0 } else { stat.size }
 	get_content_length := xml.XMLNode{
@@ -101,9 +99,10 @@ fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
 	}
 
 	mut get_resource_type_children := []xml.XMLNodeContents{}
+
 	if os.is_dir(path) {
 		get_resource_type_children << xml.XMLNode{
-			name: 'D:collection '
+			name: 'D:collection xmlns:D="DAV:"'
 		}
 	}
 
@@ -113,14 +112,14 @@ fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
 	}
 
 	mut nodes := []xml.XMLNodeContents{}
-	nodes << get_content_length
-	nodes << creation_date
+	nodes << display_name
 	nodes << get_last_mod
+	nodes << get_content_type
 	nodes << get_resource_type
-
-	if depth > 0 {
-		nodes << get_content_type
+	if !os.is_dir(path) {
+		nodes << get_content_length
 	}
+	nodes << creation_date
 
 	mut res := xml.XMLNode{
 		name:     'D:prop'
@@ -135,7 +134,7 @@ fn (mut app App) get_file_content_type(path string) string {
 	content_type := if v := vweb.mime_types[ext] {
 		v
 	} else {
-		'application/octet-stream'
+		'text/plain; charset=utf-8'
 	}
 
 	return content_type
@@ -148,8 +147,8 @@ fn format_iso8601(t time.Time) string {
 fn (mut app App) get_responses(path string, depth int) ![]xml.XMLNodeContents {
 	mut responses := []xml.XMLNodeContents{}
 
+	responses << app.generate_response_element(path, depth)
 	if depth == 0 {
-		responses << app.generate_response_element(path, depth)
 		return responses
 	}
 
@@ -164,17 +163,9 @@ fn (mut app App) get_responses(path string, depth int) ![]xml.XMLNodeContents {
 			return error('failed to list directory ${path}: ${err}')
 		}
 
-		// if entries.paths.len == 0 {
-		// 	// An empty directory
-		// 	responses << app.generate_response_element(path)
-		// 	return responses
-		// }
-
 		for entry in entries.paths {
 			responses << app.generate_response_element(entry.path, depth)
 		}
-	} else {
-		responses << app.generate_response_element(path, depth)
 	}
 
 	return responses

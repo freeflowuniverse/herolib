@@ -7,49 +7,49 @@ import encoding.xml
 import freeflowuniverse.herolib.ui.console
 import net.urllib
 
-@['/:path...'; LOCK]
-fn (mut app App) lock_handler(path string) vweb.Result {
-	// Not yet working
-	// TODO: Test with multiple clients
-	resource := app.req.url
-	owner := app.get_header('Owner')
-	if owner.len == 0 {
-		return app.bad_request('Owner header is required.')
-	}
+// @['/:path...'; LOCK]
+// fn (mut app App) lock_handler(path string) vweb.Result {
+// 	// Not yet working
+// 	// TODO: Test with multiple clients
+// 	resource := app.req.url
+// 	owner := app.get_header('Owner')
+// 	if owner.len == 0 {
+// 		return app.bad_request('Owner header is required.')
+// 	}
 
-	depth := if app.get_header('Depth').len > 0 { app.get_header('Depth').int() } else { 0 }
-	timeout := if app.get_header('Timeout').len > 0 { app.get_header('Timeout').int() } else { 3600 }
+// 	depth := if app.get_header('Depth').len > 0 { app.get_header('Depth').int() } else { 0 }
+// 	timeout := if app.get_header('Timeout').len > 0 { app.get_header('Timeout').int() } else { 3600 }
 
-	token := app.lock_manager.lock(resource, owner, depth, timeout) or {
-		app.set_status(423, 'Locked')
-		return app.text('Resource is already locked.')
-	}
+// 	token := app.lock_manager.lock(resource, owner, depth, timeout) or {
+// 		app.set_status(423, 'Locked')
+// 		return app.text('Resource is already locked.')
+// 	}
 
-	app.set_status(200, 'OK')
-	app.add_header('Lock-Token', token)
-	return app.text('Lock granted with token: ${token}')
-}
+// 	app.set_status(200, 'OK')
+// 	app.add_header('Lock-Token', token)
+// 	return app.text('Lock granted with token: ${token}')
+// }
 
-@['/:path...'; UNLOCK]
-fn (mut app App) unlock_handler(path string) vweb.Result {
-	// Not yet working
-	// TODO: Test with multiple clients
-	resource := app.req.url
-	token := app.get_header('Lock-Token')
-	if token.len == 0 {
-		console.print_stderr('Unlock failed: `Lock-Token` header required.')
-		return app.bad_request('Unlock failed: `Lock-Token` header required.')
-	}
+// @['/:path...'; UNLOCK]
+// fn (mut app App) unlock_handler(path string) vweb.Result {
+// 	// Not yet working
+// 	// TODO: Test with multiple clients
+// 	resource := app.req.url
+// 	token := app.get_header('Lock-Token')
+// 	if token.len == 0 {
+// 		console.print_stderr('Unlock failed: `Lock-Token` header required.')
+// 		return app.bad_request('Unlock failed: `Lock-Token` header required.')
+// 	}
 
-	if app.lock_manager.unlock_with_token(resource, token) {
-		app.set_status(204, 'No Content')
-		return app.text('Lock successfully released')
-	}
+// 	if app.lock_manager.unlock_with_token(resource, token) {
+// 		app.set_status(204, 'No Content')
+// 		return app.text('Lock successfully released')
+// 	}
 
-	console.print_stderr('Resource is not locked or token mismatch.')
-	app.set_status(409, 'Conflict')
-	return app.text('Resource is not locked or token mismatch')
-}
+// 	console.print_stderr('Resource is not locked or token mismatch.')
+// 	app.set_status(409, 'Conflict')
+// 	return app.text('Resource is not locked or token mismatch')
+// }
 
 @['/:path...'; get]
 fn (mut app App) get_file(path string) vweb.Result {
@@ -215,7 +215,6 @@ fn (mut app App) propfind(path string) vweb.Result {
 	}
 
 	depth := app.get_header('Depth').int()
-	println('depth: ${depth}')
 
 	responses := app.get_responses(p.path, depth) or {
 		console.print_stderr('failed to get responses: ${err}')
@@ -232,22 +231,12 @@ fn (mut app App) propfind(path string) vweb.Result {
 		}
 	}
 
-	res := doc.pretty_str('').split('\n')[1..].join('')
-	println('res: ${res}')
+	res := '<?xml version="1.0" encoding="UTF-8"?>${doc.pretty_str('').split('\n')[1..].join('')}'
+	// println('res: ${res}')
 
 	app.set_status(207, 'Multi-Status')
 	app.send_response_to_client('application/xml', res)
 	return vweb.not_found()
-}
-
-fn (mut app App) generate_resource_response(path string) string {
-	mut response := ''
-	response += app.generate_element('response', 2)
-	response += app.generate_element('href', 4)
-	response += app.generate_element('/href', 4)
-	response += app.generate_element('/response', 2)
-
-	return response
 }
 
 fn (mut app App) generate_element(element string, space_cnt int) string {

@@ -10,9 +10,9 @@ struct App {
 	user_db  map[string]string @[required]
 	root_dir pathlib.Path      @[vweb_global]
 pub mut:
-	lock_manager LockManager
-	server_port  int
-	middlewares  map[string][]vweb.Middleware
+	// lock_manager LockManager
+	server_port int
+	middlewares map[string][]vweb.Middleware
 }
 
 @[params]
