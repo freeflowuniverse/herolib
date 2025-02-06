@@ -12,26 +12,49 @@ The PostgreSQL client can be configured using HeroScript. Configuration settings
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.core
-import os
 import freeflowuniverse.herolib.clients.postgresql_client
 
+
+// Configure PostgreSQL client
 heroscript := "
 !!postgresql_client.configure 
-    name:'test'
-    user: 'root'
-    port: 5432
-    host: 'localhost'
-    password: '1234'
-    dbname: 'postgres'
+	name:'test'
+	user: 'postgres'
+	port: 5432
+	host: 'localhost'
+	password: '1234'
+	dbname: 'postgres'
 "
 
-// Process the heroscript
-postgresql_client.play(heroscript:heroscript)!
+// Process the heroscript configuration
+postgresql_client.play(heroscript: heroscript)!
 
 // Get the configured client
-mut db_client := postgresql_client.get(name:"test")!
+mut db_client := postgresql_client.get(name: "test")!
 
-println(db_client)
+// Check if test database exists, create if not
+if !db_client.db_exists('test')! {
+	println('Creating database test...')
+	db_client.db_create('test')!
+}
+
+// Switch to test database
+db_client.dbname = 'test'
+
+// Create table if not exists
+create_table_sql := "CREATE TABLE IF NOT EXISTS users (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	email VARCHAR(255) UNIQUE NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)"
+
+println('Creating table users if not exists...')
+db_client.exec(create_table_sql)!
+
+println('Database and table setup completed successfully!')
+
+
 ```
 
 ### Configuration Parameters
@@ -94,20 +117,3 @@ db_client.backup(dest: '/path/to/backup/dir')!
 
 Backups are created in custom PostgreSQL format (.bak files) which can be restored using pg_restore.
 
-## Default Configuration
-
-If no configuration is provided, the client uses these default settings:
-
-```v
-heroscript := "
-!!postgresql_client.configure 
-    name:'default'
-    user: 'root'
-    port: 5432
-    host: 'localhost'
-    password: ''
-    dbname: 'postgres'
-"
-```
-
-You can override these defaults by providing your own configuration using the HeroScript configure command.
