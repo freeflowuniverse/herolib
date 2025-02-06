@@ -179,7 +179,7 @@ clients/meilisearch
 clients/zdb
 clients/openai
 systemd_process_test.v
-
+data/graphdb
 // We should fix that one
 clients/livekit
 '
