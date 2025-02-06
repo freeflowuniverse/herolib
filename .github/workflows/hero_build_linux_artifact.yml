@@ -30,28 +30,33 @@ jobs:
           ln -s $GITHUB_WORKSPACE/lib ~/.vmodules/freeflowuniverse/herolib
 
           echo "Installing secp256k1..."
-          # Install build dependencies
           sudo apt-get install -y build-essential wget autoconf libtool
-
-          # Download and extract secp256k1
           cd /tmp
           wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
           tar -xvf v0.3.2.tar.gz
-
-          # Build and install
           cd secp256k1-0.3.2/
           ./autogen.sh
           ./configure
           make -j 5
           sudo make install
 
+      - name: Debug working directory
+        run: pwd && ls -la
+
       - name: Build Hero
         run: |
-          v -cg -enable-globals -w -n -o cli/hero.v
+          # Explicit output flag with binary name
+          v -cg -enable-globals -w -n -o hero cli/hero.v
+
+      - name: Verify binary
+        run: |
+          ls -la hero
+          file hero
+          ./hero --version || true
 
       - name: Upload Binary as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: hero-linux
           path: hero
-          retention-days: 90  # Keep the artifact for 90 days
+          retention-days: 90
