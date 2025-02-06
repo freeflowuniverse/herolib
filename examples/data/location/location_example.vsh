@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none  -cg -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.data.location
 
