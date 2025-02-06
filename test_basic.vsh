@@ -180,6 +180,7 @@ clients/zdb
 clients/openai
 systemd_process_test.v
 data/graphdb
+data/radixtree
 // We should fix that one
 clients/livekit
 '
