@@ -31,7 +31,7 @@ pub:
 	feature_class  string  @[max_len: 1] // For filtering (P for populated places)
 	feature_code   string  @[max_len: 10] // Detailed type (PPL, PPLA, etc.)
 	search_priority int
-	accuracy u8 = 1	//1=estimated, 4=geonameid, 6=centroid of addresses or shape
+	accuracy i16 = 1	//1=estimated, 4=geonameid, 6=centroid of addresses or shape
 }
 
 pub struct AlternateName {
