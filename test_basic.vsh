@@ -85,6 +85,7 @@ fn process_test_file(path string, base_dir string, test_files_ignore []string, t
 
 	// Check if any ignore pattern matches the path
 	for pattern in test_files_ignore {
+		println('Check ignore test: ${pattern} -- ${rel_path} ::: ${rel_path.contains(pattern.trim_space())}')
 		if pattern.trim_space() != '' && rel_path.contains(pattern.trim_space()) {
 			println('Ignoring test: ${rel_path}')
 			return
