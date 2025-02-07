@@ -30,9 +30,7 @@ jobs:
 
       - name: Generate documentation
         run: |
-          rm -rf /home/runner/work/herolib/docs
           ./doc.vsh          
-          ls /home/runner/work/herolib/docs
           find .
 
       - name: Setup Pages
