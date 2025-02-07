@@ -1,4 +1,4 @@
-module buildah
+module wireguard
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -8,8 +8,8 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-	buildah_global  map[string]&BuildahInstaller
-	buildah_default string
+	wireguard_installer_global  map[string]&WireGuard
+	wireguard_installer_default string
 )
 
 /////////FACTORY
@@ -20,8 +20,8 @@ pub mut:
 	name string
 }
 
-pub fn get(args_ ArgsGet) !&BuildahInstaller {
-	return &BuildahInstaller{}
+pub fn get(args_ ArgsGet) !&WireGuard {
+	return &WireGuard{}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,19 +56,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self BuildahInstaller) install(args InstallArgs) ! {
+pub fn (mut self WireGuard) install(args InstallArgs) ! {
 	switch(self.name)
 	if args.reset || (!installed()!) {
 		install()!
 	}
 }
 
-pub fn (mut self BuildahInstaller) destroy() ! {
+pub fn (mut self WireGuard) destroy() ! {
 	switch(self.name)
 	destroy()!
 }
 
-// switch instance to be used for buildah
+// switch instance to be used for wireguard_installer
 pub fn switch(name string) {
-	buildah_default = name
+	wireguard_installer_default = name
 }

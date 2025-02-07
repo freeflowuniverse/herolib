@@ -2,59 +2,26 @@ module buildah
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import os
+import freeflowuniverse.herolib.core
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} buildah -v')
-	if res.exit_code != 0 {
-		return false
-	}
-	r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	if r.len != 1 {
-		return error("couldn't parse herocontainers version, expected 'buildah -v' on 1 row.\n${res.output}")
-	}
-	v := texttools.version(r[0].all_after('version').all_before('(').replace('-dev', ''))
-	if texttools.version(version) == v {
-		return true
-	}
-	return false
+fn installed() !bool {
+	osal.execute_silent('buildah -v') or { return false }
+
+	return true
 }
 
-fn install_() ! {
+fn install() ! {
 	console.print_header('install buildah')
-	build()!
-}
+	if core.platform()! != .ubuntu {
+		return error('Only ubuntu is supported for now')
+	}
 
-fn build_() ! {
-	console.print_header('build buildah')
-
-	osal.package_install('runc,bats,btrfs-progs,git,go-md2man,libapparmor-dev,libglib2.0-dev,libgpgme11-dev,libseccomp-dev,libselinux1-dev,make,skopeo,libbtrfs-dev')!
-
-	mut g := golang.get()!
-	g.install()!
-
-	cmd := '
-        cd /tmp
-        rm -rf buildah
-        git clone https://github.com/containers/buildah
-        cd buildah
-        make SECURITYTAGS="apparmor seccomp"
-        '
+	cmd := 'sudo apt-get -y update && sudo apt-get -y install buildah'
 	osal.execute_stdout(cmd)!
 
-	// now copy to the default bin path
-	osal.cmd_add(
-		cmdname: 'buildah'
-		source:  '/tmp/buildah/bin/buildah'
-	)!
-
-	osal.rm('
-       /tmp/buildah
-    ')!
+	console.print_header('Buildah Installed Successfuly')
 }
 
 // get the Upload List of the files
@@ -64,17 +31,6 @@ fn ulist_get() !ulist.UList {
 	return ulist.UList{}
 }
 
-fn destroy_() ! {
-	osal.package_remove('
-       buildah
-    ')!
-
-	// will remove all paths where go/bin is found
-	osal.profile_path_add_remove(paths2delete: 'go/bin')!
-
-	osal.rm('
-       buildah
-       /var/lib/buildah
-       /tmp/buildah
-    ')!
+fn destroy() ! {
+	osal.execute_stdout('sudo apt remove --purge -y buildah')!
 }

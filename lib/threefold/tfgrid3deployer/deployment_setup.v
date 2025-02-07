@@ -32,14 +32,15 @@ fn new_deployment_setup(network_specs NetworkSpecs, vms []VMachine, zdbs []ZDB, 
 	mut dls := DeploymentSetup{
 		deployer:        deployer
 		network_handler: NetworkHandler{
-			deployer:     deployer
-			network_name: network_specs.name
-			mycelium:     network_specs.mycelium
-			ip_range:     network_specs.ip_range
+			req:                 network_specs.requirements
+			deployer:            deployer
+			mycelium:            network_specs.mycelium
+			ip_range:            network_specs.ip_range
+			user_access_configs: network_specs.user_access_configs.clone()
 		}
 	}
 
-	dls.setup_network_workloads(vms, old_deployments)!
+	dls.setup_network_workloads(vms, webnames, old_deployments)!
 	dls.setup_vm_workloads(vms)!
 	dls.setup_zdb_workloads(zdbs)!
 	dls.setup_webname_workloads(webnames)!
@@ -67,9 +68,9 @@ fn (mut self DeploymentSetup) match_versions(old_dls map[u32]grid_models.Deploym
 // - st: Modified DeploymentSetup struct with network workloads set up
 // Returns:
 // - None
-fn (mut st DeploymentSetup) setup_network_workloads(vms []VMachine, old_deployments map[u32]grid_models.Deployment) ! {
+fn (mut st DeploymentSetup) setup_network_workloads(vms []VMachine, webnames []WebName, old_deployments map[u32]grid_models.Deployment) ! {
 	st.network_handler.load_network_state(old_deployments)!
-	st.network_handler.create_network(vms)!
+	st.network_handler.create_network(vms, webnames)!
 	data := st.network_handler.generate_workloads()!
 
 	for node_id, workload in data {
@@ -176,6 +177,11 @@ fn (mut self DeploymentSetup) setup_webname_workloads(webnames []WebName) ! {
 			tls_passthrough: req.tls_passthrough
 			backends:        [req.backend]
 			name:            gw_name
+			network:         if wn.requirements.use_wireguard_network {
+				self.network_handler.req.name
+			} else {
+				none
+			}
 		}
 
 		self.workloads[wn.node_id] << gw.to_workload(
@@ -205,7 +211,7 @@ fn (mut self DeploymentSetup) set_zmachine_workload(vmachine VMachine, public_ip
 		network:          grid_models.ZmachineNetwork{
 			interfaces: [
 				grid_models.ZNetworkInterface{
-					network: self.network_handler.network_name
+					network: self.network_handler.req.name
 					ip:      if vmachine.wireguard_ip.len > 0 {
 						used_ip_octets[vmachine.node_id] << vmachine.wireguard_ip.all_after_last('.').u8()
 						vmachine.wireguard_ip
@@ -218,7 +224,7 @@ fn (mut self DeploymentSetup) set_zmachine_workload(vmachine VMachine, public_ip
 			planetary:  vmachine.requirements.planetary
 			mycelium:   if mycelium := vmachine.requirements.mycelium {
 				grid_models.MyceliumIP{
-					network:  self.network_handler.network_name
+					network:  self.network_handler.req.name
 					hex_seed: mycelium.hex_seed
 				}
 			} else {
