@@ -167,8 +167,8 @@ function os_update {
         fi    
         export TERM=xterm
         export DEBIAN_FRONTEND=noninteractive
-        dpkg --configure -a        
-        apt update -y
+        sudo dpkg --configure -a        
+        sudo apt update -y
         if is_github_actions; then
             echo "** IN GITHUB ACTIONS, DON'T DO UPDATE"
         else            
@@ -515,9 +515,9 @@ if [ "$HEROLIB" = true ]; then
 fi
 
 
-# if [ "$INSTALL_ANALYZER" = true ]; then
-#     echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
-# fi
+if [ "$INSTALL_ANALYZER" = true ]; then
+    echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
+fi
 
 
 echo "Installation complete!"
