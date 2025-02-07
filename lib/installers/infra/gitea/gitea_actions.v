@@ -92,16 +92,17 @@ fn ulist_get() !ulist.UList {
 fn upload() ! {}
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
-
 	mut cfg := get()!
+	mut res := []zinit.ZProcessNewArgs{}
 	res << zinit.ZProcessNewArgs{
 		name: 'gitea'
 		cmd:  'gitea server'
 		env:  {
-			'HOME ':      os.home_dir()
-			'GITEA_CONFIG ': cfg.config_path()
+			'HOME':         os.home_dir()
+			'GITEA_CONFIG': cfg.config_path()
 		}
 	}
+	return res
 
 
 

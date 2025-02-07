@@ -31,15 +31,18 @@ fn args_get (args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&GiteaServer  {
-    mut context:=base.context()!
+    mut context := base.context()!
     mut args := args_get(args_)
-    mut obj := GiteaServer{}
+    mut obj := GiteaServer{
+        domain: 'localhost' // Default domain, should be overridden by configuration
+    }
     if !(args.name in gitea_global) {
-        if ! exists(args){            
+        exists_res := exists(args) or { false }
+        if !exists_res {            
             set(obj)!
-        }else{
-            heroscript := context.hero_config_get("gitea",args.name)!
-            mut obj2:=heroscript_loads(heroscript)!
+        } else {
+            heroscript := context.hero_config_get("gitea", args.name)!
+            mut obj2 := heroscript_loads(heroscript)!
             set_in_mem(obj2)!
         }        
     }
@@ -53,14 +56,16 @@ pub fn get(args_ ArgsGet) !&GiteaServer  {
 //register the config for the future
 pub fn set(o GiteaServer)! {
     set_in_mem(o)!
-    heroscript:=heroscript_dumps(obj)!
-    context.hero_config_set(gitea,args.name,heroscript)!
+    mut context := base.context()!
+    heroscript := heroscript_dumps(o)!
+    context.hero_config_set("gitea", o.name, heroscript)!
 }
 
 //does the config exists?
-pub fn exists(args_ ArgsGet)! {
-    mut context:=base.context() or { panic("bug") }
-    return context.hero_config_exists("gitea",args.name)
+pub fn exists(args_ ArgsGet) !bool {
+    mut context := base.context()!
+    mut args := args_get(args_)
+    return context.hero_config_exists("gitea", args.name)
 }
 
 pub fn delete(args_ ArgsGet)! {

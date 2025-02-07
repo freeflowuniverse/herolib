@@ -56,14 +56,16 @@ pub fn get(args_ ArgsGet) !&${args.classname}  {
 //register the config for the future
 pub fn set(o ${args.classname})! {
     set_in_mem(o)!
-    heroscript:=heroscript_dumps(obj)!
-    context.hero_config_set(${args.name},args.name,heroscript)!
+    mut context := base.context()!
+    heroscript := heroscript_dumps(o)!
+    context.hero_config_set("gitea", o.name, heroscript)!
 }
 
 //does the config exists?
 pub fn exists(args_ ArgsGet)! {
-	mut context:=base.context() or { panic("bug") }
-	return context.hero_config_exists("${args.name}",args.name)
+    mut context := base.context()!
+    mut args := args_get(args_)
+    return context.hero_config_exists("gitea", args.name)
 }
 
 pub fn delete(args_ ArgsGet)! {

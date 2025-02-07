@@ -3,6 +3,7 @@ import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.osal
 import os
 import freeflowuniverse.herolib.clients.mailclient
 import freeflowuniverse.herolib.clients.postgresql_client
@@ -42,20 +43,20 @@ fn obj_init(mycfg_ GiteaServer)!GiteaServer{
 fn configure() ! {
 	mut server := get()!
 
-	if ! osal.exists("gitea") {
+	if !osal.cmd_exists('gitea')! {
 		return error('gitea binary not found in path. Please install gitea first.')
 	}
 	// Generate and set any missing secrets
 	if server.lfs_jwt_secret == '' {
-		server.lfs_jwt_secret = os.execute_opt('gitea generate secret LFS_JWT_SECRET')!.output.trim()
+		server.lfs_jwt_secret = os.execute_opt('gitea generate secret LFS_JWT_SECRET')!.output.trim_space()
 		set(server)!
 	}
 	if server.internal_token == '' {
-		server.internal_token = os.execute_opt('gitea generate secret INTERNAL_TOKEN')!.output.trim()
+		server.internal_token = os.execute_opt('gitea generate secret INTERNAL_TOKEN')!.output.trim_space()
 		set(server)!
 	}
 	if server.secret_key == '' {
-		server.secret_key = os.execute_opt('gitea generate secret SECRET_KEY')!.output.trim()
+		server.secret_key = os.execute_opt('gitea generate secret SECRET_KEY')!.output.trim_space()
 		set(server)!
 	}
 
