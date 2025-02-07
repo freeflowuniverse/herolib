@@ -31,18 +31,15 @@ fn args_get (args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&GiteaServer  {
-    mut context := base.context()!
+    mut context:=base.context()!
     mut args := args_get(args_)
-    mut obj := GiteaServer{
-        domain: 'localhost' // Default domain, should be overridden by configuration
-    }
+    mut obj := GiteaServer{}
     if !(args.name in gitea_global) {
-        exists_res := exists(args) or { false }
-        if !exists_res {            
+        if ! exists(args)!{            
             set(obj)!
-        } else {
-            heroscript := context.hero_config_get("gitea", args.name)!
-            mut obj2 := heroscript_loads(heroscript)!
+        }else{
+            heroscript := context.hero_config_get("gitea",args.name)!
+            mut obj2:=heroscript_loads(heroscript)!
             set_in_mem(obj2)!
         }        
     }

@@ -19,7 +19,7 @@ pub mut:
     name string = 'default'
 	path           string = '${os.home_dir()}/hero/var/gitea'
 	passwd         string
-	domain         string @[required]
+	domain         string = "git.test.com"
 	jwt_secret     string = rand.hex(12)
 	lfs_jwt_secret string
 	internal_token string
@@ -43,7 +43,7 @@ fn obj_init(mycfg_ GiteaServer)!GiteaServer{
 fn configure() ! {
 	mut server := get()!
 
-	if !osal.cmd_exists('gitea')! {
+	if !osal.cmd_exists('gitea') {
 		return error('gitea binary not found in path. Please install gitea first.')
 	}
 	// Generate and set any missing secrets

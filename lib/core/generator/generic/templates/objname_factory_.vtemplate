@@ -38,7 +38,7 @@ pub fn get(args_ ArgsGet) !&${args.classname}  {
     mut args := args_get(args_)
     mut obj := ${args.classname}{}
 	if !(args.name in ${args.name}_global) {
-        if ! exists(args){            
+        if ! exists(args)!{            
             set(obj)!
         }else{
             heroscript := context.hero_config_get("${args.name}",args.name)!

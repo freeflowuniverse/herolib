@@ -85,28 +85,20 @@ fn process_test_file(path string, base_dir string, test_files_ignore []string, t
 
 	// Check if any ignore pattern matches the path
 	for pattern in test_files_ignore {
-		if pattern.trim_space() != '' && rel_path.contains(pattern) {
-			should_ignore = true
-			break
+		if pattern.trim_space() != '' && rel_path.contains(pattern.trim_space()) {
+			println('Ignoring test: ${rel_path}')
+			return
 		}
 	}
 
 	// Check if any error pattern matches the path
 	for pattern in test_files_error {
-		if pattern.trim_space() != '' && rel_path.contains(pattern) {
-			is_error = true
-			break
+		if pattern.trim_space() != '' && rel_path.contains(pattern.trim_space()) {
+			println('Ignoring test because is error: ${rel_path}')
+			return
 		}
 	}
-
-	if !should_ignore && !is_error {
-		dotest(norm_path, base_dir, mut cache)!
-	} else {
-		println('Ignoring test: ${rel_path}')
-		if !should_ignore {
-			tests_in_error << rel_path
-		}
-	}
+	dotest(norm_path, base_dir, mut cache)!
 }
 
 fn dotest(path string, base_dir string, mut cache TestCache) ! {
@@ -188,6 +180,8 @@ if os.exists("/home/runner"){
 	println("**** WE ARE IN GITHUB ACTION")
 	tests_ignore+="\nosal/tmux\n"
 }
+
+println(tests_ignore)
 
 tests_error := '
 tmux_window_test.v
