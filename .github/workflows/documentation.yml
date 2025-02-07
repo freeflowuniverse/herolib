@@ -26,12 +26,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Vlang
-        run: ./install_v.sh --github-actions
+        run: ./install_v.sh
 
       - name: Generate documentation
         run: |
-          ./doc.vsh
-          # ls /home/runner/work/herolib/docs
+          rm -rf /home/runner/work/herolib/docs
+          ./doc.vsh          
+          ls /home/runner/work/herolib/docs
           find .
 
       - name: Setup Pages

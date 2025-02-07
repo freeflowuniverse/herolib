@@ -6,8 +6,6 @@ permissions:
 on:
   push:
     branches: ["main","development"]
-    tags:
-      - 'v*'
   workflow_dispatch:
     branches: ["main","development"]
 
