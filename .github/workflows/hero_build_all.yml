@@ -1,4 +1,4 @@
-name: Build Hero on Linux & Run tests
+name: Release Hero
 
 permissions:
   contents: write
