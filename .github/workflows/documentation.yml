@@ -2,9 +2,9 @@ name: Deploy Documentation to Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["development"]
   workflow_dispatch:
-    branches: ["main"]
+    branches: ["development"]
 
 permissions:
   contents: read

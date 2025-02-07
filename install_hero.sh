@@ -17,6 +17,20 @@ else
     exit 1
 fi
 
+# Check for existing hero installations
+existing_hero=$(which hero 2>/dev/null || true)
+if [ ! -z "$existing_hero" ]; then
+    echo "Found existing hero installation at: $existing_hero"
+    if [ -w "$(dirname "$existing_hero")" ]; then
+        echo "Removing existing hero installation..."
+        rm "$existing_hero" || { echo "Error: Failed to remove existing hero binary at $existing_hero"; exit 1; }
+    else
+        echo "Error: Cannot remove existing hero installation at $existing_hero (permission denied)"
+        echo "Please remove it manually with sudo and run this script again"
+        exit 1
+    fi
+fi
+
 if [[ "${OSNAME}" == "darwin"* ]]; then
     # Check if /usr/local/bin/hero exists and remove it
     if [ -f /usr/local/bin/hero ]; then

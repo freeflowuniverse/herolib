@@ -310,11 +310,10 @@ fn (mut repo GitRepo) update_submodules() ! {
 }
 
 fn (repo GitRepo) exec(cmd_ string) !string {
-    import os { quoted_path }
-    repo_path := quoted_path(repo.path())
-    cmd_args := ["sh", "-c", "cd ${repo_path} && ${cmd_}"]
-    // console.print_debug(cmd_args.join(" "))
-    r := os.execute_opt(cmd_args)!
+	repo_path := repo.path()
+	cmd := 'cd ${repo_path} && ${cmd_}'
+	// console.print_debug(cmd)
+	r := os.execute(cmd)
 	if r.exit_code != 0 {
 		return error('Repo failed to exec cmd: ${cmd}\n${r.output})')
 	}

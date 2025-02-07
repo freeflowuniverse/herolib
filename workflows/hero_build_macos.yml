@@ -3,10 +3,6 @@ name: Build Hero on Macos & Run tests
 permissions:
   contents: write
 
-on:
-  push:
-  workflow_dispatch:
-
 jobs:
   build:
     strategy:

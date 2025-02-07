@@ -55,7 +55,7 @@ fn obj_init(obj_ PostgresClient) !PostgresClient {
 	return obj
 }
 
-fn (mut self PostgresClient) db() !pg.DB {
+pub fn (mut self PostgresClient) db() !pg.DB {
 	// console.print_debug(args)
 	mut db := self.db_ or {
 		mut db_ := pg.connect(

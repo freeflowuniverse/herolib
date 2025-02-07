@@ -1,16 +1,20 @@
 module location
 
+import freeflowuniverse.herolib.clients.postgresql_client
+
 // Location represents the main API for location operations
 pub struct Location {
 mut:
 	db LocationDB
+	db_client postgresql_client.PostgresClient
 }
 
 // new creates a new Location instance
-pub fn new(reset bool) !Location {
-	db := new_location_db(reset)!
+pub fn new(mut db_client postgresql_client.PostgresClient, reset bool) !Location {
+	db := new_location_db(mut db_client, reset)!
 	return Location{
 		db: db
+		db_client: db_client
 	}
 }
 
@@ -22,12 +26,25 @@ pub fn (mut l Location) download_and_import(redownload bool) ! {
 // Example usage:
 /*
 fn main() ! {
-	// Create a new location instance
-	mut loc := location.new()!
+	// Configure and get PostgreSQL client
+	heroscript := "
+	!!postgresql_client.configure 
+		name:'test'
+		user: 'postgres'
+		port: 5432
+		host: 'localhost'
+		password: '1234'
+		dbname: 'postgres'
+	"
+	postgresql_client.play(heroscript: heroscript)!
+	mut db_client := postgresql_client.get(name: "test")!
+
+	// Create a new location instance with db_client
+	mut loc := location.new(db_client, false)!
 
 	// Initialize the database (downloads and imports data)
 	// Only needs to be done once or when updating data
-	loc.init_database()!
+	loc.download_and_import(false)!
 
 	// Search for a city
 	results := loc.search('London', 'GB', 5, true)!
