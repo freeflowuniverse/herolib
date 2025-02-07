@@ -61,4 +61,33 @@ $if !linux {
     }
 }
 
+// Create Jekyll required files
+println('Creating Jekyll files...')
+os.mkdir_all('docs/assets/css') or {}
+
+// Create style.scss
+style_content := '---\n---\n\n@import "{{ site.theme }}";'
+os.write_file('docs/assets/css/style.scss', style_content) or {
+    panic('Failed to create style.scss: ${err}')
+}
+
+// Create _config.yml
+config_content := 'title: HeroLib Documentation
+description: Documentation for the HeroLib project
+theme: jekyll-theme-primer
+baseurl: /herolib
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/'
+
+os.write_file('docs/_config.yml', config_content) or {
+    panic('Failed to create _config.yml: ${err}')
+}
+
 println('Documentation generation completed successfully!')
