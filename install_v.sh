@@ -111,8 +111,8 @@ function package_install {
 }
 
 is_github_actions() {
-    echo "Checking GitHub Actions environment..."
-    echo "GITHUB_ACTIONS=${GITHUB_ACTIONS:-not set}"
+    # echo "Checking GitHub Actions environment..."
+    # echo "GITHUB_ACTIONS=${GITHUB_ACTIONS:-not set}"
     if [ -n "$GITHUB_ACTIONS" ] && [ "$GITHUB_ACTIONS" = "true" ]; then
         echo "Running in GitHub Actions: true"
         return 0
@@ -317,31 +317,32 @@ remove_all() {
 # Function to check if a service is running and start it if needed
 check_and_start_redis() {
 
-    # Handle Redis installation for GitHub Actions environment
-    if is_github_actions; then
 
-             # Import Redis GPG key
-          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-          # Add Redis repository
-          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-          # Install Redis
-          sudo apt-get update
-          sudo apt-get install -y redis
-            
-          # Start Redis
-          redis-server --daemonize yes
-
-          # Print versions
-          redis-cli --version
-          redis-server --version
-
-          return
-    fi
- 
     
     # Normal service management for non-container environments
     if [[ "${OSNAME}" == "ubuntu" ]] || [[ "${OSNAME}" == "debian" ]]; then
 
+        # Handle Redis installation for GitHub Actions environment
+        if is_github_actions; then
+
+                # Import Redis GPG key
+            curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+            # Add Redis repository
+            echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+            # Install Redis
+            sudo apt-get update
+            sudo apt-get install -y redis
+                
+            # Start Redis
+            redis-server --daemonize yes
+
+            # Print versions
+            redis-cli --version
+            redis-server --version
+
+            return
+        fi
+    
         # Check if running inside a container
         if grep -q "/docker/" /proc/1/cgroup || [ ! -d "/run/systemd/system" ]; then
             echo "Running inside a container. Starting redis directly."
