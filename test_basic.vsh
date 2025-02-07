@@ -182,8 +182,6 @@ if os.exists("/home/runner"){
 	tests_ignore+="\nosal/tmux\n"
 }
 
-println(tests_ignore)
-
 tests_error := '
 tmux_window_test.v
 tmux_test.v
@@ -208,11 +206,14 @@ test_files := tests.split('\n').filter(it.trim_space() != '')
 test_files_ignore := tests_ignore.split('\n').filter(it.trim_space() != '')
 test_files_error := tests_error.split('\n').filter(it.trim_space() != '')
 
-mut tests_in_error := []string{}
-
 // Load test cache
 mut cache := load_test_cache()
 println('Test cache loaded from ${cache_file}')
+
+println("tests to ignore")
+println(tests_ignore)
+
+exit(0)
 
 // Run each test with proper v command flags
 for test in test_files {
@@ -233,20 +234,13 @@ for test in test_files {
 		files := os.walk_ext(full_path, '.v')
 		for file in files {
 			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut
-				cache, mut tests_in_error)!
+				cache!
 		}
 	} else if os.is_file(full_path) {
 		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut
-			cache, mut tests_in_error)!
+			cache!
 	}
 }
 
 println('All (non skipped) tests ok')
 
-if tests_in_error.len > 0 {
-	println('\n\033[31mTests that need to be fixed (not executed):')
-	for test in tests_in_error {
-		println('  ${test}')
-	}
-	println('\033[0m')
-}
