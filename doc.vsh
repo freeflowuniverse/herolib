@@ -26,9 +26,9 @@ os.chdir(herolib_path) or {
     panic('Failed to change directory to herolib: ${err}')
 }
 
-os.rmdir_all('_docs') or {}
-os.rmdir_all('docs') or {}
-os.rmdir_all('vdocs') or {}
+os.mkdir_all('_docs') or {}
+os.mkdir_all('docs') or {}
+os.mkdir_all('vdocs') or {}
 
 // Generate HTML documentation
 println('Generating HTML documentation...')
@@ -42,13 +42,12 @@ os.chdir(abs_dir_of_script) or {
 
 // Generate Markdown documentation
 println('Generating Markdown documentation...')
-os.rmdir_all('vdocs') or {}
 
 // if os.system('v doc -m -no-color -f md -o ../vdocs/v/') != 0 {
 //     panic('Failed to generate V markdown documentation')
 // }
 
-if os.system('v doc -m -no-color -f md -o vdocs/herolib/') != 0 {
+if os.system('v doc -m -no-color -f md -o vdocs/') != 0 {
     panic('Failed to generate Hero markdown documentation')
 }
 
