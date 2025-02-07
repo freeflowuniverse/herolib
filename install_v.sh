@@ -111,7 +111,15 @@ function package_install {
 }
 
 is_github_actions() {
-    [ -n "$GITHUB_ACTIONS" ] && [ "$GITHUB_ACTIONS" = "true" ]
+    echo "Checking GitHub Actions environment..."
+    echo "GITHUB_ACTIONS=${GITHUB_ACTIONS:-not set}"
+    if [ -n "$GITHUB_ACTIONS" ] && [ "$GITHUB_ACTIONS" = "true" ]; then
+        echo "Running in GitHub Actions: true"
+        return 0
+    else
+        echo "Running in GitHub Actions: false"
+        return 1
+    fi
 }
 
 
