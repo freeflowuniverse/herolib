@@ -1,4 +1,3 @@
-
 #!/bin/bash -e
 
 # Help function
@@ -198,9 +197,9 @@ function os_update {
             echo 'builduser ALL=(ALL) NOPASSWD: ALL' | tee /etc/sudoers.d/builduser
         fi
 
-        if [[ -n "${DEBUG}" ]]; then
-            execute_with_marker "paru_install" paru_install
-        fi
+        # if [[ -n "${DEBUG}" ]]; then
+        #     execute_with_marker "paru_install" paru_install
+        # fi
     fi
     echo ' - os update done'
 }
@@ -300,6 +299,28 @@ remove_all() {
 
 # Function to check if a service is running and start it if needed
 check_and_start_redis() {
+
+    # Handle Redis installation for GitHub Actions environment
+    if is_github_actions; then
+
+             # Import Redis GPG key
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+          # Add Redis repository
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+          # Install Redis
+          sudo apt-get update
+          sudo apt-get install -y redis
+            
+          # Start Redis
+          redis-server --daemonize yes
+
+          # Print versions
+          redis-cli --version
+          redis-server --version
+
+          return
+    fi
+ 
     
     # Normal service management for non-container environments
     if [[ "${OSNAME}" == "ubuntu" ]] || [[ "${OSNAME}" == "debian" ]]; then
@@ -362,6 +383,74 @@ check_and_start_redis() {
     fi
 }
 
+v-install() {
+
+    # Only clone and install if directory doesn't exist
+    if [ ! -d ~/code/v ]; then
+        echo "Installing V..."
+        mkdir -p ~/_code
+        cd ~/_code
+        git clone --depth=1 https://github.com/vlang/v
+        cd v
+        make
+        sudo ./v symlink
+    fi
+
+    # Verify v is in path
+    if ! command_exists v; then
+        echo "Error: V installation failed or not in PATH"
+        echo "Please ensure ~/code/v is in your PATH"
+        exit 1
+    fi
+
+    echo "V installation successful!"
+
+}
+
+
+v-analyzer() {
+
+    # Install v-analyzer if requested
+    if [ "$INSTALL_ANALYZER" = true ]; then
+        echo "Installing v-analyzer..."
+        v download -RD https://raw.githubusercontent.com/vlang/v-analyzer/main/install.vsh
+
+        # Check if v-analyzer bin directory exists
+        if [ ! -d "$HOME/.config/v-analyzer/bin" ]; then
+            echo "Error: v-analyzer bin directory not found at $HOME/.config/v-analyzer/bin"
+            echo "Please ensure v-analyzer was installed correctly"
+            exit 1
+        fi
+
+        echo "v-analyzer installation successful!"
+    fi
+
+    # Add v-analyzer to PATH if installed
+    if [ -d "$HOME/.config/v-analyzer/bin" ]; then
+        V_ANALYZER_PATH='export PATH="$PATH:$HOME/.config/v-analyzer/bin"'
+
+        # Function to add path to rc file if not present
+        add_to_rc() {
+            local RC_FILE="$1"
+            if [ -f "$RC_FILE" ]; then
+                if ! grep -q "v-analyzer/bin" "$RC_FILE"; then
+                    echo "" >> "$RC_FILE"
+                    echo "$V_ANALYZER_PATH" >> "$RC_FILE"
+                    echo "Added v-analyzer to $RC_FILE"
+                else
+                    echo "v-analyzer path already exists in $RC_FILE"
+                fi
+            fi
+        }
+
+        # Add to both .zshrc and .bashrc if they exist
+        add_to_rc ~/.zshrc
+        if [ "$(uname)" = "Darwin" ] && [ -f ~/.bashrc ]; then
+            add_to_rc ~/.bashrc
+        fi
+    fi
+}
+
 
 
 # Handle remove if requested
@@ -390,72 +479,15 @@ if [ "$RESET" = true ] || ! command_exists v; then
     # Install secp256k1
     install_secp256k1
 
-    # Only clone and install if directory doesn't exist
-    if [ ! -d ~/code/v ]; then
-        echo "Installing V..."
-        mkdir -p ~/_code
-        cd ~/_code
-        git clone --depth=1 https://github.com/vlang/v
-        cd v
-        make
-        sudo ./v symlink
+    v-install
+
+    # Only install v-analyzer if not in GitHub Actions environment
+    if ! is_github_actions; then
+        v-analyzer
     fi
 
-    # Verify v is in path
-    if ! command_exists v; then
-        echo "Error: V installation failed or not in PATH"
-        echo "Please ensure ~/code/v is in your PATH"
-        exit 1
-    fi
-    echo "V installation successful!"
 fi
 
-# Install v-analyzer if requested
-if [ "$INSTALL_ANALYZER" = true ]; then
-    echo "Installing v-analyzer..."
-    v download -RD https://raw.githubusercontent.com/vlang/v-analyzer/main/install.vsh
-
-    # Check if v-analyzer bin directory exists
-    if [ ! -d "$HOME/.config/v-analyzer/bin" ]; then
-        echo "Error: v-analyzer bin directory not found at $HOME/.config/v-analyzer/bin"
-        echo "Please ensure v-analyzer was installed correctly"
-        exit 1
-    fi
-
-    echo "v-analyzer installation successful!"
-fi
-
-# Add v-analyzer to PATH if installed
-if [ -d "$HOME/.config/v-analyzer/bin" ]; then
-    V_ANALYZER_PATH='export PATH="$PATH:$HOME/.config/v-analyzer/bin"'
-
-    # Function to add path to rc file if not present
-    add_to_rc() {
-        local RC_FILE="$1"
-        if [ -f "$RC_FILE" ]; then
-            if ! grep -q "v-analyzer/bin" "$RC_FILE"; then
-                echo "" >> "$RC_FILE"
-                echo "$V_ANALYZER_PATH" >> "$RC_FILE"
-                echo "Added v-analyzer to $RC_FILE"
-            else
-                echo "v-analyzer path already exists in $RC_FILE"
-            fi
-        fi
-    }
-
-    # Add to both .zshrc and .bashrc if they exist
-    add_to_rc ~/.zshrc
-    if [ "$(uname)" = "Darwin" ] && [ -f ~/.bashrc ]; then
-        add_to_rc ~/.bashrc
-    fi
-fi
-
-# Final verification
-if ! command_exists v; then
-    echo "Error: V is not accessible in PATH"
-    echo "Please add ~/code/v to your PATH and try again"
-    exit 1
-fi
 
 check_and_start_redis
 

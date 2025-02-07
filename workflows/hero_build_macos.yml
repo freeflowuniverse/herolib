@@ -3,9 +3,12 @@ name: Build Hero on Macos & Run tests
 permissions:
   contents: write
 
+# Workflow is temporarily disabled. To enable, set ENABLE_MACOS_BUILD=true in repository secrets
 on:
   push:
+    if: ${{ vars.ENABLE_MACOS_BUILD == 'true' }}
   workflow_dispatch:
+    if: ${{ vars.ENABLE_MACOS_BUILD == 'true' }}
 
 jobs:
   build:

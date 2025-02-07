@@ -1,0 +1,97 @@
+name: Build Hero on Linux & Run tests
+
+permissions:
+  contents: write
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            short-name: linux-i64
+          # - target: aarch64-unknown-linux-musl
+          #   os: ubuntu-latest
+          #   short-name: linux-arm64
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          #   short-name: macos-arm64
+          # - target: x86_64-apple-darwin
+          #   os: macos-13
+          #   short-name: macos-i64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup Vlang
+        run: |
+          git clone --depth=1 https://github.com/vlang/v
+          cd v
+          make
+          sudo ./v symlink
+          cd ..
+
+      - name: Setup Herolib
+        run: |
+          mkdir -p ~/.vmodules/freeflowuniverse
+          ln -s $GITHUB_WORKSPACE/lib ~/.vmodules/freeflowuniverse/herolib
+
+          echo "Installing secp256k1..."
+          # Install build dependencies
+          sudo apt-get install -y build-essential wget autoconf libtool
+
+          # Download and extract secp256k1
+          cd /tmp
+          wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
+          tar -xvf v0.3.2.tar.gz
+
+          # Build and install
+          cd secp256k1-0.3.2/
+          ./autogen.sh
+          ./configure
+          make -j 5
+          sudo make install
+
+          # Cleanup
+          rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
+
+          echo "secp256k1 installation complete!"
+
+      - name: Install and Start Redis
+        run: |
+          # Import Redis GPG key
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+          # Add Redis repository
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+          # Install Redis
+          sudo apt-get update
+          sudo apt-get install -y redis
+            
+          # Start Redis
+          redis-server --daemonize yes
+
+          # Print versions
+          redis-cli --version
+          redis-server --version
+
+      - name: Build Hero
+        run: |
+          v -cg -enable-globals -w -n cli/hero.v
+
+      - name: Do all the basic tests
+        run: |
+          ./test_basic.vsh
+        env:
+          LIVEKIT_API_KEY: ${{secrets.LIVEKIT_API_KEY}}
+          LIVEKIT_API_SECRET: ${{secrets.LIVEKIT_API_SECRET}}
+          LIVEKIT_URL: ${{secrets.LIVEKIT_URL}}

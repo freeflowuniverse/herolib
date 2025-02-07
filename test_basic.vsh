@@ -173,7 +173,7 @@ lib/develop
 '
 
 // the following tests have no prio and can be ignored
-tests_ignore := '
+mut tests_ignore := '
 notifier_test.v
 clients/meilisearch
 clients/zdb
@@ -184,6 +184,10 @@ data/radixtree
 // We should fix that one
 clients/livekit
 '
+
+if os.exists("/home/runner"){
+	tests_ignore+="clients/livekit"
+}
 
 tests_error := '
 tmux_window_test.v
