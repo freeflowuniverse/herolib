@@ -167,12 +167,12 @@ function os_update {
         fi    
         export TERM=xterm
         export DEBIAN_FRONTEND=noninteractive
-        dpkg --configure -a
+        dpkg --configure -a        
         apt update -y
         if is_github_actions; then
             echo "** IN GITHUB ACTIONS, DON'T DO UPDATE"
-        else
-            set +e
+        else            
+            set +e            
             echo "** UPDATE"
             apt-mark hold grub-efi-amd64-signed
             set -e
@@ -490,9 +490,7 @@ mkdir -p ~/code
 # Check if v needs to be installed
 if [ "$RESET" = true ] || ! command_exists v; then
 
-    if ! is_github_actions; then
-        os_update
-    fi
+    os_update
 
     sshknownkeysadd
 
