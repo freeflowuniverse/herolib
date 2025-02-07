@@ -202,19 +202,3 @@ pub fn (mut self LivekitServer) destroy() ! {
 pub fn switch(name string) {
 	livekit_default = name
 }
-
-pub fn (mut self LivekitServer) install(args InstallArgs) ! {
-	switch(self.name)
-	if args.reset {
-		destroy_()!
-	}
-	if !(installed_()!) {
-		install_()!
-	}
-}
-
-pub fn (mut self LivekitServer) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy_()!
-}

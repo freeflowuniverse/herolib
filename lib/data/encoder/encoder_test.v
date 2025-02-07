@@ -11,8 +11,8 @@ fn test_string() {
 	assert e.data == [u8(1), 0, 97, 2, 0, 98, 99]
 
 	mut d := decoder_new(e.data)
-	assert d.get_string() == 'a'
-	assert d.get_string() == 'bc'
+	assert d.get_string()! == 'a'
+	assert d.get_string()! == 'bc'
 }
 
 fn test_int() {
@@ -22,8 +22,8 @@ fn test_int() {
 	assert e.data == [u8(0x00), 0x00, 0x00, 0x80, 0xff, 0xff, 0xff, 0x7f]
 
 	mut d := decoder_new(e.data)
-	assert d.get_int() == min_i32
-	assert d.get_int() == max_i32
+	assert d.get_int()! == min_i32
+	assert d.get_int()! == max_i32
 }
 
 fn test_bytes() {
@@ -34,7 +34,7 @@ fn test_bytes() {
 	assert e.data == [u8(6), 0, 97, 98, 99, 100, 101, 102]
 
 	mut d := decoder_new(e.data)
-	assert d.get_list_u8() == sb
+	assert d.get_list_u8()! == sb
 }
 
 fn test_u8() {
@@ -44,8 +44,8 @@ fn test_u8() {
 	assert e.data == [u8(0x00), 0xff]
 
 	mut d := decoder_new(e.data)
-	assert d.get_u8() == min_u8
-	assert d.get_u8() == max_u8
+	assert d.get_u8()! == min_u8
+	assert d.get_u8()! == max_u8
 }
 
 fn test_u16() {
@@ -55,8 +55,8 @@ fn test_u16() {
 	assert e.data == [u8(0x00), 0x00, 0xff, 0xff]
 
 	mut d := decoder_new(e.data)
-	assert d.get_u16() == min_u16
-	assert d.get_u16() == max_u16
+	assert d.get_u16()! == min_u16
+	assert d.get_u16()! == max_u16
 }
 
 fn test_u32() {
@@ -66,8 +66,8 @@ fn test_u32() {
 	assert e.data == [u8(0x00), 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff]
 
 	mut d := decoder_new(e.data)
-	assert d.get_u32() == min_u32
-	assert d.get_u32() == max_u32
+	assert d.get_u32()! == min_u32
+	assert d.get_u32()! == max_u32
 }
 
 fn test_u64() {
@@ -78,8 +78,8 @@ fn test_u64() {
 		0xff, 0xff, 0xff, 0xff]
 
 	mut d := decoder_new(e.data)
-	assert d.get_u64() == min_u64
-	assert d.get_u64() == max_u64
+	assert d.get_u64()! == min_u64
+	assert d.get_u64()! == max_u64
 }
 
 fn test_time() {
@@ -88,7 +88,7 @@ fn test_time() {
 	e.add_time(t)
 
 	mut d := decoder_new(e.data)
-	assert d.get_time() == t
+	assert d.get_time()! == t
 }
 
 fn test_list_string() {
@@ -99,7 +99,7 @@ fn test_list_string() {
 	assert e.data == [u8(3), 0, 1, 0, 97, 2, 0, 98, 99, 3, 0, 100, 101, 102]
 
 	mut d := decoder_new(e.data)
-	assert d.get_list_string() == list
+	assert d.get_list_string()! == list
 }
 
 fn test_list_int() {
@@ -110,7 +110,7 @@ fn test_list_int() {
 	assert e.data == [u8(3), 0, 0x95, 0xea, 0x2f, 0x87, 0, 0, 0, 0, 0x8f, 0xe6, 0xf2, 0xfd]
 
 	mut d := decoder_new(e.data)
-	assert d.get_list_int() == list
+	assert d.get_list_int()! == list
 }
 
 fn test_list_u8() {
@@ -121,7 +121,7 @@ fn test_list_u8() {
 	assert e.data == [u8(3), 0, 153, 0, 22]
 
 	mut d := decoder_new(e.data)
-	assert d.get_list_u8() == list
+	assert d.get_list_u8()! == list
 }
 
 fn test_list_u16() {
@@ -132,7 +132,7 @@ fn test_list_u16() {
 	assert e.data == [u8(3), 0, 0x25, 0x87, 0, 0, 0xff, 0xfd]
 
 	mut d := decoder_new(e.data)
-	assert d.get_list_u16() == list
+	assert d.get_list_u16()! == list
 }
 
 fn test_list_u32() {
@@ -143,7 +143,7 @@ fn test_list_u32() {
 	assert e.data == [u8(3), 0, 0x95, 0xea, 0x2f, 0x87, 0, 0, 0, 0, 0x8f, 0xe6, 0xf2, 0xfd]
 
 	mut d := decoder_new(e.data)
-	assert d.get_list_u32() == list
+	assert d.get_list_u32()! == list
 }
 
 fn test_map_string() {
@@ -157,7 +157,7 @@ fn test_map_string() {
 	assert e.data == [u8(2), 0, 1, 0, 49, 1, 0, 97, 1, 0, 50, 2, 0, 98, 99]
 
 	mut d := decoder_new(e.data)
-	assert d.get_map_string() == mp
+	assert d.get_map_string()! == mp
 }
 
 fn test_map_bytes() {
@@ -171,7 +171,7 @@ fn test_map_bytes() {
 	assert e.data == [u8(2), 0, 1, 0, 49, 1, 0, 0, 0, 97, 1, 0, 50, 2, 0, 0, 0, 98, 99]
 
 	mut d := decoder_new(e.data)
-	assert d.get_map_bytes() == mp
+	assert d.get_map_bytes()! == mp
 }
 
 struct StructType[T] {

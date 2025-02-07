@@ -33,7 +33,7 @@ pub fn (mut tree Tree) process_includes() ! {
 
 	for queue.len > 0 {
 		front := queue[0]
-		queue = queue[1..]
+		queue = queue[1..].clone()
 
 		mut page := tree.page_get(front)!
 		mut col := tree.get_collection(page.collection_name)!

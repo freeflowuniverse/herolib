@@ -33,7 +33,7 @@ Note: Configuration is not needed if using a locally running Mycelium server wit
 Save as `mycelium_example.vsh`:
 
 ```v
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.clients.mycelium
 
