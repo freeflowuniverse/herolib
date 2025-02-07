@@ -28,57 +28,26 @@ pub fn encode[T](val T) !string {
 	$if T is $struct {
 		e.encode_struct[T](val)!
 	} $else $if T is $array {
-		e.add_child_list[T](val, 'TODO')
+		e.encode_array(val)
 	} $else {
 		return error('can only add elements for struct or array of structs. \n${val}')
 	}
-	return e.export()!
+	return e.export()
 }
 
 // export exports an encoder into encoded heroscript
-pub fn (e Encoder) export() !string {
+pub fn (e Encoder) export() string {
 	mut script := e.params.export(
 		pre:        '!!define.${e.action_names.join('.')}'
 		indent:     '	'
 		skip_empty: true
 	)
 
-	script += e.children.map(it.export()!).join('\n')
+	script += e.children.map(it.export()).filter(it.trim_space() != '').join_lines().trim_space()
+	if script == '!!define.${e.action_names.join('.')}' {
+		return ''
+	}
 	return script
-}
-
-// needs to be a struct we are adding
-// parent is the name of the action e.g define.customer:contact
-pub fn (mut e Encoder) add_child[T](val T, parent string) ! {
-	$if T is $array {
-		mut counter := 0
-		for valitem in val {
-			mut e2 := e.add_child[T](valitem, '${parent}:${counter}')!
-		}
-		return
-	}
-	mut e2 := Encoder{
-		params:       paramsparser.Params{}
-		parent:       &e
-		action_names: e.action_names.clone() // careful, if not cloned gets mutated later
-	}
-	$if T is $struct {
-		e2.params.set('key', parent)
-		e2.encode_struct[T](val)!
-		e.children << e2
-	} $else {
-		return error('can only add elements for struct or array of structs. \n${val}')
-	}
-}
-
-pub fn (mut e Encoder) add_child_list[U](val []U, parent string) ! {
-	for i in 0 .. val.len {
-		mut counter := 0
-		$if U is $struct {
-			e.add_child(val[i], '${parent}:${counter}')!
-			counter += 1
-		}
-	}
 }
 
 // needs to be a struct we are adding
