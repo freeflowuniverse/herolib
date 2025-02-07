@@ -1,4 +1,5 @@
 module gitea
+
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.pathlib
@@ -16,30 +17,29 @@ const default = false
 @[heap]
 pub struct GiteaServer {
 pub mut:
-    name string = 'default'
-	path           string = '${os.home_dir()}/hero/var/gitea'
-	passwd         string
-	domain         string = "git.test.com"
-	jwt_secret     string = rand.hex(12)
-	lfs_jwt_secret string
-	internal_token string
-	secret_key     string
-	postgresql_client_name string = "default"
-	mail_client_name string = "default"
+	name                   string = 'default'
+	path                   string = '${os.home_dir()}/hero/var/gitea'
+	passwd                 string
+	domain                 string = 'git.test.com'
+	jwt_secret             string = rand.hex(12)
+	lfs_jwt_secret         string
+	internal_token         string
+	secret_key             string
+	postgresql_client_name string = 'default'
+	mail_client_name       string = 'default'
 }
-
 
 pub fn (obj GiteaServer) config_path() string {
-    return '${obj.path}/config.ini'
+	return '${obj.path}/config.ini'
 }
 
-//your checking & initialization code if needed
-fn obj_init(mycfg_ GiteaServer)!GiteaServer{
-    mut mycfg:=mycfg_
-    return mycfg
+// your checking & initialization code if needed
+fn obj_init(mycfg_ GiteaServer) !GiteaServer {
+	mut mycfg := mycfg_
+	return mycfg
 }
 
-//called before start if done
+// called before start if done
 fn configure() ! {
 	mut server := get()!
 
@@ -68,7 +68,7 @@ fn configure() ! {
 		return error('Failed to initialize mail client "${server.mail_client_name}": ${err}')
 	}
 
-	//TODO: check database exists
+	// TODO: check database exists
 	if !db_client.db_exists('gitea_${server.name}')! {
 		console.print_header('Creating database gitea_${server.name} for gitea.')
 		db_client.db_create('gitea_${server.name}')!
@@ -85,10 +85,10 @@ fn configure() ! {
 /////////////NORMALLY NO NEED TO TOUCH
 
 pub fn heroscript_dumps(obj GiteaServer) !string {
-    return encoderhero.encode[GiteaServer ](obj)!
+	return encoderhero.encode[GiteaServer](obj)!
 }
 
 pub fn heroscript_loads(heroscript string) !GiteaServer {
-    mut obj := encoderhero.decode[GiteaServer](heroscript)!
-    return obj
+	mut obj := encoderhero.decode[GiteaServer](heroscript)!
+	return obj
 }

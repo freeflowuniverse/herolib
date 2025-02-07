@@ -1,11 +1,11 @@
 module mailclient
+
 import freeflowuniverse.herolib.data.paramsparser
 import os
 
 pub const version = '0.0.0'
 const singleton = false
 const default = true
-
 
 pub fn heroscript_default(args DefaultConfigArgs) !string {
 	mail_from := os.getenv_opt('MAIL_FROM') or { 'info@example.com' }
@@ -23,7 +23,7 @@ pub fn heroscript_default(args DefaultConfigArgs) !string {
     mail_username: '${mail_username}'  
 "
 
-    return heroscript
+	return heroscript
 }
 
 @[heap]
@@ -40,22 +40,18 @@ pub mut:
 }
 
 fn cfg_play(p paramsparser.Params) ! {
-    mut mycfg := MailClient{
+	mut mycfg := MailClient{
 		name:          p.get_default('name', 'default')!
 		mail_from:     p.get('mail_from')!
 		mail_password: p.get('mail_password')!
 		mail_port:     p.get_int_default('mail_port', 465)!
 		mail_server:   p.get('mail_server')!
 		mail_username: p.get('mail_username')!
-    }
-    set(mycfg)!
-}     
-
-
-fn obj_init(obj_ MailClient)!MailClient{
-    mut obj:=obj_
-    return obj
+	}
+	set(mycfg)!
 }
 
-
-
+fn obj_init(obj_ MailClient) !MailClient {
+	mut obj := obj_
+	return obj
+}

@@ -10,16 +10,16 @@ import freeflowuniverse.herolib.clients.postgresql_client
 // LocationDB handles all database operations for locations
 pub struct LocationDB {
 pub mut:
-	db pg.DB
+	db        pg.DB
 	db_client postgresql_client.PostgresClient
-	tmp_dir pathlib.Path
-	db_dir pathlib.Path
+	tmp_dir   pathlib.Path
+	db_dir    pathlib.Path
 }
 
 // new_location_db creates a new LocationDB instance
 pub fn new_location_db(mut db_client postgresql_client.PostgresClient, reset bool) !LocationDB {
-	mut db_dir := pathlib.get_dir(path:'${os.home_dir()}/hero/var/db/location.db',create: true)!
-	
+	mut db_dir := pathlib.get_dir(path: '${os.home_dir()}/hero/var/db/location.db', create: true)!
+
 	// Create locations database if it doesn't exist
 	if !db_client.db_exists('locations')! {
 		db_client.db_create('locations')!
@@ -27,15 +27,15 @@ pub fn new_location_db(mut db_client postgresql_client.PostgresClient, reset boo
 
 	// Switch to locations database
 	db_client.dbname = 'locations'
-	
+
 	// Get the underlying pg.DB connection
 	db := db_client.db()!
-	
+
 	mut loc_db := LocationDB{
-		db: db
+		db:        db
 		db_client: db_client
-		tmp_dir: pathlib.get_dir(path: '/tmp/location/',create: true)!
-		db_dir: db_dir
+		tmp_dir:   pathlib.get_dir(path: '/tmp/location/', create: true)!
+		db_dir:    db_dir
 	}
 	loc_db.init_tables(reset)!
 	return loc_db
@@ -50,7 +50,7 @@ fn (mut l LocationDB) init_tables(reset bool) ! {
 			drop table Country
 		}!
 	}
-	
+
 	sql l.db {
 		create table Country
 		create table City

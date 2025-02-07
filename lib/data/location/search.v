@@ -51,11 +51,11 @@ import db.pg
 // 	where_clause := if query_conditions.len > 0 { 'WHERE ' + query_conditions.join(' AND ') } else { '' }
 
 // 	query := '
-// 		SELECT c.*, co.* 
+// 		SELECT c.*, co.*
 // 		FROM City c
 // 		JOIN Country co ON c.country_iso2 = co.iso2
 // 		${where_clause}
-// 		ORDER BY c.search_priority DESC, c.population DESC 
+// 		ORDER BY c.search_priority DESC, c.population DESC
 // 		LIMIT ${opts.limit}
 // 	'
 
@@ -111,8 +111,8 @@ import db.pg
 // 	query := "
 // 		WITH distances AS (
 // 			SELECT c.*, co.*,
-// 			(6371 * acos(cos(radians($1)) * cos(radians(latitude)) * 
-// 			cos(radians(longitude) - radians($2)) + sin(radians($1)) * 
+// 			(6371 * acos(cos(radians($1)) * cos(radians(latitude)) *
+// 			cos(radians(longitude) - radians($2)) + sin(radians($1)) *
 // 			sin(radians(latitude)))) AS distance
 // 			FROM City c
 // 			JOIN Country co ON c.country_iso2 = co.iso2
@@ -122,7 +122,7 @@ import db.pg
 // 		ORDER BY distance
 // 		LIMIT $4
 // 	"
-	
+
 // 	params := [
 // 		opts.coordinates.latitude.str(),
 // 		opts.coordinates.longitude.str(),

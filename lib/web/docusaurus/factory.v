@@ -22,7 +22,7 @@ pub mut:
 	// publish_path string
 	build_path string
 	production bool
-	update bool
+	update     bool
 }
 
 pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {

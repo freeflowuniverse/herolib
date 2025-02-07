@@ -18,8 +18,7 @@ heroscript := "
 postgresql_client.play(heroscript: heroscript)!
 
 // Get the configured client
-mut db_client := postgresql_client.get(name: "test")!
-
+mut db_client := postgresql_client.get(name: 'test')!
 
 // Create a new location instance
 mut loc := location.new(mut db_client, false) or { panic(err) }

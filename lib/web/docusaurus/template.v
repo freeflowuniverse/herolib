@@ -7,7 +7,10 @@ import freeflowuniverse.herolib.installers.web.bun
 fn (mut site DocusaurusFactory) template_install(update bool) ! {
 	mut gs := gittools.new()!
 
-	mut r := gs.get_repo(url: 'https://github.com/freeflowuniverse/docusaurus_template.git',pull:update)!
+	mut r := gs.get_repo(
+		url:  'https://github.com/freeflowuniverse/docusaurus_template.git'
+		pull: update
+	)!
 	mut template_path := r.patho()!
 
 	for item in ['package.json', 'sidebars.ts', 'tsconfig.json'] {

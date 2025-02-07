@@ -97,13 +97,13 @@ fn (mut repo GitRepo) load_tags() ! {
 	tags_result := repo.exec('git tag --list') or {
 		return error('Failed to list tags: ${err}. Please ensure git is installed and repository is accessible.')
 	}
-	//println(tags_result)
+	// println(tags_result)
 	for line in tags_result.split('\n') {
 		line_trimmed := line.trim_space()
 		if line_trimmed != '' {
 			parts := line_trimmed.split(' ')
 			if parts.len < 2 {
-				//console.print_debug('Skipping malformed tag line: ${line_trimmed}')
+				// console.print_debug('Skipping malformed tag line: ${line_trimmed}')
 				continue
 			}
 			commit_hash := parts[0].trim_space()

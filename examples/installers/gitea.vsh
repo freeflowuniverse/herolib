@@ -2,14 +2,15 @@
 
 import freeflowuniverse.herolib.installers.infra.gitea as gitea_installer
 
+mut installer := gitea_installer.get(name: 'test')!
 
-mut installer:= gitea_installer.get(name:'test')!
-
-//if you want to configure using heroscript
-gitea_installer.play(heroscript:"
+// if you want to configure using heroscript
+gitea_installer.play(
+	heroscript: "
     !!gitea.configure name:test
         passwd:'something'
         domain: 'docs.info.com'
-    ")!
+    "
+)!
 
 installer.start()!

@@ -53,7 +53,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		description: 'update your environment the template and the repo you are working on (git pull).'
 	})
 
-
 	cmd_run.add_flag(Flag{
 		flag:        .bool
 		required:    false
@@ -84,29 +83,29 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// 	exit(1)
 	// }
 
-	mut docs := docusaurus.new(update:update)!
+	mut docs := docusaurus.new(update: update)!
 
 	if build {
 		// Create a new docusaurus site
 		_ := docs.build(
-			url: url
-			update:update
+			url:    url
+			update: update
 		)!
 	}
 
 	if builddev {
 		// Create a new docusaurus site
 		_ := docs.build_dev(
-			url: url
-			update:update
+			url:    url
+			update: update
 		)!
 	}
 
 	if dev {
 		// Create a new docusaurus site
 		_ := docs.dev(
-			url: url
-			update:update
+			url:    url
+			update: update
 		)!
 	}
 }

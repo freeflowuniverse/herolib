@@ -25,22 +25,21 @@ fn installed() !bool {
 }
 
 fn install() ! {
-
 	console.print_header('install gitea')
-	baseurl:="https://github.com/go-gitea/gitea/releases/download/v${version}/gitea-${version}"
+	baseurl := 'https://github.com/go-gitea/gitea/releases/download/v${version}/gitea-${version}'
 
 	mut url := ''
-	if core.is_linux_arm()! {		
-		//https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-linux-arm64.xz
+	if core.is_linux_arm()! {
+		// https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-linux-arm64.xz
 		url = '${baseurl}-linux-arm64.xz'
 	} else if core.is_linux_intel()! {
 		// https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-linux-amd64.xz
 		url = '${baseurl}-linux-amd64.xz'
 	} else if core.is_osx_arm()! {
-		//https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-darwin-10.12-arm64.xz
+		// https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-darwin-10.12-arm64.xz
 		url = '${baseurl}-darwin-10.12-arm64.xz'
 	} else if core.is_osx_intel()! {
-		//https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-darwin-10.12-amd64.xz
+		// https://github.com/go-gitea/gitea/releases/download/v1.23.2/gitea-1.23.2-darwin-10.12-amd64.xz
 		url = '${baseurl}-darwin-10.12-amd64.xz'
 	} else {
 		return error('unsported platform')
@@ -104,68 +103,66 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	}
 	return res
 
+	// 	mut res := []zinit.ZProcessNewArgs{}
+	// 	cfg := get()!
+	// 	res << zinit.ZProcessNewArgs{
+	// 		name: 'gitea'
+	// 		// cmd:     'GITEA_WORK_DIR=${cfg.path} sudo -u git /var/lib/git/gitea web -c /etc/gitea_app.ini'
+	// 		cmd:     '
 
+	// # Variables
+	// GITEA_USER="${cfg.run_user}"
+	// GITEA_HOME="${cfg.path}"
+	// GITEA_BINARY="/usr/local/bin/gitea"
+	// GITEA_CONFIG="/etc/gitea_app.ini"
+	// GITEA_DATA_PATH="\$GITEA_HOME/data"
+	// GITEA_CUSTOM_PATH="\$GITEA_HOME/custom"
+	// GITEA_LOG_PATH="\$GITEA_HOME/log"
 
-// 	mut res := []zinit.ZProcessNewArgs{}
-// 	cfg := get()!
-// 	res << zinit.ZProcessNewArgs{
-// 		name: 'gitea'
-// 		// cmd:     'GITEA_WORK_DIR=${cfg.path} sudo -u git /var/lib/git/gitea web -c /etc/gitea_app.ini'
-// 		cmd:     '
+	// # Ensure the script is run as root
+	// if [[ \$EUID -ne 0 ]]; then
+	//     echo "This script must be run as root."
+	//     exit 1
+	// fi
 
-// # Variables
-// GITEA_USER="${cfg.run_user}"
-// GITEA_HOME="${cfg.path}"
-// GITEA_BINARY="/usr/local/bin/gitea"
-// GITEA_CONFIG="/etc/gitea_app.ini"
-// GITEA_DATA_PATH="\$GITEA_HOME/data"
-// GITEA_CUSTOM_PATH="\$GITEA_HOME/custom"
-// GITEA_LOG_PATH="\$GITEA_HOME/log"
+	// echo "Setting up Gitea..."
 
-// # Ensure the script is run as root
-// if [[ \$EUID -ne 0 ]]; then
-//     echo "This script must be run as root."
-//     exit 1
-// fi
+	// # Create Gitea user if it doesn\'t exist
+	// if id -u "\$GITEA_USER" &>/dev/null; then
+	//     echo "User \$GITEA_USER already exists."
+	// else
+	//     echo "Creating Gitea user..."
+	//     if ! sudo adduser --system --shell /bin/bash --group --disabled-password --home "/var/lib/\$GITEA_USER" "\$GITEA_USER"; then
+	//         echo "Failed to create user \$GITEA_USER."
+	//         exit 1
+	//     fi
+	// fi
 
-// echo "Setting up Gitea..."
+	// # Create necessary directories
+	// echo "Creating directories..."
+	// mkdir -p "\$GITEA_DATA_PATH" "\$GITEA_CUSTOM_PATH" "\$GITEA_LOG_PATH"
+	// chown -R "\$GITEA_USER:\$GITEA_USER" "\$GITEA_HOME"
+	// chmod -R 750 "\$GITEA_HOME"
 
-// # Create Gitea user if it doesn\'t exist
-// if id -u "\$GITEA_USER" &>/dev/null; then
-//     echo "User \$GITEA_USER already exists."
-// else
-//     echo "Creating Gitea user..."
-//     if ! sudo adduser --system --shell /bin/bash --group --disabled-password --home "/var/lib/\$GITEA_USER" "\$GITEA_USER"; then
-//         echo "Failed to create user \$GITEA_USER."
-//         exit 1
-//     fi
-// fi
+	// chown "\$GITEA_USER:\$GITEA_USER" "\$GITEA_CONFIG"
+	// chmod 640 "\$GITEA_CONFIG"
 
-// # Create necessary directories
-// echo "Creating directories..."
-// mkdir -p "\$GITEA_DATA_PATH" "\$GITEA_CUSTOM_PATH" "\$GITEA_LOG_PATH"
-// chown -R "\$GITEA_USER:\$GITEA_USER" "\$GITEA_HOME"
-// chmod -R 750 "\$GITEA_HOME"
-
-// chown "\$GITEA_USER:\$GITEA_USER" "\$GITEA_CONFIG"
-// chmod 640 "\$GITEA_CONFIG"
-
-// GITEA_WORK_DIR=\$GITEA_HOME sudo -u git gitea web -c \$GITEA_CONFIG
-// '
-// 		workdir: cfg.path
-// 	}
-// 	res << zinit.ZProcessNewArgs{
-// 		name:    'restart_gitea'
-// 		cmd:     'sleep 30 && zinit restart gitea && exit 1'
-// 		after:   ['gitea']
-// 		oneshot: true
-// 		workdir: cfg.path
-// 	}
-// 	return res
+	// GITEA_WORK_DIR=\$GITEA_HOME sudo -u git gitea web -c \$GITEA_CONFIG
+	// '
+	// 		workdir: cfg.path
+	// 	}
+	// 	res << zinit.ZProcessNewArgs{
+	// 		name:    'restart_gitea'
+	// 		cmd:     'sleep 30 && zinit restart gitea && exit 1'
+	// 		after:   ['gitea']
+	// 		oneshot: true
+	// 		workdir: cfg.path
+	// 	}
+	// 	return res
 }
 
 fn running() !bool {
-	//TODO: extend with proper gitea client
+	// TODO: extend with proper gitea client
 	res := os.execute('curl -fsSL http://localhost:3000 || exit 1')
 	return res.exit_code == 0
 }

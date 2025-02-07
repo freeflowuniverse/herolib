@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.clients.postgresql_client
 // Location represents the main API for location operations
 pub struct Location {
 mut:
-	db LocationDB
+	db        LocationDB
 	db_client postgresql_client.PostgresClient
 }
 
@@ -13,7 +13,7 @@ mut:
 pub fn new(mut db_client postgresql_client.PostgresClient, reset bool) !Location {
 	db := new_location_db(mut db_client, reset)!
 	return Location{
-		db: db
+		db:        db
 		db_client: db_client
 	}
 }
@@ -28,7 +28,7 @@ pub fn (mut l Location) download_and_import(redownload bool) ! {
 fn main() ! {
 	// Configure and get PostgreSQL client
 	heroscript := "
-	!!postgresql_client.configure 
+	!!postgresql_client.configure
 		name:'test'
 		user: 'postgres'
 		port: 5432

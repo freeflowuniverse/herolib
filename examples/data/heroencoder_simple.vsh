@@ -12,8 +12,8 @@ mut:
 }
 
 mut person := Person{
-    name: 'Bob'
-    birthday: time.now()
+	name:     'Bob'
+	birthday: time.now()
 }
 heroscript := encoderhero.encode[Person](person)!
 
@@ -22,9 +22,8 @@ println(heroscript)
 person2 := encoderhero.decode[Person](heroscript)!
 println(person2)
 
-//show that it doesn't matter which action & method is used
-heroscript2:="!!a.b name:Bob age:20 birthday:'2025-02-06 09:57:30'"
+// show that it doesn't matter which action & method is used
+heroscript2 := "!!a.b name:Bob age:20 birthday:'2025-02-06 09:57:30'"
 person3 := encoderhero.decode[Person](heroscript)!
 
 println(person3)
-

@@ -144,7 +144,6 @@ pub fn (mut self Context) hero_config_delete(cat string, name string) ! {
 	config_file.delete()!
 }
 
-
 pub fn (mut self Context) hero_config_exists(cat string, name string) bool {
 	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}__${name}.yaml'
 	return os.exists(path)
