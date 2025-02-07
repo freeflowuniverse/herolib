@@ -5,6 +5,7 @@ import json
 
 @[params]
 pub struct OpenSSLGenerateArgs {
+pub:
 	name   string = 'default'
 	domain string = 'myregistry.domain.com'
 	reset  bool
@@ -22,6 +23,7 @@ pub fn (mut ossl OpenSSL) generate(args OpenSSLGenerateArgs) !OpenSSLKey {
 	'
 
 	mut b := builder.new()!
+	println('b: ${b}')
 	mut node := b.node_local()!
 
 	node.exec(cmd: cmd)!

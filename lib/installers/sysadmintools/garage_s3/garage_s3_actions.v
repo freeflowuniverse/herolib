@@ -30,7 +30,7 @@ fn installed() !bool {
 
 fn install() ! {
 	console.print_header('install garage_s3')
-	mut installer := get()!
+	// mut installer := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	mut url := ''
 	if core.is_linux_arm()! {
@@ -75,7 +75,7 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 }
 
 fn running_() !bool {
-	mut installer := get()!
+	_ := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// this checks health of garage_s3
 	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works

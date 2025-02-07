@@ -7,7 +7,6 @@ pub const version = '1.7.2'
 const singleton = false
 const default = true
 
-// TODO: THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE TO STRUCT BELOW, IS STRUCTURED AS HEROSCRIPT
 pub fn heroscript_default() !string {
 	heroscript := "
     !!livekit.configure 

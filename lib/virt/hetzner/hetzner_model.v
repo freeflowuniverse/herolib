@@ -1,7 +1,7 @@
 module hetzner
 
 import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.clients.httpconnection
+import freeflowuniverse.herolib.core.httpconnection
 
 pub const version = '1.14.3'
 const singleton = false

@@ -18,7 +18,7 @@ pub mut:
 	ssd          string
 	url          string
 	reputation   int
-	uptime       int
+	uptime       int // 0..100
 	continent    string
 	country      string
 	passmark     int

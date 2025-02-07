@@ -26,6 +26,11 @@ pub mut:
 pub fn download(args_ DownloadArgs) !pathlib.Path {
 	mut args := args_
 
+	args.dest = args.dest.trim(' ').trim_right('/')
+	args.expand_dir = args.expand_dir.trim(' ').trim_right('/')
+	args.expand_file = args.expand_file.replace('//', '/')
+	args.dest = args.dest.replace('//', '/')
+
 	console.print_header('download: ${args.url}')
 	if args.name == '' {
 		if args.dest != '' {
@@ -38,7 +43,7 @@ pub fn download(args_ DownloadArgs) !pathlib.Path {
 			args.name = lastname
 		}
 		if args.name == '' {
-			return error('cannot find name for download')
+			return error('cannot find name for download of \n\'${args_}\'')
 		}
 	}
 
@@ -69,8 +74,30 @@ pub fn download(args_ DownloadArgs) !pathlib.Path {
 	}
 
 	if args.reset {
-		mut dest_delete := pathlib.get_file(path: args.dest + '_', check: false)!
-		dest_delete.delete()!
+		// Clean up all related files when resetting
+		if os.exists(args.dest) {
+			if os.is_dir(args.dest) {
+				os.rmdir_all(args.dest) or {}
+			} else {
+				os.rm(args.dest) or {}
+			}
+		}
+		if os.exists(args.dest + '_') {
+			if os.is_dir(args.dest + '_') {
+				os.rmdir_all(args.dest + '_') or {}
+			} else {
+				os.rm(args.dest + '_') or {}
+			}
+		}
+		if os.exists(args.dest + '.meta') {
+			if os.is_dir(args.dest + '.meta') {
+				os.rmdir_all(args.dest + '.meta') or {}
+			} else {
+				os.rm(args.dest + '.meta') or {}
+			}
+		}
+		// Recreate meta file after cleanup
+		meta = pathlib.get_file(path: args.dest + '.meta', create: true)!
 	}
 
 	meta.write(args.url.trim_space())!
@@ -89,8 +116,15 @@ pub fn download(args_ DownloadArgs) !pathlib.Path {
 	if todownload {
 		mut dest0 := pathlib.get_file(path: args.dest + '_')!
 
+		// Clean up any existing temporary file/directory before download
+		if os.exists(dest0.path) {
+			if os.is_dir(dest0.path) {
+				os.rmdir_all(dest0.path) or {}
+			} else {
+				os.rm(dest0.path) or {}
+			}
+		}
 		cmd := '
-			rm -f ${dest0.path}
 			cd /tmp
 			curl -L \'${args.url}\' -o ${dest0.path}
 			'
@@ -121,15 +155,26 @@ pub fn download(args_ DownloadArgs) !pathlib.Path {
 		dest.check()
 	}
 	if args.expand_dir.len > 0 {
+		// Clean up directory if it exists
 		if os.exists(args.expand_dir) {
-			os.rmdir_all(args.expand_dir)!
+			os.rmdir_all(args.expand_dir) or {
+				return error('Failed to remove existing directory ${args.expand_dir}: ${err}')
+			}
 		}
-
 		return dest.expand(args.expand_dir)!
 	}
 	if args.expand_file.len > 0 {
+		// Clean up file/directory if it exists
 		if os.exists(args.expand_file) {
-			os.rm(args.expand_file)!
+			if os.is_dir(args.expand_file) {
+				os.rmdir_all(args.expand_file) or {
+					return error('Failed to remove existing directory ${args.expand_file}: ${err}')
+				}
+			} else {
+				os.rm(args.expand_file) or {
+					return error('Failed to remove existing file ${args.expand_file}: ${err}')
+				}
+			}
 		}
 		return dest.expand(args.expand_file)!
 	}

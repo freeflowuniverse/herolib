@@ -1,5 +1,5 @@
 #!/usr/bin/env -S v -n -w -parallel-cc -enable-globals run
-// #!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+// #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag
@@ -45,7 +45,7 @@ compile_cmd := if os.user_os() == 'macos' {
     if prod_mode {
         'v -enable-globals -w -n -prod hero.v'
     } else {
-        'v -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals hero.v'
+        'v -w -cg -gc none  -cc tcc -d use_openssl -enable-globals hero.v'
     }
 } else {
     if prod_mode {

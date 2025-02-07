@@ -138,6 +138,12 @@ pub fn (mut self Context) hero_config_set(cat string, name string, content_ stri
 	config_file.write(content)!
 }
 
+pub fn (mut self Context) hero_config_delete(cat string, name string) ! {
+	path := '${self.path()!.path}/${cat}__${name}.yaml'
+	mut config_file := pathlib.get_file(path: path)!
+	config_file.delete()!
+}
+
 pub fn (mut self Context) hero_config_exists(cat string, name string) bool {
 	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}__${name}.yaml'
 	return os.exists(path)

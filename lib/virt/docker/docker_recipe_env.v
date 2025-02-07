@@ -25,5 +25,5 @@ pub fn (mut i EnvItem) check() ! {
 }
 
 pub fn (mut i EnvItem) render() !string {
-	return "ENV ${i.name}='${i.value}'"
+	return 'ENV ${i.name}="${i.value}"'
 }

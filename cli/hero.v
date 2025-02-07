@@ -31,7 +31,7 @@ fn do() ! {
 	mut cmd := Command{
 		name:        'hero'
 		description: 'Your HERO toolset.'
-		version:     '2.0.0'
+		version:     '1.0.5'
 	}
 
 	// herocmds.cmd_run_add_flags(mut cmd)
@@ -81,6 +81,7 @@ fn do() ! {
 	// herocmds.cmd_zola(mut cmd)
 	// herocmds.cmd_juggler(mut cmd)
 	herocmds.cmd_generator(mut cmd)
+	herocmds.cmd_docusaurus(mut cmd)
 	// herocmds.cmd_docsorter(mut cmd)
 	// cmd.add_command(publishing.cmd_publisher(pre_func))
 	cmd.setup()

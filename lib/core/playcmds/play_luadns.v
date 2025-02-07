@@ -5,12 +5,13 @@ import freeflowuniverse.herolib.core.playbook
 import os
 
 pub fn play_luadns(mut plbook playbook.PlayBook) ! {
-	mut buildroot := '${os.home_dir()}/hero/var/mdbuild'
-	mut publishroot := '${os.home_dir()}/hero/www/info'
-	mut coderoot := ''
+	// Variables below are not used, commenting them out
+	// mut buildroot := '${os.home_dir()}/hero/var/mdbuild'
+	// mut publishroot := '${os.home_dir()}/hero/www/info'
+	// mut coderoot := ''
 	// mut install := false
-	mut reset := false
-	mut pull := false
+	// mut reset := false
+	// mut pull := false
 
 	for mut action in plbook.find(filter: 'luadns.set_domain')! {
 		mut p := action.params

@@ -29,7 +29,7 @@ fn parser_line_new(mut doc elements.Doc) !Parser {
 	if doc.content.starts_with('+++') {
 		mut frontmatter_content := ''
 		mut lines := doc.content.split_into_lines()
-		lines = lines[1..] // Skip the opening '+++'
+		lines = lines[1..].clone() // Skip the opening '+++' with explicit clone
 
 		for line in lines {
 			if line.trim_space() == '+++' {
