@@ -187,6 +187,7 @@ clients/livekit
 
 if os.exists("/home/runner"){
 	tests_ignore+="clients/livekit"
+	tests_ignore+="osal/tmux"
 }
 
 tests_error := '
