@@ -6,7 +6,7 @@
 ## hero install  for users 
 
 ```bash
-curl https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/development_kristof10/install_hero.sh > /tmp/install_hero.sh
+curl https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/development/install_hero.sh > /tmp/install_hero.sh
 bash /tmp/install_hero.sh
 
 ```
@@ -16,7 +16,7 @@ this tool can be used to work with git, build books, play with hero AI, ...
 ## automated install for developers
 
 ```bash
-curl 'https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/main/install_v.sh' > /tmp/install_v.sh
+curl 'https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/development/install_v.sh' > /tmp/install_v.sh
 bash /tmp/install_v.sh --analyzer --herolib 
 #DONT FORGET TO START A NEW SHELL (otherwise the paths will not be set)
 ```
