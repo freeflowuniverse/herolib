@@ -37,7 +37,7 @@ jobs:
       - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
 
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup V & Herolib
         id: setup
@@ -50,8 +50,10 @@ jobs:
         run: ./test_basic.vsh
 
       - name: Build Hero
+        timeout-minutes: 15
         run: |
-          v -w -d use_openssl -enable-globals cli/hero.v -o cli/hero-${{ matrix.target }}        
+          set -e
+          v -w -d use_openssl -enable-globals cli/hero.v -o cli/hero-${{ matrix.target }}
 
       - name: Upload
         uses: actions/upload-artifact@v4
