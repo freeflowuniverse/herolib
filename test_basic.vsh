@@ -221,8 +221,6 @@ println('Test cache loaded from ${cache_file}')
 println("tests to ignore")
 println(tests_ignore)
 
-exit(0)
-
 // Run each test with proper v command flags
 for test in test_files {
 	if test.trim_space() == '' || test.trim_space().starts_with('//')
