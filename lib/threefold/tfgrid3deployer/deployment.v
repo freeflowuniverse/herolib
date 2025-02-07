@@ -135,6 +135,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			has_ipv6:      if vm.requirements.public_ip6 { vm.requirements.public_ip6 } else { none }
 			status:        'up'
 			features:      if vm.requirements.public_ip4 { ['zmachine'] } else { [] }
+			on_hetzner:    vm.requirements.use_hetzner_node
 		)!
 
 		if nodes.len == 0 {
@@ -160,6 +161,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			healthy:       true
 			node_id:       zdb.requirements.node_id
 			available_for: u64(self.deployer.twin_id)
+			on_hetzner:    zdb.requirements.use_hetzner_node
 		)!
 
 		if nodes.len == 0 {
@@ -183,6 +185,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			node_id:       webname.requirements.node_id
 			available_for: u64(self.deployer.twin_id)
 			features:      ['zmachine']
+			on_hetzner:    webname.requirements.use_hetzner_node
 		)!
 
 		if nodes.len == 0 {

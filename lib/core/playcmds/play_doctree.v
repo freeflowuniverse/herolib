@@ -28,11 +28,11 @@ pub fn play_doctree(mut plbook playbook.PlayBook) ! {
 
 	for mut action in plbook.find(filter: 'doctree:add')! {
 		mut p := action.params
-		url := p.get_default('url', '')!
-		path := p.get_default('path', '')!
+		// url := p.get_default('url', '')!
+		// path := p.get_default('path', '')!
 		name := p.get('name')!
 
-		mut tree := trees[name] or { return error('tree ${name} not found') }
+		_ := trees[name] or { return error('tree ${name} not found') }
 
 		// tree.scan(
 		// 	path: path
@@ -63,7 +63,7 @@ pub fn play_doctree(mut plbook playbook.PlayBook) ! {
 	for mut action in plbook.find(filter: 'doctree:export')! {
 		panic('implement')
 		mut p := action.params
-		name := p.get('name')!
+		_ := p.get('name')!
 		action.done = true
 	}
 }

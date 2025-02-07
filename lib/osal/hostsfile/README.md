@@ -17,7 +17,7 @@ This module provides functionality to manage the system's hosts file (`/etc/host
 Create a file `example.vsh`:
 
 ```v
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.osal.hostsfile
 import os

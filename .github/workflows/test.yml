@@ -1,0 +1,32 @@
+name: Build on Linux & Run tests
+
+permissions:
+  contents: write
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            short-name: linux-i64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup V & Herolib
+        run: ./install_v.sh --herolib 
+
+      - name: Do all the basic tests
+        run: ./test_basic.vsh
+

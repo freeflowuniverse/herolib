@@ -2,9 +2,9 @@ name: Deploy Documentation to Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["development"]
   workflow_dispatch:
-    branches: ["main"]
+    branches: ["development"]
 
 permissions:
   contents: read
@@ -17,31 +17,31 @@ concurrency:
 
 jobs:
   deploy-documentation:
+    #if: startsWith(github.ref, 'refs/tags/')  
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Vlang
-        run: ./install_v.sh --github-actions
+        run: ./install_v.sh
 
       - name: Generate documentation
         run: |
-          ./doc.vsh
-          # ls /home/runner/work/herolib/docs
+          ./doc.vsh          
           find .
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: "/home/runner/work/herolib/herolib/docs"
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4

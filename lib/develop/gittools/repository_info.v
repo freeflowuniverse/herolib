@@ -35,7 +35,6 @@ pub fn (repo GitRepo) get_changes_staged() ![]string {
 
 // Check if there are any unstaged or untracked changes in the repository.
 pub fn (mut repo GitRepo) detect_changes() !bool {
-	repo.status_update()!
 	r0 := repo.get_changes_unstaged()!
 	r1 := repo.get_changes_staged()!
 	if r0.len + r1.len > 0 {
@@ -58,7 +57,7 @@ pub fn (mut repo GitRepo) need_push_or_pull() !bool {
 	last_local_commit := repo.get_last_local_commit() or {
 		return error('Failed to get last local commit: ${err}')
 	}
-	//println('commit status: ${repo.name} ${last_local_commit} ${last_remote_commit}')
+	// println('commit status: ${repo.name} ${last_local_commit} ${last_remote_commit}')
 	return last_local_commit != last_remote_commit
 }
 

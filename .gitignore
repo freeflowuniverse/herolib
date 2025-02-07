@@ -25,7 +25,6 @@ dump.rdb
 output/
 *.db
 .stellar
-vdocs/
 data.ms/
 test_basic
 cli/hero
