@@ -30,6 +30,12 @@ fn load_test_cache() TestCache {
 	} }
 }
 
+fn in_github_actions() bool{
+	a:=os.environ()["GITHUB_ACTIONS"] or {return false}
+	return true
+}
+
+
 // Save the test cache to JSON file
 fn save_test_cache(cache TestCache) {
 	json_str := json.encode_pretty(cache)
@@ -177,7 +183,9 @@ data/radixtree
 clients/livekit
 '
 
-if os.exists("/home/runner"){
+
+
+if in_github_actions(){
 	println("**** WE ARE IN GITHUB ACTION")
 	tests_ignore+="\nosal/tmux\n"
 }
