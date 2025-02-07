@@ -181,13 +181,12 @@ clients/openai
 systemd_process_test.v
 data/graphdb
 data/radixtree
-// We should fix that one
 clients/livekit
 '
 
 if os.exists("/home/runner"){
-	tests_ignore+="clients/livekit"
-	tests_ignore+="osal/tmux"
+	println("**** WE ARE IN GITHUB ACTION")
+	tests_ignore+="\nosal/tmux\n"
 }
 
 tests_error := '
