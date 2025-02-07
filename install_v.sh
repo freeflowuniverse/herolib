@@ -92,7 +92,12 @@ function package_check_install {
 function package_install {
     local command_name="$1"
     if [[ "${OSNAME}" == "ubuntu" ]]; then
-        apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        if is_github_actions; then
+            sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        else
+            apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        fi
+        
     elif [[ "${OSNAME}" == "darwin"* ]]; then
         brew install $command_name
     elif [[ "${OSNAME}" == "alpine"* ]]; then
@@ -234,7 +239,7 @@ function install_secp256k1 {
         brew install secp256k1
     elif [[ "${OSNAME}" == "ubuntu" ]]; then
         # Install build dependencies
-        apt-get install -y build-essential wget autoconf libtool
+        package_install "build-essential wget autoconf libtool"
 
         # Download and extract secp256k1
         cd "${DIR_BUILD}"
@@ -246,8 +251,12 @@ function install_secp256k1 {
         ./autogen.sh
         ./configure
         make -j 5
-        make install
-
+        if is_github_actions; then
+            sudo make install
+        else
+            make install
+        fi
+        
         # Cleanup
         cd ..
         rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
