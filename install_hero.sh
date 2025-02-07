@@ -4,10 +4,11 @@ set -e
 
 os_name="$(uname -s)"
 arch_name="$(uname -m)"
+version='1.0.5'
 
 
 # Base URL for GitHub releases
-base_url="https://github.com/freeflowuniverse/herolib/releases/download/v1.0.1"
+base_url="https://github.com/freeflowuniverse/herolib/releases/download/v${version}"
 
 # Select the URL based on the platform
 if [[ "$os_name" == "Linux" && "$arch_name" == "x86_64" ]]; then
