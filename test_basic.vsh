@@ -72,7 +72,7 @@ fn get_cache_key(path string, base_dir string) string {
 }
 
 // Check if a file should be ignored or marked as error based on its path
-fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, mut cache TestCache, mut tests_in_error []string) ! {
+fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, mut cache TestCache) ! {
 	// Get normalized paths
 	norm_path, rel_path := get_normalized_paths(path, base_dir)
 
@@ -233,12 +233,10 @@ for test in test_files {
 		// If directory, run tests for each .v file in it recursively
 		files := os.walk_ext(full_path, '.v')
 		for file in files {
-			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut
-				cache!
+			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut cache)!
 		}
 	} else if os.is_file(full_path) {
-		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut
-			cache!
+		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut cache)!
 	}
 }
 

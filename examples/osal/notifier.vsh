@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.osal.notifier
 import os
 import time
 
-fn on_file_change(event notifier.NotifyEvent, path string) {
+fn on_file_change(event notifier.NotifyEvent, path string, args map[string]string) {
 	match event {
 		.create { println('File created: ${path}') }
 		.modify { println('File modified: ${path}') }

@@ -111,7 +111,7 @@ function package_install {
 }
 
 is_github_actions() {
-    [ -d "/home/runner" ] || [ -d "$HOME/runner" ]
+    [ "$GITHUB_ACTIONS" == "true" ]
 }
 
 
