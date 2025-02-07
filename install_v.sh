@@ -111,7 +111,7 @@ function package_install {
 }
 
 is_github_actions() {
-    [ "$GITHUB_ACTIONS" == "true" ]
+    [ -n "$GITHUB_ACTIONS" ] && [ "$GITHUB_ACTIONS" = "true" ]
 }
 
 
