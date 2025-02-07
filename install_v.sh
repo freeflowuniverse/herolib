@@ -472,7 +472,9 @@ mkdir -p ~/code
 # Check if v needs to be installed
 if [ "$RESET" = true ] || ! command_exists v; then
 
-    os_update
+    if ! is_github_actions; then
+        os_update
+    fi
 
     sshknownkeysadd
 
