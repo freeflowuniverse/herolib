@@ -6,12 +6,16 @@ permissions:
 on:
   push:
     branches: ["main","development"]
+    tags:
+      - 'v*'
   workflow_dispatch:
-    branches: ["main","development"]  
+    branches: ["main","development"]
 
 jobs:
   build:
+    timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
         include:
           - target: x86_64-unknown-linux-musl
@@ -36,9 +40,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup V & Herolib
-        run: ./install_v.sh --herolib 
+        id: setup
+        run: ./install_v.sh --herolib
+        timeout-minutes: 10
+
 
       - name: Do all the basic tests
+        timeout-minutes: 25
         run: ./test_basic.vsh
 
       - name: Build Hero
@@ -52,10 +60,11 @@ jobs:
           path: cli/hero-${{ matrix.target }}        
 
   release_hero:
-    needs: upload
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Check out repository code
@@ -72,9 +81,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           draft: false
           fail_on_unmatched_files: true
-          # body: ${{ steps.changelog.outputs.changelog }}
+          generate_release_notes: true
           files: cli/bins/*
