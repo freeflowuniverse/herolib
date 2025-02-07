@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  db:
+    image: 'postgres:17.2-alpine3.21'
+    restart: always
+    ports:
+      - 5432:5432    
+    environment:
+      POSTGRES_PASSWORD: 1234
+    networks:
+      - my_network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - my_network
+
+networks:
+  my_network:

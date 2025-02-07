@@ -1,16 +1,29 @@
 # mailclient
 
 
-
 To get started
 
 ```vlang
 
-import freeflowuniverse.herolib.clients. mailclient
+import freeflowuniverse.herolib.clients.mailclient
 
-mut client:= mailclient.get()!
 
-client.send(subject:'this is a test',to:'kds@something.com,kds2@else.com',body:'
+//remove the previous one, otherwise the env variables are not read
+mailclient.config_delete(name:"test")!
+
+// env variables which need to be set are:
+// - MAIL_FROM=...
+// - MAIL_PASSWORD=...
+// - MAIL_PORT=465
+// - MAIL_SERVER=...
+// - MAIL_USERNAME=...
+
+
+mut client:= mailclient.get(name:"test")!
+
+println(client)
+
+client.send(subject:'this is a test',to:'kristof@incubaid.com',body:'
     this is my email content
     ')!
 

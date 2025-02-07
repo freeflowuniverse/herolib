@@ -104,6 +104,14 @@ pub fn cmd_git(mut cmdroot Command) {
 			abbrev:      's'
 			description: 'be silent.'
 		})
+
+		c.add_flag(Flag{
+			flag:        .bool
+			required:    false
+			name:        'load'
+			abbrev:      'l'
+			description: 'reload the data in cache.'
+		})
 	}
 
 	mut allcmdscommit := [&push_command, &pull_command, &commit_command]
@@ -217,8 +225,10 @@ pub fn cmd_git(mut cmdroot Command) {
 }
 
 fn cmd_git_execute(cmd Command) ! {
-	mut silent := cmd.flags.get_bool('silent') or { false }
-	if silent || cmd.name == 'cd' {
+	mut is_silent := cmd.flags.get_bool('silent') or { false }
+	mut reload := cmd.flags.get_bool('load') or { false }
+
+	if is_silent || cmd.name == 'cd' {
 		console.silent_set()
 	}
 	mut coderoot := cmd.flags.get_string('coderoot') or { '' }
@@ -262,6 +272,7 @@ fn cmd_git_execute(cmd Command) ! {
 		mypath := gs.do(
 			filter:    filter
 			repo:      repo
+			reload:    reload
 			account:   account
 			provider:  provider
 			branch:    branch

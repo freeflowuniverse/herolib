@@ -1,4 +1,3 @@
-
 #!/bin/bash -e
 
 # Help function
@@ -8,12 +7,11 @@ print_help() {
     echo "Usage: $0 [options]"
     echo
     echo "Options:"
-    echo "  -h, --help          Show this help message"
-    echo "  --reset             Force reinstallation of V"
-    echo "  --remove            Remove V installation and exit"
-    echo "  --analyzer          Install/update v-analyzer"
-    echo "  --herolib           Install our herolib"
-    echo "  --github-actions    Install for github actions" 
+    echo "  -h, --help     Show this help message"
+    echo "  --reset        Force reinstallation of V"
+    echo "  --remove       Remove V installation and exit"
+    echo "  --analyzer     Install/update v-analyzer"
+    echo "  --herolib      Install our herolib"
     echo
     echo "Examples:"
     echo "  $0"
@@ -22,7 +20,6 @@ print_help() {
     echo "  $0 --analyzer        "
     echo "  $0 --herolib         "
     echo "  $0 --reset --analyzer # Fresh install of both"
-    echo "  $0 --github-actions" 
     echo
 }
 
@@ -31,7 +28,6 @@ RESET=false
 REMOVE=false
 INSTALL_ANALYZER=false
 HEROLIB=false
-IS_GITHUB_ACTIONS=false
 
 for arg in "$@"; do
     case $arg in
@@ -50,9 +46,6 @@ for arg in "$@"; do
             ;;            
         --analyzer)
             INSTALL_ANALYZER=true
-            ;;
-        --github-actions)
-            IS_GITHUB_ACTIONS=true
             ;;
         *)
             echo "Unknown option: $arg"
@@ -99,19 +92,35 @@ function package_check_install {
 function package_install {
     local command_name="$1"
     if [[ "${OSNAME}" == "ubuntu" ]]; then
-        sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        if is_github_actions; then
+            sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        else
+            apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+        fi
+        
     elif [[ "${OSNAME}" == "darwin"* ]]; then
         brew install $command_name
     elif [[ "${OSNAME}" == "alpine"* ]]; then
-        sudo apk add $command_name
+        apk add $command_name
     elif [[ "${OSNAME}" == "arch"* ]]; then
-        sudo pacman --noconfirm -Su $command_name
+        pacman --noconfirm -Su $command_name
     else
         echo "platform : ${OSNAME} not supported"
         exit 1
     fi
 }
 
+is_github_actions() {
+    # echo "Checking GitHub Actions environment..."
+    # echo "GITHUB_ACTIONS=${GITHUB_ACTIONS:-not set}"
+    if [ -n "$GITHUB_ACTIONS" ] && [ "$GITHUB_ACTIONS" = "true" ]; then
+        echo "Running in GitHub Actions: true"
+        return 0
+    else
+        echo "Running in GitHub Actions: false"
+        return 1
+    fi
+}
 
 
 function myplatform {
@@ -149,26 +158,26 @@ myplatform
 function os_update {
     echo ' - os update'
     if [[ "${OSNAME}" == "ubuntu" ]]; then
-        if [ "$IS_GITHUB_ACTIONS" = true ]; then
+        if is_github_actions; then
             echo "github actions"
         else
-            sudo rm -f /var/lib/apt/lists/lock
-            sudo rm -f /var/cache/apt/archives/lock
-            sudo rm -f /var/lib/dpkg/lock*		
+            rm -f /var/lib/apt/lists/lock
+            rm -f /var/cache/apt/archives/lock
+            rm -f /var/lib/dpkg/lock*		
         fi    
         export TERM=xterm
         export DEBIAN_FRONTEND=noninteractive
-        dpkg --configure -a
+        sudo dpkg --configure -a        
         sudo apt update -y
-        if [ "$IS_GITHUB_ACTIONS" = true ]; then
+        if is_github_actions; then
             echo "** IN GITHUB ACTIONS, DON'T DO UPDATE"
-        else
-            set +e
+        else            
+            set +e            
             echo "** UPDATE"
-            sudo apt-mark hold grub-efi-amd64-signed
+            apt-mark hold grub-efi-amd64-signed
             set -e
-            sudo apt upgrade  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
-            sudo apt autoremove  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+            apt upgrade  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+            apt autoremove  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
         fi 
         #apt install apt-transport-https ca-certificates curl software-properties-common  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
         package_install "apt-transport-https ca-certificates curl wget software-properties-common tmux"
@@ -183,17 +192,16 @@ function os_update {
             unset NONINTERACTIVE
         fi
         set +e
-        brew update
         brew install mc redis curl tmux screen htop wget rclone tcc
         set -e
     elif [[ "${OSNAME}" == "alpine"* ]]; then
-        sudo apk update screen git htop tmux
-        sudo apk add mc curl rsync htop redis bash bash-completion screen git rclone
+        apk update screen git htop tmux
+        apk add mc curl rsync htop redis bash bash-completion screen git rclone
         sed -i 's#/bin/ash#/bin/bash#g' /etc/passwd             
     elif [[ "${OSNAME}" == "arch"* ]]; then
-        sudo pacman -Syy --noconfirm
-        sudo pacman -Syu --noconfirm
-        sudo pacman -Su --noconfirm arch-install-scripts gcc mc git tmux curl htop redis wget screen net-tools git sudo htop ca-certificates lsb-release screen rclone
+        pacman -Syy --noconfirm
+        pacman -Syu --noconfirm
+        pacman -Su --noconfirm arch-install-scripts gcc mc git tmux curl htop redis wget screen net-tools git sudo htop ca-certificates lsb-release screen rclone
 
         # Check if builduser exists, create if not
         if ! id -u builduser > /dev/null 2>&1; then
@@ -202,9 +210,9 @@ function os_update {
             echo 'builduser ALL=(ALL) NOPASSWD: ALL' | tee /etc/sudoers.d/builduser
         fi
 
-        if [[ -n "${DEBUG}" ]]; then
-            execute_with_marker "paru_install" paru_install
-        fi
+        # if [[ -n "${DEBUG}" ]]; then
+        #     execute_with_marker "paru_install" paru_install
+        # fi
     fi
     echo ' - os update done'
 }
@@ -239,7 +247,7 @@ function install_secp256k1 {
         brew install secp256k1
     elif [[ "${OSNAME}" == "ubuntu" ]]; then
         # Install build dependencies
-        sudo apt-get install -y build-essential wget autoconf libtool
+        package_install "build-essential wget autoconf libtool"
 
         # Download and extract secp256k1
         cd "${DIR_BUILD}"
@@ -251,8 +259,12 @@ function install_secp256k1 {
         ./autogen.sh
         ./configure
         make -j 5
-        sudo make install
-
+        if is_github_actions; then
+            sudo make install
+        else
+            make install
+        fi
+        
         # Cleanup
         cd ..
         rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
@@ -304,10 +316,33 @@ remove_all() {
 
 # Function to check if a service is running and start it if needed
 check_and_start_redis() {
+
+
     
     # Normal service management for non-container environments
     if [[ "${OSNAME}" == "ubuntu" ]] || [[ "${OSNAME}" == "debian" ]]; then
 
+        # Handle Redis installation for GitHub Actions environment
+        if is_github_actions; then
+
+                # Import Redis GPG key
+            curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+            # Add Redis repository
+            echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+            # Install Redis
+            sudo apt-get update
+            sudo apt-get install -y redis
+                
+            # Start Redis
+            redis-server --daemonize yes
+
+            # Print versions
+            redis-cli --version
+            redis-server --version
+
+            return
+        fi
+    
         # Check if running inside a container
         if grep -q "/docker/" /proc/1/cgroup || [ ! -d "/run/systemd/system" ]; then
             echo "Running inside a container. Starting redis directly."
@@ -351,7 +386,7 @@ check_and_start_redis() {
             echo "redis is already running."
         else
             echo "redis is not running. Starting it..."
-            sudo rc-service "redis" start
+            rc-service "redis" start
         fi
     elif [[ "${OSNAME}" == "arch"* ]]; then
         if systemctl is-active --quiet "redis"; then
@@ -363,6 +398,74 @@ check_and_start_redis() {
     else
         echo "Service management for redis is not implemented for platform: $OSNAME"
         exit 1
+    fi
+}
+
+v-install() {
+
+    # Only clone and install if directory doesn't exist
+    if [ ! -d ~/code/v ]; then
+        echo "Installing V..."
+        mkdir -p ~/_code
+        cd ~/_code
+        git clone --depth=1 https://github.com/vlang/v
+        cd v
+        make
+        sudo ./v symlink
+    fi
+
+    # Verify v is in path
+    if ! command_exists v; then
+        echo "Error: V installation failed or not in PATH"
+        echo "Please ensure ~/code/v is in your PATH"
+        exit 1
+    fi
+
+    echo "V installation successful!"
+
+}
+
+
+v-analyzer() {
+
+    # Install v-analyzer if requested
+    if [ "$INSTALL_ANALYZER" = true ]; then
+        echo "Installing v-analyzer..."
+        v download -RD https://raw.githubusercontent.com/vlang/v-analyzer/main/install.vsh
+
+        # Check if v-analyzer bin directory exists
+        if [ ! -d "$HOME/.config/v-analyzer/bin" ]; then
+            echo "Error: v-analyzer bin directory not found at $HOME/.config/v-analyzer/bin"
+            echo "Please ensure v-analyzer was installed correctly"
+            exit 1
+        fi
+
+        echo "v-analyzer installation successful!"
+    fi
+
+    # Add v-analyzer to PATH if installed
+    if [ -d "$HOME/.config/v-analyzer/bin" ]; then
+        V_ANALYZER_PATH='export PATH="$PATH:$HOME/.config/v-analyzer/bin"'
+
+        # Function to add path to rc file if not present
+        add_to_rc() {
+            local RC_FILE="$1"
+            if [ -f "$RC_FILE" ]; then
+                if ! grep -q "v-analyzer/bin" "$RC_FILE"; then
+                    echo "" >> "$RC_FILE"
+                    echo "$V_ANALYZER_PATH" >> "$RC_FILE"
+                    echo "Added v-analyzer to $RC_FILE"
+                else
+                    echo "v-analyzer path already exists in $RC_FILE"
+                fi
+            fi
+        }
+
+        # Add to both .zshrc and .bashrc if they exist
+        add_to_rc ~/.zshrc
+        if [ "$(uname)" = "Darwin" ] && [ -f ~/.bashrc ]; then
+            add_to_rc ~/.bashrc
+        fi
     fi
 }
 
@@ -394,72 +497,15 @@ if [ "$RESET" = true ] || ! command_exists v; then
     # Install secp256k1
     install_secp256k1
 
-    # Only clone and install if directory doesn't exist
-    if [ ! -d ~/code/v ]; then
-        echo "Installing V..."
-        mkdir -p ~/_code
-        cd ~/_code
-        git clone --depth=1 https://github.com/vlang/v
-        cd v
-        make
-        sudo ./v symlink
+    v-install
+
+    # Only install v-analyzer if not in GitHub Actions environment
+    if ! is_github_actions; then
+        v-analyzer
     fi
 
-    # Verify v is in path
-    if ! command_exists v; then
-        echo "Error: V installation failed or not in PATH"
-        echo "Please ensure ~/code/v is in your PATH"
-        exit 1
-    fi
-    echo "V installation successful!"
 fi
 
-# Install v-analyzer if requested
-if [ "$INSTALL_ANALYZER" = true ]; then
-    echo "Installing v-analyzer..."
-    v download -RD https://raw.githubusercontent.com/vlang/v-analyzer/main/install.vsh
-
-    # Check if v-analyzer bin directory exists
-    if [ ! -d "$HOME/.config/v-analyzer/bin" ]; then
-        echo "Error: v-analyzer bin directory not found at $HOME/.config/v-analyzer/bin"
-        echo "Please ensure v-analyzer was installed correctly"
-        exit 1
-    fi
-
-    echo "v-analyzer installation successful!"
-fi
-
-# Add v-analyzer to PATH if installed
-if [ -d "$HOME/.config/v-analyzer/bin" ]; then
-    V_ANALYZER_PATH='export PATH="$PATH:$HOME/.config/v-analyzer/bin"'
-
-    # Function to add path to rc file if not present
-    add_to_rc() {
-        local RC_FILE="$1"
-        if [ -f "$RC_FILE" ]; then
-            if ! grep -q "v-analyzer/bin" "$RC_FILE"; then
-                echo "" >> "$RC_FILE"
-                echo "$V_ANALYZER_PATH" >> "$RC_FILE"
-                echo "Added v-analyzer to $RC_FILE"
-            else
-                echo "v-analyzer path already exists in $RC_FILE"
-            fi
-        fi
-    }
-
-    # Add to both .zshrc and .bashrc if they exist
-    add_to_rc ~/.zshrc
-    if [ "$(uname)" = "Darwin" ] && [ -f ~/.bashrc ]; then
-        add_to_rc ~/.bashrc
-    fi
-fi
-
-# Final verification
-if ! command_exists v; then
-    echo "Error: V is not accessible in PATH"
-    echo "Please add ~/code/v to your PATH and try again"
-    exit 1
-fi
 
 check_and_start_redis
 
@@ -469,9 +515,9 @@ if [ "$HEROLIB" = true ]; then
 fi
 
 
-# if [ "$INSTALL_ANALYZER" = true ]; then
-#     echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
-# fi
+if [ "$INSTALL_ANALYZER" = true ]; then
+    echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
+fi
 
 
 echo "Installation complete!"

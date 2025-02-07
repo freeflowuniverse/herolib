@@ -1,103 +1,127 @@
+
 module mailclient
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.encoderhero
+
 
 __global (
-	mailclient_global  map[string]&MailClient
-	mailclient_default string
+    mailclient_global map[string]&MailClient
+    mailclient_default string
 )
 
 /////////FACTORY
 
 @[params]
-pub struct ArgsGet {
+pub struct ArgsGet{
 pub mut:
-	name string
+    name string
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut model := args_
-	if model.name == '' {
-		model.name = mailclient_default
-	}
-	if model.name == '' {
-		model.name = 'default'
-	}
-	return model
+fn args_get (args_ ArgsGet) ArgsGet {
+    mut args:=args_
+    if args.name == ""{
+        args.name = mailclient_default
+    }
+    if args.name == ""{
+        args.name = "default"
+    }
+    return args
 }
 
-pub fn get(args_ ArgsGet) !&MailClient {
-	mut args := args_get(args_)
-	if args.name !in mailclient_global {
-		if args.name == 'default' {
-			if !config_exists(args) {
-				if default {
-					mut context := base.context() or { panic('bug') }
-					context.hero_config_set('mailclient', args.name, heroscript_default())!
-				}
-			}
-			load(args)!
-		}
-	}
-	return mailclient_global[args.name] or {
-		println(mailclient_global)
-		panic('could not get config for ${args.name} with name:${args.name}')
-	}
+pub fn get(args_ ArgsGet) !&MailClient  {
+    mut args := args_get(args_)
+    if !(args.name in mailclient_global) {
+        if ! config_exists(args){
+            config_save(args)!
+        }
+        config_load(args)!
+    }
+    return mailclient_global[args.name] or {
+            println(mailclient_global)
+            //bug if we get here because should be in globals
+            panic("could not get config for mailclient with name, is bug:${args.name}") 
+        }
 }
 
-// set the model in mem and the config on the filesystem
-pub fn set(o MailClient) ! {
-	mut o2 := obj_init(o)!
-	mailclient_global[o.name] = &o2
-	mailclient_default = o.name
+
+
+pub fn config_exists(args_ ArgsGet) bool {
+    mut args := args_get(args_)
+    mut context:=base.context() or { panic("bug") }
+    return context.hero_config_exists("mailclient",args.name)
 }
 
-// check we find the config on the filesystem
-pub fn exists(args_ ArgsGet) bool {
-	mut model := args_get(args_)
-	mut context := base.context() or { panic('bug') }
-	return context.hero_config_exists('mailclient', model.name)
+pub fn config_load(args_ ArgsGet) ! {
+    mut args := args_get(args_)
+    mut context:=base.context()!
+    mut heroscript := context.hero_config_get("mailclient",args.name)!
+    play(heroscript:heroscript)!
 }
 
-// load the config error if it doesn't exist
-pub fn load(args_ ArgsGet) ! {
-	mut model := args_get(args_)
-	mut context := base.context()!
-	mut heroscript := context.hero_config_get('mailclient', model.name)!
-	play(heroscript: heroscript)!
+pub fn config_save(args_ ArgsGet) ! {
+    mut args := args_get(args_)
+    mut context:=base.context()!
+    context.hero_config_set("mailclient",args.name,heroscript_default(instance:args.name)!)!
 }
 
-// // save the config to the filesystem in the context
-// pub fn save(o MailClient) ! {
-// 	mut context := base.context()!
-// 	heroscript := encoderhero.encode[MailClient](o)!
-// 	context.hero_config_set('mailclient', model.name, heroscript)!
-// }
+
+pub fn config_delete(args_ ArgsGet) ! {
+    mut args := args_get(args_)
+    mut context:=base.context()!
+    context.hero_config_delete("mailclient",args.name)!
+}
+
+fn set(o MailClient)! {
+    mut o2:=obj_init(o)!
+    mailclient_global[o.name] = &o2
+    mailclient_default = o.name
+}
+
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
+    heroscript string  //if filled in then plbook will be made out of it
+    plbook     ?playbook.PlayBook 
+    reset      bool
 }
 
 pub fn play(args_ PlayArgs) ! {
-	mut model := args_
+    
+    mut args:=args_
 
-	if model.heroscript == '' {
-		model.heroscript = heroscript_default()
-	}
-	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
+    if args.heroscript == "" {
+        args.heroscript = heroscript_default()!
+    }
+    mut plbook := args.plbook or {
+        playbook.new(text: args.heroscript)!
+    }
+    
+    mut install_actions := plbook.find(filter: 'mailclient.configure')!
+    if install_actions.len > 0 {
+        for install_action in install_actions {
+            mut p := install_action.params
+            cfg_play(p)!
+        }
+    }
 
-	mut configure_actions := plbook.find(filter: 'mailclient.configure')!
-	if configure_actions.len > 0 {
-		for config_action in configure_actions {
-			mut p := config_action.params
-			cfg_play(p)!
-		}
-	}
+
+}
+
+
+
+
+//switch instance to be used for mailclient
+pub fn switch(name string) {
+    mailclient_default = name
+}
+
+
+//helpers
+
+@[params]
+pub struct DefaultConfigArgs{
+    instance string = 'default'
 }

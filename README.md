@@ -1,10 +1,19 @@
 # herolib
 
-a smaller version of herolib with only the items we need for hero
 
-> [documentation here](https://freeflowuniverse.github.io/herolib/)
+> [documentation of the library](https://freeflowuniverse.github.io/herolib/)
 
-## automated install
+## hero install  for users 
+
+```bash
+curl https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/development_kristof10/install_hero.sh > /tmp/install_hero.sh
+bash /tmp/install_hero.sh
+
+```
+
+this tool can be used to work with git, build books, play with hero AI, ...
+
+## automated install for developers
 
 ```bash
 curl 'https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/main/install_v.sh' > /tmp/install_v.sh
@@ -16,7 +25,7 @@ bash /tmp/install_v.sh --analyzer --herolib
 
 ```bash
 
-#~/code/github/freeflowuniverse/herolib/install_v.sh --help
+~/code/github/freeflowuniverse/herolib/install_v.sh --help
 
 V & HeroLib Installer Script
 

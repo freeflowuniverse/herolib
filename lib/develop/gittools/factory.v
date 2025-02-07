@@ -37,7 +37,7 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		ssh_key_name: args.ssh_key_name
 	}
 
-	return get(coderoot: args.coderoot,reload:args.reload,cfg:cfg)
+	return get(coderoot: args.coderoot, reload: args.reload, cfg: cfg)
 }
 
 @[params]
@@ -45,7 +45,7 @@ pub struct GitStructureArgGet {
 pub mut:
 	coderoot string
 	reload   bool
-	cfg  ?GitStructureConfig
+	cfg      ?GitStructureConfig
 }
 
 // Retrieve a GitStructure instance based on the given arguments.
@@ -53,6 +53,11 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	mut args := args_
 	if args.coderoot == '' {
 		args.coderoot = '${os.home_dir()}/code'
+	}
+
+	// make sure coderoot exists
+	if !os.exists(args.coderoot) {
+		os.mkdir_all(args.coderoot)!
 	}
 
 	rediskey_ := cache_key(args.coderoot)
@@ -72,7 +77,7 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 		coderoot: pathlib.get_dir(path: args.coderoot, create: true)!
 	}
 
-	gs.config()! //will load the config, don't remove
+	gs.config()! // will load the config, don't remove
 	gs.load(false)!
 
 	if gs.repos.keys().len == 0 || args.reload {
@@ -83,4 +88,3 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 
 	return gsinstances[rediskey_] or { panic('bug') }
 }
-

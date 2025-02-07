@@ -13,23 +13,26 @@ pub mut:
 	create bool
 }
 
-//get the key in redis where json cached info is
+// get the key in redis where json cached info is
 pub fn (mut repo GitRepo) cache_key() string {
 	return '${repo.gs.cache_key()}:${repo.provider}:${repo.account}:${repo.name}'
 }
 
-//get path where the repo is on the fs
+pub fn (mut repo GitRepo) print_key() string {
+	return '${repo.provider}:${repo.account}:${repo.name}'
+}
+
+// get path where the repo is on the fs
 pub fn (repo GitRepo) path() string {
-	mut repo_:=repo
-	mypath:=repo_.gs.coderoot.path
+	mut repo_ := repo
+	mypath := repo_.gs.coderoot.path
 	return '${mypath}/${repo.provider}/${repo.account}/${repo.name}'
 }
 
-//get herolib path object
+// get herolib path object
 pub fn (repo GitRepo) patho() !pathlib.Path {
 	return pathlib.get_dir(path: repo.path(), create: false)!
 }
-
 
 // gets the path of a given url within a repo
 // ex: 'https://git.ourworld.tf/ourworld_holding/info_ourworld/src/branch/main/books/cocreation/SUMMARY.md'
@@ -64,7 +67,7 @@ pub fn (mut repo GitRepo) get_path_of_url(url string) !string {
 // Relative path inside the gitstructure, pointing to the repo
 pub fn (repo GitRepo) get_relative_path() !string {
 	mut mypath := repo.patho()!
-	mut repo_:=repo
+	mut repo_ := repo
 	return mypath.path_relative(repo_.gs.coderoot.path) or { panic("couldn't get relative path") }
 }
 

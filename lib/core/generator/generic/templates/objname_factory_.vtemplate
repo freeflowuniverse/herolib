@@ -1,9 +1,9 @@
-
 module ${args.name}
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.data.paramsparser
 
 @if args.cat == .installer
 import freeflowuniverse.herolib.sysadmin.startupmanager
@@ -28,66 +28,67 @@ pub mut:
 fn args_get (args_ ArgsGet) ArgsGet {
 	mut args:=args_
 	if args.name == ""{
-		args.name = ${args.name}_default
-	}
-	if args.name == ""{
 		args.name = "default"
 	}
 	return args
 }
 
 pub fn get(args_ ArgsGet) !&${args.classname}  {
+    mut context:=base.context()!
     mut args := args_get(args_)
+    mut obj := ${args.classname}{}
 	if !(args.name in ${args.name}_global) {
-        if args.name=="default"{
-            if ! config_exists(args){
-                if default{
-                    config_save(args)!
-                }
-            }
-    		config_load(args)!
-        }
+        if ! exists(args)!{            
+            set(obj)!
+        }else{
+            heroscript := context.hero_config_get("${args.name}",args.name)!
+            mut obj:=heroscript_loads(heroscript)!
+            set_in_mem(obj)!
+        }        
 	}
-	return ${args.name}_global[args.name] or { 
+	return ${args.name}_global[args.name] or {
             println(${args.name}_global)
-            panic("could not get config for ${args.name} with name:??{args.name}") 
+            //bug if we get here because should be in globals
+            panic("could not get config for ${args.name} with name, is bug:??{args.name}") 
         }
 }
 
+//register the config for the future
+pub fn set(o ${args.classname})! {
+    set_in_mem(o)!
+    mut context := base.context()!
+    heroscript := heroscript_dumps(o)!
+    context.hero_config_set("gitea", o.name, heroscript)!
+}
+
+//does the config exists?
+pub fn exists(args_ ArgsGet)! {
+    mut context := base.context()!
+    mut args := args_get(args_)
+    return context.hero_config_exists("gitea", args.name)
+}
+
+pub fn delete(args_ ArgsGet)! {
+    mut args := args_get(args_)
+   	mut context:=base.context()!
+	context.hero_config_delete("${args.name}",args.name)! 
+    if args.name in ${args.name}_global {
+        //del ${args.name}_global[args.name]
+    }
+}
+
+//only sets in mem, does not set as config
+fn set_in_mem(o ${args.classname})! {
+	mut o2:=obj_init(o)!
+	${args.name}_global[o.name] = &o2
+    ${args.name}_default = o.name
+}
 
 @else
 pub fn get(args_ ArgsGet) !&${args.classname}  {
     return &${args.classname}{}
 }
 @end
-
-@if args.hasconfig
-fn config_exists(args_ ArgsGet) bool {
-    mut args := args_get(args_)
-	mut context:=base.context() or { panic("bug") }
-	return context.hero_config_exists("${args.name}",args.name)
-}
-
-fn config_load(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context:=base.context()!
-	mut heroscript := context.hero_config_get("${args.name}",args.name)!
-	play(heroscript:heroscript)!
-}
-
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context:=base.context()!
-	context.hero_config_set("${args.name}",args.name,heroscript_default()!)!
-}
-
-
-fn set(o ${args.classname})! {
-	mut o2:=obj_init(o)!
-	${args.name}_global[o.name] = &o2
-    ${args.name}_default = o.name
-}
-
 
 ^^[params]
 pub struct PlayArgs {
@@ -102,9 +103,7 @@ pub fn play(args_ PlayArgs) ! {
 	mut args:=args_
 
     @if args.hasconfig
-    if args.heroscript == "" {
-        args.heroscript = heroscript_default()!
-    }
+
     @end
     mut plbook := args.plbook or {
         playbook.new(text: args.heroscript)!
@@ -114,8 +113,9 @@ pub fn play(args_ PlayArgs) ! {
     mut install_actions := plbook.find(filter: '${args.name}.configure')!
     if install_actions.len > 0 {
         for install_action in install_actions {
-            mut p := install_action.params
-            cfg_play(p)!
+            heroscript:=install_action.heroscript()
+            mut obj2:=heroscript_loads(heroscript)!
+            set(obj2)!   
         }
     }
     @end
@@ -160,8 +160,6 @@ pub fn play(args_ PlayArgs) ! {
     @end
 
 }
-
-@end
 
 @if args.cat == .installer
 
@@ -308,4 +306,12 @@ pub fn (mut self ${args.classname}) destroy() ! {
 //switch instance to be used for ${args.name}
 pub fn switch(name string) {
 	${args.name}_default = name
+}
+
+
+//helpers
+
+^^[params]
+pub struct DefaultConfigArgs{
+    instance string = 'default'
 }
