@@ -5,9 +5,7 @@ permissions:
 
 on:
   push:
-    branches: ["main","development"]
   workflow_dispatch:
-    branches: ["main","development"]
 
 jobs:
   build:
