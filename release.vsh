@@ -41,7 +41,7 @@ if !version_re.matches_string(new_version) {
 
 ourdir := dir(@FILE)
 
-
+os.chdir(ourdir)!
 hero_v_path := '${ourdir}/cli/hero.v'
 
 // Read hero.v
@@ -92,12 +92,56 @@ os.rm('${hero_v_path}.backup') or {
 	eprintln('Warning: Could not remove backup file: ${err}')
 }
 
-// Git operations
-os.execute('git add ${hero_v_path}')
-os.execute('git commit -m "chore: bump version to ${new_version}"')
-os.execute('git pull')
-os.execute('git push')
-os.execute('git tag -a "v${new_version}" -m "Release version ${new_version}"')
-os.execute('git push origin "v${new_version}"')
+
+// Update version in install_hero.sh
+install_hero_path := '${ourdir}/install_hero.sh'
+install_hero_content := os.read_file(install_hero_path) or {
+	eprintln('Error reading ${install_hero_path}: ${err}')
+	exit(1)
+}
+
+// Create backup of install_hero.sh
+os.cp(install_hero_path, '${install_hero_path}.backup') or {
+	eprintln('Error creating backup of install_hero.sh: ${err}')
+	exit(1)
+}
+
+// Replace version in install_hero.sh
+mut install_hero_lines := install_hero_content.split_into_lines()
+for i, line in install_hero_lines {
+	if line.contains("version='") {
+		install_hero_lines[i] = "version='${new_version}'"
+		break
+	}
+}
+
+// Write back to install_hero.sh
+os.write_file(install_hero_path, install_hero_lines.join_lines()) or {
+	eprintln('Error writing to ${install_hero_path}: ${err}')
+	// Restore backup
+	os.cp('${install_hero_path}.backup', install_hero_path) or {
+		eprintln('Error restoring backup of install_hero.sh: ${err}')
+	}
+	exit(1)
+}
+
+// Clean up backup of install_hero.sh
+os.rm('${install_hero_path}.backup') or {
+	eprintln('Warning: Could not remove backup file of install_hero.sh: ${err}')
+}
+
+
+cmd:='
+git remote set-url origin git@github.com:freeflowuniverse/herolib.git
+git add ${hero_v_path} ${install_hero_path}
+git commit -m "bump version to ${new_version}"
+git pull git@github.com:freeflowuniverse/herolib.git main
+git tag -a "v${new_version}" -m "Release version ${new_version}"
+git push git@github.com:freeflowuniverse/herolib.git "v${new_version}"
+'
+
+println(cmd)
+
+os.execute_or_panic('${cmd}')
 
 println('Release v${new_version} created and pushed!')

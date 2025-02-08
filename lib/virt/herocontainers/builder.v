@@ -179,8 +179,8 @@ pub fn (mut self Builder) clean() ! {
 		#set -x
 		set +e
 		rm -rf /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc
-		pacman -Rns $(pacman -Qtdq) --noconfirm
-		pacman -Scc --noconfirm	
+		#pacman -Rns $(pacman -Qtdq) --noconfirm
+		#pacman -Scc --noconfirm	
 		rm -rf /var/lib/pacman/sync/*
 		rm -rf /tmp/*
 		rm -rf /var/tmp/*

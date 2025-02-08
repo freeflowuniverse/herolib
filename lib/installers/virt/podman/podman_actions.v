@@ -1,87 +1,101 @@
 module podman
 
+import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
+import freeflowuniverse.herolib.installers.ulist
+
+
 import os
 
-// Check if Podman is installed
+
+//////////////////// following actions are not specific to instance of the object
+
+// checks if a certain version or above is installed
 fn installed() !bool {
-	console.print_header('Checking if Podman is installed...')
-	result := os.execute('podman -v')
-	return result.exit_code == 0
+    res := os.execute('${osal.profile_path_source_and()!} podman -v')
+    if res.exit_code != 0 {
+        println(res)
+        return false
+    }
+    r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+    if r.len != 1 {
+        return error("couldn't parse podman version.\n${res.output}")
+    }
+    if texttools.version(version) <= texttools.version(r[0].all_after("version")) {
+        return true
+    }
+    return false
 }
 
-// Install Podman
+//get the Upload List of the files
+fn ulist_get() !ulist.UList {
+    //optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+    return ulist.UList{}
+}
+
+fn upload() ! {
+}
+
 fn install() ! {
-	if installed()! {
-		return error('Podman is already installed.')
-	}
+    console.print_header('install podman')
+    mut url := ''
+    if core.is_linux_arm()! || core.is_linux_intel()!{
+        osal.package_install("podman,buildah,crun,mmdebstrap")!
+        return
+    } else if core.is_linux_intel()! {
+        url = 'https://github.com/containers/podman/releases/download/v${version}/podman-installer-macos-arm64.pkg'
+    } else if core.is_osx_intel()! {
+        url = 'https://github.com/containers/podman/releases/download/v${version}/podman-installer-macos-amd64.pkg'
+    } else {
+        return error('unsported platform')
+    }
 
-	console.print_header('Installing Podman...')
-	platform := core.platform()!
-	command := get_platform_command(platform, 'install')!
-	execute_command(command, 'installing Podman')!
-	console.print_header('Podman installed successfully.')
+    mut dest := osal.download(
+        url: url
+        minsize_kb: 9000
+        expand_dir: '/tmp/podman'
+    )!
+
+    //dest.moveup_single_subdir()!
+
+    panic("implement")
 }
 
-// Remove Podman
+
 fn destroy() ! {
-	if !installed()! {
-		return error('Podman is not installed.')
-	}
 
-	console.print_header('Removing Podman...')
-	platform := core.platform()!
-	command := get_platform_command(platform, 'remove')!
-	execute_command(command, 'removing Podman')!
-	console.print_header('Podman removed successfully.')
+    // mut systemdfactory := systemd.new()!
+    // systemdfactory.destroy("zinit")!
+
+    // osal.process_kill_recursive(name:'zinit')!
+    // osal.cmd_delete('zinit')!
+
+    osal.package_remove('
+       podman
+       conmon
+       buildah
+       skopeo
+       runc
+    ')!
+
+    // //will remove all paths where go/bin is found
+    // osal.profile_path_add_remove(paths2delete:"go/bin")!
+
+    osal.rm("
+       podman
+       conmon
+       buildah
+       skopeo
+       runc
+       /var/lib/containers
+       /var/lib/podman
+       /var/lib/buildah
+       /tmp/podman
+       /tmp/conmon
+    ")!
+
+
 }
 
-// Build Podman (install it)
-fn build() ! {
-	install()!
-}
-
-// Get platform-specific commands for installing/removing Podman
-fn get_platform_command(platform core.PlatformType, action string) !string {
-	return match platform {
-		.ubuntu {
-			if action == 'install' {
-				'sudo apt-get -y install podman'
-			} else if action == 'remove' {
-				'sudo apt-get -y remove podman'
-			} else {
-				return error('Invalid action: ${action}')
-			}
-		}
-		.arch {
-			if action == 'install' {
-				'sudo pacman -S --noconfirm podman'
-			} else if action == 'remove' {
-				'sudo pacman -R --noconfirm podman'
-			} else {
-				return error('Invalid action: ${action}')
-			}
-		}
-		.osx {
-			if action == 'install' {
-				'brew install podman'
-			} else if action == 'remove' {
-				'brew uninstall podman'
-			} else {
-				return error('Invalid action: ${action}')
-			}
-		}
-		else {
-			return error('Only Ubuntu, Arch, and macOS are supported.')
-		}
-	}
-}
-
-// Execute a shell command and handle errors
-fn execute_command(command string, operation string) ! {
-	result := os.execute(command)
-	if result.exit_code != 0 {
-		return error('Failed ${operation}: ${result.output}')
-	}
-}

@@ -1,15 +1,14 @@
-#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.virt.herocontainers
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.osal
-import freeflowuniverse.herolib.installers.virt.pacman
+import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 
-mut installer := pacman.get()!
-
-// installer.destroy()!
-// installer.install()!
+mut podman_installer0 := podman_installer.get()!
+// podman_installer0.destroy()!
+podman_installer0.install()!
 
 // exit(0)
 

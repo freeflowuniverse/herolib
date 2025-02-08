@@ -54,9 +54,9 @@ pub fn v_analyzer_install(args_ InstallArgs) ! {
 	// if pl == .ubuntu {
 	// }else{
 	// 	mut url := ''
-	// 	if osal.is_linux_intel() {
+	// 	if core.is_linux_intel() {
 	// 		url = 'https://github.com/vlang/v-analyzer/releases/download/nightly/v-analyzer-linux-x86_64.zip'
-	// 	} else if osal.is_osx_arm() {
+	// 	} else if core.is_osx_arm() {
 	// 		url = 'https://github.com/vlang/v-analyzer/releases/download/nightly/v-analyzer-darwin-arm64.zip'
 	// 	} else if osal.is_osx_intel() {
 	// 		url = 'https://github.com/vlang/v-analyzer/releases/download/nightly/v-analyzer-darwin-x86_64.zip'

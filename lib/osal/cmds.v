@@ -124,6 +124,9 @@ pub fn profile_path_source() !string {
 // or empty if it doesn't exist
 pub fn profile_path_source_and() !string {
 	p := profile_path_source() or { return '' }
+	if p.len==0{
+		return ""
+	}
 	return '${p} && '
 }
 

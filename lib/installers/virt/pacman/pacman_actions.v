@@ -3,6 +3,7 @@ module pacman
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 import os
 
 // checks if a certain version or above is installed
@@ -19,7 +20,7 @@ fn install_() ! {
 		return
 	}
 
-	if core.platform() != .ubuntu {
+	if core.platform()! != .ubuntu {
 		return error('only ubuntu supported for this installer.')
 	}
 

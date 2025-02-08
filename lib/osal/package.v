@@ -53,6 +53,10 @@ pub fn package_install(name_ string) ! {
 	platform_ := core.platform()!
 	cpu := core.cputype()!
 
+	mut sudo_pre:=""
+	if core.sudo_required()! {
+		sudo_pre="sudo "
+	}
 	if platform_ == .osx {
 		if cpu == .arm {
 			exec(cmd: 'arch --arm64 brew install ${name}') or {
@@ -64,37 +68,14 @@ pub fn package_install(name_ string) ! {
 			}
 		}
 	} else if platform_ == .ubuntu {
-		// Use sudo if required (based on user's permissions)
-		use_sudo := core.sudo_required()!
-
-		cmd := if use_sudo {
-			'sudo apt install -y ${name}  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --allow-downgrades --allow-remove-essential --allow-change-held-packages'
-		} else {
-			'apt install -y ${name}  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --allow-downgrades --allow-remove-essential --allow-change-held-packages'
-		}
-		exec(cmd: cmd) or {
-			return error('could not install package on Ubuntu: ${name}\nerror:\n${err}')
-		}
+		exec(cmd: 'export DEBIAN_FRONTEND=noninteractive && ${sudo_pre}apt install -y ${name}  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --allow-downgrades --allow-remove-essential --allow-change-held-packages') 
+				or { return error('could not install package on Ubuntu: ${name}\nerror:\n${err}')}
 	} else if platform_ == .alpine {
-		// Use sudo if required
-		use_sudo := core.sudo_required()!
-		cmd := if use_sudo {
-			'sudo apk add ${name}'
-		} else {
-			'apk add ${name}'
-		}
-		exec(cmd: cmd) or {
+		exec(cmd: "${sudo_pre}apk add ${name}") or {
 			return error('could not install package on Alpine: ${name}\nerror:\n${err}')
 		}
 	} else if platform_ == .arch {
-		// Use sudo if required
-		use_sudo := core.sudo_required()!
-		cmd := if use_sudo {
-			'sudo pacman --noconfirm -Su ${name}'
-		} else {
-			'pacman --noconfirm -Su ${name}'
-		}
-		exec(cmd: cmd) or {
+		exec(cmd: '${sudo_pre}pacman --noconfirm -Su ${name}') or {
 			return error('could not install package on Arch: ${name}\nerror:\n${err}')
 		}
 	} else {
