@@ -1,0 +1,11 @@
+!!hero_code.generate_installer
+    name: "gitea"
+    classname: "GiteaServer"
+    hasconfig: true
+    singleton: true
+    default: false
+    title: ""
+    templates: true
+    build: true
+    startupmanager: true
+    supported_platforms: ""

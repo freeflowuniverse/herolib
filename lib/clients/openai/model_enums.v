@@ -1,6 +1,7 @@
 module openai
 
 pub enum ModelType {
+	gpt_4o_2024_08_06
 	gpt_3_5_turbo
 	gpt_4
 	gpt_4_0613
@@ -10,16 +11,17 @@ pub enum ModelType {
 	gpt_3_5_turbo_16k
 	gpt_3_5_turbo_16k_0613
 	whisper_1
+	tts_1
 }
 
 fn modelname_str(e ModelType) string {
-	if e == .gpt_4 {
-		return 'gpt-4'
-	}
-	if e == .gpt_3_5_turbo {
-		return 'gpt-3.5-turbo'
-	}
 	return match e {
+		.tts_1 {
+			'tts-1'
+		}
+		.gpt_4o_2024_08_06 {
+			'gpt-4o-2024-08-06'
+		}
 		.gpt_4 {
 			'gpt-4'
 		}
@@ -70,6 +72,82 @@ fn roletype_str(x RoleType) string {
 		}
 		.function {
 			'function'
+		}
+	}
+}
+
+pub enum Voice {
+	alloy
+	ash
+	coral
+	echo
+	fable
+	onyx
+	nova
+	sage
+	shimmer
+}
+
+fn voice_str(x Voice) string {
+	return match x {
+		.alloy {
+			'alloy'
+		}
+		.ash {
+			'ash'
+		}
+		.coral {
+			'coral'
+		}
+		.echo {
+			'echo'
+		}
+		.fable {
+			'fable'
+		}
+		.onyx {
+			'onyx'
+		}
+		.nova {
+			'nova'
+		}
+		.sage {
+			'sage'
+		}
+		.shimmer {
+			'shimmer'
+		}
+	}
+}
+
+pub enum AudioFormat {
+	mp3
+	opus
+	aac
+	flac
+	wav
+	pcm
+}
+
+fn audio_format_str(x AudioFormat) string {
+	return match x {
+		.mp3 {
+			'mp3'
+		}
+		.opus {
+			'opus'
+		}
+		.aac {
+			'aac'
+		}
+		.flac {
+			'flac'
+		}
+		.wav {
+			'wav'
+		}
+		.pcm {
+			'pcm'
 		}
 	}
 }

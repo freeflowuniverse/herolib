@@ -29,11 +29,6 @@ pub fn testsuite_begin() ! {
 	cleanup_test_screens()!
 }
 
-// Cleanup after all tests
-pub fn testsuite_end() ! {
-	cleanup_test_screens()!
-}
-
 fn cleanup_test_screens() ! {
 	mut screen_factory := new(reset: false)!
 	screen_factory.scan()!
@@ -80,6 +75,9 @@ fn create_and_verify_screen(mut screen_factory ScreensFactory, name string, cmd 
 
 // Test screen creation and basic status
 pub fn test_screen_creation() ! {
+	defer {
+		cleanup_test_screens() or { panic('failed to cleanup test screens: ${err}') }
+	}
 	mut screen_factory := new(reset: false)!
 	mut screen := create_and_verify_screen(mut &screen_factory, test_screen_name, '/bin/bash')!
 
@@ -90,6 +88,9 @@ pub fn test_screen_creation() ! {
 
 // Test command sending functionality
 pub fn test_screen_cmd_send() ! {
+	defer {
+		cleanup_test_screens() or { panic('failed to cleanup test screens: ${err}') }
+	}
 	mut screen_factory := new(reset: false)!
 	mut screen := create_and_verify_screen(mut &screen_factory, test_screen_name, '/bin/bash')!
 
@@ -106,6 +107,9 @@ pub fn test_screen_cmd_send() ! {
 
 // Test error cases
 pub fn test_screen_errors() ! {
+	defer {
+		cleanup_test_screens() or { panic('failed to cleanup test screens: ${err}') }
+	}
 	mut screen_factory := new(reset: false)!
 
 	// Test invalid screen name
@@ -127,6 +131,9 @@ pub fn test_screen_errors() ! {
 
 // Test multiple screens
 pub fn test_multiple_screens() ! {
+	defer {
+		cleanup_test_screens() or { panic('failed to cleanup test screens: ${err}') }
+	}
 	mut screen_factory := new(reset: false)!
 
 	screen1_name := '${test_screen_name}_1'

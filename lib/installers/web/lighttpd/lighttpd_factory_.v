@@ -14,16 +14,6 @@ __global (
 
 /////////FACTORY
 
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
-}
-
-pub fn get(args_ ArgsGet) !&LightHttpdInstaller {
-	return &LightHttpdInstaller{}
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +48,8 @@ pub fn (mut self LightHttpdInstaller) start() ! {
 
 	console.print_header('lighttpd start')
 
-	if !installed()! {
-		install()!
+	if !installed_()! {
+		install_()!
 	}
 
 	configure()!
@@ -129,25 +119,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self LightHttpdInstaller) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+pub fn install(args InstallArgs) ! {
+	if args.reset {
+		destroy()!
+	}
+	if !(installed_()!) {
+		install_()!
 	}
 }
 
-pub fn (mut self LightHttpdInstaller) build() ! {
-	switch(self.name)
-	build()!
+pub fn destroy() ! {
+	destroy_()!
 }
 
-pub fn (mut self LightHttpdInstaller) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy()!
-}
-
-// switch instance to be used for lighttpd
-pub fn switch(name string) {
-	lighttpd_default = name
+pub fn build() ! {
+	build_()!
 }

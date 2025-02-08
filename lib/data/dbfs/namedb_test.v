@@ -44,8 +44,8 @@ fn test_dbname1() {
 	// Retrieve public keys using their unique IDs
 	console.print_debug('retrieve starts')
 	for i2, myid in ids {
-		retrieved_pubkey, data := ndb.get(myid)!
-		myid_found, data_found := ndb.getdata(retrieved_pubkey)!
+		retrieved_pubkey, data := ndb.get_from_id(myid)!
+		myid_found, data_found := ndb.get(retrieved_pubkey)!
 		assert myid_found == myid
 		assert data_found == data
 		tc := test_cases[i2] or {

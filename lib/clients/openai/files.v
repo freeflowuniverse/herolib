@@ -11,7 +11,14 @@ const jsonl_mime_type = 'text/jsonl'
 pub struct FileUploadArgs {
 pub:
 	filepath string
-	purpose  string
+	purpose  FilePurpose
+}
+
+pub enum FilePurpose {
+	assistants
+	vision
+	batch
+	fine_tuning
 }
 
 pub struct File {
@@ -37,7 +44,7 @@ pub mut:
 }
 
 // upload file to client org, usually used for fine tuning
-pub fn (mut f OpenAIClient[Config]) upload_file(args FileUploadArgs) !File {
+pub fn (mut f OpenAI) upload_file(args FileUploadArgs) !File {
 	file_content := os.read_file(args.filepath)!
 
 	file_data := http.FileData{
@@ -51,14 +58,15 @@ pub fn (mut f OpenAIClient[Config]) upload_file(args FileUploadArgs) !File {
 			'file': [file_data]
 		}
 		form:  {
-			'purpose': args.purpose
+			'purpose': file_purpose_str(args.purpose)
 		}
 	}
 
 	req := httpconnection.Request{
 		prefix: 'files'
 	}
-	r := f.connection.post_multi_part(req, form)!
+	mut conn := f.connection()!
+	r := conn.post_multi_part(req, form)!
 	if r.status_code != 200 {
 		return error('got error from server: ${r.body}')
 	}
@@ -66,25 +74,47 @@ pub fn (mut f OpenAIClient[Config]) upload_file(args FileUploadArgs) !File {
 }
 
 // list all files in client org
-pub fn (mut f OpenAIClient[Config]) list_files() !Files {
-	r := f.connection.get(prefix: 'files')!
+pub fn (mut f OpenAI) list_files() !Files {
+	mut conn := f.connection()!
+	r := conn.get(prefix: 'files')!
 	return json.decode(Files, r)!
 }
 
 // deletes a file
-pub fn (mut f OpenAIClient[Config]) delete_file(file_id string) !DeleteResp {
-	r := f.connection.delete(prefix: 'files/' + file_id)!
+pub fn (mut f OpenAI) delete_file(file_id string) !DeleteResp {
+	mut conn := f.connection()!
+	r := conn.delete(prefix: 'files/' + file_id)!
 	return json.decode(DeleteResp, r)!
 }
 
 // returns a single file metadata
-pub fn (mut f OpenAIClient[Config]) get_file(file_id string) !File {
-	r := f.connection.get(prefix: 'files/' + file_id)!
+pub fn (mut f OpenAI) get_file(file_id string) !File {
+	mut conn := f.connection()!
+	r := conn.get(prefix: 'files/' + file_id)!
 	return json.decode(File, r)!
 }
 
 // returns the content of a specific file
-pub fn (mut f OpenAIClient[Config]) get_file_content(file_id string) !string {
-	r := f.connection.get(prefix: 'files/' + file_id + '/content')!
+pub fn (mut f OpenAI) get_file_content(file_id string) !string {
+	mut conn := f.connection()!
+	r := conn.get(prefix: 'files/' + file_id + '/content')!
 	return r
+}
+
+// returns the purpose of the file in string format
+fn file_purpose_str(purpose FilePurpose) string {
+	return match purpose {
+		.assistants {
+			'assistants'
+		}
+		.vision {
+			'vision'
+		}
+		.batch {
+			'batch'
+		}
+		.fine_tuning {
+			'fine_tuning'
+		}
+	}
 }

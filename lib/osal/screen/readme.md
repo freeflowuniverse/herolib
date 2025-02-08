@@ -11,17 +11,16 @@ Create a file `screen_example.vsh`:
 
 import freeflowuniverse.herolib.osal.screen
 
-// Create a new screen session with hardcoded parameters
-mut s := screen.Screen{
-    name: 'test_session'
-    cmd: '/bin/bash'  // Default shell
-}
+// Create a new screen factory
+mut sf := screen.new()!
 
-// Check if screen is running
-is_running := s.is_running() or { 
-    println('Error checking screen status: ${err}')
-    return 
-}
+// Add a new screen session
+mut s := sf.add(
+    name: 'myscreen'
+    cmd: '/bin/bash'  // optional, defaults to /bin/bash
+    start: true       // optional, defaults to true
+    attach: false     // optional, defaults to false
+)!
 
 // Get session status
 status := s.status() or {
@@ -38,6 +37,12 @@ s.cmd_send('ls -la') or {
 // Attach to the session
 s.attach() or {
     println('Error attaching: ${err}')
+    return
+}
+
+// Kill the screen when done
+sf.kill('myscreen') or {
+    println('Error killing screen: ${err}')
     return
 }
 ```

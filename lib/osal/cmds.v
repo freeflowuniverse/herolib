@@ -2,6 +2,7 @@ module osal
 
 import os
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 // import regex
 import freeflowuniverse.herolib.core.texttools
@@ -73,7 +74,7 @@ pub fn profile_path_add_hero() !string {
 
 pub fn bin_path() !string {
 	mut dest := ''
-	if is_osx() {
+	if core.is_osx()! {
 		dest = '${os.home_dir()}/hero/bin'
 		dir_ensure(dest)!
 	} else {
@@ -92,7 +93,7 @@ pub fn hero_path() !string {
 ///usr/local on linux, ${os.home_dir()}/hero on osx
 pub fn usr_local_path() !string {
 	mut dest := ''
-	if is_osx() {
+	if core.is_osx()! {
 		dest = '${os.home_dir()}/hero'
 		dir_ensure(dest)!
 	} else {
@@ -102,28 +103,31 @@ pub fn usr_local_path() !string {
 }
 
 // return the source statement if the profile exists
-pub fn profile_path_source() string {
-	if hostname() or { '' } == 'rescue' {
+pub fn profile_path_source() !string {
+	if core.hostname() or { '' } == 'rescue' {
 		return ''
 	}
-	pp := profile_path()
+	pp := profile_path()!
 	if os.exists(pp) {
-		return 'source ${pp}'
+		res := os.execute('source ${pp}')
+		if res.exit_code != 0 {
+			console.print_stderr('WARNING: your profile is corrupt: ${pp}')
+			return error('profile corrupt')
+		} else {
+			return 'source ${pp}'
+		}
 	}
 	return ''
 }
 
 // return source $path &&  .
 // or empty if it doesn't exist
-pub fn profile_path_source_and() string {
-	if hostname() or { '' } == 'rescue' {
-		return ''
+pub fn profile_path_source_and() !string {
+	p := profile_path_source() or { return '' }
+	if p.len==0{
+		return ""
 	}
-	pp := profile_path()
-	if os.exists(pp) {
-		return '. ${pp} &&'
-	}
-	return ''
+	return '${p} && '
 }
 
 fn profile_paths_get(content string) []string {
@@ -244,7 +248,15 @@ pub fn cmd_delete(cmd string) ! {
 		res := cmd_path(cmd2) or { '' }
 		if res.len > 0 {
 			if os.exists(res) {
-				os.rm(res)!
+				if core.sudo_path_ok(res)! {
+					os.rm(res)!
+				} else {
+					if core.interactive()! {
+						execute_silent('sudo rm -rf ${res}')!
+					} else {
+						return error("can't remove ${res} as sudo because non interactive as part of cmd delete.")
+					}
+				}
 			}
 		}
 	}
@@ -276,7 +288,7 @@ pub fn profile_paths_all() ![]string {
 
 pub fn profile_paths_preferred() ![]string {
 	mut toadd := []string{}
-	if is_osx() {
+	if core.is_osx()! {
 		toadd << '${os.home_dir()}/.zprofile'
 		toadd << '${os.home_dir()}/.zshrc'
 	} else {
@@ -295,8 +307,8 @@ pub fn profile_paths_preferred() ![]string {
 	return profile_files2
 }
 
-pub fn profile_path() string {
-	if is_osx() {
+pub fn profile_path() !string {
+	if core.is_osx()! {
 		return '${os.home_dir()}/.zprofile'
 	} else {
 		return '${os.home_dir()}/.bash_profile'

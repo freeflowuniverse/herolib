@@ -5,18 +5,22 @@ OurDB is a lightweight, efficient key-value database implementation in V that pr
 ## Usage Example
 
 ```v
-
-//record_nr_max u32 = 16777216 - 1    // max number of records
-//record_size_max u32 = 1024*4        // max record size (4KB default)
-//file_size u32 = 500 * (1 << 20)     // file size (500MB default)
-//path string                         // storage directory
-
 import freeflowuniverse.herolib.data.ourdb
 
-mut db := ourdb.new(path:"/tmp/mydb")!
+// Configure and create a new database instance
+mut db := ourdb.new(
+    path: '/tmp/mydb',              // storage directory
+    record_nr_max: 16777216 - 1,    // max number of records (default)
+    record_size_max: 1024 * 4,      // max record size (4KB default)
+    file_size: 500 * (1 << 20),     // file size (500MB default)
+    incremental_mode: true          // enable auto-incrementing IDs (default)
+)!
 
-// Store data (note: set() takes []u8 as value)
-db.set(1, 'Hello World'.bytes())!
+// Store data with auto-incrementing ID (incremental mode)
+id := db.set(data: 'Hello World'.bytes())!
+
+// Store data with specific ID (is an update)
+id2 := db.set(id: 1, data: 'Hello Again'.bytes())!
 
 // Retrieve data
 data := db.get(1)! // Returns []u8
@@ -28,7 +32,6 @@ history := db.get_history(1, 5)! // Get last 5 versions
 db.delete(1)!
 ```
 
-
 ## Features
 
 - Efficient key-value storage
@@ -37,6 +40,19 @@ db.delete(1)!
 - Support for multiple backend files
 - Configurable record sizes and counts
 - Memory and disk-based lookup tables
+- Optional incremental ID mode
+
+## Configuration Options
+
+```v
+struct OurDBConfig {
+    record_nr_max   u32 = 16777216 - 1    // max size of records
+    record_size_max u32 = 1024 * 4        // max size in bytes of a record (4KB default)
+    file_size       u32 = 500 * (1 << 20) // file size (500MB default)
+    path            string                 // directory where we will store the DB
+    incremental_mode bool = true          // enable auto-incrementing IDs
+}
+```
 
 ## Architecture
 
@@ -46,26 +62,29 @@ OurDB consists of three main components working together in a layered architectu
 - Provides the public API for database operations
 - Handles high-level operations (set, get, delete, history)
 - Coordinates between lookup and backend components
-- Located in `db.v`
+- Supports both key-value and incremental ID modes
 
 ### 2. Lookup Table (lookup.v)
 - Maps keys to physical locations in the backend storage
 - Supports both memory and disk-based lookup tables
-- Configurable key sizes for optimization
+- Automatically optimizes key sizes based on database configuration
 - Handles sparse data efficiently
-- Located in `lookup.v`
+- Provides next ID generation for incremental mode
 
 ### 3. Backend Storage (backend.v)
 - Manages the actual data storage in files
 - Handles data integrity with CRC32 checksums
 - Supports multiple file backends for large datasets
 - Implements the low-level read/write operations
-- Located in `backend.v`
 
 ## File Structure
 
 - `db.v`: Frontend interface providing the public API
-- `lookup.v`: Implementation of the lookup table system
+- `lookup.v`: Core lookup table implementation
+- `lookup_location.v`: Location tracking implementation
+- `lookup_location_test.v`: Location tracking tests
+- `lookup_id_test.v`: ID generation tests
+- `lookup_test.v`: General lookup table tests
 - `backend.v`: Low-level data storage implementation
 - `factory.v`: Database initialization and configuration
 - `db_test.v`: Test suite for verifying functionality
@@ -73,16 +92,19 @@ OurDB consists of three main components working together in a layered architectu
 ## How It Works
 
 1. **Frontend Operations**
-   - When you call `set(key, value)`, the frontend:
-     1. Gets the storage location from the lookup table
-     2. Passes the data to the backend for storage
-     3. Updates the lookup table with any new location
+   - When you call `set()`, the frontend:
+     1. In incremental mode, generates the next ID or uses provided ID
+     2. Gets the storage location from the lookup table
+     3. Passes the data to the backend for storage
+     4. Updates the lookup table with any new location
 
 2. **Lookup Table**
    - Maintains a mapping between keys and physical locations
-   - Optimizes key size based on maximum record count
-   - Can be memory-based for speed or disk-based for large datasets
-   - Supports sparse data storage for efficient space usage
+   - Optimizes key size based on:
+     - Total number of records (affects address space)
+     - Record size and count (determines file splitting)
+   - Supports incremental ID generation
+   - Persists lookup data to disk for recovery
 
 3. **Backend Storage**
    - Stores data in one or multiple files
@@ -103,13 +125,15 @@ Each record in the backend storage includes:
 - N bytes: Actual data
 
 ### Lookup Table Optimization
-The lookup table automatically optimizes its key size based on:
-- Total number of records (affects address space)
-- Record size and count (determines file splitting)
-- Available memory (can switch to disk-based lookup)
+The lookup table automatically optimizes its key size based on the database configuration:
+- 2 bytes: For databases with < 65,536 records
+- 3 bytes: For databases with < 16,777,216 records
+- 4 bytes: For databases with < 4,294,967,296 records
+- 6 bytes: For large databases requiring multiple files
 
 ### File Management
 - Supports splitting data across multiple files when needed
 - Each file is limited to 500MB by default (configurable)
 - Automatic file selection based on record location
 - Files are created as needed with format: `${path}/${file_nr}.db`
+- Lookup table state is persisted in `${path}/lookup_dump.db`

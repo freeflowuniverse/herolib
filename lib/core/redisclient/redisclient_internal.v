@@ -53,7 +53,7 @@ fn (mut r Redis) socket_check() ! {
 	}
 }
 
-pub fn (mut r Redis) read_line() !string {
+fn (mut r Redis) read_line() !string {
 	return r.socket.read_line().trim_right('\r\n')
 }
 
@@ -99,7 +99,7 @@ fn (mut r Redis) write_line(data []u8) ! {
 }
 
 // write resp value to the redis channel
-pub fn (mut r Redis) write_rval(val resp.RValue) ! {
+fn (mut r Redis) write_rval(val resp.RValue) ! {
 	r.write(val.encode())!
 }
 

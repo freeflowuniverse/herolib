@@ -10,21 +10,21 @@ pub fn generate_command_file(spec ActorSpecification) !VFile {
 	for i in spec.methods {
 		items << CustomCode{generate_method_cmd_function(spec.name, i)}
 	}
-	return VFile {
-		name: 'command'
+	return VFile{
+		name:    'command'
 		imports: [
 			Import{
 				mod: 'freeflowuniverse.herolib.ui.console'
 			},
 			Import{
-				mod: 'cli'
+				mod:   'cli'
 				types: ['Command', 'Flag']
-			}
+			},
 		]
-		items: items
+		items:   items
 	}
 }
-	
+
 pub fn generate_cmd_function(spec ActorSpecification) string {
 	actor_name_snake := texttools.snake_case(spec.name)
 	mut cmd_function := "
@@ -35,7 +35,7 @@ pub fn generate_cmd_function(spec ActorSpecification) string {
 			description: '${spec.description}'
 		}
 	"
-	
+
 	mut method_cmds := []string{}
 	for method in spec.methods {
 		method_cmds << generate_method_cmd(method)

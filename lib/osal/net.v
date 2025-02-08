@@ -3,6 +3,7 @@ module osal
 import net
 import time
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 
 pub enum PingResult {
 	ok
@@ -23,7 +24,7 @@ pub mut:
 // address is e.g. 8.8.8.8
 // ping means we check if the destination responds
 pub fn ping(args PingArgs) !PingResult {
-	platform_ := platform()
+	platform_ := core.platform()!
 	mut cmd := 'ping'
 	if args.address.contains(':') {
 		cmd = 'ping6'

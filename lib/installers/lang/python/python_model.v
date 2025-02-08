@@ -3,7 +3,7 @@ module python
 import freeflowuniverse.herolib.data.paramsparser
 import os
 
-pub const version = '0.0.0'
+pub const version = '3.12.0'
 const singleton = true
 const default = true
 

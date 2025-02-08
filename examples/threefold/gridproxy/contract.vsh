@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.threefold.grid as tfgrid
 import freeflowuniverse.herolib.threefold.gridproxy
@@ -11,10 +11,10 @@ fn get_contracts_example() ! {
 	myfilter.contract_type = 'node'
 	myfilter.twin_id = u64(5191)
 
-	mut gp_client := gridproxy.new(net:.dev, cache:true)!
+	mut gp_client := gridproxy.new(net: .dev, cache: true)!
 	mycontracts := gp_client.get_contracts(myfilter)!
 
-	console.print_debug("${mycontracts}")
+	console.print_debug('${mycontracts}')
 }
 
 fn get_contract_by_id_example(contract_id u64) ! {
@@ -22,10 +22,10 @@ fn get_contract_by_id_example(contract_id u64) ! {
 
 	myfilter.contract_id = contract_id
 
-	mut gp_client := gridproxy.new(net:.dev, cache:true)!
+	mut gp_client := gridproxy.new(net: .dev, cache: true)!
 	mycontracts := gp_client.get_contracts(myfilter)!
 
-	console.print_debug("${mycontracts}")
+	console.print_debug('${mycontracts}')
 }
 
 fn get_my_contracts_example() ! {
@@ -37,7 +37,7 @@ fn get_my_contracts_example() ! {
 	myfilter.twin_id = u64(deployer.twin_id)
 	myfilter.state = 'created'
 
-	mut gp_client := gridproxy.new(net:.dev, cache:false)!
+	mut gp_client := gridproxy.new(net: .dev, cache: false)!
 	mycontracts := gp_client.get_contracts(myfilter)!
 
 	console.print_debug('${mycontracts}')

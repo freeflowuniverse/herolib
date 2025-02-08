@@ -14,9 +14,6 @@ import freeflowuniverse.herolib.ui.console
 pub fn test_rates_get() {
 	lock currencies {
 		refresh()!
-
-		println(currencies)
-
 		currencies['TFT'] = Currency{
 			name:   'TFT'
 			usdval: 0.01
@@ -53,12 +50,10 @@ pub fn test_rates_get() {
 		assert aa.currency.usdval == 1.0
 
 		mut a3 := amount_get('20 tft')!
-		println(a3)
 		assert a3.currency.usdval == 0.01
 		assert a3.usd() == 20.0 * 0.01
 
 		mut a4 := amount_get('20 k tft')!
-		println(a4)
 		assert a4.currency.usdval == 0.01
 		assert a4.usd() == 20 * 1000.0 * 0.01
 

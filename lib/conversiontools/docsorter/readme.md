@@ -10,7 +10,7 @@ How to use
 ## example
 
 ```v
-#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import os
 import import freeflowuniverse.herolib.conversiontools.docsorter

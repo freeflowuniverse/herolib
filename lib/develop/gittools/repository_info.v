@@ -34,8 +34,7 @@ pub fn (repo GitRepo) get_changes_staged() ![]string {
 }
 
 // Check if there are any unstaged or untracked changes in the repository.
-pub fn (mut repo GitRepo) has_changes() !bool {
-	repo.status_update()!
+pub fn (mut repo GitRepo) detect_changes() !bool {
 	r0 := repo.get_changes_unstaged()!
 	r1 := repo.get_changes_staged()!
 	if r0.len + r1.len > 0 {
@@ -46,10 +45,10 @@ pub fn (mut repo GitRepo) has_changes() !bool {
 
 // Check if there are staged changes to commit.
 pub fn (mut repo GitRepo) need_commit() !bool {
-	return repo.has_changes()!
+	return repo.has_changes
 }
 
-// Check if the repository has changes that need to be pushed.
+// Check if the repository has changes that need to be pushed (is against the cached info).
 pub fn (mut repo GitRepo) need_push_or_pull() !bool {
 	repo.status_update()!
 	last_remote_commit := repo.get_last_remote_commit() or {
@@ -58,8 +57,7 @@ pub fn (mut repo GitRepo) need_push_or_pull() !bool {
 	last_local_commit := repo.get_last_local_commit() or {
 		return error('Failed to get last local commit: ${err}')
 	}
-	println('last_local_commit: ${last_local_commit}')
-	println('last_remote_commit: ${last_remote_commit}')
+	// println('commit status: ${repo.name} ${last_local_commit} ${last_remote_commit}')
 	return last_local_commit != last_remote_commit
 }
 
@@ -92,19 +90,19 @@ fn (mut repo GitRepo) get_remote_default_branchname() !string {
 }
 
 // is always the commit for the branch as known remotely, if not known will return ""
-pub fn (repo GitRepo) get_last_remote_commit() !string {
-	if repo.status_local.branch in repo.status_remote.branches {
-		return repo.status_local.branches[repo.status_local.branch]
+pub fn (self GitRepo) get_last_remote_commit() !string {
+	if self.status_local.branch in self.status_remote.branches {
+		return self.status_remote.branches[self.status_local.branch]
 	}
 
 	return ''
 }
 
 // get commit for branch, will return '' if local branch doesn't exist remotely
-pub fn (repo GitRepo) get_last_local_commit() !string {
-	if repo.status_local.branch in repo.status_local.branches {
-		return repo.status_local.branches[repo.status_local.branch]
+pub fn (self GitRepo) get_last_local_commit() !string {
+	if self.status_local.branch in self.status_local.branches {
+		return self.status_local.branches[self.status_local.branch]
 	}
 
-	return error("can't find branch: ${repo.status_local.branch} in local branches:\n${repo.status_local.branches}")
+	return error("can't find branch: ${self.status_local.branch} in local branches:\n${self.status_local.branches}")
 }

@@ -36,7 +36,6 @@ module generator
 // 	return file
 // }
 
-
 // pub fn (a Actor) generate_model_files() ![]VFile {
 // 	structs := a.objects.map(it.structure)
 // 	return a.objects.map(code.new_file(

@@ -3,7 +3,7 @@ module rust
 import freeflowuniverse.herolib.data.paramsparser
 import os
 
-pub const version = '1.78.0'
+pub const version = '1.83.0'
 const singleton = true
 const default = true
 
@@ -17,7 +17,6 @@ pub mut:
 fn obj_init(obj_ RustInstaller) !RustInstaller {
 	// never call get here, only thing we can do here is work on object itself
 	mut obj := obj_
-	panic('implement')
 	return obj
 }
 

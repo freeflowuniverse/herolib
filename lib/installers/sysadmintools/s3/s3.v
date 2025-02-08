@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.installers.rclone
 import freeflowuniverse.herolib.ui.console
 
 // install s3 will return true if it was already installed
-pub fn install() ! {
+pub fn install_() ! {
 	base.install()!
 	zinitinstaller.install()!
 	rclone.install()!

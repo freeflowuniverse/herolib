@@ -2,7 +2,7 @@ module redisclient
 
 import freeflowuniverse.herolib.data.resp
 
-pub fn (mut r Redis) get_response() !resp.RValue {
+fn (mut r Redis) get_response() !resp.RValue {
 	line := r.read_line()!
 
 	if line.starts_with('-') {
@@ -63,7 +63,7 @@ pub fn (mut r Redis) get_response() !resp.RValue {
 
 // TODO: needs to use the resp library
 
-pub fn (mut r Redis) get_int() !int {
+fn (mut r Redis) get_int() !int {
 	line := r.read_line()!
 	if line.starts_with(':') {
 		return line[1..].int()
@@ -72,7 +72,7 @@ pub fn (mut r Redis) get_int() !int {
 	}
 }
 
-pub fn (mut r Redis) get_list_int() ![]int {
+fn (mut r Redis) get_list_int() ![]int {
 	line := r.read_line()!
 	mut res := []int{}
 
@@ -89,7 +89,7 @@ pub fn (mut r Redis) get_list_int() ![]int {
 	}
 }
 
-pub fn (mut r Redis) get_list_str() ![]string {
+fn (mut r Redis) get_list_str() ![]string {
 	line := r.read_line()!
 	mut res := []string{}
 
@@ -106,7 +106,7 @@ pub fn (mut r Redis) get_list_str() ![]string {
 	}
 }
 
-pub fn (mut r Redis) get_string() !string {
+fn (mut r Redis) get_string() !string {
 	line := r.read_line()!
 	if line.starts_with('+') {
 		// console.print_debug("getstring:'${line[1..]}'")
@@ -120,12 +120,12 @@ pub fn (mut r Redis) get_string() !string {
 	}
 }
 
-pub fn (mut r Redis) get_string_nil() !string {
+fn (mut r Redis) get_string_nil() !string {
 	r2 := r.get_bytes_nil()!
 	return r2.bytestr()
 }
 
-pub fn (mut r Redis) get_bytes_nil() ![]u8 {
+fn (mut r Redis) get_bytes_nil() ![]u8 {
 	line := r.read_line()!
 	if line.starts_with('+') {
 		return line[1..].bytes()
@@ -140,12 +140,12 @@ pub fn (mut r Redis) get_bytes_nil() ![]u8 {
 	}
 }
 
-pub fn (mut r Redis) get_bool() !bool {
+fn (mut r Redis) get_bool() !bool {
 	i := r.get_int()!
 	return i == 1
 }
 
-pub fn (mut r Redis) get_bytes() ![]u8 {
+fn (mut r Redis) get_bytes() ![]u8 {
 	line := r.read_line()!
 	if line.starts_with('$') {
 		return r.get_bytes_from_line(line)

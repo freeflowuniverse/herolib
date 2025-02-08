@@ -1,25 +1,40 @@
 module podman
-
 import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
 import os
 
-pub const version = '5.2.3'
+pub const version = '4.9.3'
 const singleton = true
 const default = true
 
-// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+//THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+@[heap]
 pub struct PodmanInstaller {
 pub mut:
-	name string = 'default'
+    name string = 'default'
 }
 
-fn obj_init(obj_ PodmanInstaller) !PodmanInstaller {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+
+
+//your checking & initialization code if needed
+fn obj_init(mycfg_ PodmanInstaller)!PodmanInstaller{
+    mut mycfg:=mycfg_
+    return mycfg
 }
 
-// called before start if done
+//called before start if done
 fn configure() ! {
-	// mut installer := get()!
+    //mut installer := get()!
+}
+
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj PodmanInstaller) !string {
+    return encoderhero.encode[PodmanInstaller ](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !PodmanInstaller {
+    mut obj := encoderhero.decode[PodmanInstaller](heroscript)!
+    return obj
 }

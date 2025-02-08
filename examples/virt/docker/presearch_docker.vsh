@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.virt.docker
 import os
@@ -18,7 +18,7 @@ presearch_node.volume_add('/presearch-node-storage', '/app/node')!
 presearch_node.env_add('REGISTRATION_CODE', '${registration_code}')
 
 mut presearch_updater := recipe.service_new(
-	name: 'presearch_updater'
+	name:  'presearch_updater'
 	image: 'presearch/auto-updater'
 )!
 presearch_updater.volume_add('/var/run/docker.sock', '/var/run/docker.sock')!

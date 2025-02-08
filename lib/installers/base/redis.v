@@ -4,6 +4,7 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
+import freeflowuniverse.herolib.core
 import time
 import os
 
@@ -28,7 +29,7 @@ pub mut:
 // 	restart bool = true
 // }
 // ```
-pub fn install(args_ RedisInstallArgs) ! {
+pub fn redis_install(args_ RedisInstallArgs) ! {
 	mut args := args_
 
 	if !args.reset {
@@ -39,7 +40,7 @@ pub fn install(args_ RedisInstallArgs) ! {
 	console.print_header('install redis.')
 
 	if !(osal.cmd_exists_profile('redis-server')) {
-		if osal.is_linux() {
+		if core.is_linux()! {
 			osal.package_install('redis-server')!
 		} else {
 			osal.package_install('redis')!
@@ -53,20 +54,20 @@ pub fn install(args_ RedisInstallArgs) ! {
 	start(args)!
 }
 
-fn configfilepath(args InstallArgs) string {
-	if osal.is_linux() {
+fn configfilepath(args RedisInstallArgs) string {
+	if core.is_linux() or { panic(err) } {
 		return '/etc/redis/redis.conf'
 	} else {
 		return '${args.datadir}/redis.conf'
 	}
 }
 
-fn configure(args InstallArgs) ! {
-	c := $tmpl('template/redis_config.conf')
+fn configure(args RedisInstallArgs) ! {
+	c := $tmpl('templates/redis_config.conf')
 	pathlib.template_write(c, configfilepath(), true)!
 }
 
-pub fn check(args InstallArgs) bool {
+pub fn check(args RedisInstallArgs) bool {
 	res := os.execute('redis-cli -c -p ${args.port} ping > /dev/null 2>&1')
 	if res.exit_code == 0 {
 		return true
@@ -74,7 +75,7 @@ pub fn check(args InstallArgs) bool {
 	return false
 }
 
-pub fn start(args InstallArgs) ! {
+pub fn start(args RedisInstallArgs) ! {
 	if check() {
 		return
 	}
@@ -83,7 +84,7 @@ pub fn start(args InstallArgs) ! {
 	// remove all redis in memory
 	osal.process_kill_recursive(name: 'redis-server')!
 
-	if osal.platform() == .osx {
+	if core.platform()! == .osx {
 		osal.exec(cmd: 'redis-server ${configfilepath()} --daemonize yes')!
 		// osal.exec(cmd:"brew services start redis") or {
 		// 	osal.exec(cmd:"redis-server ${configfilepath()} --daemonize yes")!

@@ -14,7 +14,7 @@ pub fn install_blackbox_exporter(args_ InstallArgs) ! {
 
 	version := '0.25.0'
 
-	res := os.execute('${osal.profile_path_source_and()} blackbox_exporter --version')
+	res := os.execute('${osal.profile_path_source_and()!} blackbox_exporter --version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().starts_with('blackbox_exporter'))
 		if r.len != 1 {
@@ -32,7 +32,7 @@ pub fn install_blackbox_exporter(args_ InstallArgs) ! {
 		console.print_header('install blackbox_exporter')
 
 		mut url := ''
-		if osal.is_linux_intel() {
+		if core.is_linux_intel()! {
 			url = 'https://github.com/prometheus/blackbox_exporter/releases/download/v${version}/blackbox_exporter-${version}.linux-amd64.tar.gz'
 		} else {
 			return error('unsuported platform, only linux amd64 for now')

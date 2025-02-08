@@ -1,9 +1,36 @@
-
-## garage S3 server
-
-see [https://garagehq.deuxfleurs.fr](https://garagehq.deuxfleurs.fr)
+# garage_s3
 
 
-https://garagehq.deuxfleurs.fr/documentation/quick-start/
+
+To get started
+
+```vlang
+
+
+
+import freeflowuniverse.herolib.installers.something. garage_s3
+
+mut installer:= garage_s3.get()!
+
+installer.start()!
+
+
+
+
+```
+
+## example heroscript
+
+
+```hero
+!!garage_s3.install
+    homedir: '/home/user/garage_s3'
+    username: 'admin'
+    password: 'secretpassword'
+    title: 'Some Title'
+    host: 'localhost'
+    port: 8888
+
+```
 
 

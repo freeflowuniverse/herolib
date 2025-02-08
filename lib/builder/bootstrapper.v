@@ -25,8 +25,11 @@ pub mut:
 }
 
 fn (mut bs BootStrapper) load() {
-	bs.embedded_files['install_base.sh'] = $embed_file('../../scripts/install_base.sh')
-	bs.embedded_files['install_hero.sh'] = $embed_file('../../scripts/install_hero.sh')
+	panic('not implemented')
+
+	// TODO: check how to install hero. maybe once we have releases, we could just download the binary
+	// bs.embedded_files['install_base.sh'] = $embed_file('../../scripts/install_base.sh')
+	// bs.embedded_files['install_hero.sh'] = $embed_file('../../scripts/install_hero.sh')
 }
 
 // to use do something like: export NODES="195.192.213.3" .
@@ -56,9 +59,9 @@ pub fn (mut node Node) upgrade() ! {
 	install_base_content := install_base_content_.to_string()
 	cmd := '${install_base_content}\n'
 	node.exec_cmd(
-		cmd: cmd
-		period: 48 * 3600
-		reset: false
+		cmd:         cmd
+		period:      48 * 3600
+		reset:       false
 		description: 'upgrade operating system packages'
 	)!
 }
@@ -100,45 +103,45 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut node Node) hero_install(args HeroInstallArgs) ! {
-	mut bs := bootstrapper()
-	install_base_content_ := bs.embedded_files['install_base.sh'] or { panic('bug') }
-	install_base_content := install_base_content_.to_string()
+// pub fn (mut node Node) hero_install(args HeroInstallArgs) ! {
+// 	mut bs := bootstrapper()
+// 	install_base_content_ := bs.embedded_files['install_base.sh'] or { panic('bug') }
+// 	install_base_content := install_base_content_.to_string()
 
-	if args.reset {
-		console.clear()
-		console.print_debug('')
-		console.print_stderr('will remove: .vmodules, hero lib code and ~/hero')
-		console.print_debug('')
-		mut myui := ui.new()!
-		toinstall := myui.ask_yesno(
-			question: 'Ok to reset?'
-			default: true
-		)!
-		if !toinstall {
-			exit(1)
-		}
-		os.rmdir_all('${os.home_dir()}/.vmodules')!
-		os.rmdir_all('${os.home_dir()}/hero')!
-		os.rmdir_all('${os.home_dir()}/code/github/freeflowuniverse/herolib')!
-		os.rmdir_all('${os.home_dir()}/code/github/freeflowuniverse/webcomponents')!
-	}
+// 	if args.reset {
+// 		console.clear()
+// 		console.print_debug('')
+// 		console.print_stderr('will remove: .vmodules, hero lib code and ~/hero')
+// 		console.print_debug('')
+// 		mut myui := ui.new()!
+// 		toinstall := myui.ask_yesno(
+// 			question: 'Ok to reset?'
+// 			default: true
+// 		)!
+// 		if !toinstall {
+// 			exit(1)
+// 		}
+// 		os.rmdir_all('${os.home_dir()}/.vmodules')!
+// 		os.rmdir_all('${os.home_dir()}/hero')!
+// 		os.rmdir_all('${os.home_dir()}/code/github/freeflowuniverse/herolib')!
+// 		os.rmdir_all('${os.home_dir()}/code/github/freeflowuniverse/webcomponents')!
+// 	}
 
-	cmd := '
-		${install_base_content}
-		
-		rm -f /usr/local/bin/hero
-		freeflow_dev_env_install
+// 	cmd := '
+// 		${install_base_content}
 
-		~/code/github/freeflowuniverse/herolib/install.sh
-		
-		echo HERO, V, CRYSTAL ALL INSTALL OK
-		echo WE ARE READY TO HERO...
-		
-		'
-	console.print_debug('executing cmd ${cmd}')
-	node.exec_cmd(cmd: cmd)!
-}
+// 		rm -f /usr/local/bin/hero
+// 		freeflow_dev_env_install
+
+// 		~/code/github/freeflowuniverse/herolib/install.sh
+
+// 		echo HERO, V, CRYSTAL ALL INSTALL OK
+// 		echo WE ARE READY TO HERO...
+
+// 		'
+// 	console.print_debug('executing cmd ${cmd}')
+// 	node.exec_cmd(cmd: cmd)!
+// }
 
 @[params]
 pub struct HeroUpdateArgs {
@@ -162,10 +165,10 @@ pub fn (mut node Node) hero_update(args_ HeroUpdateArgs) ! {
 
 	if args.sync_from_local {
 		if args.sync_full {
-			node.sync_code('hero', builder.heropath_ + '/..', '~/code/github/freeflowuniverse/herolib',
+			node.sync_code('hero', heropath_ + '/..', '~/code/github/freeflowuniverse/herolib',
 				args.sync_fast)!
 		} else {
-			node.sync_code('hero_lib', builder.heropath_, '~/code/github/freeflowuniverse/herolib/herolib',
+			node.sync_code('hero_lib', heropath_, '~/code/github/freeflowuniverse/herolib/herolib',
 				args.sync_fast)!
 		}
 		return
@@ -202,15 +205,15 @@ pub fn (mut node Node) hero_update(args_ HeroUpdateArgs) ! {
 pub fn (mut node Node) sync_code(name string, src_ string, dest string, fast_rsync bool) ! {
 	mut src := pathlib.get_dir(path: os.abs_path(src_), create: false)!
 	node.upload(
-		source: src.path
-		dest: dest
-		ignore: [
+		source:     src.path
+		dest:       dest
+		ignore:     [
 			'.git/*',
 			'_archive',
 			'.vscode',
 			'examples',
 		]
-		delete: true
+		delete:     true
 		fast_rsync: fast_rsync
 	)!
 }
@@ -254,9 +257,9 @@ pub fn (mut node Node) vscript(args_ VScriptArgs) ! {
 	mut args := args_
 	node.hero_update(
 		sync_from_local: args.sync_from_local
-		git_reset: args.git_reset
-		git_pull: args.git_pull
-		branch: args.branch
+		git_reset:       args.git_reset
+		git_pull:        args.git_pull
+		branch:          args.branch
 	)!
 	mut p := pathlib.get_file(path: args.path, create: false)!
 

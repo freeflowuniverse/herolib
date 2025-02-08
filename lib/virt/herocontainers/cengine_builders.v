@@ -1,7 +1,7 @@
 module herocontainers
 
 import freeflowuniverse.herolib.osal
-// import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.ui.console
 import json
 
 fn (mut e CEngine) builders_load() ! {
@@ -66,12 +66,14 @@ pub fn (mut e CEngine) builder_get(name string) !Builder {
 }
 
 pub fn (mut e CEngine) builders_delete_all() ! {
+	console.print_debug("remove all")
 	osal.execute_stdout('buildah rm -a')!
 	e.builders_load()!
 }
 
 pub fn (mut e CEngine) builder_delete(name string) ! {
 	if e.builder_exists(name)! {
+		console.print_debug("remove ${name}")
 		osal.execute_stdout('buildah rm ${name}')!
 		e.builders_load()!
 	}

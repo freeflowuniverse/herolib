@@ -1,7 +1,8 @@
+
 !!hero_code.generate_client
-    name: "rclone"
-    classname: "RCloneClient"
-    hasconfig: true
-    singleton: true
-    default: true
-    title: ""
+    name:'rclone'
+    classname:'RCloneClient'
+    singleton:1
+    default:1
+	hasconfig:1
+    reset:0

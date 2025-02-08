@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.data.doctree
 
@@ -19,9 +19,8 @@ for project in 'projectinca, legal, why, web4,tfgrid3'.split(',').map(it.trim_sp
 }
 
 tree.export(
-	dest:           '/tmp/test'
+	destination:    '/tmp/test'
 	reset:          true
 	keep_structure: true
 	exclude_errors: false
-	production:     true
 )!

@@ -20,17 +20,17 @@ fn new() !ExampleActor {
 }
 
 pub fn run() ! {
-    mut a_ := new()!
-    mut a := IActor(a_)
-    a.run()!
+	mut a_ := new()!
+	mut a := IActor(a_)
+	a.run()!
 }
 
 pub fn run_server(params RunParams) ! {
-    mut a := new()!
-    mut server := actor.new_server(
-        redis_url: 'localhost:6379'
-        redis_queue: a.name
-        openapi_spec: openapi_specification
-    )!
-    server.run(params)
+	mut a := new()!
+	mut server := actor.new_server(
+		redis_url:    'localhost:6379'
+		redis_queue:  a.name
+		openapi_spec: openapi_specification
+	)!
+	server.run(params)
 }

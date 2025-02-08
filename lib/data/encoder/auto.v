@@ -70,37 +70,37 @@ pub fn decode[T](data []u8) !T {
 		// Primitive types
 		$if field.typ is string {
 			// $(string_expr) produces an identifier
-			result.$(field.name) = d.get_string()
+			result.$(field.name) = d.get_string()!
 		} $else $if field.typ is int {
-			result.$(field.name) = d.get_int()
+			result.$(field.name) = d.get_int()!
 		} $else $if field.typ is u8 {
-			result.$(field.name) = d.get_u8()
+			result.$(field.name) = d.get_u8()!
 		} $else $if field.typ is u16 {
-			result.$(field.name) = d.get_u16()
+			result.$(field.name) = d.get_u16()!
 		} $else $if field.typ is u32 {
-			result.$(field.name) = d.get_u32()
+			result.$(field.name) = d.get_u32()!
 		} $else $if field.typ is u64 {
-			result.$(field.name) = d.get_u64()
+			result.$(field.name) = d.get_u64()!
 		} $else $if field.typ is time.Time {
-			result.$(field.name) = d.get_time()
+			result.$(field.name) = d.get_time()!
 			// Arrays of primitive types
 		} $else $if field.typ is []string {
-			result.$(field.name) = d.get_list_string()
+			result.$(field.name) = d.get_list_string()!
 		} $else $if field.typ is []int {
-			result.$(field.name) = d.get_list_int()
+			result.$(field.name) = d.get_list_int()!
 		} $else $if field.typ is []u8 {
-			result.$(field.name) = d.get_list_u8()
+			result.$(field.name) = d.get_list_u8()!
 		} $else $if field.typ is []u16 {
-			result.$(field.name) = d.get_list_u16()
+			result.$(field.name) = d.get_list_u16()!
 		} $else $if field.typ is []u32 {
-			result.$(field.name) = d.get_list_u32()
+			result.$(field.name) = d.get_list_u32()!
 		} $else $if field.typ is []u64 {
-			result.$(field.name) = d.get_list_u64()
+			result.$(field.name) = d.get_list_u64()!
 			// Maps of primitive types
 		} $else $if field.typ is map[string]string {
-			result.$(field.name) = d.get_map_string()
+			result.$(field.name) = d.get_map_string()!
 		} $else $if field.typ is map[string][]u8 {
-			result.$(field.name) = d.get_map_bytes()
+			result.$(field.name) = d.get_map_bytes()!
 			// Structs
 		} $else $if field.is_struct {
 			// TODO handle recursive behavior

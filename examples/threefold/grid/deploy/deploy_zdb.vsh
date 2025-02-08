@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.threefold.grid.models
 import freeflowuniverse.herolib.threefold.grid as tfgrid
@@ -16,8 +16,8 @@ fn main() {
 	mut deployer := tfgrid.new_deployer(mnemonics, chain_network, mut logger)!
 
 	zdb := models.Zdb{
-		size: u64(2) * 1024 * 1024
-		mode: 'user'
+		size:     u64(2) * 1024 * 1024
+		mode:     'user'
 		password: 'pass'
 	}
 
@@ -25,17 +25,17 @@ fn main() {
 
 	signature_requirement := models.SignatureRequirement{
 		weight_required: 1
-		requests: [
+		requests:        [
 			models.SignatureRequest{
 				twin_id: deployer.twin_id
-				weight: 1
+				weight:  1
 			},
 		]
 	}
 
 	mut deployment := models.new_deployment(
-		twin_id: deployer.twin_id
-		workloads: [wl]
+		twin_id:               deployer.twin_id
+		workloads:             [wl]
 		signature_requirement: signature_requirement
 	)
 

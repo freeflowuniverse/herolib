@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -w -n -enable-globals run
 
 import os
 import time
@@ -6,66 +6,66 @@ import veb
 import json
 import x.json2
 import net.http
-import freeflowuniverse.herolib.web.openapi {Server, Context, Request, Response}
-import freeflowuniverse.herolib.hero.processor {Processor, ProcedureCall, ProcedureResponse, ProcessParams}
-import freeflowuniverse.herolib.clients.redisclient
+import freeflowuniverse.herolib.web.openapi
+import freeflowuniverse.herolib.hero.processor
+import freeflowuniverse.herolib.core.redisclient
 
 @[heap]
 struct Actor {
 mut:
-    rpc redisclient.RedisRpc
-    data_store DataStore
+	rpc        redisclient.RedisRpc
+	data_store DataStore
 }
 
 pub struct DataStore {
 mut:
-    pets   map[int]Pet
-    orders map[int]Order
-    users  map[int]User
+	pets   map[int]Pet
+	orders map[int]Order
+	users  map[int]User
 }
 
 struct Pet {
-    id   int
-    name string
-    tag  string
+	id   int
+	name string
+	tag  string
 }
 
 struct Order {
-    id        int
-    pet_id    int
-    quantity  int
-    ship_date string
-    status    string
-    complete  bool
+	id        int
+	pet_id    int
+	quantity  int
+	ship_date string
+	status    string
+	complete  bool
 }
 
 struct User {
-    id       int
-    username string
-    email    string
-    phone    string
+	id       int
+	username string
+	email    string
+	phone    string
 }
 
 // Entry point for the actor
 fn main() {
-    mut redis := redisclient.new('localhost:6379') or {panic(err)}
-    mut rpc := redis.rpc_get('procedure_queue')
+	mut redis := redisclient.new('localhost:6379') or { panic(err) }
+	mut rpc := redis.rpc_get('procedure_queue')
 
-    mut actor := Actor{
-        rpc: rpc
-        data_store: DataStore{}
-    }
+	mut actor := Actor{
+		rpc:        rpc
+		data_store: DataStore{}
+	}
 
-    actor.listen() or {panic(err)}
+	actor.listen() or { panic(err) }
 }
 
 // Actor listens to the Redis queue for method invocations
 fn (mut actor Actor) listen() ! {
-    println('Actor started and listening for tasks...')
-    for {
-        actor.rpc.process(actor.handle_method)!
-        time.sleep(time.millisecond * 100) // Prevent CPU spinning
-    }
+	println('Actor started and listening for tasks...')
+	for {
+		actor.rpc.process(actor.handle_method)!
+		time.sleep(time.millisecond * 100) // Prevent CPU spinning
+	}
 }
 
 // Handle method invocations
@@ -142,73 +142,80 @@ fn (mut actor Actor) handle_method(cmd string, data string) !string {
 
 @[params]
 pub struct ListPetParams {
-    limit u32
+	limit u32
 }
 
 // DataStore methods for managing data
 fn (mut store DataStore) list_pets(params ListPetParams) []Pet {
-    if params.limit > 0 {
-        if params.limit >= store.pets.values().len {
-            return store.pets.values()
-        }
-        return store.pets.values()[..params.limit]
-    }
-    return store.pets.values()
+	if params.limit > 0 {
+		if params.limit >= store.pets.values().len {
+			return store.pets.values()
+		}
+		return store.pets.values()[..params.limit]
+	}
+	return store.pets.values()
 }
 
 fn (mut store DataStore) create_pet(new_pet NewPet) Pet {
-    id := store.pets.keys().len + 1
-    pet := Pet{id: id, name: new_pet.name, tag: new_pet.tag}
-    store.pets[id] = pet
-    return pet
+	id := store.pets.keys().len + 1
+	pet := Pet{
+		id:   id
+		name: new_pet.name
+		tag:  new_pet.tag
+	}
+	store.pets[id] = pet
+	return pet
 }
 
 fn (mut store DataStore) get_pet(id int) !Pet {
-    return store.pets[id] or { 
-        return error('Pet with id ${id} not found.')
-    }
+	return store.pets[id] or { return error('Pet with id ${id} not found.') }
 }
 
 fn (mut store DataStore) delete_pet(id int) ! {
-    if id in store.pets {
-        store.pets.delete(id)
-        return
-    }
-    return error('Pet not found')
+	if id in store.pets {
+		store.pets.delete(id)
+		return
+	}
+	return error('Pet not found')
 }
 
 fn (mut store DataStore) list_orders() []Order {
-    return store.orders.values()
+	return store.orders.values()
 }
 
 fn (mut store DataStore) get_order(id int) !Order {
-    return store.orders[id] or { none }
+	return store.orders[id] or { none }
 }
 
 fn (mut store DataStore) delete_order(id int) ! {
-    if id in store.orders {
-        store.orders.delete(id)
-        return
-    }
-    return error('Order not found')
+	if id in store.orders {
+		store.orders.delete(id)
+		return
+	}
+	return error('Order not found')
 }
 
 fn (mut store DataStore) create_user(new_user NewUser) User {
-    id := store.users.keys().len + 1
-    user := User{id: id, username: new_user.username, email: new_user.email, phone: new_user.phone}
-    store.users[id] = user
-    return user
+	id := store.users.keys().len + 1
+	user := User{
+		id:       id
+		username: new_user.username
+		email:    new_user.email
+		phone:    new_user.phone
+	}
+	store.users[id] = user
+	return user
 }
 
 // NewPet struct for creating a pet
 struct NewPet {
-    name string
-    tag  string
+	name string
+	tag  string
 }
 
 // NewUser struct for creating a user
 struct NewUser {
-    username string
-    email    string
-    phone    string
+	username string
+	email    string
+	phone    string
 }

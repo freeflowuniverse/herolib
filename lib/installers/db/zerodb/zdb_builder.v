@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
 
 // install zdb will return true if it was already installed
-pub fn build() ! {
+pub fn build_() ! {
 	base.install()!
 	console.print_header('package_install install zdb')
 	if !osal.done_exists('install_zdb') && !osal.cmd_exists('zdb') {
@@ -16,7 +16,7 @@ pub fn build() ! {
 			reset: false
 			pull:  true
 		)!
-		path := repo.get_path()!
+		path := repo.path()
 		cmd := '
 		set -ex
 		cd ${path}

@@ -1,11 +1,8 @@
 module golang
 
-import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	golang_global  map[string]&GolangInstaller
@@ -56,21 +53,21 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self GolangInstaller) install(model InstallArgs) ! {
+pub fn (mut self GolangInstaller) install(args InstallArgs) ! {
 	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+	if args.reset || (!installed_()!) {
+		install_()!
 	}
 }
 
 pub fn (mut self GolangInstaller) build() ! {
 	switch(self.name)
-	build()!
+	build_()!
 }
 
 pub fn (mut self GolangInstaller) destroy() ! {
 	switch(self.name)
-	destroy()!
+	destroy_()!
 }
 
 // switch instance to be used for golang

@@ -33,11 +33,11 @@ pub fn test_generate_get_method() {
 	}
 	field := get_child_field(
 		parent: actor_struct
-		child: test_struct
+		child:  test_struct
 	)
 
 	method := generator.generate_get_method(
-		actor_name: actor_struct.name
+		actor_name:  actor_struct.name
 		actor_field: field
 		root_struct: test_struct
 	)

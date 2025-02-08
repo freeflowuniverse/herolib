@@ -1,15 +1,15 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.threefold.grid as tfgrid
 
-mut cl := tfgrid.get("my_config")!
+mut cl := tfgrid.get('my_config')!
 mut cfg := cl.config()!
 
 println(cl.instance)
 cfg = cl.config()!
 println(cfg)
 
-if cfg.mnemonics == "" {
+if cfg.mnemonics == '' {
 	// will ask questions if not filled in yet
 	cl.config_interactive()!
 }
@@ -27,11 +27,11 @@ println(cl.instance)
 cfg = cl.config()!
 println(cfg)
 
-cl = tfgrid.get("empty_config")!
+cl = tfgrid.get('empty_config')!
 
 println(cl.instance)
 cfg = cl.config()!
 println(cfg)
 
-// TO CONFIGURE NEW 
+// TO CONFIGURE NEW
 // cl.config_delete()!

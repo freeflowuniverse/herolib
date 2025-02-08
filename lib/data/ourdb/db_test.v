@@ -67,7 +67,7 @@ fn test_history_tracking() {
 	)!
 
 	defer {
-		db.destroy() or { panic('failed to destroy db: ${err}') }
+		db.destroy() or {}
 	}
 
 	// Create multiple versions of data
@@ -155,7 +155,7 @@ fn test_file_switching() {
 	)!
 
 	defer {
-		db.destroy() or { panic('failed to destroy db: ${err}') }
+		db.destroy() or {}
 	}
 
 	test_data1 := 'Test data'.bytes()

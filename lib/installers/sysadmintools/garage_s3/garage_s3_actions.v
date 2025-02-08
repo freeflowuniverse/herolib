@@ -3,32 +3,79 @@ module garage_s3
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.osal.zinit
-import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
+// import freeflowuniverse.herolib.osal.systemd
 import os
 
+// checks if a certain version or above is installed
+fn installed() !bool {
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	res := os.execute('${osal.profile_path_source_and()!} garage_s3 version')
+	if res.exit_code != 0 {
+		return false
+	}
+
+	r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+	if r.len != 1 {
+		return error("couldn't parse garage_s3 version.\n${res.output}")
+	}
+
+	if texttools.version(version) > texttools.version(r[0]) {
+		return false
+	}
+
+	return true
+}
+
+fn install() ! {
+	console.print_header('install garage_s3')
+	// mut installer := get()!
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	mut url := ''
+	if core.is_linux_arm()! {
+		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_arm64.tar.gz'
+	} else if core.is_linux_intel()! {
+		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_amd64.tar.gz'
+	} else if core.is_osx_arm()! {
+		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_darwin_arm64.tar.gz'
+	} else if core.is_osx_intel()! {
+		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_darwin_amd64.tar.gz'
+	} else {
+		return error('unsported platform')
+	}
+
+	mut dest := osal.download(
+		url:        url
+		minsize_kb: 9000
+		expand_dir: '/tmp/garage_s3'
+	)!
+
+	// dest.moveup_single_subdir()!
+
+	mut binpath := dest.file_get('garage_s3')!
+	osal.cmd_add(
+		cmdname: 'garage_s3'
+		source:  binpath.path
+	)!
+}
+
 fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut installer := get()!
 	mut res := []zinit.ZProcessNewArgs{}
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'garage_s3'
-	//     cmd: 'garage_s3 server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
+	res << zinit.ZProcessNewArgs{
+		name: 'garage_s3'
+		cmd:  'garage_s3 server'
+		env:  {
+			'HOME': '/root'
+		}
+	}
 
 	return res
 }
 
-fn running() !bool {
-	mut installer := get()!
+fn running_() !bool {
+	_ := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// this checks health of garage_s3
 	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
@@ -61,100 +108,7 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-//////////////////// following actions are not specific to instance of the object
-
-// checks if a certain version or above is installed
-fn installed() !bool {
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()} garage_s3 version')
-	// if res.exit_code != 0 {
-	//     return false
-	// }
-	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	// if r.len != 1 {
-	//     return error("couldn't parse garage_s3 version.\n${res.output}")
-	// }
-	// if texttools.version(version) == texttools.version(r[0]) {
-	//     return true
-	// }
-	return false
-}
-
-// get the Upload List of the files
-fn ulist_get() !ulist.UList {
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-	return ulist.UList{}
-}
-
-// uploads to S3 server if configured
-fn upload() ! {
-	// installers.upload(
-	//     cmdname: 'garage_s3'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/garage_s3'
-	// )!
-}
-
-fn install() ! {
-	console.print_header('install garage_s3')
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// mut url := ''
-	// if osal.is_linux_arm() {
-	//     url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_arm64.tar.gz'
-	// } else if osal.is_linux_intel() {
-	//     url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_amd64.tar.gz'
-	// } else if osal.is_osx_arm() {
-	//     url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_darwin_arm64.tar.gz'
-	// } else if osal.is_osx_intel() {
-	//     url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_darwin_amd64.tar.gz'
-	// } else {
-	//     return error('unsported platform')
-	// }
-
-	// mut dest := osal.download(
-	//     url: url
-	//     minsize_kb: 9000
-	//     expand_dir: '/tmp/garage_s3'
-	// )!
-
-	// //dest.moveup_single_subdir()!
-
-	// mut binpath := dest.file_get('garage_s3')!
-	// osal.cmd_add(
-	//     cmdname: 'garage_s3'
-	//     source: binpath.path
-	// )!
-}
-
-fn build() ! {
-	// url := 'https://github.com/threefoldtech/garage_s3'
-
-	// make sure we install base on the node
-	// if osal.platform() != .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
-
-	// console.print_header('build garage_s3')
-
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
-
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
-	// //now copy to the default bin path
-	// mut binpath := dest.file_get('...')!
-	// adds it to path
-	// osal.cmd_add(
-	//     cmdname: 'griddriver2'
-	//     source: binpath.path
-	// )!
-}
-
-fn destroy() ! {
+fn destroy_() ! {
 	// mut systemdfactory := systemd.new()!
 	// systemdfactory.destroy("zinit")!
 

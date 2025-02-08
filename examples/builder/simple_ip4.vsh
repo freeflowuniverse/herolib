@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.builder
 import freeflowuniverse.herolib.core.pathlib
@@ -10,7 +10,7 @@ mut n := b.node_new(ipaddr: 'root@51.195.61.5')!
 
 println(n)
 
-r:=n.exec(cmd:"ls /")!
+r := n.exec(cmd: 'ls /')!
 println(r)
 
 // n.upload(source: myexamplepath, dest: '/tmp/myexamplepath2')!

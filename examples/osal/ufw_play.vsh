@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.osal.ufw
 import freeflowuniverse.herolib.core.playbook
@@ -35,5 +35,5 @@ heroscript := "
     "
 
 mut plbook := playbook.new(text: heroscript)!
-rs:=ufw.play(mut plbook)!
+rs := ufw.play(mut plbook)!
 println(rs)

@@ -45,7 +45,7 @@ repo.branch_create('feature-branch')!
 repo.branch_switch('feature-branch')!
 
 // Check status and commit changes
-if repo.has_changes() {
+if repo.has_changes {
     repo.commit('feat: Add new feature')!
     repo.push()!
 }
@@ -114,7 +114,7 @@ if repo.need_checkout() {
 
 ```v
 // Check for changes
-if repo.has_changes() {
+if repo.has_changes {
     // Handle changes
 }
 

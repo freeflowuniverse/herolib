@@ -6,11 +6,11 @@ import freeflowuniverse.herolib.schemas.openrpc { Components, OpenRPC }
 import freeflowuniverse.herolib.schemas.openrpc.codegen { generate_client_file, generate_client_test_file }
 
 pub fn generate_openrpc_file(spec OpenRPC) !File {
-	return File {
-		name: 'openrpc'
+	return File{
+		name:      'openrpc'
 		extension: 'json'
-		content: json.encode(spec)
-	}	
+		content:   json.encode(spec)
+	}
 }
 
 pub fn generate_openrpc_client_file(spec OpenRPC) !VFile {
@@ -22,9 +22,9 @@ pub fn generate_openrpc_client_file(spec OpenRPC) !VFile {
 	return VFile {
 		...client_file,
 		name: 'client_openrpc'
-	}	
+	}
 }
-	
+
 pub fn generate_openrpc_client_test_file(spec OpenRPC) !VFile {
 	mut objects_map := map[string]Struct{}
 	// for object in spec.objects {
@@ -38,7 +38,7 @@ pub fn generate_openrpc_client_test_file(spec OpenRPC) !VFile {
 	return VFile {
 		...file,
 		name: 'client_openrpc_test'
-	}	
+	}
 }
 
 // pub fn (actor Actor) generate_openrpc_code() !Module {

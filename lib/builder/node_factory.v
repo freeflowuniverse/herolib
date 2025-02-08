@@ -4,7 +4,10 @@ import freeflowuniverse.herolib.data.ipaddress
 
 // get node connection to local machine
 pub fn (mut bldr BuilderFactory) node_local() !&Node {
-	return bldr.node_new(name: 'localhost')
+	return bldr.node_new(
+		name:   'localhost'
+		ipaddr: '127.0.0.1'
+	)
 }
 
 // format ipaddr: localhost:7777 .
@@ -50,21 +53,20 @@ pub fn (mut bldr BuilderFactory) node_new(args_ NodeArguments) !&Node {
 
 	eargs := ExecutorNewArguments{
 		ipaddr: args.ipaddr
-		user: args.user
-		debug: args.debug
+		user:   args.user
+		debug:  args.debug
 	}
 	mut executor := executor_new(eargs)!
 	mut node := Node{
-		name: args.name
+		name:     args.name
 		executor: executor
-		factory: &bldr
+		factory:  &bldr
 	}
 
 	if node.name == '' {
 		mut iadd := ipaddress.new(args.ipaddr)!
 		node.name = iadd.toname()!
 	}
-
 	wasincache := node.load()!
 
 	if wasincache && args.reload {

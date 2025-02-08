@@ -3,6 +3,7 @@ module caddy
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import time
@@ -14,64 +15,33 @@ __global (
 
 /////////FACTORY
 
-@[params]
-pub struct ArgsGet {
-pub mut:
-	name string
+// set the model in mem and the config on the filesystem
+pub fn set(o CaddyServer) ! {
+	mut o2 := obj_init(o)!
+	caddy_global[o.name] = &o2
+	caddy_default = o.name
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut model := args_
-	if model.name == '' {
-		model.name = caddy_default
-	}
-	if model.name == '' {
-		model.name = 'default'
-	}
-	return model
-}
-
-pub fn get(args_ ArgsGet) !&CaddyServer {
-	mut model := args_get(args_)
-	if model.name !in caddy_global {
-		if model.name == 'default' {
-			if !config_exists(model) {
-				if default {
-					config_save(model)!
-				}
-			}
-			config_load(model)!
-		}
-	}
-	return caddy_global[model.name] or {
-		println(caddy_global)
-		panic('could not get config for caddy with name:${model.name}')
-	}
-}
-
-fn config_exists(args_ ArgsGet) bool {
+// check we find the config on the filesystem
+pub fn exists(args_ ArgsGet) bool {
 	mut model := args_get(args_)
 	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('caddy', model.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+// load the config error if it doesn't exist
+pub fn load(args_ ArgsGet) ! {
 	mut model := args_get(args_)
 	mut context := base.context()!
 	mut heroscript := context.hero_config_get('caddy', model.name)!
 	play(heroscript: heroscript)!
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut model := args_get(args_)
+// save the config to the filesystem in the context
+pub fn save(o CaddyServer) ! {
 	mut context := base.context()!
-	context.hero_config_set('caddy', model.name, heroscript_default()!)!
-}
-
-fn set(o CaddyServer) ! {
-	mut o2 := obj_init(o)!
-	caddy_global[o.name] = &o2
-	caddy_default = o.name
+	heroscript := encoderhero.encode[CaddyServer](o)!
+	context.hero_config_set('caddy', model.name, heroscript)!
 }
 
 @[params]
@@ -90,13 +60,14 @@ pub fn play(args_ PlayArgs) ! {
 	}
 	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
 
-	mut install_actions := plbook.find(filter: 'caddy.configure')!
-	if install_actions.len > 0 {
-		for install_action in install_actions {
-			mut p := install_action.params
+	mut configure_actions := plbook.find(filter: 'caddy.configure')!
+	if configure_actions.len > 0 {
+		for config_action in configure_actions {
+			mut p := config_action.params
 			mycfg := cfg_play(p)!
 			console.print_debug('install action caddy.configure\n${mycfg}')
 			set(mycfg)!
+			save(mycfg)!
 		}
 	}
 
@@ -107,11 +78,11 @@ pub fn play(args_ PlayArgs) ! {
 			reset := p.get_default_false('reset')
 			if other_action.name == 'destroy' || reset {
 				console.print_debug('install action caddy.destroy')
-				destroy()!
+				destroy_()!
 			}
 			if other_action.name == 'install' {
 				console.print_debug('install action caddy.install')
-				install()!
+				install_()!
 			}
 		}
 		if other_action.name in ['start', 'stop', 'restart'] {
@@ -140,6 +111,12 @@ pub fn play(args_ PlayArgs) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// load from disk and make sure is properly intialized
+pub fn (mut self CaddyServer) reload() ! {
+	switch(self.name)
+	self = obj_init(self)!
+}
+
 fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
@@ -162,12 +139,6 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 	}
 }
 
-// load from disk and make sure is properly intialized
-pub fn (mut self CaddyServer) reload() ! {
-	switch(self.name)
-	self = obj_init(self)!
-}
-
 pub fn (mut self CaddyServer) start() ! {
 	switch(self.name)
 	if self.running()! {
@@ -176,8 +147,8 @@ pub fn (mut self CaddyServer) start() ! {
 
 	console.print_header('caddy start')
 
-	if !installed()! {
-		install()!
+	if !installed_()! {
+		install_()!
 	}
 
 	configure()!
@@ -247,25 +218,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self CaddyServer) install(model InstallArgs) ! {
-	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+pub fn install(args InstallArgs) ! {
+	if args.reset {
+		destroy()!
+	}
+	if !(installed_()!) {
+		install_()!
 	}
 }
 
-pub fn (mut self CaddyServer) build() ! {
-	switch(self.name)
-	build()!
+pub fn destroy() ! {
+	destroy_()!
 }
 
-pub fn (mut self CaddyServer) destroy() ! {
-	switch(self.name)
-	self.stop() or {}
-	destroy()!
-}
-
-// switch instance to be used for caddy
-pub fn switch(name string) {
-	caddy_default = name
+pub fn build() ! {
+	build_()!
 }

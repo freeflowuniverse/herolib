@@ -3,23 +3,24 @@ module pacman
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	return osal.done_exists('install_pacman')
 }
 
 // use https://archlinux.org/mirrorlist/
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install pacman')
 
-	if osal.platform() == .arch {
+	if core.platform()! == .arch {
 		return
 	}
 
-	if osal.platform() != .ubuntu {
+	if core.platform()! != .ubuntu {
 		return error('only ubuntu supported for this installer.')
 	}
 
@@ -83,7 +84,7 @@ fn install() ! {
 	console.print_header('install done')
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	osal.done_delete('install_pacman')!
 
 	osal.package_remove('

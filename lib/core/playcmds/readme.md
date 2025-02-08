@@ -1,4 +1,4 @@
-# how to sue the playcmds
+# how to use the playcmds
 
 ```v
 import freeflowuniverse.herolib.core.playbook

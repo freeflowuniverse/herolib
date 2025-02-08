@@ -5,7 +5,7 @@ fn setup() !&redisclient.Redis {
 	mut redis := redisclient.core_get()!
 	// Select db 10 to be away from default one '0'
 	redis.selectdb(10) or { panic(err) }
-	return &redis
+	return redis
 }
 
 fn cleanup(mut redis redisclient.Redis) ! {
@@ -25,7 +25,8 @@ fn test_rpc() {
 	mut r := redis.rpc_get('testrpc')
 
 	r.call(cmd: 'test.cmd', data: 'this is my data, normally json', wait: false)!
-	returnqueue := r.process(10000, process_test)!
+
+	returnqueue := r.process(process_test, timeout: 10000)!
 	mut res := r.result(10000, returnqueue)!
 	console.print_debug(res)
 

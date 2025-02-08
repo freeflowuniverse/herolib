@@ -11,7 +11,7 @@ import freeflowuniverse.herolib.osal.systemd
 import os
 
 // checks if a certain version or above is installed
-fn installed() !bool {
+fn installed_() !bool {
 	cmd := 'zinit --version'
 	// console.print_debug(cmd)
 	res := os.execute(cmd)
@@ -28,9 +28,9 @@ fn installed() !bool {
 	return false
 }
 
-fn install() ! {
+fn install_() ! {
 	console.print_header('install zinit')
-	if !osal.is_linux() {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 
@@ -52,8 +52,8 @@ fn install() ! {
 	console.print_header('install zinit done')
 }
 
-fn build() ! {
-	if !osal.is_linux() {
+fn build_() ! {
+	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
 
@@ -68,9 +68,9 @@ fn build() ! {
 		reset: true
 		pull:  true
 	)!
-	gitpath := repo.get_path()!
+	gitpath := repo.path()
 
-	// source ${osal.profile_path()}
+	// source ${osal.profile_path()!}
 
 	cmd := '
 	source ~/.cargo/env
@@ -91,7 +91,7 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
+fn upload_() ! {
 }
 
 fn startupcmd() ![]ZProcessNewArgs {
@@ -106,7 +106,7 @@ fn startupcmd() ![]ZProcessNewArgs {
 	return res
 }
 
-fn running() !bool {
+fn running_() !bool {
 	cmd := 'zinit list'
 	return osal.execute_ok(cmd)
 }
@@ -123,7 +123,7 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-fn destroy() ! {
+fn destroy_() ! {
 	mut systemdfactory := systemd.new()!
 	systemdfactory.destroy('zinit')!
 

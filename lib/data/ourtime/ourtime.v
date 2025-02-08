@@ -92,6 +92,11 @@ pub fn (ot OurTime) day() string {
 	return ot.time().ymmdd()
 }
 
+// returns a date-time string in "YYYY-MM-DD HH" format (24h).
+pub fn (ot OurTime) dayhour() string {
+	return ot.time().format().all_before_last(':')
+}
+
 // returns as epoch (seconds)
 pub fn (ot OurTime) int() int {
 	return int(ot.time().unix())

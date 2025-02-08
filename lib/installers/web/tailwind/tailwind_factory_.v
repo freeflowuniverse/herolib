@@ -2,9 +2,9 @@ module tailwind
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.ui.console
 import time
 
 __global (
@@ -17,7 +17,7 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
 pub fn get(args_ ArgsGet) !&Tailwind {
@@ -56,16 +56,17 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self Tailwind) install(model InstallArgs) ! {
+pub fn (mut self Tailwind) install(args InstallArgs) ! {
 	switch(self.name)
-	if model.reset || (!installed()!) {
-		install()!
+	if args.reset || (!installed_()!) {
+		install_()!
 	}
 }
 
 pub fn (mut self Tailwind) destroy() ! {
 	switch(self.name)
-	destroy()!
+
+	destroy_()!
 }
 
 // switch instance to be used for tailwind

@@ -10,7 +10,7 @@ import os
 import time
 
 // install yggdrasil will return true if it was already installed
-pub fn installll(args_ InstallArgs) ! {
+pub fn install(args_ InstallArgs) ! {
 	peers := '
 Peers:
   [
@@ -33,7 +33,7 @@ Peers:
 	config_path := '/etc/yggdrasil.conf'
 	mut args := args_
 
-	res := os.execute('${osal.profile_path_source_and()} yggdrasil -version')
+	res := os.execute('${osal.profile_path_source_and()!} yggdrasil -version')
 	if res.exit_code != 0 {
 		args.reset = true
 	}
@@ -47,7 +47,7 @@ Peers:
 			reset: false
 		)!
 
-		mut path := repo.get_path()!
+		mut path := repo.path()
 
 		osal.exec(cmd: 'cd ${path} && PATH=\$PATH:/usr/local/go/bin ./build')!
 
@@ -91,7 +91,7 @@ pub fn start() ! {
 
 	mut cmd2 := ''
 
-	if osal.is_osx() {
+	if core.is_osx()! {
 		cmd2 = 'sudo -s '
 	}
 
@@ -103,7 +103,7 @@ pub fn start() ! {
 
 	console.print_debug('send done')
 
-	if osal.is_osx() {
+	if core.is_osx()! {
 		mut myui := ui.new()!
 		console.clear()
 
@@ -127,7 +127,7 @@ pub fn start() ! {
 	}
 }
 
-pub fn running() !bool {
+pub fn running_() !bool {
 	mut scr := screen.new(reset: false)!
 	name := 'yggdrasil'
 

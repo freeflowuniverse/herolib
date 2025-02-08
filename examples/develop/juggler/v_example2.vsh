@@ -1,15 +1,17 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import os
 
 mut sm := startupmanager.get()!
 sm.start(
-	name: 'juggler'
-	cmd: 'hero juggler -secret planetfirst -u https://git.ourworld.tf/projectmycelium/itenv -reset true'
-	env: {'HOME': os.home_dir()}
+	name:    'juggler'
+	cmd:     'hero juggler -secret planetfirst -u https://git.ourworld.tf/projectmycelium/itenv -reset true'
+	env:     {
+		'HOME': os.home_dir()
+	}
 	restart: true
-) or {panic('failed to start sm ${err}')}
+) or { panic('failed to start sm ${err}') }
 
 // TODO
 // - automate caddy install/start

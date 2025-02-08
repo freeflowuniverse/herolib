@@ -18,7 +18,6 @@ pub fn heroscript_default() !string {
 	return heroscript
 }
 
-
 pub struct MeilisearchClient {
 pub mut:
 	name    string = 'default'
