@@ -92,7 +92,8 @@ pub fn install_multi(args_ InstallArgs) ! {
 				rc.install(reset: args.reset)!
 			}
 			'rust' {
-				rust.install(reset: args.reset)!
+				mut i:=rust.get()!
+				i.install(reset: args.reset)!
 			}
 			'golang' {
 				mut g := golang.get()!
@@ -152,10 +153,12 @@ pub fn install_multi(args_ InstallArgs) ! {
 				vscode.install(reset: args.reset)!
 			}
 			'nodejs' {
-				nodejs.install(reset: args.reset)!
+				mut i:=nodejs.get()!
+				i.install(reset: args.reset)!
 			}
 			'python' {
-				python.install()!
+				mut i:=python.get()!
+				i.install()!
 			}
 			// 'herodev' {
 			// herodev.install()!

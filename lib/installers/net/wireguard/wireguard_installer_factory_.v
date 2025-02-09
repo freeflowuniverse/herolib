@@ -1,4 +1,4 @@
-module screen
+module wireguard_installer
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -10,8 +10,8 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-    screen_global map[string]&Screen
-    screen_default string
+    wireguard_installer_global map[string]&WireGuard
+    wireguard_installer_default string
 )
 
 /////////FACTORY
@@ -22,8 +22,8 @@ pub mut:
     name string
 }
 
-pub fn get(args_ ArgsGet) !&Screen  {
-    return &Screen{}
+pub fn get(args_ ArgsGet) !&WireGuard  {
+    return &WireGuard{}
 }
 
 @[params]
@@ -43,17 +43,17 @@ pub fn play(args_ PlayArgs) ! {
     }
     
 
-    mut other_actions := plbook.find(filter: 'screen.')!
+    mut other_actions := plbook.find(filter: 'wireguard_installer.')!
     for other_action in other_actions {
         if other_action.name in ["destroy","install","build"]{
             mut p := other_action.params
             reset:=p.get_default_false("reset")
             if other_action.name == "destroy" || reset{
-                console.print_debug("install action screen.destroy")
+                console.print_debug("install action wireguard_installer.destroy")
                 destroy()!
             }
             if other_action.name == "install"{
-                console.print_debug("install action screen.install")
+                console.print_debug("install action wireguard_installer.install")
                 install()!
             }            
         }
@@ -95,7 +95,7 @@ pub mut:
     reset bool
 }
 
-pub fn (mut self Screen) install(args InstallArgs) ! {
+pub fn (mut self WireGuard) install(args InstallArgs) ! {
     switch(self.name)
     if args.reset || (!installed()!) {
         install()!
@@ -103,16 +103,16 @@ pub fn (mut self Screen) install(args InstallArgs) ! {
 }
 
 
-pub fn (mut self Screen) destroy() ! {
+pub fn (mut self WireGuard) destroy() ! {
     switch(self.name)
     destroy()!
 }
 
 
 
-//switch instance to be used for screen
+//switch instance to be used for wireguard_installer
 pub fn switch(name string) {
-    screen_default = name
+    wireguard_installer_default = name
 }
 
 
