@@ -4,6 +4,5 @@ import freeflowuniverse.herolib.installers.infra.coredns as coredns_installer
 import freeflowuniverse.herolib.osal
 
 // coredns_installer.delete()!
-mut installer:= coredns_installer.get()!
+mut installer := coredns_installer.get()!
 installer.build()!
-

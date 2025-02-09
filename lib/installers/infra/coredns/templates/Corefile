@@ -3,7 +3,11 @@
     log
     errors
     health :3334
-    auto ${args.dnszones_path} {
-        reload 30s
-    }    
+    redis {
+        address localhost:6379
+        connect_timeout 100
+        read_timeout 100
+        ttl 360
+        prefix dns:
+    } 
 }

@@ -12,7 +12,6 @@ pub fn configure() ! {
 
 	set_global_dns()
 
-
 	if args.config_url.len > 0 {
 		mut repo := gs.get_repo(
 			url: args.config_url
@@ -42,17 +41,15 @@ pub fn configure() ! {
 	mut path := pathlib.get_file(path: args.config_path, create: true)!
 	path.write(mycorefile)!
 
-	if args.example{
-		example_configure() !
+	if args.example {
+		example_configure()!
 	}
-
 }
 
 pub fn example_configure() ! {
 	mut args := get()!
 
-	myipaddr:=osal.ipaddr_pub_get()!
-
+	myipaddr := osal.ipaddr_pub_get_check()!
 
 	exampledbfile := $tmpl('templates/ourexample.org')
 

@@ -104,36 +104,40 @@ pub fn tcp_port_test(args TcpPortTestArgs) bool {
 // Returns the public IP address as known on the public side
 // Uses resolver4.opendns.com to fetch the IP address
 pub fn ipaddr_pub_get() !string {
-    cmd := 'dig @resolver4.opendns.com myip.opendns.com +short'
-    ipaddr := exec(cmd: cmd)!
-    public_ip := ipaddr.output.trim('\n').trim(' \n')
-    
-    // Check if the public IP matches any local interface
-    if ! is_ip_on_local_interface(public_ip)! {
-        return error ('Public IP $public_ip is NOT bound to any local interface (possibly behind a NAT firewall).')
-    }
+	cmd := 'dig @resolver4.opendns.com myip.opendns.com +short'
+	ipaddr := exec(cmd: cmd)!
+	public_ip := ipaddr.output.trim('\n').trim(' \n')
+	return public_ip
+}
 
-    return public_ip
+//also check the address is on local interface
+pub fn ipaddr_pub_get_check() !string {
+	// Check if the public IP matches any local interface
+	public_ip := ipaddr_pub_get_check()!
+	if !is_ip_on_local_interface(public_ip)! {
+		return error('Public IP ${public_ip} is NOT bound to any local interface (possibly behind a NAT firewall).')
+	}
+	return public_ip
 }
 
 // Check if the public IP matches any of the local network interfaces
 pub fn is_ip_on_local_interface(public_ip string) !bool {
-    interfaces := exec(cmd:'ip addr show',stdout:false) or {
-        return error ('Failed to enumerate network interfaces.')
-    }
-    lines := interfaces.output.split('\n')
+	interfaces := exec(cmd: 'ip addr show', stdout: false) or {
+		return error('Failed to enumerate network interfaces.')
+	}
+	lines := interfaces.output.split('\n')
 
-    // Parse through the `ip addr show` output to find local IPs
-    for line in lines {
-        if line.contains('inet ') {
-            parts := line.trim_space().split(' ')
-            if parts.len > 1 {
-                local_ip := parts[1].split('/')[0] // Extract the IP address
-                if public_ip == local_ip {
-                    return true
-                }
-            }
-        }
-    }
-    return false
+	// Parse through the `ip addr show` output to find local IPs
+	for line in lines {
+		if line.contains('inet ') {
+			parts := line.trim_space().split(' ')
+			if parts.len > 1 {
+				local_ip := parts[1].split('/')[0] // Extract the IP address
+				if public_ip == local_ip {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }

@@ -43,15 +43,24 @@ pub:
 	address    string
 }
 
-pub fn inspect() !MyceliumInspectResult {
-	command := 'mycelium inspect --key-file /root/hero/cfg/priv_key.bin --json'
+@[params]
+pub struct MyceliumInspectArgs {
+pub:
+	key_file_path string = '/root/hero/cfg/priv_key.bin'
+}
+
+pub fn inspect(args MyceliumInspectArgs) !MyceliumInspectResult {
+	command := 'mycelium inspect --key-file ${args.key_file_path} --json'
 	result := os.execute(command)
+
 	if result.exit_code != 0 {
 		return error('Command failed: ${result.output}')
 	}
+
 	inspect_result := json.decode(MyceliumInspectResult, result.output) or {
 		return error('Failed to parse JSON: ${err}')
 	}
+
 	return inspect_result
 }
 
