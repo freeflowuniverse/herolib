@@ -18,4 +18,4 @@ ${profile_include}
 
 bun docusaurus build
 
-rsync -rv --delete ${site.path_build.path}/build/ ${cfg.main.build_dest_dev.trim_right("/")}/${cfg.main.name.trim_right("/")}/
+rsync -rv --delete ${site.path_build.path}/build/ ${cfg.main.build_dest.trim_right("/")}/${cfg.main.name.trim_right("/")}/

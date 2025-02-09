@@ -14,7 +14,9 @@ pub mut:
 	log          bool = true // If true, logs git commands/statements
 	debug        bool = true
 	ssh_key_name string
+	ssh_key_path string
 }
+
 
 // GitStructure holds information about repositories within a specific code root.
 // This structure keeps track of loaded repositories, their configurations, and their status.
@@ -233,6 +235,6 @@ pub fn (mut self GitStructure) config_reset() ! {
 pub fn (mut self GitStructure) config_save() ! {
 	// Retrieve the configuration from Redis.
 	mut redis := redis_get()
-	datajson := json.encode(self.config)
+	datajson := json.encode(self.config()!)
 	redis.set('${self.cache_key()}:config', datajson)!
 }

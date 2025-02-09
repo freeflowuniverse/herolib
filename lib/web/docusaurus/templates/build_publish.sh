@@ -17,6 +17,4 @@ ${profile_include}
 
 bun docusaurus build
 
-mkdir -p ${site.args.publish_path.trim_right("/")}
-echo SYNC TO ${site.args.publish_path.trim_right("/")}
-rsync -rv --delete ${site.path_build.path}/build/ ${site.args.publish_path.trim_right("/")}/
+rsync -rv --delete ${site.path_build.path}/build/ ${cfg.main.build_dest_dev.trim_right("/")}/${cfg.main.name.trim_right("/")}/
