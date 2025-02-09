@@ -12,12 +12,10 @@ installer.install()!
 
 mycelium.delete()!
 
-res := os.execute('mkdir -p /tmp/mycelium_server1 && cd /tmp/mycelium_server1 && mycelium --peers tcp://188.40.132.242:9651 quic://[2a01:4f8:212:fa6::2]:9651 tcp://185.69.166.7:9651 quic://[2a02:1802:5e:0:ec4:7aff:fe51:e36b]:9651 tcp://65.21.231.58:9651 quic://[2a01:4f9:5a:1042::2]:9651 tcp://[2604:a00:50:17b:9e6b:ff:fe1f:e054]:9651 quic://5.78.122.16:9651 tcp://[2a01:4ff:2f0:3621::1]:9651 quic://142.93.217.194:9651 --tun-name tun2 --tcp-listen-port 9652 --quic-listen-port 9653 --api-addr 127.0.0.1:9001')
-println('res: ${res}')
-// spawn fn () {
-// 	res := os.execute('mkdir -p /tmp/mycelium_server1 && cd /tmp/mycelium_server1 && mycelium --peers tcp://188.40.132.242:9651 quic://[2a01:4f8:212:fa6::2]:9651 tcp://185.69.166.7:9651 quic://[2a02:1802:5e:0:ec4:7aff:fe51:e36b]:9651 tcp://65.21.231.58:9651 quic://[2a01:4f9:5a:1042::2]:9651 tcp://[2604:a00:50:17b:9e6b:ff:fe1f:e054]:9651 quic://5.78.122.16:9651 tcp://[2a01:4ff:2f0:3621::1]:9651 quic://142.93.217.194:9651 --tun-name tun2 --tcp-listen-port 9652 --quic-listen-port 9653 --api-addr 127.0.0.1:9001')
-// 	println('res: ${res}')
-// }()
+spawn fn () {
+	res := os.execute('mkdir -p /tmp/mycelium_server1 && cd /tmp/mycelium_server1 && mycelium --peers tcp://188.40.132.242:9651 quic://[2a01:4f8:212:fa6::2]:9651 tcp://185.69.166.7:9651 quic://[2a02:1802:5e:0:ec4:7aff:fe51:e36b]:9651 tcp://65.21.231.58:9651 quic://[2a01:4f9:5a:1042::2]:9651 tcp://[2604:a00:50:17b:9e6b:ff:fe1f:e054]:9651 quic://5.78.122.16:9651 tcp://[2a01:4ff:2f0:3621::1]:9651 quic://142.93.217.194:9651 --tun-name tun2 --tcp-listen-port 9652 --quic-listen-port 9653 --api-addr 127.0.0.1:9001')
+	println('res: ${res}')
+}()
 
 spawn fn () {
 	os.execute('mkdir -p /tmp/mycelium_server2 && cd /tmp/mycelium_server2 && mycelium --peers tcp://188.40.132.242:9651 quic://[2a01:4f8:212:fa6::2]:9651 tcp://185.69.166.7:9651 quic://[2a02:1802:5e:0:ec4:7aff:fe51:e36b]:9651 tcp://65.21.231.58:9651 quic://[2a01:4f9:5a:1042::2]:9651 tcp://[2604:a00:50:17b:9e6b:ff:fe1f:e054]:9651 quic://5.78.122.16:9651 tcp://[2a01:4ff:2f0:3621::1]:9651 quic://142.93.217.194:9651 --tun-name tun3 --tcp-listen-port 9654 --quic-listen-port 9655 --api-addr 127.0.0.1:9002')
