@@ -14,16 +14,14 @@ pub mut:
 pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 	name := 'base'
 	if !args.reset && e.builder_exists(name)! {
-		
 		return e.builder_get(name)!
 	}
 	console.print_header('buildah base build')
 
-
 	mut builder := e.builder_new(name: name, from: 'scratch', delete: true)!
 	mount_path := builder.mount_to_path()!
-	if mount_path.len<4{
-		return error("mount_path needs to be +4 chars")
+	if mount_path.len < 4 {
+		return error('mount_path needs to be +4 chars')
 	}
 	osal.exec(
 		cmd: '

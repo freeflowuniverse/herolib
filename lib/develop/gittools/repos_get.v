@@ -159,8 +159,8 @@ fn repo_match_check(repo GitRepo, args ReposGetArgs) !bool {
 // Raises:
 // - Error: If multiple repositories are found with similar names or if cloning fails.
 pub fn (mut gitstructure GitStructure) get_path(args_ ReposGetArgs) !string {
-	mut args:=args_
-	if args.pull{
+	mut args := args_
+	if args.pull {
 		args.status_clean = true
 	}
 	mut r := gitstructure.get_repo(args_)!

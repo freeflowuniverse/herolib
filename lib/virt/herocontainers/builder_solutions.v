@@ -16,32 +16,7 @@ pub fn (mut self Builder) install_zinit() ! {
 		touch /etc/environment
 		mkdir -p /etc/zinit/
 		'
-
-	// 	# Define the command to check if zinit is running
-	// 	CHECK_CMD="pgrep -x zinit"
-	// 	START_CMD="/sbin/zinit init --container"
-
-	// 	# Check if zinit is already running
-	// 	if ! \$CHECK_CMD > /dev/null; then
-	// 		echo "Zinit is not running. Starting it in a screen session..."
-			
-	// 		# Check if the screen session already exists
-	// 		if screen -list | grep -q zinitscreen; then
-	// 			#echo "Screen session zinitscreen already exists. Attaching..."
-	// 			#screen -r zinitscreen
-	// 		else
-	// 			echo "Creating new screen session and starting zinit..."
-	// 			screen -dmS zinitscreen bash -c "/sbin/zinit init --container"
-	// 		fi
-	// 	else
-	// 		echo "Zinit is already running."
-	// 	fi
-
-	// 	zinit list
-
-	// '
 	)!
 
 	self.set_entrypoint('/sbin/zinit init --container')!
-
 }

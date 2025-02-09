@@ -5,23 +5,21 @@ import time
 import v.reflection
 
 struct MyStruct {
-	id      int
+	id   int
 	name string
-	//skip attributes would be best way how to do the encoding but can't get it to work
+	// skip attributes would be best way how to do the encoding but can't get it to work
 	other ?&Remark @[skip; str: skip]
 }
 
-//is the one we should skip
+// is the one we should skip
 struct Remark {
-	id      int
+	id int
 }
-
-
 
 fn test_encode() ! {
 	mut o := MyStruct{
-		id: 1
-		name: 'test'
+		id:    1
+		name:  'test'
 		other: &Remark{
 			id: 123
 		}
@@ -29,17 +27,16 @@ fn test_encode() ! {
 
 	script := encode[MyStruct](o)!
 
-	assert script.trim_space() == "!!define.my_struct id:1 name:test"
+	assert script.trim_space() == '!!define.my_struct id:1 name:test'
 
 	println(script)
 
-	o2:=decode[MyStruct](script)!
+	o2 := decode[MyStruct](script)!
 
-	assert o2==	MyStruct{
-		id: 1
+	assert o2 == MyStruct{
+		id:   1
 		name: 'test'
 	}
 
 	println(o2)
-
 }

@@ -28,7 +28,6 @@ pub mut:
 	command         string
 }
 
-
 // create/start container (first need to get a herocontainerscontainer before we can start)
 pub fn (mut container Container) start() ! {
 	exec(cmd: 'podman start ${container.id}')!

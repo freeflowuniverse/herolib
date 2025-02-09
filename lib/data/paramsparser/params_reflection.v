@@ -17,10 +17,9 @@ pub fn (params Params) decode_struct[T](_ T) !T {
 		$if field.is_enum {
 			t.$(field.name) = params.get_int(field.name) or { 0 }
 		} $else {
-			//super annoying didn't find other way, then to ignore options
-			$if field.is_option{
-
-			}$else{
+			// super annoying didn't find other way, then to ignore options
+			$if field.is_option {
+			} $else {
 				if field.name[0].is_capital() {
 					// embed := params.decode_struct(t.$(field.name))!
 					t.$(field.name) = params.decode_struct(t.$(field.name))!

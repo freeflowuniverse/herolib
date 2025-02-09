@@ -5,16 +5,15 @@ import freeflowuniverse.herolib.web.docusaurus
 
 // Create a new docusaurus factory
 mut docs := docusaurus.new(
-    // build_path: '/tmp/docusaurus_build'
+	build_path: '/tmp/docusaurus_build'
 )!
 
 // Create a new docusaurus site
 mut site := docs.dev(
-    url:'https://git.ourworld.tf/despiegk/docs_kristof'
+	url: 'https://git.ourworld.tf/despiegk/docs_kristof'
 )!
 
-
-//FOR FUTURE TO ADD CONTENT FROM DOCTREE
+// FOR FUTURE TO ADD CONTENT FROM DOCTREE
 
 // Create a doctree for content
 // mut tree := doctree.new(name: 'content')!
@@ -34,10 +33,10 @@ mut site := docs.dev(
 // )!
 
 // Build the docusaurus site
-//site.build()!
+// site.build()!
 
 // Generate the static site
-//site.generate()!
+// site.generate()!
 
 // Optionally open the site in a browser
 // site.open()!

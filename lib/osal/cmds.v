@@ -124,8 +124,8 @@ pub fn profile_path_source() !string {
 // or empty if it doesn't exist
 pub fn profile_path_source_and() !string {
 	p := profile_path_source() or { return '' }
-	if p.len==0{
-		return ""
+	if p.len == 0 {
+		return ''
 	}
 	return '${p} && '
 }
@@ -300,7 +300,7 @@ pub fn profile_paths_preferred() ![]string {
 
 	for file in toadd {
 		if os.exists(file) {
-			//println('${file} exists')
+			// println('${file} exists')
 			profile_files2 << file
 		}
 	}
@@ -309,7 +309,7 @@ pub fn profile_paths_preferred() ![]string {
 
 pub fn profile_path() !string {
 	mut preferred := profile_paths_preferred()!
-	if preferred.len==0{
+	if preferred.len == 0 {
 		return error("can't find profile_path, found none")
 	}
 	return preferred[0]

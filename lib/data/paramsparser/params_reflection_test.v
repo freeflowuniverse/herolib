@@ -103,12 +103,11 @@ fn test_decode() {
 	decoded_child := test_child_params.decode[TestChild]()!
 	assert decoded_child == test_child
 
-	//IMPORTANT OPTIONALS ARE NOT SUPPORTED AND WILL NOT BE ENCODED FOR NOW (unless we find ways how to deal with attributes to not encode skipped elements)
+	// IMPORTANT OPTIONALS ARE NOT SUPPORTED AND WILL NOT BE ENCODED FOR NOW (unless we find ways how to deal with attributes to not encode skipped elements)
 
 	// test recursive decode struct with child
 	decoded := test_params.decode[TestStruct]()!
 	assert decoded == test_struct
-
 }
 
 fn test_encode() {

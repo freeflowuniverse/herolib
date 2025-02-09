@@ -55,7 +55,6 @@ pub fn free() !string {
 				if mynum > max_num {
 					max_num = mynum
 				}
-				
 			}
 		}
 		// Next available number

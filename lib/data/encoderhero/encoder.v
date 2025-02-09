@@ -28,7 +28,7 @@ pub fn encode[T](val T) !string {
 	$if T is $struct {
 		e.encode_struct[T](val)!
 	} $else $if T is $array {
-		//TODO: need to make comma separated list only works if int,u8,u16,i8... or string if string put all elements in \''...\'',...
+		// TODO: need to make comma separated list only works if int,u8,u16,i8... or string if string put all elements in \''...\'',...
 		e.add_child_list[T](val, 'TODO')
 	} $else {
 		return error('can only add elements for struct or array of structs. \n${val}')
@@ -138,8 +138,8 @@ pub fn (mut e Encoder) encode_struct[T](t T) ! {
 				break
 			}
 		}
-		
-		if ! should_skip {
+
+		if !should_skip {
 			val := t.$(field.name)
 			// time is encoded in the above params encoding step so skip and dont treat as recursive struct
 			$if val is time.Time || val is ourtime.OurTime {

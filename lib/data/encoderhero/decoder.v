@@ -46,8 +46,8 @@ fn decode_struct[T](_ T, data string) !T {
 					should_skip = true
 					break
 				}
-			}			
-			if ! should_skip {
+			}
+			if !should_skip {
 				$if field.is_struct {
 					$if field.typ !is time.Time {
 						if !field.name[0].is_capital() {

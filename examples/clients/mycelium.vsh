@@ -1,26 +1,25 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.clients.mycelium 
+import freeflowuniverse.herolib.clients.mycelium
 
 mycelium.delete()!
 
-mut r:=mycelium.inspect()!
-println("My pub key: ${r.public_key}")
+mut r := mycelium.inspect()!
+println('My pub key: ${r.public_key}')
 
 mut client := mycelium.get()!
 println(client)
 
 // Send a message to a node by public key
 // Parameters: public_key, payload, topic, wait_for_reply
-msg := client.send_msg(
-    r.public_key, // destination public key
-    'Hello World', // message payload
-    'greetings', // optional topic
-    false // wait for reply
-)!
+msg := client.send_msg(r.public_key, // destination public key
+ 'Hello World', // message payload
+ 'greetings', // optional topic
+ false // wait for reply
+ )!
 
 println('Sent message ID: ${msg.id}')
-println("send succeeded")
+println('send succeeded')
 
 // Receive messages
 // Parameters: wait_for_message, peek_only, topic_filter

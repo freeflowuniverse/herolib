@@ -5,120 +5,109 @@ import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.data.paramsparser
 
-
 __global (
-    mycelium_global map[string]&Mycelium
-    mycelium_default string
+	mycelium_global  map[string]&Mycelium
+	mycelium_default string
 )
 
 /////////FACTORY
 
 @[params]
-pub struct ArgsGet{
+pub struct ArgsGet {
 pub mut:
-    name string
+	name string
 }
 
-fn args_get (args_ ArgsGet) ArgsGet {
-    mut args:=args_
-    if args.name == ""{
-        args.name = "default"
-    }
-    return args
+fn args_get(args_ ArgsGet) ArgsGet {
+	mut args := args_
+	if args.name == '' {
+		args.name = 'default'
+	}
+	return args
 }
 
-pub fn get(args_ ArgsGet) !&Mycelium  {
-    mut context:=base.context()!
-    mut args := args_get(args_)
-    mut obj := Mycelium{}
-    if !(args.name in mycelium_global) {
-        if ! exists(args)!{            
-            set(obj)!
-        }else{
-            heroscript := context.hero_config_get("mycelium",args.name)!
-            mut obj_:=heroscript_loads(heroscript)!
-            set_in_mem(obj_)!
-        }        
-    }
-    return mycelium_global[args.name] or {
-            println(mycelium_global)
-            //bug if we get here because should be in globals
-            panic("could not get config for mycelium with name, is bug:${args.name}") 
-        }
+pub fn get(args_ ArgsGet) !&Mycelium {
+	mut context := base.context()!
+	mut args := args_get(args_)
+	mut obj := Mycelium{}
+	if args.name !in mycelium_global {
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('mycelium', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
+		}
+	}
+	return mycelium_global[args.name] or {
+		println(mycelium_global)
+		// bug if we get here because should be in globals
+		panic('could not get config for mycelium with name, is bug:${args.name}')
+	}
 }
 
-//register the config for the future
-pub fn set(o Mycelium)! {
-    set_in_mem(o)!
-    mut context := base.context()!
-    heroscript := heroscript_dumps(o)!
-    context.hero_config_set("mycelium", o.name, heroscript)!
+// register the config for the future
+pub fn set(o Mycelium) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('mycelium', o.name, heroscript)!
 }
 
-//does the config exists?
-pub fn exists(args_ ArgsGet)! bool {
-    mut context := base.context()!
-    mut args := args_get(args_)
-    return context.hero_config_exists("mycelium", args.name)
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
+	mut args := args_get(args_)
+	return context.hero_config_exists('mycelium', args.name)
 }
 
-pub fn delete(args_ ArgsGet)! {
-    mut args := args_get(args_)
-       mut context:=base.context()!
-    context.hero_config_delete("mycelium",args.name)! 
-    if args.name in mycelium_global {
-        //del mycelium_global[args.name]
-    }
+pub fn delete(args_ ArgsGet) ! {
+	mut args := args_get(args_)
+	mut context := base.context()!
+	context.hero_config_delete('mycelium', args.name)!
+	if args.name in mycelium_global {
+		// del mycelium_global[args.name]
+	}
 }
 
-//only sets in mem, does not set as config
-fn set_in_mem(o Mycelium)! {
-    mut o2:=obj_init(o)!
-    mycelium_global[o.name] = &o2
-    mycelium_default = o.name
+// only sets in mem, does not set as config
+fn set_in_mem(o Mycelium) ! {
+	mut o2 := obj_init(o)!
+	mycelium_global[o.name] = &o2
+	mycelium_default = o.name
 }
-
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-    heroscript string  //if filled in then plbook will be made out of it
-    plbook     ?playbook.PlayBook 
-    reset      bool
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
 }
 
 pub fn play(args_ PlayArgs) ! {
-    
-    mut args:=args_
+	mut args := args_
 
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
-    mut plbook := args.plbook or {
-        playbook.new(text: args.heroscript)!
-    }
-    
-    mut install_actions := plbook.find(filter: 'mycelium.configure')!
-    if install_actions.len > 0 {
-        for install_action in install_actions {
-            heroscript:=install_action.heroscript()
-            mut obj2:=heroscript_loads(heroscript)!
-            set(obj2)!   
-        }
-    }
-
-
+	mut install_actions := plbook.find(filter: 'mycelium.configure')!
+	if install_actions.len > 0 {
+		for install_action in install_actions {
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
+		}
+	}
 }
 
-
-
-//switch instance to be used for mycelium
+// switch instance to be used for mycelium
 pub fn switch(name string) {
-    mycelium_default = name
+	mycelium_default = name
 }
 
-
-//helpers
+// helpers
 
 @[params]
-pub struct DefaultConfigArgs{
-    instance string = 'default'
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

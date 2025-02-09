@@ -12,7 +12,6 @@ import os
 import time
 import json
 
-
 pub fn check() bool {
 	// if core.is_osx()! {
 	// 	mut scr := screen.new(reset: false) or {return False}
@@ -37,7 +36,6 @@ pub fn check() bool {
 	console.print_stderr('could not reach 40a:152c:b85b:9646:5b71:d03a:eb27:2462')
 	return false
 }
-
 
 pub struct MyceliumInspectResult {
 pub:

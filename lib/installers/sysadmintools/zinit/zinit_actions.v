@@ -95,7 +95,7 @@ fn ulist_get() !ulist.UList {
 fn upload() ! {
 }
 
-fn startupcmd () ![]zinit.ZProcessNewArgs{
+fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	res << zinit.ZProcessNewArgs{
 		name:        'zinit'

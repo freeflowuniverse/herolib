@@ -2,12 +2,12 @@ module herocontainers
 
 import time
 import freeflowuniverse.herolib.osal { exec }
-import freeflowuniverse.herolib.data.ipaddress { IPAddress }
+import freeflowuniverse.herolib.data.ipaddress
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.virt.utils
 import freeflowuniverse.herolib.ui.console
 
-//info see https://docs.podman.io/en/latest/markdown/podman-run.1.html
+// info see https://docs.podman.io/en/latest/markdown/podman-run.1.html
 
 @[params]
 pub struct ContainerCreateArgs {
@@ -19,46 +19,44 @@ pub struct ContainerCreateArgs {
 	privileged       bool
 	remove_when_done bool = true // remove the container when it shuts down
 	// Resource limits
-	memory           string           // Memory limit (e.g. "100m", "2g")
-	memory_reservation string         // Memory soft limit
-	memory_swap      string          // Memory + swap limit
-	cpus             f64             // Number of CPUs (e.g. 1.5)
-	cpu_shares       int             // CPU shares (relative weight)
-	cpu_period       int             // CPU CFS period in microseconds (default: 100000)
-	cpu_quota        int             // CPU CFS quota in microseconds (e.g. 50000 for 0.5 CPU)
-	cpuset_cpus      string          // CPUs in which to allow execution (e.g. "0-3", "1,3")
+	memory             string // Memory limit (e.g. "100m", "2g")
+	memory_reservation string // Memory soft limit
+	memory_swap        string // Memory + swap limit
+	cpus               f64    // Number of CPUs (e.g. 1.5)
+	cpu_shares         int    // CPU shares (relative weight)
+	cpu_period         int    // CPU CFS period in microseconds (default: 100000)
+	cpu_quota          int    // CPU CFS quota in microseconds (e.g. 50000 for 0.5 CPU)
+	cpuset_cpus        string // CPUs in which to allow execution (e.g. "0-3", "1,3")
 	// Network configuration
-	network          string          // Network mode (bridge, host, none, container:id)
-	network_aliases  []string        // Add network-scoped aliases
-	exposed_ports    []string        // Ports to expose without publishing (e.g. "80/tcp", "53/udp")
+	network         string   // Network mode (bridge, host, none, container:id)
+	network_aliases []string // Add network-scoped aliases
+	exposed_ports   []string // Ports to expose without publishing (e.g. "80/tcp", "53/udp")
 	// DNS configuration
-	dns_servers      []string        // Set custom DNS servers
-	dns_options      []string        // Set custom DNS options
-	dns_search       []string        // Set custom DNS search domains
+	dns_servers []string // Set custom DNS servers
+	dns_options []string // Set custom DNS options
+	dns_search  []string // Set custom DNS search domains
 	// Device configuration
-	devices          []string        // Host devices to add (e.g. "/dev/sdc:/dev/xvdc:rwm")
-	device_cgroup_rules []string     // Add rules to cgroup allowed devices list
+	devices             []string // Host devices to add (e.g. "/dev/sdc:/dev/xvdc:rwm")
+	device_cgroup_rules []string // Add rules to cgroup allowed devices list
 	// Runtime configuration
-	detach           bool = true     // Run container in background
-	attach           []string        // Attach to STDIN, STDOUT, and/or STDERR
-	interactive      bool            // Keep STDIN open even if not attached (-i)
+	detach      bool = true // Run container in background
+	attach      []string // Attach to STDIN, STDOUT, and/or STDERR
+	interactive bool     // Keep STDIN open even if not attached (-i)
 	// Storage configuration
-	rootfs           string          // Use directory as container's root filesystem
-	mounts           []string        // Mount filesystem (type=bind,src=,dst=,etc)
-	volumes          []string        // Bind mount a volume (alternative to mounted_volumes)
-	published_ports  []string        // Publish container ports to host (alternative to forwarded_ports)
+	rootfs          string   // Use directory as container's root filesystem
+	mounts          []string // Mount filesystem (type=bind,src=,dst=,etc)
+	volumes         []string // Bind mount a volume (alternative to mounted_volumes)
+	published_ports []string // Publish container ports to host (alternative to forwarded_ports)
 pub mut:
 	image_repo string
 	image_tag  string
 	command    string = '/bin/bash'
 }
 
-
-
 // create a new container from an image
 pub fn (mut e CEngine) container_create(args_ ContainerCreateArgs) !&Container {
-	mut args:=args_
-	
+	mut args := args_
+
 	mut cmd := 'podman run --systemd=false'
 
 	// Handle detach/attach options

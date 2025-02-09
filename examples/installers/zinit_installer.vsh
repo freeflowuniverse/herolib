@@ -2,5 +2,5 @@
 
 import freeflowuniverse.herolib.installers.sysadmintools.zinit as zinit_installer
 
-mut installer:=zinit_installer.get()!
+mut installer := zinit_installer.get()!
 installer.start()!
