@@ -1,1 +1,4 @@
 buildah_example
+buildah_run_clean
+buildah_run_mdbook
+buildah_run

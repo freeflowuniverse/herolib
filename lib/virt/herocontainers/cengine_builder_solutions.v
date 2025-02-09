@@ -6,6 +6,7 @@ import os
 
 @[params]
 pub struct GetArgs {
+pub mut:
 	reset bool
 }
 
@@ -51,7 +52,7 @@ pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 
 			# Install required packages
 			echo "Installing essential packages..."
-			chroot \${MOUNT_PATH} apt-get install -yq screen bash coreutils curl mc unzip sudo which openssh-client openssh-server redis
+			chroot \${MOUNT_PATH} apt-get install -yq screen bash coreutils curl mc unzip sudo which openssh-client openssh-server redis wget
 
 			echo "Cleaning up..."
 			umount "\${MOUNT_PATH}/dev" || true
@@ -60,6 +61,7 @@ pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 
 			'
 	)!
+	builder.install_zinit()!
 	// builder.set_entrypoint('redis-server')!
 	builder.commit('localhost/${name}')!
 	return builder

@@ -62,8 +62,53 @@ buildah run --terminal --env TERM=xterm base_go_rust /bin/bash
 to check inside the container about diskusage
 
 ```bash
-pacman -Su ncdu
+apt install ncdu
 ncdu
+```
+
+## create container
+
+
+```go
+import freeflowuniverse.herolib.virt.herocontainers
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.builder
+
+//interative means will ask for login/passwd
+
+console.print_header("Get a container.")
+
+mut e:=herocontainers.new()!
+
+//info see https://docs.podman.io/en/latest/markdown/podman-run.1.html
+
+mut c:=e.container_create(
+    name: 'mycontainer'
+    image_repo: 'ubuntu'
+    // Resource limits
+    memory: '1g'
+    cpus: 0.5
+    // Network config
+    network: 'bridge'
+    network_aliases: ['myapp', 'api']
+    // DNS config
+    dns_servers: ['8.8.8.8', '8.8.4.4']
+    dns_search: ['example.com']
+    interactive: true  // Keep STDIN open
+    mounts: [
+        'type=bind,src=/data,dst=/container/data,ro=true'
+    ]
+    volumes: [
+        '/config:/etc/myapp:ro'
+    ]
+    published_ports: [
+        '127.0.0.1:8080:80'
+    ]    
+)!
+
+
+
+
 ```
 
 

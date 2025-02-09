@@ -11,7 +11,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	checkcmd := '${osal.profile_path_source_and()!} bun -version'
+	checkcmd := '${os.home_dir()}/.bun/bin/bun -version'
 	res := os.execute(checkcmd)
 	if res.exit_code != 0 {
 		println(res)

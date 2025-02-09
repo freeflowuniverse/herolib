@@ -1,34 +1,17 @@
 # zinit
 
+Zinit is threefold startup manager, in linux will be launched inside systemd
+
+```v
 
 
-To get started
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-```vlang
+import freeflowuniverse.herolib.installers.sysadmintools.zinit as zinit_installer
 
-
-import freeflowuniverse.herolib.installers.something. zinit
-
-mut installer:= zinit.get()!
-
+mut installer:=zinit_installer.get()!
 installer.start()!
 
 
-
-
 ```
-
-## example heroscript
-
-```hero
-!!zinit.install
-    homedir: '/home/user/zinit'
-    username: 'admin'
-    password: 'secretpassword'
-    title: 'Some Title'
-    host: 'localhost'
-    port: 8888
-
-```
-
 

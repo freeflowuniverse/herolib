@@ -42,8 +42,8 @@ pub fn get(args_ ArgsGet) !&${args.classname}  {
             set(obj)!
         }else{
             heroscript := context.hero_config_get("${args.name}",args.name)!
-            mut obj:=heroscript_loads(heroscript)!
-            set_in_mem(obj)!
+            mut obj_:=heroscript_loads(heroscript)!
+            set_in_mem(obj_)!
         }        
 	}
 	return ${args.name}_global[args.name] or {
@@ -58,14 +58,14 @@ pub fn set(o ${args.classname})! {
     set_in_mem(o)!
     mut context := base.context()!
     heroscript := heroscript_dumps(o)!
-    context.hero_config_set("gitea", o.name, heroscript)!
+    context.hero_config_set("${args.name}", o.name, heroscript)!
 }
 
 //does the config exists?
-pub fn exists(args_ ArgsGet)! {
+pub fn exists(args_ ArgsGet)! bool {
     mut context := base.context()!
     mut args := args_get(args_)
-    return context.hero_config_exists("gitea", args.name)
+    return context.hero_config_exists("${args.name}", args.name)
 }
 
 pub fn delete(args_ ArgsGet)! {

@@ -28,36 +28,6 @@ pub mut:
 	command         string
 }
 
-@[params]
-pub struct ContainerCreateArgs {
-	name             string
-	hostname         string
-	forwarded_ports  []string          // ["80:9000/tcp", "1000, 10000/udp"]
-	mounted_volumes  []string          // ["/root:/root", ]
-	env              map[string]string // map of environment variables that will be passed to the container
-	privileged       bool
-	remove_when_done bool = true // remove the container when it shuts down
-pub mut:
-	image_repo string
-	image_tag  string
-	command    string = '/bin/bash'
-}
-
-// TODO: implement
-
-// import a container into an image, run podman container with it
-// image_repo examples ['myimage', 'myimage:latest']
-// if ContainerCreateArgs contains a name, container will be created and restarted
-// pub fn (mut e CEngine) container_import(path string, mut args ContainerCreateArgs) !&Container {
-// 	mut image := args.image_repo
-// 	if args.image_tag != '' {
-// 		image = image + ':${args.image_tag}'
-// 	}
-
-// 	exec(cmd: 'herocontainers import  ${path} ${image}', stdout: false)!
-// 	// make sure we start from loaded image
-// 	return e.container_create(args)
-// }
 
 // create/start container (first need to get a herocontainerscontainer before we can start)
 pub fn (mut container Container) start() ! {

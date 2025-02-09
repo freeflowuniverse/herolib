@@ -3,6 +3,7 @@ module zinit
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.rust
@@ -11,7 +12,7 @@ import freeflowuniverse.herolib.osal.systemd
 import os
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
+fn installed() !bool {
 	cmd := 'zinit --version'
 	// console.print_debug(cmd)
 	res := os.execute(cmd)
@@ -28,7 +29,7 @@ fn installed_() !bool {
 	return false
 }
 
-fn install_() ! {
+fn install() ! {
 	console.print_header('install zinit')
 	if !core.is_linux()! {
 		return error('only support linux for now')
@@ -52,7 +53,7 @@ fn install_() ! {
 	console.print_header('install zinit done')
 }
 
-fn build_() ! {
+fn build() ! {
 	if !core.is_linux()! {
 		return error('only support linux for now')
 	}
@@ -91,12 +92,12 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload_() ! {
+fn upload() ! {
 }
 
-fn startupcmd() ![]ZProcessNewArgs {
+fn startupcmd () ![]zinit.ZProcessNewArgs{
 	mut res := []zinit.ZProcessNewArgs{}
-	res << ZProcessNewArgs{
+	res << zinit.ZProcessNewArgs{
 		name:        'zinit'
 		cmd:         '/usr/local/bin/zinit init'
 		startuptype: .systemd
@@ -106,7 +107,7 @@ fn startupcmd() ![]ZProcessNewArgs {
 	return res
 }
 
-fn running_() !bool {
+fn running() !bool {
 	cmd := 'zinit list'
 	return osal.execute_ok(cmd)
 }
@@ -123,7 +124,7 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-fn destroy_() ! {
+fn destroy() ! {
 	mut systemdfactory := systemd.new()!
 	systemdfactory.destroy('zinit')!
 

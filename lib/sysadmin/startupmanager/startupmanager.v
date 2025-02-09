@@ -109,7 +109,7 @@ pub fn (mut sm StartupManager) new(args zinit.ZProcessNewArgs) ! {
 			zinitfactory.new(args)!
 		}
 		else {
-			panic('to implement, startup manager only support screen & systemd for now')
+			panic('to implement, startup manager only support screen & systemd for now:  ${mycat}')
 		}
 	}
 	// if args.start {
@@ -141,7 +141,7 @@ pub fn (mut sm StartupManager) start(name string) ! {
 			zinitfactory.start(name)!
 		}
 		else {
-			panic('to implement, startup manager only support screen for now')
+			panic('to implement, startup manager only support screen for now:  ${sm.cat}')
 		}
 	}
 }
@@ -171,7 +171,7 @@ pub fn (mut sm StartupManager) stop(name string) ! {
 			}
 		}
 		else {
-			panic('to implement, startup manager only support screen for now')
+			panic('to implement, startup manager only support screen for now:  ${sm.cat}')
 		}
 	}
 }
@@ -195,7 +195,7 @@ pub fn (mut sm StartupManager) restart(name string) ! {
 			zinitfactory.start(name)!
 		}
 		else {
-			panic('to implement, startup manager only support screen for now')
+			panic('to implement, startup manager only support screen for now:  ${sm.cat}')
 		}
 	}
 }
@@ -222,7 +222,7 @@ pub fn (mut sm StartupManager) delete(name string) ! {
 			}
 		}
 		else {
-			panic('to implement, startup manager only support screen & systemd for now')
+			panic('to implement, startup manager only support screen & systemd for now:  ${sm.cat}')
 		}
 	}
 }
@@ -280,7 +280,7 @@ pub fn (mut sm StartupManager) status(name string) !ProcessStatus {
 			}
 		}
 		else {
-			panic('to implement, startup manager only support screen & systemd for now')
+			panic('to implement, startup manager only support screen & systemd for now:  ${sm.cat}')
 		}
 	}
 }
@@ -326,7 +326,7 @@ pub fn (mut sm StartupManager) exists(name string) !bool {
 			return zinitfactory.exists(name)
 		}
 		else {
-			panic('to implement. startup manager only support screen & systemd for now')
+			panic('to implement. startup manager only support screen & systemd for now:  ${sm.cat}')
 		}
 	}
 }
@@ -347,7 +347,7 @@ pub fn (mut sm StartupManager) list() ![]string {
 			return zinitfactory.names()
 		}
 		else {
-			panic('to implement. startup manager only support screen & systemd for now')
+			panic('to implement. startup manager only support screen & systemd for now:  ${sm.cat}')
 		}
 	}
 }

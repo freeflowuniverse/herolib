@@ -258,6 +258,9 @@ fn (mut site DocSite) template_install() ! {
 
 	cfg := site.config
 
+
+	profile_include := osal.profile_path_source()!
+
 	develop := $tmpl('templates/develop.sh')
 	build := $tmpl('templates/build.sh')
 	build_dev := $tmpl('templates/build_dev.sh')
