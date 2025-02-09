@@ -1,59 +1,45 @@
 module meilisearchinstaller
 
-import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
 
 pub const version = '1.11.3'
 const singleton = false
 const default = true
 
-pub fn heroscript_default() !string {
-	heroscript := "
-    !!meilisearch.configure 
-        name:'default'
-        masterkey: '1234'
-        host: 'localhost'
-        port: 7700
-        production: 0
-        "
-
-	return heroscript
-}
-
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+@[heap]
 pub struct MeilisearchServer {
 pub mut:
 	name       string = 'default'
-	path       string
+	path       string = '/tmp/meilisearch'
 	masterkey  string @[secret]
-	host       string
-	port       int
+	host       string = 'localhost'
+	port       int    = 7700
 	production bool
 }
 
-fn cfg_play(p paramsparser.Params) !MeilisearchServer {
-	name := p.get_default('name', 'default')!
-	mut mycfg := MeilisearchServer{
-		name:       name
-		path:       p.get_default('path', '{HOME}/hero/var/meilisearch/${name}')!
-		host:       p.get_default('host', 'localhost')!
-		masterkey:  p.get_default('masterkey', '1234')!
-		port:       p.get_int_default('port', 7700)!
-		production: p.get_default_false('production')
+// your checking & initialization code if needed
+fn obj_init(mycfg_ MeilisearchServer) !MeilisearchServer {
+	mut mycfg := mycfg_
+	if mycfg.masterkey == '' {
+		return error('masterkey is empty')
 	}
-	return mycfg
-}
 
-fn obj_init(obj_ MeilisearchServer) !MeilisearchServer {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+	return mycfg
 }
 
 // called before start if done
 fn configure() ! {
 	// mut installer := get()!
-	// mut mycode := $tmpl('templates/atemplate.yaml')
-	// mut path := pathlib.get_file(path: cfg.configpath, create: true)!
-	// path.write(mycode)!
-	// console.print_debug(mycode)
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj MeilisearchServer) !string {
+	return encoderhero.encode[MeilisearchServer](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !MeilisearchServer {
+	mut obj := encoderhero.decode[MeilisearchServer](heroscript)!
+	return obj
 }

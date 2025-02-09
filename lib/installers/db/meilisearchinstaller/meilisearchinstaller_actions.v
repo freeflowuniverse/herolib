@@ -3,104 +3,15 @@ module meilisearchinstaller
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-// import freeflowuniverse.herolib.installers.lang.rust
+import freeflowuniverse.herolib.installers.lang.golang
+import freeflowuniverse.herolib.installers.lang.rust
+import freeflowuniverse.herolib.installers.lang.python
+import freeflowuniverse.herolib.core.httpconnection
 import os
-
-fn installed_() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} meilisearch -V')
-	if res.exit_code != 0 {
-		return false
-	}
-	r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	if r.len != 1 {
-		return error("couldn't parse meilisearch version.\n${res.output}")
-	}
-	r2 := r[0].all_after('meilisearch').trim(' ')
-	if texttools.version(version) != texttools.version(r2) {
-		return false
-	}
-	return true
-}
-
-fn install_() ! {
-	console.print_header('install meilisearch')
-	mut url := ''
-
-	if core.is_linux_arm()! {
-		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-linux-aarch64'
-	} else if core.is_linux_intel()! {
-		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-linux-amd64'
-	} else if core.is_osx_arm()! {
-		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-macos-apple-silicon'
-	} else if core.is_osx_intel()! {
-		url = 'https://github.com/meilisearch/meilisearch/releases/download/v${version}/meilisearch-macos-amd64'
-	} else {
-		return error('unsported platform')
-	}
-
-	mut dest := osal.download(
-		url:        url
-		minsize_kb: 100000
-		expand_dir: '/tmp/meilisearch'
-	)!
-
-	// dest.moveup_single_subdir()!
-
-	mut binpath := dest.file_get('meilisearch')!
-	osal.cmd_add(
-		cmdname: 'meilisearch'
-		source:  binpath.path
-	)!
-}
-
-fn build_() ! {
-	// mut installer := get()!
-	// url := 'https://github.com/threefoldtech/meilisearch'
-
-	// console.print_header('compile meilisearch')
-	// rust.install()!
-	// mut dest_on_os := '${os.home_dir()}/hero/bin'
-	// if core.is_linux()! {
-	// 	dest_on_os = '/usr/local/bin'
-	// }
-	// console.print_debug(' - dest path for meilisearchs is on: ${dest_on_os}')
-	// //osal.package_install('pkg-config,openssl')!
-	// cmd := '
-	// echo "start meilisearch installer"
-	// set +ex
-	// source ~/.cargo/env > /dev/null 2>&1
-
-	// //TODO
-
-	// cargo install meilisearch
-
-	// cp ${os.home_dir()}/.cargo/bin/mdb* ${dest_on_os}/	
-	// '
-	// defer {
-	//     destroy()!
-	// }
-	// osal.execute_stdout(cmd)!
-	// osal.done_set('install_meilisearch', 'OK')!
-	// console.print_header('meilisearch installed')
-}
-
-// get the Upload List of the files
-fn ulist_get() !ulist.UList {
-	// mut installer := get()!
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-	return ulist.UList{}
-}
-
-// uploads to S3 server if configured
-fn upload_() ! {
-	// mut installer := get()!
-	// installers.upload(
-	//     cmdname: 'meilisearch'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/meilisearch'
-	// )!
-}
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
@@ -117,25 +28,20 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running_() !bool {
-	mut installer := get()!
+fn running() !bool {
+	mut meilisearch := get()!
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of meilisearch
+	// this checks health of meilisearchinstaller
 	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'meilisearch', url: url)!
+	url := 'http://${meilisearch.host}:${meilisearch.port}/api/v1'
+	mut conn := httpconnection.new(name: 'meilisearchinstaller', url: url)!
+	conn.default_header.add(.authorization, 'Bearer ${meilisearch.masterkey}')
+	conn.default_header.add(.content_type, 'application/json')
 
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('meilisearch is answering.')
+	console.print_debug("curl -X 'GET' '${url}'/version")
+	response := conn.get_json_dict(prefix: 'version', debug: false) or { return false }
+	println('response: ${response}')
+	// if response
 	return false
 }
 
@@ -151,18 +57,127 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-fn destroy_() ! {
+//////////////////// following actions are not specific to instance of the object
+
+// checks if a certain version or above is installed
+fn installed() !bool {
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// res := os.execute('${osal.profile_path_source_and()!} meilisearchinstaller version')
+	// if res.exit_code != 0 {
+	//     return false
+	// }
+	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+	// if r.len != 1 {
+	//     return error("couldn't parse meilisearchinstaller version.\n${res.output}")
+	// }
+	// if texttools.version(version) == texttools.version(r[0]) {
+	//     return true
+	// }
+	return false
+}
+
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
+}
+
+// uploads to S3 server if configured
+fn upload() ! {
+	// installers.upload(
+	//     cmdname: 'meilisearchinstaller'
+	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/meilisearchinstaller'
+	// )!
+}
+
+fn install() ! {
+	console.print_header('install meilisearchinstaller')
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// mut url := ''
+	// if core.is_linux_arm() {
+	//     url = 'https://github.com/meilisearchinstaller-dev/meilisearchinstaller/releases/download/v${version}/meilisearchinstaller_${version}_linux_arm64.tar.gz'
+	// } else if core.is_linux_intel() {
+	//     url = 'https://github.com/meilisearchinstaller-dev/meilisearchinstaller/releases/download/v${version}/meilisearchinstaller_${version}_linux_amd64.tar.gz'
+	// } else if core.is_osx_arm() {
+	//     url = 'https://github.com/meilisearchinstaller-dev/meilisearchinstaller/releases/download/v${version}/meilisearchinstaller_${version}_darwin_arm64.tar.gz'
+	// } else if osal.is_osx_intel() {
+	//     url = 'https://github.com/meilisearchinstaller-dev/meilisearchinstaller/releases/download/v${version}/meilisearchinstaller_${version}_darwin_amd64.tar.gz'
+	// } else {
+	//     return error('unsported platform')
+	// }
+
+	// mut dest := osal.download(
+	//     url: url
+	//     minsize_kb: 9000
+	//     expand_dir: '/tmp/meilisearchinstaller'
+	// )!
+
+	// //dest.moveup_single_subdir()!
+
+	// mut binpath := dest.file_get('meilisearchinstaller')!
+	// osal.cmd_add(
+	//     cmdname: 'meilisearchinstaller'
+	//     source: binpath.path
+	// )!
+}
+
+fn build() ! {
+	// url := 'https://github.com/threefoldtech/meilisearchinstaller'
+
+	// make sure we install base on the node
+	// if osal.platform() != .ubuntu {
+	//     return error('only support ubuntu for now')
+	// }
+	// golang.install()!
+
+	// console.print_header('build meilisearchinstaller')
+
+	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+
+	// cmd := '
+	// cd ${gitpath}
+	// source ~/.cargo/env
+	// exit 1 #todo
+	// '
+	// osal.execute_stdout(cmd)!
+	//
+	// //now copy to the default bin path
+	// mut binpath := dest.file_get('...')!
+	// adds it to path
+	// osal.cmd_add(
+	//     cmdname: 'griddriver2'
+	//     source: binpath.path
+	// )!
+}
+
+fn destroy() ! {
 	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("meilisearch")!
+	// systemdfactory.destroy("zinit")!
 
-	osal.process_kill_recursive(name: 'meilisearch')!
+	// osal.process_kill_recursive(name:'zinit')!
+	// osal.cmd_delete('zinit')!
 
-	osal.cmd_delete('meilisearch')!
+	// osal.package_remove('
+	//    podman
+	//    conmon
+	//    buildah
+	//    skopeo
+	//    runc
+	// ')!
 
-	osal.package_remove('
-       meilisearch
-    ') or { println('') }
+	// //will remove all paths where go/bin is found
+	// osal.profile_path_add_remove(paths2delete:"go/bin")!
 
 	// osal.rm("
+	//    podman
+	//    conmon
+	//    buildah
+	//    skopeo
+	//    runc
+	//    /var/lib/containers
+	//    /var/lib/podman
+	//    /var/lib/buildah
+	//    /tmp/podman
+	//    /tmp/conmon
 	// ")!
 }
