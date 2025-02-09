@@ -3,50 +3,37 @@ module mycelium
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
+import freeflowuniverse.herolib.installers.sysadmintools.zinit as zinit_installer
+import freeflowuniverse.herolib.clients.mycelium
+import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
 import os
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut installer := get()!
 	mut res := []zinit.ZProcessNewArgs{}
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'mycelium'
-	//     cmd: 'mycelium server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
+
+	mut peers_str := installer.peers.join(' ')
+	mut tun_name := 'tun${installer.tun_nr}'
+
+	res << zinit.ZProcessNewArgs{
+		name: 'mycelium'
+		cmd:  'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
+		env:  {
+			'HOME': '/root'
+		}
+	}
 
 	return res
 }
 
-fn running_() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of mycelium
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'mycelium', url: url)!
-
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('mycelium is answering.')
-	return false
+fn running() !bool {
+	mycelium.inspect() or { return false }
+	return true
 }
 
 fn start_pre() ! {
@@ -64,19 +51,21 @@ fn stop_post() ! {
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()!} mycelium version')
-	// if res.exit_code != 0 {
-	//     return false
-	// }
-	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	// if r.len != 1 {
-	//     return error("couldn't parse mycelium version.\n${res.output}")
-	// }
-	// if texttools.version(version) == texttools.version(r[0]) {
-	//     return true
-	// }
+fn installed() !bool {
+	cmd := '${osal.profile_path_source_and()!} mycelium -V'
+	// println(cmd)
+	res := os.execute(cmd)
+	if res.exit_code != 0 {
+		println(res)
+		return false
+	}
+	r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+	if r.len != 1 {
+		return error("couldn't parse mycelium version.\n${res.output}")
+	}
+	if texttools.version(version) == texttools.version(r[0].all_after_last('mycelium')) {
+		return true
+	}
 	return false
 }
 
@@ -87,64 +76,78 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload_() ! {
+fn upload() ! {
 	// installers.upload(
 	//     cmdname: 'mycelium'
 	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/mycelium'
 	// )!
 }
 
-fn install_() ! {
+fn install() ! {
 	console.print_header('install mycelium')
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// mut url := ''
-	// if core.is_linux_arm()! {
-	//     url = 'https://github.com/mycelium-dev/mycelium/releases/download/v${version}/mycelium_${version}_linux_arm64.tar.gz'
-	// } else if core.is_linux_intel()! {
-	//     url = 'https://github.com/mycelium-dev/mycelium/releases/download/v${version}/mycelium_${version}_linux_amd64.tar.gz'
-	// } else if core.is_osx_arm()! {
-	//     url = 'https://github.com/mycelium-dev/mycelium/releases/download/v${version}/mycelium_${version}_darwin_arm64.tar.gz'
-	// } else if core.is_osx_intel()! {
-	//     url = 'https://github.com/mycelium-dev/mycelium/releases/download/v${version}/mycelium_${version}_darwin_amd64.tar.gz'
-	// } else {
-	//     return error('unsported platform')
-	// }
 
-	// mut dest := osal.download(
-	//     url: url
-	//     minsize_kb: 9000
-	//     expand_dir: '/tmp/mycelium'
-	// )!
+	mut z_installer := zinit_installer.get()!
+	z_installer.start()!
 
-	// //dest.moveup_single_subdir()!
+	mut url := ''
+	if core.is_linux_arm()! {
+		url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-aarch64-unknown-linux-musl.tar.gz'
+	} else if core.is_linux_intel()! {
+		url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-x86_64-unknown-linux-musl.tar.gz'
+	} else if core.is_osx_arm()! {
+		url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-aarch64-apple-darwin.tar.gz'
+	} else if core.is_osx_intel()! {
+		url = 'https://github.com/threefoldtech/mycelium/releases/download/v${version}/mycelium-x86_64-apple-darwin.tar.gz'
+	} else {
+		return error('unsported platform')
+	}
 
-	// mut binpath := dest.file_get('mycelium')!
-	// osal.cmd_add(
-	//     cmdname: 'mycelium'
-	//     source: binpath.path
-	// )!
+	pathlib.get_dir(
+		path:   '${osal.hero_path()!}/cfg'
+		create: true
+	)!
+
+	mut dest := osal.download(
+		url:        url
+		minsize_kb: 5000
+		expand_dir: '/tmp/mycelium'
+	)!
+	mut binpath := dest.file_get('mycelium')!
+	osal.cmd_add(
+		cmdname: 'mycelium'
+		source:  binpath.path
+	)!
 }
 
-fn build_() ! {
-	// url := 'https://github.com/threefoldtech/mycelium'
+fn build() ! {
+	url := 'https://github.com/threefoldtech/mycelium'
+	myplatform := core.platform()!
+	if myplatform != .ubuntu {
+		return error('only support ubuntu for now')
+	}
+	rust.install()!
 
-	// make sure we install base on the node
-	// if core.platform()!= .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
+	console.print_header('build mycelium')
 
-	// console.print_header('build mycelium')
+	mut gs := gittools.new()!
+	gitpath := gs.get_path(
+		pull:  true
+		reset: false
+		url:   url
+	)!
 
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+	panic('implement')
 
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
+	cmd := '
+    cd ${gitpath}
+    source ~/.cargo/env
+    cargo install --path . --locked
+    cargo build --release --locked --no-default-features --features=native-tls
+    cp target/release/mycelium ~/.cargo/bin/mycelium
+    mycelium --version
+    '
+	osal.execute_stdout(cmd)!
+
 	// //now copy to the default bin path
 	// mut binpath := dest.file_get('...')!
 	// adds it to path
@@ -154,34 +157,11 @@ fn build_() ! {
 	// )!
 }
 
-fn destroy_() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
+fn destroy() ! {
+	osal.process_kill_recursive(name: 'mycelium')!
+	osal.cmd_delete('mycelium')!
 
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+	osal.rm('
+       mycelium
+    ')!
 }

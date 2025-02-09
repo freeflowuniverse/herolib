@@ -3,5 +3,11 @@
     log
     errors
     health :3334
-    import  '${args.dnszones_path}/*'
+    redis {
+        address localhost:6379
+        connect_timeout 100
+        read_timeout 100
+        ttl 360
+        prefix dns:
+    } 
 }

@@ -1,8 +1,7 @@
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.virt.herocontainers
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.base
 // import freeflowuniverse.herolib.builder
 import time
 import os

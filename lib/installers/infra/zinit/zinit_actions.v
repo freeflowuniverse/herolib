@@ -69,7 +69,7 @@ fn build() ! {
 		reset: true
 		pull:  true
 	)!
-	gitpath := repo.get_path()!
+	gitpath := repo.path()
 
 	// source ${osal.profile_path()}
 

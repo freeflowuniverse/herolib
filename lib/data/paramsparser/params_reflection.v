@@ -17,11 +17,16 @@ pub fn (params Params) decode_struct[T](_ T) !T {
 		$if field.is_enum {
 			t.$(field.name) = params.get_int(field.name) or { 0 }
 		} $else {
-			if field.name[0].is_capital() {
-				// embed := params.decode_struct(t.$(field.name))!
-				t.$(field.name) = params.decode_struct(t.$(field.name))!
-			} else {
-				t.$(field.name) = params.decode_value(t.$(field.name), field.name)!
+			// super annoying didn't find other way, then to ignore options
+			$if field.is_option {
+			} $else {
+				if field.name[0].is_capital() {
+					// embed := params.decode_struct(t.$(field.name))!
+					t.$(field.name) = params.decode_struct(t.$(field.name))!
+					// panic("to implement")
+				} else {
+					t.$(field.name) = params.decode_value(t.$(field.name), field.name)!
+				}
 			}
 		}
 	}
@@ -30,11 +35,7 @@ pub fn (params Params) decode_struct[T](_ T) !T {
 
 pub fn (params Params) decode_value[T](_ T, key string) !T {
 	// $if T is $option {
-	// 	// unwrap and encode optionals
-	// 	workaround := t
-	// 	if workaround != none {
-	// 		encode(t, args)!
-	// 	}
+	// 	return error("is option")
 	// }
 	// value := params.get(field.name)!
 

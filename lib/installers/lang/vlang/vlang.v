@@ -45,7 +45,7 @@ pub fn install(args_ InstallArgs) ! {
 		url:   'https://github.com/vlang/v/tree/master'
 	)!
 
-	mut path1 := repo.get_path()!
+	mut path1 := repo.path()
 
 	mut extra := ''
 	if core.is_linux()! {

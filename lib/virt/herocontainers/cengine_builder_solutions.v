@@ -2,11 +2,11 @@ module herocontainers
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.installers.virt.pacman
 import os
 
 @[params]
 pub struct GetArgs {
+pub mut:
 	reset bool
 }
 
@@ -18,14 +18,48 @@ pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 	}
 	console.print_header('buildah base build')
 
-	// mut installer:= pacman.get()!
-	// installer.install()!
-
 	mut builder := e.builder_new(name: name, from: 'scratch', delete: true)!
 	mount_path := builder.mount_to_path()!
+	if mount_path.len < 4 {
+		return error('mount_path needs to be +4 chars')
+	}
 	osal.exec(
-		cmd: 'pacstrap -D -c ${mount_path} base screen bash coreutils curl mc unzip sudo which openssh'
+		cmd: '
+
+			export MOUNT_PATH=\'${mount_path}\'
+
+			mmdebstrap --variant=minbase --components="main,universe" --include="apt,base-files,base-passwd,bash,coreutils" noble \${MOUNT_PATH}
+
+			echo "Binding essential directories..."
+			mount --bind /dev "\${MOUNT_PATH}/dev"
+			mount --bind /proc "\${MOUNT_PATH}/proc"
+			mount --bind /sys "\${MOUNT_PATH}/sys"
+
+			echo "tzdata tzdata/Areas select Europe" | chroot "\${MOUNT_PATH}" debconf-set-selections
+			echo "tzdata tzdata/Zones/Europe select Brussels" | chroot "\${MOUNT_PATH}" debconf-set-selections
+
+			chroot \${MOUNT_PATH} apt update
+
+			# Set up APT for non-interactive installation
+			export DEBIAN_FRONTEND=noninteractive
+			export DEBCONF_NONINTERACTIVE_SEEN=true
+
+			# Update package lists
+			echo "Updating package lists in chroot..."
+			chroot \${MOUNT_PATH} apt-get update -yq
+
+			# Install required packages
+			echo "Installing essential packages..."
+			chroot \${MOUNT_PATH} apt-get install -yq screen bash coreutils curl mc unzip sudo which openssh-client openssh-server redis wget
+
+			echo "Cleaning up..."
+			umount "\${MOUNT_PATH}/dev" || true
+			umount "\${MOUNT_PATH}/proc" || true
+			umount "\${MOUNT_PATH}/sys" || true
+
+			'
 	)!
+	builder.install_zinit()!
 	// builder.set_entrypoint('redis-server')!
 	builder.commit('localhost/${name}')!
 	return builder

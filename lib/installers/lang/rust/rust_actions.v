@@ -43,8 +43,6 @@ fn upload_() ! {
 
 fn install_() ! {
 	console.print_header('install rust')
-	version := '1.83.0'
-
 	base.install()!
 
 	pl := core.platform()!

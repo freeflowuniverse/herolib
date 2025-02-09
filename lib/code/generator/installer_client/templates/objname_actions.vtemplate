@@ -152,11 +152,16 @@ fn build_() ! {
 	// if core.platform()!= .ubuntu {
 	// 	return error('only support ubuntu for now')
 	// }
-	// golang.install()!
+	
+	//mut g:=golang.get()!
+    //g.install()!
 
+    //console.print_header('build coredns')
+
+    //mut gs := gittools.new(coderoot: '~/code')!
 	// console.print_header('build ${model.name}')
 
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+	// gitpath := gittools.get_repo(url: url, reset: true, pull: true)!
 
 	// cmd := '
 	// cd ??{gitpath}

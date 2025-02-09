@@ -38,22 +38,32 @@ fn decode_struct[T](_ T, data string) !T {
 
 		// return t_
 		$for field in T.fields {
-			// $if fiel
-			$if field.is_struct {
-				$if field.typ !is time.Time {
-					if !field.name[0].is_capital() {
-						// skip embedded ones
+			// Check if field has skip attribute
+			mut should_skip := false
+
+			for attr in field.attrs {
+				if attr.contains('skip') {
+					should_skip = true
+					break
+				}
+			}
+			if !should_skip {
+				$if field.is_struct {
+					$if field.typ !is time.Time {
+						if !field.name[0].is_capital() {
+							// skip embedded ones
+							mut data_fmt := data.replace(action_str, '')
+							data_fmt = data.replace('define.${obj_name}', 'define')
+							typ.$(field.name) = decode_struct(typ.$(field.name), data_fmt)!
+						}
+					}
+				} $else $if field.is_array {
+					if is_struct_array(typ.$(field.name))! {
 						mut data_fmt := data.replace(action_str, '')
 						data_fmt = data.replace('define.${obj_name}', 'define')
-						typ.$(field.name) = decode_struct(typ.$(field.name), data_fmt)!
+						arr := decode_array(typ.$(field.name), data_fmt)!
+						typ.$(field.name) = arr
 					}
-				}
-			} $else $if field.is_array {
-				if is_struct_array(typ.$(field.name))! {
-					mut data_fmt := data.replace(action_str, '')
-					data_fmt = data.replace('define.${obj_name}', 'define')
-					arr := decode_array(typ.$(field.name), data_fmt)!
-					typ.$(field.name) = arr
 				}
 			}
 		}

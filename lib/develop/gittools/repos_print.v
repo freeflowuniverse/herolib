@@ -7,13 +7,14 @@ fn get_repo_status(gr GitRepo) !string {
 	mut repo := gr
 	mut statuses := []string{}
 
-	if repo.need_commit()! {
+	if repo.has_changes {
 		statuses << 'COMMIT'
 	}
+
 	if repo.need_push_or_pull()! {
 		statuses << 'PULL'
-		statuses << 'PUSH'
 	}
+
 	return statuses.join(', ')
 }
 
@@ -33,13 +34,14 @@ fn format_repo_info(repo GitRepo) ![]string {
 
 // Print repositories based on the provided criteria, showing their statuses
 pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
-	console.print_debug('#### Overview of repositories:')
-	console.print_debug('')
+	// console.print_debug('#### Overview of repositories:')
+	// console.print_debug('')
 
 	mut repo_data := [][]string{}
 
 	// Collect repository information based on the provided criteria
 	for _, repo in gitstructure.get_repos(args)! {
+		// repo.status_update()!
 		repo_data << format_repo_info(repo)!
 	}
 
@@ -49,11 +51,11 @@ pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
 
 	// Display header with optional argument filtering information
 	// header := if args.str().len > 0 {
-	// 	'Repositories: ${gitstructure.config.coderoot} [${args.str()}]'
+	// 	'Repositories: ${gitstructure.config()!.coderoot} [${args.str()}]'
 	// } else {
-	// 	'Repositories: ${gitstructure.config.coderoot}'
+	// 	'Repositories: ${gitstructure.config()!.coderoot}'
 	// }
-	header:='Repositories: ${gitstructure.config.coderoot}'
+	header := 'Repositories: ${gitstructure.config()!.coderoot}'
 	console.print_header(header)
 
 	// Print the repository information in a formatted array

@@ -103,7 +103,7 @@ pub fn (mut gs GitStructure) gitlocation_from_url(url string) !GitLocation {
 }
 
 // Return a herolib path object on the filesystem pointing to the locator
-pub fn (mut l GitLocation) patho() !pathlib.Path {
+pub fn (l GitLocation) patho() !pathlib.Path {
 	mut addrpath := pathlib.get_dir(path: '${l.provider}/${l.account}/${l.name}', create: false)!
 	if l.path.len > 0 {
 		return pathlib.get('${addrpath.path}/${l.path}')

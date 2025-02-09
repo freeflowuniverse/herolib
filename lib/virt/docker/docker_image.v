@@ -89,7 +89,7 @@ pub fn (err ImageGetError) code() int {
 pub fn (mut e DockerEngine) image_get(args ImageGetArgs) !&DockerImage {
 	mut counter := 0
 	mut result_digest := ''
-	for i in e.images {
+	for mut i in e.images {
 		if args.digest == args.digest {
 			return &i
 		}

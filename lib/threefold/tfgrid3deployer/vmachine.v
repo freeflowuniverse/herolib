@@ -26,7 +26,10 @@ pub mut:
 	flist       string = 'https://hub.grid.tf/tf-official-vms/ubuntu-24.04-latest.flist'
 	entrypoint  string = '/sbin/zinit init'
 	env         map[string]string
-	nodes       []u32 // if set will chose a node from the list to deploy on
+	// if set will chose a node from the list to deploy on
+	nodes []u32
+	// will deploy on one of hetzner nodes
+	use_hetzner_node bool
 }
 
 // MachineModel struct to represent a machine and its associat	ed details

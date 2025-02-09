@@ -55,7 +55,7 @@ pub fn build_() ! {
 		pull:  true
 	)!
 
-	mut path := repo.get_path()!
+	mut path := repo.path()
 
 	cmd := '
 	cd ${path}

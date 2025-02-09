@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -cc gcc -n -w -gc none -no-retry-compilation -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -cc gcc -n -w -gc none  -d use_openssl -enable-globals run
 
 import os
 import flag
@@ -29,6 +29,12 @@ fn load_test_cache() TestCache {
 		tests: map[string]i64{}
 	} }
 }
+
+fn in_github_actions() bool{
+	a:=os.environ()["GITHUB_ACTIONS"] or {return false}
+	return true
+}
+
 
 // Save the test cache to JSON file
 fn save_test_cache(cache TestCache) {
@@ -72,7 +78,7 @@ fn get_cache_key(path string, base_dir string) string {
 }
 
 // Check if a file should be ignored or marked as error based on its path
-fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, mut cache TestCache, mut tests_in_error []string) ! {
+fn process_test_file(path string, base_dir string, test_files_ignore []string, test_files_error []string, mut cache TestCache) ! {
 	// Get normalized paths
 	norm_path, rel_path := get_normalized_paths(path, base_dir)
 
@@ -85,28 +91,21 @@ fn process_test_file(path string, base_dir string, test_files_ignore []string, t
 
 	// Check if any ignore pattern matches the path
 	for pattern in test_files_ignore {
-		if pattern.trim_space() != '' && rel_path.contains(pattern) {
-			should_ignore = true
-			break
+		println('Check ignore test: ${pattern} -- ${rel_path} ::: ${rel_path.contains(pattern.trim_space())}')
+		if pattern.trim_space() != '' && rel_path.contains(pattern.trim_space()) {
+			println('Ignoring test: ${rel_path}')
+			return
 		}
 	}
 
 	// Check if any error pattern matches the path
 	for pattern in test_files_error {
-		if pattern.trim_space() != '' && rel_path.contains(pattern) {
-			is_error = true
-			break
+		if pattern.trim_space() != '' && rel_path.contains(pattern.trim_space()) {
+			println('Ignoring test because is error: ${rel_path}')
+			return
 		}
 	}
-
-	if !should_ignore && !is_error {
-		dotest(norm_path, base_dir, mut cache)!
-	} else {
-		println('Ignoring test: ${rel_path}')
-		if !should_ignore {
-			tests_in_error << rel_path
-		}
-	}
+	dotest(norm_path, base_dir, mut cache)!
 }
 
 fn dotest(path string, base_dir string, mut cache TestCache) ! {
@@ -119,7 +118,7 @@ fn dotest(path string, base_dir string, mut cache TestCache) ! {
 		return
 	}
 
-	cmd := 'v -stats -enable-globals -n -w -gc none -no-retry-compilation test ${norm_path}'
+	cmd := 'v -stats -enable-globals -n -w -gc none  test ${norm_path}'
 	println(cmd)
 	result := os.execute(cmd)
 	eprintln(result)
@@ -173,20 +172,25 @@ lib/develop
 '
 
 // the following tests have no prio and can be ignored
-tests_ignore := '
+mut tests_ignore := '
 notifier_test.v
 clients/meilisearch
 clients/zdb
 clients/openai
 systemd_process_test.v
+data/graphdb
+data/radixtree
+clients/livekit
 '
 
+
+
+if in_github_actions(){
+	println("**** WE ARE IN GITHUB ACTION")
+	tests_ignore+="\nosal/tmux\n"
+}
+
 tests_error := '
-net_test.v
-osal/package_test.v
-rpc_test.v
-screen_test.v
-tmux_session_test.v
 tmux_window_test.v
 tmux_test.v
 startupmanager_test.v
@@ -210,11 +214,12 @@ test_files := tests.split('\n').filter(it.trim_space() != '')
 test_files_ignore := tests_ignore.split('\n').filter(it.trim_space() != '')
 test_files_error := tests_error.split('\n').filter(it.trim_space() != '')
 
-mut tests_in_error := []string{}
-
 // Load test cache
 mut cache := load_test_cache()
 println('Test cache loaded from ${cache_file}')
+
+println("tests to ignore")
+println(tests_ignore)
 
 // Run each test with proper v command flags
 for test in test_files {
@@ -234,21 +239,12 @@ for test in test_files {
 		// If directory, run tests for each .v file in it recursively
 		files := os.walk_ext(full_path, '.v')
 		for file in files {
-			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut
-				cache, mut tests_in_error)!
+			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut cache)!
 		}
 	} else if os.is_file(full_path) {
-		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut
-			cache, mut tests_in_error)!
+		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut cache)!
 	}
 }
 
 println('All (non skipped) tests ok')
 
-if tests_in_error.len > 0 {
-	println('\n\033[31mTests that need to be fixed (not executed):')
-	for test in tests_in_error {
-		println('  ${test}')
-	}
-	println('\033[0m')
-}

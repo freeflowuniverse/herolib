@@ -1,7 +1,6 @@
 module gittools
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
 import os
 
 @[params]
@@ -31,7 +30,7 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 	parent_dir := repo.get_parent_dir(create: true)!
 
 	mut extra := ''
-	if gitstructure.config.light {
+	if gitstructure.config()!.light {
 		extra = '--depth 1 --no-single-branch '
 	}
 

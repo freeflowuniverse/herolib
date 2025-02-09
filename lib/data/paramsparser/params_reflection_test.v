@@ -33,7 +33,6 @@ const test_child = TestChild{
 
 const test_struct = TestStruct{
 	name:     'test'
-	nick:     'test_nick'
 	birthday: time.new(
 		day:   12
 		month: 12
@@ -103,6 +102,8 @@ fn test_decode() {
 	// test single level struct
 	decoded_child := test_child_params.decode[TestChild]()!
 	assert decoded_child == test_child
+
+	// IMPORTANT OPTIONALS ARE NOT SUPPORTED AND WILL NOT BE ENCODED FOR NOW (unless we find ways how to deal with attributes to not encode skipped elements)
 
 	// test recursive decode struct with child
 	decoded := test_params.decode[TestStruct]()!

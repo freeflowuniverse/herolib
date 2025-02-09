@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.develop.gittools
 pub fn (dns LuaDNS) directory() !pathlib.Path {
 	mut gs := gittools.new()!
 	mut repo := gs.get_repo(url: dns.url, pull: true)!
-	repo_path := repo.get_path()!
+	repo_path := repo.path()
 	return pathlib.get_dir(path: repo_path)!
 }
 

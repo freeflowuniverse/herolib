@@ -11,7 +11,7 @@
 when I generate vlang scripts I will always use .vsh extension and use following as first line:
 
 ```
-#!/usr/bin/env -S v -n -w -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 ```
 
 - a .vsh is a v shell script and can be executed as is, no need to use v ...
@@ -21,7 +21,7 @@ when I generate vlang scripts I will always use .vsh extension and use following
 ## to do argument parsing use following examples
 
 ```v
-#!/usr/bin/env -S v -n -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag

@@ -7,6 +7,7 @@ vls.*
 vls.log
 node_modules/
 docs/
+vdocs/
 photonwrapper.so
 x
 .env
@@ -25,7 +26,6 @@ dump.rdb
 output/
 *.db
 .stellar
-vdocs/
 data.ms/
 test_basic
 cli/hero

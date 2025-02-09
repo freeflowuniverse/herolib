@@ -32,7 +32,7 @@ pub fn build_(args BuildArgs) ! {
 		pull:  true
 	)!
 
-	mut path := repo.get_path()!
+	mut path := repo.path()
 
 	cmd := '
 	set -ex

@@ -1,9 +1,8 @@
 module herocontainers
 
 import freeflowuniverse.herolib.installers.virt.podman as podman_installer
-import freeflowuniverse.herolib.installers.virt.buildah as buildah_installer
 import freeflowuniverse.herolib.installers.lang.herolib
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 
 @[params]
 pub struct NewArgs {
@@ -22,9 +21,7 @@ pub fn new(args_ NewArgs) !CEngine {
 
 	if args.install {
 		mut podman_installer0 := podman_installer.get()!
-		mut buildah_installer0 := buildah_installer.get()!
 		podman_installer0.install()!
-		buildah_installer0.install()!
 	}
 
 	if args.herocompile {

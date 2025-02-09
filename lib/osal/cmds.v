@@ -109,7 +109,13 @@ pub fn profile_path_source() !string {
 	}
 	pp := profile_path()!
 	if os.exists(pp) {
-		return 'source ${pp}'
+		res := os.execute('/bin/sh ${pp}')
+		if res.exit_code != 0 {
+			console.print_stderr('WARNING: your profile is corrupt, did:\nsource ${pp}\n${res}')
+			return error('profile corrupt')
+		} else {
+			return '. ${pp}'
+		}
 	}
 	return ''
 }
@@ -117,14 +123,11 @@ pub fn profile_path_source() !string {
 // return source $path &&  .
 // or empty if it doesn't exist
 pub fn profile_path_source_and() !string {
-	if core.hostname() or { '' } == 'rescue' {
+	p := profile_path_source() or { return '' }
+	if p.len == 0 {
 		return ''
 	}
-	pp := profile_path()!
-	if os.exists(pp) {
-		return '. ${pp} &&'
-	}
-	return ''
+	return '${p} && '
 }
 
 fn profile_paths_get(content string) []string {
@@ -297,7 +300,7 @@ pub fn profile_paths_preferred() ![]string {
 
 	for file in toadd {
 		if os.exists(file) {
-			println('${file} exists')
+			// println('${file} exists')
 			profile_files2 << file
 		}
 	}
@@ -305,9 +308,9 @@ pub fn profile_paths_preferred() ![]string {
 }
 
 pub fn profile_path() !string {
-	if core.is_osx()! {
-		return '${os.home_dir()}/.zprofile'
-	} else {
-		return '${os.home_dir()}/.bash_profile'
+	mut preferred := profile_paths_preferred()!
+	if preferred.len == 0 {
+		return error("can't find profile_path, found none")
 	}
+	return preferred[0]
 }

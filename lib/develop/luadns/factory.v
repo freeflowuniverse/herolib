@@ -16,7 +16,7 @@ pub fn load(url string) !LuaDNS {
 		pull: true
 	)!
 
-	repo_path := repo.get_path()!
+	repo_path := repo.path()
 
 	return LuaDNS{
 		url:     url

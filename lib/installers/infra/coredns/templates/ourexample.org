@@ -1,0 +1,17 @@
+??ORIGIN ourexample.org.
+^^	3600 IN	SOA ns1.ourexample.org. hostmaster.ourexample.org. (
+				2017042745 ; serial
+				7200       ; refresh (2 hours)
+				3600       ; retry (1 hour)
+				1209600    ; expire (2 weeks)
+				3600       ; minimum (1 hour)
+				)
+
+	3600 IN NS ns1.ourexample.org.
+	3600 IN NS ns2.ourexample.org.
+
+ns1     IN A     ${myipaddr}
+ns2     IN A     ${myipaddr}
+www     IN A     ${myipaddr}
+test    IN A     ${myipaddr}
+        IN AAAA  ::1

@@ -9,9 +9,9 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit
 @end
+import freeflowuniverse.herolib.installers.ulist
 
 @if args.build
-import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.installers.lang.python
@@ -82,7 +82,7 @@ fn stop_post()!{
 // checks if a certain version or above is installed
 fn installed() !bool {
 	//THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('??{osal.profile_path_source_and()} ${args.name} version')
+	// res := os.execute('??{osal.profile_path_source_and()!} ${args.name} version')
 	// if res.exit_code != 0 {
 	// 	return false
 	// }
@@ -115,11 +115,11 @@ fn install() ! {
 	console.print_header('install ${args.name}')
 	//THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
 	// mut url := ''
-	// if osal.is_linux_arm() {
+	// if core.is_linux_arm() {
 	// 	url = 'https://github.com/${args.name}-dev/${args.name}/releases/download/v??{version}/${args.name}_??{version}_linux_arm64.tar.gz'
-	// } else if osal.is_linux_intel() {
+	// } else if core.is_linux_intel() {
 	// 	url = 'https://github.com/${args.name}-dev/${args.name}/releases/download/v??{version}/${args.name}_??{version}_linux_amd64.tar.gz'
-	// } else if osal.is_osx_arm() {
+	// } else if core.is_osx_arm() {
 	// 	url = 'https://github.com/${args.name}-dev/${args.name}/releases/download/v??{version}/${args.name}_??{version}_darwin_arm64.tar.gz'
 	// } else if osal.is_osx_intel() {
 	// 	url = 'https://github.com/${args.name}-dev/${args.name}/releases/download/v??{version}/${args.name}_??{version}_darwin_amd64.tar.gz'

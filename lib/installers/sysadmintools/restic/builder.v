@@ -33,7 +33,7 @@ pub fn build_(args BuildArgs) ! {
 		pull:  true
 	)!
 
-	mut gitpath := repo.get_path()!
+	mut gitpath := repo.path()
 
 	cmd := '
 	source ~/.cargo/env

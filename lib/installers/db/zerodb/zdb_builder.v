@@ -16,7 +16,7 @@ pub fn build_() ! {
 			reset: false
 			pull:  true
 		)!
-		path := repo.get_path()!
+		path := repo.path()
 		cmd := '
 		set -ex
 		cd ${path}

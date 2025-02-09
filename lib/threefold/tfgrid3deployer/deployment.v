@@ -1,7 +1,6 @@
 module tfgrid3deployer
 
 import freeflowuniverse.herolib.threefold.grid.models as grid_models
-import freeflowuniverse.herolib.threefold.gridproxy.model as gridproxy_models
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import compress.zlib
@@ -9,7 +8,6 @@ import encoding.hex
 import x.crypto.chacha20
 import crypto.sha256
 import json
-import rand
 
 struct GridContracts {
 pub mut:
@@ -51,7 +49,7 @@ pub fn new_deployment(name string) !TFDeployment {
 	kvstore := KVStoreFS{}
 
 	if _ := kvstore.get(name) {
-		return error('Deployment with the same name is already exist.')
+		return error('Deployment with the same name "${name}" already exists.')
 	}
 
 	deployer := get_deployer()!
@@ -114,6 +112,7 @@ pub fn (mut self TFDeployment) deploy() ! {
 }
 
 fn (mut self TFDeployment) set_nodes() ! {
+	// TODO: each request should run in a separate thread
 	for mut vm in self.vms {
 		if vm.node_id != 0 {
 			continue
@@ -136,6 +135,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			has_ipv6:      if vm.requirements.public_ip6 { vm.requirements.public_ip6 } else { none }
 			status:        'up'
 			features:      if vm.requirements.public_ip4 { ['zmachine'] } else { [] }
+			on_hetzner:    vm.requirements.use_hetzner_node
 		)!
 
 		if nodes.len == 0 {
@@ -161,6 +161,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			healthy:       true
 			node_id:       zdb.requirements.node_id
 			available_for: u64(self.deployer.twin_id)
+			on_hetzner:    zdb.requirements.use_hetzner_node
 		)!
 
 		if nodes.len == 0 {
@@ -184,6 +185,7 @@ fn (mut self TFDeployment) set_nodes() ! {
 			node_id:       webname.requirements.node_id
 			available_for: u64(self.deployer.twin_id)
 			features:      ['zmachine']
+			on_hetzner:    webname.requirements.use_hetzner_node
 		)!
 
 		if nodes.len == 0 {
@@ -284,10 +286,10 @@ fn (mut self TFDeployment) finalize_deployment(setup DeploymentSetup) ! {
 		}
 	}
 
-	self.update_state(name_contracts_map, returned_deployments)!
+	self.update_state(setup, name_contracts_map, returned_deployments)!
 }
 
-fn (mut self TFDeployment) update_state(name_contracts_map map[string]u64, dls map[u32]&grid_models.Deployment) ! {
+fn (mut self TFDeployment) update_state(setup DeploymentSetup, name_contracts_map map[string]u64, dls map[u32]&grid_models.Deployment) ! {
 	mut workloads := map[u32]map[string]&grid_models.Workload{}
 
 	for node_id, deployment in dls {
@@ -338,6 +340,10 @@ fn (mut self TFDeployment) update_state(name_contracts_map map[string]u64, dls m
 		wn.node_contract_id = dls[wn.node_id].contract_id
 		wn.name_contract_id = name_contracts_map[wn.requirements.name]
 	}
+
+	self.network.ip_range = setup.network_handler.ip_range
+	self.network.mycelium = setup.network_handler.mycelium
+	self.network.user_access_configs = setup.network_handler.user_access_configs.clone()
 }
 
 pub fn (mut self TFDeployment) vm_get(vm_name string) !VMachine {
@@ -511,4 +517,12 @@ pub fn (mut self TFDeployment) list_deployments() !map[u32]grid_models.Deploymen
 	}
 
 	return dls
+}
+
+pub fn (mut self TFDeployment) configure_network(req NetworkRequirements) ! {
+	self.network.requirements = req
+}
+
+pub fn (mut self TFDeployment) get_user_access_configs() []UserAccessConfig {
+	return self.network.user_access_configs
 }
