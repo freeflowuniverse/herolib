@@ -51,7 +51,7 @@ fn stop_post() ! {
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} coredns version')
+	res := os.execute('/bin/bash -c "${osal.profile_path_source_and()!} coredns --version"')
 	if res.exit_code != 0 {
 		return false
 	}

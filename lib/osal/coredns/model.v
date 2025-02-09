@@ -1,3 +1,7 @@
+module coredns
+
+import freeflowuniverse.herolib.core.redisclient
+
 // Input parameter structs for each record type
 @[params]
 struct SRVRecord {
