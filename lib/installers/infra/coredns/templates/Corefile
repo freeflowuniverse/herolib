@@ -3,5 +3,7 @@
     log
     errors
     health :3334
-    import  '${args.dnszones_path}/*'
+    auto ${args.dnszones_path} {
+        reload 30s
+    }    
 }

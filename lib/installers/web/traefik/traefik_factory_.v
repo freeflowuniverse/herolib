@@ -1,4 +1,4 @@
-module mycelium
+module traefik
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -10,8 +10,8 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-    mycelium_global map[string]&MyceliumInstaller
-    mycelium_default string
+    traefik_global map[string]&TraefikServer
+    traefik_default string
 )
 
 /////////FACTORY
@@ -30,55 +30,55 @@ fn args_get (args_ ArgsGet) ArgsGet {
     return args
 }
 
-pub fn get(args_ ArgsGet) !&MyceliumInstaller  {
+pub fn get(args_ ArgsGet) !&TraefikServer  {
     mut context:=base.context()!
     mut args := args_get(args_)
-    mut obj := MyceliumInstaller{}
-    if !(args.name in mycelium_global) {
+    mut obj := TraefikServer{}
+    if !(args.name in traefik_global) {
         if ! exists(args)!{            
             set(obj)!
         }else{
-            heroscript := context.hero_config_get("mycelium",args.name)!
+            heroscript := context.hero_config_get("traefik",args.name)!
             mut obj_:=heroscript_loads(heroscript)!
             set_in_mem(obj_)!
         }        
     }
-    return mycelium_global[args.name] or {
-            println(mycelium_global)
+    return traefik_global[args.name] or {
+            println(traefik_global)
             //bug if we get here because should be in globals
-            panic("could not get config for mycelium with name, is bug:${args.name}") 
+            panic("could not get config for traefik with name, is bug:${args.name}") 
         }
 }
 
 //register the config for the future
-pub fn set(o MyceliumInstaller)! {
+pub fn set(o TraefikServer)! {
     set_in_mem(o)!
     mut context := base.context()!
     heroscript := heroscript_dumps(o)!
-    context.hero_config_set("mycelium", o.name, heroscript)!
+    context.hero_config_set("traefik", o.name, heroscript)!
 }
 
 //does the config exists?
 pub fn exists(args_ ArgsGet)! bool {
     mut context := base.context()!
     mut args := args_get(args_)
-    return context.hero_config_exists("mycelium", args.name)
+    return context.hero_config_exists("traefik", args.name)
 }
 
 pub fn delete(args_ ArgsGet)! {
     mut args := args_get(args_)
        mut context:=base.context()!
-    context.hero_config_delete("mycelium",args.name)! 
-    if args.name in mycelium_global {
-        //del mycelium_global[args.name]
+    context.hero_config_delete("traefik",args.name)! 
+    if args.name in traefik_global {
+        //del traefik_global[args.name]
     }
 }
 
 //only sets in mem, does not set as config
-fn set_in_mem(o MyceliumInstaller)! {
+fn set_in_mem(o TraefikServer)! {
     mut o2:=obj_init(o)!
-    mycelium_global[o.name] = &o2
-    mycelium_default = o.name
+    traefik_global[o.name] = &o2
+    traefik_default = o.name
 }
 
 
@@ -99,7 +99,7 @@ pub fn play(args_ PlayArgs) ! {
         playbook.new(text: args.heroscript)!
     }
     
-    mut install_actions := plbook.find(filter: 'mycelium.configure')!
+    mut install_actions := plbook.find(filter: 'traefik.configure')!
     if install_actions.len > 0 {
         for install_action in install_actions {
             heroscript:=install_action.heroscript()
@@ -108,37 +108,37 @@ pub fn play(args_ PlayArgs) ! {
         }
     }
 
-    mut other_actions := plbook.find(filter: 'mycelium.')!
+    mut other_actions := plbook.find(filter: 'traefik.')!
     for other_action in other_actions {
         if other_action.name in ["destroy","install","build"]{
             mut p := other_action.params
             reset:=p.get_default_false("reset")
             if other_action.name == "destroy" || reset{
-                console.print_debug("install action mycelium.destroy")
+                console.print_debug("install action traefik.destroy")
                 destroy()!
             }
             if other_action.name == "install"{
-                console.print_debug("install action mycelium.install")
+                console.print_debug("install action traefik.install")
                 install()!
             }            
         }
         if other_action.name in ["start","stop","restart"]{
             mut p := other_action.params
             name := p.get('name')!            
-            mut mycelium_obj:=get(name:name)!
-            console.print_debug("action object:\n${mycelium_obj}")
+            mut traefik_obj:=get(name:name)!
+            console.print_debug("action object:\n${traefik_obj}")
             if other_action.name == "start"{
-                console.print_debug("install action mycelium.${other_action.name}")
-                mycelium_obj.start()!
+                console.print_debug("install action traefik.${other_action.name}")
+                traefik_obj.start()!
             }
 
             if other_action.name == "stop"{
-                console.print_debug("install action mycelium.${other_action.name}")
-                mycelium_obj.stop()!
+                console.print_debug("install action traefik.${other_action.name}")
+                traefik_obj.stop()!
             }
             if other_action.name == "restart"{
-                console.print_debug("install action mycelium.${other_action.name}")
-                mycelium_obj.restart()!
+                console.print_debug("install action traefik.${other_action.name}")
+                traefik_obj.restart()!
             }
         }
     }
@@ -172,18 +172,18 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 }
 
 //load from disk and make sure is properly intialized
-pub fn (mut self MyceliumInstaller) reload() ! {
+pub fn (mut self TraefikServer) reload() ! {
     switch(self.name)
     self=obj_init(self)!
 }
 
-pub fn (mut self MyceliumInstaller) start() ! {
+pub fn (mut self TraefikServer) start() ! {
     switch(self.name)
     if self.running()!{
         return
     }
 
-    console.print_header('mycelium start')
+    console.print_header('traefik start')
 
     if ! installed()!{
         install()!
@@ -196,7 +196,7 @@ pub fn (mut self MyceliumInstaller) start() ! {
     for zprocess in startupcmd()!{
         mut sm:=startupmanager_get(zprocess.startuptype)!
 
-        console.print_debug('starting mycelium with ${zprocess.startuptype}...')
+        console.print_debug('starting traefik with ${zprocess.startuptype}...')
 
         sm.new(zprocess)!
 
@@ -211,17 +211,17 @@ pub fn (mut self MyceliumInstaller) start() ! {
         }
         time.sleep(100 * time.millisecond)
     }
-    return error('mycelium did not install properly.')
+    return error('traefik did not install properly.')
 
 }
 
-pub fn (mut self MyceliumInstaller) install_start(args InstallArgs) ! {
+pub fn (mut self TraefikServer) install_start(args InstallArgs) ! {
     switch(self.name)
     self.install(args)!
     self.start()!
 }
 
-pub fn (mut self MyceliumInstaller) stop() ! {
+pub fn (mut self TraefikServer) stop() ! {
     switch(self.name)
     stop_pre()!
     for zprocess in startupcmd()!{
@@ -231,13 +231,13 @@ pub fn (mut self MyceliumInstaller) stop() ! {
     stop_post()!
 }
 
-pub fn (mut self MyceliumInstaller) restart() ! {
+pub fn (mut self TraefikServer) restart() ! {
     switch(self.name)
     self.stop()!
     self.start()!
 }
 
-pub fn (mut self MyceliumInstaller) running() !bool {
+pub fn (mut self TraefikServer) running() !bool {
     switch(self.name)
 
     //walk over the generic processes, if not running return
@@ -257,19 +257,15 @@ pub mut:
     reset bool
 }
 
-pub fn (mut self MyceliumInstaller) install(args InstallArgs) ! {
+pub fn (mut self TraefikServer) install(args InstallArgs) ! {
     switch(self.name)
     if args.reset || (!installed()!) {
         install()!
     }    
 }
 
-pub fn (mut self MyceliumInstaller) build() ! {
-    switch(self.name)
-    build()!
-}
 
-pub fn (mut self MyceliumInstaller) destroy() ! {
+pub fn (mut self TraefikServer) destroy() ! {
     switch(self.name)
     self.stop() or {}
     destroy()!
@@ -277,9 +273,9 @@ pub fn (mut self MyceliumInstaller) destroy() ! {
 
 
 
-//switch instance to be used for mycelium
+//switch instance to be used for traefik
 pub fn switch(name string) {
-    mycelium_default = name
+    traefik_default = name
 }
 
 

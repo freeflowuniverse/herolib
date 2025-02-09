@@ -15,8 +15,8 @@ pub:
 pub struct PushMessageBody {
 pub:
 	dst     MessageDestination
-	topic   string // optional message topic
-	payload string // base64 encoded message
+	topic   ?string // optional message topic
+	payload string  // base64 encoded message
 }
 
 // Response containing message ID after pushing
@@ -73,19 +73,32 @@ pub fn (mut self Mycelium) connection() !&httpconnection.HTTPConnection {
 	return c
 }
 
+@[params]
+pub struct SendMessageArgs {
+pub mut:
+	public_key string @[required]
+	payload    string @[required]
+	topic      ?string
+	wait       bool
+}
+
 // Send a message to a node identified by public key
-pub fn (mut self Mycelium) send_msg(pk string, payload string, topic string, wait bool) !InboundMessage {
+pub fn (mut self Mycelium) send_msg(args SendMessageArgs) !InboundMessage {
 	mut conn := self.connection()!
 	mut body := PushMessageBody{
 		dst:     MessageDestination{
-			pk: pk
+			pk: args.public_key
 			ip: ''
 		}
-		payload: base64.encode_str(payload)
-		topic:   base64.encode_str(topic)
+		payload: base64.encode_str(args.payload)
+		topic:   if v := args.topic {
+			base64.encode_str(v)
+		} else {
+			none
+		}
 	}
 	mut prefix := '/api/v1/messages'
-	if wait {
+	if args.wait {
 		prefix += '?reply_timeout=120'
 	}
 	return conn.post_json_generic[InboundMessage](
@@ -96,19 +109,27 @@ pub fn (mut self Mycelium) send_msg(pk string, payload string, topic string, wai
 	)!
 }
 
+@[params]
+pub struct ReceiveMessageArgs {
+pub mut:
+	topic ?string
+	wait  bool
+	peek  bool
+}
+
 // Receive a message from the queue
-pub fn (mut self Mycelium) receive_msg(wait bool, peek bool, topic string) !InboundMessage {
+pub fn (mut self Mycelium) receive_msg(args ReceiveMessageArgs) !InboundMessage {
 	mut conn := self.connection()!
-	mut prefix := '/api/v1/messages?'
-	if wait {
-		prefix += 'timeout=60&'
+	mut prefix := '/api/v1/messages?peek=${args.peek}&'
+
+	if args.wait {
+		prefix += 'timeout=120&'
 	}
-	if peek {
-		prefix += 'peek=true&'
+
+	if v := args.topic {
+		prefix += 'topic=${base64.encode_str(v)}'
 	}
-	if topic.len > 0 {
-		prefix += 'topic=${base64.encode_str(topic)}'
-	}
+
 	return conn.get_json_generic[InboundMessage](
 		method:     .get
 		prefix:     prefix
@@ -117,23 +138,8 @@ pub fn (mut self Mycelium) receive_msg(wait bool, peek bool, topic string) !Inbo
 }
 
 // Optional version of receive_msg that returns none on 204
-pub fn (mut self Mycelium) receive_msg_opt(wait bool, peek bool, topic string) ?InboundMessage {
-	mut conn := self.connection() or { panic(err) }
-	mut prefix := '/api/v1/messages?'
-	if wait {
-		prefix += 'timeout=60&'
-	}
-	if peek {
-		prefix += 'peek=true&'
-	}
-	if topic.len > 0 {
-		prefix += 'topic=${base64.encode_str(topic)}'
-	}
-	res := conn.get_json_generic[InboundMessage](
-		method:     .get
-		prefix:     prefix
-		dataformat: .json
-	) or {
+pub fn (mut self Mycelium) receive_msg_opt(args ReceiveMessageArgs) ?InboundMessage {
+	res := self.receive_msg(args) or {
 		if err.msg().contains('204') {
 			return none
 		}
@@ -152,20 +158,29 @@ pub fn (mut self Mycelium) get_msg_status(id string) !MessageStatusResponse {
 	)!
 }
 
+@[params]
+pub struct ReplyMessageArgs {
+pub mut:
+	id         string @[required]
+	public_key string @[required]
+	payload    string @[required]
+	topic      ?string
+}
+
 // Reply to a message
-pub fn (mut self Mycelium) reply_msg(id string, pk string, payload string, topic string) ! {
+pub fn (mut self Mycelium) reply_msg(args ReplyMessageArgs) ! {
 	mut conn := self.connection()!
 	mut body := PushMessageBody{
 		dst:     MessageDestination{
-			pk: pk
+			pk: args.public_key
 			ip: ''
 		}
-		payload: base64.encode_str(payload)
-		topic:   base64.encode_str(topic)
+		payload: base64.encode_str(args.payload)
+		topic:   if v := args.topic { base64.encode_str(v) } else { none }
 	}
-	_ := conn.post_json_generic[MessageDestination](
+	_ := conn.post_json_str(
 		method:     .post
-		prefix:     '/api/v1/messages/reply/${id}'
+		prefix:     '/api/v1/messages/reply/${args.id}'
 		data:       json.encode(body)
 		dataformat: .json
 	)!

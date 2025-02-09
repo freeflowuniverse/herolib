@@ -1,13 +1,17 @@
 module coredns
 
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.develop.gittools
 import os
 
-pub fn configure(args_ InstallArgs) ! {
-	mut args := args_
+pub fn configure() ! {
+	mut args := get()!
 	mut gs := gittools.get()!
 	mut repo_path := ''
+
+	set_global_dns()
+
 
 	if args.config_url.len > 0 {
 		mut repo := gs.get_repo(
@@ -37,15 +41,23 @@ pub fn configure(args_ InstallArgs) ! {
 	mycorefile := $tmpl('templates/Corefile')
 	mut path := pathlib.get_file(path: args.config_path, create: true)!
 	path.write(mycorefile)!
+
+	if args.example{
+		example_configure() !
+	}
+
 }
 
-pub fn example_configure(args_ InstallArgs) ! {
-	mut args := args_
+pub fn example_configure() ! {
+	mut args := get()!
 
-	exampledbfile := $tmpl('templates/db.example.org')
+	myipaddr:=osal.ipaddr_pub_get()!
+
+
+	exampledbfile := $tmpl('templates/ourexample.org')
 
 	mut path_testzone := pathlib.get_file(
-		path:   '${args_.dnszones_path}/db.example.org'
+		path:   '${args.dnszones_path}/ourexample.org'
 		create: true
 	)!
 	path_testzone.template_write(exampledbfile, true)!

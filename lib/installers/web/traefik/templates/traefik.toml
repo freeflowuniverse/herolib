@@ -1,0 +1,36 @@
+[api]
+  dashboard = true
+  debug = false
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+
+  [entryPoints.https]
+    address = ":443"
+
+# [providers]
+#   [providers.file]
+#     filename = "/etc/traefik/dynamic_conf.toml"
+#     watch = true
+
+[log]
+  level = "WARN"
+
+[accessLog]
+
+[middlewares]
+  [middlewares.basicAuth]
+    [middlewares.basicAuth.basicAuth]
+      users = [
+        "${htaccesscode}"
+      ]
+      realm = "Traefik Dashboard"
+      removeHeader = true
+
+[http.routers]
+  [http.routers.api]
+    rule = "Host(`traefik.local`)"
+    service = "api^^internal"
+    entryPoints = ["https"]
+    middlewares = ["basicAuth"]

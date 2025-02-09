@@ -2,7 +2,6 @@ module mycelium
 
 import freeflowuniverse.herolib.core.httpconnection
 import freeflowuniverse.herolib.data.encoderhero
-import os
 
 pub const version = '0.0.0'
 const singleton = true
