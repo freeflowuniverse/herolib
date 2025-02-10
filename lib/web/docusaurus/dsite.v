@@ -55,6 +55,9 @@ pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
 pub fn (mut f DocusaurusFactory) build_dev_publish(args_ DSiteNewArgs) !&DocSite {
 	mut s := f.add(args_)!
 	s.generate()!
+	if s.config.main.build_dest_dev == ""{
+		return error("build_dest_dev not specified, can't build publish.")
+	}	
 	osal.exec(
 		cmd:   '	
 			cd ${s.path_build.path}
@@ -68,6 +71,11 @@ pub fn (mut f DocusaurusFactory) build_dev_publish(args_ DSiteNewArgs) !&DocSite
 pub fn (mut f DocusaurusFactory) build_publish(args_ DSiteNewArgs) !&DocSite {
 	mut s := f.add(args_)!
 	s.generate()!
+
+	if s.config.main.build_dest == ""{
+		return error("build_dest not specified, can't build publish.")
+	}
+
 	osal.exec(
 		cmd:   '	
 			cd ${s.path_build.path}
@@ -141,7 +149,8 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteNewArgs) !&DocSite {
 	// if args.publish_path.len == 0 {
 	// 	args.publish_path = '${f.path_publish.path}/${args.name}'
 
-	mut gs := gittools.new(ssh_key_path:args.deploykey, coderoot:"/var/publishcode")!
+	// coderoot:"${os.home_dir()}/hero/var/publishcode"
+	mut gs := gittools.new(ssh_key_path:args.deploykey)!
 
 	if args.url.len > 0 {
 		args.path = gs.get_path(url: args.url)!
