@@ -5,6 +5,7 @@ import os
 
 pub interface IFile {
 	write(string, WriteOptions) !
+	name string
 }
 
 pub struct File {
@@ -23,8 +24,7 @@ pub fn (f File) write(path string, params WriteOptions) ! {
 }
 
 pub fn (f File) typescript(path string, params WriteOptions) ! {
-	format := true
-	if format {
+	if params.format {
 		os.execute('npx prettier --write ${path}')
 	}
 }

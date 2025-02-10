@@ -1,5 +1,5 @@
 module code
-
+import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.pathlib
 import os
 import log
@@ -35,38 +35,48 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 		path: if mod.in_src { '${path}/${mod.name}/src' } else { '${path}/${mod.name}' }
 		empty: options.overwrite
 	)!
+	console.print_debug("write ${module_dir.path}")
+	// pre:="v -n -w -enable-globals"
+	pre:="v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run"
 
 	if !options.overwrite && module_dir.exists() {
 		return
 	}
 
 	for file in mod.files {
+		console.print_debug("mod file write ${file.name}")
 		file.write(module_dir.path, options)!
 	}
 
 	for folder in mod.folders {
+		console.print_debug("mod folder write ${folder.name}")
 		folder.write('${path}/${mod.name}', options)!
 	}
 
 	for mod_ in mod.modules {
+		console.print_debug("mod write ${mod_.name}")
 		mod_.write('${path}/${mod.name}', options)!
 	}
 
 	if options.format {
+		console.print_debug("format ${module_dir.path}")
 		os.execute('v fmt -w ${module_dir.path}')
 	}
 	if options.compile {
-		os.execute_opt('v -n -w -enable-globals -shared ${module_dir.path}') or {
+		console.print_debug("compile shared ${module_dir.path}")
+		os.execute_opt('${pre} -shared ${module_dir.path}') or {
 			log.fatal(err.msg())
 		}
 	}
 	if options.test {
-		os.execute_opt('v -n -w -enable-globals test ${module_dir.path}') or {
+		console.print_debug("test ${module_dir.path}")
+		os.execute_opt('${pre} test ${module_dir.path}') or {
 			log.fatal(err.msg())
 		}
 	}
 	if options.document {
 		docs_path := '${path}/${mod.name}/docs'
+		console.print_debug("document ${module_dir.path}")
 		os.execute('v doc -f html -o ${docs_path} ${module_dir.path}')
 	}
 

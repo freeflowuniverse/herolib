@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 DIR="@{dollar}(cd "@{dollar}(dirname "@{dollar}{BASH_SOURCE[0]}")" && pwd)"
 echo "@{dollar}DIR"
 
 chmod +x @{dollar}{DIR}/run_actor.vsh
-@{dollar}{DIR}/run_actor.vsh > /dev/null 2>&1 &
+@{dollar}{DIR}/run_actor.vsh &
 ACTOR_PID=@{dollar}!
 
 chmod +x @{dollar}{DIR}/run_http_server.vsh
-@{dollar}{DIR}/run_http_server.vsh > /dev/null 2>&1 &
+@{dollar}{DIR}/run_http_server.vsh &
 HTTP_SERVER_PID=@{dollar}!
 
 # Print desired output
