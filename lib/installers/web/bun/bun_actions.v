@@ -22,7 +22,7 @@ fn installed() !bool {
 	if r.len != 1 {
 		return error("couldn't parse bun version.\n${res.output}")
 	}
-	println(' ${texttools.version(version)} <= ${texttools.version(r[0])}')
+	// println(' ${texttools.version(version)} <= ${texttools.version(r[0])}')
 	if texttools.version(version) <= texttools.version(r[0]) {
 		return true
 	}

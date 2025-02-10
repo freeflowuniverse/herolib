@@ -88,7 +88,7 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	if cfg.coderoot != "SKIP"{
 		gs.config_ = cfg
 		gs.config_save()!
-		println(gs.config()!)
+		//println(gs.config()!)
 	}
 
 	gs.config()! // will load the config, don't remove
