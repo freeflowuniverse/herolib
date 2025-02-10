@@ -1,12 +1,9 @@
 module python
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
 
 __global (
 	python_global  map[string]&Python
@@ -45,11 +42,11 @@ pub fn play(args_ PlayArgs) ! {
 			reset := p.get_default_false('reset')
 			if other_action.name == 'destroy' || reset {
 				console.print_debug('install action python.destroy')
-				// destroy()!
+				destroy()!
 			}
 			if other_action.name == 'install' {
 				console.print_debug('install action python.install')
-				// install()!
+				install()!
 			}
 		}
 	}
@@ -89,14 +86,14 @@ pub mut:
 
 pub fn (mut self Python) install(args InstallArgs) ! {
 	switch(self.name)
-	// if args.reset || (!installed()!) {
-	//     install()!
-	// }
+	if args.reset || (!installed()!) {
+		install()!
+	}
 }
 
 pub fn (mut self Python) destroy() ! {
 	switch(self.name)
-	// destroy()!
+	destroy()!
 }
 
 // switch instance to be used for python
