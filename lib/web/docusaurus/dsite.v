@@ -55,9 +55,6 @@ pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
 pub fn (mut f DocusaurusFactory) build_dev_publish(args_ DSiteNewArgs) !&DocSite {
 	mut s := f.add(args_)!
 	s.generate()!
-	if s.config.main.build_dest_dev == ""{
-		return error("build_dest_dev not specified, can't build publish.")
-	}	
 	osal.exec(
 		cmd:   '	
 			cd ${s.path_build.path}
@@ -72,9 +69,6 @@ pub fn (mut f DocusaurusFactory) build_publish(args_ DSiteNewArgs) !&DocSite {
 	mut s := f.add(args_)!
 	s.generate()!
 
-	if s.config.main.build_dest == ""{
-		return error("build_dest not specified, can't build publish.")
-	}
 
 	osal.exec(
 		cmd:   '	
@@ -228,6 +222,7 @@ pub fn (mut site DocSite) error(args ErrorArgs) {
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.path_build.path}')
+	console.print_header(' site source on ${site.path_src.path}')
 	site.template_install()!
 	// osal.exec(
 	// 	cmd: '	
@@ -312,5 +307,6 @@ fn (mut site DocSite) template_install() ! {
 	mut build2_ := site.path_src.file_get_new('build.sh')!
 	build2_.template_write(build, true)!
 	build2_.chmod(0o700)!
+
 
 }
