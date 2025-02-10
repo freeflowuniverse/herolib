@@ -132,10 +132,7 @@ fn build() ! {
 	mut path := pathlib.get_file(path: '${gitpath}/plugin.cfg', create: true)!
 	path.write(pluginsfile)!
 
-	cmd := '
-    cd ${gitpath}
-    make
-    '
+	cmd := 'bash -c "cd ${gitpath} && make"'
 	osal.execute_stdout(cmd)!
 
 	// now copy to the default bin path

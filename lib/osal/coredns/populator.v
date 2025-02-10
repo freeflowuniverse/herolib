@@ -1,6 +1,5 @@
 module coredns
 
-import json
 import freeflowuniverse.herolib.core.redisclient
 import x.json2
 
@@ -85,13 +84,14 @@ pub fn (mut rs DNSRecordSet) set_soa(args SOARecord) {
 
 // populate_redis populates Redis with the DNS records
 // domain e.g. example.com.  (not sure the . is at end)
-pub fn (rs DNSRecordSet) set(domain string) ! {
+pub fn (rs DNSRecordSet) set(domain_ string) ! {
+	domain := '_dns:${domain_}'
 	mut redis := rs.redis or { redisclient.core_get()! }
-
+	println('setting: ${rs}')
 	// Store SRV records
 	for srv in rs.srv {
 		key := '_ssh._tcp.host1'
-		value := json.encode({
+		value := json2.encode({
 			'srv': {
 				'ttl':      '${srv.ttl}'
 				'target':   '${srv.target}'
@@ -119,23 +119,26 @@ pub fn (rs DNSRecordSet) set(domain string) ! {
 				'ttl':      rs.mx[0].ttl
 			}
 		}
-		redis.hset(domain, '*', json.encode(records))!
+		redis.hset(domain, '*', json2.encode(records))!
 	}
 
 	// Store A records
 	for a in rs.a {
-		value := json.encode({
+		value := json2.encode({
 			'a': {
 				'ip4': a.ip
 				'ttl': '${a.ttl}'
 			}
 		})
+		println('redis: ${redis}')
+		println('domain: ${domain}')
+		println('value: ${value}')
 		redis.hset(domain, a.name, value)!
 	}
 
 	// Store AAAA records
 	for aaaa in rs.aaaa {
-		value := json.encode({
+		value := json2.encode({
 			'aaaa': {
 				'ip6': aaaa.ip
 				'ttl': '${aaaa.ttl}'
@@ -146,14 +149,14 @@ pub fn (rs DNSRecordSet) set(domain string) ! {
 
 	// Store NS records
 	if rs.ns.len > 0 {
-		mut ns_records := []map[string]string{}
+		mut ns_records := []json2.Any{}
 		for ns in rs.ns {
-			ns_records << {
+			ns_records << json2.raw_decode(json2.encode({
 				'host': ns.host
 				'ttl':  '${ns.ttl}'
-			}
+			}))!
 		}
-		value := json.encode({
+		value := json2.encode({
 			'ns': ns_records
 		})
 		redis.hset(domain, 'subdel', value)!
@@ -162,7 +165,7 @@ pub fn (rs DNSRecordSet) set(domain string) ! {
 	// Store SOA and root NS records at @
 	if soa := rs.soa {
 		mut root_records := map[string]json2.Any{}
-		root_records['soa'] = json2.Any(json2.map_from({
+		root_records['soa'] = json2.raw_decode(json2.encode({
 			'ttl':     '${soa.ttl}'
 			'minttl':  '${soa.minttl}'
 			'mbox':    '${soa.mbox}'
@@ -170,20 +173,20 @@ pub fn (rs DNSRecordSet) set(domain string) ! {
 			'refresh': '${soa.refresh}'
 			'retry':   '${soa.retry}'
 			'expire':  '${soa.expire}'
-		}))
+		}))!
 
 		if rs.ns.len > 0 {
-			mut ns_records := []map[string]string{}
+			mut ns_records := []json2.Any{}
 			for ns in rs.ns {
-				ns_records << {
+				ns_records << json2.raw_decode(json2.encode({
 					'host': ns.host
 					'ttl':  '${ns.ttl}'
-				}
+				}))!
 			}
-			root_records['ns'] = json2.Any(json2.map_from(ns_records))
+			root_records['ns'] = json2.raw_decode(ns_records.str())!
 		}
 
-		redis.hset(domain, '@', json.encode(root_records))!
+		redis.hset(domain, '@', json2.encode(root_records))!
 	}
 }
 
