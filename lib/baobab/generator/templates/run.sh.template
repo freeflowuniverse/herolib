@@ -12,11 +12,11 @@ chmod +x @{dollar}{DIR}/run_http_server.vsh
 HTTP_SERVER_PID=@{dollar}!
 
 # Print desired output
-echo "Actor Redis Interface running on redis://localhost:6379"
+echo "${actor_title} Actor Redis Interface running on redis://localhost:6379"
 echo "* /queues/${actor_name} -> Action Interface"
 
 echo ""
-echo "Actor HTTP Server running on http://localhost:8080"
+echo "${actor_title} Actor HTTP Server running on http://localhost:8080"
 echo "* /playground/openapi -> OpenAPI Playground"
 echo "* /openapi -> OpenAPI Interface"
 echo "* /docs -> Documentation"

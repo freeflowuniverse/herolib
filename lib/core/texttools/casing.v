@@ -4,6 +4,10 @@ pub fn snake_case(s string) string {
 	return separate_words(s).join('_')
 }
 
+pub fn title_case(s string) string {
+	return separate_words(s).join(' ').title()
+}
+
 pub fn pascal_case(s string) string {
 	mut pascal := s.replace('_', ' ')
 	return pascal.title().replace(' ', '')

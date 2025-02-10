@@ -136,6 +136,9 @@ fn json_decode_content(content_ map[string]MediaType, content_map map[string]Any
 			if schema_any := media_type_map['schema'] {
 				media_type.schema = jsonschema.decode_schemaref(schema_any.as_map())!
 			}
+			if example_any := media_type_map['example'] {
+				media_type.example = media_type_map['example']
+			}
 			content[key] = media_type
 		}
 	}

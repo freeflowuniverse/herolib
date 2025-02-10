@@ -91,8 +91,10 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	name_fixed := texttools.snake_case(spec.name)
 	return code.new_module(
 		name: '${name_fixed}_actor'
+		description: spec.description
 		files: files
 		folders: folders
+		in_src: true
 	)
 }
 

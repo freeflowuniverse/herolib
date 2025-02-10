@@ -20,6 +20,7 @@ actor_module := generator.generate_actor_module(
 actor_module.write(example_dir, 
 	format: true
 	overwrite: true
+	compile: true
 )!
 
 os.execvp('bash', ['${example_dir}/meeting_scheduler_actor/scripts/run.sh'])!

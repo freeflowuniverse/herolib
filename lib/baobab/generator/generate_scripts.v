@@ -22,6 +22,7 @@ pub fn generate_scripts_folder(name string, example bool) Folder {
 
 // Function to generate a script for running an actor
 fn generate_run_script(actor_name string) File {
+    actor_title := texttools.title_case(actor_name)
     dollar := '$'
     return File{
         name: 'run'

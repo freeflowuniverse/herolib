@@ -7,9 +7,14 @@ import log
 pub struct Module {
 pub mut:
 	name       string
+	description string
+	version string = '0.0.1'
+	license string = 'apache2'
+	vcs string = 'git'
 	files      []IFile
 	folders    []IFolder
 	modules []Module
+	in_src bool // whether mod will be generated in src folder
 	// model   VFile
 	// methods VFile
 }
@@ -27,7 +32,7 @@ pub fn new_module(mod Module) Module {
 
 pub fn (mod Module) write(path string, options WriteOptions) ! {
 	mut module_dir := pathlib.get_dir(
-		path: '${path}/${mod.name}'
+		path: if mod.in_src { '${path}/${mod.name}/src' } else { '${path}/${mod.name}' }
 		empty: options.overwrite
 	)!
 
@@ -40,11 +45,11 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 	}
 
 	for folder in mod.folders {
-		folder.write(module_dir.path, options)!
+		folder.write('${path}/${mod.name}', options)!
 	}
 
 	for mod_ in mod.modules {
-		mod_.write(module_dir.path, options)!
+		mod_.write('${path}/${mod.name}', options)!
 	}
 
 	if options.format {
@@ -61,7 +66,10 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 		}
 	}
 	if options.document {
-		os.execute('v doc -f html -o ${module_dir.path}/docs ${module_dir.path}')
+		docs_path := '${path}/${mod.name}/docs'
+		os.execute('v doc -f html -o ${docs_path} ${module_dir.path}')
 	}
 
+	mut mod_file := pathlib.get_file(path: '${module_dir.path}/v.mod')!
+	mod_file.write($tmpl('templates/v.mod.template'))!
 }

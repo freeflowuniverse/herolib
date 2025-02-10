@@ -1,6 +1,7 @@
 module openapi
 
 import os
+import x.json2 {Any}
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
 
 const spec_path = '${os.dir(@FILE)}/testdata/openapi.json'
@@ -47,7 +48,8 @@ const spec = openapi.OpenAPI{
 							'application/json': openapi.MediaType{
 								schema: Reference{
 									ref: '#/components/schemas/Pets'
-								}
+								},
+								example: Any('[{"id":"1","name":"Alice","email":"alice@example.com"},{"id":"2","name":"Bob","email":"bob@example.com"}]')
 							}
 						}
 					}
@@ -387,7 +389,7 @@ fn match_operations(a Operation, b Operation) {
 	assert a.operation_id == b.operation_id, 'Operation ID does not match.'
 	assert a.parameters == b.parameters, 'Parameters do not match.'
 	assert a.request_body == b.request_body, 'Request body does not match.'
-	assert a.responses == b.responses, 'Responses do not match.'
+	assert a.responses.str() == b.responses.str(), 'Responses do not match.'
 	assert a.callbacks == b.callbacks, 'Callbacks do not match.'
 	assert a.deprecated == b.deprecated, 'Deprecated flag does not match.'
 	assert a.security == b.security, 'Security requirements do not match.'
