@@ -24,7 +24,7 @@ import freeflowuniverse.herolib.installers.sysadmintools.rclone
 // import freeflowuniverse.herolib.installers.sysadmintools.grafana
 // import freeflowuniverse.herolib.installers.sysadmintools.fungistor
 import freeflowuniverse.herolib.installers.sysadmintools.garage_s3
-import freeflowuniverse.herolib.installers.infra.zinit
+import freeflowuniverse.herolib.installers.infra.zinit_installer
 
 @[params]
 pub struct InstallArgs {
@@ -92,7 +92,7 @@ pub fn install_multi(args_ InstallArgs) ! {
 				rc.install(reset: args.reset)!
 			}
 			'rust' {
-				mut i:=rust.get()!
+				mut i := rust.get()!
 				i.install(reset: args.reset)!
 			}
 			'golang' {
@@ -153,11 +153,11 @@ pub fn install_multi(args_ InstallArgs) ! {
 				vscode.install(reset: args.reset)!
 			}
 			'nodejs' {
-				mut i:=nodejs.get()!
+				mut i := nodejs.get()!
 				i.install(reset: args.reset)!
 			}
 			'python' {
-				mut i:=python.get()!
+				mut i := python.get()!
 				i.install()!
 			}
 			// 'herodev' {
@@ -182,7 +182,7 @@ pub fn install_multi(args_ InstallArgs) ! {
 				i.install()!
 			}
 			'zinit' {
-				mut i := zinit.get()!
+				mut i := zinit_installer.get()!
 				i.install()!
 			}
 			else {

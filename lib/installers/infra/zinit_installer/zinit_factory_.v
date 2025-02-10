@@ -1,9 +1,7 @@
-module zinit
+module zinit_installer
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import time
@@ -105,6 +103,7 @@ pub fn (mut self Zinit) start() ! {
 	if self.running()! {
 		return
 	}
+	println('Here...')
 
 	console.print_header('zinit start')
 

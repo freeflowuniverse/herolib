@@ -1,7 +1,7 @@
 
 !!hero_code.generate_installer
-    name:'zinit'
-    classname:'Zinit'
+    name:'zinit_installer'
+    classname:'ZinitInstaller'
     singleton:1
     templates:0
     default:1
