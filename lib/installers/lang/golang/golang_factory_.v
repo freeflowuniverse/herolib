@@ -1,12 +1,9 @@
 module golang
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
 
 __global (
 	golang_global  map[string]&GolangInstaller
@@ -45,11 +42,11 @@ pub fn play(args_ PlayArgs) ! {
 			reset := p.get_default_false('reset')
 			if other_action.name == 'destroy' || reset {
 				console.print_debug('install action golang.destroy')
-				// destroy()!
+				destroy()!
 			}
 			if other_action.name == 'install' {
 				console.print_debug('install action golang.install')
-				// install()!
+				install()!
 			}
 		}
 	}
@@ -89,19 +86,19 @@ pub mut:
 
 pub fn (mut self GolangInstaller) install(args InstallArgs) ! {
 	switch(self.name)
-	// if args.reset || (!installed()!) {
-	// 	install()!
-	// }
+	if args.reset || (!installed()!) {
+		install()!
+	}
 }
 
 pub fn (mut self GolangInstaller) build() ! {
 	switch(self.name)
-	// build()!
+	build()!
 }
 
 pub fn (mut self GolangInstaller) destroy() ! {
 	switch(self.name)
-	// destroy()!
+	destroy()!
 }
 
 // switch instance to be used for golang
