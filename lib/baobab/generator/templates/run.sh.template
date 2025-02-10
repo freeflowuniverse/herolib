@@ -17,9 +17,9 @@ echo "* /queues/${actor_name} -> Action Interface"
 
 echo ""
 echo "${actor_title} Actor HTTP Server running on http://localhost:8080"
-echo "* /playground/openapi -> OpenAPI Playground"
-echo "* /openapi -> OpenAPI Interface"
-echo "* /docs -> Documentation"
+echo "* http://localhost:8080/playground/openapi -> OpenAPI Playground"
+echo "* http://localhost:8080/openapi -> OpenAPI Interface"
+# echo "* http://localhost:8080/docs -> Documentation"
 echo ""
 
 # Function to clean up when script is killed
