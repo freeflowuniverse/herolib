@@ -8,13 +8,13 @@ const default = true
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 @[heap]
-pub struct Zinit {
+pub struct ZinitInstaller {
 pub mut:
 	name string = 'default'
 }
 
 // your checking & initialization code if needed
-fn obj_init(mycfg_ Zinit) !Zinit {
+fn obj_init(mycfg_ ZinitInstaller) !ZinitInstaller {
 	mut mycfg := mycfg_
 	return mycfg
 }
@@ -26,11 +26,11 @@ fn configure() ! {
 
 /////////////NORMALLY NO NEED TO TOUCH
 
-pub fn heroscript_dumps(obj Zinit) !string {
-	return encoderhero.encode[Zinit](obj)!
+pub fn heroscript_dumps(obj ZinitInstaller) !string {
+	return encoderhero.encode[ZinitInstaller](obj)!
 }
 
-pub fn heroscript_loads(heroscript string) !Zinit {
-	mut obj := encoderhero.decode[Zinit](heroscript)!
+pub fn heroscript_loads(heroscript string) !ZinitInstaller {
+	mut obj := encoderhero.decode[ZinitInstaller](heroscript)!
 	return obj
 }

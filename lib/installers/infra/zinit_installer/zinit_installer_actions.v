@@ -8,10 +8,6 @@ import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit as zinit_module
 import freeflowuniverse.herolib.installers.ulist
-// import freeflowuniverse.herolib.core.pathlib
-// import freeflowuniverse.herolib.installers.lang.golang
-// import freeflowuniverse.herolib.installers.lang.rust
-// import freeflowuniverse.herolib.installers.lang.python
 import os
 
 fn startupcmd() ![]zinit_module.ZProcessNewArgs {
