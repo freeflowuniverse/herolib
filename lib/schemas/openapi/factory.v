@@ -3,6 +3,7 @@ module openapi
 import freeflowuniverse.herolib.schemas.jsonschema {Schema, SchemaRef, Reference}
 import freeflowuniverse.herolib.core.texttools
 import os
+import maps
 
 @[params]
 pub struct Params {
@@ -31,6 +32,27 @@ pub fn new(params Params) !OpenAPI {
 	} else {specification}
 }
 
+@[params]
+pub struct ProcessSchema {
+pub:
+	name string = 'Unknown'
+}
+
+pub fn process_schema(schema Schema, params ProcessSchema) Schema {
+	return Schema {
+		...schema
+		id: if schema.id != '' && schema.typ == 'object' { schema.id } 
+			else if schema.title != '' { schema.title }
+			else { params.name }
+		title: if schema.title != '' && schema.typ == 'object' { schema.title } 
+			else if schema.id != '' { schema.id }
+			else { params.name }
+		properties: maps.to_map[string, SchemaRef, string, SchemaRef](schema.properties, fn (k string, v SchemaRef) (string, SchemaRef) {
+			return k, if v is Schema {SchemaRef(process_schema(v))} else {v}
+		})
+	}
+}
+
 pub fn process(spec OpenAPI) !OpenAPI {
 	mut processed := OpenAPI{...spec
 		paths: spec.paths.clone()
@@ -38,16 +60,7 @@ pub fn process(spec OpenAPI) !OpenAPI {
 
 	for key, schema in spec.components.schemas {
 		if schema is Schema {
-			mut processed_schema := Schema{
-				...schema,
-				id: if schema.id != '' { schema.id } 
-					else if schema.title != '' { schema.title }
-					else { key }
-				title: if schema.title != '' { schema.title } 
-					else if schema.id != '' { schema.id }
-					else { key }
-			}
-			processed.components.schemas[key] = processed_schema
+			processed.components.schemas[key] = process_schema(schema, name:key)
 		}
 	}
 
@@ -87,7 +100,17 @@ fn (spec OpenAPI) process_operation(op Operation, method string, path string) !O
 				mut req_body_ := RequestBody{...op.request_body
 					content: op.request_body.content.clone()
 				}
-				req_body_.content['application/json'].schema = SchemaRef(spec.dereference_schema(content.schema)!)
+				req_body_.content['application/json'].schema = SchemaRef(
+					process_schema(spec.dereference_schema(content.schema)!, name: content.schema.ref.all_after_last('/'))
+				)
+				processed.request_body = RequestBodyRef(req_body_)
+			} else if content.schema is Schema {
+				mut req_body_ := RequestBody{...op.request_body
+					content: op.request_body.content.clone()
+				}
+				req_body_.content['application/json'].schema = SchemaRef(
+					process_schema(content.schema)
+				)
 				processed.request_body = RequestBodyRef(req_body_)
 			}
 		}
@@ -99,7 +122,13 @@ fn (spec OpenAPI) process_operation(op Operation, method string, path string) !O
 		}
 		if media_type := processed_rs.content['application/json'] {
 			if media_type.schema is Reference {
-				processed_rs.content['application/json'].schema = SchemaRef(spec.dereference_schema(media_type.schema)!)
+				processed_rs.content['application/json'].schema = SchemaRef(
+					process_schema(spec.dereference_schema(media_type.schema)!, name: media_type.schema.ref.all_after_last('/'))
+				)
+			} else if media_type.schema is Schema {
+				processed_rs.content['application/json'].schema = SchemaRef(
+					process_schema(media_type.schema)
+				)
 			}
 		}
 		processed.responses['200'] = processed_rs

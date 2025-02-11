@@ -50,7 +50,7 @@ pub const type_f64 = Float{
     bytes: 64
 }
 
-pub type Type = Array | Object | Result | Integer | Alias | String | Boolean | Void
+pub type Type = Void | Map | Array | Object | Result | Integer | Alias | String | Boolean | Function
 
 pub struct Boolean{}
 
@@ -94,6 +94,8 @@ pub fn (t Type) symbol() string {
 		Alias {t.name}
 		String {'string'}
         Boolean {'bool'}
+		Map{'map[string]${t.typ.symbol()}'}
+		Function{'fn ()'}
 		Void {''}
 	}
 }
@@ -101,6 +103,11 @@ pub fn (t Type) symbol() string {
 pub struct String {}
 
 pub struct Array {
+pub:
+	typ Type
+}
+
+pub struct Map {
 pub:
 	typ Type
 }
@@ -117,6 +124,7 @@ pub:
 
 pub fn (t Type) typescript() string {
 	return match t {
+		Map {'Record<string, ${t.typ.typescript()}>'}
 		Array { '${t.typ.typescript()}[]' }
 		Object { t.name }
 		Result { '${t.typ.typescript()}'}
@@ -124,6 +132,7 @@ pub fn (t Type) typescript() string {
 		Integer { 'number' }
 		Alias {t.name}
 		String {'string'}
+		Function {'func'}
 		Void {''}
 	}
 }
@@ -131,4 +140,19 @@ pub fn (t Type) typescript() string {
 // TODO: enfore that cant be both mutable and shared
 pub fn (t Type) vgen() string {
 	return t.symbol()
+}
+
+pub fn (t Type) empty_value() string {
+	return match t {
+		Map {'{}'}
+		Array { '[]${t.typ.symbol()}{}' }
+		Object { if t.name != '' {'${t.name}{}'} else {''} }
+		Result { t.typ.empty_value() }
+		Boolean { 'false' }
+		Integer { '0' }
+		Alias {''}
+		String {"''"}
+		Function {''}
+		Void {''}
+	}
 }

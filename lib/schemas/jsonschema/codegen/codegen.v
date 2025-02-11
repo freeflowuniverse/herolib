@@ -5,6 +5,7 @@ import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef, Referenc
 
 const vtypes = {
 	'integer': 'int'
+	'number': 'int'
 	'string':  'string'
 	'u32':  'u32'
 	'boolean': 'bool'
@@ -64,9 +65,14 @@ pub fn schema_to_type(schema Schema) Type {
 	return match schema.typ {
 		'object' {
 			if schema.title == '' {
-				panic('Object schemas must define a title.')
+				panic('Object schemas must define a title. ${schema}')
 			}
-			Object{schema.title}
+			if schema.properties.len == 0 {
+				if additional_props := schema.additional_properties {
+					code.Map{code.String{}}
+				} else  {Object{schema.title}}
+			}
+			else {Object{schema.title}}
 		} 
 		'array' {
 		// todo: handle multiple item schemas
@@ -102,7 +108,7 @@ pub fn schema_to_type(schema Schema) Type {
 				panic('unknown type `${schema.typ}` ')
 			}
 		}
-	} 
+	}
 }
 
 pub fn schema_to_code(schema Schema) CodeItem {
@@ -170,9 +176,8 @@ pub fn ref_to_field(schema_ref SchemaRef, name string) StructField {
 			name: name
 			description: schema_ref.description
 		}
-		if schema_ref.typ == 'object' {
-			// then it is an anonymous struct
-			field.anon_struct = schema_to_struct(schema_ref as Schema)
+		if schema_ref.typ == 'object' || schema_ref.typ == 'array' {
+			field.typ = schemaref_to_type(schema_ref)
 			return field
 		} else if schema_ref.typ in vtypes {
 			field.typ = type_from_symbol(vtypes[schema_ref.typ])
