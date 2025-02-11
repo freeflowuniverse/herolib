@@ -10,6 +10,7 @@ pub mut:
 	reset       bool // regenerate all, dangerous !!!
 	interactive bool // if we want to ask
 	path        string
+	playonly bool
 }
 
 // scan over a set of directories call the play where
@@ -19,6 +20,7 @@ pub fn scan(args ScannerArgs) ! {
 	if args.path == '' {
 		scan(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/installers')!
 		scan(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/clients')!
+		scan(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/lib/web')!
 		return
 	}
 
@@ -36,7 +38,7 @@ pub fn scan(args ScannerArgs) ! {
 		pparent := p.parent()!
 		path_module := pparent.path
 		if os.exists('${path_module}/.heroscript') {
-			do(interactive: args.interactive, path: path_module, reset: args.reset)!
+			do(interactive: args.interactive, path: path_module, reset: args.reset, playonly:args.playonly)!
 		}
 	}
 }

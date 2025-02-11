@@ -1,6 +1,8 @@
 # generation framework for clients & installers
 
 ```bash
+#generate all play commands
+hero generate -playonly
 #will ask questions if .heroscript is not there yet
 hero generate -p thepath_is_optional
 # to generate without questions
