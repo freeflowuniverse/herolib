@@ -18,17 +18,22 @@ pub mut:
 
 // vgen_function generates a function statement for a function
 pub fn (struct_ Struct) vgen() string {
-	name := if struct_.generics.len > 0 {
+	name_ := if struct_.generics.len > 0 {
 		'${struct_.name}${vgen_generics(struct_.generics)}'
 	} else {
 		struct_.name
 	}
+	name := texttools.pascal_case(name_)
 
 	prefix := if struct_.is_pub {
-		'pub'
+		'pub '
 	} else {
 		''
 	}
+
+	comments := if struct_.description.trim_space() != '' {
+		'// ${struct_.description.trim_space()}'
+	} else {''}
 
 	priv_fields := struct_.fields.filter(!it.is_mut && !it.is_pub).map(it.vgen())
 	pub_fields := struct_.fields.filter(!it.is_mut && it.is_pub).map(it.vgen())

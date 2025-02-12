@@ -53,6 +53,7 @@ pub fn (function Function) vgen(options WriteOptions) string {
 		'(${receiver_.vgen()})'
 	} else {''}
 
+	name := texttools.name_fix(function.name)
 	result := function.result.typ.vgen()
 
 	mut function_str := $tmpl('templates/function/function.v.template')

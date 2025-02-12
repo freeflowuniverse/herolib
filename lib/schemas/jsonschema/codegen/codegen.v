@@ -162,6 +162,7 @@ pub fn schema_to_struct(schema Schema) Struct {
 		name: schema.title
 		description: schema.description
 		fields: fields
+		is_pub: true
 	}
 }
 

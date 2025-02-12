@@ -1,7 +1,8 @@
 module codegen
 
 import freeflowuniverse.herolib.core.code { VFile, CodeItem, CustomCode, Function, Struct, parse_function }
-import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schemaref_to_type}
+import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schemaref_to_type, schema_to_struct}
+import freeflowuniverse.herolib.schemas.jsonschema {Schema}
 import freeflowuniverse.herolib.schemas.openrpc {Method, ContentDescriptor}
 import freeflowuniverse.herolib.core.texttools
 
@@ -23,6 +24,18 @@ pub fn method_to_function(method Method) !Function {
 		name: texttools.name_fix_pascal_to_snake(method.name)
 		params: params
 		result: result
+	}
+}
+
+pub fn content_descriptor_to_struct(cd ContentDescriptor) Struct {
+	if cd.schema is Schema {
+		mut struct_ := schema_to_struct(cd.schema)
+		if struct_.name == '' || struct_.name == 'Unknown' {
+			struct_.name = cd.name
+		}
+		return struct_
+	} else {
+		panic('Struct code can be generated only from content descriptor with non-reference schema')
 	}
 }
 

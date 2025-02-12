@@ -1,6 +1,6 @@
 @if function.description != '' 
 // @{function.description}
 @endif
-pub fn @receiver @{function.name}(@{params}) @{result} {
+pub fn @receiver @{name}(@{params}) @{result} {
 	@{function.body.trim_space().replace('\t', '')}
 }

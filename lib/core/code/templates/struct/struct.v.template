@@ -1,4 +1,4 @@
-// @{struct_.description}
+@{comments}
 @if struct_.attrs.len > 0
 [
 @for attr in struct_.attrs 
@@ -6,7 +6,7 @@
 @end
 ]
 @end
-@{prefix} struct @{name} {
+@{prefix}struct @{name} {
 @for embed in struct_.embeds
     @{embed.get_type_symbol()}
 @end
