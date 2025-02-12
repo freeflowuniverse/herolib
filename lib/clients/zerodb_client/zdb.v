@@ -1,4 +1,4 @@
-module zdb
+module zerodb_client
 
 import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.ui.console
@@ -14,11 +14,12 @@ pub mut:
 //   /tmp/redis-default.sock
 pub fn get(addr string, auth string, namespace string) !ZDB {
 	console.print_header(' ZDB get: addr:${addr} namespace:${namespace}')
-	mut redis := redisclient.get(addr)!
+	mut redis := redisclient.new(addr)!
 	mut zdb := ZDB{
 		redis: redis
 	}
 
+	println('Here..')
 	if auth != '' {
 		zdb.redis.send_expect_ok(['AUTH', auth])!
 	}
