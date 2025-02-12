@@ -20,12 +20,12 @@ pub fn generate_methods_interface_declaration(spec ActorSpecification) !code.Int
 	receiver := generate_methods_receiver(spec.name)
 	receiver_param := Param {
 		mutable: true
-		name: name_snake
+		name: name_snake[0].ascii_str()
 		typ: code.Object{receiver.name}
 	}
 	return code.Interface {
 		is_pub: true
 		name: 'I${name_pascal}'
-		methods: spec.methods.map(generate_method_function(receiver_param, it)!)
+		methods: spec.methods.map(generate_method_prototype(receiver_param, it)!)
 	}
 }

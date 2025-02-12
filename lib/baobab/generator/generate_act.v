@@ -67,7 +67,7 @@ pub fn generate_method_handle(actor_name string, method ActorMethod) !Function {
 		body += 'params_arr := json.raw_decode(action.params)!.arr()\n'
 		for i, param in method.parameters {
 			param_name := texttools.snake_case(param.name)
-			decode_stmt := generate_decode_stmt('params_arr[${i}]', param)!
+			decode_stmt := generate_decode_stmt('params_arr[${i}].str()', param)!
 			body += '${param_name} := ${decode_stmt}'
 		}
 	}

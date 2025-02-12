@@ -1,8 +1,9 @@
 module specification
 
+import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.code { Struct, Function }
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef }
-import freeflowuniverse.herolib.schemas.openapi { Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec }
+import freeflowuniverse.herolib.schemas.openapi { Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec, MediaType }
 import freeflowuniverse.herolib.schemas.openrpc { ExamplePairing, Example, ExampleRef, ContentDescriptor, ErrorSpec }
 
 // Helper function: Convert OpenAPI parameter to ContentDescriptor
@@ -42,19 +43,36 @@ fn openapi_operation_to_actor_method(info openapi.OperationInfo) ActorMethod {
 		}
 	}
 
-	response_200 := info.operation.responses['200'].content['application/json']
+	if schema_ := info.operation.payload_schema() {
+		// TODO: document assumption
+		schema := Schema{...schema_, title: texttools.pascal_case(info.operation.operation_id)}
+		parameters << ContentDescriptor {name: 'data', schema: SchemaRef(schema)}
+	}
+
+	mut success_responses := map[string]MediaType{}
+
+	for code, response in info.operation.responses {
+		if code.starts_with('2') { // Matches all 2xx responses
+			success_responses[code] = response.content['application/json']
+		}
+	}
+
+	if success_responses.len > 1  || success_responses.len == 0 {
+		panic('Actor specification must specify one successful response.')
+	}
+	response_success := success_responses.values()[0]
 
 	mut result := ContentDescriptor{
 		name: "result",
 		description: "The response of the operation.",
 		required: true,
-		schema: response_200.schema
+		schema: response_success.schema
 	}
 
-	example_result := if response_200.example.str() != '' {
+	example_result := if response_success.example.str() != '' {
 		Example{
 			name: 'Example response',
-			value: response_200.example
+			value: response_success.example
 		}
 	} else {Example{}}
 

@@ -35,6 +35,7 @@ pub:
 	parameters 	[]ContentDescriptor
 	result 		ContentDescriptor
 	errors 		[]ErrorSpec
+	category  MethodCategory
 }
 
 pub struct BaseObject {

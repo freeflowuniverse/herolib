@@ -92,7 +92,7 @@ pub fn generate_client_method(method ActorMethod) !Function {
 	name_fixed := texttools.snake_case(method.name)
 
 	call_params := if method.parameters.len > 0 {
-		method.parameters.map(texttools.snake_case(it.name)).map('Any(${it})').join(', ')
+		method.parameters.map(texttools.snake_case(it.name)).map('Any(${it}.str())').join(', ')
 	} else {''}
 
 	params_stmt := if method.parameters.len == 0 {
