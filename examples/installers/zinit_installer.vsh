@@ -3,5 +3,6 @@
 import freeflowuniverse.herolib.installers.infra.zinit_installer
 
 mut installer := zinit_installer.get()!
-// installer.install()!
+installer.install()!
 installer.start()!
+// installer.destroy()!

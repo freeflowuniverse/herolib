@@ -8,7 +8,6 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.ulist
 import os
 
-
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
