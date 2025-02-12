@@ -189,7 +189,6 @@ pub fn (mut h HTTPConnection) get(req_ Request) !string {
 	req.debug = true
 	req.method = .get
 	result := h.send(req)!
-	println(result)
 	return result.data
 }
 

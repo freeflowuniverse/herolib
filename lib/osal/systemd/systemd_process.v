@@ -37,9 +37,6 @@ pub fn (mut self SystemdProcess) write() ! {
 
 	servicecontent := $tmpl('templates/service.yaml')
 
-	println(self)
-	println(servicecontent)
-
 	p.write(servicecontent)!
 }
 
@@ -54,6 +51,7 @@ pub fn (mut self SystemdProcess) start() ! {
 
 	_ = osal.execute_silent(cmd)!
 	self.refresh()!
+	console.print_header('started systemd process: ${self.name}')
 }
 
 // get status from system

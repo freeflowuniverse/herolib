@@ -54,7 +54,7 @@ pub fn new(args_ PythonEnvArgs) !PythonEnv {
 	toinstall := !py.db.exists(key: key_install)!
 	if toinstall {
 		console.print_debug('Installing Python environment')
-		python.install()!
+		// python.install()!
 		py.init_env()!
 		py.db.set(key: key_install, value: 'done')!
 		console.print_debug('Python environment setup complete')

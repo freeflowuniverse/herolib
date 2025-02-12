@@ -8,4 +8,4 @@
     templates: false
     build: true
     startupmanager: true
-
+    supported_platforms: ""

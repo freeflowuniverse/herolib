@@ -4,16 +4,71 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.httpconnection
+import freeflowuniverse.herolib.installers.ulist
 // import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.zinit
-import freeflowuniverse.herolib.crypt.secrets
 import os
+
+fn startupcmd() ![]zinit.ZProcessNewArgs {
+	mut res := []zinit.ZProcessNewArgs{}
+	mut cfg := get()!
+
+	res << zinit.ZProcessNewArgs{
+		name: 'dagu'
+		cmd:  'dagu server'
+		env:  {
+			'HOME ':      os.home_dir()
+			'DAGU_HOME ': cfg.configpath // config for dagu is called admin.yml and is in this dir
+		}
+	}
+
+	res << zinit.ZProcessNewArgs{
+		name: 'dagu_scheduler'
+		cmd:  'dagu scheduler'
+		env:  {
+			'HOME ':      os.home_dir()
+			'DAGU_HOME ': cfg.configpath
+		}
+	}
+
+	return res
+}
+
+fn running() !bool {
+	mut cfg := get()!
+	url := 'http://${cfg.host}:${cfg.port}/api/v1'
+	mut conn := httpconnection.new(name: 'dagu', url: url)!
+
+	if cfg.secret.len > 0 {
+		conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
+	}
+
+	console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
+	r := conn.get_json_dict(prefix: 'tags', debug: false) or { return false }
+	tags := r['Tags'] or { return false }
+	console.print_debug(tags)
+	console.print_debug('Dagu is answering.')
+	return true
+}
+
+fn start_pre() ! {
+}
+
+fn start_post() ! {
+}
+
+fn stop_pre() ! {
+}
+
+fn stop_post() ! {
+}
+
+//////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} dagu version')
+	res := os.execute('dagu version')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.trim_space().len > 0)
 		if r.len != 1 {
@@ -27,6 +82,15 @@ fn installed() !bool {
 	}
 	return true
 }
+
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
+}
+
+// uploads to S3 server if configured
+fn upload() ! {}
 
 fn install() ! {
 	console.print_header('install daguserver')
@@ -56,71 +120,6 @@ fn install() ! {
 	)!
 }
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut res := []zinit.ZProcessNewArgs{}
-	mut cfg := get()!
-
-	res << zinit.ZProcessNewArgs{
-		name: 'dagu'
-		cmd:  'dagu server'
-		env:  {
-			'HOME ':      os.home_dir()
-			'DAGU_HOME ': cfg.configpath // config for dagu is called admin.yml and is in this dir
-		}
-	}
-
-	res << zinit.ZProcessNewArgs{
-		name: 'dagu_scheduler'
-		cmd:  'dagu scheduler'
-		env:  {
-			'HOME ':      os.home_dir()
-			'DAGU_HOME ': cfg.configpath
-		}
-	}
-
-	return res
-}
-
-// user needs to us switch to make sure we get the right object
-fn configure() ! {
-	mut cfg := get()!
-
-	if cfg.password == '' {
-		cfg.password = secrets.hex_secret()!
-	}
-
-	// TODO:use DAGU_SECRET from env variables in os if not set then empty string
-	if cfg.secret == '' {
-		cfg.secret = secrets.openssl_hex_secret(input: cfg.password)!
-	}
-
-	mut mycode := $tmpl('templates/dagu.yaml')
-	mut path := pathlib.get_file(path: '${cfg.configpath}/admin.yaml', create: true)!
-	path.write(mycode)!
-	console.print_debug(mycode)
-}
-
-fn running() !bool {
-	mut cfg := get()!
-	// this checks health of dagu
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	url := 'http://127.0.0.1:${cfg.port}/api/v1'
-	mut conn := httpconnection.new(name: 'dagu', url: url)!
-
-	if cfg.secret.len > 0 {
-		conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	}
-	conn.default_header.add(.content_type, 'application/json')
-	console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	r := conn.get_json_dict(prefix: 'tags', debug: false) or { return false }
-	println(r)
-	// if true{panic("ssss")}
-	tags := r['Tags'] or { return false }
-	console.print_debug(tags)
-	console.print_debug('Dagu is answering.')
-	return true
-}
-
 fn destroy() ! {
 	cmd := '
         systemctl disable daguserver_scheduler.service
@@ -137,16 +136,21 @@ fn destroy() ! {
         '
 
 	osal.execute_silent(cmd) or {}
-}
+	mut zinit_factory := zinit.new()!
 
-fn start_pre() ! {
-}
+	if zinit_factory.exists('dagu') {
+		zinit_factory.stop('dagu') or { return error('Could not stop dagu service due to: ${err}') }
+		zinit_factory.delete('dagu') or {
+			return error('Could not delete dagu service due to: ${err}')
+		}
+	}
 
-fn start_post() ! {
-}
-
-fn stop_pre() ! {
-}
-
-fn stop_post() ! {
+	if zinit_factory.exists('dagu_scheduler') {
+		zinit_factory.stop('dagu_scheduler') or {
+			return error('Could not stop dagu_scheduler service due to: ${err}')
+		}
+		zinit_factory.delete('dagu_scheduler') or {
+			return error('Could not delete dagu_scheduler service due to: ${err}')
+		}
+	}
 }

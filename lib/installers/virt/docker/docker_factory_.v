@@ -1,5 +1,6 @@
 module docker
 
+import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
@@ -20,6 +21,55 @@ pub mut:
 
 pub fn get(args_ ArgsGet) !&DockerInstaller {
 	return &DockerInstaller{}
+}
+
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+
+	mut other_actions := plbook.find(filter: 'docker.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action docker.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action docker.install')
+				install()!
+			}
+		}
+		if other_action.name in ['start', 'stop', 'restart'] {
+			mut p := other_action.params
+			name := p.get('name')!
+			mut docker_obj := get(name: name)!
+			console.print_debug('action object:\n${docker_obj}')
+			if other_action.name == 'start' {
+				console.print_debug('install action docker.${other_action.name}')
+				docker_obj.start()!
+			}
+
+			if other_action.name == 'stop' {
+				console.print_debug('install action docker.${other_action.name}')
+				docker_obj.stop()!
+			}
+			if other_action.name == 'restart' {
+				console.print_debug('install action docker.${other_action.name}')
+				docker_obj.restart()!
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,4 +193,11 @@ pub fn (mut self DockerInstaller) destroy() ! {
 // switch instance to be used for docker
 pub fn switch(name string) {
 	docker_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

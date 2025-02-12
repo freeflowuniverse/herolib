@@ -3,7 +3,6 @@ module gitea
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 import time
@@ -38,8 +37,8 @@ pub fn get(args_ ArgsGet) !&GiteaServer {
 			set(obj)!
 		} else {
 			heroscript := context.hero_config_get('gitea', args.name)!
-			mut obj2 := heroscript_loads(heroscript)!
-			set_in_mem(obj2)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
 	}
 	return gitea_global[args.name] or {
@@ -97,8 +96,8 @@ pub fn play(args_ PlayArgs) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
-			mut obj := heroscript_loads(heroscript)!
-			set(obj)!
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 

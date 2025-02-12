@@ -10,7 +10,7 @@ import freeflowuniverse.herolib.clients.mailclient
 import freeflowuniverse.herolib.clients.postgresql_client
 import rand
 
-pub const version = '0.0.0'
+pub const version = '1.23.3'
 const singleton = true
 const default = false
 
@@ -36,6 +36,33 @@ pub fn (obj GiteaServer) config_path() string {
 // your checking & initialization code if needed
 fn obj_init(mycfg_ GiteaServer) !GiteaServer {
 	mut mycfg := mycfg_
+	if mycfg.name == '' {
+		mycfg.name = 'default'
+	}
+
+	if mycfg.path == '' {
+		mycfg.path = '${os.home_dir()}/hero/var/gitea'
+	}
+
+	if mycfg.passwd == '' {
+		mycfg.passwd = rand.hex(12)
+	}
+
+	if mycfg.postgresql_client_name == '' {
+		mycfg.postgresql_client_name = 'default'
+	}
+
+	if mycfg.domain == '' {
+		mycfg.domain = 'git.test.com'
+	}
+
+	if mycfg.jwt_secret == '' {
+		mycfg.jwt_secret = rand.hex(12)
+	}
+
+	if mycfg.mail_client_name == '' {
+		mycfg.mail_client_name = 'default'
+	}
 	return mycfg
 }
 

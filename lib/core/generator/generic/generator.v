@@ -2,6 +2,7 @@ module generic
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.osal
 
 fn generate_exec(path string, reset bool) ! {
 	mut args := args_get(path)!
@@ -43,12 +44,15 @@ fn generate_exec(path string, reset bool) ! {
 	if args.reset {
 		path_templ_dir.delete()!
 	}
+
 	if args.templates {
 		if !path_templ_dir.exists() {
 			mut templ_6 := $tmpl('templates/atemplate.yaml')
 			pathlib.template_write(templ_6, '${args.path}/templates/atemplate.yaml', true)!
 		}
 	}
+	console.print_debug('formating dir ${args.path}')
+	osal.execute_silent('v fmt -w ${args.path}')!
 }
 
 fn platform_check(args GeneratorArgs) ! {

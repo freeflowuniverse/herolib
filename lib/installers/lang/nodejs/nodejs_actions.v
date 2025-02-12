@@ -1,28 +1,18 @@
 module nodejs
 
-import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.base
 import os
 
 //////////////////// following actions are not specific to instance of the object
 
-fn installed_() !bool {
-	res := os.execute('pnpm -v')
+// checks if a certain version or above is installed
+fn installed() !bool {
+	res := os.execute('node -v')
 	if res.exit_code != 0 {
 		return false
 	}
-	r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	if r.len != 1 {
-		return error("couldn't parse pnpm version.\n${res.output}")
-	}
-	if texttools.version(r[0]) >= texttools.version(version) {
-		return true
-	}
-	return false
+	return true
 }
 
 // get the Upload List of the files
@@ -32,38 +22,19 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload_() ! {
+fn upload() ! {}
+
+fn install() ! {
+	console.print_header('Installing Node.js...')
+	os.execute('curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -')
+	os.execute('sudo apt install -y nodejs')
+	console.print_header('Node.js installation complete.')
 }
 
-fn install_() ! {
-	console.print_header('install nodejs')
-	osal.package_install('pnpm')!
-}
-
-fn destroy_() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
-
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	osal.package_remove('
-       pnpm
-    ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+fn destroy() ! {
+	console.print_header('Uninstalling Node.js and NVM...')
+	os.execute('sudo apt remove -y nodejs')
+	os.execute('sudo apt autoremove -y')
+	os.rm('~/.nvm') or {}
+	console.print_header('Node.js and NVM have been uninstalled.')
 }

@@ -1,4 +1,4 @@
-module zerodb
+module meilisearch_installer
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -8,8 +8,8 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-	zerodb_global  map[string]&ZeroDB
-	zerodb_default string
+	meilisearch_installer_global  map[string]&MeilisearchInstaller
+	meilisearch_installer_default string
 )
 
 /////////FACTORY
@@ -28,55 +28,55 @@ fn args_get(args_ ArgsGet) ArgsGet {
 	return args
 }
 
-pub fn get(args_ ArgsGet) !&ZeroDB {
+pub fn get(args_ ArgsGet) !&MeilisearchInstaller {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := ZeroDB{}
-	if args.name !in zerodb_global {
+	mut obj := MeilisearchInstaller{}
+	if args.name !in meilisearch_installer_global {
 		if !exists(args)! {
 			set(obj)!
 		} else {
-			heroscript := context.hero_config_get('zerodb', args.name)!
+			heroscript := context.hero_config_get('meilisearch_installer', args.name)!
 			mut obj_ := heroscript_loads(heroscript)!
 			set_in_mem(obj_)!
 		}
 	}
-	return zerodb_global[args.name] or {
-		println(zerodb_global)
+	return meilisearch_installer_global[args.name] or {
+		println(meilisearch_installer_global)
 		// bug if we get here because should be in globals
-		panic('could not get config for zerodb with name, is bug:${args.name}')
+		panic('could not get config for meilisearch_installer with name, is bug:${args.name}')
 	}
 }
 
 // register the config for the future
-pub fn set(o ZeroDB) ! {
+pub fn set(o MeilisearchInstaller) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('zerodb', o.name, heroscript)!
+	context.hero_config_set('meilisearch_installer', o.name, heroscript)!
 }
 
 // does the config exists?
 pub fn exists(args_ ArgsGet) !bool {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	return context.hero_config_exists('zerodb', args.name)
+	return context.hero_config_exists('meilisearch_installer', args.name)
 }
 
 pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_delete('zerodb', args.name)!
-	if args.name in zerodb_global {
-		// del zerodb_global[args.name]
+	context.hero_config_delete('meilisearch_installer', args.name)!
+	if args.name in meilisearch_installer_global {
+		// del meilisearch_installer_global[args.name]
 	}
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o ZeroDB) ! {
+fn set_in_mem(o MeilisearchInstaller) ! {
 	mut o2 := obj_init(o)!
-	zerodb_global[o.name] = &o2
-	zerodb_default = o.name
+	meilisearch_installer_global[o.name] = &o2
+	meilisearch_installer_default = o.name
 }
 
 @[params]
@@ -92,7 +92,7 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
-	mut install_actions := plbook.find(filter: 'zerodb.configure')!
+	mut install_actions := plbook.find(filter: 'meilisearch_installer.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
@@ -101,37 +101,37 @@ pub fn play(args_ PlayArgs) ! {
 		}
 	}
 
-	mut other_actions := plbook.find(filter: 'zerodb.')!
+	mut other_actions := plbook.find(filter: 'meilisearch_installer.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
 			mut p := other_action.params
 			reset := p.get_default_false('reset')
 			if other_action.name == 'destroy' || reset {
-				console.print_debug('install action zerodb.destroy')
+				console.print_debug('install action meilisearch_installer.destroy')
 				destroy()!
 			}
 			if other_action.name == 'install' {
-				console.print_debug('install action zerodb.install')
+				console.print_debug('install action meilisearch_installer.install')
 				install()!
 			}
 		}
 		if other_action.name in ['start', 'stop', 'restart'] {
 			mut p := other_action.params
 			name := p.get('name')!
-			mut zerodb_obj := get(name: name)!
-			console.print_debug('action object:\n${zerodb_obj}')
+			mut meilisearch_installer_obj := get(name: name)!
+			console.print_debug('action object:\n${meilisearch_installer_obj}')
 			if other_action.name == 'start' {
-				console.print_debug('install action zerodb.${other_action.name}')
-				zerodb_obj.start()!
+				console.print_debug('install action meilisearch_installer.${other_action.name}')
+				meilisearch_installer_obj.start()!
 			}
 
 			if other_action.name == 'stop' {
-				console.print_debug('install action zerodb.${other_action.name}')
-				zerodb_obj.stop()!
+				console.print_debug('install action meilisearch_installer.${other_action.name}')
+				meilisearch_installer_obj.stop()!
 			}
 			if other_action.name == 'restart' {
-				console.print_debug('install action zerodb.${other_action.name}')
-				zerodb_obj.restart()!
+				console.print_debug('install action meilisearch_installer.${other_action.name}')
+				meilisearch_installer_obj.restart()!
 			}
 		}
 	}
@@ -164,18 +164,18 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 }
 
 // load from disk and make sure is properly intialized
-pub fn (mut self ZeroDB) reload() ! {
+pub fn (mut self MeilisearchInstaller) reload() ! {
 	switch(self.name)
 	self = obj_init(self)!
 }
 
-pub fn (mut self ZeroDB) start() ! {
+pub fn (mut self MeilisearchInstaller) start() ! {
 	switch(self.name)
 	if self.running()! {
 		return
 	}
 
-	console.print_header('zerodb start')
+	console.print_header('meilisearch_installer start')
 
 	if !installed()! {
 		install()!
@@ -188,7 +188,7 @@ pub fn (mut self ZeroDB) start() ! {
 	for zprocess in startupcmd()! {
 		mut sm := startupmanager_get(zprocess.startuptype)!
 
-		console.print_debug('starting zerodb with ${zprocess.startuptype}...')
+		console.print_debug('starting meilisearch_installer with ${zprocess.startuptype}...')
 
 		sm.new(zprocess)!
 
@@ -203,16 +203,16 @@ pub fn (mut self ZeroDB) start() ! {
 		}
 		time.sleep(100 * time.millisecond)
 	}
-	return error('zerodb did not install properly.')
+	return error('meilisearch_installer did not install properly.')
 }
 
-pub fn (mut self ZeroDB) install_start(args InstallArgs) ! {
+pub fn (mut self MeilisearchInstaller) install_start(args InstallArgs) ! {
 	switch(self.name)
 	self.install(args)!
 	self.start()!
 }
 
-pub fn (mut self ZeroDB) stop() ! {
+pub fn (mut self MeilisearchInstaller) stop() ! {
 	switch(self.name)
 	stop_pre()!
 	for zprocess in startupcmd()! {
@@ -222,13 +222,13 @@ pub fn (mut self ZeroDB) stop() ! {
 	stop_post()!
 }
 
-pub fn (mut self ZeroDB) restart() ! {
+pub fn (mut self MeilisearchInstaller) restart() ! {
 	switch(self.name)
 	self.stop()!
 	self.start()!
 }
 
-pub fn (mut self ZeroDB) running() !bool {
+pub fn (mut self MeilisearchInstaller) running() !bool {
 	switch(self.name)
 
 	// walk over the generic processes, if not running return
@@ -248,27 +248,27 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self ZeroDB) install(args InstallArgs) ! {
+pub fn (mut self MeilisearchInstaller) install(args InstallArgs) ! {
 	switch(self.name)
 	if args.reset || (!installed()!) {
 		install()!
 	}
 }
 
-pub fn (mut self ZeroDB) build() ! {
+pub fn (mut self MeilisearchInstaller) build() ! {
 	switch(self.name)
 	build()!
 }
 
-pub fn (mut self ZeroDB) destroy() ! {
+pub fn (mut self MeilisearchInstaller) destroy() ! {
 	switch(self.name)
 	self.stop() or {}
 	destroy()!
 }
 
-// switch instance to be used for zerodb
+// switch instance to be used for meilisearch_installer
 pub fn switch(name string) {
-	zerodb_default = name
+	meilisearch_installer_default = name
 }
 
 // helpers

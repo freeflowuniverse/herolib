@@ -4,3 +4,4 @@ import freeflowuniverse.herolib.installers.threefold.griddriver
 
 mut griddriver_installer := griddriver.get()!
 griddriver_installer.install()!
+// griddriver_installer.destroy()!

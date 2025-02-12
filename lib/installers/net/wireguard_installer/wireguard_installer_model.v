@@ -1,22 +1,20 @@
-module rust
+module wireguard_installer
 
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
-import os
 
-pub const version = '1.83.0'
-const singleton = true
+pub const version = '1.14.3'
+const singleton = false
 const default = true
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 @[heap]
-pub struct RustInstaller {
+pub struct WireGuard {
 pub mut:
 	name string = 'default'
 }
 
 // your checking & initialization code if needed
-fn obj_init(mycfg_ RustInstaller) !RustInstaller {
+fn obj_init(mycfg_ WireGuard) !WireGuard {
 	mut mycfg := mycfg_
 	return mycfg
 }
@@ -28,11 +26,11 @@ fn configure() ! {
 
 /////////////NORMALLY NO NEED TO TOUCH
 
-pub fn heroscript_dumps(obj RustInstaller) !string {
-	return encoderhero.encode[RustInstaller](obj)!
+pub fn heroscript_dumps(obj WireGuard) !string {
+	return encoderhero.encode[WireGuard](obj)!
 }
 
-pub fn heroscript_loads(heroscript string) !RustInstaller {
-	mut obj := encoderhero.decode[RustInstaller](heroscript)!
+pub fn heroscript_loads(heroscript string) !WireGuard {
+	mut obj := encoderhero.decode[WireGuard](heroscript)!
 	return obj
 }

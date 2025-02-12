@@ -1,14 +1,17 @@
 module ${args.name}
 
+@if args.hasconfig
 import freeflowuniverse.herolib.core.base
+@end
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.paramsparser
 
 @if args.cat == .installer
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
+@if args.startupmanager
 import time
+@end
 @end
 
 __global (
