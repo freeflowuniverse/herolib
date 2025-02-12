@@ -174,9 +174,5 @@ fn destroy() ! {
 		}
 	}
 
-	// osal.process_kill_recursive(name: 'meilisearch') or {
-	// 	return error('Could not kill meilisearch due to: ${err}')
-	// }
-
 	console.print_header('meilisearch is destroyed')
 }

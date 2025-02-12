@@ -1,25 +1,14 @@
 module postgresql
 
-import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
 
-pub const version = '1.14.3'
+
+pub const version = '0.0.0'
 const singleton = true
 const default = true
 
-pub fn heroscript_default() !string {
-	heroscript := "
-    !!postgresql.configure 
-        name:'postgresql'
-        user: 'postgres'
-        password: 'postgres'
-        host: 'localhost'
-        port: 5432
-        volume_path:'/var/lib/postgresql/data'
-		container_name: 'herocontainer_postgresql'
-        "
-	return heroscript
-}
 
+@[heap]
 pub struct Postgresql {
 pub mut:
 	name           string = 'default'
@@ -32,22 +21,56 @@ pub mut:
 	container_id   string
 }
 
-fn cfg_play(p paramsparser.Params) !Postgresql {
-	mut mycfg := Postgresql{
-		name:           p.get_default('name', 'default')!
-		user:           p.get_default('user', 'postgres')!
-		password:       p.get_default('password', 'postgres')!
-		host:           p.get_default('host', 'localhost')!
-		port:           p.get_int_default('port', 5432)!
-		volume_path:    p.get_default('path', '/var/lib/postgresql/data')!
-		container_name: p.get_default('container_name', 'herocontainer_postgresql')!
+// your checking & initialization code if needed
+fn obj_init(mycfg_ Postgresql) !Postgresql {
+	mut mycfg := mycfg_
+	if mycfg.name == '' {
+		mycfg.name = 'default'
 	}
+
+	if mycfg.user == '' {
+		mycfg.user = 'postgres'
+	}
+
+	if mycfg.password == '' {
+		mycfg.password = 'postgres'
+	}
+
+	if mycfg.host == '' {
+		mycfg.host = 'localhost'
+	}
+
+	if mycfg.volume_path == '' {
+		mycfg.volume_path = '/var/lib/postgresql/data'
+	}
+
+	if mycfg.container_name == '' {
+		mycfg.container_name = 'herocontainer_postgresql'
+	}
+
+	if mycfg.port == 0 {
+		mycfg.port = 5432
+	}
+
 	return mycfg
 }
 
-fn obj_init(obj_ Postgresql) !Postgresql {
-	mut obj := obj_
-	return obj
+// called before start if done
+fn configure() ! {
+	// mut installer := get()!
+	// mut mycode := $tmpl('templates/atemplate.yaml')
+	// mut path := pathlib.get_file(path: cfg.configpath, create: true)!
+	// path.write(mycode)!
+	// console.print_debug(mycode)
 }
 
-fn configure() ! {}
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj Postgresql) !string {
+	return encoderhero.encode[Postgresql](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !Postgresql {
+	mut obj := encoderhero.decode[Postgresql](heroscript)!
+	return obj
+}
