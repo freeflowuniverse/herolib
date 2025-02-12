@@ -1,4 +1,4 @@
-module wireguard
+module wireguard_installer
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.installers.ulist
@@ -15,16 +15,15 @@ fn installed() !bool {
 
 // get the Upload List of the files
 fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
 	return ulist.UList{}
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
-}
+fn upload() ! {}
 
 fn install() ! {
 	console.print_header('install wireguard')
-
 	cmd := match core.platform()! {
 		.ubuntu {
 			'sudo apt install -y wireguard'
@@ -38,6 +37,7 @@ fn install() ! {
 	}
 
 	osal.execute_stdout(cmd)!
+	console.print_header('wireguard is installed')
 }
 
 fn destroy() ! {
@@ -56,4 +56,5 @@ fn destroy() ! {
 	}
 
 	osal.execute_stdout(cmd)!
+	console.print_header('wireguard is uninstalled')
 }
