@@ -5,205 +5,162 @@ import x.json2
 
 // new_dns_record_set creates a new DNSRecordSet
 pub fn new_dns_record_set() DNSRecordSet {
-	return DNSRecordSet{
-		srv:  []SRVRecord{}
-		txt:  []TXTRecord{}
-		mx:   []MXRecord{}
-		a:    []ARecord{}
-		aaaa: []AAAARecord{}
-		ns:   []NSRecord{}
-	}
+	return DNSRecordSet{}
+}
+
+pub struct AddSRVRecordArgs {
+	SRV_Record
+pub:
+	service  string @[required]
+	protocol string @[required]
+	host     string @[required]
 }
 
 // add_srv adds an SRV record to the set
-pub fn (mut rs DNSRecordSet) add_srv(args SRVRecord) {
-	rs.srv << SRVRecord{
-		target:   args.target
-		port:     args.port
-		priority: args.priority
-		weight:   args.weight
-		ttl:      args.ttl
+pub fn (mut rs DNSRecordSet) add_srv(args AddSRVRecordArgs) {
+	key := '_${args.service}._${args.protocol}.${args.host}'
+	mut rec := rs.records[key] or { Record{} }
+	if mut v := rec.srv {
+		v << args.SRV_Record
+	} else {
+		rec.srv = [args.SRV_Record]
 	}
+
+	rs.records[key] = rec
+}
+
+pub struct AddTXTRecordArgs {
+	TXT_Record
+pub:
+	sub_domain string = '@'
 }
 
 // add_txt adds a TXT record to the set
-pub fn (mut rs DNSRecordSet) add_txt(args TXTRecord) {
-	rs.txt << TXTRecord{
-		text: args.text
-		ttl:  args.ttl
+pub fn (mut rs DNSRecordSet) add_txt(args AddTXTRecordArgs) {
+	mut rec := rs.records[args.sub_domain] or { Record{} }
+	if mut v := rec.txt {
+		v << args.TXT_Record
+	} else {
+		rec.txt = [args.TXT_Record]
 	}
+
+	rs.records[args.sub_domain] = rec
+}
+
+pub struct AddMXRecordArgs {
+	MX_Record
+pub:
+	sub_domain string = '@'
 }
 
 // add_mx adds an MX record to the set
-pub fn (mut rs DNSRecordSet) add_mx(args MXRecord) {
-	rs.mx << MXRecord{
-		host:       args.host
-		preference: args.preference
-		ttl:        args.ttl
+pub fn (mut rs DNSRecordSet) add_mx(args AddMXRecordArgs) {
+	mut rec := rs.records[args.sub_domain] or { Record{} }
+	if mut v := rec.mx {
+		v << args.MX_Record
+	} else {
+		rec.mx = [args.MX_Record]
 	}
+
+	rs.records[args.sub_domain] = rec
+}
+
+pub struct AddARecordArgs {
+	A_Record
+pub:
+	sub_domain string = '@'
 }
 
 // add_a adds an A record to the set
-pub fn (mut rs DNSRecordSet) add_a(args ARecord) {
-	rs.a << ARecord{
-		name: args.name
-		ip:   args.ip
-		ttl:  args.ttl
+pub fn (mut rs DNSRecordSet) add_a(args AddARecordArgs) {
+	mut rec := rs.records[args.sub_domain] or { Record{} }
+	if mut v := rec.a {
+		v << args.A_Record
+	} else {
+		rec.a = [args.A_Record]
 	}
+
+	rs.records[args.sub_domain] = rec
+}
+
+pub struct AddAAAARecordArgs {
+	AAAA_Record
+pub:
+	sub_domain string = '@'
 }
 
 // add_aaaa adds an AAAA record to the set
-pub fn (mut rs DNSRecordSet) add_aaaa(args AAAARecord) {
-	rs.aaaa << AAAARecord{
-		name: args.name
-		ip:   args.ip
-		ttl:  args.ttl
+pub fn (mut rs DNSRecordSet) add_aaaa(args AddAAAARecordArgs) {
+	mut rec := rs.records[args.sub_domain] or { Record{} }
+	if mut v := rec.aaaa {
+		v << args.AAAA_Record
+	} else {
+		rec.aaaa = [args.AAAA_Record]
 	}
+
+	rs.records[args.sub_domain] = rec
+}
+
+pub struct AddNSRecordArgs {
+	NS_Record
+pub:
+	sub_domain string = '@'
 }
 
 // add_ns adds an NS record to the set
-pub fn (mut rs DNSRecordSet) add_ns(args NSRecord) {
-	rs.ns << NSRecord{
-		host: args.host
-		ttl:  args.ttl
+pub fn (mut rs DNSRecordSet) add_ns(args AddNSRecordArgs) {
+	mut rec := rs.records[args.sub_domain] or { Record{} }
+	if mut v := rec.ns {
+		v << args.NS_Record
+	} else {
+		rec.ns = [args.NS_Record]
 	}
+
+	rs.records[args.sub_domain] = rec
 }
 
 // set_soa sets the SOA record for the set
-pub fn (mut rs DNSRecordSet) set_soa(args SOARecord) {
-	rs.soa = SOARecord{
-		mbox:    args.mbox
-		ns:      args.ns
-		refresh: args.refresh
-		retry:   args.retry
-		expire:  args.expire
-		minttl:  args.minttl
-		ttl:     args.ttl
-	}
+pub fn (mut rs DNSRecordSet) set_soa(args SOA_Record) {
+	mut rec := rs.records['@'] or { Record{} }
+	rec.soa = args
+	rs.records['@'] = rec
+}
+
+pub struct SetArgs {
+pub:
+	domain     string
+	key_prefix string
 }
 
 // populate_redis populates Redis with the DNS records
 // domain e.g. example.com.  (not sure the . is at end)
-pub fn (rs DNSRecordSet) set(domain_ string) ! {
-	domain := '_dns:${domain_}'
-	mut redis := rs.redis or { redisclient.core_get()! }
-	println('setting: ${rs}')
-	// Store SRV records
-	for srv in rs.srv {
-		key := '_ssh._tcp.host1'
-		value := json2.encode({
-			'srv': {
-				'ttl':      '${srv.ttl}'
-				'target':   '${srv.target}'
-				'port':     '${srv.port}'
-				'priority': '${srv.priority}'
-				'weight':   '${srv.weight}'
-			}
-		})
-		redis.hset(domain, key, value)!
+pub fn (mut rs DNSRecordSet) set(args SetArgs) ! {
+	mut redis := rs.redis or {
+		r := redisclient.core_get()!
+		rs.redis = r
+		r
 	}
 
-	// Store TXT and MX records for wildcard
-	if rs.txt.len > 0 || rs.mx.len > 0 {
-		mut records := map[string]map[string]json2.Any{}
-		if rs.txt.len > 0 {
-			records['txt'] = {
-				'text': rs.txt[0].text
-				'ttl':  '${rs.txt[0].ttl}'
-			}
-		}
-		if rs.mx.len > 0 {
-			records['mx'] = {
-				'host':     rs.mx[0].host
-				'priority': rs.mx[0].preference
-				'ttl':      rs.mx[0].ttl
-			}
-		}
-		redis.hset(domain, '*', json2.encode(records))!
-	}
-
-	// Store A records
-	for a in rs.a {
-		value := json2.encode({
-			'a': {
-				'ip4': a.ip
-				'ttl': '${a.ttl}'
-			}
-		})
-		println('redis: ${redis}')
-		println('domain: ${domain}')
-		println('value: ${value}')
-		redis.hset(domain, a.name, value)!
-	}
-
-	// Store AAAA records
-	for aaaa in rs.aaaa {
-		value := json2.encode({
-			'aaaa': {
-				'ip6': aaaa.ip
-				'ttl': '${aaaa.ttl}'
-			}
-		})
-		redis.hset(domain, aaaa.name, value)!
-	}
-
-	// Store NS records
-	if rs.ns.len > 0 {
-		mut ns_records := []json2.Any{}
-		for ns in rs.ns {
-			ns_records << json2.raw_decode(json2.encode({
-				'host': ns.host
-				'ttl':  '${ns.ttl}'
-			}))!
-		}
-		value := json2.encode({
-			'ns': ns_records
-		})
-		redis.hset(domain, 'subdel', value)!
-	}
-
-	// Store SOA and root NS records at @
-	if soa := rs.soa {
-		mut root_records := map[string]json2.Any{}
-		root_records['soa'] = json2.raw_decode(json2.encode({
-			'ttl':     '${soa.ttl}'
-			'minttl':  '${soa.minttl}'
-			'mbox':    '${soa.mbox}'
-			'ns':      '${soa.ns}'
-			'refresh': '${soa.refresh}'
-			'retry':   '${soa.retry}'
-			'expire':  '${soa.expire}'
-		}))!
-
-		if rs.ns.len > 0 {
-			mut ns_records := []json2.Any{}
-			for ns in rs.ns {
-				ns_records << json2.raw_decode(json2.encode({
-					'host': ns.host
-					'ttl':  '${ns.ttl}'
-				}))!
-			}
-			root_records['ns'] = json2.raw_decode(ns_records.str())!
-		}
-
-		redis.hset(domain, '@', json2.encode(root_records))!
+	key := '${args.key_prefix}${args.domain}.'
+	for field, val in rs.records {
+		redis.hset(key, field, json2.encode(val))!
 	}
 }
 
 pub fn (mut rs DNSRecordSet) example() ! {
 	// Create and populate DNS records
 	rs.set_soa(mbox: 'hostmaster.example.net.', ns: 'ns1.example.net.')
-	rs.add_srv(target: 'tcp.example.com.', port: 123)
-	rs.add_txt(text: 'this is a wildcard')
-	rs.add_mx(host: 'host1.example.net.')
-	rs.add_a(name: 'host1', ip: '5.5.5.5')
-	rs.add_aaaa(name: 'host1', ip: '2001:db8::1')
-	rs.add_txt(text: 'this is not a wildcard')
-	rs.add_ns(host: 'ns1.subdel.example.net.')
-	rs.add_ns(host: 'ns2.subdel.example.net.')
+	rs.add_srv(service: 'ssh', protocol: 'tcp', host: 'host1', target: 'tcp.example.com.', port: 123)
+	rs.add_txt(sub_domain: '*', text: 'this is a wildcard')
+	rs.add_mx(sub_domain: '*', host: 'host1.example.net.')
+	rs.add_a(sub_domain: 'host1', ip: '5.5.5.5')
+	rs.add_aaaa(sub_domain: 'host1', ip: '2001:db8::1')
+	rs.add_txt(sub_domain: 'sub.*', text: 'this is not a wildcard')
+	rs.add_ns(sub_domain: 'subdel', host: 'ns1.subdel.example.net.')
+	rs.add_ns(sub_domain: 'subdel', host: 'ns2.subdel.example.net.')
 	rs.add_ns(host: 'ns1.example.net.')
 	rs.add_ns(host: 'ns2.example.net.')
 
 	// Store records in Redis
-	rs.set('example.com')!
+	rs.set(domain: 'example.com')!
 }

@@ -15,20 +15,21 @@ pub fn play_dns(mut plbook playbook.PlayBook) !DNSRecordSet {
 		match action.name {
 			'a_record' {
 				recordset.add_a(
-					name: p.get('name')!
-					ip:   p.get('ip')!
-					ttl:  p.get_int_default('ttl', 300)!
+					sub_domain: p.get_default('sub_domain', '@')!
+					ip:         p.get('ip')!
+					ttl:        p.get_int_default('ttl', 300)!
 				)
 			}
 			'aaaa_record' {
 				recordset.add_aaaa(
-					name: p.get('name')!
-					ip:   p.get('ip')!
-					ttl:  p.get_int_default('ttl', 300)!
+					sub_domain: p.get_default('sub_domain', '@')!
+					ip:         p.get('ip')!
+					ttl:        p.get_int_default('ttl', 300)!
 				)
 			}
 			'mx_record' {
 				recordset.add_mx(
+					sub_domain: p.get_default('sub_domain', '@')!
 					host:       p.get('host')!
 					preference: p.get_int_default('preference', 10)!
 					ttl:        p.get_int_default('ttl', 300)!
@@ -36,12 +37,16 @@ pub fn play_dns(mut plbook playbook.PlayBook) !DNSRecordSet {
 			}
 			'txt_record' {
 				recordset.add_txt(
-					text: p.get('text')!
-					ttl:  p.get_int_default('ttl', 300)!
+					sub_domain: p.get_default('sub_domain', '@')!
+					text:       p.get('text')!
+					ttl:        p.get_int_default('ttl', 300)!
 				)
 			}
 			'srv_record' {
 				recordset.add_srv(
+					host:     p.get('host')!
+					protocol: p.get('protocol')!
+					service:  p.get('service')!
 					target:   p.get('target')!
 					port:     p.get_int('port')!
 					priority: p.get_int_default('priority', 10)!
@@ -51,8 +56,9 @@ pub fn play_dns(mut plbook playbook.PlayBook) !DNSRecordSet {
 			}
 			'ns_record' {
 				recordset.add_ns(
-					host: p.get('host')!
-					ttl:  p.get_int_default('ttl', 300)!
+					sub_domain: p.get_default('sub_domain', '@')!
+					host:       p.get('host')!
+					ttl:        p.get_int_default('ttl', 300)!
 				)
 			}
 			'soa_record' {
@@ -79,25 +85,30 @@ pub fn play_dns(mut plbook playbook.PlayBook) !DNSRecordSet {
 // Example usage:
 /*
 !!dns.a_record
-    name: 'host1'
+    sub_domain: 'host1'
     ip: '1.2.3.4'
     ttl: 300
 
 !!dns.aaaa_record
-    name: 'host1'
+    sub_domain: 'host1'
     ip: '2001:db8::1'
     ttl: 300
 
 !!dns.mx_record
+	sub_domain: '*'
     host: 'mail.example.com'
     preference: 10
     ttl: 300
 
 !!dns.txt_record
+	sub_domain: '*'
     text: 'v=spf1 mx ~all'
     ttl: 300
 
 !!dns.srv_record
+	service: 'ssh'
+	protocol: 'tcp'
+	host: 'host1'
     target: 'sip.example.com'
     port: 5060
     priority: 10
