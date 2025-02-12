@@ -1,19 +1,20 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Commerce API",
+    "title": "Merchant",
     "description": "API for e-commerce operations including merchants, products, and orders",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://localhost:8080",
-      "description": "Local development server"
-    }
-  ],
+  "servers":	[{
+			"url":	"http://localhost:8080",
+			"description":	"Local development server"
+		},{
+			"url":	"http://localhost:8080/openapi/example",
+			"description":	"Local example server"
+		}],
   "components": {
     "schemas": {
-      "Merchant": {
+      "Store": {
         "type": "object",
         "properties": {
           "id": {
@@ -326,7 +327,7 @@
   "paths": {
     "/merchants": {
       "post": {
-        "summary": "Create a new merchant",
+        "summary": "Create a new store",
         "operationId": "createMerchant",
         "requestBody": {
           "required": true,
@@ -368,11 +369,11 @@
         },
         "responses": {
           "201": {
-            "description": "Merchant created successfully",
+            "description": "Store created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Merchant"
+                  "$ref": "#/components/schemas/Store"
                 },
                 "example": {
                   "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -393,7 +394,7 @@
                 },
                 "example": {
                   "code": 400,
-                  "message": "Invalid merchant data provided"
+                  "message": "Invalid store data provided"
                 }
               }
             }
@@ -584,7 +585,7 @@
             }
           },
           "404": {
-            "description": "Merchant not found",
+            "description": "Store not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -592,7 +593,7 @@
                 },
                 "example": {
                   "code": 404,
-                  "message": "Merchant not found"
+                  "message": "Store not found"
                 }
               }
             }
@@ -666,7 +667,7 @@
             }
           },
           "404": {
-            "description": "Template or merchant not found",
+            "description": "Template or store not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -868,7 +869,7 @@
     },
     "/merchants/{merchantId}/products": {
       "get": {
-        "summary": "Get all products for a merchant",
+        "summary": "Get all products for a store",
         "operationId": "getMerchantProducts",
         "parameters": [
           {
@@ -884,7 +885,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List of merchant's products",
+            "description": "List of store's products",
             "content": {
               "application/json": {
                 "schema": {
@@ -910,7 +911,7 @@
             }
           },
           "404": {
-            "description": "Merchant not found",
+            "description": "Store not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -918,7 +919,7 @@
                 },
                 "example": {
                   "code": 404,
-                  "message": "Merchant not found"
+                  "message": "Store not found"
                 }
               }
             }
@@ -928,7 +929,7 @@
     },
     "/merchants/{merchantId}/orders": {
       "get": {
-        "summary": "Get all orders for a merchant's products",
+        "summary": "Get all orders for a store's products",
         "operationId": "getMerchantOrders",
         "parameters": [
           {
@@ -944,7 +945,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List of orders containing merchant's products",
+            "description": "List of orders containing store's products",
             "content": {
               "application/json": {
                 "schema": {
@@ -976,7 +977,7 @@
             }
           },
           "404": {
-            "description": "Merchant not found",
+            "description": "Store not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -984,7 +985,7 @@
                 },
                 "example": {
                   "code": 404,
-                  "message": "Merchant not found"
+                  "message": "Store not found"
                 }
               }
             }
