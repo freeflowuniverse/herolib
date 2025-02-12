@@ -151,33 +151,7 @@ fn build() ! {
 }
 
 fn destroy() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
-
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+	osal.process_kill_recursive(name: 'meilisearch')!
+	osal.cmd_delete('meilisearch')!
+	osal.package_remove('meilisearch') or { println('') }
 }

@@ -25,6 +25,21 @@ fn obj_init(mycfg_ MeilisearchServer) !MeilisearchServer {
 		return error('masterkey is empty')
 	}
 
+	if mycfg.path == '' {
+		mycfg.path = '/tmp/meilisearch'
+	}
+
+	if mycfg.host == '' {
+		mycfg.host = 'localhost'
+	}
+
+	if mycfg.port == 0 {
+		mycfg.port = 7700
+	}
+
+	if mycfg.name == '' {
+		mycfg.name = 'default'
+	}
 	return mycfg
 }
 
