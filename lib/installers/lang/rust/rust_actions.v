@@ -3,15 +3,16 @@ module rust
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.base
+import freeflowuniverse.herolib.installers.ulist
 import os
 
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
+fn installed() !bool {
 	res := os.execute('${osal.profile_path_source_and()!} rustc -V')
 	if res.exit_code != 0 {
 		return false
@@ -34,14 +35,14 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload_() ! {
+fn upload() ! {
 	// installers.upload(
 	//     cmdname: 'rust'
 	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/rust'
 	// )!
 }
 
-fn install_() ! {
+fn install() ! {
 	console.print_header('install rust')
 	base.install()!
 
@@ -58,14 +59,14 @@ fn install_() ! {
 	}
 
 	osal.profile_path_add_remove(paths2add: '${os.home_dir()}/.cargo/bin')!
-
-	return
+	console.print_header('rust is installed')
 }
 
-fn destroy_() ! {
-	osal.package_remove('
-       rust
-    ')!
+fn destroy() ! {
+	pl := core.platform()!
+	if pl == .arch {
+		osal.package_remove('rust')!
+	}
 
 	osal.exec(
 		cmd:   '

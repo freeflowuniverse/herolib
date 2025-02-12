@@ -1,12 +1,9 @@
 module rust
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
 
 __global (
 	rust_global  map[string]&RustInstaller
@@ -45,11 +42,11 @@ pub fn play(args_ PlayArgs) ! {
 			reset := p.get_default_false('reset')
 			if other_action.name == 'destroy' || reset {
 				console.print_debug('install action rust.destroy')
-				// destroy()!
+				destroy()!
 			}
 			if other_action.name == 'install' {
 				console.print_debug('install action rust.install')
-				// install()!
+				install()!
 			}
 		}
 	}
@@ -89,14 +86,14 @@ pub mut:
 
 pub fn (mut self RustInstaller) install(args InstallArgs) ! {
 	switch(self.name)
-	// if args.reset || (!installed()!) {
-	// install()!
-	// }
+	if args.reset || (!installed()!) {
+		install()!
+	}
 }
 
 pub fn (mut self RustInstaller) destroy() ! {
 	switch(self.name)
-	// destroy()!
+	destroy()!
 }
 
 // switch instance to be used for rust
