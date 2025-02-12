@@ -8,12 +8,19 @@ import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecific
 const crud_prefixes = ['new', 'get', 'set', 'delete', 'list']
 
 pub fn generate_methods_file(spec ActorSpecification) !VFile {
-	actor_name_snake := texttools.snake_case(spec.name)
+	name_snake := texttools.snake_case(spec.name)
 	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
 	
-	mut items := []CodeItem{}
+	receiver := generate_methods_receiver(spec.name)
+	receiver_param := Param {
+		mutable: true
+		name: name_snake
+		typ: code.Result{code.Object{receiver.name}}
+	}
+
+	mut items := [CodeItem(receiver), CodeItem(generate_core_factory(receiver_param))]
 	for method in spec.methods {
-		method_fn := generate_method_function(spec.name, method)!
+		method_fn := generate_method_function(receiver_param, method)!
 		// check if method is a Base Object CRUD Method and
 		// if so generate the method's body
 		body := match spec.method_type(method) {
@@ -29,17 +36,34 @@ pub fn generate_methods_file(spec ActorSpecification) !VFile {
 	
 	return VFile {
 		name: 'methods'
+		imports: [Import{mod: 'freeflowuniverse.herolib.baobab.osis', types: ['OSIS']}]
 		items: items
 	}
 }
 
+fn generate_methods_receiver(name string) code.Struct {
+	return code.Struct {
+		is_pub: true
+		name: '${texttools.pascal_case(name)}'
+		embeds: [code.Struct{name:'OSIS'}]
+	}
+}
+
+fn generate_core_factory(receiver code.Param) code.Function {
+	return code.Function {
+		is_pub: true
+		name: 'new_${receiver.name}'
+		body: "return ${receiver.typ.symbol().trim_left('!?')}{OSIS: osis.new()!}"
+		result: receiver
+	}
+}
+
 // returns bodyless method prototype
-pub fn generate_method_function(actor_name string, method ActorMethod) !Function {
-	actor_name_pascal := texttools.snake_case_to_pascal(actor_name)
+pub fn generate_method_function(receiver code.Param, method ActorMethod) !Function {
 	result_param := content_descriptor_to_parameter(method.result)!
 	return Function{
 		name: texttools.snake_case(method.name)
-		receiver: code.new_param(v: 'mut actor ${actor_name_pascal}Actor')!
+		receiver: receiver
 		result: Param {...result_param, typ: Result{result_param.typ}}
 		summary: method.summary
 		description: method.description

@@ -1,6 +1,7 @@
 module stage
 
 import freeflowuniverse.herolib.baobab.osis {OSIS}
+import freeflowuniverse.herolib.core.redisclient
 
 @[heap]
 pub interface IActor {
@@ -10,17 +11,48 @@ mut:
 }
 
 pub struct Actor {
-pub:
-	name string
-	redis_url string = 'localhost:6379'
+	ActorConfig
 mut:
 	osis OSIS
 }
 
-pub fn new_actor(name string) !Actor {
+@[params]
+pub struct ActorConfig {
+pub:
+	name string
+	version string
+	redis_url string = 'localhost:6379'
+}
+
+pub fn (config ActorConfig) redis_queue_name() string {
+	mut str := 'actor_${config.name}'
+	if config.version != '' {
+		str += '_${config.version}'
+	}
+	return str
+}
+
+pub fn new_actor(config ActorConfig) !Actor {
 	return Actor{
+		ActorConfig: config
 		osis: osis.new()!
-		name: name
+	}
+}
+
+pub fn (a ActorConfig) get_redis_rpc() !redisclient.RedisRpc {
+	mut redis := redisclient.new(a.redis_url)!
+	return redis.rpc_get(a.redis_queue_name())
+}
+
+pub fn (a ActorConfig) version(v string) ActorConfig {
+	return ActorConfig {...a,
+		version: v
+	}
+}
+
+pub fn (a ActorConfig) example() ActorConfig {
+	return ActorConfig {...a,
+		version: 'example'
 	}
 }
 

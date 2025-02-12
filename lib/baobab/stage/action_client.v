@@ -16,14 +16,14 @@ pub:
 }
 
 pub struct ClientConfig {
+	ActorConfig
 pub:
-	redis_url   string // url to redis server running
-	redis_queue string // name of redis queue
+	redis_url   string = 'localhost:6379' // url to redis server running
 }
 
-pub fn new_client(config ClientConfig) !Client {
+pub fn new_client(config ActorConfig) !Client {
 	mut redis := redisclient.new(config.redis_url)!
-	mut rpc_q := redis.rpc_get(config.redis_queue)
+	mut rpc_q := redis.rpc_get(config.redis_queue_name())
 
 	return Client{
 		rpc: rpc_q

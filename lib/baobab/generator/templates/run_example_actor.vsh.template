@@ -1,6 +1,0 @@
-#!/usr/bin/env -S v -w -n -enable-globals run
-
-import @{actor_name}
-
-mut actor := @{actor_name}.new_example()!
-actor.run()!

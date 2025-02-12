@@ -3,8 +3,8 @@
 import @{name_snake}_actor
 
 mut actor := @{name_snake}_actor.new(
-	@{name_snake}_actor.new_@{name_snake}()!,
-	@{name_snake}_actor.configuration
+	@{name_snake}_actor.new_@{name_snake}_example()!,
+	@{name_snake}_actor.configuration.example()
 )!
 
 actor.run()!

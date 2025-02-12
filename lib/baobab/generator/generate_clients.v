@@ -17,11 +17,9 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 		stage.Client
 	}
 
-	fn new_client() !Client {
-		mut redis := redisclient.new(\'localhost:6379\')!
-		mut rpc_q := redis.rpc_get(\'actor_\${name}\')
-		return Client{
-			rpc: rpc_q
+	fn new_client(config stage.ActorConfig) !Client {
+		return Client {
+			Client: stage.new_client(config)!
 		}
 	}'}
 	
@@ -42,7 +40,7 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 				types: ['Any']
 			}
 		]
-		name: 'client'
+		name: 'client_actor'
 		items: items
 	}
 }

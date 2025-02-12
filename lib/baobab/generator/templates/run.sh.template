@@ -7,6 +7,10 @@ chmod +x @{dollar}{DIR}/run_actor.vsh
 @{dollar}{DIR}/run_actor.vsh &
 ACTOR_PID=@{dollar}!
 
+chmod +x @{dollar}{DIR}/run_actor_example.vsh
+@{dollar}{DIR}/run_actor_example.vsh &
+EXAMPLE_ACTOR_PID=@{dollar}!
+
 chmod +x @{dollar}{DIR}/run_http_server.vsh
 @{dollar}{DIR}/run_http_server.vsh &
 HTTP_SERVER_PID=@{dollar}!

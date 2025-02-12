@@ -11,9 +11,9 @@ pub fn generate_scripts_folder(name string, example bool) Folder {
 		files: [
 			generate_run_script(actor_name),
 			generate_docs_script(actor_name),
-			generate_run_actor_script(actor_name),
-			// generate_run_example_actor_script(actor_name),
-			generate_run_http_server_script(actor_name, example),
+			generate_run_actor_script(name),
+			generate_run_actor_example_script(name),
+			generate_run_http_server_script(name),
 			// generate_compile_script(actor_name),
 			// generate_generate_script(actor_name)
 		]
@@ -42,7 +42,9 @@ fn generate_docs_script(actor_name string) File {
 }
 
 // Function to generate a script for running an actor
-fn generate_run_actor_script(actor_name string) File {
+fn generate_run_actor_script(name string) File {
+    name_snake := texttools.snake_case(name)
+    name_pascal := texttools.pascal_case(name)
     return File{
         name: 'run_actor'
 		extension:'vsh'
@@ -51,38 +53,23 @@ fn generate_run_actor_script(actor_name string) File {
 }
 
 // Function to generate a script for running an example actor
-fn generate_run_example_actor_script(actor_name string) File {
+fn generate_run_actor_example_script(name string) File {
+    name_snake := texttools.snake_case(name)
+    name_pascal := texttools.pascal_case(name)
     return File{
-        name: 'run_example_actor'
+        name: 'run_actor_example'
 		extension:'vsh'
-        content: $tmpl('./templates/run_example_actor.vsh.template')
+        content: $tmpl('./templates/run_actor_example.vsh.template')
     }
 }
 
 // Function to generate a script for running an HTTP server
-fn generate_run_http_server_script(actor_name string, example bool) File {
-    port := if example {8081} else {8080}
+fn generate_run_http_server_script(name string) File {
+    port := 8080
+    name_snake := texttools.snake_case(name)
     return File{
         name: 'run_http_server'
 		extension:'vsh'
         content: $tmpl('./templates/run_http_server.vsh.template')
     }
 }
-
-// // Function to generate a script for compiling the project
-// fn generate_compile_script(actor_name string) File {
-//     return File{
-//         name: 'compile'
-// 		extension:'sh'
-//         content: $tmpl('./templates/run_http_server.vsh.template')
-//     }
-// }
-
-// // Function to generate a script for general generation tasks
-// fn generate_generate_script(actor_name string) File {
-//     return File{
-//         name: 'generate'
-//         extension: 'vsh'
-//         content: $tmpl('./templates/run_http_server.vsh.template')
-//     }
-// }

@@ -13,6 +13,7 @@ pub struct Folder {
 pub:
 	name string
 	files []IFile
+	folders []IFolder
 	modules []Module
 }
 
@@ -28,6 +29,9 @@ pub fn (f Folder) write(path string, options WriteOptions) ! {
 
 	for file in f.files {
 		file.write(dir.path, options)!
+	}
+	for folder in f.folders {
+		folder.write(dir.path, options)!
 	}
 	for mod in f.modules {
 		mod.write(dir.path, options)!

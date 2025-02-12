@@ -32,7 +32,7 @@ pub fn new_module(mod Module) Module {
 
 pub fn (mod Module) write(path string, options WriteOptions) ! {
 	mut module_dir := pathlib.get_dir(
-		path: if mod.in_src { '${path}/${mod.name}/src' } else { '${path}/${mod.name}' }
+		path: if mod.in_src { '${path}/src' } else { '${path}/${mod.name}' }
 		empty: options.overwrite
 	)!
 	console.print_debug("write ${module_dir.path}")

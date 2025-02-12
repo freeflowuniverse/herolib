@@ -7,6 +7,7 @@ import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference}
 
 pub struct ActorSpecification {
 pub mut:
+	version string = '1.0.0'
 	openapi ?openapi.OpenAPI
 	openrpc ?openrpc.OpenRPC
 	name        string      @[omitempty]

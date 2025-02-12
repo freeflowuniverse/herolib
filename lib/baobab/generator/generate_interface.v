@@ -19,7 +19,7 @@ fn generate_openrpc_interface_files(interfaces []ActorInterface) (VFile, VFile) 
 
 fn generate_openapi_interface_files(interfaces []ActorInterface) (VFile, VFile) {
 	http := ActorInterface.http in interfaces
-	
+	dollar := '$'
 	iface_file := VFile {
 		name: 'interface_openapi'
 		items: [CustomCode{$tmpl('./templates/interface_openapi.v.template')}]

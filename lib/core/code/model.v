@@ -3,7 +3,7 @@ module code
 // Code is a list of statements
 // pub type Code = []CodeItem
 
-pub type CodeItem = Alias | Comment | CustomCode | Function | Import | Struct | Sumtype
+pub type CodeItem = Alias | Comment | CustomCode | Function | Import | Struct | Sumtype | Interface
 
 // item for adding custom code in
 pub struct CustomCode {
