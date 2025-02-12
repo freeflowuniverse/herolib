@@ -1,7 +1,7 @@
 
 !!hero_code.generate_installer
-    name:'meilisearchinstaller'
-    classname:'MeilisearchServer'
+    name:'meilisearch_installer'
+    classname:'MeilisearchInstaller'
     singleton:0
     templates:0
     default:1

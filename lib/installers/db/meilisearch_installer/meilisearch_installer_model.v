@@ -1,4 +1,4 @@
-module meilisearchinstaller
+module meilisearch_installer
 
 import freeflowuniverse.herolib.data.encoderhero
 
@@ -8,7 +8,7 @@ const default = true
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 @[heap]
-pub struct MeilisearchServer {
+pub struct MeilisearchInstaller {
 pub mut:
 	name       string = 'default'
 	path       string = '/tmp/meilisearch'
@@ -19,10 +19,10 @@ pub mut:
 }
 
 // your checking & initialization code if needed
-fn obj_init(mycfg_ MeilisearchServer) !MeilisearchServer {
+fn obj_init(mycfg_ MeilisearchInstaller) !MeilisearchInstaller {
 	mut mycfg := mycfg_
 	if mycfg.masterkey == '' {
-		return error('masterkey is empty')
+		mycfg.masterkey = generate_master_key(16)!
 	}
 
 	if mycfg.path == '' {
@@ -50,11 +50,11 @@ fn configure() ! {
 
 /////////////NORMALLY NO NEED TO TOUCH
 
-pub fn heroscript_dumps(obj MeilisearchServer) !string {
-	return encoderhero.encode[MeilisearchServer](obj)!
+pub fn heroscript_dumps(obj MeilisearchInstaller) !string {
+	return encoderhero.encode[MeilisearchInstaller](obj)!
 }
 
-pub fn heroscript_loads(heroscript string) !MeilisearchServer {
-	mut obj := encoderhero.decode[MeilisearchServer](heroscript)!
+pub fn heroscript_loads(heroscript string) !MeilisearchInstaller {
+	mut obj := encoderhero.decode[MeilisearchInstaller](heroscript)!
 	return obj
 }
