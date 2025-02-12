@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Merchant",
-    "description": "API for e-commerce operations including merchants, products, and orders",
+    "description": "API for e-commerce operations including stores, products, and orders",
     "version": "1.0.0"
   },
   "servers":	[{
@@ -126,7 +126,7 @@
               }
             ]
           },
-          "merchant_id": {
+          "store_id": {
             "type": "string",
             "format": "uuid",
             "example": "123e4567-e89b-12d3-a456-426614174000"
@@ -144,7 +144,7 @@
           "id",
           "name",
           "components",
-          "merchant_id",
+          "store_id",
           "active"
         ]
       },
@@ -179,7 +179,7 @@
             "pattern": "^[A-Z]{3}$",
             "example": "USD"
           },
-          "merchant_id": {
+          "store_id": {
             "type": "string",
             "format": "uuid",
             "example": "123e4567-e89b-12d3-a456-426614174000"
@@ -200,7 +200,7 @@
           "name",
           "price",
           "currency",
-          "merchant_id",
+          "store_id",
           "stock_quantity",
           "available"
         ]
@@ -325,10 +325,10 @@
     }
   },
   "paths": {
-    "/merchants": {
+    "/stores": {
       "post": {
         "summary": "Create a new store",
-        "operationId": "createMerchant",
+        "operationId": "createStore",
         "requestBody": {
           "required": true,
           "content": {
@@ -355,7 +355,7 @@
                 ]
               },
               "examples": {
-                "newMerchant": {
+                "newStore": {
                   "summary": "Create a new electronics store",
                   "value": {
                     "name": "Tech Gadgets Store",
@@ -521,7 +521,7 @@
                       "format": "uuid"
                     }
                   },
-                  "merchant_id": {
+                  "store_id": {
                     "type": "string",
                     "format": "uuid"
                   },
@@ -532,7 +532,7 @@
                 "required": [
                   "name",
                   "components",
-                  "merchant_id"
+                  "store_id"
                 ]
               },
               "examples": {
@@ -544,7 +544,7 @@
                     "components": [
                       "123e4567-e89b-12d3-a456-426614174001"
                     ],
-                    "merchant_id": "123e4567-e89b-12d3-a456-426614174000",
+                    "store_id": "123e4567-e89b-12d3-a456-426614174000",
                     "category": "Electronics"
                   }
                 }
@@ -577,7 +577,7 @@
                       "currency": "USD"
                     }
                   ],
-                  "merchant_id": "123e4567-e89b-12d3-a456-426614174000",
+                  "store_id": "123e4567-e89b-12d3-a456-426614174000",
                   "category": "Electronics",
                   "active": true
                 }
@@ -616,7 +616,7 @@
                     "type": "string",
                     "format": "uuid"
                   },
-                  "merchant_id": {
+                  "store_id": {
                     "type": "string",
                     "format": "uuid"
                   },
@@ -627,7 +627,7 @@
                 },
                 "required": [
                   "template_id",
-                  "merchant_id",
+                  "store_id",
                   "stock_quantity"
                 ]
               },
@@ -636,7 +636,7 @@
                   "summary": "Create a new Smart TV product",
                   "value": {
                     "template_id": "123e4567-e89b-12d3-a456-426614174002",
-                    "merchant_id": "123e4567-e89b-12d3-a456-426614174000",
+                    "store_id": "123e4567-e89b-12d3-a456-426614174000",
                     "stock_quantity": 50
                   }
                 }
@@ -659,7 +659,7 @@
                   "description": "55-inch Smart TV with 4K Display",
                   "price": 899.99,
                   "currency": "USD",
-                  "merchant_id": "123e4567-e89b-12d3-a456-426614174000",
+                  "store_id": "123e4567-e89b-12d3-a456-426614174000",
                   "stock_quantity": 50,
                   "available": true
                 }
@@ -867,13 +867,13 @@
         }
       }
     },
-    "/merchants/{merchantId}/products": {
+    "/stores/{storeId}/products": {
       "get": {
         "summary": "Get all products for a store",
-        "operationId": "getMerchantProducts",
+        "operationId": "getStoreProducts",
         "parameters": [
           {
-            "name": "merchantId",
+            "name": "storeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -902,7 +902,7 @@
                     "description": "55-inch Smart TV with 4K Display",
                     "price": 899.99,
                     "currency": "USD",
-                    "merchant_id": "123e4567-e89b-12d3-a456-426614174000",
+                    "store_id": "123e4567-e89b-12d3-a456-426614174000",
                     "stock_quantity": 48,
                     "available": true
                   }
@@ -927,13 +927,13 @@
         }
       }
     },
-    "/merchants/{merchantId}/orders": {
+    "/stores/{storeId}/orders": {
       "get": {
         "summary": "Get all orders for a store's products",
-        "operationId": "getMerchantOrders",
+        "operationId": "getStoreOrders",
         "parameters": [
           {
-            "name": "merchantId",
+            "name": "storeId",
             "in": "path",
             "required": true,
             "schema": {
