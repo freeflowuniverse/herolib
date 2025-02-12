@@ -2,11 +2,9 @@ module postgresql
 
 import freeflowuniverse.herolib.data.encoderhero
 
-
 pub const version = '0.0.0'
 const singleton = true
 const default = true
-
 
 @[heap]
 pub struct Postgresql {

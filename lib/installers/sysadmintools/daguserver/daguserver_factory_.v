@@ -42,6 +42,7 @@ pub fn get(args_ ArgsGet) !&DaguInstaller {
 		}
 	}
 	return daguserver_global[args.name] or {
+		println(daguserver_global)
 		// bug if we get here because should be in globals
 		panic('could not get config for daguserver with name, is bug:${args.name}')
 	}
@@ -198,7 +199,6 @@ pub fn (mut self DaguInstaller) start() ! {
 
 	for _ in 0 .. 50 {
 		if self.running()! {
-			console.print_header('daguserver started')
 			return
 		}
 		time.sleep(100 * time.millisecond)

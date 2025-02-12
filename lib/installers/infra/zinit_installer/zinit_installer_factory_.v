@@ -117,7 +117,7 @@ pub fn (mut self ZinitInstaller) start() ! {
 	for zprocess in startupcmd()! {
 		mut sm := startupmanager_get(zprocess.startuptype)!
 
-		console.print_header('starting zinit_installer with ${zprocess.startuptype}...')
+		console.print_debug('starting zinit_installer with ${zprocess.startuptype}...')
 
 		sm.new(zprocess)!
 

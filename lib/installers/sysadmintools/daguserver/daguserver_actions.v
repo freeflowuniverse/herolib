@@ -139,9 +139,7 @@ fn destroy() ! {
 	mut zinit_factory := zinit.new()!
 
 	if zinit_factory.exists('dagu') {
-		zinit_factory.stop('dagu') or {
-			return error('Could not stop dagu service due to: ${err}')
-		}
+		zinit_factory.stop('dagu') or { return error('Could not stop dagu service due to: ${err}') }
 		zinit_factory.delete('dagu') or {
 			return error('Could not delete dagu service due to: ${err}')
 		}
