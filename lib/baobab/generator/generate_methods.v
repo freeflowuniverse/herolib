@@ -37,7 +37,7 @@ fn generate_methods_receiver(name string) code.Struct {
 	return code.Struct {
 		is_pub: true
 		name: '${texttools.pascal_case(name)}'
-		embeds: [code.Struct{name:'OSIS'}]
+		fields: [code.StructField{is_mut: true, name: 'osis', typ:code.Object{'OSIS'}}]
 	}
 }
 
@@ -45,7 +45,7 @@ fn generate_core_factory(receiver code.Param) code.Function {
 	return code.Function {
 		is_pub: true
 		name: 'new_${receiver.typ.symbol()}'
-		body: "return ${receiver.typ.symbol().trim_left('!?')}{OSIS: osis.new()!}"
+		body: "return ${receiver.typ.symbol().trim_left('!?')}{osis: osis.new()!}"
 		result: receiver
 	}
 }
@@ -64,11 +64,11 @@ pub fn generate_method_code(receiver code.Param, method ActorMethod) ![]CodeItem
 	// check if method is a Base Object CRUD Method and
 	// if so generate the method's body
 	body := match method.category {
-		.base_object_new { base_object_new_body(method)! }
-		.base_object_get { base_object_get_body(method)! }
-		.base_object_set { base_object_set_body(method)! }
-		.base_object_delete { base_object_delete_body(method)! }
-		.base_object_list { base_object_list_body(method)! }
+		.base_object_new { base_object_new_body(receiver, method)! }
+		.base_object_get { base_object_get_body(receiver, method)! }
+		.base_object_set { base_object_set_body(receiver, method)! }
+		.base_object_delete { base_object_delete_body(receiver, method)! }
+		.base_object_list { base_object_list_body(receiver, method)! }
 		else {"panic('implement')"}
 	}
 
@@ -93,29 +93,29 @@ pub fn generate_method_prototype(receiver code.Param, method ActorMethod) !Funct
 	}
 }
 
-fn base_object_new_body(method ActorMethod) !string {
+fn base_object_new_body(receiver Param, method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'return actor.osis.new[${parameter.typ.vgen()}](${texttools.snake_case(parameter.name)})!'
+	return 'return ${receiver.name}.osis.new[${parameter.typ.vgen()}](${texttools.snake_case(parameter.name)})!'
 }
 
-fn base_object_get_body(method ActorMethod) !string {
+fn base_object_get_body(receiver Param, method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
 	result := content_descriptor_to_parameter(method.result)!
-	return 'return actor.osis.get[${result.typ.vgen()}](${texttools.snake_case(parameter.name)})!'
+	return 'return ${receiver.name}.osis.get[${result.typ.vgen()}](${texttools.snake_case(parameter.name)})!'
 }
 
-fn base_object_set_body(method ActorMethod) !string {
+fn base_object_set_body(receiver Param, method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'return actor.osis.set[${parameter.typ.vgen()}](${parameter.name})!'
+	return 'return ${receiver.name}.osis.set[${parameter.typ.vgen()}](${parameter.name})!'
 }
 
-fn base_object_delete_body(method ActorMethod) !string {
+fn base_object_delete_body(receiver Param, method ActorMethod) !string {
 	parameter := content_descriptor_to_parameter(method.parameters[0])!
-	return 'actor.osis.delete(${texttools.snake_case(parameter.name)})!'
+	return '${receiver.name}.osis.delete(${texttools.snake_case(parameter.name)})!'
 }
 
-fn base_object_list_body(method ActorMethod) !string {
+fn base_object_list_body(receiver Param, method ActorMethod) !string {
 	result := content_descriptor_to_parameter(method.result)!
 	base_object_type := (result.typ as Array).typ
-	return 'return actor.osis.list[${base_object_type.symbol()}]()!'
+	return 'return ${receiver.name}.osis.list[${base_object_type.symbol()}]()!'
 }

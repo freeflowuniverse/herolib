@@ -7,22 +7,19 @@ import os
 
 
 const example_dir = os.dir(@FILE)
-const openapi_spec_path = os.join_path(example_dir, 'openapi.json')
+const specs = ['merchant', 'profiler', 'farmer']
 
-
-// the actor specification obtained from the OpenRPC Specification
-openapi_spec := openapi.new(path: openapi_spec_path, process: true)!
-actor_spec := specification.from_openapi(openapi_spec)!
-
-actor_module := generator.generate_actor_folder(
-	actor_spec,
-	interfaces: [.openapi, .http]
-)!
-
-actor_module.write(example_dir, 
-	format: true
-	overwrite: true
-	compile: false
-)!
-
-// os.execvp('bash', ['${example_dir}/meeting_scheduler_actor/scripts/run.sh'])!
+for spec in specs {
+	openapi_spec_path := os.join_path(example_dir, '${spec}.json')
+	openapi_spec := openapi.new(path: openapi_spec_path, process: true)!
+	actor_spec := specification.from_openapi(openapi_spec)!
+	actor_module := generator.generate_actor_folder(
+		actor_spec,
+		interfaces: [.openapi, .http]
+	)!
+	actor_module.write(example_dir, 
+		format: true
+		overwrite: true
+		compile: false
+	)!
+}
