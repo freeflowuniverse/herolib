@@ -1,5 +1,5 @@
 !!hero_code.generate_installer
-    name: "mycelium"
+    name: "mycelium_installer"
     classname: "MyceliumInstaller"
     hasconfig: true
     singleton: false

@@ -1,4 +1,4 @@
-module mycelium
+module mycelium_installer
 
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.osal.tun

@@ -1,11 +1,11 @@
-module mycelium
+module mycelium_installer
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.installers.sysadmintools.zinit as zinit_installer
+import freeflowuniverse.herolib.installers.infra.zinit_installer
 import freeflowuniverse.herolib.clients.mycelium
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.zinit
@@ -78,8 +78,8 @@ fn ulist_get() !ulist.UList {
 // uploads to S3 server if configured
 fn upload() ! {
 	// installers.upload(
-	//     cmdname: 'mycelium'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/mycelium'
+	//     cmdname: 'mycelium_installer'
+	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/mycelium_installer'
 	// )!
 }
 
@@ -125,7 +125,9 @@ fn build() ! {
 	if myplatform != .ubuntu {
 		return error('only support ubuntu for now')
 	}
-	rust.install()!
+
+	mut rs := rust.get()!
+	rs.install()!
 
 	console.print_header('build mycelium')
 
