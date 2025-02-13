@@ -61,6 +61,7 @@ fn install_() ! {
 	os.mv('${expand_dir}/go', go_dest)!
 	os.rmdir_all(expand_dir)!
 	osal.profile_path_add_remove(paths2add: '${go_dest}/bin')!
+	os.setenv('PATH', '${go_dest}/bin:${os.getenv('PATH')}', true)
 }
 
 fn build_() ! {
