@@ -41,9 +41,10 @@ pub fn configure() ! {
 	mut path := pathlib.get_file(path: args.config_path, create: true)!
 	path.write(mycorefile)!
 
-	if args.example {
-		example_configure()!
-	}
+	// this doesn't work for local machines, needs to be updated
+	// if args.example {
+	// 	example_configure()!
+	// }
 }
 
 pub fn example_configure() ! {
