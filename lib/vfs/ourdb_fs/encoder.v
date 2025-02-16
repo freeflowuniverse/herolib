@@ -17,17 +17,17 @@ fn encode_metadata(mut e encoder.Encoder, m Metadata) {
 }
 
 // decode_metadata decodes the common metadata structure
-fn decode_metadata(mut d encoder.Decoder) Metadata {
-	id := d.get_u32()
-	name := d.get_string()
-	file_type_byte := d.get_u8()
-	size := d.get_u64()
-	created_at := d.get_i64()
-	modified_at := d.get_i64()
-	accessed_at := d.get_i64()
-	mode := d.get_u32()
-	owner := d.get_string()
-	group := d.get_string()
+fn decode_metadata(mut d encoder.Decoder) !Metadata {
+	id := d.get_u32()!
+	name := d.get_string()!
+	file_type_byte := d.get_u8()!
+	size := d.get_u64()!
+	created_at := d.get_i64()!
+	modified_at := d.get_i64()!
+	accessed_at := d.get_i64()!
+	mode := d.get_u32()!
+	owner := d.get_string()!
+	group := d.get_string()!
 
 	return Metadata{
 		id:          id
@@ -69,28 +69,28 @@ pub fn (dir Directory) encode() []u8 {
 // decode_directory decodes a binary format back to Directory
 pub fn decode_directory(data []u8) !Directory {
 	mut d := encoder.decoder_new(data)
-	version := d.get_u8()
+	version := d.get_u8()!
 	if version != 1 {
 		return error('Unsupported version ${version}')
 	}
 
-	type_byte := d.get_u8()
+	type_byte := d.get_u8()!
 	if type_byte != u8(FileType.directory) {
 		return error('Invalid type byte for directory')
 	}
 
 	// Decode metadata
-	metadata := decode_metadata(mut d)
+	metadata := decode_metadata(mut d)!
 
 	// Decode parent_id
-	parent_id := d.get_u32()
+	parent_id := d.get_u32()!
 
 	// Decode children IDs
-	children_count := int(d.get_u16())
+	children_count := int(d.get_u16()!)
 	mut children := []u32{cap: children_count}
 
 	for _ in 0 .. children_count {
-		children << d.get_u32()
+		children << d.get_u32()!
 	}
 
 	return Directory{
@@ -124,24 +124,24 @@ pub fn (f File) encode() []u8 {
 // decode_file decodes a binary format back to File
 pub fn decode_file(data []u8) !File {
 	mut d := encoder.decoder_new(data)
-	version := d.get_u8()
+	version := d.get_u8()!
 	if version != 1 {
 		return error('Unsupported version ${version}')
 	}
 
-	type_byte := d.get_u8()
+	type_byte := d.get_u8()!
 	if type_byte != u8(FileType.file) {
 		return error('Invalid type byte for file')
 	}
 
 	// Decode metadata
-	metadata := decode_metadata(mut d)
+	metadata := decode_metadata(mut d)!
 
 	// Decode parent_id
-	parent_id := d.get_u32()
+	parent_id := d.get_u32()!
 
 	// Decode file data
-	data_content := d.get_string()
+	data_content := d.get_string()!
 
 	return File{
 		metadata:  metadata
@@ -174,24 +174,24 @@ pub fn (sl Symlink) encode() []u8 {
 // decode_symlink decodes a binary format back to Symlink
 pub fn decode_symlink(data []u8) !Symlink {
 	mut d := encoder.decoder_new(data)
-	version := d.get_u8()
+	version := d.get_u8()!
 	if version != 1 {
 		return error('Unsupported version ${version}')
 	}
 
-	type_byte := d.get_u8()
+	type_byte := d.get_u8()!
 	if type_byte != u8(FileType.symlink) {
 		return error('Invalid type byte for symlink')
 	}
 
 	// Decode metadata
-	metadata := decode_metadata(mut d)
+	metadata := decode_metadata(mut d)!
 
 	// Decode parent_id
-	parent_id := d.get_u32()
+	parent_id := d.get_u32()!
 
 	// Decode target path
-	target := d.get_string()
+	target := d.get_string()!
 
 	return Symlink{
 		metadata:  metadata

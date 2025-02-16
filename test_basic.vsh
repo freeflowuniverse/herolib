@@ -30,11 +30,10 @@ fn load_test_cache() TestCache {
 	} }
 }
 
-fn in_github_actions() bool{
-	a:=os.environ()["GITHUB_ACTIONS"] or {return false}
+fn in_github_actions() bool {
+	a := os.environ()['GITHUB_ACTIONS'] or { return false }
 	return true
 }
-
 
 // Save the test cache to JSON file
 fn save_test_cache(cache TestCache) {
@@ -168,6 +167,7 @@ lib/code
 lib/clients
 lib/core
 lib/develop
+lib/vfs
 // lib/crypt
 '
 
@@ -183,11 +183,9 @@ data/radixtree
 clients/livekit
 '
 
-
-
-if in_github_actions(){
-	println("**** WE ARE IN GITHUB ACTION")
-	tests_ignore+="\nosal/tmux\n"
+if in_github_actions() {
+	println('**** WE ARE IN GITHUB ACTION')
+	tests_ignore += '\nosal/tmux\n'
 }
 
 tests_error := '
@@ -218,7 +216,7 @@ test_files_error := tests_error.split('\n').filter(it.trim_space() != '')
 mut cache := load_test_cache()
 println('Test cache loaded from ${cache_file}')
 
-println("tests to ignore")
+println('tests to ignore')
 println(tests_ignore)
 
 // Run each test with proper v command flags
@@ -239,12 +237,13 @@ for test in test_files {
 		// If directory, run tests for each .v file in it recursively
 		files := os.walk_ext(full_path, '.v')
 		for file in files {
-			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut cache)!
+			process_test_file(file, norm_dir_of_script, test_files_ignore, test_files_error, mut
+				cache)!
 		}
 	} else if os.is_file(full_path) {
-		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut cache)!
+		process_test_file(full_path, norm_dir_of_script, test_files_ignore, test_files_error, mut
+			cache)!
 	}
 }
 
 println('All (non skipped) tests ok')
-

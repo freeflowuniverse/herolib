@@ -72,19 +72,19 @@ pub fn (mut fs OurDBFS) save_entry(entry FSEntry) !u32 {
 	match entry {
 		Directory {
 			encoded := entry.encode()
-			return fs.db_meta.set(entry.metadata.id, encoded) or {
+			return fs.db_meta.set(id: entry.metadata.id, data: encoded) or {
 				return error('Failed to save directory on id:${entry.metadata.id}: ${err}')
 			}
 		}
 		File {
 			encoded := entry.encode()
-			return fs.db_meta.set(entry.metadata.id, encoded) or {
+			return fs.db_meta.set(id: entry.metadata.id, data: encoded) or {
 				return error('Failed to save file on id:${entry.metadata.id}: ${err}')
 			}
 		}
 		Symlink {
 			encoded := entry.encode()
-			return fs.db_meta.set(entry.metadata.id, encoded) or {
+			return fs.db_meta.set(id: entry.metadata.id, data: encoded) or {
 				return error('Failed to save symlink on id:${entry.metadata.id}: ${err}')
 			}
 		}

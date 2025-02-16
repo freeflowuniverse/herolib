@@ -1,5 +1,6 @@
 module vfsnested
 
+import freeflowuniverse.herolib.vfs.vfscore
 import os
 
 fn test_nested() ! {

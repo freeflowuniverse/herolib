@@ -8,7 +8,7 @@ import time
 // OurDBVFS represents a VFS that uses OurDB as the underlying storage
 pub struct OurDBVFS {
 mut:
-	core &ourdb_fs.VFS
+	core &ourdb_fs.OurDBFS
 }
 
 // new creates a new OurDBVFS instance
@@ -155,20 +155,19 @@ pub fn (mut self OurDBVFS) destroy() ! {
 }
 
 // Helper functions
-
 fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 	if path == '/' {
-		return self.core.get_root()!
+		return *self.core.get_root()! // Dereference to return a value
 	}
 
-	mut current := self.core.get_root()!
+	mut current := self.core.get_root()! // This is already a reference (&Directory)
 	parts := path.trim_left('/').split('/')
 
 	for i := 0; i < parts.len; i++ {
-		found := false
-		children := current.children(false)!
+		mut found := false
+		mut children := current.children(false)!
 
-		for child in children {
+		for mut child in children {
 			if child.metadata.name == parts[i] {
 				match child {
 					ourdb_fs.Directory {
@@ -178,7 +177,7 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 					}
 					else {
 						if i == parts.len - 1 {
-							return child
+							return child // `child` is already a value, so return it directly
 						} else {
 							return error('Not a directory: ${parts[i]}')
 						}
@@ -192,7 +191,7 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 		}
 	}
 
-	return current
+	return *current // Dereference to return a value
 }
 
 fn (mut self OurDBVFS) get_directory(path string) !&ourdb_fs.Directory {

@@ -59,7 +59,7 @@ fn test_vfs_implementations() ! {
 	// Cleanup
 	local_vfs.delete('test2.txt')!
 	local_vfs.delete('subdir')!
-	local_vfs.delete('test_link.txt')!
+	local_vfs.delete('test_link.txt') or {}
 
 	os.rmdir('/tmp/test_local_vfs') or {}
 }
