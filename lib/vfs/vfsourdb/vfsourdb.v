@@ -1,7 +1,7 @@
 module vfsourdb
 
-import freeflowuniverse.crystallib.vfs.vfscore
-import freeflowuniverse.crystallib.vfs.ourdb_fs
+import freeflowuniverse.herolib.vfs.vfscore
+import freeflowuniverse.herolib.vfs.ourdb_fs
 import os
 import time
 

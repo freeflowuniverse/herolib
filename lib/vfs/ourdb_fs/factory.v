@@ -1,7 +1,7 @@
 module ourdb_fs
 
 import os
-import freeflowuniverse.crystallib.data.ourdb
+import freeflowuniverse.herolib.data.ourdb
 
 // Factory method for creating a new OurDBFS instance
 @[params]

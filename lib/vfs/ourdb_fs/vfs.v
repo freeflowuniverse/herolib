@@ -1,6 +1,6 @@
 module ourdb_fs
 
-import freeflowuniverse.crystallib.data.ourdb
+import freeflowuniverse.herolib.data.ourdb
 
 // OurDBFS represents the virtual filesystem
 @[heap]

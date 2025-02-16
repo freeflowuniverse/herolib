@@ -1,6 +1,6 @@
 module ourdb_fs
 
-import freeflowuniverse.crystallib.data.encoder
+import freeflowuniverse.herolib.data.encoder
 
 // encode_metadata encodes the common metadata structure
 fn encode_metadata(mut e encoder.Encoder, m Metadata) {

@@ -8,7 +8,7 @@ To get started
 
 
 
-import freeflowuniverse.crystallib.clients. runpod
+import freeflowuniverse.herolib.clients. runpod
 
 mut client:= runpod.get()!
 

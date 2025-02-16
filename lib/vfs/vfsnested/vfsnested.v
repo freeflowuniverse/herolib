@@ -1,6 +1,6 @@
 module vfsnested
 
-import freeflowuniverse.crystallib.vfs.vfscore
+import freeflowuniverse.herolib.vfs.vfscore
 
 // NestedVFS represents a VFS that can contain multiple nested VFS instances
 pub struct NestedVFS {
