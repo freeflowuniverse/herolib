@@ -40,7 +40,7 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 	defer {
 		conn.close() or { panic(err) }
 	}
-	conn.write('* OK [CAPABILITY IMAP4rev1 AUTH=PLAIN STARTTLS LOGIN] IMAP server ready\r\n'.bytes())!
+	conn.write('* OK [CAPABILITY IMAP4rev2 STARTTLS LOGINDISABLED AUTH=PLAIN] IMAP server ready\r\n'.bytes())!
 	// Initially no mailbox is selected.
 	mut selected_mailbox_name := ''
 	mut res := false
@@ -54,10 +54,12 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 	}	
 
 	mut session:= Session{
-		server:&server
-		mailbox:""
-		conn:conn
-		reader:reader
+		server: &server
+		mailbox: ""
+		conn: conn
+		reader: reader
+		tls_active: false
+		capabilities: ['IMAP4rev2', 'STARTTLS', 'LOGINDISABLED', 'AUTH=PLAIN']
 	}
 
 	for {
@@ -99,19 +101,28 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 				session.handle_authenticate(tag, parts)!
 			}
 			'SELECT' {
-				session.selected_mailbox_name = handle_select(mut conn, tag, parts, mut server) !
+				session.handle_select(tag, parts)!
 			}
 			'FETCH' {
-				session.handle_fetch(mut conn, tag, parts) !
+				session.handle_fetch(tag, parts) !
 			}
 			'STORE' {
-				session.handle_store(mut conn, tag, parts) !
+				session.handle_store(tag, parts) !
 			}
 			'CAPABILITY' {
-				session.handle_capability(mut conn, tag) !
+				session.handle_capability(tag) !
+			}
+			'LIST' {
+				session.handle_list(tag, parts) !
+			}
+			'UID' {
+				session.handle_uid(tag, parts) !
+			}
+			'CLOSE' {
+				session.handle_close(tag) !
 			}
 			'LOGOUT' {
-				handle_logout(mut conn, tag) !
+				session.handle_logout(tag) !
 				return
 			}
 			else {

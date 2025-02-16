@@ -4,7 +4,7 @@ A simple IMAP server implementation in V that supports basic mailbox operations.
 
 ## Features
 
-- In-memory IMAP server implementation
+- IMAP server implementation with persistent storage via mailbox module
 - Support for multiple mailboxes
 - Basic IMAP commands: LOGIN, SELECT, FETCH, STORE, LOGOUT
 - Message flags support (e.g. \Seen, \Flagged)
@@ -48,9 +48,9 @@ curl "imap://localhost/INBOX" -u "user:pass" --ssl-reqd
 The server consists of three main components:
 
 1. **Model** (`model.v`): Defines the core data structures
-   - `Message`: Represents an email message with ID, subject, body and flags
-   - `Mailbox`: Contains a collection of messages
-   - `IMAPServer`: Holds the mailboxes map
+   - Uses the `mailbox` module for message storage and retrieval
+   - Handles mailbox operations through a standardized interface
+   - Provides message and mailbox management functionality
 
 2. **Server** (`server.v`): Handles the IMAP protocol implementation
    - TCP connection handling
@@ -60,6 +60,7 @@ The server consists of three main components:
 3. **Factory** (`factory.v`): Provides easy server initialization
    - `start()` function to create and run the server
    - Initializes example INBOX with sample messages
+   - Sets up mailbox storage backend
 
 ## Supported Commands
 
@@ -107,7 +108,6 @@ S: A007 OK LOGOUT completed
 - The server runs on port 143, which typically requires root privileges. Make sure you have the necessary permissions.
 - This is a basic implementation for demonstration purposes. For production use, consider adding:
   - Proper authentication
-  - Persistent storage
   - Full IMAP command support
   - TLS encryption
   - Message parsing and MIME support
