@@ -7,13 +7,11 @@ import strconv
 // See RFC 3501 Section 6.4.5
 pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 	// Check if user is logged in
-	if self.account == unsafe { nil } {
+	if self.username == '' {
 		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
 		return error('Not logged in')
 	}
 
-	mut mailbox := self.mailbox()!
-	
 	if parts.len < 4 {
 		self.conn.write('${tag} BAD FETCH requires a message sequence and data item\r\n'.bytes())!
 		return
@@ -62,13 +60,17 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 	// Convert to uppercase for matching
 	items_to_fetch = items_to_fetch.map(it.to_upper())
 
+	// Get all messages in mailbox
+	messages := self.server.mailboxserver.message_list(self.username, self.mailbox)!
+	total_messages := messages.len
+
 	// Parse sequence range
 	mut start_idx := 0
 	mut end_idx := 0
 	
 	if sequence == '1:*' {
 		start_idx = 0
-		end_idx = mailbox.messages.len - 1
+		end_idx = total_messages - 1
 	} else if sequence.contains(':') {
 		range_parts := sequence.split(':')
 		if range_parts.len != 2 {
@@ -80,7 +82,7 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 			return
 		} - 1
 		if range_parts[1] == '*' {
-			end_idx = mailbox.messages.len - 1
+			end_idx = total_messages - 1
 		} else {
 			end_idx = strconv.atoi(range_parts[1]) or {
 				self.conn.write('${tag} BAD Invalid sequence range end\r\n'.bytes())!
@@ -96,14 +98,14 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 		end_idx = start_idx
 	}
 
-	if start_idx < 0 || end_idx >= mailbox.messages.len || start_idx > end_idx {
+	if start_idx < 0 || end_idx >= total_messages || start_idx > end_idx {
 		self.conn.write('${tag} NO Invalid message range\r\n'.bytes())!
 		return
 	}
 
 	// Process messages in range
 	for i := start_idx; i <= end_idx; i++ {
-		msg := mailbox.messages[i]
+		msg := messages[i]
 		mut response := []string{}
 		
 		// Always include UID in FETCH responses
@@ -128,10 +130,10 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 				'BODY[TEXT]' {
 					// Mark message as seen unless using BODY.PEEK
 					if !item.contains('.PEEK') {
-						mut updated_msg := msg
-						if '\\Seen' !in updated_msg.flags {
+						if '\\Seen' !in msg.flags {
+							mut updated_msg := msg
 							updated_msg.flags << '\\Seen'
-							mailbox.set(updated_msg.uid, updated_msg) or {
+							self.server.mailboxserver.message_set(self.username, self.mailbox, msg.uid, updated_msg) or {
 								eprintln('Failed to update \\Seen flag: ${err}')
 							}
 						}
@@ -141,10 +143,10 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 				'BODY[]', 'BODY.PEEK[]' {
 					// Mark message as seen unless using BODY.PEEK
 					if !item.contains('.PEEK') {
-						mut updated_msg := msg
-						if '\\Seen' !in updated_msg.flags {
+						if '\\Seen' !in msg.flags {
+							mut updated_msg := msg
 							updated_msg.flags << '\\Seen'
-							mailbox.set(updated_msg.uid, updated_msg) or {
+							self.server.mailboxserver.message_set(self.username, self.mailbox, msg.uid, updated_msg) or {
 								eprintln('Failed to update \\Seen flag: ${err}')
 							}
 						}

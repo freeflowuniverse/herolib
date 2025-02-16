@@ -46,7 +46,8 @@ fn test_mail_server_accounts() {
 	mut server := MailServer{}
 
 	// Test creating accounts
-	mut account1 := server.create_account('user1', 'First User', ['user1@example.com', 'user1.alt@example.com']) or { panic(err) }
+	server.account_create('user1', 'First User', ['user1@example.com', 'user1.alt@example.com']) or { panic(err) }
+	mut account1 := server.account_get('user1') or { panic(err) }
 	assert account1.name == 'user1'
 	assert account1.emails.len == 2
 
@@ -55,47 +56,48 @@ fn test_mail_server_accounts() {
 	assert inbox.name == 'INBOX'
 
 	// Test creating account with duplicate username
-	if _ := server.create_account('user1', 'Duplicate User', ['other@example.com']) {
+	if _ := server.account_create('user1', 'Duplicate User', ['other@example.com']) {
 		panic('Expected error when creating account with duplicate username')
 	}
 
 	// Test creating account with duplicate email
-	if _ := server.create_account('user2', 'Second User', ['user1@example.com']) {
+	if _ := server.account_create('user2', 'Second User', ['user1@example.com']) {
 		panic('Expected error when creating account with duplicate email')
 	}
 
 	// Test creating another valid account
-	mut account2 := server.create_account('user2', 'Second User', ['user2@example.com']) or { panic(err) }
+	server.account_create('user2', 'Second User', ['user2@example.com']) or { panic(err) }
+	mut account2 := server.account_get('user2') or { panic(err) }
 	assert account2.name == 'user2'
 
 	// Test listing accounts
-	accounts := server.list_accounts()
+	accounts := server.account_list()
 	assert accounts.len == 2
 	assert 'user1' in accounts
 	assert 'user2' in accounts
 
 	// Test getting account
-	mut found := server.get_account('user1') or { panic(err) }
+	mut found := server.account_get('user1') or { panic(err) }
 	assert found.name == 'user1'
 	assert found.emails == ['user1@example.com', 'user1.alt@example.com']
 
 	// Test getting non-existent account
-	if _ := server.get_account('nonexistent') {
+	if _ := server.account_get('nonexistent') {
 		panic('Expected error when getting non-existent account')
 	}
 
 	// Test finding account by email
-	mut found_by_email := server.find_account_by_email('user1.alt@example.com') or { panic(err) }
-	assert found_by_email.name == 'user1'
+	found_by_email := server.account_find_by_email('user1.alt@example.com') or { panic(err) }
+	assert found_by_email == 'user1'
 
 	// Test finding non-existent email
-	if _ := server.find_account_by_email('nonexistent@example.com') {
+	if _ := server.account_find_by_email('nonexistent@example.com') {
 		panic('Expected error when finding non-existent email')
 	}
 
 	// Test deleting account
-	server.delete_account('user2') or { panic(err) }
-	accounts_after_delete := server.list_accounts()
+	server.account_delete('user2') or { panic(err) }
+	accounts_after_delete := server.account_list()
 	assert accounts_after_delete.len == 1
 	assert 'user2' !in accounts_after_delete
 }
@@ -104,7 +106,8 @@ fn test_end_to_end() {
 	mut server := MailServer{}
 
 	// Create account
-	mut account := server.create_account('testuser', 'Test User', ['test@example.com']) or { panic(err) }
+	server.account_create('testuser', 'Test User', ['test@example.com']) or { panic(err) }
+	mut account := server.account_get('testuser') or { panic(err) }
 
 	// Get INBOX and add a message
 	mut inbox := account.get_mailbox('INBOX') or { panic(err) }
@@ -120,7 +123,7 @@ fn test_end_to_end() {
 	mut archives := account.create_mailbox('Archives') or { panic(err) }
 	
 	// Verify mailboxes through server lookup
-	mut found_account := server.get_account('testuser') or { panic(err) }
+	mut found_account := server.account_get('testuser') or { panic(err) }
 	mailboxes := found_account.list_mailboxes()
 	assert mailboxes.len == 2
 	assert 'INBOX' in mailboxes

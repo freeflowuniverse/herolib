@@ -11,16 +11,18 @@ pub fn (mut self Session) handle_close(tag string) ! {
 		return
 	}
 
-	mut mbox := self.mailbox()!
+	// Get all messages in the mailbox
+	messages := self.server.mailboxserver.message_list(self.username, self.mailbox)!
 
-	// Remove all messages with \Deleted flag
-	mut new_messages := []Message{}
-	for msg in mbox.messages {
-		if '\\Deleted' !in msg.flags {
-			new_messages << msg
+	// Delete messages with \Deleted flag
+	for msg in messages {
+		if '\\Deleted' in msg.flags {
+			self.server.mailboxserver.message_delete(self.username, self.mailbox, msg.uid) or {
+				eprintln('Failed to delete message ${msg.uid}: ${err}')
+				continue
+			}
 		}
 	}
-	mbox.messages = new_messages
 
 	// Clear selected mailbox
 	self.mailbox = ''

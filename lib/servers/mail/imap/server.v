@@ -7,7 +7,13 @@ import time
 import io
 
 // Run starts the server on port 143 and accepts client connections.
-fn (mut server IMAPServer) run() ! {
+pub fn (mut server IMAPServer) start() ! {
+
+	spawn daemon(mut server)
+}
+
+fn daemon(mut server IMAPServer) ! {
+
 	addr := '0.0.0.0:143'
 	mut listener := net.listen_tcp(.ip, addr, dualstack:true) or {
 		return error('Failed to listen on $addr: $err')
@@ -32,6 +38,7 @@ fn (mut server IMAPServer) run() ! {
 		// Handle each connection concurrently
 		spawn handle_connection(mut conn, mut server)
 	}
+
 }
 
 // handle_connection processes commands from a connected client.

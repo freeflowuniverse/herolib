@@ -2,7 +2,7 @@ module mailbox
 import time
 
 // Creates demo data with 5 user accounts, each having 2 mailboxes and 20 messages
-pub fn (mut self MailServer) demodata() {
+pub fn (mut self MailServer) demodata() ! {
 	usernames := ['user1', 'user2', 'user3', 'user4', 'user5']
 	names := ['First User', 'Second User', 'Third User', 'Fourth User', 'Fifth User']
 	

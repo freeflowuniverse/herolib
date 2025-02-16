@@ -6,7 +6,7 @@ import net
 // See RFC 3501 Section 6.3.9
 pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 	// Check if user is logged in
-	if self.account == unsafe { nil } {
+	if self.username == '' {
 		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
 		return error('Not logged in')
 	}
@@ -34,19 +34,20 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 		return
 	}
 
-	// Get list of mailboxes for the user
-	mailbox_names := self.account.list_mailboxes()
+	// Get list of mailboxes for the user using mailbox module
+	mailbox_names := self.server.mailboxserver.mailbox_list(self.username) or {
+		self.conn.write('${tag} NO Failed to list mailboxes\r\n'.bytes())!
+		return error('Failed to list mailboxes: ${err}')
+	}
 
 	// Handle % wildcard (single level)
 	if pattern == '%' {
 		// List top-level mailboxes
 		for name in mailbox_names {
 			if !name.contains('/') { // Only top level
-				mut mbox := self.account.get_mailbox(name) or { continue }
+				// Since we don't have direct access to read-only status, use basic attributes
 				mut attrs := []string{}
-				if mbox.read_only {
-					attrs << '\\ReadOnly'
-				}
+				
 				// Add child status attributes
 				mut has_children := false
 				for other_name in mailbox_names {
@@ -72,11 +73,9 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 	if pattern == '*' {
 		// List all mailboxes
 		for name in mailbox_names {
-			mut mbox := self.account.get_mailbox(name) or { continue }
+			// Since we don't have direct access to read-only status, use basic attributes
 			mut attrs := []string{}
-			if mbox.read_only {
-				attrs << '\\ReadOnly'
-			}
+			
 			// Add child status attributes
 			mut has_children := false
 			for other_name in mailbox_names {
@@ -99,14 +98,9 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 
 	// Handle exact mailbox name
 	if pattern in mailbox_names {
-		mut mbox := self.account.get_mailbox(pattern) or {
-			self.conn.write('${tag} OK LIST completed\r\n'.bytes())!
-			return
-		}
+		// Since we don't have direct access to read-only status, use basic attributes
 		mut attrs := []string{}
-		if mbox.read_only {
-			attrs << '\\ReadOnly'
-		}
+		
 		// Add child status attributes
 		mut has_children := false
 		for other_name in mailbox_names {

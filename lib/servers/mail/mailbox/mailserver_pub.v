@@ -1,11 +1,10 @@
 module mailbox
-import time
 
 // Represents the mail server that manages user accounts
 @[heap]
 pub struct MailServer {
 mut:
-	accounts map[string]&UserAccount  // Map of username to user account
+	accounts map[string]&UserAccount // Map of username to user account
 }
 
 // Creates a new user account
@@ -24,10 +23,10 @@ pub fn (mut self MailServer) account_create(username string, description string,
 	}
 
 	mut account := &UserAccount{
-		name: username
+		name:        username
 		description: description
-		emails: emails.clone()
-		mailboxes: map[string]&Mailbox{}
+		emails:      emails.clone()
+		mailboxes:   map[string]&Mailbox{}
 	}
 	self.accounts[username] = account
 

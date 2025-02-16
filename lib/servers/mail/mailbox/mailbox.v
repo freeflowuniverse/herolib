@@ -105,5 +105,5 @@ fn (mut self Mailbox) find(args FindArgs) ![]Message {
 
 
 fn (mut self Mailbox) len() int {
-	return self.message.len()
+	return self.messages.len
 }

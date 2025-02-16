@@ -7,19 +7,20 @@ import strconv
 // See RFC 3501 Section 6.4.6
 pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 	// Check if user is logged in
-	if self.account == unsafe { nil } {
+	if self.username == '' {
 		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
 		return error('Not logged in')
 	}
 
-	mut mailbox := self.mailbox()!
-	
 	// Expecting format like: A003 STORE sequence-set operation flags
 	if parts.len < 5 {
 		self.conn.write('${tag} BAD STORE requires a sequence-set, an operation, and flags\r\n'.bytes())!
 		return
 	}
 
+	// Get all messages to find the target message
+	messages := self.server.mailboxserver.message_list(self.username, self.mailbox)!
+	
 	// Parse sequence set (currently only supporting single message numbers)
 	sequence := parts[2]
 	index := strconv.atoi(sequence) or {
@@ -27,7 +28,7 @@ pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 		return
 	} - 1
 
-	if index < 0 || index >= mailbox.messages.len {
+	if index < 0 || index >= messages.len {
 		self.conn.write('${tag} NO No such message\r\n'.bytes())!
 		return
 	}
@@ -56,7 +57,7 @@ pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 		}
 	}
 
-	mut msg := mailbox.messages[index]
+	mut msg := messages[index]
 	old_flags := msg.flags.clone() // Save for comparison
 
 	// Apply flag changes
@@ -82,8 +83,8 @@ pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 		else {}
 	}
 
-	// Save the updated message using mailbox.set()
-	mailbox.set(msg.uid, msg) or {
+	// Save the updated message using mailbox module's message_set
+	self.server.mailboxserver.message_set(self.username, self.mailbox, msg.uid, msg) or {
 		self.conn.write('${tag} NO Failed to update message flags\r\n'.bytes())!
 		return error('Failed to update message flags: ${err}')
 	}

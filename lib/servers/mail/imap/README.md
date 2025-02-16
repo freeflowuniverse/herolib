@@ -15,11 +15,18 @@ A simple IMAP server implementation in V that supports basic mailbox operations.
 The server can be started with a simple function call:
 
 ```v
-import freeflowuniverse.herolib.servers.imap
+import freeflowuniverse.herolib.servers.mail.imap
+import freeflowuniverse.herolib.servers.mail.mailbox
 
 fn main() {
+    // Create the mail server
+    mut mailserver := mailbox.new_mail_server()
+    
+    // Create the IMAP server wrapping the mail server
+    mut imap_server := imap.new_server(mailserver)
+    
     // Start the IMAP server on port 143
-    imap.start() or { panic(err) }
+    imap_server.start() or { panic(err) }
 }
 ```
 
@@ -29,7 +36,7 @@ Save this to `example.v` and run with:
 v run example.v
 ```
 
-The server will start listening on port 143 (default IMAP port) and initialize with an example INBOX containing two messages.
+The server will start listening on port 143 (default IMAP port).
 
 ## Testing with an IMAP Client
 
@@ -45,22 +52,20 @@ curl "imap://localhost/INBOX" -u "user:pass" --ssl-reqd
 
 ## Implementation Details
 
-The server consists of three main components:
+The server consists of two main components:
 
-1. **Model** (`model.v`): Defines the core data structures
-   - Uses the `mailbox` module for message storage and retrieval
-   - Handles mailbox operations through a standardized interface
-   - Provides message and mailbox management functionality
+1. **Mailbox Module** (`mailbox/`): Core mail functionality
+   - User account management
+   - Mailbox operations (create, delete, list)
+   - Message storage and retrieval
+   - Message flag management
+   - Search capabilities
 
-2. **Server** (`server.v`): Handles the IMAP protocol implementation
-   - TCP connection handling
+2. **IMAP Server** (`imap/`): IMAP protocol implementation
+   - TCP connection handling and session management
    - IMAP command processing
+   - Maps IMAP operations to mailbox module functionality
    - Concurrent client support
-
-3. **Factory** (`factory.v`): Provides easy server initialization
-   - `start()` function to create and run the server
-   - Initializes example INBOX with sample messages
-   - Sets up mailbox storage backend
 
 ## Supported Commands
 

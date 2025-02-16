@@ -2,7 +2,7 @@ module mailbox
 
 fn test_demodata() {
 	mut server := new()
-	server.demodata()
+	server.demodata()!
 
 	// Test user accounts
 	usernames := ['user1', 'user2', 'user3', 'user4', 'user5']
@@ -25,7 +25,7 @@ fn test_demodata() {
 		assert 'Sent' in mailboxes
 
 		// Verify INBOX messages
-		inbox_messages := server.message_list(username, 'INBOX', FindArgs{}) or { panic(err) }
+		inbox_messages := server.message_list(username, 'INBOX') or { panic(err) }
 		assert inbox_messages.len == 10
 
 		// Check specific properties of first and last INBOX messages
@@ -40,7 +40,7 @@ fn test_demodata() {
 		assert last_msg.flags == if 9 % 2 == 0 { ['\\Seen'] } else { [] }
 
 		// Verify Sent messages
-		sent_messages := server.message_list(username, 'Sent', FindArgs{}) or { panic(err) }
+		sent_messages := server.message_list(username, 'Sent') or { panic(err) }
 		assert sent_messages.len == 10
 
 		// Check specific properties of first and last Sent messages

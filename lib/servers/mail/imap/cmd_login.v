@@ -21,29 +21,23 @@ pub fn (mut self Session) handle_login(tag string, parts []string) ! {
 
 	// For demo purposes, accept any username and look it up in the mailbox server
 	// In a real implementation, we would validate the password here
-	if username in self.server.mailboxserver.accounts {
-		self.username = username
-		self.account = self.server.mailboxserver.accounts[username]
-		
-		// Update capabilities - remove LOGINDISABLED and STARTTLS after login
-		self.capabilities = self.capabilities.filter(it != 'LOGINDISABLED' && it != 'STARTTLS')
-		
-		// Send OK response with updated capabilities
-		self.conn.write('${tag} OK [CAPABILITY ${self.capabilities.join(' ')}] LOGIN completed\r\n'.bytes())!
-	} else {
-		// Create a new account for demo purposes
-		// In a real implementation, this would return an authentication error
-		mut account := self.server.mailboxserver.create_account(username, username, ['${username}@example.com']) or {
+	
+	// Try to find existing account by email
+	email := '${username}@example.com'
+	existing_username := self.server.mailboxserver.account_find_by_email(email) or {
+		// Create a new account if not found
+		self.server.mailboxserver.account_create(username, username, ['${username}@example.com']) or {
 			self.conn.write('${tag} NO [AUTHENTICATIONFAILED] Failed to create account\r\n'.bytes())!
 			return
 		}
-		self.username = username
-		self.account = account
-		
-		// Update capabilities - remove LOGINDISABLED and STARTTLS after login
-		self.capabilities = self.capabilities.filter(it != 'LOGINDISABLED' && it != 'STARTTLS')
-		
-		// Send OK response with updated capabilities
-		self.conn.write('${tag} OK [CAPABILITY ${self.capabilities.join(' ')}] LOGIN completed\r\n'.bytes())!
+		username // Return the new username
 	}
+
+	self.username = existing_username
+	
+	// Update capabilities - remove LOGINDISABLED and STARTTLS after login
+	self.capabilities = self.capabilities.filter(it != 'LOGINDISABLED' && it != 'STARTTLS')
+	
+	// Send OK response with updated capabilities
+	self.conn.write('${tag} OK [CAPABILITY ${self.capabilities.join(' ')}] LOGIN completed\r\n'.bytes())!
 }
