@@ -94,6 +94,31 @@ pub fn (py PythonEnv) update() ! {
 	console.print_debug('Pip update complete')
 }
 
+// comma separated list of packages to uninstall
+pub fn (mut py PythonEnv) pip_uninstall(packages string) ! {
+	mut to_uninstall := []string{}
+	for i in packages.split(',') {
+		pip := i.trim_space()
+		if !py.pips_done_check(pip)! {
+			to_uninstall << pip
+			console.print_debug('Package to uninstall: ${pip}')
+		}
+	}
+
+	if to_uninstall.len == 0 {
+		return
+	}
+
+	console.print_debug('uninstalling Python packages: ${packages}')
+	packages2 := to_uninstall.join(' ')
+	cmd := '
+	cd ${py.path.path}
+	source bin/activate
+	pip3 uninstall ${packages2} -q
+	'
+	osal.exec(cmd: cmd)!
+}
+
 // comma separated list of packages to install
 pub fn (mut py PythonEnv) pip(packages string) ! {
 	mut to_install := []string{}
