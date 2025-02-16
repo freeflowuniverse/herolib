@@ -10,6 +10,12 @@ pub fn (mut self Session) handle_select(tag string, parts []string) ! {
 		return error('SELECT requires a mailbox name')
 	}
 
+	// Check if user is logged in
+	if self.account == unsafe { nil } {
+		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
+		return error('Not logged in')
+	}
+
 	// If there's a currently selected mailbox, send CLOSED response
 	if self.mailbox != '' {
 		self.conn.write('* OK [CLOSED] Previous mailbox is now closed\r\n'.bytes())!
@@ -18,13 +24,12 @@ pub fn (mut self Session) handle_select(tag string, parts []string) ! {
 	// Remove any surrounding quotes from mailbox name
 	mailbox_name := parts[2].trim('"')
 
-	// Look for the mailbox
-	if mailbox_name !in self.server.mailboxes {
+	// Look for the mailbox in user's account
+	mut mbox := self.account.get_mailbox(mailbox_name) or {
 		self.conn.write('${tag} NO Mailbox does not exist\r\n'.bytes())!
 		return error('Mailbox does not exist')
 	}
 
-	mut mbox := self.server.mailboxes[mailbox_name]
 	messages_count := mbox.messages.len
 
 	// Required untagged responses per spec:
@@ -48,6 +53,9 @@ pub fn (mut self Session) handle_select(tag string, parts []string) ! {
 	self.mailbox = mailbox_name
 
 	// Send READ-WRITE or READ-ONLY status in tagged response
-	// TODO: Implement proper access rights checking
-	self.conn.write('${tag} OK [READ-WRITE] SELECT completed\r\n'.bytes())!
+	if mbox.read_only {
+		self.conn.write('${tag} OK [READ-ONLY] SELECT completed\r\n'.bytes())!
+	} else {
+		self.conn.write('${tag} OK [READ-WRITE] SELECT completed\r\n'.bytes())!
+	}
 }

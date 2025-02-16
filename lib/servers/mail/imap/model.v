@@ -3,33 +3,43 @@ import net
 import io
 import time
 
+import freeflowuniverse.herolib.servers.mail.mailbox
 
-// Our in-memory server holds a map of mailbox names to pointers to Mailbox.
+// IMAPServer wraps the mailbox server to provide IMAP functionality
 @[heap]
 pub struct IMAPServer {
 pub mut:
-	mailboxes map[string]&Mailbox
+	mailboxserver &mailbox.MailServer
 }
 
+// Session represents an active IMAP client connection
 pub struct Session {
 pub mut:
 	server       &IMAPServer
-	mailbox      string      // The name of the mailbox
+	username     string                  // Currently logged in user
+	account      &mailbox.UserAccount   // Current user's account
+	mailbox      string                 // Currently selected mailbox name
 	conn         net.TcpConn
 	reader       &io.BufferedReader
-	tls_active   bool        // Whether TLS is active on the connection
-	capabilities []string    // Current capabilities for this session
+	tls_active   bool                   // Whether TLS is active on the connection
+	capabilities []string               // Current capabilities for this session
 }
 
-
-pub fn (mut self Session) mailbox_new(name string) !&Mailbox {
-	self.server.mailboxes[name] = &Mailbox{name:name}
-	return self.server.mailboxes[name]
-}
-
-pub fn (mut self Session) mailbox() !&Mailbox {
-	if !(self.mailbox in self.server.mailboxes) {
-		return error("mailbox ${self.mailbox} does not exist")
+// mailbox_new creates a new mailbox for the current user
+pub fn (mut self Session) mailbox_new(name string) !&mailbox.Mailbox {
+	if self.account == unsafe { nil } {
+		return error('No user logged in')
 	}
-	return self.server.mailboxes[self.mailbox] or { panic("bug") }
+	return self.account.create_mailbox(name)
+}
+
+// mailbox returns the currently selected mailbox
+pub fn (mut self Session) mailbox() !&mailbox.Mailbox {
+	if self.account == unsafe { nil } {
+		return error('No user logged in')
+	}
+	if self.mailbox == '' {
+		return error('No mailbox selected')
+	}
+	return self.account.get_mailbox(self.mailbox)
 }

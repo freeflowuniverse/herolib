@@ -2,8 +2,8 @@ module mailbox
 
 // Represents a mailbox holding messages.
 @[heap]
-pub struct Mailbox {
-pub mut:
+struct Mailbox {
+mut:
 	name         string
 	messages     []Message
 	next_uid     u32    // Next unique identifier to be assigned
@@ -14,12 +14,12 @@ pub mut:
 
 
 // Returns all messages in the mailbox
-pub fn (mut self Mailbox) list() ![]Message {
+fn (mut self Mailbox) list() ![]Message {
 	return self.messages
 }
 
 // Gets a message by its UID
-pub fn (mut self Mailbox) get(uid u32) !Message {
+fn (mut self Mailbox) get(uid u32) !Message {
 	for msg in self.messages {
 		if msg.uid == uid {
 			return msg
@@ -29,7 +29,7 @@ pub fn (mut self Mailbox) get(uid u32) !Message {
 }
 
 // Deletes a message by its UID
-pub fn (mut self Mailbox) delete(uid u32) ! {
+fn (mut self Mailbox) delete(uid u32) ! {
 	for i, msg in self.messages {
 		if msg.uid == uid {
 			self.messages.delete(i)
@@ -40,7 +40,7 @@ pub fn (mut self Mailbox) delete(uid u32) ! {
 }
 
 // Sets/updates a message with the given UID
-pub fn (mut self Mailbox) set(uid u32, msg Message) ! {
+fn (mut self Mailbox) set(uid u32, msg Message) ! {
 	if self.read_only {
 		return error('Mailbox is read-only')
 	}
@@ -69,7 +69,7 @@ pub mut:
 }
 
 // Finds messages matching the given criteria
-pub fn (mut self Mailbox) find(args FindArgs) ![]Message {
+fn (mut self Mailbox) find(args FindArgs) ![]Message {
 	mut results := []Message{}
 	
 	for msg in self.messages {
@@ -101,4 +101,9 @@ pub fn (mut self Mailbox) find(args FindArgs) ![]Message {
 	}
 	
 	return results
+}
+
+
+fn (mut self Mailbox) len() int {
+	return self.message.len()
 }

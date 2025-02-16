@@ -3,8 +3,8 @@ import time
 
 // Represents a user account in the mail server
 @[heap]
-pub struct UserAccount {
-pub mut:
+struct UserAccount {
+mut:
 	name        string
 	description string
 	emails      []string
@@ -12,7 +12,7 @@ pub mut:
 }
 
 // Creates a new mailbox for the user account
-pub fn (mut self UserAccount) create_mailbox(name string) !&Mailbox {
+fn (mut self UserAccount) create_mailbox(name string) !&Mailbox {
 	if name in self.mailboxes {
 		return error('Mailbox ${name} already exists')
 	}
@@ -26,7 +26,7 @@ pub fn (mut self UserAccount) create_mailbox(name string) !&Mailbox {
 }
 
 // Gets a mailbox by name
-pub fn (mut self UserAccount) get_mailbox(name string) !&Mailbox {
+fn (mut self UserAccount) get_mailbox(name string) !&Mailbox {
 	if mailbox := self.mailboxes[name] {
 		return mailbox
 	}
@@ -34,7 +34,7 @@ pub fn (mut self UserAccount) get_mailbox(name string) !&Mailbox {
 }
 
 // Deletes a mailbox by name
-pub fn (mut self UserAccount) delete_mailbox(name string) ! {
+fn (mut self UserAccount) delete_mailbox(name string) ! {
 	if name !in self.mailboxes {
 		return error('Mailbox ${name} not found')
 	}
@@ -42,6 +42,6 @@ pub fn (mut self UserAccount) delete_mailbox(name string) ! {
 }
 
 // Lists all mailboxes for the user
-pub fn (self UserAccount) list_mailboxes() []string {
+fn (self UserAccount) list_mailboxes() []string {
 	return self.mailboxes.keys()
 }

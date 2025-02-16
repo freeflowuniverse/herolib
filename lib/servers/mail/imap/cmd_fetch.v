@@ -6,6 +6,12 @@ import strconv
 // handle_fetch processes the FETCH command
 // See RFC 3501 Section 6.4.5
 pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
+	// Check if user is logged in
+	if self.account == unsafe { nil } {
+		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
+		return error('Not logged in')
+	}
+
 	mut mailbox := self.mailbox()!
 	
 	if parts.len < 4 {
@@ -98,56 +104,76 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 	// Process messages in range
 	for i := start_idx; i <= end_idx; i++ {
 		msg := mailbox.messages[i]
-			mut response := []string{}
-			
-			// Always include UID in FETCH responses
-			response << 'UID ${msg.uid}'
+		mut response := []string{}
+		
+		// Always include UID in FETCH responses
+		response << 'UID ${msg.uid}'
 
-			for item in items_to_fetch {
-				match item {
-					'FLAGS' {
-						flags_str := if msg.flags.len > 0 {
-							msg.flags.join(' ')
-						} else {
-							''
-						}
-						response << 'FLAGS (${flags_str})'
+		for item in items_to_fetch {
+			match item {
+				'FLAGS' {
+					flags_str := if msg.flags.len > 0 {
+						msg.flags.join(' ')
+					} else {
+						''
 					}
-					'INTERNALDATE' {
-						response << 'INTERNALDATE "${msg.internal_date.str()}"'
-					}
-					'RFC822.SIZE' {
-						response << 'RFC822.SIZE ${msg.body.len}'
-					}
-					'BODY[TEXT]' {
-						response << 'BODY[TEXT] {${msg.body.len}}\r\n${msg.body}'
-					}
-					'BODY[]', 'BODY.PEEK[]' {
-						// For BODY[], return the full message including headers
-						mut full_msg := 'From: <>\r\n'
-						full_msg += 'Subject: ${msg.subject}\r\n'
-						full_msg += 'Date: ${msg.internal_date.str()}\r\n'
-						full_msg += '\r\n'  // Empty line between headers and body
-						full_msg += msg.body
-						response << 'BODY[] {${full_msg.len}}\r\n${full_msg}'
-					}
-					'BODY[HEADER]', 'BODY.PEEK[HEADER]' {
-						// Return just the headers
-						mut headers := 'From: <>\r\n'
-						headers += 'Subject: ${msg.subject}\r\n'
-						headers += 'Date: ${msg.internal_date.str()}\r\n'
-						headers += '\r\n'  // Empty line after headers
-						response << 'BODY[HEADER] {${headers.len}}\r\n${headers}'
-					}
-					'ENVELOPE' {
-						// Basic envelope with just subject for now
-						response << 'ENVELOPE (NIL "${msg.subject}" NIL NIL NIL NIL NIL NIL NIL NIL)'
-					}
-					else {}
+					response << 'FLAGS (${flags_str})'
 				}
+				'INTERNALDATE' {
+					response << 'INTERNALDATE "${msg.internal_date.str()}"'
+				}
+				'RFC822.SIZE' {
+					response << 'RFC822.SIZE ${msg.body.len}'
+				}
+				'BODY[TEXT]' {
+					// Mark message as seen unless using BODY.PEEK
+					if !item.contains('.PEEK') {
+						mut updated_msg := msg
+						if '\\Seen' !in updated_msg.flags {
+							updated_msg.flags << '\\Seen'
+							mailbox.set(updated_msg.uid, updated_msg) or {
+								eprintln('Failed to update \\Seen flag: ${err}')
+							}
+						}
+					}
+					response << 'BODY[TEXT] {${msg.body.len}}\r\n${msg.body}'
+				}
+				'BODY[]', 'BODY.PEEK[]' {
+					// Mark message as seen unless using BODY.PEEK
+					if !item.contains('.PEEK') {
+						mut updated_msg := msg
+						if '\\Seen' !in updated_msg.flags {
+							updated_msg.flags << '\\Seen'
+							mailbox.set(updated_msg.uid, updated_msg) or {
+								eprintln('Failed to update \\Seen flag: ${err}')
+							}
+						}
+					}
+					// For BODY[], return the full message including headers
+					mut full_msg := 'From: <>\r\n'
+					full_msg += 'Subject: ${msg.subject}\r\n'
+					full_msg += 'Date: ${msg.internal_date.str()}\r\n'
+					full_msg += '\r\n'  // Empty line between headers and body
+					full_msg += msg.body
+					response << 'BODY[] {${full_msg.len}}\r\n${full_msg}'
+				}
+				'BODY[HEADER]', 'BODY.PEEK[HEADER]' {
+					// Return just the headers
+					mut headers := 'From: <>\r\n'
+					headers += 'Subject: ${msg.subject}\r\n'
+					headers += 'Date: ${msg.internal_date.str()}\r\n'
+					headers += '\r\n'  // Empty line after headers
+					response << 'BODY[HEADER] {${headers.len}}\r\n${headers}'
+				}
+				'ENVELOPE' {
+					// Basic envelope with just subject for now
+					response << 'ENVELOPE (NIL "${msg.subject}" NIL NIL NIL NIL NIL NIL NIL NIL)'
+				}
+				else {}
 			}
-			
-			self.conn.write('* ${i+1} FETCH (${response.join(' ')})\r\n'.bytes())!
 		}
+		
+		self.conn.write('* ${i+1} FETCH (${response.join(' ')})\r\n'.bytes())!
+	}
 	self.conn.write('${tag} OK FETCH completed\r\n'.bytes())!
 }

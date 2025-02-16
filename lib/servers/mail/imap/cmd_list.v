@@ -5,6 +5,12 @@ import net
 // handle_list processes the LIST command
 // See RFC 3501 Section 6.3.9
 pub fn (mut self Session) handle_list(tag string, parts []string) ! {
+	// Check if user is logged in
+	if self.account == unsafe { nil } {
+		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
+		return error('Not logged in')
+	}
+
 	if parts.len < 4 {
 		self.conn.write('${tag} BAD LIST requires reference name and mailbox name\r\n'.bytes())!
 		return
@@ -28,18 +34,22 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 		return
 	}
 
+	// Get list of mailboxes for the user
+	mailbox_names := self.account.list_mailboxes()
+
 	// Handle % wildcard (single level)
 	if pattern == '%' {
 		// List top-level mailboxes
-		for name, mbox in self.server.mailboxes {
+		for name in mailbox_names {
 			if !name.contains('/') { // Only top level
+				mut mbox := self.account.get_mailbox(name) or { continue }
 				mut attrs := []string{}
 				if mbox.read_only {
 					attrs << '\\ReadOnly'
 				}
 				// Add child status attributes
 				mut has_children := false
-				for other_name, _ in self.server.mailboxes {
+				for other_name in mailbox_names {
 					if other_name.starts_with(name + '/') {
 						has_children = true
 						break
@@ -61,14 +71,15 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 	// Handle * wildcard (multiple levels)
 	if pattern == '*' {
 		// List all mailboxes
-		for name, mbox in self.server.mailboxes {
+		for name in mailbox_names {
+			mut mbox := self.account.get_mailbox(name) or { continue }
 			mut attrs := []string{}
 			if mbox.read_only {
 				attrs << '\\ReadOnly'
 			}
 			// Add child status attributes
 			mut has_children := false
-			for other_name, _ in self.server.mailboxes {
+			for other_name in mailbox_names {
 				if other_name.starts_with(name + '/') {
 					has_children = true
 					break
@@ -87,15 +98,18 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 	}
 
 	// Handle exact mailbox name
-	if pattern in self.server.mailboxes {
-		mbox := self.server.mailboxes[pattern]
+	if pattern in mailbox_names {
+		mut mbox := self.account.get_mailbox(pattern) or {
+			self.conn.write('${tag} OK LIST completed\r\n'.bytes())!
+			return
+		}
 		mut attrs := []string{}
 		if mbox.read_only {
 			attrs << '\\ReadOnly'
 		}
 		// Add child status attributes
 		mut has_children := false
-		for other_name, _ in self.server.mailboxes {
+		for other_name in mailbox_names {
 			if other_name.starts_with(pattern + '/') {
 				has_children = true
 				break

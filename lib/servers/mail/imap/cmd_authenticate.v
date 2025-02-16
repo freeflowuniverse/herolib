@@ -4,6 +4,7 @@ import net
 import io
 import freeflowuniverse.herolib.ui.console
 
+
 // handle_authenticate processes the AUTHENTICATE command
 pub fn (mut self Session) handle_authenticate(tag string, parts []string) ! {
 	if parts.len < 3 {

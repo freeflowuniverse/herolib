@@ -6,6 +6,12 @@ import strconv
 // handle_store processes the STORE command
 // See RFC 3501 Section 6.4.6
 pub fn (mut self Session) handle_store(tag string, parts []string) ! {
+	// Check if user is logged in
+	if self.account == unsafe { nil } {
+		self.conn.write('${tag} NO Must be logged in first\r\n'.bytes())!
+		return error('Not logged in')
+	}
+
 	mut mailbox := self.mailbox()!
 	
 	// Expecting format like: A003 STORE sequence-set operation flags
@@ -76,8 +82,11 @@ pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 		else {}
 	}
 
-	// Save the updated message
-	mailbox.messages[index] = msg
+	// Save the updated message using mailbox.set()
+	mailbox.set(msg.uid, msg) or {
+		self.conn.write('${tag} NO Failed to update message flags\r\n'.bytes())!
+		return error('Failed to update message flags: ${err}')
+	}
 
 	// Send untagged FETCH response if flags changed and not silent
 	if !silent && msg.flags != old_flags {

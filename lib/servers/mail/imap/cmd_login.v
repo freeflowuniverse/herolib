@@ -19,15 +19,31 @@ pub fn (mut self Session) handle_login(tag string, parts []string) ! {
 	username := parts[2]
 	password := parts[3]
 
-	// TODO: Implement actual authentication
-	// For demo purposes, accept any username/password
-	// In real implementation:
-	// 1. Validate credentials
-	// 2. If invalid, return: NO [AUTHENTICATIONFAILED] Authentication failed
-	// 3. If valid but can't authorize, return: NO [AUTHORIZATIONFAILED] Authorization failed
-	
-	// After successful login:
-	// 1. Send capabilities in OK response
-	// 2. Don't include LOGINDISABLED or STARTTLS in capabilities after login
-	self.conn.write('${tag} OK [CAPABILITY IMAP4rev2 AUTH=PLAIN] LOGIN completed\r\n'.bytes())!
+	// For demo purposes, accept any username and look it up in the mailbox server
+	// In a real implementation, we would validate the password here
+	if username in self.server.mailboxserver.accounts {
+		self.username = username
+		self.account = self.server.mailboxserver.accounts[username]
+		
+		// Update capabilities - remove LOGINDISABLED and STARTTLS after login
+		self.capabilities = self.capabilities.filter(it != 'LOGINDISABLED' && it != 'STARTTLS')
+		
+		// Send OK response with updated capabilities
+		self.conn.write('${tag} OK [CAPABILITY ${self.capabilities.join(' ')}] LOGIN completed\r\n'.bytes())!
+	} else {
+		// Create a new account for demo purposes
+		// In a real implementation, this would return an authentication error
+		mut account := self.server.mailboxserver.create_account(username, username, ['${username}@example.com']) or {
+			self.conn.write('${tag} NO [AUTHENTICATIONFAILED] Failed to create account\r\n'.bytes())!
+			return
+		}
+		self.username = username
+		self.account = account
+		
+		// Update capabilities - remove LOGINDISABLED and STARTTLS after login
+		self.capabilities = self.capabilities.filter(it != 'LOGINDISABLED' && it != 'STARTTLS')
+		
+		// Send OK response with updated capabilities
+		self.conn.write('${tag} OK [CAPABILITY ${self.capabilities.join(' ')}] LOGIN completed\r\n'.bytes())!
+	}
 }
