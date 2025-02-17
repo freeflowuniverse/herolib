@@ -171,7 +171,9 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 			if child.metadata.name == parts[i] {
 				match child {
 					ourdb_fs.Directory {
-						current = child
+						unsafe {
+							current = child
+						}
 						found = true
 						break
 					}
