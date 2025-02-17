@@ -1,4 +1,5 @@
 module mailbox
+
 import time
 
 // Represents a user account in the mail server
@@ -8,7 +9,7 @@ mut:
 	name        string
 	description string
 	emails      []string
-	mailboxes   map[string]&Mailbox  // Map of mailbox name to mailbox instance
+	mailboxes   map[string]&Mailbox // Map of mailbox name to mailbox instance
 }
 
 // Creates a new mailbox for the user account
@@ -18,7 +19,7 @@ fn (mut self UserAccount) create_mailbox(name string) !&Mailbox {
 	}
 
 	mb := &Mailbox{
-		name: name
+		name:         name
 		uid_validity: u32(time.now().unix())
 	}
 	self.mailboxes[name] = mb

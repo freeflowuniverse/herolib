@@ -6,12 +6,10 @@ struct Mailbox {
 mut:
 	name         string
 	messages     []Message
-	next_uid     u32    // Next unique identifier to be assigned
-	uid_validity u32    // Unique identifier validity value
-	read_only    bool   // Whether mailbox is read-only
+	next_uid     u32  // Next unique identifier to be assigned
+	uid_validity u32  // Unique identifier validity value
+	read_only    bool // Whether mailbox is read-only
 }
-
-
 
 // Returns all messages in the mailbox
 fn (mut self Mailbox) list() ![]Message {
@@ -44,7 +42,7 @@ fn (mut self Mailbox) set(uid u32, msg Message) ! {
 	if self.read_only {
 		return error('Mailbox is read-only')
 	}
-	
+
 	mut found := false
 	for i, existing in self.messages {
 		if existing.uid == uid {
@@ -53,7 +51,7 @@ fn (mut self Mailbox) set(uid u32, msg Message) ! {
 			break
 		}
 	}
-	
+
 	if !found {
 		// Add as new message if UID doesn't exist
 		self.messages << msg
@@ -61,30 +59,30 @@ fn (mut self Mailbox) set(uid u32, msg Message) ! {
 }
 
 @[params]
-pub struct FindArgs{
+pub struct FindArgs {
 pub mut:
 	subject string
 	content string
-	flags []string
+	flags   []string
 }
 
 // Finds messages matching the given criteria
 fn (mut self Mailbox) find(args FindArgs) ![]Message {
 	mut results := []Message{}
-	
+
 	for msg in self.messages {
 		mut matches := true
-		
+
 		// Check subject if specified
 		if args.subject != '' && !msg.subject.contains(args.subject) {
 			matches = false
 		}
-		
+
 		// Check content if specified
 		if matches && args.content != '' && !msg.body.contains(args.content) {
 			matches = false
 		}
-		
+
 		// Check all specified flags are present
 		if matches && args.flags.len > 0 {
 			for flag in args.flags {
@@ -94,15 +92,14 @@ fn (mut self Mailbox) find(args FindArgs) ![]Message {
 				}
 			}
 		}
-		
+
 		if matches {
 			results << msg
 		}
 	}
-	
+
 	return results
 }
-
 
 fn (mut self Mailbox) len() int {
 	return self.messages.len

@@ -4,7 +4,7 @@ import time
 
 fn test_mailbox_basic_operations() {
 	mut mb := Mailbox{
-		name: 'INBOX'
+		name:         'INBOX'
 		uid_validity: 1234
 	}
 
@@ -14,10 +14,10 @@ fn test_mailbox_basic_operations() {
 
 	// Test adding a message
 	msg1 := Message{
-		uid: 1
-		subject: 'Test email'
-		body: 'Hello world'
-		flags: ['\\Seen']
+		uid:           1
+		subject:       'Test email'
+		body:          'Hello world'
+		flags:         ['\\Seen']
 		internal_date: time.now()
 	}
 	mb.set(1, msg1) or { panic(err) }
@@ -37,20 +37,20 @@ fn test_mailbox_basic_operations() {
 
 fn test_mailbox_delete() {
 	mut mb := Mailbox{
-		name: 'INBOX'
+		name:         'INBOX'
 		uid_validity: 1234
 	}
 
 	// Add two messages
 	msg1 := Message{
-		uid: 1
+		uid:     1
 		subject: 'First email'
-		body: 'Content 1'
+		body:    'Content 1'
 	}
 	msg2 := Message{
-		uid: 2
+		uid:     2
 		subject: 'Second email'
-		body: 'Content 2'
+		body:    'Content 2'
 	}
 	mb.set(1, msg1) or { panic(err) }
 	mb.set(2, msg2) or { panic(err) }
@@ -72,51 +72,51 @@ fn test_mailbox_delete() {
 
 fn test_mailbox_find() {
 	mut mb := Mailbox{
-		name: 'INBOX'
+		name:         'INBOX'
 		uid_validity: 1234
 	}
 
 	// Add test messages
 	msg1 := Message{
-		uid: 1
+		uid:     1
 		subject: 'Important meeting'
-		body: 'Meeting at 2 PM'
-		flags: ['\\Seen', '\\Flagged']
+		body:    'Meeting at 2 PM'
+		flags:   ['\\Seen', '\\Flagged']
 	}
 	msg2 := Message{
-		uid: 2
+		uid:     2
 		subject: 'Hello friend'
-		body: 'How are you?'
-		flags: ['\\Seen']
+		body:    'How are you?'
+		flags:   ['\\Seen']
 	}
 	msg3 := Message{
-		uid: 3
+		uid:     3
 		subject: 'Another meeting'
-		body: 'Team sync at 3 PM'
-		flags: ['\\Draft']
+		body:    'Team sync at 3 PM'
+		flags:   ['\\Draft']
 	}
-	
+
 	mb.set(1, msg1) or { panic(err) }
 	mb.set(2, msg2) or { panic(err) }
 	mb.set(3, msg3) or { panic(err) }
 
 	// Test finding by subject
-	found_subject := mb.find(FindArgs{subject: 'meeting'}) or { panic(err) }
+	found_subject := mb.find(FindArgs{ subject: 'meeting' }) or { panic(err) }
 	assert found_subject.len == 2
-	
+
 	// Test finding by content
-	found_content := mb.find(FindArgs{content: 'PM'}) or { panic(err) }
+	found_content := mb.find(FindArgs{ content: 'PM' }) or { panic(err) }
 	assert found_content.len == 2
 
 	// Test finding by flags
-	found_flags := mb.find(FindArgs{flags: ['\\Seen', '\\Flagged']}) or { panic(err) }
+	found_flags := mb.find(FindArgs{ flags: ['\\Seen', '\\Flagged'] }) or { panic(err) }
 	assert found_flags.len == 1
 	assert found_flags[0].uid == 1
 
 	// Test finding with multiple criteria
 	found_multi := mb.find(FindArgs{
 		subject: 'meeting'
-		flags: ['\\Draft']
+		flags:   ['\\Draft']
 	}) or { panic(err) }
 	assert found_multi.len == 1
 	assert found_multi[0].uid == 3
@@ -124,15 +124,15 @@ fn test_mailbox_find() {
 
 fn test_readonly_mailbox() {
 	mut mb := Mailbox{
-		name: 'INBOX'
+		name:         'INBOX'
 		uid_validity: 1234
-		read_only: true
+		read_only:    true
 	}
 
 	msg := Message{
-		uid: 1
+		uid:     1
 		subject: 'Test email'
-		body: 'Hello world'
+		body:    'Hello world'
 	}
 
 	// Attempt to modify read-only mailbox should fail

@@ -8,37 +8,34 @@ import io
 
 // Run starts the server on port 143 and accepts client connections.
 pub fn (mut server IMAPServer) start() ! {
-
 	spawn daemon(mut server)
 }
 
 fn daemon(mut server IMAPServer) ! {
-
 	addr := '0.0.0.0:143'
-	mut listener := net.listen_tcp(.ip, addr, dualstack:true) or {
-		return error('Failed to listen on $addr: $err')
+	mut listener := net.listen_tcp(.ip, addr, dualstack: true) or {
+		return error('Failed to listen on ${addr}: ${err}')
 	}
-	println('IMAP Server listening on $addr')
-	
+	println('IMAP Server listening on ${addr}')
+
 	// Set TCP options for better reliability
 	// listener.set_option_bool(.reuse_addr, true)
-	
+
 	for {
 		mut conn := listener.accept() or {
-			eprintln('Failed to accept connection: $err')
+			eprintln('Failed to accept connection: ${err}')
 			continue
 		}
-		
+
 		// Set connection options
-		
+
 		// conn.set_option_int(.tcp_keepalive, 60)!
 		conn.set_read_timeout(30 * time.second)
 		conn.set_write_timeout(30 * time.second)
-		
+
 		// Handle each connection concurrently
 		spawn handle_connection(mut conn, mut server)
 	}
-
 }
 
 // handle_connection processes commands from a connected client.
@@ -58,14 +55,14 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 		unsafe {
 			reader.free()
 		}
-	}	
+	}
 
-	mut session:= Session{
-		server: &server
-		mailbox: ""
-		conn: conn
-		reader: reader
-		tls_active: false
+	mut session := Session{
+		server:       &server
+		mailbox:      ''
+		conn:         conn
+		reader:       reader
+		tls_active:   false
 		capabilities: ['IMAP4rev2', 'STARTTLS', 'LOGINDISABLED', 'AUTH=PLAIN']
 	}
 
@@ -82,8 +79,8 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 					return error('connection ended')
 				}
 				else {
-					eprintln('Connection read error: $err')
-					return error('connection error: $err')
+					eprintln('Connection read error: ${err}')
+					return error('connection error: ${err}')
 				}
 			}
 		}
@@ -102,7 +99,7 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 		cmd := parts[1].to_upper()
 		match cmd {
 			'LOGIN' {
-				session.handle_login(tag, parts )!
+				session.handle_login(tag, parts)!
 			}
 			'AUTHENTICATE' {
 				session.handle_authenticate(tag, parts)!
@@ -111,25 +108,25 @@ fn handle_connection(mut conn net.TcpConn, mut server IMAPServer) ! {
 				session.handle_select(tag, parts)!
 			}
 			'FETCH' {
-				session.handle_fetch(tag, parts) !
+				session.handle_fetch(tag, parts)!
 			}
 			'STORE' {
-				session.handle_store(tag, parts) !
+				session.handle_store(tag, parts)!
 			}
 			'CAPABILITY' {
-				session.handle_capability(tag) !
+				session.handle_capability(tag)!
 			}
 			'LIST' {
-				session.handle_list(tag, parts) !
+				session.handle_list(tag, parts)!
 			}
 			'UID' {
-				session.handle_uid(tag, parts) !
+				session.handle_uid(tag, parts)!
 			}
 			'CLOSE' {
-				session.handle_close(tag) !
+				session.handle_close(tag)!
 			}
 			'LOGOUT' {
-				session.handle_logout(tag) !
+				session.handle_logout(tag)!
 				return
 			}
 			else {

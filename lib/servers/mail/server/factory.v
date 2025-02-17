@@ -16,9 +16,8 @@ pub fn start_demo() ! {
 	imap_server.start()!
 	smtp_server.start()!
 
-	println("servers started.")
+	println('servers started.')
 
-	for{
-
+	for {
 	}
 }

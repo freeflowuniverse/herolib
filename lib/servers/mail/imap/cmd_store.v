@@ -20,7 +20,7 @@ pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 
 	// Get all messages to find the target message
 	messages := self.server.mailboxserver.message_list(self.username, self.mailbox)!
-	
+
 	// Parse sequence set (currently only supporting single message numbers)
 	sequence := parts[2]
 	index := strconv.atoi(sequence) or {
@@ -36,7 +36,7 @@ pub fn (mut self Session) handle_store(tag string, parts []string) ! {
 	// Parse operation (FLAGS, +FLAGS, -FLAGS, with optional .SILENT)
 	op := parts[3]
 	silent := op.ends_with('.SILENT')
-	base_op := if silent { op[..op.len-7] } else { op }
+	base_op := if silent { op[..op.len - 7] } else { op }
 
 	if base_op !in ['FLAGS', '+FLAGS', '-FLAGS'] {
 		self.conn.write('${tag} BAD Unknown STORE operation\r\n'.bytes())!

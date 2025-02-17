@@ -4,7 +4,6 @@ import net
 import io
 import freeflowuniverse.herolib.ui.console
 
-
 // handle_authenticate processes the AUTHENTICATE command
 pub fn (mut self Session) handle_authenticate(tag string, parts []string) ! {
 	if parts.len < 3 {
@@ -27,8 +26,8 @@ pub fn (mut self Session) handle_authenticate(tag string, parts []string) ! {
 					return error('connection ended during auth')
 				}
 				else {
-					eprintln('Connection read error during authentication: $err')
-					return error('connection error during auth: $err')
+					eprintln('Connection read error during authentication: ${err}')
+					return error('connection error during auth: ${err}')
 				}
 			}
 		}

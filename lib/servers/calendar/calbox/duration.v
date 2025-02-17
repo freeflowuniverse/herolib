@@ -11,11 +11,11 @@ pub fn parse_duration(iso_duration string) !Duration {
 	if iso_duration.len < 2 || !iso_duration.starts_with('P') {
 		return error('Invalid duration format: must start with P')
 	}
-	
+
 	mut seconds := i64(0)
 	mut number_str := ''
 	mut time_part := false
-	
+
 	for i := 1; i < iso_duration.len; i++ {
 		c := iso_duration[i]
 		match c {
@@ -102,11 +102,11 @@ pub fn parse_duration(iso_duration string) !Duration {
 			}
 		}
 	}
-	
+
 	if number_str != '' {
 		return error('Invalid duration format: number without unit')
 	}
-	
+
 	return Duration{seconds}
 }
 
@@ -114,45 +114,45 @@ pub fn parse_duration(iso_duration string) !Duration {
 pub fn (d Duration) str() string {
 	mut s := 'P'
 	mut remaining := d.seconds
-	
+
 	// Years (approximate)
 	years := remaining / (365 * 24 * 60 * 60)
 	if years > 0 {
 		s += '${years}Y'
 		remaining = remaining % (365 * 24 * 60 * 60)
 	}
-	
+
 	// Days
 	days := remaining / (24 * 60 * 60)
 	if days > 0 {
 		s += '${days}D'
 		remaining = remaining % (24 * 60 * 60)
 	}
-	
+
 	// Time part (hours, minutes, seconds)
 	if remaining > 0 {
 		s += 'T'
-		
+
 		// Hours
 		hours := remaining / (60 * 60)
 		if hours > 0 {
 			s += '${hours}H'
 			remaining = remaining % (60 * 60)
 		}
-		
+
 		// Minutes
 		minutes := remaining / 60
 		if minutes > 0 {
 			s += '${minutes}M'
 			remaining = remaining % 60
 		}
-		
+
 		// Seconds
 		if remaining > 0 {
 			s += '${remaining}S'
 		}
 	}
-	
+
 	return s
 }
 

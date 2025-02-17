@@ -47,7 +47,7 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 			if !name.contains('/') { // Only top level
 				// Since we don't have direct access to read-only status, use basic attributes
 				mut attrs := []string{}
-				
+
 				// Add child status attributes
 				mut has_children := false
 				for other_name in mailbox_names {
@@ -75,7 +75,7 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 		for name in mailbox_names {
 			// Since we don't have direct access to read-only status, use basic attributes
 			mut attrs := []string{}
-			
+
 			// Add child status attributes
 			mut has_children := false
 			for other_name in mailbox_names {
@@ -100,7 +100,7 @@ pub fn (mut self Session) handle_list(tag string, parts []string) ! {
 	if pattern in mailbox_names {
 		// Since we don't have direct access to read-only status, use basic attributes
 		mut attrs := []string{}
-		
+
 		// Add child status attributes
 		mut has_children := false
 		for other_name in mailbox_names {

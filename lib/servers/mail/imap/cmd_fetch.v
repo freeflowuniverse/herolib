@@ -25,14 +25,14 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 	mut items_to_fetch := []string{}
 	mut current_item := ''
 	mut in_brackets := false
-	
+
 	for c in data_items {
 		match c {
-			`[` { 
+			`[` {
 				in_brackets = true
 				current_item += c.ascii_str()
 			}
-			`]` { 
+			`]` {
 				in_brackets = false
 				current_item += c.ascii_str()
 				if current_item != '' {
@@ -40,7 +40,7 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 					current_item = ''
 				}
 			}
-			` ` { 
+			` ` {
 				if in_brackets {
 					current_item += c.ascii_str()
 				} else if current_item != '' {
@@ -67,7 +67,7 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 	// Parse sequence range
 	mut start_idx := 0
 	mut end_idx := 0
-	
+
 	if sequence == '1:*' {
 		start_idx = 0
 		end_idx = total_messages - 1
@@ -107,7 +107,7 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 	for i := start_idx; i <= end_idx; i++ {
 		msg := messages[i]
 		mut response := []string{}
-		
+
 		// Always include UID in FETCH responses
 		response << 'UID ${msg.uid}'
 
@@ -133,7 +133,8 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 						if '\\Seen' !in msg.flags {
 							mut updated_msg := msg
 							updated_msg.flags << '\\Seen'
-							self.server.mailboxserver.message_set(self.username, self.mailbox, msg.uid, updated_msg) or {
+							self.server.mailboxserver.message_set(self.username, self.mailbox,
+								msg.uid, updated_msg) or {
 								eprintln('Failed to update \\Seen flag: ${err}')
 							}
 						}
@@ -146,7 +147,8 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 						if '\\Seen' !in msg.flags {
 							mut updated_msg := msg
 							updated_msg.flags << '\\Seen'
-							self.server.mailboxserver.message_set(self.username, self.mailbox, msg.uid, updated_msg) or {
+							self.server.mailboxserver.message_set(self.username, self.mailbox,
+								msg.uid, updated_msg) or {
 								eprintln('Failed to update \\Seen flag: ${err}')
 							}
 						}
@@ -155,7 +157,7 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 					mut full_msg := 'From: <>\r\n'
 					full_msg += 'Subject: ${msg.subject}\r\n'
 					full_msg += 'Date: ${msg.internal_date.str()}\r\n'
-					full_msg += '\r\n'  // Empty line between headers and body
+					full_msg += '\r\n' // Empty line between headers and body
 					full_msg += msg.body
 					response << 'BODY[] {${full_msg.len}}\r\n${full_msg}'
 				}
@@ -164,7 +166,7 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 					mut headers := 'From: <>\r\n'
 					headers += 'Subject: ${msg.subject}\r\n'
 					headers += 'Date: ${msg.internal_date.str()}\r\n'
-					headers += '\r\n'  // Empty line after headers
+					headers += '\r\n' // Empty line after headers
 					response << 'BODY[HEADER] {${headers.len}}\r\n${headers}'
 				}
 				'ENVELOPE' {
@@ -174,8 +176,8 @@ pub fn (mut self Session) handle_fetch(tag string, parts []string) ! {
 				else {}
 			}
 		}
-		
-		self.conn.write('* ${i+1} FETCH (${response.join(' ')})\r\n'.bytes())!
+
+		self.conn.write('* ${i + 1} FETCH (${response.join(' ')})\r\n'.bytes())!
 	}
 	self.conn.write('${tag} OK FETCH completed\r\n'.bytes())!
 }

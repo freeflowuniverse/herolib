@@ -17,17 +17,17 @@ pub mut:
 // Creates a new collection
 pub fn new_collection(path string, is_calendar bool) &Collection {
 	mut col := &Collection{
-		path: path
-		props: map[string]string{}
-		acl: new_acl()
-		children: map[string]&Collection{}
+		path:        path
+		props:       map[string]string{}
+		acl:         new_acl()
+		children:    map[string]&Collection{}
 		is_calendar: is_calendar
 	}
-	
+
 	if is_calendar {
 		col.cal = calbox.new(path.all_after_last('/'))
 	}
-	
+
 	return col
 }
 
@@ -84,10 +84,10 @@ pub fn (c Collection) find_by_path(path string) ?&Collection {
 	if c.path == path {
 		return c
 	}
-	
+
 	parts := path.trim_left('/').split('/')
 	mut current := &c
-	
+
 	for part in parts {
 		if child := current.get_child(part) {
 			current = child
@@ -95,7 +95,7 @@ pub fn (c Collection) find_by_path(path string) ?&Collection {
 			return none
 		}
 	}
-	
+
 	return current
 }
 
@@ -104,7 +104,7 @@ pub fn (c Collection) get_object_by_href(href string) ?calbox.CalendarObject {
 	if !c.is_calendar {
 		return none
 	}
-	
+
 	uid := href.all_after_last('/')
 	return c.cal.get_by_uid(uid)
 }
@@ -114,7 +114,7 @@ pub fn (c Collection) list_objects() []calbox.CalendarObject {
 	if !c.is_calendar {
 		return []calbox.CalendarObject{}
 	}
-	
+
 	return c.cal.list() or { []calbox.CalendarObject{} }
 }
 
@@ -123,7 +123,7 @@ pub fn (c Collection) find_objects(filter CalendarQueryFilter) []calbox.Calendar
 	if !c.is_calendar {
 		return []calbox.CalendarObject{}
 	}
-	
+
 	return c.cal.find_by_filter(filter) or { []calbox.CalendarObject{} }
 }
 
@@ -132,7 +132,7 @@ pub fn (c Collection) get_freebusy(tr calbox.TimeRange) []calbox.TimeRange {
 	if !c.is_calendar {
 		return []calbox.TimeRange{}
 	}
-	
+
 	return c.cal.get_freebusy(tr) or { []calbox.TimeRange{} }
 }
 
@@ -141,7 +141,7 @@ pub fn (mut c Collection) put_object(obj calbox.CalendarObject) ! {
 	if !c.is_calendar {
 		return error('Not a calendar collection')
 	}
-	
+
 	c.cal.put(obj)!
 }
 
@@ -150,6 +150,6 @@ pub fn (mut c Collection) delete_object(uid string) ! {
 	if !c.is_calendar {
 		return error('Not a calendar collection')
 	}
-	
+
 	c.cal.delete(uid)!
 }

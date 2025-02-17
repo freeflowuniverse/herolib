@@ -1,4 +1,3 @@
-
 module mailbox
 
 pub fn new() &MailServer {

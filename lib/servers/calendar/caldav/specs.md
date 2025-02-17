@@ -2,247 +2,20 @@
 
                Calendaring Extensions to WebDAV (CalDAV)
 
-Status of This Memo
-
-   This document specifies an Internet standards track protocol for the
-   Internet community, and requests discussion and suggestions for
-   improvements.  Please refer to the current edition of the "Internet
-   Official Protocol Standards" (STD 1) for the standardization state
-   and status of this protocol.  Distribution of this memo is unlimited.
-
-Copyright Notice
-
-   Copyright (C) The IETF Trust (2007).
-
 Abstract
 
    This document defines extensions to the Web Distributed Authoring and
    Versioning (WebDAV) protocol to specify a standard way of accessing,
    managing, and sharing calendaring and scheduling information based on
-   the iCalendar format.  This document defines the "calendar-access"
-   feature of CalDAV.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Daboo, et al.               Standards Track                     [Page 1]
-
-RFC 4791                         CalDAV                       March 2007
-
-
-Table of Contents
-
-   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  5
-     1.1.  Notational Conventions . . . . . . . . . . . . . . . . . .  5
-     1.2.  XML Namespaces and Processing  . . . . . . . . . . . . . .  5
-     1.3.  Method Preconditions and Postconditions  . . . . . . . . .  6
-   2.  Requirements Overview  . . . . . . . . . . . . . . . . . . . .  6
-   3.  Calendaring Data Model . . . . . . . . . . . . . . . . . . . .  7
-     3.1.  Calendar Server  . . . . . . . . . . . . . . . . . . . . .  7
-     3.2.  Recurrence and the Data Model  . . . . . . . . . . . . . .  8
-   4.  Calendar Resources . . . . . . . . . . . . . . . . . . . . . .  9
-     4.1.  Calendar Object Resources  . . . . . . . . . . . . . . . .  9
-     4.2.  Calendar Collection  . . . . . . . . . . . . . . . . . . . 10
-   5.  Calendar Access Feature  . . . . . . . . . . . . . . . . . . . 11
-     5.1.  Calendar Access Support  . . . . . . . . . . . . . . . . . 11
-       5.1.1.  Example: Using OPTIONS for the Discovery of
-               Calendar Access Support  . . . . . . . . . . . . . . . 12
-     5.2.  Calendar Collection Properties . . . . . . . . . . . . . . 12
-       5.2.1.  CALDAV:calendar-description Property . . . . . . . . . 12
-       5.2.2.  CALDAV:calendar-timezone Property  . . . . . . . . . . 13
-       5.2.3.  CALDAV:supported-calendar-component-set Property . . . 14
-       5.2.4.  CALDAV:supported-calendar-data Property  . . . . . . . 15
-       5.2.5.  CALDAV:max-resource-size Property  . . . . . . . . . . 16
-       5.2.6.  CALDAV:min-date-time Property  . . . . . . . . . . . . 17
-       5.2.7.  CALDAV:max-date-time Property  . . . . . . . . . . . . 18
-       5.2.8.  CALDAV:max-instances Property  . . . . . . . . . . . . 19
-       5.2.9.  CALDAV:max-attendees-per-instance Property . . . . . . 19
-       5.2.10. Additional Precondition for PROPPATCH  . . . . . . . . 20
-     5.3.  Creating Resources . . . . . . . . . . . . . . . . . . . . 20
-       5.3.1.  MKCALENDAR Method  . . . . . . . . . . . . . . . . . . 20
-         5.3.1.1.  Status Codes . . . . . . . . . . . . . . . . . . . 22
-         5.3.1.2.  Example: Successful MKCALENDAR Request . . . . . . 23
-       5.3.2.  Creating Calendar Object Resources . . . . . . . . . . 25
-         5.3.2.1.  Additional Preconditions for PUT, COPY, and
-                   MOVE . . . . . . . . . . . . . . . . . . . . . . . 26
-       5.3.3.  Non-Standard Components, Properties, and Parameters  . 28
-       5.3.4.  Calendar Object Resource Entity Tag  . . . . . . . . . 28
-   6.  Calendaring Access Control . . . . . . . . . . . . . . . . . . 29
-     6.1.  Calendaring Privilege  . . . . . . . . . . . . . . . . . . 29
-       6.1.1.  CALDAV:read-free-busy Privilege  . . . . . . . . . . . 29
-     6.2.  Additional Principal Property  . . . . . . . . . . . . . . 30
-       6.2.1.  CALDAV:calendar-home-set Property  . . . . . . . . . . 30
-   7.  Calendaring Reports  . . . . . . . . . . . . . . . . . . . . . 31
-     7.1.  REPORT Method  . . . . . . . . . . . . . . . . . . . . . . 31
-     7.2.  Ordinary Collections . . . . . . . . . . . . . . . . . . . 31
-     7.3.  Date and Floating Time . . . . . . . . . . . . . . . . . . 32
-     7.4.  Time Range Filtering . . . . . . . . . . . . . . . . . . . 32
-     7.5.  Searching Text: Collations . . . . . . . . . . . . . . . . 33
-
-
-
-Daboo, et al.               Standards Track                     [Page 2]
-
-RFC 4791                         CalDAV                       March 2007
-
-
-       7.5.1.  CALDAV:supported-collation-set Property  . . . . . . . 34
-     7.6.  Partial Retrieval  . . . . . . . . . . . . . . . . . . . . 34
-     7.7.  Non-Standard Components, Properties, and Parameters  . . . 35
-     7.8.  CALDAV:calendar-query REPORT . . . . . . . . . . . . . . . 36
-       7.8.1.  Example: Partial Retrieval of Events by Time Range . . 38
-       7.8.2.  Example: Partial Retrieval of Recurring Events . . . . 42
-       7.8.3.  Example: Expanded Retrieval of Recurring Events  . . . 45
-       7.8.4.  Example: Partial Retrieval of Stored Free Busy
-               Components . . . . . . . . . . . . . . . . . . . . . . 48
-       7.8.5.  Example: Retrieval of To-Dos by Alarm Time Range . . . 50
-       7.8.6.  Example: Retrieval of Event by UID . . . . . . . . . . 51
-       7.8.7.  Example: Retrieval of Events by PARTSTAT . . . . . . . 53
-       7.8.8.  Example: Retrieval of Events Only  . . . . . . . . . . 55
-       7.8.9.  Example: Retrieval of All Pending To-Dos . . . . . . . 59
-       7.8.10. Example: Attempt to Query Unsupported Property . . . . 62
-     7.9.  CALDAV:calendar-multiget REPORT  . . . . . . . . . . . . . 63
-       7.9.1.  Example: Successful CALDAV:calendar-multiget REPORT  . 64
-     7.10. CALDAV:free-busy-query REPORT  . . . . . . . . . . . . . . 66
-       7.10.1. Example: Successful CALDAV:free-busy-query REPORT  . . 68
-   8.  Guidelines . . . . . . . . . . . . . . . . . . . . . . . . . . 69
-     8.1.  Client-to-Client Interoperability  . . . . . . . . . . . . 69
-     8.2.  Synchronization Operations . . . . . . . . . . . . . . . . 69
-       8.2.1.  Use of Reports . . . . . . . . . . . . . . . . . . . . 69
-         8.2.1.1.  Restrict the Time Range  . . . . . . . . . . . . . 69
-         8.2.1.2.  Synchronize by Time Range  . . . . . . . . . . . . 70
-         8.2.1.3.  Synchronization Process  . . . . . . . . . . . . . 70
-       8.2.2.  Restrict the Properties Returned . . . . . . . . . . . 72
-     8.3.  Use of Locking . . . . . . . . . . . . . . . . . . . . . . 72
-     8.4.  Finding Calendars  . . . . . . . . . . . . . . . . . . . . 72
-     8.5.  Storing and Using Attachments  . . . . . . . . . . . . . . 74
-       8.5.1.  Inline Attachments . . . . . . . . . . . . . . . . . . 74
-       8.5.2.  External Attachments . . . . . . . . . . . . . . . . . 75
-     8.6.  Storing and Using Alarms . . . . . . . . . . . . . . . . . 76
-   9.  XML Element Definitions  . . . . . . . . . . . . . . . . . . . 77
-     9.1.  CALDAV:calendar XML Element  . . . . . . . . . . . . . . . 77
-     9.2.  CALDAV:mkcalendar XML Element  . . . . . . . . . . . . . . 77
-     9.3.  CALDAV:mkcalendar-response XML Element . . . . . . . . . . 78
-     9.4.  CALDAV:supported-collation XML Element . . . . . . . . . . 78
-     9.5.  CALDAV:calendar-query XML Element  . . . . . . . . . . . . 78
-     9.6.  CALDAV:calendar-data XML Element . . . . . . . . . . . . . 79
-       9.6.1.  CALDAV:comp XML Element  . . . . . . . . . . . . . . . 80
-       9.6.2.  CALDAV:allcomp XML Element . . . . . . . . . . . . . . 81
-       9.6.3.  CALDAV:allprop XML Element . . . . . . . . . . . . . . 81
-       9.6.4.  CALDAV:prop XML Element  . . . . . . . . . . . . . . . 82
-       9.6.5.  CALDAV:expand XML Element  . . . . . . . . . . . . . . 82
-       9.6.6.  CALDAV:limit-recurrence-set XML Element  . . . . . . . 83
-       9.6.7.  CALDAV:limit-freebusy-set XML Element  . . . . . . . . 84
-     9.7.  CALDAV:filter XML Element  . . . . . . . . . . . . . . . . 85
-
-
-
-Daboo, et al.               Standards Track                     [Page 3]
-
-RFC 4791                         CalDAV                       March 2007
-
-
-       9.7.1.  CALDAV:comp-filter XML Element . . . . . . . . . . . . 85
-       9.7.2.  CALDAV:prop-filter XML Element . . . . . . . . . . . . 86
-       9.7.3.  CALDAV:param-filter XML Element  . . . . . . . . . . . 87
-       9.7.4.  CALDAV:is-not-defined XML Element  . . . . . . . . . . 88
-       9.7.5.  CALDAV:text-match XML Element  . . . . . . . . . . . . 88
-     9.8.  CALDAV:timezone XML Element  . . . . . . . . . . . . . . . 89
-     9.9.  CALDAV:time-range XML Element  . . . . . . . . . . . . . . 90
-     9.10. CALDAV:calendar-multiget XML Element . . . . . . . . . . . 94
-     9.11. CALDAV:free-busy-query XML Element . . . . . . . . . . . . 95
-   10. Internationalization Considerations  . . . . . . . . . . . . . 95
-   11. Security Considerations  . . . . . . . . . . . . . . . . . . . 95
-   12. IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 96
-     12.1. Namespace Registration . . . . . . . . . . . . . . . . . . 96
-   13. Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 96
-   14. References . . . . . . . . . . . . . . . . . . . . . . . . . . 97
-     14.1. Normative References . . . . . . . . . . . . . . . . . . . 97
-     14.2. Informative References . . . . . . . . . . . . . . . . . . 98
-   Appendix A.  CalDAV Method Privilege Table (Normative) . . . . . . 99
-   Appendix B.  Calendar Collections Used in the Examples . . . . . . 99
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Daboo, et al.               Standards Track                     [Page 4]
-
-RFC 4791                         CalDAV                       March 2007
-
+   the iCalendar format.
 
 1.  Introduction
 
-   The concept of using HTTP [RFC2616] and WebDAV [RFC2518] as a basis
-   for a calendar access protocol is by no means a new concept: it was
-   discussed in the IETF CALSCH working group as early as 1997 or 1998.
-   Several companies have implemented calendar access protocols using
-   HTTP to upload and download iCalendar [RFC2445] objects, and using
-   WebDAV to get listings of resources.  However, those implementations
-   do not interoperate because there are many small and big decisions to
-   be made in how to model calendaring data as WebDAV resources, as well
-   as how to implement required features that aren't already part of
-   WebDAV.  This document proposes a way to model calendar data in
-   WebDAV, with additional features to make an interoperable calendar
-   access protocol.
-
-1.1.  Notational Conventions
-
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-   document are to be interpreted as described in [RFC2119].
-
-   The term "protected" is used in the Conformance field of property
-   definitions as defined in Section 1.4.2 of [RFC3253].
-
-   When XML element types in the namespaces "DAV:" and
-   "urn:ietf:params:xml:ns:caldav" are referenced in this document
-   outside of the context of an XML fragment, the string "DAV:" and
-   "CALDAV:" will be prefixed to the element type names, respectively.
+   The concept of using HTTP and WebDAV as a basis for a calendar access 
+   protocol allows implementations to upload and download iCalendar objects, 
+   and use WebDAV to get listings of resources. This document proposes a way 
+   to model calendar data in WebDAV, with additional features to make an 
+   interoperable calendar access protocol.
 
 1.2.  XML Namespaces and Processing
 
@@ -250,9 +23,8 @@ RFC 4791                         CalDAV                       March 2007
    declarations (as found in XML Document Type Declarations), described
    in Section 3.2 of [W3C.REC-xml-20060816].
 
-   The namespace "urn:ietf:params:xml:ns:caldav" is reserved for the XML
-   elements defined in this specification, its revisions, and related
-   CalDAV specifications.  XML elements defined by individual
+   The namespace "urn:ietf:params:xml:ns:caldav" is used for the XML
+   elements defined in this specification. XML elements defined by individual
    implementations MUST NOT use the "urn:ietf:params:xml:ns:caldav"
    namespace, and instead should use a namespace that they control.
 
@@ -265,19 +37,12 @@ RFC 4791                         CalDAV                       March 2007
    "DAV:" to avoid confusion.
 
 
-
-Daboo, et al.               Standards Track                     [Page 5]
-
-RFC 4791                         CalDAV                       March 2007
-
-
    Also note that some CalDAV XML element names are identical to WebDAV
    XML element names, though their namespace differs.  Care must be
    taken not to confuse the two sets of names.
 
    Processing of XML by CalDAV clients and servers MUST follow the rules
-   described in [RFC2518]; in particular, Section 14, and Appendix 3 of
-   that specification.
+   described in WebDAV specifications.
 
 1.3.  Method Preconditions and Postconditions
 
@@ -299,48 +64,36 @@ RFC 4791                         CalDAV                       March 2007
    DAV:error element in the response body, unless otherwise negotiated
    by the request.
 
-2.  Requirements Overview
+1.  Requirements Overview
 
    This section lists what functionality is required of a CalDAV server.
    To advertise support for CalDAV, a server:
 
-   o  MUST support iCalendar [RFC2445] as a media type for the calendar
-      object resource format;
+   o  MUST support iCalendar as a media type for the calendar object 
+      resource format;
 
-   o  MUST support WebDAV Class 1 [RFC2518] (note that [rfc2518bis]
-      describes clarifications to [RFC2518] that aid interoperability);
+   o  MUST support WebDAV Class 1;
 
-   o  MUST support WebDAV ACL [RFC3744] with the additional privilege
-      defined in Section 6.1 of this document;
+   o  MUST support WebDAV ACL with the additional privilege defined in 
+      this document;
 
-   o  MUST support transport over TLS [RFC2246] as defined in [RFC2818]
-      (note that [RFC2246] has been obsoleted by [RFC4346]);
+   o  MUST support transport over TLS;
 
-   o  MUST support ETags [RFC2616] with additional requirements
-      specified in Section 5.3.4 of this document;
+   o  MUST support ETags with additional requirements specified in this 
+      document;
 
-
-
-
-Daboo, et al.               Standards Track                     [Page 6]
-
-RFC 4791                         CalDAV                       March 2007
-
-
-   o  MUST support all calendaring reports defined in Section 7 of this
-      document; and
+   o  MUST support all calendaring reports defined in this document;
 
    o  MUST advertise support on all calendar collections and calendar
       object resources for the calendaring reports in the DAV:supported-
-      report-set property, as defined in Versioning Extensions to WebDAV
-      [RFC3253].
+      report-set property.
 
    In addition, a server:
 
    o  SHOULD support the MKCALENDAR method defined in Section 5.3.1 of
       this document.
 
-3.  Calendaring Data Model
+2.  Calendaring Data Model
 
    One of the features that has made WebDAV a successful protocol is its
    firm data model.  This makes it a useful framework for other
@@ -375,12 +128,6 @@ RFC 4791                         CalDAV                       March 2007
 
    A WebDAV repository can advertise itself as a CalDAV server if it
    supports the functionality defined in this specification at any point
-
-
-
-Daboo, et al.               Standards Track                     [Page 7]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    within the root of the repository.  That might mean that calendaring
@@ -428,18 +175,7 @@ RFC 4791                         CalDAV                       March 2007
    time range.
 
 
-
-
-
-
-
-
-Daboo, et al.               Standards Track                     [Page 8]
-
-RFC 4791                         CalDAV                       March 2007
-
-
-4.  Calendar Resources
+1.  Calendar Resources
 
 4.1.  Calendar Object Resources
 
@@ -489,10 +225,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                     [Page 9]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    For example, given the following iCalendar object:
@@ -546,10 +278,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 10]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    A calendar collection can be created through provisioning (i.e.,
    automatically created when a user's account is provisioned), or it
@@ -601,10 +329,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 11]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 5.1.1.  Example: Using OPTIONS for the Discovery of Calendar Access
@@ -658,10 +382,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 12]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Definition:
 
@@ -713,10 +433,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 13]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    Definition:
@@ -770,10 +486,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 14]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Description:  The CALDAV:supported-calendar-component-set property is
       used to specify restrictions on the calendar component types that
@@ -825,10 +537,6 @@ RFC 4791                         CalDAV                       March 2007
       2.0).  Any attempt by the client to store calendar object
 
 
-
-Daboo, et al.               Standards Track                    [Page 15]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       resources with a media type not listed in this property MUST
@@ -882,10 +590,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 16]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Example:
 
@@ -937,10 +641,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 17]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 5.2.7.  CALDAV:max-date-time Property
@@ -994,10 +694,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 18]
-
-RFC 4791                         CalDAV                       March 2007
-
 
 5.2.8.  CALDAV:max-instances Property
 
@@ -1049,10 +745,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 19]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       returned by a PROPFIND DAV:allprop request (as defined in Section
@@ -1106,10 +798,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 20]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Support for MKCALENDAR on the server is only RECOMMENDED and not
    REQUIRED because some calendar stores only support one calendar per
@@ -1161,10 +849,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 21]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       (CALDAV:calendar-collection-location-ok): The Request-URI MUST
@@ -1218,10 +902,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 22]
-
-RFC 4791                         CalDAV                       March 2007
-
 
          507 (Insufficient Storage) - The server did not have sufficient
          space to record the property;
@@ -1274,9 +954,19 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 23]
-
-RFC 4791                         CalDAV                       March 2007
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    >> Request <<
@@ -1330,10 +1020,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 24]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    >> Response <<
 
@@ -1385,10 +1071,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 25]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    >> Request <<
@@ -1442,10 +1124,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 26]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    The new preconditions are:
 
@@ -1497,10 +1175,6 @@ RFC 4791                         CalDAV                       March 2007
       iCalendar DATE or DATE-TIME property values (for each recurring
 
 
-
-Daboo, et al.               Standards Track                    [Page 27]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       instance) greater than or equal to the value of the CALDAV:min-
@@ -1554,10 +1228,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 28]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    A response to a GET request targeted at a calendar object resource
    MUST contain an ETag response header field indicating the current
@@ -1609,10 +1279,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 29]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    Servers MUST support this privilege on all calendar collections,
@@ -1666,10 +1332,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 30]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Example:
 
@@ -1721,10 +1383,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 31]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.3.  Date and Floating Time
@@ -1778,10 +1436,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 32]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    When such time range filtering is used, special consideration must be
    given to recurring calendar components, such as VEVENT and VTODO.
@@ -1833,10 +1487,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 33]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.5.1.  CALDAV:supported-collation-set Property
@@ -1890,10 +1540,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 34]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    By default, the returned calendar data will include the component
    that defines the recurrence set, referred to as the "master
@@ -1945,10 +1591,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 35]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.8.  CALDAV:calendar-query REPORT
@@ -2002,10 +1644,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 36]
-
-RFC 4791                         CalDAV                       March 2007
-
 
       Section 9.6) specify a media type supported by the server for
       calendar object resources.
@@ -2057,10 +1695,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 37]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    Postconditions:
@@ -2114,10 +1748,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 38]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    >> Request <<
 
@@ -2169,10 +1799,6 @@ RFC 4791                         CalDAV                       March 2007
    Content-Length: xxxx
 
 
-
-Daboo, et al.               Standards Track                    [Page 39]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    <?xml version="1.0" encoding="utf-8" ?>
@@ -2226,10 +1852,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 40]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    END:VEVENT
    END:VCALENDAR
@@ -2281,10 +1903,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 41]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.8.2.  Example: Partial Retrieval of Recurring Events
@@ -2338,10 +1956,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 42]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    <?xml version="1.0" encoding="utf-8" ?>
    <D:multistatus xmlns:D="DAV:"
@@ -2394,10 +2008,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 43]
-
-RFC 4791                         CalDAV                       March 2007
-
 
          <D:status>HTTP/1.1 200 OK</D:status>
        </D:propstat>
@@ -2449,10 +2059,6 @@ RFC 4791                         CalDAV                       March 2007
        </D:propstat>
 
 
-
-Daboo, et al.               Standards Track                    [Page 44]
-
-RFC 4791                         CalDAV                       March 2007
 
 
      </D:response>
@@ -2506,10 +2112,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 45]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    <?xml version="1.0" encoding="utf-8" ?>
    <D:multistatus xmlns:D="DAV:"
@@ -2562,10 +2164,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 46]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    ORGANIZER:mailto:cyrus@example.com
    SEQUENCE:1
@@ -2617,10 +2215,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 47]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.8.4.  Example: Partial Retrieval of Stored Free Busy Components
@@ -2674,10 +2268,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 48]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    >> Response <<
 
@@ -2729,10 +2319,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 49]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.8.5.  Example: Retrieval of To-Dos by Alarm Time Range
@@ -2786,10 +2372,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 50]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    >> Response <<
 
@@ -2841,10 +2423,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 51]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    >> Request <<
@@ -2898,10 +2476,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 52]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    DTSTART:20000404T020000
    RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=4
@@ -2953,10 +2527,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 53]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    >> Request <<
@@ -3010,10 +2580,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 54]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    BEGIN:VTIMEZONE
    LAST-MODIFIED:20040110T032845Z
@@ -3065,10 +2631,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 55]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    >> Request <<
@@ -3122,10 +2684,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 56]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    END:DAYLIGHT
    BEGIN:STANDARD
@@ -3177,10 +2735,6 @@ RFC 4791                         CalDAV                       March 2007
    END:STANDARD
 
 
-
-Daboo, et al.               Standards Track                    [Page 57]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    END:VTIMEZONE
@@ -3234,10 +2788,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 58]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    END:DAYLIGHT
    BEGIN:STANDARD
@@ -3289,10 +2839,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 59]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    >> Request <<
@@ -3346,10 +2892,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 60]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    DTSTAMP:20060205T235335Z
    DUE;VALUE=DATE:20060104
@@ -3401,10 +2943,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 61]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.8.10.  Example: Attempt to Query Unsupported Property
@@ -3458,10 +2996,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 62]
-
-RFC 4791                         CalDAV                       March 2007
-
 
 7.9.  CALDAV:calendar-multiget REPORT
 
@@ -3513,10 +3047,6 @@ RFC 4791                         CalDAV                       March 2007
       MUST have its start or end DATE or DATE-TIME values greater than
 
 
-
-Daboo, et al.               Standards Track                    [Page 63]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       or equal to the value of the CALDAV:min-date-time property value
@@ -3570,10 +3100,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 64]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Content-Length: xxxx
 
@@ -3625,10 +3151,6 @@ RFC 4791                         CalDAV                       March 2007
        <D:status>HTTP/1.1 404 Not Found</D:status>
 
 
-
-Daboo, et al.               Standards Track                    [Page 65]
-
-RFC 4791                         CalDAV                       March 2007
 
 
      </D:response>
@@ -3682,10 +3204,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 66]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Marshalling:
 
@@ -3737,10 +3255,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 67]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 7.10.1.  Example: Successful CALDAV:free-busy-query REPORT
@@ -3794,10 +3308,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 68]
-
-RFC 4791                         CalDAV                       March 2007
-
 
 8.  Guidelines
 
@@ -3849,10 +3359,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 69]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 8.2.1.2.  Synchronize by Time Range
@@ -3906,10 +3412,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 70]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    REPORT /bernard/work/ HTTP/1.1
    Host: cal.example.com
@@ -3961,10 +3463,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 71]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 8.2.2.  Restrict the Properties Returned
@@ -4018,10 +3516,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 72]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    The choice of HTTP URLs means that calendar object resources are
    backward compatible with existing software, but does have the
@@ -4073,10 +3567,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 73]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    <?xml version="1.0" encoding="utf-8" ?>
@@ -4130,10 +3620,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 74]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    o  Clients synchronizing a changed calendar object resource have to
       download the entire calendar object resource, even if the
@@ -4185,10 +3671,6 @@ RFC 4791                         CalDAV                       March 2007
    using external attachments.  One reason for servers to support the
 
 
-
-Daboo, et al.               Standards Track                    [Page 75]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    storage of attachments within child collections of calendar
@@ -4242,10 +3724,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 76]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Clients MAY execute alarms that are downloaded in this fashion,
    possibly based on user preference.  If a client is only doing read
@@ -4297,10 +3775,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 77]
-
-RFC 4791                         CalDAV                       March 2007
 
 
 9.3.  CALDAV:mkcalendar-response XML Element
@@ -4354,10 +3828,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 78]
-
-RFC 4791                         CalDAV                       March 2007
-
 
 9.6.  CALDAV:calendar-data XML Element
 
@@ -4409,10 +3879,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 79]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    Note:  The iCalendar data embedded within the CALDAV:calendar-data
@@ -4466,10 +3932,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 80]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Description:  The name value is a calendar component name (e.g.,
       VEVENT).
@@ -4521,10 +3983,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 81]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    Note:  The CALDAV:allprop element has the same name as the DAV:
@@ -4578,10 +4036,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 82]
-
-RFC 4791                         CalDAV                       March 2007
-
 
       recurrence instance, and MUST return only those whose scheduled
       time intersect a specified time range.
@@ -4633,10 +4087,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 83]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       times -- the ones that would have been used if the instance were
@@ -4690,10 +4140,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 84]
-
-RFC 4791                         CalDAV                       March 2007
-
 
       the time range.  Both attributes are specified as "date with UTC
       time" value.  The value of the "end" attribute MUST be greater
@@ -4745,10 +4191,6 @@ RFC 4791                         CalDAV                       March 2007
       CALDAV:comp-filter XML element is the enclosing calendar component
 
 
-
-Daboo, et al.               Standards Track                    [Page 85]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       when used as a child of another CALDAV:comp-filter XML element.  A
@@ -4802,10 +4244,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 86]
-
-RFC 4791                         CalDAV                       March 2007
-
 
       scope of the enclosing calendar component.  A calendar property is
       said to match a CALDAV:prop-filter if:
@@ -4857,10 +4295,6 @@ RFC 4791                         CalDAV                       March 2007
       PARTSTAT) in the scope of the calendar property on which it is
 
 
-
-Daboo, et al.               Standards Track                    [Page 87]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       defined.  A calendar property parameter is said to match a CALDAV:
@@ -4914,10 +4348,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 88]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    Description:  The CALDAV:text-match XML element specifies text used
       for a substring match against the property or parameter value
@@ -4969,10 +4399,6 @@ RFC 4791                         CalDAV                       March 2007
       the use of a <![CDATA[ ... ]]> construct.  In the later case, the
 
 
-
-Daboo, et al.               Standards Track                    [Page 89]
-
-RFC 4791                         CalDAV                       March 2007
 
 
       iCalendar data cannot contain the character sequence "]]>", which
@@ -5026,10 +4452,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 90]
-
-RFC 4791                         CalDAV                       March 2007
-
 
       MUST be later in time than the value of the DTSTART property.  The
       duration of a VEVENT component with no DTEND and DURATION
@@ -5081,10 +4503,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 91]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    +-------------------------------------------------------------------+
@@ -5138,10 +4556,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 92]
-
-RFC 4791                         CalDAV                       March 2007
-
 
       +----------------------------------------------------+
       | VJOURNAL has the DTSTART property?                 |
@@ -5193,10 +4607,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 93]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    A VALARM component can be defined such that it triggers repeatedly.
@@ -5250,10 +4660,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 94]
-
-RFC 4791                         CalDAV                       March 2007
-
 
 9.11.  CALDAV:free-busy-query XML Element
 
@@ -5305,10 +4711,6 @@ RFC 4791                         CalDAV                       March 2007
    a collection cannot be inferred based on the name of a resource.
 
 
-
-Daboo, et al.               Standards Track                    [Page 95]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    When rolling up free-busy information, more information about a
@@ -5362,10 +4764,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 96]
-
-RFC 4791                         CalDAV                       March 2007
-
 
    The authors would also like to thank the Calendaring and Scheduling
    Consortium for advice with this specification, and for organizing
@@ -5417,10 +4815,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 97]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    [RFC3744]               Clemm, G., Reschke, J., Sedlar, E., and J.
@@ -5474,10 +4868,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                    [Page 98]
-
-RFC 4791                         CalDAV                       March 2007
-
 
 Appendix A.  CalDAV Method Privilege Table (Normative)
 
@@ -5529,10 +4919,6 @@ Appendix B.  Calendar Collections Used in the Examples
 
 
 
-
-Daboo, et al.               Standards Track                    [Page 99]
-
-RFC 4791                         CalDAV                       March 2007
 
 
    <?xml version="1.0" encoding="utf-8" ?>
@@ -5586,10 +4972,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                   [Page 100]
-
-RFC 4791                         CalDAV                       March 2007
-
 
          <D:prop>
            <D:getetag>"fffff-abcd2"</D:getetag>
@@ -5641,10 +5023,6 @@ RFC 4791                         CalDAV                       March 2007
        <D:href>http://cal.example.com/bernard/work/abcd3.ics</D:href>
 
 
-
-Daboo, et al.               Standards Track                   [Page 101]
-
-RFC 4791                         CalDAV                       March 2007
 
 
        <D:propstat>
@@ -5698,10 +5076,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                   [Page 102]
-
-RFC 4791                         CalDAV                       March 2007
-
 
            <D:getetag>"fffff-abcd4"</D:getetag>
            <C:calendar-data>BEGIN:VCALENDAR
@@ -5753,10 +5127,6 @@ RFC 4791                         CalDAV                       March 2007
        </D:propstat>
 
 
-
-Daboo, et al.               Standards Track                   [Page 103]
-
-RFC 4791                         CalDAV                       March 2007
 
 
      </D:response>
@@ -5810,10 +5180,6 @@ RFC 4791                         CalDAV                       March 2007
 
 
 
-Daboo, et al.               Standards Track                   [Page 104]
-
-RFC 4791                         CalDAV                       March 2007
-
 
        </D:propstat>
      </D:response>
@@ -5847,9 +5213,3 @@ RFC 4791                         CalDAV                       March 2007
      </D:response>
 
    </D:multistatus>
-
-
-
-
-
-

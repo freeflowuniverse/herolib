@@ -29,7 +29,7 @@ pub fn (s Server) get_collection(path string) ?&calbox.CalBox {
 pub fn (mut s Server) handle_mkcalendar(path string, props map[string]string) !&calbox.CalBox {
 	// Create new calendar collection
 	mut cal := calbox.new(props['displayname'] or { path.all_after_last('/') })
-	
+
 	// Set optional properties
 	if desc := props['calendar-description'] {
 		cal.description = desc
@@ -40,10 +40,10 @@ pub fn (mut s Server) handle_mkcalendar(path string, props map[string]string) !&
 	if components := props['supported-calendar-component-set'] {
 		cal.supported_components = components.split(',')
 	}
-	
+
 	// Add to server
 	s.add_collection(path, cal)
-	
+
 	return cal
 }
 
@@ -51,20 +51,20 @@ pub fn (mut s Server) handle_mkcalendar(path string, props map[string]string) !&
 pub fn (s Server) handle_calendar_query(path string, filter CalendarQueryFilter) ![]calbox.CalendarObject {
 	// Get calendar collection
 	cal := s.get_collection(path) or { return error('Calendar not found') }
-	
+
 	// Apply filter
 	mut results := []calbox.CalendarObject{}
-	
+
 	if filter.time_range != none {
 		tr := filter.time_range or { return error('Invalid time range') }
 		results = cal.find_by_time(calbox.TimeRange{
 			start: tr.start
-			end: tr.end
+			end:   tr.end
 		})!
 	} else {
 		results = cal.list()!
 	}
-	
+
 	return results
 }
 
@@ -72,9 +72,9 @@ pub fn (s Server) handle_calendar_query(path string, filter CalendarQueryFilter)
 pub fn (s Server) handle_calendar_multiget(path string, hrefs []string) ![]calbox.CalendarObject {
 	// Get calendar collection
 	cal := s.get_collection(path) or { return error('Calendar not found') }
-	
+
 	mut results := []calbox.CalendarObject{}
-	
+
 	// Get requested resources
 	for href in hrefs {
 		obj_path := href.all_after(path)
@@ -82,7 +82,7 @@ pub fn (s Server) handle_calendar_multiget(path string, hrefs []string) ![]calbo
 			results << obj
 		}
 	}
-	
+
 	return results
 }
 
@@ -90,7 +90,7 @@ pub fn (s Server) handle_calendar_multiget(path string, hrefs []string) ![]calbo
 pub fn (s Server) handle_freebusy_query(path string, tr calbox.TimeRange) ![]calbox.TimeRange {
 	// Get calendar collection
 	cal := s.get_collection(path) or { return error('Calendar not found') }
-	
+
 	// Get free/busy info
 	return cal.get_freebusy(tr)
 }

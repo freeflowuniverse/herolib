@@ -1,17 +1,18 @@
 module mailbox
+
 import time
 
 fn test_user_account_mailboxes() {
 	mut account := UserAccount{
-		name: 'testuser'
+		name:        'testuser'
 		description: 'Test User'
-		emails: ['test@example.com']
+		emails:      ['test@example.com']
 	}
 
 	// Test creating mailboxes
 	inbox := account.create_mailbox('INBOX') or { panic(err) }
 	assert inbox.name == 'INBOX'
-	
+
 	sent := account.create_mailbox('Sent') or { panic(err) }
 	assert sent.name == 'Sent'
 
@@ -46,7 +47,9 @@ fn test_mail_server_accounts() {
 	mut server := MailServer{}
 
 	// Test creating accounts
-	server.account_create('user1', 'First User', ['user1@example.com', 'user1.alt@example.com']) or { panic(err) }
+	server.account_create('user1', 'First User', ['user1@example.com', 'user1.alt@example.com']) or {
+		panic(err)
+	}
 	mut account1 := server.account_get('user1') or { panic(err) }
 	assert account1.name == 'user1'
 	assert account1.emails.len == 2
@@ -112,16 +115,16 @@ fn test_end_to_end() {
 	// Get INBOX and add a message
 	mut inbox := account.get_mailbox('INBOX') or { panic(err) }
 	msg := Message{
-		uid: 1
+		uid:     1
 		subject: 'Test message'
-		body: 'Hello world'
-		flags: ['\\Seen']
+		body:    'Hello world'
+		flags:   ['\\Seen']
 	}
 	inbox.set(1, msg) or { panic(err) }
 
 	// Create Archives mailbox
 	mut archives := account.create_mailbox('Archives') or { panic(err) }
-	
+
 	// Verify mailboxes through server lookup
 	mut found_account := server.account_get('testuser') or { panic(err) }
 	mailboxes := found_account.list_mailboxes()

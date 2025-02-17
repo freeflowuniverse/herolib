@@ -22,7 +22,7 @@ pub fn (mut self Session) handle_capability(tag string) ! {
 	// Send capabilities in untagged response
 	// Note: IMAP4rev2 doesn't need to be first, but must be included
 	self.conn.write('* CAPABILITY ${capabilities.join(' ')}\r\n'.bytes())!
-	
+
 	// Send tagged OK response
 	self.conn.write('${tag} OK CAPABILITY completed\r\n'.bytes())!
 }

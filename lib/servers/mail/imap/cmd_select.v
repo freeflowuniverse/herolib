@@ -35,17 +35,17 @@ pub fn (mut self Session) handle_select(tag string, parts []string) ! {
 	// Required untagged responses per spec:
 	// 1. FLAGS - list of flags that can be set on messages
 	self.conn.write('* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n'.bytes())!
-	
+
 	// 2. EXISTS - number of messages
 	self.conn.write('* ${messages_count} EXISTS\r\n'.bytes())!
 
 	// Required OK untagged responses:
 	// 1. PERMANENTFLAGS
 	self.conn.write('* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft \\*)] Flags permitted\r\n'.bytes())!
-	
+
 	// 2. UIDNEXT - Use a high number since we don't have direct access to next_uid
 	self.conn.write('* OK [UIDNEXT 4294967295] Predicted next UID\r\n'.bytes())!
-	
+
 	// 3. UIDVALIDITY - Use a constant since we don't have direct access to uid_validity
 	self.conn.write('* OK [UIDVALIDITY 1] UIDs valid\r\n'.bytes())!
 

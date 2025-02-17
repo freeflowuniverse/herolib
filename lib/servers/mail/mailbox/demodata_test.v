@@ -37,7 +37,11 @@ fn test_demodata() {
 		last_msg := server.message_get(username, 'INBOX', u32(10)) or { panic(err) }
 		assert last_msg.subject == 'Inbox Message 10'
 		assert last_msg.body == 'This is inbox message 10 for ${username}'
-		assert last_msg.flags == if 9 % 2 == 0 { ['\\Seen'] } else { [] }
+		assert last_msg.flags == if 9 % 2 == 0 {
+			['\\Seen']
+		} else {
+			[]
+		}
 
 		// Verify Sent messages
 		sent_messages := server.message_list(username, 'Sent') or { panic(err) }

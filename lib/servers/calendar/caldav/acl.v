@@ -1,33 +1,38 @@
 module caldav
 
 // CalDAV privileges
-pub const (
-	read_free_busy = 'read-free-busy' // Allows reading free/busy information
-	read           = 'read'           // Allows reading calendar data
-	write          = 'write'          // Allows writing calendar data
-	write_content  = 'write-content'  // Allows modifying calendar object resources
-	write_props    = 'write-props'    // Allows modifying collection properties
-	bind           = 'bind'           // Allows creating new calendar object resources
-	unbind         = 'unbind'         // Allows deleting calendar object resources
-	admin          = 'admin'          // Allows administrative operations
-)
+pub const read_free_busy = 'read-free-busy' // Allows reading free/busy information
+
+pub const read = 'read' // Allows reading calendar data
+
+pub const write = 'write' // Allows writing calendar data
+
+pub const write_content = 'write-content' // Allows modifying calendar object resources
+
+pub const write_props = 'write-props' // Allows modifying collection properties
+
+pub const bind = 'bind' // Allows creating new calendar object resources
+
+pub const unbind = 'unbind' // Allows deleting calendar object resources
+
+pub const admin = 'admin' // Allows administrative operations
 
 // Principal represents a user or group
 pub struct Principal {
 pub mut:
-	id          string
-	name        string
-	email       string
+	id                string
+	name              string
+	email             string
 	calendar_home_set string
 }
 
 // ACLEntry represents an access control entry
 pub struct ACLEntry {
 pub mut:
-	principal Principal
+	principal  Principal
 	privileges []string
-	inherited bool
-	protected bool
+	inherited  bool
+	protected  bool
 }
 
 // ACL represents an access control list
@@ -46,10 +51,10 @@ pub fn new_acl() ACL {
 // Adds an ACL entry
 pub fn (mut acl ACL) add_entry(principal Principal, privileges []string, inherited bool, protected bool) {
 	acl.entries << ACLEntry{
-		principal: principal
+		principal:  principal
 		privileges: privileges
-		inherited: inherited
-		protected: protected
+		inherited:  inherited
+		protected:  protected
 	}
 }
 

@@ -1,29 +1,25 @@
 module caldav
 
 // CalDAV property names
-pub const (
-	calendar_description = 'calendar-description'
-	calendar_timezone = 'calendar-timezone'
-	supported_calendar_component_set = 'supported-calendar-component-set'
-	supported_calendar_data = 'supported-calendar-data'
-	max_resource_size = 'max-resource-size'
-	min_date_time = 'min-date-time'
-	max_date_time = 'max-date-time'
-	max_instances = 'max-instances'
-	max_attendees_per_instance = 'max-attendees-per-instance'
-	calendar_home_set = 'calendar-home-set'
-)
+pub const calendar_description = 'calendar-description'
+pub const calendar_timezone = 'calendar-timezone'
+pub const supported_calendar_component_set = 'supported-calendar-component-set'
+pub const supported_calendar_data = 'supported-calendar-data'
+pub const max_resource_size = 'max-resource-size'
+pub const min_date_time = 'min-date-time'
+pub const max_date_time = 'max-date-time'
+pub const max_instances = 'max-instances'
+pub const max_attendees_per_instance = 'max-attendees-per-instance'
+pub const calendar_home_set = 'calendar-home-set'
 
 // Property validation errors
-pub const (
-	err_invalid_timezone = 'Invalid timezone: must be a valid iCalendar object containing a single VTIMEZONE component'
-	err_invalid_component_set = 'Invalid component set: must contain at least one component type'
-	err_invalid_calendar_data = 'Invalid calendar data: must specify a supported media type'
-	err_invalid_resource_size = 'Invalid resource size: must be a positive integer'
-	err_invalid_date_time = 'Invalid date/time: must be a valid UTC date-time value'
-	err_invalid_instances = 'Invalid instances value: must be a positive integer'
-	err_invalid_attendees = 'Invalid attendees value: must be a positive integer'
-)
+pub const err_invalid_timezone = 'Invalid timezone: must be a valid iCalendar object containing a single VTIMEZONE component'
+pub const err_invalid_component_set = 'Invalid component set: must contain at least one component type'
+pub const err_invalid_calendar_data = 'Invalid calendar data: must specify a supported media type'
+pub const err_invalid_resource_size = 'Invalid resource size: must be a positive integer'
+pub const err_invalid_date_time = 'Invalid date/time: must be a valid UTC date-time value'
+pub const err_invalid_instances = 'Invalid instances value: must be a positive integer'
+pub const err_invalid_attendees = 'Invalid attendees value: must be a positive integer'
 
 // Property validation functions
 
@@ -41,7 +37,7 @@ pub fn validate_supported_component_set(components []string) ! {
 	if components.len == 0 {
 		return error(err_invalid_component_set)
 	}
-	
+
 	valid := ['VEVENT', 'VTODO', 'VJOURNAL', 'VFREEBUSY']
 	for comp in components {
 		if comp !in valid {

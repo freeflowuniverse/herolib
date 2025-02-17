@@ -21,12 +21,14 @@ pub fn (mut self Session) handle_login(tag string, parts []string) ! {
 
 	// For demo purposes, accept any username and look it up in the mailbox server
 	// In a real implementation, we would validate the password here
-	
+
 	// Try to find existing account by email
 	email := '${username}@example.com'
 	existing_username := self.server.mailboxserver.account_find_by_email(email) or {
 		// Create a new account if not found
-		self.server.mailboxserver.account_create(username, username, ['${username}@example.com']) or {
+		self.server.mailboxserver.account_create(username, username, [
+			'${username}@example.com',
+		]) or {
 			self.conn.write('${tag} NO [AUTHENTICATIONFAILED] Failed to create account\r\n'.bytes())!
 			return
 		}
@@ -34,10 +36,10 @@ pub fn (mut self Session) handle_login(tag string, parts []string) ! {
 	}
 
 	self.username = existing_username
-	
+
 	// Update capabilities - remove LOGINDISABLED and STARTTLS after login
 	self.capabilities = self.capabilities.filter(it != 'LOGINDISABLED' && it != 'STARTTLS')
-	
+
 	// Send OK response with updated capabilities
 	self.conn.write('${tag} OK [CAPABILITY ${self.capabilities.join(' ')}] LOGIN completed\r\n'.bytes())!
 }
