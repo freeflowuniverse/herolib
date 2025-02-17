@@ -34,16 +34,16 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 		extra = '--depth 1 --no-single-branch '
 	}
 
-	cfg:=gitstructure.config()!
+	cfg := gitstructure.config()!
 
 	mut cmd := 'cd ${parent_dir} && git clone ${extra} ${repo.get_http_url()!} ${repo.name}'
 
-	mut sshkey_include := ""
-	if cfg.ssh_key_path.len>0{
-		sshkey_include="GIT_SSH_COMMAND=\"ssh -i ${cfg.ssh_key_path}\" " 
+	mut sshkey_include := ''
+	if cfg.ssh_key_path.len > 0 {
+		sshkey_include = "GIT_SSH_COMMAND=\"ssh -i ${cfg.ssh_key_path}\" "
 		cmd = 'cd ${parent_dir} && ${sshkey_include}git clone ${extra} ${repo.get_ssh_url()!} ${repo.name}'
 	}
-	
+
 	console.print_debug(cmd)
 	result := os.execute(cmd)
 	if result.exit_code != 0 {

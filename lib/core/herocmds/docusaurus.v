@@ -36,7 +36,7 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		abbrev:   'dk'
 		// default: ''
 		description: 'Path of SSH Key used to deploy.'
-	})	
+	})
 
 	cmd_run.add_flag(Flag{
 		flag:     .string
@@ -45,7 +45,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		// default: ''
 		description: 'Path where to publish.'
 	})
-
 
 	cmd_run.add_flag(Flag{
 		flag:        .bool
@@ -101,43 +100,42 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// 	eprintln("specify build, builddev or dev")
 	// 	exit(1)
 	// }
-	
+
 	mut docs := docusaurus.new(update: update)!
 
-	if publish_path.len>0 {
+	if publish_path.len > 0 {
 		_ := docs.build(
-			url:    url
-			update: update
+			url:          url
+			update:       update
 			publish_path: publish_path
-			deploykey:deploykey
+			deploykey:    deploykey
 		)!
 	}
-
 
 	if buildpublish {
 		// Create a new docusaurus site
 		_ := docs.build_publish(
-			url:    url
-			update: update
-			deploykey:deploykey
+			url:       url
+			update:    update
+			deploykey: deploykey
 		)!
 	}
 
 	if builddevpublish {
 		// Create a new docusaurus site
 		_ := docs.build_dev_publish(
-			url:    url
-			update: update
-			deploykey:deploykey
+			url:       url
+			update:    update
+			deploykey: deploykey
 		)!
 	}
 
 	if dev {
 		// Create a new docusaurus site
 		_ := docs.dev(
-			url:    url
-			update: update
-			deploykey:deploykey
+			url:       url
+			update:    update
+			deploykey: deploykey
 		)!
 	}
 }

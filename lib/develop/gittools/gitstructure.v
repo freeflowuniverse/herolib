@@ -17,7 +17,6 @@ pub mut:
 	ssh_key_path string
 }
 
-
 // GitStructure holds information about repositories within a specific code root.
 // This structure keeps track of loaded repositories, their configurations, and their status.
 @[heap]

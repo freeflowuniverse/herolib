@@ -1,0 +1,13 @@
+- [bizmodel](bizmodel_example/bizmodel.md)
+    - [Revenue](bizmodel_example/revenue.md)
+    - [Result](bizmodel_example/overview.md)
+- [parameters](bizmodel_example/params.md)
+    - [revenue_params](bizmodel_example/params/revenue_params.md)
+    - [funding_params](bizmodel_example/params/funding_params.md)
+    - [hr_params](bizmodel_example/params/hr_params.md)
+    - [costs_params](bizmodel_example/params/costs_params.md)
+    - [rows overview](bizmodel_example/rows_overview.md)
+- [employees](bizmodel_example/employees.md)
+- [debug](bizmodel_example/debug.md)
+  - [worksheet](bizmodel_example/worksheet.md)
+

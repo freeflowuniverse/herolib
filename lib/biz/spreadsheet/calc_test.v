@@ -124,9 +124,4 @@ fn test_curr() {
 	console.print_debug(sh.rows['something'].cells[0])
 	assert sh.rows['something']!.cells[0].val == 25.0
 	assert sh.rows['something']!.cells[60 - 1].val == 900.0
-
-	// TODO: we need to create tests for it
-
-	console.print_debug(sh)
-	panic('test1')
 }
