@@ -18,16 +18,18 @@ fn (mut app App) get_file(path string) vweb.Result {
 		return app.server_error()
 	}
 
-	file_data := app.vfs.file_read(fs_entry.path)
+	println('fs_entry: ${fs_entry}')
 
-	ext := fs_entry.get_metadata().name.all_after_last('.')
-	content_type := if v := vweb.mime_types[ext] {
-		v
-	} else {
-		'text/plain'
-	}
+	// file_data := app.vfs.file_read(fs_entry.path)
 
-	app.set_status(200, 'Ok')
-	app.send_response_to_client(content_type, file_data)
+	// ext := fs_entry.get_metadata().name.all_after_last('.')
+	// content_type := if v := vweb.mime_types[ext] {
+	// 	v
+	// } else {
+	// 	'text/plain'
+	// }
+
+	// app.set_status(200, 'Ok')
+	// app.send_response_to_client(content_type, file_data)
 	return vweb.not_found() // this is for returning a dummy result
 }
