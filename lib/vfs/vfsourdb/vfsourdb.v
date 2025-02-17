@@ -66,8 +66,10 @@ pub fn (mut self OurDBVFS) file_delete(path string) ! {
 }
 
 pub fn (mut self OurDBVFS) dir_create(path string) !vfscore.FSEntry {
+	println('Debug: Creating directory ${path}')
 	parent_path := os.dir(path)
 	dir_name := os.base(path)
+	println('Debug: Creating directory ${dir_name} in ${parent_path}')
 
 	mut parent_dir := self.get_directory(parent_path)!
 	mut new_dir := parent_dir.mkdir(dir_name)!
@@ -157,15 +159,18 @@ pub fn (mut self OurDBVFS) destroy() ! {
 // Helper functions
 fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 	if path == '/' {
-		return *self.core.get_root()! // Dereference to return a value
+		return *self.core.get_root()!
 	}
 
-	mut current := self.core.get_root()! // This is already a reference (&Directory)
+	mut current := self.core.get_root()!
 	parts := path.trim_left('/').split('/')
+	println('parts: ${parts}')
+	println('current: ${current}')
 
 	for i := 0; i < parts.len; i++ {
 		mut found := false
 		mut children := current.children(false)!
+		println('children: ${children}')
 
 		for mut child in children {
 			if child.metadata.name == parts[i] {
@@ -174,12 +179,13 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 						unsafe {
 							current = child
 						}
+						println('Debug: current: ${current}')
 						found = true
 						break
 					}
 					else {
 						if i == parts.len - 1 {
-							return child // `child` is already a value, so return it directly
+							return child
 						} else {
 							return error('Not a directory: ${parts[i]}')
 						}
@@ -193,7 +199,7 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 		}
 	}
 
-	return *current // Dereference to return a value
+	return *current
 }
 
 fn (mut self OurDBVFS) get_directory(path string) !&ourdb_fs.Directory {

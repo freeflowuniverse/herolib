@@ -26,7 +26,9 @@ pub fn (mut fs OurDBFS) get_root() !&Directory {
 	}
 	// Save new root to DB
 	mut myroot := Directory{
-		metadata:  Metadata{}
+		metadata:  Metadata{
+			file_type: .directory
+		}
 		parent_id: 0
 		myvfs:     &fs
 	}

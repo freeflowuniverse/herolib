@@ -29,14 +29,16 @@ pub fn (mut db OurDB) set(args OurDBSetArgs) !u32 {
 		// if id points to an empty location, return an error
 		// else, overwrite data
 		if id := args.id {
-			// this is an update
-			location := db.lookup.get(id)!
-			if location.position == 0 {
-				return error('cannot set id for insertions when incremental mode is enabled')
-			}
+			if id != 0 {
+				// this is an update
+				location := db.lookup.get(id)!
+				if location.position == 0 {
+					return error('cannot set id for insertions when incremental mode is enabled')
+				}
 
-			db.set_(id, location, args.data)!
-			return id
+				db.set_(id, location, args.data)!
+				return id
+			}
 		}
 
 		// this is an insert

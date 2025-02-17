@@ -26,7 +26,7 @@ fn test_vfsourdb() ! {
 	assert root.get_metadata().name == ''
 
 	// Test directory creation
-	mut test_dir := vfs.dir_create('/test_dir')!
+	mut test_dir := vfs.dir_create('/tmp/test_dir')!
 	assert test_dir.get_metadata().name == 'test_dir'
 	assert test_dir.get_metadata().file_type == .directory
 
