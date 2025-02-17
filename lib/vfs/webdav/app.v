@@ -3,6 +3,7 @@ module webdav
 import vweb
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.vfs.vfscore
 
 @[heap]
 struct App {
@@ -11,6 +12,7 @@ struct App {
 	root_dir pathlib.Path      @[vweb_global]
 pub mut:
 	// lock_manager LockManager
+	vfs VFSImplementation
 	server_port int
 	middlewares map[string][]vweb.Middleware
 }
@@ -21,6 +23,7 @@ pub mut:
 	server_port int = 8080
 	root_dir    string            @[required]
 	user_db     map[string]string @[required]
+	vfs VFSImplementation
 }
 
 pub fn new_app(args AppArgs) !&App {
@@ -29,6 +32,7 @@ pub fn new_app(args AppArgs) !&App {
 		user_db:     args.user_db.clone()
 		root_dir:    root_dir
 		server_port: args.server_port
+		vfs: args.vfs
 	}
 
 	app.middlewares['/'] << logging_middleware
