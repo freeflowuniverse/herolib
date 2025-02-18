@@ -1,11 +1,11 @@
 module webdav
 
-import vweb
-import os
 import freeflowuniverse.herolib.core.pathlib
-import encoding.xml
 import freeflowuniverse.herolib.ui.console
+import encoding.xml
 import net.urllib
+import os
+import vweb
 
 @['/:path...'; get]
 fn (mut app App) get_file(path string) vweb.Result {
@@ -18,18 +18,16 @@ fn (mut app App) get_file(path string) vweb.Result {
 		return app.server_error()
 	}
 
-	println('fs_entry: ${fs_entry}')
+	file_data := app.vfs.file_read(fs_entry.get_path()) or { return app.server_error() }
 
-	// file_data := app.vfs.file_read(fs_entry.path)
+	ext := fs_entry.get_metadata().name.all_after_last('.')
+	content_type := if v := vweb.mime_types[ext] {
+		v
+	} else {
+		'text/plain'
+	}
 
-	// ext := fs_entry.get_metadata().name.all_after_last('.')
-	// content_type := if v := vweb.mime_types[ext] {
-	// 	v
-	// } else {
-	// 	'text/plain'
-	// }
-
-	// app.set_status(200, 'Ok')
-	// app.send_response_to_client(content_type, file_data)
+	app.set_status(200, 'Ok')
+	app.send_response_to_client(content_type, file_data.str())
 	return vweb.not_found() // this is for returning a dummy result
 }

@@ -1,7 +1,7 @@
 module ourdb_fs
 
-import os
 import freeflowuniverse.herolib.data.ourdb
+import freeflowuniverse.herolib.core.pathlib
 
 // Factory method for creating a new OurDBFS instance
 @[params]
@@ -14,13 +14,11 @@ pub:
 
 // Factory method for creating a new OurDBFS instance
 pub fn new(params VFSParams) !&OurDBFS {
-	if !os.exists(params.data_dir) {
-		os.mkdir(params.data_dir) or { return error('Failed to create data directory: ${err}') }
+	pathlib.get_dir(path: params.data_dir, create: true) or {
+		return error('Failed to create data directory: ${err}')
 	}
-	if !os.exists(params.metadata_dir) {
-		os.mkdir(params.metadata_dir) or {
-			return error('Failed to create metadata directory: ${err}')
-		}
+	pathlib.get_dir(path: params.metadata_dir, create: true) or {
+		return error('Failed to create metadata directory: ${err}')
 	}
 
 	mut db_meta := ourdb.new(

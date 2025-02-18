@@ -8,8 +8,8 @@ import freeflowuniverse.herolib.vfs.vfscore
 @[heap]
 struct App {
 	vweb.Context
-	user_db  map[string]string @[required]
-	root_dir pathlib.Path      @[vweb_global]
+	user_db map[string]string @[required]
+	// root_dir pathlib.Path      @[vweb_global]
 pub mut:
 	// lock_manager LockManager
 	vfs         vfscore.VFSImplementation
@@ -21,16 +21,16 @@ pub mut:
 pub struct AppArgs {
 pub mut:
 	server_port int = 8080
-	root_dir    string            @[required]
-	user_db     map[string]string @[required]
-	vfs         vfscore.VFSImplementation
+	// root_dir    string            @[required]
+	user_db map[string]string @[required]
+	vfs     vfscore.VFSImplementation
 }
 
 pub fn new_app(args AppArgs) !&App {
-	root_dir := pathlib.get_dir(path: args.root_dir, create: true)!
+	// root_dir := pathlib.get_dir(path: args.root_dir, create: true)!
 	mut app := &App{
-		user_db:     args.user_db.clone()
-		root_dir:    root_dir
+		user_db: args.user_db.clone()
+		// root_dir:    root_dir
 		server_port: args.server_port
 		vfs:         args.vfs
 	}

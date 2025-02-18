@@ -7,7 +7,7 @@ import time
 import vweb
 
 fn (mut app App) generate_response_element(path string, depth int) xml.XMLNode {
-	mut path_ := path.all_after(app.root_dir.path)
+	mut path_ := path
 	if !path_.starts_with('/') {
 		path_ = '/${path_}'
 	}

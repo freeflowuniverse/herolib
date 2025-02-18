@@ -56,6 +56,16 @@ pub fn (mut self NestedVFS) root_get() !vfscore.FSEntry {
 	}
 }
 
+pub fn (mut self NestedVFS) delete(path string) ! {
+	// mut impl, rel_path := self.find_vfs(path)!
+	// return impl.file_read(rel_path)
+}
+
+pub fn (mut self NestedVFS) link_delete(path string) ! {
+	// mut impl, rel_path := self.find_vfs(path)!
+	// return impl.file_read(rel_path)
+}
+
 pub fn (mut self NestedVFS) file_create(path string) !vfscore.FSEntry {
 	mut impl, rel_path := self.find_vfs(path)!
 	return impl.file_create(rel_path)
@@ -112,7 +122,7 @@ pub fn (mut self NestedVFS) dir_delete(path string) ! {
 }
 
 pub fn (mut self NestedVFS) exists(path string) bool {
-	mut impl, rel_path := self.find_vfs(path) or {return false}
+	mut impl, rel_path := self.find_vfs(path) or { return false }
 	return impl.exists(rel_path)
 }
 

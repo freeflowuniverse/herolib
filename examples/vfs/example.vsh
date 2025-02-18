@@ -18,6 +18,10 @@ high_level_vfs.add_vfs('/config', vfs2) or { panic(err) }
 high_level_vfs.add_vfs('/data/backup', vfs3) or { panic(err) } // Nested under /data
 
 // Create WebDAV Server that uses high level VFS
-webdav_server := webdav.new_app(
-	vfs: high_level_vfs
+mut webdav_server := webdav.new_app(
+	vfs:     high_level_vfs
+	user_db: {
+		'omda': '123'
+	}
 )!
+webdav_server.run()

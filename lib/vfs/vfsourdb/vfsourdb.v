@@ -62,6 +62,16 @@ pub fn (mut self OurDBVFS) file_write(path string, data []u8) ! {
 	}
 }
 
+pub fn (mut self OurDBVFS) delete(path string) ! {
+	// mut impl, rel_path := self.find_vfs(path)!
+	// return impl.file_read(rel_path)
+}
+
+pub fn (mut self OurDBVFS) link_delete(path string) ! {
+	// mut impl, rel_path := self.find_vfs(path)!
+	// return impl.file_read(rel_path)
+}
+
 pub fn (mut self OurDBVFS) file_delete(path string) ! {
 	parent_path := os.dir(path)
 	file_name := os.base(path)
