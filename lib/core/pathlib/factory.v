@@ -34,6 +34,7 @@ pub mut:
 	check  bool = true // means will check the dir, link or file exists
 	empty  bool // will empty the dir or the file
 	delete bool
+	increment bool // will increment filename until free name available (filename1...)
 }
 
 // get a directory, or needs to be created
@@ -81,6 +82,15 @@ pub fn get_file(args_ GetArgs) !Path {
 	mut p2 := get_no_check(args.path)
 	if args.check {
 		p2.check()
+
+		if args.increment {
+			if p2.exists() { 
+				incr := if args.path[args.path.len-1].is_digit() {
+					args.path[args.path.len-1].ascii_str().int()
+				} else {0}
+				return get_file(GetArgs {...args, path: '${args.path}${incr}'}) 
+			}
+		}
 		if args.create {
 			mut parent_ := p2.parent()!
 			parent_.check()
