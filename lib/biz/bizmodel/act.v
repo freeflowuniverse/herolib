@@ -1,11 +1,13 @@
 module bizmodel
 
+import os
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.playbook { PlayBook, Action }
 import freeflowuniverse.herolib.ui.console
 // import freeflowuniverse.herolib.core.texttools
-// import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.biz.spreadsheet
+import freeflowuniverse.herolib.data.paramsparser {Params}
+import freeflowuniverse.herolib.biz.spreadsheet {RowGetArgs, UnitType, PeriodType}
 
 pub fn (mut m BizModel) act(action Action) !Action {
 	return match texttools.snake_case(action.name) {
@@ -27,7 +29,7 @@ pub fn (mut m BizModel) act(action Action) !Action {
 		'employee_define' {
 			m.employee_define_action(action)!
 		}
-		'new_report' {
+		'export_report' {
 			m.new_report_action(action)!
 		}
 		'sheet_wiki' {
@@ -75,8 +77,8 @@ pub fn (mut m BizModel) export_overview_action(action Action) !Action {
 	return m.export_action(m.sheet.wiki_row_overview(row_args_from_params(action.params)!)!, action)
 }
 
-fn (mut m BizModel) export_action(action Action) !Action {
-	m.export(paramsparser.decode[Export](action.params))!
+fn (mut m BizModel) new_report_action(action Action) !Action {
+	m.new_report(action.params.decode[Report]()!)!
 	return action
 }
 
@@ -130,7 +132,6 @@ pub fn row_args_from_params(p Params) !RowGetArgs {
 
 // creates the name for a file being exported given the params of the export action
 fn (m BizModel) export_action(content string, action Action) !Action {
-	
 	// determine name of file being exported
 	name := if action.params.exists('name') { action.params.get('name')! } else {
 		if action.params.exists('title') { action.params.get('title')! } else {

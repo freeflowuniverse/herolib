@@ -36,6 +36,7 @@ pub mut:
 	watch_changes bool = true
 	update        bool
 	deploykey     string
+	config ?Config
 }
 
 pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
@@ -158,10 +159,17 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteNewArgs) !&DocSite {
 	)!
 	mut template_path := r.patho()!
 
-	// First ensure cfg directory exists in src, if not copy from template
-	if !os.exists('${args.path}/cfg') {
-		mut template_cfg := template_path.dir_get('cfg')!
-		template_cfg.copy(dest: '${args.path}/cfg')!
+
+	// First, check if the new site args provides a configuration that can be written instead of template cfg dir
+	if cfg := args.config {
+		cfg.write('${args.path}/cfg')!
+	} else {
+		// Then ensure cfg directory exists in src,
+		if !os.exists('${args.path}/cfg') {	
+			// else copy config from template
+			mut template_cfg := template_path.dir_get('cfg')!
+			template_cfg.copy(dest: '${args.path}/cfg')!
+		}
 	}
 
 	if !os.exists('${args.path}/docs') {
