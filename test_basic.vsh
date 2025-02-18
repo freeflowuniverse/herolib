@@ -167,7 +167,7 @@ lib/code
 lib/clients
 lib/core
 lib/develop
-lib/vfs
+// lib/vfs
 // lib/crypt
 '
 
