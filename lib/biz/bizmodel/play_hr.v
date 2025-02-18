@@ -15,7 +15,7 @@ import freeflowuniverse.herolib.core.texttools
 //     department:'engineering'
 //	   cost_percent_revenue e.g. 4%, will make sure the cost will be at least 4% of revenue
 
-fn (mut m BizModel) employee_define_action(action Action) ! {
+fn (mut m BizModel) employee_define_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
@@ -107,10 +107,7 @@ fn (mut m BizModel) employee_define_action(action Action) ! {
 		fulltime_perc:        action.params.get_percentage_default('fulltime', '100%')!
 	}
 
-	// println(employee)
-
 	// todo: use existing id gen
-
 	if name != '' {
 		// sid = smartid.sid_new('')!
 		// // TODO: this isn't necessary if sid_new works correctly
@@ -120,9 +117,10 @@ fn (mut m BizModel) employee_define_action(action Action) ! {
 		// }
 		m.employees[name] = &employee
 	}
+	return action
 }
 
-fn (mut m BizModel) department_define_action(action Action) ! {
+fn (mut m BizModel) department_define_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
@@ -141,6 +139,8 @@ fn (mut m BizModel) department_define_action(action Action) ! {
 	if name != '' {
 		m.departments[name] = &department
 	}
+	
+	return action
 }
 
 // fn (mut sim BizModel) hr_total() ! {
