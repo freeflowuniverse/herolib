@@ -1,7 +1,6 @@
 module encoder
 
 import time
-import freeflowuniverse.herolib.ui.console
 
 // example see https://github.com/vlang/v/blob/master/examples/compiletime/reflection.v
 

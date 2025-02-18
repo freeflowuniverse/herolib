@@ -35,10 +35,7 @@ pub fn (mut self OurDBVFS) file_create(path string) !vfscore.FSEntry {
 	parent_path := os.dir(path)
 	file_name := os.base(path)
 
-	println('file path: ${path}')
-	println('parent_path: ${parent_path}')
 	mut parent_dir := self.get_directory(parent_path)!
-	println('parent_dir file: ${parent_dir}')
 	mut file := parent_dir.touch(file_name)!
 	return convert_to_vfscore_entry(file)
 }
@@ -54,7 +51,6 @@ pub fn (mut self OurDBVFS) file_read(path string) ![]u8 {
 
 pub fn (mut self OurDBVFS) file_write(path string, data []u8) ! {
 	mut entry := self.get_entry(path)!
-	println('file_write - entry type: ${typeof(entry).name}')
 	if mut entry is ourdb_fs.File {
 		entry.write(data.bytestr())!
 	} else {
@@ -85,10 +81,7 @@ pub fn (mut self OurDBVFS) dir_create(path string) !vfscore.FSEntry {
 	dir_name := os.base(path)
 
 	mut parent_dir := self.get_directory(parent_path)!
-	println('parent_dir: ${parent_dir}')
-	println('dir_name: ${dir_name}')
 	mut new_dir := parent_dir.mkdir(dir_name)!
-	println('new_dir: ${new_dir}')
 	new_dir.save()! // Ensure the directory is saved
 
 	return convert_to_vfscore_entry(new_dir)
@@ -181,18 +174,13 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 
 	mut current := *self.core.get_root()!
 	parts := path.trim_left('/').split('/')
-	println('Traversing path: ${path}')
-	println('Parts: ${parts}')
 
 	for i := 0; i < parts.len; i++ {
 		mut found := false
 		children := current.children(false)!
-		println('Current directory: ${current.metadata.name}')
-		println('Children: ${children}')
 
 		for child in children {
 			if child.metadata.name == parts[i] {
-				println('Found match: ${child.metadata.name}')
 				match child {
 					ourdb_fs.Directory {
 						current = child
@@ -211,7 +199,6 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 		}
 
 		if !found {
-			println('Path not found: ${parts[i]}')
 			return error('Path not found: ${path}')
 		}
 	}
@@ -230,15 +217,12 @@ fn (mut self OurDBVFS) get_directory(path string) !&ourdb_fs.Directory {
 fn convert_to_vfscore_entry(entry ourdb_fs.FSEntry) vfscore.FSEntry {
 	match entry {
 		ourdb_fs.Directory {
-			println('Entry is a directory: ${entry}')
-			println('Entry is a directory: ${convert_metadata(entry.metadata)}')
 			return &DirectoryEntry{
 				metadata: convert_metadata(entry.metadata)
 				path:     entry.metadata.name
 			}
 		}
 		ourdb_fs.File {
-			println('Entry is a file: ${entry}')
 			return &FileEntry{
 				metadata: convert_metadata(entry.metadata)
 				path:     entry.metadata.name

@@ -139,8 +139,6 @@ pub fn (mut dir Directory) mkdir(name string) !&Directory {
 	}
 
 	current_time := time.now().unix()
-	println('parent_id: dir.metadata.id: ${dir.metadata.id}')
-	println('dir.children: ${dir.children}')
 	mut new_dir := Directory{
 		metadata:  Metadata{
 			// id:          u32(time.now().unix()) // Use timestamp as ID
@@ -165,8 +163,6 @@ pub fn (mut dir Directory) mkdir(name string) !&Directory {
 	dir.children << new_dir.metadata.id
 	dir.metadata.id = dir.myvfs.save_entry(dir)!
 
-	println('dir.children: ${dir.children}')
-	println('new_dir: ${new_dir}')
 	return &new_dir
 }
 
@@ -246,7 +242,6 @@ pub fn (mut dir Directory) rm(name string) ! {
 // get_children returns all immediate children as FSEntry objects
 pub fn (mut dir Directory) children(recursive bool) ![]FSEntry {
 	mut entries := []FSEntry{}
-	println('dir.children: ${dir.children}')
 	for child_id in dir.children {
 		entry := dir.myvfs.load_entry(child_id)!
 		entries << entry

@@ -183,7 +183,6 @@ fn (mut lut LookupTable) set(x u32, location Location) ! {
 
 		return
 	}
-	println('lut.data.len: ${lut.data.len}')
 	if id * u32(entry_size) >= u32(lut.data.len) {
 		return error('Index out of bounds')
 	}

@@ -93,8 +93,6 @@ pub fn decode_directory(data []u8) !Directory {
 		children << d.get_u32()!
 	}
 
-	println('Decoded children: ${children}')
-
 	return Directory{
 		metadata:  metadata
 		parent_id: parent_id

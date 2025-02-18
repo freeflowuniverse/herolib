@@ -17,9 +17,7 @@ pub mut:
 // get_root returns the root directory
 pub fn (mut fs OurDBFS) get_root() !&Directory {
 	// Try to load root directory from DB if it exists
-	println('Root id is ${fs.root_id}')
 	if data := fs.db_meta.get(fs.root_id) {
-		println('decode_directory(data): ${decode_directory(data)!.metadata}')
 		mut loaded_root := decode_directory(data) or {
 			return error('Failed to decode root directory: ${err}')
 		}
@@ -78,8 +76,6 @@ pub fn (mut fs OurDBFS) save_entry(entry FSEntry) !u32 {
 	match entry {
 		Directory {
 			encoded := entry.encode()
-			println('entry.metadata.id: ${entry.metadata.id}')
-			println('name: ${entry.metadata.name}')
 			return fs.db_meta.set(data: encoded) or {
 				return error('Failed to save directory on id:${entry.metadata.id}: ${err}')
 			}
