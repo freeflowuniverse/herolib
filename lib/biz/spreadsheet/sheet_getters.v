@@ -121,7 +121,7 @@ pub fn (mut s Sheet) data_get_as_string(args RowGetArgs) !string {
 	mut s2 := s
 
 	if args.period_type == .year {
-		s.toyear(
+		s2 = s.toyear(
 			name:          args.rowname
 			namefilter:    args.namefilter
 			includefilter: args.includefilter
@@ -129,7 +129,7 @@ pub fn (mut s Sheet) data_get_as_string(args RowGetArgs) !string {
 		)!
 	}
 	if args.period_type == .quarter {
-		s.toquarter(
+		s2 = s.toquarter(
 			name:          args.rowname
 			namefilter:    args.namefilter
 			includefilter: args.includefilter
@@ -141,13 +141,13 @@ pub fn (mut s Sheet) data_get_as_string(args RowGetArgs) !string {
 	// console.print_debug(s2.row_get(args.rowname)!)
 	mut vals := s2.values_get(args.rowname)!
 	if args.period_type == .year && vals.len != nryears {
-		return error('${err_pre}Vals.len need to be 6, for year.\nhere:\n${vals}')
+		return error('${err_pre}Vals.len need to be ${nryears}, for year.\nhere:\n${vals}')
 	}
 	if args.period_type == .quarter && vals.len != nryears * 4 {
-		return error('${err_pre}vals.len need to be 6*4, for quarter.\nhere:\n${vals}')
+		return error('${err_pre}vals.len need to be ${nryears}*4, for quarter.\nhere:\n${vals}')
 	}
 	if args.period_type == .month && vals.len != nryears * 12 {
-		return error('${err_pre}vals.len need to be 6*12, for month.\nhere:\n${vals}')
+		return error('${err_pre}vals.len need to be ${nryears}*12, for month.\nhere:\n${vals}')
 	}
 
 	for mut val in vals {
