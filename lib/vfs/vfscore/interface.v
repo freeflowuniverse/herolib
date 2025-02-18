@@ -10,6 +10,7 @@ pub enum FileType {
 // Metadata represents the common metadata for both files and directories
 pub struct Metadata {
 pub mut:
+	id          u32    // name of file or directory
 	name        string // name of file or directory
 	file_type   FileType
 	size        u64

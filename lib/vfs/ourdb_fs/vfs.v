@@ -1,17 +1,25 @@
 module ourdb_fs
 
 import freeflowuniverse.herolib.data.ourdb
+import time
 
 // OurDBFS represents the virtual filesystem
 @[heap]
 pub struct OurDBFS {
 pub mut:
-	root_id      u32          // ID of root directory
-	block_size   u32          // Size of data blocks in bytes
-	data_dir     string       // Directory to store OurDBFS data
-	metadata_dir string       // Directory where we store the metadata
-	db_data      &ourdb.OurDB // Database instance for persistent storage
-	db_meta      &ourdb.OurDB // Database instance for metadata storage
+	root_id          u32          // ID of root directory
+	block_size       u32          // Size of data blocks in bytes
+	data_dir         string       // Directory to store OurDBFS data
+	metadata_dir     string       // Directory where we store the metadata
+	db_data          &ourdb.OurDB // Database instance for persistent storage
+	db_meta          &ourdb.OurDB // Database instance for metadata storage
+	last_inserted_id u32
+}
+
+// Get the next ID, it should be some kind of auto-incrementing ID
+pub fn (mut fs OurDBFS) get_next_id() u32 {
+	fs.last_inserted_id = fs.last_inserted_id + 1
+	return fs.last_inserted_id
 }
 
 // get_root returns the root directory
@@ -28,13 +36,22 @@ pub fn (mut fs OurDBFS) get_root() !&Directory {
 	// Create and save new root directory
 	mut myroot := Directory{
 		metadata:  Metadata{
-			file_type: .directory
+			id:          fs.get_next_id()
+			file_type:   .directory
+			name:        ''
+			created_at:  time.now().unix()
+			modified_at: time.now().unix()
+			accessed_at: time.now().unix()
+			mode:        0o755  // default directory permissions
+			owner:       'user' // TODO: get from system
+			group:       'user' // TODO: get from system
 		}
 		parent_id: 0
 		myvfs:     &fs
 	}
 	myroot.save()!
 	fs.root_id = myroot.metadata.id
+	myroot.save()!
 
 	return &myroot
 }
@@ -76,19 +93,19 @@ pub fn (mut fs OurDBFS) save_entry(entry FSEntry) !u32 {
 	match entry {
 		Directory {
 			encoded := entry.encode()
-			return fs.db_meta.set(data: encoded) or {
+			return fs.db_meta.set(id: entry.metadata.id, data: encoded) or {
 				return error('Failed to save directory on id:${entry.metadata.id}: ${err}')
 			}
 		}
 		File {
 			encoded := entry.encode()
-			return fs.db_meta.set(data: encoded) or {
+			return fs.db_meta.set(id: entry.metadata.id, data: encoded) or {
 				return error('Failed to save file on id:${entry.metadata.id}: ${err}')
 			}
 		}
 		Symlink {
 			encoded := entry.encode()
-			return fs.db_meta.set(data: encoded) or {
+			return fs.db_meta.set(id: entry.metadata.id, data: encoded) or {
 				return error('Failed to save symlink on id:${entry.metadata.id}: ${err}')
 			}
 		}

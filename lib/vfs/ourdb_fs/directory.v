@@ -15,7 +15,7 @@ pub mut:
 }
 
 pub fn (mut self Directory) save() ! {
-	self.metadata.id = self.myvfs.save_entry(self)!
+	self.myvfs.save_entry(self)!
 }
 
 // write creates a new file or writes to an existing file
@@ -45,7 +45,7 @@ pub fn (mut dir Directory) write(name string, content string) !&File {
 		current_time := time.now().unix()
 		file = &File{
 			metadata:  Metadata{
-				// id:          u32(time.now().unix())
+				id:          dir.myvfs.get_next_id()
 				name:        name
 				file_type:   .file
 				size:        u64(content.len)
@@ -62,11 +62,11 @@ pub fn (mut dir Directory) write(name string, content string) !&File {
 		}
 
 		// Save new file to DB
-		file.metadata.id = dir.myvfs.save_entry(file)!
+		dir.myvfs.save_entry(file)!
 
 		// Update children list
 		dir.children << file.metadata.id
-		dir.metadata.id = dir.myvfs.save_entry(dir)!
+		dir.myvfs.save_entry(dir)!
 	} else {
 		// Update existing file
 		file.write(content)!
@@ -141,7 +141,7 @@ pub fn (mut dir Directory) mkdir(name string) !&Directory {
 	current_time := time.now().unix()
 	mut new_dir := Directory{
 		metadata:  Metadata{
-			// id:          u32(time.now().unix()) // Use timestamp as ID
+			id:          dir.myvfs.get_next_id()
 			name:        name
 			file_type:   .directory
 			created_at:  current_time
@@ -157,11 +157,11 @@ pub fn (mut dir Directory) mkdir(name string) !&Directory {
 	}
 
 	// Save new directory to DB
-	new_dir.metadata.id = dir.myvfs.save_entry(new_dir)!
+	dir.myvfs.save_entry(new_dir)!
 
 	// Update children list
 	dir.children << new_dir.metadata.id
-	dir.metadata.id = dir.myvfs.save_entry(dir)!
+	dir.myvfs.save_entry(dir)!
 
 	return &new_dir
 }
@@ -180,6 +180,7 @@ pub fn (mut dir Directory) touch(name string) !&File {
 	current_time := time.now().unix()
 	mut new_file := File{
 		metadata:  Metadata{
+			id:          dir.myvfs.get_next_id()
 			name:        name
 			file_type:   .file
 			size:        0
@@ -196,11 +197,11 @@ pub fn (mut dir Directory) touch(name string) !&File {
 	}
 
 	// Save new file to DB
-	new_file.metadata.id = dir.myvfs.save_entry(new_file)!
+	dir.myvfs.save_entry(new_file)!
 
 	// Update children list
 	dir.children << new_file.metadata.id
-	dir.metadata.id = dir.myvfs.save_entry(dir)!
+	dir.myvfs.save_entry(dir)!
 
 	return &new_file
 }
@@ -236,7 +237,7 @@ pub fn (mut dir Directory) rm(name string) ! {
 
 	// Update children list
 	dir.children.delete(found_idx)
-	dir.metadata.id = dir.myvfs.save_entry(dir)!
+	dir.myvfs.save_entry(dir)!
 }
 
 // get_children returns all immediate children as FSEntry objects
@@ -266,9 +267,7 @@ pub fn (mut dir Directory) delete() ! {
 	dir.children.clear()
 
 	// Save the updated directory
-	dir.metadata.id = dir.myvfs.save_entry(dir) or {
-		return error('Failed to save directory: ${err}')
-	}
+	dir.myvfs.save_entry(dir) or { return error('Failed to save directory: ${err}') }
 }
 
 // add_symlink adds an existing symlink to this directory
@@ -283,9 +282,9 @@ pub fn (mut dir Directory) add_symlink(mut symlink Symlink) ! {
 	}
 
 	// Save symlink to DB
-	symlink.metadata.id = dir.myvfs.save_entry(symlink)!
+	dir.myvfs.save_entry(symlink)!
 
 	// Add to children
 	dir.children << symlink.metadata.id
-	dir.metadata.id = dir.myvfs.save_entry(dir)!
+	dir.myvfs.save_entry(dir)!
 }

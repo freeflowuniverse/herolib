@@ -12,7 +12,7 @@ pub mut:
 }
 
 pub fn (mut sl Symlink) save() ! {
-	sl.metadata.id = sl.myvfs.save_entry(sl)!
+	sl.myvfs.save_entry(sl)!
 }
 
 // update_target changes the symlink's target path

@@ -16,7 +16,7 @@ pub fn new(data_dir string, metadata_dir string) !&OurDBVFS {
 	mut core := ourdb_fs.new(
 		data_dir:         data_dir
 		metadata_dir:     metadata_dir
-		incremental_mode: true
+		incremental_mode: false
 	)!
 
 	return &OurDBVFS{
@@ -59,13 +59,15 @@ pub fn (mut self OurDBVFS) file_write(path string, data []u8) ! {
 }
 
 pub fn (mut self OurDBVFS) delete(path string) ! {
-	// mut impl, rel_path := self.find_vfs(path)!
-	// return impl.file_read(rel_path)
+	println('Not implemented')
 }
 
 pub fn (mut self OurDBVFS) link_delete(path string) ! {
-	// mut impl, rel_path := self.find_vfs(path)!
-	// return impl.file_read(rel_path)
+	parent_path := os.dir(path)
+	file_name := os.base(path)
+
+	mut parent_dir := self.get_directory(parent_path)!
+	parent_dir.rm(file_name)!
 }
 
 pub fn (mut self OurDBVFS) file_delete(path string) ! {
@@ -136,7 +138,7 @@ pub fn (mut self OurDBVFS) link_create(target_path string, link_path string) !vf
 
 	mut symlink := ourdb_fs.Symlink{
 		metadata:  ourdb_fs.Metadata{
-			id:          u32(time.now().unix())
+			id:          self.core.get_next_id()
 			name:        link_name
 			file_type:   .symlink
 			created_at:  time.now().unix()
@@ -240,6 +242,7 @@ fn convert_to_vfscore_entry(entry ourdb_fs.FSEntry) vfscore.FSEntry {
 
 fn convert_metadata(meta ourdb_fs.Metadata) vfscore.Metadata {
 	return vfscore.Metadata{
+		id:          meta.id
 		name:        meta.name
 		file_type:   match meta.file_type {
 			.file { vfscore.FileType.file }

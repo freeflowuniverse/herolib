@@ -43,7 +43,7 @@ fn test_vfsourdb() ! {
 	assert read_content == test_content
 
 	// Test directory listing
-	entries := vfs.dir_list('/test_dir')!
+	mut entries := vfs.dir_list('/test_dir')!
 	assert entries.len == 1
 	assert entries[0].get_metadata().name == 'test.txt'
 
@@ -57,9 +57,16 @@ fn test_vfsourdb() ! {
 	link_target := vfs.link_read('/test_dir/test_link')!
 	assert link_target == '/test_dir/test.txt'
 
+	// Test symlink deletion
+	vfs.link_delete('/test_dir/test_link')!
+	assert vfs.exists('/test_dir/test_link') == false
+
 	// Test file deletion
 	vfs.file_delete('/test_dir/test.txt')!
 	assert vfs.exists('/test_dir/test.txt') == false
+
+	entries = vfs.dir_list('/test_dir')!
+	assert entries.len == 0
 
 	// Test directory deletion
 	vfs.dir_delete('/test_dir')!
