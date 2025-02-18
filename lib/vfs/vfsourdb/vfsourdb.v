@@ -96,7 +96,7 @@ pub fn (mut self OurDBVFS) dir_delete(path string) ! {
 	parent_dir.rm(dir_name)!
 }
 
-pub fn (mut self OurDBVFS) exists(path string) !bool {
+pub fn (mut self OurDBVFS) exists(path string) bool {
 	if path == '/' {
 		return true
 	}

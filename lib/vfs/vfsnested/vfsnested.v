@@ -111,8 +111,8 @@ pub fn (mut self NestedVFS) dir_delete(path string) ! {
 	return impl.dir_delete(rel_path)
 }
 
-pub fn (mut self NestedVFS) exists(path string) !bool {
-	mut impl, rel_path := self.find_vfs(path)!
+pub fn (mut self NestedVFS) exists(path string) bool {
+	mut impl, rel_path := self.find_vfs(path) or {return false}
 	return impl.exists(rel_path)
 }
 
