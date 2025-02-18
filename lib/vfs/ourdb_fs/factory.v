@@ -7,8 +7,9 @@ import freeflowuniverse.herolib.data.ourdb
 @[params]
 pub struct VFSParams {
 pub:
-	data_dir     string // Directory to store OurDBFS data
-	metadata_dir string // Directory to store OurDBFS metadata
+	data_dir         string // Directory to store OurDBFS data
+	metadata_dir     string // Directory to store OurDBFS metadata
+	incremental_mode bool   // Whether to enable incremental mode
 }
 
 // Factory method for creating a new OurDBFS instance
@@ -22,8 +23,14 @@ pub fn new(params VFSParams) !&OurDBFS {
 		}
 	}
 
-	mut db_meta := ourdb.new(path: '${params.metadata_dir}/ourdb_fs.db_meta')! // TODO: doesn't seem to be good names
-	mut db_data := ourdb.new(path: '${params.data_dir}/vfs_metadata.db_meta')!
+	mut db_meta := ourdb.new(
+		path:             '${params.metadata_dir}/ourdb_fs.db_meta'
+		incremental_mode: params.incremental_mode
+	)!
+	mut db_data := ourdb.new(
+		path:             '${params.data_dir}/vfs_metadata.db_meta'
+		incremental_mode: params.incremental_mode
+	)!
 
 	mut fs := &OurDBFS{
 		root_id:      1

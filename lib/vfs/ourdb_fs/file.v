@@ -12,7 +12,7 @@ pub mut:
 }
 
 pub fn (mut f File) save() ! {
-	f.myvfs.save_entry(f)!
+	f.metadata.id = f.myvfs.save_entry(f)!
 }
 
 // write updates the file's content

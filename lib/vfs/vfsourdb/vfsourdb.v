@@ -14,8 +14,9 @@ mut:
 // new creates a new OurDBVFS instance
 pub fn new(data_dir string, metadata_dir string) !&OurDBVFS {
 	mut core := ourdb_fs.new(
-		data_dir:     data_dir
-		metadata_dir: metadata_dir
+		data_dir:         data_dir
+		metadata_dir:     metadata_dir
+		incremental_mode: true
 	)!
 
 	return &OurDBVFS{
@@ -34,7 +35,10 @@ pub fn (mut self OurDBVFS) file_create(path string) !vfscore.FSEntry {
 	parent_path := os.dir(path)
 	file_name := os.base(path)
 
+	println('file path: ${path}')
+	println('parent_path: ${parent_path}')
 	mut parent_dir := self.get_directory(parent_path)!
+	println('parent_dir file: ${parent_dir}')
 	mut file := parent_dir.touch(file_name)!
 	return convert_to_vfscore_entry(file)
 }
@@ -50,6 +54,7 @@ pub fn (mut self OurDBVFS) file_read(path string) ![]u8 {
 
 pub fn (mut self OurDBVFS) file_write(path string, data []u8) ! {
 	mut entry := self.get_entry(path)!
+	println('file_write - entry type: ${typeof(entry).name}')
 	if mut entry is ourdb_fs.File {
 		entry.write(data.bytestr())!
 	} else {
@@ -66,13 +71,16 @@ pub fn (mut self OurDBVFS) file_delete(path string) ! {
 }
 
 pub fn (mut self OurDBVFS) dir_create(path string) !vfscore.FSEntry {
-	println('Debug: Creating directory ${path}')
 	parent_path := os.dir(path)
 	dir_name := os.base(path)
-	println('Debug: Creating directory ${dir_name} in ${parent_path}')
 
 	mut parent_dir := self.get_directory(parent_path)!
+	println('parent_dir: ${parent_dir}')
+	println('dir_name: ${dir_name}')
 	mut new_dir := parent_dir.mkdir(dir_name)!
+	println('new_dir: ${new_dir}')
+	new_dir.save()! // Ensure the directory is saved
+
 	return convert_to_vfscore_entry(new_dir)
 }
 
@@ -140,7 +148,7 @@ pub fn (mut self OurDBVFS) link_create(target_path string, link_path string) !vf
 		myvfs:     self.core
 	}
 
-	parent_dir.add_symlink(symlink)!
+	parent_dir.add_symlink(mut symlink)!
 	return convert_to_vfscore_entry(symlink)
 }
 
@@ -156,30 +164,28 @@ pub fn (mut self OurDBVFS) destroy() ! {
 	// Nothing to do as the core VFS handles cleanup
 }
 
-// Helper functions
 fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 	if path == '/' {
-		return *self.core.get_root()!
+		return ourdb_fs.FSEntry(self.core.get_root()!)
 	}
 
-	mut current := self.core.get_root()!
+	mut current := *self.core.get_root()!
 	parts := path.trim_left('/').split('/')
-	println('parts: ${parts}')
-	println('current: ${current}')
+	println('Traversing path: ${path}')
+	println('Parts: ${parts}')
 
 	for i := 0; i < parts.len; i++ {
 		mut found := false
-		mut children := current.children(false)!
-		println('children: ${children}')
+		children := current.children(false)!
+		println('Current directory: ${current.metadata.name}')
+		println('Children: ${children}')
 
-		for mut child in children {
+		for child in children {
 			if child.metadata.name == parts[i] {
+				println('Found match: ${child.metadata.name}')
 				match child {
 					ourdb_fs.Directory {
-						unsafe {
-							current = child
-						}
-						println('Debug: current: ${current}')
+						current = child
 						found = true
 						break
 					}
@@ -195,11 +201,12 @@ fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
 		}
 
 		if !found {
+			println('Path not found: ${parts[i]}')
 			return error('Path not found: ${path}')
 		}
 	}
 
-	return *current
+	return ourdb_fs.FSEntry(current)
 }
 
 fn (mut self OurDBVFS) get_directory(path string) !&ourdb_fs.Directory {
@@ -213,12 +220,15 @@ fn (mut self OurDBVFS) get_directory(path string) !&ourdb_fs.Directory {
 fn convert_to_vfscore_entry(entry ourdb_fs.FSEntry) vfscore.FSEntry {
 	match entry {
 		ourdb_fs.Directory {
+			println('Entry is a directory: ${entry}')
+			println('Entry is a directory: ${convert_metadata(entry.metadata)}')
 			return &DirectoryEntry{
 				metadata: convert_metadata(entry.metadata)
 				path:     entry.metadata.name
 			}
 		}
 		ourdb_fs.File {
+			println('Entry is a file: ${entry}')
 			return &FileEntry{
 				metadata: convert_metadata(entry.metadata)
 				path:     entry.metadata.name
