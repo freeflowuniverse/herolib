@@ -2,7 +2,7 @@
 
 set -e
 
-script_dir="??(cd "??(dirname "??{BASH_SOURCE[0]}")" && pwd)"
+script_dir="???cd "???dirname "??{BASH_SOURCE[0]}")" && pwd)"
 cd "??{script_dir}"
 
 
@@ -18,4 +18,6 @@ ${profile_include}
 
 bun docusaurus build
 
-rsync -rv --delete ${site.path_build.path}/build/ ${cfg.main.build_dest_dev.trim_right("/")}/${cfg.main.name.trim_right("/")}/
+@for dest in cfg.main.build_dest_dev
+rsync -rv --delete ${site.path_build.path}/build/ ${dest.trim_right("/")}/
+@end

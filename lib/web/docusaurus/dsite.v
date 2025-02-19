@@ -26,28 +26,16 @@ pub mut:
 @[params]
 pub struct DSiteNewArgs {
 pub mut:
-	name      string
-	nameshort string
-	path      string
-	url       string
-	// publish_path string
+	name          string
+	nameshort     string
+	path          string
+	url           string
+	publish_path  string
 	build_path    string
 	production    bool
 	watch_changes bool = true
 	update        bool
-}
-
-pub fn (mut f DocusaurusFactory) build_dev(args_ DSiteNewArgs) !&DocSite {
-	mut s := f.add(args_)!
-	s.generate()!
-	osal.exec(
-		cmd:   '	
-			cd ${s.path_build.path}
-			bash build_dev.sh
-			'
-		retry: 0
-	)!
-	return s
+	deploykey     string
 }
 
 pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
@@ -57,6 +45,33 @@ pub fn (mut f DocusaurusFactory) build(args_ DSiteNewArgs) !&DocSite {
 		cmd:   '	
 			cd ${s.path_build.path}
 			bash build.sh
+			'
+		retry: 0
+	)!
+	return s
+}
+
+pub fn (mut f DocusaurusFactory) build_dev_publish(args_ DSiteNewArgs) !&DocSite {
+	mut s := f.add(args_)!
+	s.generate()!
+	osal.exec(
+		cmd:   '	
+			cd ${s.path_build.path}
+			bash build_dev_publish.sh
+			'
+		retry: 0
+	)!
+	return s
+}
+
+pub fn (mut f DocusaurusFactory) build_publish(args_ DSiteNewArgs) !&DocSite {
+	mut s := f.add(args_)!
+	s.generate()!
+
+	osal.exec(
+		cmd:   '	
+			cd ${s.path_build.path}
+			bash build_publish.sh
 			'
 		retry: 0
 	)!
@@ -126,8 +141,10 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteNewArgs) !&DocSite {
 	// if args.publish_path.len == 0 {
 	// 	args.publish_path = '${f.path_publish.path}/${args.name}'
 
+	// coderoot:"${os.home_dir()}/hero/var/publishcode"
+	mut gs := gittools.new(ssh_key_path: args.deploykey)!
+
 	if args.url.len > 0 {
-		mut gs := gittools.new()!
 		args.path = gs.get_path(url: args.url)!
 	}
 
@@ -135,7 +152,6 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteNewArgs) !&DocSite {
 		return error("Can't get path from docusaurus site, its not specified.")
 	}
 
-	mut gs := gittools.new()!
 	mut r := gs.get_repo(
 		url:  'https://github.com/freeflowuniverse/docusaurus_template.git'
 		pull: args.update
@@ -204,6 +220,7 @@ pub fn (mut site DocSite) error(args ErrorArgs) {
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.path_build.path}')
+	console.print_header(' site source on ${site.path_src.path}')
 	site.template_install()!
 	// osal.exec(
 	// 	cmd: '	
@@ -262,7 +279,8 @@ fn (mut site DocSite) template_install() ! {
 
 	develop := $tmpl('templates/develop.sh')
 	build := $tmpl('templates/build.sh')
-	build_dev := $tmpl('templates/build_dev.sh')
+	build_dev_publish := $tmpl('templates/build_dev_publish.sh')
+	build_publish := $tmpl('templates/build_publish.sh')
 
 	mut develop_ := site.path_build.file_get_new('develop.sh')!
 	develop_.template_write(develop, true)!
@@ -272,9 +290,13 @@ fn (mut site DocSite) template_install() ! {
 	build_.template_write(build, true)!
 	build_.chmod(0o700)!
 
-	mut build_dev_ := site.path_build.file_get_new('build_dev.sh')!
-	build_dev_.template_write(build_dev, true)!
-	build_dev_.chmod(0o700)!
+	mut build_publish_ := site.path_build.file_get_new('build_publish.sh')!
+	build_publish_.template_write(build_publish, true)!
+	build_publish_.chmod(0o700)!
+
+	mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
+	build_dev_publish_.template_write(build_dev_publish, true)!
+	build_dev_publish_.chmod(0o700)!
 
 	mut develop2_ := site.path_src.file_get_new('develop.sh')!
 	develop2_.template_write(develop, true)!
@@ -283,8 +305,4 @@ fn (mut site DocSite) template_install() ! {
 	mut build2_ := site.path_src.file_get_new('build.sh')!
 	build2_.template_write(build, true)!
 	build2_.chmod(0o700)!
-
-	mut build_dev2_ := site.path_src.file_get_new('build_dev.sh')!
-	build_dev2_.template_write(build_dev, true)!
-	build_dev2_.chmod(0o700)!
 }
