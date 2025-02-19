@@ -32,7 +32,7 @@ fn format_repo_info(repo GitRepo) ![]string {
 		'[${repo.status_local.branch}]' // Otherwise, display branch
 	}
 
-	relative_path := repo.get_relative_path()!
+	relative_path := repo.get_human_path()!
 	return [' - ${relative_path}', tag_or_branch, status]
 }
 

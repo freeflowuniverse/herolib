@@ -71,6 +71,13 @@ pub fn (repo GitRepo) get_relative_path() !string {
 	return mypath.path_relative(repo_.gs.coderoot.path) or { panic("couldn't get relative path") }
 }
 
+//path where we use ~ and its the full path
+pub fn (repo GitRepo) get_human_path() !string {
+	mut mypath := repo.patho()!.path.replace(os.home_dir(),"~")
+	return mypath
+}
+
+
 pub fn (mut repo GitRepo) get_parent_dir(args GetParentDir) !string {
 	repo_path := repo.path()
 	parent_dir := os.dir(repo_path)
