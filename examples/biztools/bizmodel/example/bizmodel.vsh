@@ -9,33 +9,21 @@ import freeflowuniverse.herolib.web.mdbook
 import os
 
 const wikipath = os.dir(@FILE) + '/wiki'
+const build_path = os.join_path(os.dir(@FILE), '/build')
 const summarypath = os.dir(@FILE) + '/wiki/summary.md'
 buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
 
-mut m := bizmodel.getset("example")!
-m.workdir = wikipath
-m.play(mut playbook.new(path: wikipath)!)!
-m.export_sheets()!
-bizmodel.set(m)
+mut model := bizmodel.getset("example")!
+model.workdir = wikipath
+model.play(mut playbook.new(path: wikipath)!)!
 
-// // execute the actions so we have the info populated
-// // playcmds.run(mut plb,false)!
+report := model.new_report(
+	name: 'example_report'
+	title: 'Example Business Model'
+)!
 
-
-// // just run the doctree & mdbook and it should
-// // load the doctree, these are all collections
-// mut tree := doctree.new(name: 'bizmodel')!
-// tree.scan(path: wikipath)!
-// tree.export(dest: buildpath, reset: true)!
-
-// // mut bm:=bizmodel.get("test")!
-// // println(bm)
-
-// mut mdbooks := mdbook.get()!
-// mdbooks.generate(
-// 	name:         'bizmodel'
-// 	summary_path: summarypath
-// 	doctree_path: buildpath
-// 	title:        'bizmodel example'
-// )!
-// mdbook.book_open('bizmodel')!
+report.export(
+	path: build_path
+	overwrite: true
+	format: .docusaurus
+)!
