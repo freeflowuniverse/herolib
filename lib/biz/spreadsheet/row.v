@@ -95,7 +95,7 @@ pub fn (mut r Row) cell_get(colnr int) !&Cell {
 	return &r.cells[colnr]
 }
 
-pub fn (mut r Row) values_get() []f64 {
+pub fn (r Row) values_get() []f64 {
 	mut out := []f64{}
 	for cell in r.cells {
 		out << cell.val

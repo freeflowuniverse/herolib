@@ -21,7 +21,7 @@ import freeflowuniverse.herolib.core.texttools
 // - nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200)
 // - nr_months_recurring: how many months is recurring, if 0 then no recurring
 //
-fn (mut m BizModel) revenue_action(action Action) ! {
+fn (mut m BizModel) revenue_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
@@ -312,6 +312,7 @@ fn (mut m BizModel) revenue_action(action Action) ! {
 	// 	panic("sdsd")
 
 	// }
+	return action
 }
 
 // revenue_total calculates and aggregates the total revenue and cost of goods sold (COGS) for the business model

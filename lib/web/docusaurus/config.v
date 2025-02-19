@@ -1,5 +1,6 @@
 module docusaurus
 
+import freeflowuniverse.herolib.core.pathlib
 import json
 import os
 
@@ -19,28 +20,28 @@ pub mut:
 
 pub struct Footer {
 pub mut:
-	style string
+	style string = 'dark'
 	links []FooterLink
 }
 
 // Main config structure
 pub struct MainMetadata {
 pub mut:
-	description string
-	image       string
-	title       string
+	description string = 'Docusaurus'
+	image       string = 'Docusaurus'
+	title       string = 'Docusaurus'
 }
 
 pub struct Main {
 pub mut:
 	name           string
-	title          string
+	title          string = 'Docusaurus'
 	tagline        string
-	favicon        string
-	url            string
+	favicon        string = 'img/favicon.png'
+	url            string = 'http://localhost'
 	url_home       string
-	base_url       string @[json: 'baseUrl']
-	image          string
+	base_url       string = '/' @[json: 'baseUrl']
+	image          string = 'img/tf_graph.png' @[required]
 	metadata       MainMetadata
 	build_dest     []string @[json: 'buildDest']
 	build_dest_dev []string @[json: 'buildDestDev']
@@ -83,7 +84,7 @@ pub fn load_config(cfg_dir string) !Config {
 	main_config_path := os.join_path(cfg_dir, 'main.json')
 	main_content := os.read_file(main_config_path)!
 	main := json.decode(Main, main_content) or {
-		eprintln('${main_config_path} is not in the right format please fix.')
+		eprintln('${main_config_path} is not in the right format please fix.\nError: ${err}')
 		println('
 
 ## EXAMPLE OF A GOOD ONE:
@@ -121,4 +122,13 @@ pub fn load_config(cfg_dir string) !Config {
 		main:   main
 		navbar: navbar
 	}
+}
+
+pub fn (c Config) write(path string) ! {
+	mut footer_file := pathlib.get_file(path: '${path}/footer.json', create: true)!
+	footer_file.write(json.encode(c.footer))!
+	mut main_file := pathlib.get_file(path: '${path}/main.json', create: true)!
+	main_file.write(json.encode(c.main))!
+	mut navbar_file := pathlib.get_file(path: '${path}/navbar.json', create: true)!
+	navbar_file.write(json.encode(c.navbar))!
 }
