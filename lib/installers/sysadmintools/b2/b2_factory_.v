@@ -1,11 +1,9 @@
 module b2
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import time
 
 __global (
 	b2_global  map[string]&BackBase
@@ -13,6 +11,46 @@ __global (
 )
 
 /////////FACTORY
+
+@[params]
+pub struct ArgsGet {
+pub mut:
+	name string
+}
+
+pub fn get(args_ ArgsGet) !&BackBase {
+	return &BackBase{}
+}
+
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+
+	mut other_actions := plbook.find(filter: 'b2.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action b2.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action b2.install')
+				install()!
+			}
+		}
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
@@ -40,98 +78,32 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 	}
 }
 
-pub fn (mut self BackBase) start() ! {
-	switch(self.name)
-	if self.running()! {
-		return
-	}
-
-	console.print_header('b2 start')
-
-	if !installed_()! {
-		install_()!
-	}
-
-	configure()!
-
-	start_pre()!
-
-	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-
-		console.print_debug('starting b2 with ${zprocess.startuptype}...')
-
-		sm.new(zprocess)!
-
-		sm.start(zprocess.name)!
-	}
-
-	start_post()!
-
-	for _ in 0 .. 50 {
-		if self.running()! {
-			return
-		}
-		time.sleep(100 * time.millisecond)
-	}
-	return error('b2 did not install properly.')
-}
-
-pub fn (mut self BackBase) install_start(model InstallArgs) ! {
-	switch(self.name)
-	self.install(model)!
-	self.start()!
-}
-
-pub fn (mut self BackBase) stop() ! {
-	switch(self.name)
-	stop_pre()!
-	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		sm.stop(zprocess.name)!
-	}
-	stop_post()!
-}
-
-pub fn (mut self BackBase) restart() ! {
-	switch(self.name)
-	self.stop()!
-	self.start()!
-}
-
-pub fn (mut self BackBase) running() !bool {
-	switch(self.name)
-
-	// walk over the generic processes, if not running return
-	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		r := sm.running(zprocess.name)!
-		if r == false {
-			return false
-		}
-	}
-	return running()!
-}
-
 @[params]
 pub struct InstallArgs {
 pub mut:
 	reset bool
 }
 
-pub fn install(args InstallArgs) ! {
-	if args.reset {
-		destroy()!
-	}
-	if !(installed_()!) {
-		install_()!
+pub fn (mut self BackBase) install(args InstallArgs) ! {
+	switch(self.name)
+	if args.reset || (!installed()!) {
+		install()!
 	}
 }
 
-pub fn destroy() ! {
-	destroy_()!
+pub fn (mut self BackBase) destroy() ! {
+	switch(self.name)
+	destroy()!
 }
 
-pub fn build() ! {
-	build_()!
+// switch instance to be used for b2
+pub fn switch(name string) {
+	b2_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

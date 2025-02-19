@@ -1,27 +1,21 @@
 module rclone
 
 import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
+import os
 
 pub const version = '1.67.0'
 const singleton = false
 const default = false
 
-pub fn heroscript_default() !string {
-	heroscript := "
-	!!rclone.configure
-		name: 'default'
-		cat: 'b2' 
-		s3_account: ''
-		s3_key: ''
-		s3_secret: ''
-		hard_delete: false
-		endpoint: ''
-        "
-
-	return heroscript
+// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+pub enum RCloneCat {
+	b2
+	s3
+	ftp
 }
 
-// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+@[heap]
 pub struct RClone {
 pub mut:
 	name        string = 'default'
@@ -33,31 +27,32 @@ pub mut:
 	endpoint    string
 }
 
-pub enum RCloneCat {
-	b2
-	s3
-	ftp
-}
-
-fn cfg_play(p paramsparser.Params) !RClone {
-	mut mycfg := RClone{
-		name:        p.get_default('name', 'default')!
-		cat:         match p.get_default('cat', 'b2')! {
-			'b2' { RCloneCat.b2 }
-			's3' { RCloneCat.s3 }
-			'ftp' { RCloneCat.ftp }
-			else { return error('Invalid RCloneCat') }
-		}
-		s3_account:  p.get_default('s3_account', '')!
-		s3_key:      p.get_default('s3_key', '')!
-		s3_secret:   p.get_default('s3_secret', '')!
-		hard_delete: p.get_default_false('hard_delete')
-		endpoint:    p.get_default('endpoint', '')!
-	}
+// your checking & initialization code if needed
+fn obj_init(mycfg_ RClone) !RClone {
+	mut mycfg := mycfg_
 	return mycfg
 }
 
-fn obj_init(obj_ RClone) !RClone {
-	mut obj := obj_
+// called before start if done
+fn configure() ! {
+	_ := get()!
+
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+
+	_ := $tmpl('templates/rclone.yaml')
+	// mut path := pathlib.get_file(path: cfg.configpath, create: true)!
+	// path.write(mycode)!
+	// console.print_debug(mycode)
+	// implement if steps need to be done for configuration
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj RClone) !string {
+	return encoderhero.encode[RClone](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !RClone {
+	mut obj := encoderhero.decode[RClone](heroscript)!
 	return obj
 }
