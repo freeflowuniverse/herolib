@@ -1,51 +1,34 @@
 module actrunner
 
-import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
+import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.core
 import os
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut installer := get()!
 	mut res := []zinit.ZProcessNewArgs{}
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'actrunner'
-	//     cmd: 'actrunner server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
+	res << zinit.ZProcessNewArgs{
+		name:        'actrunner'
+		cmd:         'actrunner daemon'
+		startuptype: .zinit
+		env:         {
+			'HOME': '/root'
+		}
+	}
 
 	return res
 }
 
-fn running_() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of actrunner
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'actrunner', url: url)!
-
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('actrunner is answering.')
+fn running() !bool {
+	mut zinit_factory := zinit.new()!
+	if zinit_factory.exists('actrunner') {
+		is_running := zinit_factory.get('actrunner')!
+		println('is_running: ${is_running}')
+		return true
+	}
 	return false
 }
 
@@ -64,19 +47,19 @@ fn stop_post() ! {
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
+fn installed() !bool {
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()!} actrunner version')
-	// if res.exit_code != 0 {
-	//     return false
-	// }
-	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	// if r.len != 1 {
-	//     return error("couldn't parse actrunner version.\n${res.output}")
-	// }
-	// if texttools.version(version) == texttools.version(r[0]) {
-	//     return true
-	// }
+	res := os.execute('actrunner --version')
+	if res.exit_code != 0 {
+		return false
+	}
+	r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+	if r.len != 1 {
+		return error("couldn't parse actrunner version.\n${res.output}")
+	}
+	if texttools.version(version) == texttools.version(r[0]) {
+		return true
+	}
 	return false
 }
 
@@ -87,101 +70,55 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload_() ! {
-	// installers.upload(
-	//     cmdname: 'actrunner'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/actrunner'
-	// )!
-}
+fn upload() ! {}
 
-fn install_() ! {
+fn install() ! {
 	console.print_header('install actrunner')
 	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// mut url := ''
-	// if core.is_linux_arm()! {
-	//     url = 'https://github.com/actrunner-dev/actrunner/releases/download/v${version}/actrunner_${version}_linux_arm64.tar.gz'
-	// } else if core.is_linux_intel()! {
-	//     url = 'https://github.com/actrunner-dev/actrunner/releases/download/v${version}/actrunner_${version}_linux_amd64.tar.gz'
-	// } else if core.is_osx_arm()! {
-	//     url = 'https://github.com/actrunner-dev/actrunner/releases/download/v${version}/actrunner_${version}_darwin_arm64.tar.gz'
-	// } else if core.is_osx_intel()! {
-	//     url = 'https://github.com/actrunner-dev/actrunner/releases/download/v${version}/actrunner_${version}_darwin_amd64.tar.gz'
-	// } else {
-	//     return error('unsported platform')
-	// }
+	mut url := ''
+	if core.is_linux_arm()! {
+		url = 'https://gitea.com/gitea/act_runner/releases/download/v${version}/act_runner-${version}-linux-arm64'
+	} else if core.is_linux_intel()! {
+		url = 'https://gitea.com/gitea/act_runner/releases/download/v${version}/act_runner-${version}-linux-amd64'
+	} else if core.is_osx_arm()! {
+		url = 'https://gitea.com/gitea/act_runner/releases/download/v${version}/act_runner-${version}-darwin-arm64'
+	} else if core.is_osx_intel()! {
+		url = 'https://gitea.com/gitea/act_runner/releases/download/v${version}/act_runner-${version}-darwin-amd64'
+	} else {
+		return error('unsported platform')
+	}
 
-	// mut dest := osal.download(
-	//     url: url
-	//     minsize_kb: 9000
-	//     expand_dir: '/tmp/actrunner'
-	// )!
+	osal.package_install('wget') or { return error('Could not install wget due to: ${err}') }
 
-	// //dest.moveup_single_subdir()!
+	mut res := os.execute('sudo wget -O /usr/local/bin/actrunner ${url}')
+	if res.exit_code != 0 {
+		return error('failed to install actrunner: ${res.output}')
+	}
 
-	// mut binpath := dest.file_get('actrunner')!
-	// osal.cmd_add(
-	//     cmdname: 'actrunner'
-	//     source: binpath.path
-	// )!
+	res = os.execute('sudo chmod +x /usr/local/bin/actrunner')
+	if res.exit_code != 0 {
+		return error('failed to install actrunner: ${res.output}')
+	}
 }
 
-fn build_() ! {
-	// url := 'https://github.com/threefoldtech/actrunner'
+fn build() ! {}
 
-	// make sure we install base on the node
-	// if core.platform()!= .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
+fn destroy() ! {
+	console.print_header('uninstall actrunner')
+	mut zinit_factory := zinit.new()!
 
-	// console.print_header('build actrunner')
+	if zinit_factory.exists('actrunner') {
+		zinit_factory.stop('actrunner') or {
+			return error('Could not stop actrunner service due to: ${err}')
+		}
+		zinit_factory.delete('actrunner') or {
+			return error('Could not delete actrunner service due to: ${err}')
+		}
+	}
 
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
-
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
-	// //now copy to the default bin path
-	// mut binpath := dest.file_get('...')!
-	// adds it to path
-	// osal.cmd_add(
-	//     cmdname: 'griddriver2'
-	//     source: binpath.path
-	// )!
-}
-
-fn destroy_() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
-
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+	res := os.execute('sudo rm -rf /usr/local/bin/actrunner')
+	if res.exit_code != 0 {
+		return error('failed to uninstall actrunner: ${res.output}')
+	}
+	console.print_header('actrunner is uninstalled')
 }

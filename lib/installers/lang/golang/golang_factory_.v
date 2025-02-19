@@ -1,8 +1,9 @@
 module golang
 
+import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import freeflowuniverse.herolib.ui.console
 
 __global (
 	golang_global  map[string]&GolangInstaller
@@ -19,6 +20,36 @@ pub mut:
 
 pub fn get(args_ ArgsGet) !&GolangInstaller {
 	return &GolangInstaller{}
+}
+
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+
+	mut other_actions := plbook.find(filter: 'golang.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action golang.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action golang.install')
+				install()!
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,22 +86,29 @@ pub mut:
 
 pub fn (mut self GolangInstaller) install(args InstallArgs) ! {
 	switch(self.name)
-	if args.reset || (!installed_()!) {
-		install_()!
+	if args.reset || (!installed()!) {
+		install()!
 	}
 }
 
 pub fn (mut self GolangInstaller) build() ! {
 	switch(self.name)
-	build_()!
+	build()!
 }
 
 pub fn (mut self GolangInstaller) destroy() ! {
 	switch(self.name)
-	destroy_()!
+	destroy()!
 }
 
 // switch instance to be used for golang
 pub fn switch(name string) {
 	golang_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

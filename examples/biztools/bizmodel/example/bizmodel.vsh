@@ -11,6 +11,7 @@ import os
 const wikipath = os.dir(@FILE) + '/wiki'
 const build_path = os.join_path(os.dir(@FILE), '/build')
 const summarypath = os.dir(@FILE) + '/wiki/summary.md'
+
 buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
 
 mut model := bizmodel.getset("example")!

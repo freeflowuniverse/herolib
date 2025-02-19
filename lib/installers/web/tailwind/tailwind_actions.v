@@ -4,12 +4,12 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.installers.ulist
 import os
-
-pub const version = '3.4.12'
+//////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
+fn installed() !bool {
 	res := os.execute('tailwind -h')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('tailwindcss v'))
@@ -26,7 +26,21 @@ fn installed_() !bool {
 	return false
 }
 
-pub fn install_() ! {
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
+}
+
+// uploads to S3 server if configured
+fn upload() ! {
+	// installers.upload(
+	//     cmdname: 'tailwind'
+	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/tailwind'
+	// )!
+}
+
+fn install() ! {
 	console.print_header('install tailwind')
 
 	mut url := ''
@@ -54,5 +68,4 @@ pub fn install_() ! {
 	)!
 }
 
-fn destroy_() ! {
-}
+fn destroy() ! {}

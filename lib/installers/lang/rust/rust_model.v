@@ -1,6 +1,7 @@
 module rust
 
 import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
 import os
 
 pub const version = '1.83.0'
@@ -14,13 +15,24 @@ pub mut:
 	name string = 'default'
 }
 
-fn obj_init(obj_ RustInstaller) !RustInstaller {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+// your checking & initialization code if needed
+fn obj_init(mycfg_ RustInstaller) !RustInstaller {
+	mut mycfg := mycfg_
+	return mycfg
 }
 
 // called before start if done
 fn configure() ! {
 	// mut installer := get()!
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj RustInstaller) !string {
+	return encoderhero.encode[RustInstaller](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !RustInstaller {
+	mut obj := encoderhero.decode[RustInstaller](heroscript)!
+	return obj
 }

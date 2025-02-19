@@ -1,25 +1,36 @@
 module pacman
 
-import freeflowuniverse.herolib.data.paramsparser
-import os
+import freeflowuniverse.herolib.data.encoderhero
 
-pub const version = ''
+pub const version = 'v1.0'
 const singleton = true
 const default = true
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+@[heap]
 pub struct PacmanInstaller {
 pub mut:
 	name string = 'default'
 }
 
-fn obj_init(obj_ PacmanInstaller) !PacmanInstaller {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+// your checking & initialization code if needed
+fn obj_init(mycfg_ PacmanInstaller) !PacmanInstaller {
+	mut mycfg := mycfg_
+	return mycfg
 }
 
 // called before start if done
 fn configure() ! {
 	// mut installer := get()!
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj PacmanInstaller) !string {
+	return encoderhero.encode[PacmanInstaller](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !PacmanInstaller {
+	mut obj := encoderhero.decode[PacmanInstaller](heroscript)!
+	return obj
 }

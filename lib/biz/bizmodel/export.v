@@ -56,12 +56,13 @@ pub fn (r Report) export(export Export) ! {
 	match export.format {
 		.docusaurus {
 			mut factory := docusaurus.new()!
-			factory.build(
+			mut site := factory.get(
 				name: r.name
 				path: r.path
 				publish_path: export.path
-				config: docusaurus.Config {}
+				config: docusaurus.Config {} //TODO: is this needed
 			)!
+			site.build()!
 		}
 		.mdbook {panic('MDBook export not fully implemented')}
 	}

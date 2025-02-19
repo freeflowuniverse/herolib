@@ -84,7 +84,7 @@ pub fn load_config(cfg_dir string) !Config {
 	main_config_path := os.join_path(cfg_dir, 'main.json')
 	main_content := os.read_file(main_config_path)!
 	main := json.decode(Main, main_content) or {
-		eprintln('${main_config_path} is not in the right format please fix.\nError: ${err}')
+		eprintln('main.json in ${cfg_dir} is not in the right format please fix.\nError: ${err}')
 		println('
 
 ## EXAMPLE OF A GOOD ONE:

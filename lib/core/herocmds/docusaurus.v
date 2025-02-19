@@ -32,6 +32,15 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 	cmd_run.add_flag(Flag{
 		flag:     .string
 		required: false
+		name:     'path'
+		abbrev:   'p'
+		// default: ''
+		description: 'Path where docusaurus source is.'
+	})
+
+	cmd_run.add_flag(Flag{
+		flag:     .string
+		required: false
 		name:     'deploykey'
 		abbrev:   'dk'
 		// default: ''
@@ -77,20 +86,25 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		description: 'Run your dev environment on local browser.'
 	})
 
+	cmd_run.add_flag(Flag{
+		flag:        .bool
+		required:    false
+		name:        'new'
+		abbrev:      'n'
+		description: 'create a new docusaurus site.'
+	})
+
 	cmdroot.add_command(cmd_run)
 }
 
 fn cmd_docusaurus_execute(cmd Command) ! {
 	mut update := cmd.flags.get_bool('update') or { false }
+	mut init := cmd.flags.get_bool('new') or { false }
 	mut url := cmd.flags.get_string('url') or { '' }
 	mut publish_path := cmd.flags.get_string('publish') or { '' }
 	mut deploykey := cmd.flags.get_string('deploykey') or { '' }
 
-	// mut path := cmd.flags.get_string('path') or { '' }
-	// if path == '' {
-	// 	path = os.getwd()
-	// }
-	// path = path.replace('~', os.home_dir())
+	mut path := cmd.flags.get_string('path') or { '' }
 
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
@@ -102,40 +116,28 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// }
 
 	mut docs := docusaurus.new(update: update)!
+	mut site := docs.get(
+		url:          url
+		path:         path
+		update:       update
+		publish_path: publish_path
+		deploykey:    deploykey
+		init:         init
+	)!
 
 	if publish_path.len > 0 {
-		_ := docs.build(
-			url:          url
-			update:       update
-			publish_path: publish_path
-			deploykey:    deploykey
-		)!
+		site.build()!
 	}
 
 	if buildpublish {
-		// Create a new docusaurus site
-		_ := docs.build_publish(
-			url:       url
-			update:    update
-			deploykey: deploykey
-		)!
+		site.build_publish()!
 	}
 
 	if builddevpublish {
-		// Create a new docusaurus site
-		_ := docs.build_dev_publish(
-			url:       url
-			update:    update
-			deploykey: deploykey
-		)!
+		site.build_dev_publish()!
 	}
 
 	if dev {
-		// Create a new docusaurus site
-		_ := docs.dev(
-			url:       url
-			update:    update
-			deploykey: deploykey
-		)!
+		site.dev()!
 	}
 }

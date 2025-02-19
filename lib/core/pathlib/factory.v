@@ -29,11 +29,11 @@ pub fn get_no_check(path_ string) Path {
 @[params]
 pub struct GetArgs {
 pub mut:
-	path   string
-	create bool
-	check  bool = true // means will check the dir, link or file exists
-	empty  bool // will empty the dir or the file
-	delete bool
+	path      string
+	create    bool
+	check     bool = true // means will check the dir, link or file exists
+	empty     bool // will empty the dir or the file
+	delete    bool
 	increment bool // will increment filename until free name available (filename1...)
 }
 
@@ -84,11 +84,13 @@ pub fn get_file(args_ GetArgs) !Path {
 		p2.check()
 
 		if args.increment {
-			if p2.exists() { 
-				incr := if args.path[args.path.len-1].is_digit() {
-					args.path[args.path.len-1].ascii_str().int()
-				} else {0}
-				return get_file(GetArgs {...args, path: '${args.path}${incr}'}) 
+			if p2.exists() {
+				incr := if args.path[args.path.len - 1].is_digit() {
+					args.path[args.path.len - 1].ascii_str().int()
+				} else {
+					0
+				}
+				return get_file(GetArgs{ ...args, path: '${args.path}${incr}' })
 			}
 		}
 		if args.create {

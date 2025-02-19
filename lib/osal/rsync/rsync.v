@@ -14,7 +14,7 @@ pub mut:
 	delete         bool     // do we want to delete the destination
 	ignore         []string // arguments to ignore e.g. ['*.pyc','*.bak']
 	ignore_default bool = true // if set will ignore a common set
-	stdout         bool = true
+	stdout         bool
 	fast_rsync     bool
 	sshkey         string
 }
