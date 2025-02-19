@@ -1,7 +1,6 @@
 module webdav
 
 import vweb
-import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.vfs.vfscore
 
@@ -11,10 +10,10 @@ struct App {
 	user_db map[string]string @[required]
 	// root_dir pathlib.Path      @[vweb_global]
 pub mut:
-	// lock_manager LockManager
-	vfs         vfscore.VFSImplementation
-	server_port int
-	middlewares map[string][]vweb.Middleware
+	lock_manager LockManager
+	vfs          vfscore.VFSImplementation
+	server_port  int
+	middlewares  map[string][]vweb.Middleware
 }
 
 @[params]

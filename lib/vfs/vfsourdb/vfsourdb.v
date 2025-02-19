@@ -130,6 +130,10 @@ pub fn (mut self OurDBVFS) copy(src_path string, dst_path string) ! {
 	return error('Not implemented')
 }
 
+pub fn (mut self OurDBVFS) move(src_path string, dst_path string) ! {
+	return error('Not implemented')
+}
+
 pub fn (mut self OurDBVFS) link_create(target_path string, link_path string) !vfscore.FSEntry {
 	parent_path := os.dir(link_path)
 	link_name := os.base(link_path)
@@ -270,6 +274,21 @@ fn (e &DirectoryEntry) get_path() string {
 	return e.path
 }
 
+// is_dir returns true if the entry is a directory
+pub fn (self &DirectoryEntry) is_dir() bool {
+	return self.metadata.file_type == .directory
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &DirectoryEntry) is_file() bool {
+	return self.metadata.file_type == .file
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &DirectoryEntry) is_symlink() bool {
+	return self.metadata.file_type == .symlink
+}
+
 struct FileEntry {
 	metadata vfscore.Metadata
 	path     string
@@ -281,6 +300,21 @@ fn (e &FileEntry) get_metadata() vfscore.Metadata {
 
 fn (e &FileEntry) get_path() string {
 	return e.path
+}
+
+// is_dir returns true if the entry is a directory
+pub fn (self &FileEntry) is_dir() bool {
+	return self.metadata.file_type == .directory
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &FileEntry) is_file() bool {
+	return self.metadata.file_type == .file
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &FileEntry) is_symlink() bool {
+	return self.metadata.file_type == .symlink
 }
 
 struct SymlinkEntry {
@@ -295,4 +329,19 @@ fn (e &SymlinkEntry) get_metadata() vfscore.Metadata {
 
 fn (e &SymlinkEntry) get_path() string {
 	return e.path
+}
+
+// is_dir returns true if the entry is a directory
+pub fn (self &SymlinkEntry) is_dir() bool {
+	return self.metadata.file_type == .directory
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &SymlinkEntry) is_file() bool {
+	return self.metadata.file_type == .file
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &SymlinkEntry) is_symlink() bool {
+	return self.metadata.file_type == .symlink
 }

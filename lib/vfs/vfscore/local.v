@@ -9,6 +9,21 @@ mut:
 	metadata Metadata
 }
 
+// is_dir returns true if the entry is a directory
+pub fn (self &LocalFSEntry) is_dir() bool {
+	return self.metadata.file_type == .directory
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &LocalFSEntry) is_file() bool {
+	return self.metadata.file_type == .file
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &LocalFSEntry) is_symlink() bool {
+	return self.metadata.file_type == .symlink
+}
+
 fn (e LocalFSEntry) get_metadata() Metadata {
 	return e.metadata
 }
@@ -240,6 +255,20 @@ pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) ! {
 	}
 
 	os.cp(abs_src, abs_dst) or { return error('Failed to copy ${src_path} to ${dst_path}: ${err}') }
+}
+
+pub fn (myvfs LocalVFS) move(src_path string, dst_path string) ! {
+	abs_src := myvfs.abs_path(src_path)
+	abs_dst := myvfs.abs_path(dst_path)
+
+	if !os.exists(abs_src) {
+		return error('Source path does not exist: ${src_path}')
+	}
+	if os.exists(abs_dst) {
+		return error('Destination path already exists: ${dst_path}')
+	}
+
+	os.mv(abs_src, abs_dst) or { return error('Failed to move ${src_path} to ${dst_path}: ${err}') }
 }
 
 // Generic delete operation that handles all types

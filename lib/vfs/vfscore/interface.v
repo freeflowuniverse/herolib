@@ -23,6 +23,9 @@ pub mut:
 pub interface FSEntry {
 	get_metadata() Metadata
 	get_path() string
+	is_dir() bool
+	is_file() bool
+	is_symlink() bool
 }
 
 // VFSImplementation defines the interface that all vfscore implementations must follow
@@ -47,6 +50,7 @@ mut:
 	get(path string) !FSEntry
 	rename(old_path string, new_path string) !
 	copy(src_path string, dst_path string) !
+	move(src_path string, dst_path string) !
 	delete(path string) !
 
 	// Symlink operations

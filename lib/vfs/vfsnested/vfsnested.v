@@ -57,13 +57,13 @@ pub fn (mut self NestedVFS) root_get() !vfscore.FSEntry {
 }
 
 pub fn (mut self NestedVFS) delete(path string) ! {
-	// mut impl, rel_path := self.find_vfs(path)!
-	// return impl.file_read(rel_path)
+	mut impl, rel_path := self.find_vfs(path)!
+	return impl.delete(rel_path)
 }
 
 pub fn (mut self NestedVFS) link_delete(path string) ! {
-	// mut impl, rel_path := self.find_vfs(path)!
-	// return impl.file_read(rel_path)
+	mut impl, rel_path := self.find_vfs(path)!
+	return impl.link_delete(rel_path)
 }
 
 pub fn (mut self NestedVFS) file_create(path string) !vfscore.FSEntry {
@@ -151,6 +151,22 @@ pub fn (mut self NestedVFS) copy(src_path string, dst_path string) ! {
 	}
 
 	// Copy across different VFS implementations
+	// TODO: Q: What if it's not file? What if it's a symlink or directory?
+	data := src_impl.file_read(src_rel_path)!
+	dst_impl.file_create(dst_rel_path)!
+	return dst_impl.file_write(dst_rel_path, data)
+}
+
+pub fn (mut self NestedVFS) move(src_path string, dst_path string) ! {
+	mut src_impl, src_rel_path := self.find_vfs(src_path)!
+	mut dst_impl, dst_rel_path := self.find_vfs(dst_path)!
+
+	if src_impl == dst_impl {
+		return src_impl.move(src_rel_path, dst_rel_path)
+	}
+
+	// Move across different VFS implementations
+	// TODO: Q: What if it's not file? What if it's a symlink or directory?
 	data := src_impl.file_read(src_rel_path)!
 	dst_impl.file_create(dst_rel_path)!
 	return dst_impl.file_write(dst_rel_path, data)
@@ -185,6 +201,21 @@ fn (e &RootEntry) get_path() string {
 	return '/'
 }
 
+// is_dir returns true if the entry is a directory
+pub fn (self &RootEntry) is_dir() bool {
+	return self.metadata.file_type == .directory
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &RootEntry) is_file() bool {
+	return self.metadata.file_type == .file
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &RootEntry) is_symlink() bool {
+	return self.metadata.file_type == .symlink
+}
+
 pub struct MountEntry {
 pub mut:
 	metadata vfscore.Metadata
@@ -197,4 +228,19 @@ fn (e &MountEntry) get_metadata() vfscore.Metadata {
 
 fn (e &MountEntry) get_path() string {
 	return '/${e.metadata.name}'
+}
+
+// is_dir returns true if the entry is a directory
+pub fn (self &MountEntry) is_dir() bool {
+	return self.metadata.file_type == .directory
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &MountEntry) is_file() bool {
+	return self.metadata.file_type == .file
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &MountEntry) is_symlink() bool {
+	return self.metadata.file_type == .symlink
 }
