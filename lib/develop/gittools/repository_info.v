@@ -48,8 +48,8 @@ pub fn (mut repo GitRepo) need_commit() !bool {
 	return repo.has_changes
 }
 
-// Check if the repository has changes that need to be pushed (is against the cached info).
-pub fn (mut repo GitRepo) need_push_or_pull() !bool {
+// Check if the repository has local changes that need to be pushed to remote
+pub fn (mut repo GitRepo) need_push() !bool {
 	repo.status_update()!
 	last_remote_commit := repo.get_last_remote_commit() or {
 		return error('Failed to get last remote commit: ${err}')
@@ -57,8 +57,42 @@ pub fn (mut repo GitRepo) need_push_or_pull() !bool {
 	last_local_commit := repo.get_last_local_commit() or {
 		return error('Failed to get last local commit: ${err}')
 	}
-	// println('commit status: ${repo.name} ${last_local_commit} ${last_remote_commit}')
+	// If remote commit is empty, it means the branch doesn't exist remotely yet
+	if last_remote_commit.len == 0 {
+		return true
+	}
+	// If local commit is different from remote and exists, we need to push
 	return last_local_commit != last_remote_commit
+}
+
+// Check if the repository needs to pull changes from remote
+pub fn (mut repo GitRepo) need_pull() !bool {
+	repo.status_update()!
+	last_remote_commit := repo.get_last_remote_commit() or {
+		return error('Failed to get last remote commit: ${err}')
+	}
+	// If remote doesn't exist, no need to pull
+	if last_remote_commit.len == 0 {
+		return false
+	}
+	// Check if the remote commit exists in our local history
+	// If it doesn't exist, we need to pull
+	result := repo.exec('git merge-base --is-ancestor ${last_remote_commit} HEAD') or {
+		if err.msg().contains('exit code: 1') {
+			// Exit code 1 means the remote commit is not in our history
+			// Therefore we need to pull
+			return true
+		}
+		return error('Failed to check merge-base: ${err}')
+	}
+	// If we get here, the remote commit is in our history
+	// Therefore we don't need to pull
+	return false
+}
+
+// Legacy function for backward compatibility
+pub fn (mut repo GitRepo) need_push_or_pull() !bool {
+	return repo.need_push()! || repo.need_pull()!
 }
 
 // Determine if the repository needs to checkout to a different branch or tag
