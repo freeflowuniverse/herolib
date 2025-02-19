@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.vfs.vfscore
 // NestedVFS represents a VFS that can contain multiple nested VFS instances
 pub struct NestedVFS {
 mut:
-	vfs_map map[string]vfscore.VFSImplementation // Map of path prefixes to VFS implementations
+	vfs_map map[string]vfscore.VFSImplementation @[skip] // Map of path prefixes to VFS implementations
 }
 
 // new creates a new NestedVFS instance

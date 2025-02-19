@@ -1,11 +1,8 @@
 module webdav
 
-import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.vfs.ourdb_fs
 import encoding.xml
 import net.urllib
-import os
 import vweb
 
 @['/:path...'; options]
