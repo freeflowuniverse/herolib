@@ -10,9 +10,10 @@ import os
 
 const wikipath = os.dir(@FILE) + '/wiki'
 const summarypath = os.dir(@FILE) + '/wiki/summary.md'
+
 buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
 
-mut m := bizmodel.getset("example")!
+mut m := bizmodel.getset('example')!
 m.workdir = wikipath
 m.play(mut playbook.new(path: wikipath)!)!
 m.export_sheets()!
@@ -20,7 +21,6 @@ bizmodel.set(m)
 
 // // execute the actions so we have the info populated
 // // playcmds.run(mut plb,false)!
-
 
 // // just run the doctree & mdbook and it should
 // // load the doctree, these are all collections

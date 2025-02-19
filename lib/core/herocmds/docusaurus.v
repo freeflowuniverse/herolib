@@ -38,7 +38,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		description: 'Path where docusaurus source is.'
 	})
 
-
 	cmd_run.add_flag(Flag{
 		flag:     .string
 		required: false
@@ -87,7 +86,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		description: 'Run your dev environment on local browser.'
 	})
 
-
 	cmd_run.add_flag(Flag{
 		flag:        .bool
 		required:    false
@@ -95,7 +93,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		abbrev:      'n'
 		description: 'create a new docusaurus site.'
 	})
-
 
 	cmdroot.add_command(cmd_run)
 }
@@ -120,12 +117,12 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	mut docs := docusaurus.new(update: update)!
 	mut site := docs.get(
-			url:          url
-			path: 		  path
-			update:       update
-			publish_path: publish_path
-			deploykey:    deploykey
-			init:init
+		url:          url
+		path:         path
+		update:       update
+		publish_path: publish_path
+		deploykey:    deploykey
+		init:         init
 	)!
 
 	if publish_path.len > 0 {
