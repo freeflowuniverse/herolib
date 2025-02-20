@@ -1,24 +1,25 @@
 module webdav
 
-import vweb
+import veb
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.vfs.vfscore
 
-@[heap]
-struct App {
-	vweb.Context
-	user_db map[string]string @[required]
+pub struct App {
+	veb.Middleware[Context]
+	server_port  int
 pub mut:
 	lock_manager LockManager
-	vfs          vfscore.VFSImplementation @[vweb_global]
-	server_port  int
-	middlewares  map[string][]vweb.Middleware
+	user_db 	 map[string]string @[required]
+	vfs          vfscore.VFSImplementation @[veb_global]
+}
+	
+pub struct Context {
+	veb.Context
 }
 
 @[params]
 pub struct AppArgs {
 pub mut:
-	server_port int = 8080
 	user_db     map[string]string @[required]
 	vfs         vfscore.VFSImplementation
 }
@@ -26,43 +27,29 @@ pub mut:
 pub fn new_app(args AppArgs) !&App {
 	mut app := &App{
 		user_db:     args.user_db.clone()
-		server_port: args.server_port
 		vfs:         args.vfs
 	}
 
-	app.middlewares['/'] << logging_middleware
-	app.middlewares['/'] << app.auth_middleware
+    // register middlewares for all routes
+    app.use(handler: logging_middleware)
+    app.use(handler: unsafe{app.auth_middleware})
 
 	return app
 }
 
+
 @[params]
-pub struct RunArgs {
+pub struct RunParams {
 pub mut:
+	port int = 8088
 	background bool
 }
 
-pub fn (mut app App) run(args RunArgs) {
+pub fn (mut app App) run(params RunParams) {
 	console.print_green('Running the server on port: ${app.server_port}')
-
-	if args.background {
-		spawn vweb.run(app, app.server_port)
+	if params.background {
+		spawn veb.run[App, Context](mut app, params.port)
 	} else {
-		vweb.run(app, app.server_port)
+		veb.run[App, Context](mut app, params.port)
 	}
-}
-
-pub fn (mut app App) not_found() vweb.Result {
-	app.set_status(404, 'Not Found')
-	return app.text('Not Found')
-}
-
-pub fn (mut app App) server_error() vweb.Result {
-	app.set_status(500, 'Inernal Server Error')
-	return app.text('Internal Server Error')
-}
-
-pub fn (mut app App) bad_request(message string) vweb.Result {
-	app.set_status(400, 'Bad Request')
-	return app.text(message)
 }

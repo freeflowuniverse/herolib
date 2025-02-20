@@ -3,227 +3,181 @@ module webdav
 import freeflowuniverse.herolib.ui.console
 import encoding.xml
 import net.urllib
-import vweb
+import veb
 
 @['/:path...'; options]
-fn (mut app App) options(path string) vweb.Result {
-	app.set_status(200, 'OK')
-	app.add_header('DAV', '1,2')
-	app.add_header('Allow', 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	app.add_header('MS-Author-Via', 'DAV')
-	app.add_header('Access-Control-Allow-Origin', '*')
-	app.add_header('Access-Control-Allow-Methods', 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	app.add_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
-	app.send_response_to_client('text/plain', '')
-	return vweb.not_found()
+pub fn (app &App) options(mut ctx Context, path string) veb.Result {
+	ctx.res.set_status(.ok)
+	ctx.res.header.add_custom('dav', '1,2') or {return ctx.server_error(err.msg())}
+	ctx.res.header.add(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	ctx.res.header.add_custom('MS-Author-Via', 'DAV') or {return ctx.server_error(err.msg())}
+	ctx.res.header.add(.access_control_allow_origin, '*')
+	ctx.res.header.add(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	ctx.res.header.add(.access_control_allow_headers, 'Authorization, Content-Type')
+	return ctx.text('')
 }
 
-@['/:path...'; LOCK]
-fn (mut app App) lock_handler(path string) vweb.Result {
-	// Not yet working
-	// TODO: Test with multiple clients
-	resource := app.req.url
-	owner := app.get_header('Owner')
+@['/:path...'; lock]
+pub fn (mut app App) lock_handler(mut ctx Context, path string) veb.Result {
+	resource := ctx.req.url
+	owner := ctx.get_custom_header('owner') or {return ctx.server_error(err.msg())}
 	if owner.len == 0 {
-		app.set_status(400, 'Bad Request')
-		return app.text('Owner header is required.')
+		ctx.res.set_status(.bad_request)
+		return ctx.text('Owner header is required.')
 	}
 
-	depth := if app.get_header('Depth').len > 0 { app.get_header('Depth').int() } else { 0 }
-	timeout := if app.get_header('Timeout').len > 0 { app.get_header('Timeout').int() } else { 3600 }
-
+	depth := ctx.get_custom_header('Depth') or { '0' }.int()
+	timeout := ctx.get_custom_header('Timeout') or { '3600' }.int()
 	token := app.lock_manager.lock(resource, owner, depth, timeout) or {
-		app.set_status(423, 'Locked')
-		return app.text('Resource is already locked.')
+		ctx.res.set_status(.locked)
+		return ctx.text('Resource is already locked.')
 	}
 
-	app.set_status(200, 'OK')
-	app.add_header('Lock-Token', token)
-	return app.text('Lock granted with token: ${token}')
+	ctx.res.set_status(.ok)
+	ctx.res.header.add_custom('Lock-Token', token) or {return ctx.server_error(err.msg())}
+	return ctx.text('Lock granted with token: ${token}')
 }
 
-@['/:path...'; UNLOCK]
-fn (mut app App) unlock_handler(path string) vweb.Result {
-	// Not yet working
-	// TODO: Test with multiple clients
-	resource := app.req.url
-	token := app.get_header('Lock-Token')
+@['/:path...'; unlock]
+pub fn (mut app App) unlock_handler(mut ctx Context, path string) veb.Result {
+	resource := ctx.req.url
+	token := ctx.get_custom_header('Lock-Token') or {return ctx.server_error(err.msg())}
 	if token.len == 0 {
 		console.print_stderr('Unlock failed: `Lock-Token` header required.')
-		app.set_status(400, 'Bad Request')
-		return app.text('Lock failed: `Owner` header missing.')
+		ctx.res.set_status(.bad_request)
+		return ctx.text('Lock failed: `Owner` header missing.')
 	}
 
 	if app.lock_manager.unlock_with_token(resource, token) {
-		app.set_status(204, 'No Content')
-		return app.text('Lock successfully released')
+		ctx.res.set_status(.no_content)
+		return ctx.text('Lock successfully released')
 	}
 
 	console.print_stderr('Resource is not locked or token mismatch.')
-	app.set_status(409, 'Conflict')
-	return app.text('Resource is not locked or token mismatch')
+	ctx.res.set_status(.conflict)
+	return ctx.text('Resource is not locked or token mismatch')
 }
 
 @['/:path...'; get]
-fn (mut app App) get_file(path string) vweb.Result {
+pub fn (mut app App) get_file(mut ctx Context, path string) veb.Result {
 	if !app.vfs.exists(path) {
-		return app.not_found()
+		return ctx.not_found()
 	}
 
 	fs_entry := app.vfs.get(path) or {
 		console.print_stderr('failed to get FS Entry ${path}: ${err}')
-		return app.server_error()
+		return ctx.server_error(err.msg())
 	}
 
-	file_data := app.vfs.file_read(fs_entry.get_path()) or { return app.server_error() }
+	file_data := app.vfs.file_read(fs_entry.get_path()) or { return ctx.server_error(err.msg()) }
 
 	ext := fs_entry.get_metadata().name.all_after_last('.')
-	content_type := if v := vweb.mime_types[ext] {
-		v
-	} else {
-		'text/plain'
-	}
+	content_type := veb.mime_types[ext] or { 'text/plain' }
 
-	app.set_status(200, 'Ok')
-	app.send_response_to_client(content_type, file_data.str())
-	return vweb.not_found() // this is for returning a dummy result
+	ctx.res.set_status(.ok)
+	return ctx.text(file_data.str())
 }
 
 @['/:path...'; delete]
-fn (mut app App) delete(path string) vweb.Result {
+pub fn (mut app App) delete(mut ctx Context, path string) veb.Result {
 	if !app.vfs.exists(path) {
-		return app.not_found()
+		return ctx.not_found()
 	}
 
 	fs_entry := app.vfs.get(path) or {
 		console.print_stderr('failed to get FS Entry ${path}: ${err}')
-		return app.server_error()
+		return ctx.server_error(err.msg())
 	}
 
 	if fs_entry.is_dir() {
 		console.print_debug('deleting directory: ${path}')
-		app.vfs.dir_delete(path) or { return app.server_error() }
+		app.vfs.dir_delete(path) or { return ctx.server_error(err.msg()) }
 	}
 
 	if fs_entry.is_file() {
 		console.print_debug('deleting file: ${path}')
-		app.vfs.file_delete(path) or { return app.server_error() }
+		app.vfs.file_delete(path) or { return ctx.server_error(err.msg()) }
 	}
 
-	if fs_entry.is_symlink() {
-		console.print_debug('deleting symlink: ${path}')
-		app.vfs.link_delete(path) or { return app.server_error() }
-	}
-
-	console.print_debug('entry: ${path} is deleted')
-	app.set_status(204, 'No Content')
-	return app.text('entry ${path} is deleted')
+	ctx.res.set_status(.no_content)
+	return ctx.text('entry ${path} is deleted')
 }
 
-// @['/:path...'; put]
-// fn (mut app App) create_or_update(path string) vweb.Result {
-// 	fs_entry := app.vfs.get(path) or {
-// 		console.print_stderr('failed to get FS Entry ${path}: ${err}')
-// 		return app.server_error()
-// 	}
-
-// 	mut p := pathlib.get(app.root_dir.path + path)
-
-// 	if p.is_dir() {
-// 		console.print_stderr('Cannot PUT to a directory: ${p.path}')
-// 		app.set_status(405, 'Method Not Allowed')
-// 		return app.text('HTTP 405: Method Not Allowed')
-// 	}
-
-// 	file_data := app.req.data
-// 	p = pathlib.get_file(path: p.path, create: true) or {
-// 		console.print_stderr('failed to get file ${p.path}: ${err}')
-// 		return app.server_error()
-// 	}
-
-// 	p.write(file_data) or {
-// 		console.print_stderr('failed to write file data ${p.path}: ${err}')
-// 		return app.server_error()
-// 	}
-
-// 	app.set_status(200, 'Successfully saved file: ${p.path}')
-// 	return app.text('HTTP 200: Successfully saved file: ${p.path}')
-// }
-
 @['/:path...'; copy]
-fn (mut app App) copy(path string) vweb.Result {
+pub fn (mut app App) copy(mut ctx Context, path string) veb.Result {
 	if !app.vfs.exists(path) {
-		return app.not_found()
+		return ctx.not_found()
 	}
 
-	destination := app.get_header('Destination')
+	destination := ctx.req.header.get_custom('Destination') or {
+		return ctx.server_error(err.msg())
+	}
 	destination_url := urllib.parse(destination) or {
-		return app.bad_request('Invalid Destination ${destination}: ${err}')
+		ctx.res.set_status(.bad_request)
+		return ctx.text('Invalid Destination ${destination}: ${err}')
 	}
 	destination_path_str := destination_url.path
 
-	app.vfs.get(path) or {
-		console.print_stderr('failed to get FS Entry ${path}: ${err}')
-		return app.server_error()
-	}
-
 	app.vfs.copy(path, destination_path_str) or {
 		console.print_stderr('failed to copy: ${err}')
-		return app.server_error()
+		return ctx.server_error(err.msg())
 	}
 
-	app.set_status(200, 'Successfully copied entry: ${path}')
-	return app.text('HTTP 200: Successfully copied entry: ${path}')
+	ctx.res.set_status(.ok)
+	return ctx.text('HTTP 200: Successfully copied entry: ${path}')
 }
 
 @['/:path...'; move]
-fn (mut app App) move(path string) vweb.Result {
+pub fn (mut app App) move(mut ctx Context, path string) veb.Result {
 	if !app.vfs.exists(path) {
-		return app.not_found()
+		return ctx.not_found()
 	}
 
-	destination := app.get_header('Destination')
+	destination := ctx.req.header.get_custom('Destination') or {
+		return ctx.server_error(err.msg())
+	}
 	destination_url := urllib.parse(destination) or {
-		return app.bad_request('Invalid Destination ${destination}: ${err}')
+		ctx.res.set_status(.bad_request)
+		return ctx.text('Invalid Destination ${destination}: ${err}')
 	}
 	destination_path_str := destination_url.path
 
 	app.vfs.move(path, destination_path_str) or {
 		console.print_stderr('failed to move: ${err}')
-		return app.server_error()
+		return ctx.server_error(err.msg())
 	}
 
-	app.set_status(200, 'Successfully moved entry: ${path}')
-	return app.text('HTTP 200: Successfully moved entry: ${path}')
+	ctx.res.set_status(.ok)
+	return ctx.text('HTTP 200: Successfully copied entry: ${path}')
 }
 
 @['/:path...'; mkcol]
-fn (mut app App) mkcol(path string) vweb.Result {
+pub fn (mut app App) mkcol(mut ctx Context, path string) veb.Result {
 	if app.vfs.exists(path) {
-		return app.bad_request('Another collection exists at ${path}')
+		ctx.res.set_status(.bad_request)
+		return ctx.text('Another collection exists at ${path}')
 	}
 
 	app.vfs.dir_create(path) or {
 		console.print_stderr('failed to create directory ${path}: ${err}')
-		return app.server_error()
+		return ctx.server_error(err.msg())
 	}
 
-	app.set_status(201, 'Created')
-	return app.text('HTTP 201: Created')
+	ctx.res.set_status(.created)
+	return ctx.text('HTTP 201: Created')
 }
 
 @['/:path...'; propfind]
-fn (mut app App) propfind(path string) vweb.Result {
-	println('path: ${path}')
+fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 	if !app.vfs.exists(path) {
-		return app.not_found()
+		return ctx.not_found()
 	}
 
-	depth := app.get_header('Depth').int()
+	depth := ctx.req.header.get_custom('Depth') or {'0'}.int()
 
 	responses := app.get_responses(path, depth) or {
 		console.print_stderr('failed to get responses: ${err}')
-		return app.server_error()
+		return ctx.server_error(err.msg())
 	}
 
 	doc := xml.XMLDocument{
@@ -239,36 +193,7 @@ fn (mut app App) propfind(path string) vweb.Result {
 	res := '<?xml version="1.0" encoding="UTF-8"?>${doc.pretty_str('').split('\n')[1..].join('')}'
 	// println('res: ${res}')
 
-	app.set_status(207, 'Multi-Status')
-	app.send_response_to_client('application/xml', res)
-	return vweb.not_found()
+	ctx.res.set_status(.multi_status)
+	return ctx.send_response_to_client('application/xml', res)
+	// return veb.not_found()
 }
-
-fn (mut app App) generate_resource_response(path string) string {
-	mut response := ''
-	response += app.generate_element('response', 2)
-	response += app.generate_element('href', 4)
-	response += app.generate_element('/href', 4)
-	response += app.generate_element('/response', 2)
-
-	return response
-}
-
-fn (mut app App) generate_element(element string, space_cnt int) string {
-	mut spaces := ''
-	for i := 0; i < space_cnt; i++ {
-		spaces += ' '
-	}
-
-	return '${spaces}<${element}>\n'
-}
-
-// TODO: implement
-// @['/'; proppatch]
-// fn (mut app App) prop_patch() vweb.Result {
-// }
-
-// TODO: implement, now it's used with PUT
-// @['/'; post]
-// fn (mut app App) post() vweb.Result {
-// }

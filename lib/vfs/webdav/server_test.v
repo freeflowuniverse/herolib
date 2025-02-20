@@ -7,9 +7,7 @@ import encoding.base64
 import rand
 
 fn test_run() {
-	root_dir := '/tmp/webdav'
 	mut app := new_app(
-		root_dir: root_dir
 		user_db:  {
 			'mario': '123'
 		}

@@ -154,12 +154,10 @@ fn (mut app App) get_responses(path string, depth int) ![]xml.XMLNodeContents {
 
 	if os.is_dir(path) {
 		mut dir := pathlib.get_dir(path: path) or {
-			app.set_status(500, 'failed to get directory ${path}: ${err}')
 			return error('failed to get directory ${path}: ${err}')
 		}
 
 		entries := dir.list(recursive: false) or {
-			app.set_status(500, 'failed to list directory ${path}: ${err}')
 			return error('failed to list directory ${path}: ${err}')
 		}
 
