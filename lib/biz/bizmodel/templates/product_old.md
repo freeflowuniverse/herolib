@@ -9,7 +9,7 @@
 
 Product ${name1} has revenue events (one offs)
 
-@{model.sheet.wiki() or {''}} 
+!!!spreadsheet.sheet_wiki 
     namefilter:'${name1}_revenue,${name1}_cogs,${name1}_cogs_perc,${name1}_maintenance_month_perc' sheetname:'bizmodel_tf9
 
 - COGS = Cost of Goods Sold (is our cost to deliver the product/service)
@@ -21,7 +21,7 @@ Product ${name1} has revenue events (one offs)
 
 Product sold and its revenue/cost of goods
 
-@{model.sheet.wiki() or {''}} 
+!!!spreadsheet.sheet_wiki 
     namefilter:'${name1}_nr_sold,${name1}_revenue_setup,${name1}_revenue_monthly,${name1}_cogs_setup,${name1}_cogs_setup_perc,${name1}_cogs_monthly,${name1}_cogs_monthly_perc'
     sheetname:'bizmodel_tf9
 
@@ -40,19 +40,20 @@ This product ${name1} is recurring, means customer pays per month ongoing, the p
 
 #### the revenue/cogs calculated
 
-@{model.sheet.wiki() or {''}} 
+
+!!!spreadsheet.sheet_wiki 
     namefilter:'${name1}_nr_sold_recurring'
     sheetname:'bizmodel_tf9
 
 This results in following revenues and cogs:
 
-@{model.sheet.wiki() or {''}} 
+!!!spreadsheet.sheet_wiki 
     namefilter:'${name1}_revenue_setup_total,${name1}_revenue_monthly_total,${name1}_cogs_setup_total,${name1}_cogs_monthly_total,${name1}_cogs_setup_from_perc,${name1}_cogs_monthly_from_perc,${name1}_maintenance_month,
     ${name1}_revenue_monthly_recurring,${name1}_cogs_monthly_recurring'
     sheetname:'bizmodel_tf9
 
 resulting revenues:
-@{model.sheet.wiki() or {''}} 
+!!!spreadsheet.sheet_wiki 
     namefilter:'${name1}_revenue_total,${name1}_cogs_total'
     sheetname:'bizmodel_tf9
 
@@ -60,3 +61,8 @@ resulting revenues:
 !!!spreadsheet.graph_line_row rowname:'${name1}_cogs_total' unit:million sheetname:'bizmodel_tf9'
 
 !!!spreadsheet.graph_line_row rowname:'${name1}_revenue_total' unit:million sheetname:'bizmodel_tf9'
+
+
+@end //product has_revenue
+
+@end //loop

@@ -52,8 +52,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 
 	// First, check if the new site args provides a configuration that can be written instead of template cfg dir
 	if cfg := args.config {
-		panic("not implemented")
-		// cfg.write('${args.path}/cfg')!
+		cfg.write('${args.path}/cfg')!
 	} else {
 		// Then ensure cfg directory exists in src,
 		if !os.exists('${args.path}/cfg') {	
@@ -71,7 +70,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		if args.init{
 			mut template_cfg := template_path.dir_get('docs')!
 			template_cfg.copy(dest: '${args.path}/docs')!
-		}else{
+		} else{
 			return error("Can't find docs dir in chosen docusaurus location: ${args.path}")
 		}		
 	}

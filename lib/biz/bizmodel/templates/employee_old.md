@@ -9,8 +9,6 @@
 
 `@{employee.cost}`
 
-@{employee_cost_chart}
-
 @if employee.cost_percent_revenue > 0.0
 
 **Cost Percent Revenue:**  

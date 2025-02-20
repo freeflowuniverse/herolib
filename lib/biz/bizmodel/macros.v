@@ -62,7 +62,7 @@ fn employee_wiki(p paramsparser.Params, sim BizModel) !string {
 
 	// theme := 'light'
 	// theme := 'dark'  // Removed unused variable
-	mut t := $tmpl('./templates/employee.md')
+	mut t := $tmpl('./templates/employee_old.md')
 	return t
 }
 
