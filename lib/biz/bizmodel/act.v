@@ -58,7 +58,7 @@ fn (mut m BizModel) export_sheet_action(action Action) !Action {
 }
 
 fn (mut m BizModel) export_graph_title_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_title_chart(row_args_from_params(action.params)!), action)
+	return m.export_action(m.sheet.wiki_title_chart(row_args_from_params(action.params)!)!, action)
 }
 
 fn (mut m BizModel) export_graph_line_action(action Action) !Action {
