@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.core.playcmds
 import os
 
 const playbook_path = os.dir(@FILE) + '/playbook'
-const build_path = os.join_path(os.dir(@FILE), '/docs')
+const build_path = os.join_path(os.dir(@FILE), '/docusaurus')
 
 buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
 
