@@ -11,8 +11,8 @@ pub mut:
 	block_size       u32          // Size of data blocks in bytes
 	data_dir         string       // Directory to store OurDBFS data
 	metadata_dir     string       // Directory where we store the metadata
-	db_data          &ourdb.OurDB // Database instance for persistent storage
-	db_meta          &ourdb.OurDB // Database instance for metadata storage
+	db_data          &ourdb.OurDB @[str: skip]// Database instance for persistent storage
+	db_meta          &ourdb.OurDB @[str: skip]// Database instance for metadata storage
 	last_inserted_id u32
 }
 

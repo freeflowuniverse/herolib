@@ -31,7 +31,7 @@ fn test_logic() ! {
 	entries := high_level_vfs.dir_list('/')!
 	assert entries.len == 1 // Data directory
 
-	println('entries: ${entries}')
+	panic('entries: ${entries[0]}')
 
 	// // Check if dir is existing
 	// assert high_level_vfs.exists('/') == true

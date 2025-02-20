@@ -8,7 +8,7 @@ pub mut:
 	metadata  Metadata // Metadata from models_common.v
 	target    string   // Path that this symlink points to
 	parent_id u32      // ID of parent directory
-	myvfs     &OurDBFS @[skip]
+	myvfs     &OurDBFS @[str: skip]
 }
 
 pub fn (mut sl Symlink) save() ! {
