@@ -11,7 +11,7 @@ pub mut:
 	metadata  Metadata // Metadata from models_common.v
 	children  []u32    // List of child entry IDs (instead of actual entries)
 	parent_id u32      // ID of parent directory (0 for root)
-	myvfs     &OurDBFS @[skip]
+	myvfs     &OurDBFS @[str: skip]
 }
 
 pub fn (mut self Directory) save() ! {

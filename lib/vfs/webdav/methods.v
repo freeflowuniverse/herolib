@@ -214,6 +214,7 @@ fn (mut app App) mkcol(path string) vweb.Result {
 
 @['/:path...'; propfind]
 fn (mut app App) propfind(path string) vweb.Result {
+	println('path: ${path}')
 	if !app.vfs.exists(path) {
 		return app.not_found()
 	}
