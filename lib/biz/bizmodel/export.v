@@ -24,6 +24,7 @@ pub fn (b BizModel) new_report(report Report) !Report {
 	name := if report.name != '' {report.name} else { texttools.snake_case(report.title) }
 	path := pathlib.get_dir(
 		path: os.join_path(os.home_dir(), '/hero/var/bizmodel/reports/${name}')
+		create: true
 		empty: true
 	)!
 
