@@ -6,6 +6,7 @@ import freeflowuniverse.herolib.biz.spreadsheet
 pub struct BizModel {
 pub mut:
 	name        string
+	description string
 	workdir string = '${os.home_dir()}/hero/var/bizmodel'
 	sheet       &spreadsheet.Sheet
 	employees   map[string]&Employee

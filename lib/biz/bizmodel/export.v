@@ -5,18 +5,6 @@ import freeflowuniverse.herolib.web.docusaurus
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 
-pub struct Export {
-pub:
-	path string
-	overwrite bool
-	format ExportFormat
-}
-
-pub enum ExportFormat {
-	docusaurus
-	mdbook
-}
-
 pub struct Report {
 pub:
 	name string
@@ -36,7 +24,12 @@ pub fn (b BizModel) new_report(report Report) !Report {
 	name := if report.name != '' {report.name} else { texttools.snake_case(report.title) }
 	path := pathlib.get_dir(
 		path: os.join_path(os.home_dir(), '/hero/var/bizmodel/reports/${name}')
+		empty: true
 	)!
+
+	b.write_introduction(path.path)!
+	b.write_operational_plan(path.path)!
+
 	return Report {
 		...report,
 		name: name
@@ -52,34 +45,59 @@ pub fn (b BizModel) new_report(report Report) !Report {
 	// b.export_fundraising(export)
 }
 
+pub struct Export {
+pub:
+	path string
+	overwrite bool
+	format ExportFormat
+}
+
+pub enum ExportFormat {
+	docusaurus
+	mdbook
+}
+
 pub fn (r Report) export(export Export) ! {
 	match export.format {
 		.docusaurus {
+			mut dir := pathlib.get_dir(path: r.path)!
+			dir.copy(dest: '${export.path}/docs', delete: true)!
 			mut factory := docusaurus.new()!
 			mut site := factory.get(
 				name: r.name
-				path: r.path
+				path: export.path
 				publish_path: export.path
-				config: docusaurus.Config {} //TODO: is this needed
+				init: true
+				config: docusaurus.Config {
+					main: docusaurus.Main {
+						url_home: 'docs/introduction'
+					}
+				} //TODO: is this needed
 			)!
-			site.build()!
+			site.generate()!
 		}
 		.mdbook {panic('MDBook export not fully implemented')}
 	}
 }
 
-pub fn (b BizModel) export_operational_plan(export Export) ! {
-	mut hr_page := pathlib.get_file(path: '${export.path}/human_resources.md')!
-	hr_page.template_write('./templates/human_resources.md', export.overwrite)!
+pub fn (model BizModel) write_introduction(path string) ! {
+	mut index_page := pathlib.get_file(path: '${path}/introduction.md')!
+	// mut tmpl_index := $tmpl('templates/index.md')
+	index_page.template_write($tmpl('templates/introduction.md'), true)!
+}
+
+pub fn (b BizModel) write_operational_plan(path string) ! {
+	mut dir := pathlib.get_dir(path: '${path}/operational_plan')!
+	mut hr_page := pathlib.get_file(path: '${dir.path}/human_resources.md')!
+	hr_page.template_write('./templates/human_resources.md', true)!
 
 	for key, employee in b.employees {
-		mut employee_page := pathlib.get_file(path: '${export.path}/${texttools.snake_case(employee.name)}.md')!
-		employee_page.template_write('./templates/employee.md', export.overwrite)!
+		mut employee_page := pathlib.get_file(path: '${dir.path}/${texttools.snake_case(employee.name)}.md')!
+		employee_page.template_write('./templates/employee.md', true)!
 	}
 }
 
 pub fn (b BizModel) export_revenue_model(export Export) ! {
-	println('begin')
 	mut overview_page := pathlib.get_file(path: '${export.path}/revenue_overview.md')!
 	overview_page.template_write('./templates/overview.md', export.overwrite)!
 
