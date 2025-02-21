@@ -25,6 +25,10 @@ pub fn (mut self NestedVFS) add_vfs(prefix string, impl vfscore.VFSImplementatio
 
 // find_vfs finds the appropriate VFS implementation for a given path
 fn (self &NestedVFS) find_vfs(path string) !(vfscore.VFSImplementation, string) {
+	if path == '' || path == '/' {
+		return self, '/'
+	}
+	
 	// Sort prefixes by length (longest first) to match most specific path
 	mut prefixes := self.vfs_map.keys()
 	prefixes.sort(a.len > b.len)
@@ -122,11 +126,18 @@ pub fn (mut self NestedVFS) dir_delete(path string) ! {
 }
 
 pub fn (mut self NestedVFS) exists(path string) bool {
+	// QUESTION: should root be nestervfs's own?
+	if path == '' || path == '/' {
+		return true
+	}
 	mut impl, rel_path := self.find_vfs(path) or { return false }
 	return impl.exists(rel_path)
 }
 
 pub fn (mut self NestedVFS) get(path string) !vfscore.FSEntry {
+	if path == '' || path == '/' {
+		return self.root_get()
+	}
 	mut impl, rel_path := self.find_vfs(path)!
 	return impl.get(rel_path)
 }
@@ -227,7 +238,7 @@ fn (e &MountEntry) get_metadata() vfscore.Metadata {
 }
 
 fn (e &MountEntry) get_path() string {
-	return '/${e.metadata.name}'
+	return "/${e.metadata.name.trim_left('/')}"
 }
 
 // is_dir returns true if the entry is a directory

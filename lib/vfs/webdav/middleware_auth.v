@@ -2,24 +2,26 @@ module webdav
 
 import encoding.base64
 
-fn (mut app App) auth_middleware(mut ctx Context) bool {
+fn (app &App) auth_middleware(mut ctx Context) bool {
+	// return true
 	auth_header := ctx.get_header(.authorization) or {
 		ctx.res.set_status(.unauthorized)
-		ctx.send_response_to_client('', 'Authorization header not found in request.')
+		ctx.res.header.add(.www_authenticate, 'Basic realm="WebDAV Server"')
+		ctx.send_response_to_client('text', 'unauthorized')
 		return false
 	}
 
 	if auth_header == '' {
 		ctx.res.set_status(.unauthorized)
 		ctx.res.header.add(.www_authenticate, 'Basic realm="WebDAV Server"')
-		ctx.send_response_to_client('', '')
+		ctx.send_response_to_client('text', 'unauthorized')
 		return false
 	}
 
 	if !auth_header.starts_with('Basic ') {
 		ctx.res.set_status(.unauthorized)
 		ctx.res.header.add(.www_authenticate, 'Basic realm="WebDAV Server"')
-		ctx.send_response_to_client('', '')
+		ctx.send_response_to_client('text', 'unauthorized')
 		return false
 	}
 
@@ -31,16 +33,18 @@ fn (mut app App) auth_middleware(mut ctx Context) bool {
 		ctx.send_response_to_client('', '')
 		return false
 	}
-
 	username := split_credentials[0]
 	hashed_pass := split_credentials[1]
-
-	if app.user_db[username] != hashed_pass {
-		ctx.res.set_status(.unauthorized)
-		ctx.res.header.add(.www_authenticate, 'Basic realm="WebDAV Server"')
-		ctx.send_response_to_client('', '')
-		return false
+	if user := app.user_db[username] {
+		if user != hashed_pass {
+			ctx.res.set_status(.unauthorized)
+			ctx.send_response_to_client('text', 'unauthorized')
+			return false
+		}
+		println('Successfully authenticated user. ${ctx.req}')
+		return true
 	}
-
-	return true
+	ctx.res.set_status(.unauthorized)
+	ctx.send_response_to_client('text', 'unauthorized')
+	return false
 }

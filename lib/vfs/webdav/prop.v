@@ -1,95 +1,84 @@
 module webdav
 
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.vfs.vfscore
 import encoding.xml
 import os
 import time
-import vweb
+import veb
 
-fn (mut app App) generate_response_element(path string, depth int) xml.XMLNode {
-	mut path_ := path
-	if !path_.starts_with('/') {
-		path_ = '/${path_}'
-	}
-
-	if os.is_dir(path) && path_ != '/' {
-		path_ = '${path_}/'
-	}
-
-	href := xml.XMLNode{
-		name:     'D:href'
-		children: [path_]
-	}
-
-	propstat := app.generate_propstat_element(path, depth)
+fn generate_response_element(entry vfscore.FSEntry) !xml.XMLNode {
+	path := if entry.is_dir() && entry.get_path() != '/' {
+		'${entry.get_path()}/'
+	} else { entry.get_path() }
 
 	return xml.XMLNode{
 		name:     'D:response'
-		children: [href, propstat]
+		children: [
+			xml.XMLNode{
+				name:     'D:href'
+				children: [path]
+			}, 
+			generate_propstat_element(entry)!
+		]
 	}
 }
 
-fn (mut app App) generate_propstat_element(path string, depth int) xml.XMLNode {
-	mut status := xml.XMLNode{
-		name:     'D:status'
-		children: ['HTTP/1.1 200 OK']
-	}
+const xml_ok_status = xml.XMLNode{
+	name:     'D:status'
+	children: ['HTTP/1.1 200 OK']
+}
 
-	prop := app.generate_prop_element(path, depth) or {
+const xml_500_status = xml.XMLNode{
+	name:     'D:status'
+	children: ['HTTP/1.1 500 Internal Server Error']
+}
+
+fn generate_propstat_element(entry vfscore.FSEntry) !xml.XMLNode {
+	prop := generate_prop_element(entry) or {
 		// TODO: status should be according to returned error
 		return xml.XMLNode{
 			name:     'D:propstat'
-			children: [
-				xml.XMLNode{
-					name:     'D:status'
-					children: ['HTTP/1.1 500 Internal Server Error']
-				},
-			]
+			children: [xml_500_status]
 		}
 	}
 
 	return xml.XMLNode{
 		name:     'D:propstat'
-		children: [prop, status]
+		children: [prop, xml_ok_status]
 	}
 }
 
-fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
-	if !os.exists(path) {
-		return error('not found')
-	}
-
-	stat := os.stat(path)!
+fn generate_prop_element(entry vfscore.FSEntry) !xml.XMLNode {
+	metadata := entry.get_metadata()
 
 	display_name := xml.XMLNode{
 		name:     'D:displayname'
-		children: ['${os.file_name(path)}']
+		children: ['${metadata.name}']
 	}
 
-	content_length := if os.is_dir(path) { 0 } else { stat.size }
+	content_length := if entry.is_dir() { 0 } else { metadata.size }
 	get_content_length := xml.XMLNode{
 		name:     'D:getcontentlength'
 		children: ['${content_length}']
 	}
 
-	ctime := format_iso8601(time.unix(stat.ctime))
 	creation_date := xml.XMLNode{
 		name:     'D:creationdate'
-		children: ['${ctime}']
+		children: ['${format_iso8601(metadata.created_time())}']
 	}
 
-	mtime := format_iso8601(time.unix(stat.mtime))
 	get_last_mod := xml.XMLNode{
 		name:     'D:getlastmodified'
-		children: ['${mtime}']
+		children: ['${format_iso8601(metadata.modified_time())}']
 	}
 
-	content_type := match os.is_dir(path) {
+	content_type := match entry.is_dir() {
 		true {
 			'httpd/unix-directory'
 		}
 		false {
-			app.get_file_content_type(path)
+			get_file_content_type(entry.get_path())
 		}
 	}
 
@@ -100,7 +89,7 @@ fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
 
 	mut get_resource_type_children := []xml.XMLNodeContents{}
 
-	if os.is_dir(path) {
+	if entry.is_dir() {
 		get_resource_type_children << xml.XMLNode{
 			name: 'D:collection xmlns:D="DAV:"'
 		}
@@ -116,7 +105,7 @@ fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
 	nodes << get_last_mod
 	nodes << get_content_type
 	nodes << get_resource_type
-	if !os.is_dir(path) {
+	if !entry.is_dir() {
 		nodes << get_content_length
 	}
 	nodes << creation_date
@@ -129,9 +118,9 @@ fn (mut app App) generate_prop_element(path string, depth int) !xml.XMLNode {
 	return res
 }
 
-fn (mut app App) get_file_content_type(path string) string {
-	ext := os.file_ext(path)
-	content_type := if v := vweb.mime_types[ext] {
+fn get_file_content_type(path string) string {
+	ext := path.all_after_last('.')
+	content_type := if v := veb.mime_types[ext] {
 		v
 	} else {
 		'text/plain; charset=utf-8'
@@ -146,25 +135,16 @@ fn format_iso8601(t time.Time) string {
 
 fn (mut app App) get_responses(path string, depth int) ![]xml.XMLNodeContents {
 	mut responses := []xml.XMLNodeContents{}
-
-	responses << app.generate_response_element(path, depth)
+	
+	entry := app.vfs.get(path)!
+	responses << generate_response_element(entry)!
 	if depth == 0 {
 		return responses
 	}
 
-	if os.is_dir(path) {
-		mut dir := pathlib.get_dir(path: path) or {
-			return error('failed to get directory ${path}: ${err}')
-		}
-
-		entries := dir.list(recursive: false) or {
-			return error('failed to list directory ${path}: ${err}')
-		}
-
-		for entry in entries.paths {
-			responses << app.generate_response_element(entry.path, depth)
-		}
+	entries := app.vfs.dir_list(path) or {return responses}
+	for e in entries {
+		responses << generate_response_element(e)!
 	}
-
 	return responses
 }

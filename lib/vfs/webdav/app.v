@@ -4,13 +4,13 @@ import veb
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.vfs.vfscore
 
+@[heap]
 pub struct App {
 	veb.Middleware[Context]
-	server_port  int
 pub mut:
 	lock_manager LockManager
 	user_db 	 map[string]string @[required]
-	vfs          vfscore.VFSImplementation @[veb_global]
+	vfs          vfscore.VFSImplementation
 }
 	
 pub struct Context {
@@ -31,8 +31,8 @@ pub fn new_app(args AppArgs) !&App {
 	}
 
     // register middlewares for all routes
+    app.use(handler: app.auth_middleware)
     app.use(handler: logging_middleware)
-    app.use(handler: unsafe{app.auth_middleware})
 
 	return app
 }
@@ -46,7 +46,7 @@ pub mut:
 }
 
 pub fn (mut app App) run(params RunParams) {
-	console.print_green('Running the server on port: ${app.server_port}')
+	console.print_green('Running the server on port: ${params.port}')
 	if params.background {
 		spawn veb.run[App, Context](mut app, params.port)
 	} else {

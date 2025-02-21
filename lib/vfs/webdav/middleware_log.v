@@ -1,6 +1,5 @@
 module webdav
 
-import vweb
 import freeflowuniverse.herolib.ui.console
 
 fn logging_middleware(mut ctx Context) bool {

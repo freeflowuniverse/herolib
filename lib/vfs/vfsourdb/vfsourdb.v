@@ -90,6 +90,7 @@ pub fn (mut self OurDBVFS) dir_create(path string) !vfscore.FSEntry {
 }
 
 pub fn (mut self OurDBVFS) dir_list(path string) ![]vfscore.FSEntry {
+	println('listing ${path}')
 	mut dir := self.get_directory(path)!
 	mut entries := dir.children(false)!
 	mut result := []vfscore.FSEntry{}
@@ -109,7 +110,10 @@ pub fn (mut self OurDBVFS) dir_delete(path string) ! {
 	parent_dir.rm(dir_name)!
 }
 
-pub fn (mut self OurDBVFS) exists(path string) bool {
+pub fn (mut self OurDBVFS) exists(path_ string) bool {
+	path := if !path_.starts_with('/') {
+		'/${path_}'
+	} else {path_}
 	if path == '/' {
 		return true
 	}
@@ -174,7 +178,7 @@ pub fn (mut self OurDBVFS) destroy() ! {
 }
 
 fn (mut self OurDBVFS) get_entry(path string) !ourdb_fs.FSEntry {
-	if path == '/' {
+	if path == '/' || path == '' {
 		return ourdb_fs.FSEntry(self.core.get_root()!)
 	}
 
