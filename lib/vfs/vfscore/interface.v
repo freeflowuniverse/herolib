@@ -65,7 +65,7 @@ mut:
 	get(path string) !FSEntry
 	rename(old_path string, new_path string) !
 	copy(src_path string, dst_path string) !
-	move(src_path string, dst_path string) !
+	move(src_path string, dst_path string) !FSEntry
 	delete(path string) !
 
 	// Symlink operations

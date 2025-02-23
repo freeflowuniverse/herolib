@@ -135,8 +135,14 @@ pub fn (mut self OurDBVFS) copy(src_path string, dst_path string) ! {
 	return error('Not implemented')
 }
 
-pub fn (mut self OurDBVFS) move(src_path string, dst_path string) ! {
-	return error('Not implemented')
+pub fn (mut self OurDBVFS) move(src_path string, dst_path string) !vfscore.FSEntry {
+	src_parent_path := os.dir(src_path)
+	src_name := os.base(src_path)
+	dst_name := os.base(dst_path)
+
+	mut src_parent_dir := self.get_directory(src_parent_path)!
+	moved_dir := src_parent_dir.move(src_name, dst_name)!
+	return convert_to_vfscore_entry(moved_dir)
 }
 
 pub fn (mut self OurDBVFS) link_create(target_path string, link_path string) !vfscore.FSEntry {

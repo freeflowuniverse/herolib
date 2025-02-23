@@ -257,7 +257,7 @@ pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) ! {
 	os.cp(abs_src, abs_dst) or { return error('Failed to copy ${src_path} to ${dst_path}: ${err}') }
 }
 
-pub fn (myvfs LocalVFS) move(src_path string, dst_path string) ! {
+pub fn (myvfs LocalVFS) move(src_path string, dst_path string) !FSEntry {
 	abs_src := myvfs.abs_path(src_path)
 	abs_dst := myvfs.abs_path(dst_path)
 
@@ -269,6 +269,13 @@ pub fn (myvfs LocalVFS) move(src_path string, dst_path string) ! {
 	}
 
 	os.mv(abs_src, abs_dst) or { return error('Failed to move ${src_path} to ${dst_path}: ${err}') }
+	metadata := myvfs.os_attr_to_metadata(abs_dst) or {
+		return error('Failed to get metadata: ${err}')
+	}
+	return LocalFSEntry{
+		path:     dst_path
+		metadata: metadata
+	}
 }
 
 // Generic delete operation that handles all types

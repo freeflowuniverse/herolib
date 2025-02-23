@@ -7,12 +7,12 @@ import time
 @[heap]
 pub struct OurDBFS {
 pub mut:
-	root_id          u32          // ID of root directory
-	block_size       u32          // Size of data blocks in bytes
-	data_dir         string       // Directory to store OurDBFS data
-	metadata_dir     string       // Directory where we store the metadata
-	db_data          &ourdb.OurDB @[str: skip]// Database instance for persistent storage
-	db_meta          &ourdb.OurDB @[str: skip]// Database instance for metadata storage
+	root_id          u32    // ID of root directory
+	block_size       u32    // Size of data blocks in bytes
+	data_dir         string // Directory to store OurDBFS data
+	metadata_dir     string // Directory where we store the metadata
+	db_data          &ourdb.OurDB @[str: skip] // Database instance for persistent storage
+	db_meta          &ourdb.OurDB @[str: skip] // Database instance for metadata storage
 	last_inserted_id u32
 }
 
@@ -57,7 +57,7 @@ pub fn (mut fs OurDBFS) get_root() !&Directory {
 }
 
 // load_entry loads an entry from the database by ID and sets up parent references
-fn (mut fs OurDBFS) load_entry(id u32) !FSEntry {
+pub fn (mut fs OurDBFS) load_entry(id u32) !FSEntry {
 	if data := fs.db_meta.get(id) {
 		// First byte is version, second byte indicates the type
 		// TODO: check we dont overflow filetype (u8 in boundaries of filetype)

@@ -28,7 +28,7 @@ fn (self &NestedVFS) find_vfs(path string) !(vfscore.VFSImplementation, string) 
 	if path == '' || path == '/' {
 		return self, '/'
 	}
-	
+
 	// Sort prefixes by length (longest first) to match most specific path
 	mut prefixes := self.vfs_map.keys()
 	prefixes.sort(a.len > b.len)
@@ -168,19 +168,10 @@ pub fn (mut self NestedVFS) copy(src_path string, dst_path string) ! {
 	return dst_impl.file_write(dst_rel_path, data)
 }
 
-pub fn (mut self NestedVFS) move(src_path string, dst_path string) ! {
+pub fn (mut self NestedVFS) move(src_path string, dst_path string) !vfscore.FSEntry {
 	mut src_impl, src_rel_path := self.find_vfs(src_path)!
-	mut dst_impl, dst_rel_path := self.find_vfs(dst_path)!
-
-	if src_impl == dst_impl {
-		return src_impl.move(src_rel_path, dst_rel_path)
-	}
-
-	// Move across different VFS implementations
-	// TODO: Q: What if it's not file? What if it's a symlink or directory?
-	data := src_impl.file_read(src_rel_path)!
-	dst_impl.file_create(dst_rel_path)!
-	return dst_impl.file_write(dst_rel_path, data)
+	_, dst_rel_path := self.find_vfs(dst_path)!
+	return src_impl.move(src_rel_path, dst_rel_path)
 }
 
 pub fn (mut self NestedVFS) link_create(target_path string, link_path string) !vfscore.FSEntry {
@@ -238,7 +229,7 @@ fn (e &MountEntry) get_metadata() vfscore.Metadata {
 }
 
 fn (e &MountEntry) get_path() string {
-	return "/${e.metadata.name.trim_left('/')}"
+	return '/${e.metadata.name.trim_left('/')}'
 }
 
 // is_dir returns true if the entry is a directory

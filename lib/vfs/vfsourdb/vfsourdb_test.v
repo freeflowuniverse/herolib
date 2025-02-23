@@ -42,35 +42,45 @@ fn test_vfsourdb() ! {
 	read_content := vfs.file_read('/test_dir/test.txt')!
 	assert read_content == test_content
 
+	// Test directory move
+	moved_dir := vfs.move('/test_dir', '/test_dir2')!
+
+	assert moved_dir.get_metadata().name == 'test_dir2'
+	assert moved_dir.get_metadata().file_type == .directory
+
+	assert vfs.exists('/test_dir') == false
+	assert vfs.exists('/test_dir2/test.txt') == true
+
 	// Test directory listing
-	mut entries := vfs.dir_list('/test_dir')!
+	mut entries := vfs.dir_list('/test_dir2')!
 	assert entries.len == 1
 	assert entries[0].get_metadata().name == 'test.txt'
 
 	// Test exists
-	assert vfs.exists('/test_dir') == true
-	assert vfs.exists('/test_dir/test.txt') == true
+	assert vfs.exists('/test_dir2') == true
+	assert vfs.exists('/test_dir2/test.txt') == true
 	assert vfs.exists('/nonexistent') == false
 
 	// Test symlink creation and reading
-	vfs.link_create('/test_dir/test.txt', '/test_dir/test_link')!
-	link_target := vfs.link_read('/test_dir/test_link')!
-	assert link_target == '/test_dir/test.txt'
+	vfs.link_create('/test_dir2/test.txt', '/test_dir2/test_link')!
+	link_target := vfs.link_read('/test_dir2/test_link')!
+	assert link_target == '/test_dir2/test.txt'
 
 	// Test symlink deletion
-	vfs.link_delete('/test_dir/test_link')!
-	assert vfs.exists('/test_dir/test_link') == false
+	vfs.link_delete('/test_dir2/test_link')!
+	assert vfs.exists('/test_dir2/test_link') == false
 
 	// Test file deletion
-	vfs.file_delete('/test_dir/test.txt')!
-	assert vfs.exists('/test_dir/test.txt') == false
+	vfs.file_delete('/test_dir2/test.txt')!
+	assert vfs.exists('/test_dir2/test.txt') == false
+	assert vfs.exists('/test_dir2') == true
 
-	entries = vfs.dir_list('/test_dir')!
+	entries = vfs.dir_list('/test_dir2')!
 	assert entries.len == 0
 
 	// Test directory deletion
-	vfs.dir_delete('/test_dir')!
-	assert vfs.exists('/test_dir') == false
+	vfs.dir_delete('/test_dir2')!
+	assert vfs.exists('/test_dir2') == false
 
 	println('Test completed successfully!')
 }
