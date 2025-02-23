@@ -127,8 +127,14 @@ pub fn (mut self OurDBVFS) get(path string) !vfscore.FSEntry {
 	return convert_to_vfscore_entry(entry)
 }
 
-pub fn (mut self OurDBVFS) rename(old_path string, new_path string) ! {
-	return error('Not implemented')
+pub fn (mut self OurDBVFS) rename(old_path string, new_path string) !vfscore.FSEntry {
+	src_parent_path := os.dir(old_path)
+	src_name := os.base(old_path)
+	dst_name := os.base(new_path)
+
+	mut src_parent_dir := self.get_directory(src_parent_path)!
+	renamed_dir := src_parent_dir.rename(src_name, dst_name)!
+	return convert_to_vfscore_entry(renamed_dir)
 }
 
 pub fn (mut self OurDBVFS) copy(src_path string, dst_path string) ! {

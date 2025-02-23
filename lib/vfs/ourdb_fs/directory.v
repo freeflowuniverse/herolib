@@ -248,7 +248,30 @@ pub fn (mut dir Directory) move(src_name string, dst_name string) !FSEntry {
 		if mut entry := dir.myvfs.load_entry(child_id) {
 			if entry.metadata.name == src_name {
 				found = true
-				// Create a new directory entry with the new name
+				entry.metadata.name = dst_name
+				entry.metadata.modified_at = time.now().unix()
+				dir.myvfs.save_entry(entry)!
+				new_entry = entry
+				break
+			}
+		}
+	}
+
+	if !found {
+		return error('${src_name} not found')
+	}
+
+	return new_entry
+}
+
+pub fn (mut dir Directory) rename(src_name string, dst_name string) !FSEntry {
+	mut found := false
+	mut new_entry := FSEntry(dir)
+
+	for child_id in dir.children {
+		if mut entry := dir.myvfs.load_entry(child_id) {
+			if entry.metadata.name == src_name {
+				found = true
 				entry.metadata.name = dst_name
 				entry.metadata.modified_at = time.now().unix()
 				dir.myvfs.save_entry(entry)!

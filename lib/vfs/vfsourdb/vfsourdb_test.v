@@ -56,31 +56,41 @@ fn test_vfsourdb() ! {
 	assert entries.len == 1
 	assert entries[0].get_metadata().name == 'test.txt'
 
+	// Test directory rename
+	renamed_dir := vfs.rename('/test_dir2', '/test_dir')!
+	assert moved_dir.get_metadata().name == 'test_dir2'
+	assert moved_dir.get_metadata().file_type == .directory
+
+	// Test directory listing
+	entries = vfs.dir_list('/test_dir')!
+	assert entries.len == 1
+	assert entries[0].get_metadata().name == 'test.txt'
+
 	// Test exists
-	assert vfs.exists('/test_dir2') == true
-	assert vfs.exists('/test_dir2/test.txt') == true
+	assert vfs.exists('/test_dir') == true
+	assert vfs.exists('/test_dir/test.txt') == true
 	assert vfs.exists('/nonexistent') == false
 
 	// Test symlink creation and reading
-	vfs.link_create('/test_dir2/test.txt', '/test_dir2/test_link')!
-	link_target := vfs.link_read('/test_dir2/test_link')!
-	assert link_target == '/test_dir2/test.txt'
+	vfs.link_create('/test_dir/test.txt', '/test_dir/test_link')!
+	link_target := vfs.link_read('/test_dir/test_link')!
+	assert link_target == '/test_dir/test.txt'
 
 	// Test symlink deletion
-	vfs.link_delete('/test_dir2/test_link')!
-	assert vfs.exists('/test_dir2/test_link') == false
+	vfs.link_delete('/test_dir/test_link')!
+	assert vfs.exists('/test_dir/test_link') == false
 
 	// Test file deletion
-	vfs.file_delete('/test_dir2/test.txt')!
-	assert vfs.exists('/test_dir2/test.txt') == false
-	assert vfs.exists('/test_dir2') == true
+	vfs.file_delete('/test_dir/test.txt')!
+	assert vfs.exists('/test_dir/test.txt') == false
+	assert vfs.exists('/test_dir') == true
 
-	entries = vfs.dir_list('/test_dir2')!
+	entries = vfs.dir_list('/test_dir')!
 	assert entries.len == 0
 
 	// Test directory deletion
-	vfs.dir_delete('/test_dir2')!
-	assert vfs.exists('/test_dir2') == false
+	vfs.dir_delete('/test_dir')!
+	assert vfs.exists('/test_dir') == false
 
 	println('Test completed successfully!')
 }
