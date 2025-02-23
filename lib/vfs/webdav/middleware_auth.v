@@ -41,7 +41,6 @@ fn (app &App) auth_middleware(mut ctx Context) bool {
 			ctx.send_response_to_client('text', 'unauthorized')
 			return false
 		}
-		println('Successfully authenticated user. ${ctx.req}')
 		return true
 	}
 	ctx.res.set_status(.unauthorized)
