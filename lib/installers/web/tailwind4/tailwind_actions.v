@@ -1,4 +1,4 @@
-module tailwind
+module tailwind4
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.core
@@ -10,11 +10,11 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('tailwindcss -h')
+	res := os.execute('tailwindcss4 -h')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('tailwindcss v'))
 		if r.len != 1 {
-			return error("couldn't parse tailwind version, expected 'tailwindcss v' on 1 row.\n${res.output}")
+			return error("couldn't parse tailwind4 version, expected 'tailwindcss v' on 1 row.\n${res.output}")
 		}
 
 		v := texttools.version(r[0].all_after(' '))
@@ -35,16 +35,11 @@ fn ulist_get() !ulist.UList {
 	return ulist.UList{}
 }
 
-// uploads to S3 server if configured
 fn upload() ! {
-	// installers.upload(
-	//     cmdname: 'tailwind'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/tailwind'
-	// )!
 }
 
 fn install() ! {
-	console.print_header('install tailwind')
+	console.print_header('install tailwind4')
 
 	mut url := ''
 	if core.is_linux_arm()! {
@@ -66,7 +61,7 @@ fn install() ! {
 	)!
 
 	osal.cmd_add(
-		cmdname: 'tailwind'
+		cmdname: 'tailwind4'
 		source:  dest.path
 	)!
 }
