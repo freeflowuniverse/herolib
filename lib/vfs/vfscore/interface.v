@@ -63,8 +63,8 @@ mut:
 	// Common operations
 	exists(path string) bool
 	get(path string) !FSEntry
-	rename(old_path string, new_path string) !
-	copy(src_path string, dst_path string) !
+	rename(old_path string, new_path string) !FSEntry
+	copy(src_path string, dst_path string) !FSEntry
 	move(src_path string, dst_path string) !FSEntry
 	delete(path string) !
 

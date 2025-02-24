@@ -142,7 +142,7 @@ pub fn (mut self NestedVFS) get(path string) !vfscore.FSEntry {
 	return impl.get(rel_path)
 }
 
-pub fn (mut self NestedVFS) rename(old_path string, new_path string) ! {
+pub fn (mut self NestedVFS) rename(old_path string, new_path string) !vfscore.FSEntry {
 	mut old_impl, old_rel_path := self.find_vfs(old_path)!
 	mut new_impl, new_rel_path := self.find_vfs(new_path)!
 
@@ -150,10 +150,11 @@ pub fn (mut self NestedVFS) rename(old_path string, new_path string) ! {
 		return error('Cannot rename across different VFS implementations')
 	}
 
-	return old_impl.rename(old_rel_path, new_rel_path)
+	renamed_file := old_impl.rename(old_rel_path, new_rel_path)!
+	return renamed_file
 }
 
-pub fn (mut self NestedVFS) copy(src_path string, dst_path string) ! {
+pub fn (mut self NestedVFS) copy(src_path string, dst_path string) !vfscore.FSEntry {
 	mut src_impl, src_rel_path := self.find_vfs(src_path)!
 	mut dst_impl, dst_rel_path := self.find_vfs(dst_path)!
 
@@ -164,8 +165,9 @@ pub fn (mut self NestedVFS) copy(src_path string, dst_path string) ! {
 	// Copy across different VFS implementations
 	// TODO: Q: What if it's not file? What if it's a symlink or directory?
 	data := src_impl.file_read(src_rel_path)!
-	dst_impl.file_create(dst_rel_path)!
-	return dst_impl.file_write(dst_rel_path, data)
+	new_file := dst_impl.file_create(dst_rel_path)!
+	dst_impl.file_write(dst_rel_path, data)!
+	return new_file
 }
 
 pub fn (mut self NestedVFS) move(src_path string, dst_path string) !vfscore.FSEntry {

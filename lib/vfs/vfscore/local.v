@@ -227,7 +227,7 @@ pub fn (myvfs LocalVFS) get(path string) !FSEntry {
 	}
 }
 
-pub fn (myvfs LocalVFS) rename(old_path string, new_path string) ! {
+pub fn (myvfs LocalVFS) rename(old_path string, new_path string) !FSEntry {
 	abs_old := myvfs.abs_path(old_path)
 	abs_new := myvfs.abs_path(new_path)
 
@@ -241,9 +241,16 @@ pub fn (myvfs LocalVFS) rename(old_path string, new_path string) ! {
 	os.mv(abs_old, abs_new) or {
 		return error('Failed to rename ${old_path} to ${new_path}: ${err}')
 	}
+	metadata := myvfs.os_attr_to_metadata(new_path) or {
+		return error('Failed to get metadata: ${err}')
+	}
+	return LocalFSEntry{
+		path:     new_path
+		metadata: metadata
+	}
 }
 
-pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) ! {
+pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) !FSEntry {
 	abs_src := myvfs.abs_path(src_path)
 	abs_dst := myvfs.abs_path(dst_path)
 
@@ -255,6 +262,13 @@ pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) ! {
 	}
 
 	os.cp(abs_src, abs_dst) or { return error('Failed to copy ${src_path} to ${dst_path}: ${err}') }
+	metadata := myvfs.os_attr_to_metadata(abs_dst) or {
+		return error('Failed to get metadata: ${err}')
+	}
+	return LocalFSEntry{
+		path:     dst_path
+		metadata: metadata
+	}
 }
 
 pub fn (myvfs LocalVFS) move(src_path string, dst_path string) !FSEntry {
