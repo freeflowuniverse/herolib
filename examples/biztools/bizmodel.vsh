@@ -23,14 +23,3 @@ model.sheet.export(path:"~/code/github/freeflowuniverse/starlight_template/src/c
 
 
 
-
-// report := model.new_report(
-// 	name: 'example_report'
-// 	title: 'Example Business Model'
-// )!
-
-// report.export(
-// 	path: build_path
-// 	overwrite: true
-// 	format: .docusaurus
-// )!

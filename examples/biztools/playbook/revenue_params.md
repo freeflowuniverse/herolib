@@ -6,6 +6,8 @@ This company is a cloud company ...
 
 - name, e.g. for a specific project
 - descr, description of the revenue line item
+- revenue_items: does one of revenue, is not exterpolated
+- revenue_growth: is a revenue stream which is being extrapolated
 - revenue_setup, revenue for 1 item '1000usd'
 - revenue_setup_delay
 - revenue_monthly, revenue per month for 1 item
@@ -25,7 +27,7 @@ This company is a cloud company ...
 ```js
 !!bizmodel.revenue_define bizname:'test'
     descr:'OEM Deals'  
-    revenue_setup:'10:1000000EUR,15:3333,20:1200000'
+    revenue_items:'10:1000000EUR,15:3333,20:1200000'
     cogs_setup_perc: '1:5%,20:10%'  
 
 !!bizmodel.revenue_define bizname:'test'
