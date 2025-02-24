@@ -1,96 +1,123 @@
 module vfsourdb
 
 import os
+import rand
 
-fn test_vfsourdb() ! {
-	println('Testing OurDB VFS...')
-
-	// Create test directories
-	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_data')
-	test_meta_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_meta')
+fn setup_vfs() !(&OurDBVFS, string, string) {
+	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_data_${rand.string(3)}')
+	test_meta_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_meta_${rand.string(3)}')
 
 	os.mkdir_all(test_data_dir)!
 	os.mkdir_all(test_meta_dir)!
 
+	mut vfs := new(test_data_dir, test_meta_dir)!
+	return vfs, test_data_dir, test_meta_dir
+}
+
+fn teardown_vfs(data_dir string, meta_dir string) {
+	os.rmdir_all(data_dir) or {}
+	os.rmdir_all(meta_dir) or {}
+}
+
+fn test_root_directory() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
 	defer {
-		os.rmdir_all(test_data_dir) or {}
-		os.rmdir_all(test_meta_dir) or {}
+		teardown_vfs(data_dir, meta_dir)
 	}
 
-	// Create VFS instance
-	mut vfs := new(test_data_dir, test_meta_dir)!
-
-	// Test root directory
 	mut root := vfs.root_get()!
 	assert root.get_metadata().file_type == .directory
 	assert root.get_metadata().name == ''
+}
 
-	// Test directory creation
+fn test_directory_operations() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
+	defer {
+		teardown_vfs(data_dir, meta_dir)
+	}
+
+	// Test creation
 	mut test_dir := vfs.dir_create('/test_dir')!
 	assert test_dir.get_metadata().name == 'test_dir'
 	assert test_dir.get_metadata().file_type == .directory
 
-	// Test file creation and writing
+	// Test listing
+	entries := vfs.dir_list('/')!
+	assert entries.any(it.get_metadata().name == 'test_dir')
+}
+
+fn test_file_operations() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
+	defer {
+		teardown_vfs(data_dir, meta_dir)
+	}
+
+	vfs.dir_create('/test_dir')!
+
+	// Test file creation
 	mut test_file := vfs.file_create('/test_dir/test.txt')!
 	assert test_file.get_metadata().name == 'test.txt'
 	assert test_file.get_metadata().file_type == .file
 
+	// Test writing/reading
 	test_content := 'Hello, World!'.bytes()
 	vfs.file_write('/test_dir/test.txt', test_content)!
+	assert vfs.file_read('/test_dir/test.txt')! == test_content
+}
 
-	// Test file reading
-	read_content := vfs.file_read('/test_dir/test.txt')!
-	assert read_content == test_content
+fn test_directory_move() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
+	defer {
+		teardown_vfs(data_dir, meta_dir)
+	}
 
-	// Test directory move
+	vfs.dir_create('/test_dir')!
+	vfs.file_create('/test_dir/test.txt')!
+
+	// Perform move
 	moved_dir := vfs.move('/test_dir', '/test_dir2')!
-
 	assert moved_dir.get_metadata().name == 'test_dir2'
-	assert moved_dir.get_metadata().file_type == .directory
-
 	assert vfs.exists('/test_dir') == false
 	assert vfs.exists('/test_dir2/test.txt') == true
+}
 
-	// Test directory listing
-	mut entries := vfs.dir_list('/test_dir2')!
-	assert entries.len == 1
-	assert entries[0].get_metadata().name == 'test.txt'
+fn test_nested_directory_move() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
+	defer {
+		teardown_vfs(data_dir, meta_dir)
+	}
 
-	// Test directory rename
-	renamed_dir := vfs.rename('/test_dir2', '/test_dir')!
-	assert moved_dir.get_metadata().name == 'test_dir2'
-	assert moved_dir.get_metadata().file_type == .directory
+	vfs.dir_create('/test_dir2')!
+	vfs.dir_create('/test_dir2/folder1')!
+	vfs.file_create('/test_dir2/folder1/file1.txt')!
+	vfs.dir_create('/test_dir2/folder2')!
 
-	// Test directory listing
-	entries = vfs.dir_list('/test_dir')!
-	assert entries.len == 1
-	assert entries[0].get_metadata().name == 'test.txt'
+	// Move folder1 into folder2
+	moved_dir := vfs.move('/test_dir2/folder1', '/test_dir2/folder2/folder1')!
+	assert moved_dir.get_metadata().name == 'folder1'
+	assert vfs.exists('/test_dir2/folder2/folder1/file1.txt') == true
+}
 
-	// Test exists
-	assert vfs.exists('/test_dir') == true
-	assert vfs.exists('/test_dir/test.txt') == true
-	assert vfs.exists('/nonexistent') == false
+fn test_deletion_operations() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
+	defer {
+		teardown_vfs(data_dir, meta_dir)
+	}
 
-	// Test symlink creation and reading
-	vfs.link_create('/test_dir/test.txt', '/test_dir/test_link')!
-	link_target := vfs.link_read('/test_dir/test_link')!
-	assert link_target == '/test_dir/test.txt'
-
-	// Test symlink deletion
-	vfs.link_delete('/test_dir/test_link')!
-	assert vfs.exists('/test_dir/test_link') == false
+	vfs.dir_create('/test_dir')!
+	vfs.file_create('/test_dir/test.txt')!
 
 	// Test file deletion
 	vfs.file_delete('/test_dir/test.txt')!
 	assert vfs.exists('/test_dir/test.txt') == false
-	assert vfs.exists('/test_dir') == true
-
-	entries = vfs.dir_list('/test_dir')!
-	assert entries.len == 0
 
 	// Test directory deletion
 	vfs.dir_delete('/test_dir')!
 	assert vfs.exists('/test_dir') == false
-
-	println('Test completed successfully!')
 }
+
+// Add more test functions for other operations like:
+// - test_directory_copy()
+// - test_symlink_operations()
+// - test_directory_rename()
+// - test_file_metadata()

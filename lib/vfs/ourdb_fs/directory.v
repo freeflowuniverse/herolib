@@ -93,22 +93,22 @@ pub fn (mut dir Directory) read(name string) !string {
 }
 
 // str returns a formatted string of directory contents (non-recursive)
-pub fn (mut dir Directory) str() string {
-	mut result := '${dir.metadata.name}/\n'
+// pub fn (mut dir Directory) str() string {
+// mut result := '${dir.metadata.name}/\n'
 
-	for child_id in dir.children {
-		if entry := dir.myvfs.load_entry(child_id) {
-			if entry is Directory {
-				result += '  📁 ${entry.metadata.name}/\n'
-			} else if entry is File {
-				result += '  📄 ${entry.metadata.name}\n'
-			} else if entry is Symlink {
-				result += '  🔗 ${entry.metadata.name} -> ${entry.target}\n'
-			}
-		}
-	}
-	return result
-}
+// for child_id in dir.children {
+// 	if entry := dir.myvfs.load_entry(child_id) {
+// 		if entry is Directory {
+// 			result += '  📁 ${entry.metadata.name}/\n'
+// 		} else if entry is File {
+// 			result += '  📄 ${entry.metadata.name}\n'
+// 		} else if entry is Symlink {
+// 			result += '  🔗 ${entry.metadata.name} -> ${entry.target}\n'
+// 		}
+// 	}
+// }
+// return result
+// }
 
 // printall prints the directory structure recursively
 pub fn (mut dir Directory) printall(indent string) !string {
@@ -240,43 +240,112 @@ pub fn (mut dir Directory) rm(name string) ! {
 	dir.myvfs.save_entry(dir)!
 }
 
-pub fn (mut dir Directory) move(src_name string, dst_name string) !FSEntry {
-	mut found := false
-	mut new_entry := FSEntry(dir)
-
-	for child_id in dir.children {
-		if mut entry := dir.myvfs.load_entry(child_id) {
-			if entry.metadata.name == src_name {
-				found = true
-				entry.metadata.name = dst_name
-				entry.metadata.modified_at = time.now().unix()
-				dir.myvfs.save_entry(entry)!
-				new_entry = entry
-				break
-			}
-		}
-	}
-
-	if !found {
-		return error('${src_name} not found')
-	}
-
-	return new_entry
+pub struct MoveDirArgs {
+pub mut:
+	src_entry_name string     @[required] // source entry name
+	dst_entry_name string     @[required] // destination entry name
+	dst_parent_dir &Directory @[required] // destination directory
 }
 
-pub fn (mut dir Directory) rename(src_name string, dst_name string) !FSEntry {
+pub fn (dir_ Directory) move(args_ MoveDirArgs) !&Directory {
+	mut dir := dir_
+	mut args := args_
+	mut found := false
+
+	for child_id in dir.children {
+		if mut entry := dir.myvfs.load_entry(child_id) {
+			if entry.metadata.name == args.src_entry_name {
+				if entry is File {
+					return error('${args.src_entry_name} is a file')
+				}
+
+				if entry is Symlink {
+					return error('${args.src_entry_name} is a symlink')
+				}
+
+				found = true
+				mut entry_ := entry as Directory
+				entry_.metadata.name = args.dst_entry_name
+				entry_.metadata.modified_at = time.now().unix()
+				entry_.parent_id = args.dst_parent_dir.metadata.id
+
+				// Remove from old parent's children
+				dir.children = dir.children.filter(it != child_id)
+				dir.save()!
+
+				// Recursively update all child paths in moved directory
+				move_children_recursive(mut entry_)!
+
+				// Ensure no duplicate entries in dst_parent_dir
+				if entry_.metadata.id !in args.dst_parent_dir.children {
+					args.dst_parent_dir.children << entry_.metadata.id
+				}
+
+				args.dst_parent_dir.myvfs.save_entry(entry_)!
+				args.dst_parent_dir.save()!
+
+				return &entry_
+			}
+		}
+	}
+
+	if !found {
+		return error('${args.src_entry_name} not found')
+	}
+
+	return error('Unexpected move failure')
+}
+
+// Recursive function to update parent_id for all children
+fn move_children_recursive(mut dir Directory) ! {
+	for child in dir.children {
+		if mut child_entry := dir.myvfs.load_entry(child) {
+			child_entry.parent_id = dir.metadata.id
+
+			if child_entry is Directory {
+				// Recursively move subdirectories
+				mut child_entry_ := child_entry as Directory
+				move_children_recursive(mut child_entry_)!
+			}
+
+			dir.myvfs.save_entry(child_entry)!
+		}
+	}
+}
+
+pub fn (mut dir Directory) copy(src_name string, dst_name string) !Directory {
 	mut found := false
 	mut new_entry := FSEntry(dir)
+	current_time := time.now().unix()
 
 	for child_id in dir.children {
 		if mut entry := dir.myvfs.load_entry(child_id) {
 			if entry.metadata.name == src_name {
 				found = true
-				entry.metadata.name = dst_name
-				entry.metadata.modified_at = time.now().unix()
-				dir.myvfs.save_entry(entry)!
 				new_entry = entry
-				break
+				// Create a new copy
+				if entry is Directory {
+					mut entry_ := entry as Directory
+					mut new_dir := Directory{
+						metadata:  entry_.metadata
+						children:  entry_.children
+						parent_id: entry_.parent_id
+						myvfs:     entry_.myvfs
+					}
+
+					new_dir.metadata.id = entry_.myvfs.get_next_id()
+					new_dir.metadata.name = dst_name
+					new_dir.metadata.created_at = current_time
+					new_dir.metadata.modified_at = current_time
+					new_dir.metadata.accessed_at = current_time
+
+					dir.children << new_dir.metadata.id
+					dir.metadata.modified_at = current_time
+					dir.metadata.id = dir.myvfs.save_entry(dir)!
+
+					dir.myvfs.save_entry(new_dir)!
+					return new_dir
+				}
 			}
 		}
 	}
@@ -285,7 +354,31 @@ pub fn (mut dir Directory) rename(src_name string, dst_name string) !FSEntry {
 		return error('${src_name} not found')
 	}
 
-	return new_entry
+	return &new_entry as Directory
+}
+
+pub fn (dir Directory) rename(src_name string, dst_name string) !&Directory {
+	mut found := false
+	mut dir_ := dir
+
+	for child_id in dir.children {
+		if mut entry := dir_.myvfs.load_entry(child_id) {
+			if entry.metadata.name == src_name {
+				found = true
+				entry.metadata.name = dst_name
+				entry.metadata.modified_at = time.now().unix()
+				dir_.myvfs.save_entry(entry)!
+				get_dir := entry as Directory
+				return &get_dir
+			}
+		}
+	}
+
+	if !found {
+		return error('${src_name} not found')
+	}
+
+	return &dir_
 }
 
 // get_children returns all immediate children as FSEntry objects

@@ -84,8 +84,6 @@ pub fn (mut self OurDBVFS) dir_create(path string) !vfscore.FSEntry {
 
 	mut parent_dir := self.get_directory(parent_path)!
 	mut new_dir := parent_dir.mkdir(dir_name)!
-	new_dir.save()! // Ensure the directory is saved
-
 	return convert_to_vfscore_entry(new_dir)
 }
 
@@ -137,17 +135,44 @@ pub fn (mut self OurDBVFS) rename(old_path string, new_path string) !vfscore.FSE
 	return convert_to_vfscore_entry(renamed_dir)
 }
 
-pub fn (mut self OurDBVFS) copy(src_path string, dst_path string) ! {
-	return error('Not implemented')
-}
-
-pub fn (mut self OurDBVFS) move(src_path string, dst_path string) !vfscore.FSEntry {
+pub fn (mut self OurDBVFS) copy(src_path string, dst_path string) !vfscore.FSEntry {
 	src_parent_path := os.dir(src_path)
 	src_name := os.base(src_path)
 	dst_name := os.base(dst_path)
 
 	mut src_parent_dir := self.get_directory(src_parent_path)!
-	moved_dir := src_parent_dir.move(src_name, dst_name)!
+	copied_dir := src_parent_dir.copy(src_name, dst_name)!
+	return convert_to_vfscore_entry(copied_dir)
+}
+
+pub fn (mut self OurDBVFS) move(src_path string, dst_path string) !vfscore.FSEntry {
+	src_parent_path := os.dir(src_path)
+	dst_parent_path := os.dir(dst_path)
+
+	if !self.exists(src_parent_path) {
+		return error('${src_parent_path} does not exist')
+	}
+
+	if !self.exists(dst_parent_path) {
+		return error('${dst_parent_path} does not exist')
+	}
+
+	src_name := os.base(src_path)
+	dst_name := os.base(dst_path)
+
+	mut src_parent_dir := self.get_directory(src_parent_path)!
+	mut dst_parent_dir := self.get_directory(dst_parent_path)!
+
+	if src_parent_dir == dst_parent_dir && src_name == dst_name {
+		return error('Moving to the same path not supported')
+	}
+
+	moved_dir := src_parent_dir.move(
+		src_entry_name: src_name
+		dst_entry_name: dst_name
+		dst_parent_dir: dst_parent_dir
+	)!
+
 	return convert_to_vfscore_entry(moved_dir)
 }
 
