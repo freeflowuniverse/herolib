@@ -4,11 +4,29 @@
 
 This company is a cloud company ...
 
+- name, e.g. for a specific project
+- descr, description of the revenue line item
+- revenue_setup, revenue for 1 item '1000usd'
+- revenue_setup_delay
+- revenue_monthly, revenue per month for 1 item
+- revenue_monthly_delay, how many months before monthly revenue starts
+- maintenance_month_perc, how much percent of revenue_setup will come back over months
+- cogs_setup, cost of good for 1 item at setup
+- cogs_setup_delay, how many months before setup cogs starts, after sales
+- cogs_setup_perc: what is percentage of the cogs (can change over time) for setup e.g. 0:50%
+
+- cogs_monthly, cost of goods for the monthly per 1 item
+- cogs_monthly_delay, how many months before monthly cogs starts, after sales
+- cogs_monthly_perc: what is percentage of the cogs (can change over time) for monthly e.g. 0:5%,12:10%
+
+- nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200, default is 1)
+- nr_months_recurring: how many months is recurring, if 0 then no recurring
+
 ```js
 !!bizmodel.revenue_define bizname:'test'
     descr:'OEM Deals'  
-    revenue_time:'10:1000000EUR,15:3333,20:1200000'
-    cogs_perc: '1:5%,20:10%'  
+    revenue_setup:'10:1000000EUR,15:3333,20:1200000'
+    cogs_setup_perc: '1:5%,20:10%'  
 
 !!bizmodel.revenue_define bizname:'test'
     descr:'License Deals'  
@@ -23,6 +41,7 @@ This company is a cloud company ...
     revenue_nr:'10:1000,24:2000,60:40000'
     cogs_perc: '10%'
     rev_delay_month: 1
+
 ```
 
 ## Revenue Items Recurring

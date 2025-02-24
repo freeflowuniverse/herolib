@@ -15,13 +15,22 @@ mut model := bizmodel.getset("example")!
 model.workdir = build_path
 model.play(mut playbook.new(path: playbook_path)!)!
 
-report := model.new_report(
-	name: 'example_report'
-	title: 'Example Business Model'
-)!
+println(model.sheet)
+println(model.sheet.export()!)
 
-report.export(
-	path: build_path
-	overwrite: true
-	format: .docusaurus
-)!
+model.sheet.export(path:"~/Downloads/test.csv")!
+model.sheet.export(path:"~/code/github/freeflowuniverse/starlight_template/src/content/test.csv")!
+
+
+
+
+// report := model.new_report(
+// 	name: 'example_report'
+// 	title: 'Example Business Model'
+// )!
+
+// report.export(
+// 	path: build_path
+// 	overwrite: true
+// 	format: .docusaurus
+// )!

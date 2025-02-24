@@ -13,12 +13,10 @@ import freeflowuniverse.herolib.core.texttools
 // - cogs_setup, cost of good for 1 item at setup
 // - cogs_setup_delay, how many months before setup cogs starts, after sales
 // - cogs_setup_perc: what is percentage of the cogs (can change over time) for setup e.g. 0:50%
-
 // - cogs_monthly, cost of goods for the monthly per 1 item
 // - cogs_monthly_delay, how many months before monthly cogs starts, after sales
 // - cogs_monthly_perc: what is percentage of the cogs (can change over time) for monthly e.g. 0:5%,12:10%
-
-// - nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200)
+// - nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200, default is 1)
 // - nr_months_recurring: how many months is recurring, if 0 then no recurring
 //
 fn (mut m BizModel) revenue_action(action Action) !Action {
@@ -61,6 +59,10 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		descr:       'Revenue for ${name2}'
 		extrapolate: false
 	)!
+
+	println(action)
+	println(revenue)
+	exit(0)
 
 	mut revenue_setup := m.sheet.row_new(
 		name:          '${name}_revenue_setup'
@@ -139,11 +141,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		aggregatetype: .avg
 	)!
 
-	// if true{
-	// 	println(cogs_setup_perc)
-	// 	println(cogs_monthly_perc)
-	// 	panic("sdsd")
-	// }
 
 	mut nr_sold := m.sheet.row_new(
 		name:          '${name}_nr_sold'
@@ -211,10 +208,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 			nrmonths:      nr_months_recurring
 			aggregatetype: .max
 		)!
-		// if true{
-		// 	println(nr_sold_recurring)
-		// 	panic('sd')
-		// }					
 	}
 
 	// cogs as percentage of revenue
@@ -229,16 +222,17 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		name:   '${name}_cogs_monthly_from_perc'
 	)!
 
-	// if true{
-	// 	println(revenue_setup_total)
-	// 	println(cogs_setup_perc)
-	// 	println(cogs_setup_from_perc)
-	// 	println("montlhy")
-	// 	println(revenue_monthly_total)
-	// 	println(cogs_monthly_perc)
-	// 	println(cogs_monthly_from_perc)
-	// 	panic("sdsd")
-	// }
+	println(action)
+	println(nr_sold)
+	println(revenue)
+	println(revenue_setup_total)
+	println(revenue_monthly_total)
+	println(cogs_setup_perc)
+	println(cogs_setup_from_perc)
+	println(cogs_monthly_perc)
+	println(cogs_monthly_from_perc)
+	exit(0)
+
 
 	// mut cogs_from_perc:=cogs_perc.action(action:.multiply,rows:[revenue],name:"cogs_from_perc")!
 
