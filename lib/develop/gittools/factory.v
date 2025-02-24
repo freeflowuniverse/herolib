@@ -37,7 +37,6 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		debug:        args.debug
 		ssh_key_name: args.ssh_key_name
 		ssh_key_path: args.ssh_key_path
-
 	}
 
 	return get(coderoot: args.coderoot, reload: args.reload, cfg: cfg)
@@ -81,18 +80,20 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	}
 
 	mut cfg := args.cfg or {
-		mut cfg_:=GitStructureConfig{coderoot:"SKIP"}
+		mut cfg_ := GitStructureConfig{
+			coderoot: 'SKIP'
+		}
 		cfg_
 	}
 
-	if cfg.coderoot != "SKIP"{
+	if cfg.coderoot != 'SKIP' {
 		gs.config_ = cfg
 		gs.config_save()!
-		//println(gs.config()!)
+		// println(gs.config()!)
 	}
 
 	gs.config()! // will load the config, don't remove
-	
+
 	gs.load(false)!
 
 	if gs.repos.keys().len == 0 || args.reload {

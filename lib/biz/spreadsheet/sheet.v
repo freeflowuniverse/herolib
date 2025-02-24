@@ -259,13 +259,13 @@ pub fn (mut s Sheet) json() string {
 }
 
 // find row, report error if not found
-pub fn (mut s Sheet) row_get(name string) !&Row {
-	mut row := s.rows[name] or { return error('could not find row with name: ${name}') }
+pub fn (s Sheet) row_get(name string) !&Row {
+	row := s.rows[name] or { return error('could not find row with name: ${name}, available rows: ${s.rows.keys()}') }
 	return row
 }
 
-pub fn (mut s Sheet) values_get(name string) ![]f64 {
-	mut r := s.row_get(name)!
+pub fn (s Sheet) values_get(name string) ![]f64 {
+	r := s.row_get(name)!
 	vs := r.values_get()
 	return vs
 }

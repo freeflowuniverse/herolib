@@ -9,7 +9,7 @@ import freeflowuniverse.herolib.core.texttools
 // - descr: description of the funding .
 // - investment is month:amount,month:amount, ... .
 // - type: loan or capital .
-fn (mut m BizModel) funding_define_action(action Action) ! {
+fn (mut m BizModel) funding_define_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
@@ -29,6 +29,7 @@ fn (mut m BizModel) funding_define_action(action Action) ! {
 		descr:       descr
 		extrapolate: false
 	)!
+	return action
 }
 
 fn (mut sim BizModel) funding_total() ! {

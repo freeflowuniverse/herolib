@@ -5,8 +5,6 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.ulist
 import os
 
-//////////////////// following actions are not specific to instance of the object
-
 // checks if a certain version or above is installed
 fn installed() !bool {
 	res := os.execute('screen --version')
@@ -24,8 +22,7 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload() ! {
-}
+fn upload() ! {}
 
 fn install() ! {
 	console.print_header('install screen')

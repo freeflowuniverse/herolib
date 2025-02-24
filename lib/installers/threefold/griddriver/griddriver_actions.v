@@ -1,15 +1,14 @@
 module griddriver
 
-import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.develop.gittools
+import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.develop.gittools
 import os
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
+fn installed() !bool {
 	res := os.execute('/bin/bash -c "griddriver --version"')
 	if res.exit_code != 0 {
 		return false
@@ -27,12 +26,22 @@ fn installed_() !bool {
 	return true
 }
 
-fn install_() ! {
-	// console.print_header('install griddriver')
-	build()!
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
 }
 
-fn build_() ! {
+// uploads to S3 server if configured
+fn upload() ! {}
+
+fn install() ! {
+	console.print_header('install griddriver')
+	build()!
+	console.print_header('install griddriver OK')
+}
+
+fn build() ! {
 	console.print_header('build griddriver')
 	mut installer := golang.get()!
 	installer.install()!
@@ -58,37 +67,17 @@ fn build_() ! {
 	console.print_header('build griddriver OK')
 }
 
-// get the Upload List of the files
-fn ulist_get() !ulist.UList {
-	// mut installer := get()!
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-	return ulist.UList{}
-}
+fn destroy() ! {
+	console.print_header('uninstall griddriver')
+	mut res := os.execute('sudo rm -rf /usr/local/bin/griddriver')
+	if res.exit_code != 0 {
+		return error('failed to uninstall griddriver: ${res.output}')
+	}
 
-// uploads to S3 server if configured
-fn upload_() ! {
-	// mut installer := get()!
-	// installers.upload(
-	//     cmdname: 'griddriver'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/griddriver'
-	// )!
-}
+	res = os.execute('sudo rm -rf ~/code/github/threefoldtech/web3gw')
+	if res.exit_code != 0 {
+		return error('failed to uninstall griddriver: ${res.output}')
+	}
 
-fn destroy_() ! {
-	// mut installer := get()!
-	// cmd:="
-	//     systemctl disable griddriver_scheduler.service
-	//     systemctl disable griddriver.service
-	//     systemctl stop griddriver_scheduler.service
-	//     systemctl stop griddriver.service
-
-	//     systemctl list-unit-files | grep griddriver
-
-	//     pkill -9 -f griddriver
-
-	//     ps aux | grep griddriver
-
-	//     "
-
-	// osal.exec(cmd: cmd, stdout:true, debug: false)!
+	console.print_header('uninstall griddriver OK')
 }

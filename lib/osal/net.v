@@ -110,7 +110,7 @@ pub fn ipaddr_pub_get() !string {
 	return public_ip
 }
 
-//also check the address is on local interface
+// also check the address is on local interface
 pub fn ipaddr_pub_get_check() !string {
 	// Check if the public IP matches any local interface
 	public_ip := ipaddr_pub_get()!

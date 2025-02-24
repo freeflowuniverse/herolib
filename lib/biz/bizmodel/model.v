@@ -1,10 +1,12 @@
 module bizmodel
 
+import os
 import freeflowuniverse.herolib.biz.spreadsheet
 
 pub struct BizModel {
 pub mut:
 	name        string
+	workdir string = '${os.home_dir()}/hero/var/bizmodel'
 	sheet       &spreadsheet.Sheet
 	employees   map[string]&Employee
 	departments map[string]&Department

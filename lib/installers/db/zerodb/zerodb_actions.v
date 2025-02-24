@@ -2,51 +2,58 @@ module zerodb
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.installers.lang.python
+import freeflowuniverse.herolib.develop.gittools
+import freeflowuniverse.herolib.installers.base
+import freeflowuniverse.herolib.crypt.secrets
+import freeflowuniverse.herolib.clients.zerodb_client
+import crypto.md5
+import rand
 import os
+import time
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut installer := get()!
-	mut res := []zinit.ZProcessNewArgs{}
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res << zinit.ZProcessNewArgs{
-	//     name: 'zerodb'
-	//     cmd: 'zerodb server'
-	//     env: {
-	//         'HOME': '/root'
-	//     }
-	// }
+	mut cfg := get()!
+	mut cmd := 'zdb --socket ${os.home_dir()}/var/zdb.sock --port ${cfg.port} --admin ${cfg.secret} --data ${cfg.datadir} --index ${cfg.indexdir} --dualnet --protect --rotate ${cfg.rotateperiod}'
+	if cfg.sequential {
+		cmd += ' --mode seq'
+	}
 
+	mut res := []zinit.ZProcessNewArgs{}
+	res << zinit.ZProcessNewArgs{
+		name:        'zdb'
+		cmd:         cmd
+		startuptype: .zinit
+	}
 	return res
 }
 
-fn running_() !bool {
-	mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of zerodb
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'zerodb', url: url)!
+fn running() !bool {
+	time.sleep(time.second * 2)
+	cfg := get()!
+	cmd := 'redis-cli -s ${os.home_dir()}/var/zdb.sock PING'
 
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('zerodb is answering.')
-	return false
+	result := os.execute(cmd)
+	if result.exit_code > 0 {
+		return error('${cmd} failed with exit code: ${result.exit_code} and error: ${result.output}')
+	}
+
+	if result.output.trim_space() == 'PONG' {
+		console.print_debug('zdb is answering.')
+		return true
+	}
+
+	mut db := zerodb_client.get('localhost:${cfg.port}', cfg.secret, 'test')!
+
+	// check info returns info about zdb
+	info := db.info()!
+
+	assert info.contains('server_name: 0-db')
+
+	console.print_debug('zdb is answering.')
+	return true
 }
 
 fn start_pre() ! {
@@ -64,20 +71,9 @@ fn stop_post() ! {
 //////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
-fn installed_() !bool {
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// res := os.execute('${osal.profile_path_source_and()!} zerodb version')
-	// if res.exit_code != 0 {
-	//     return false
-	// }
-	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-	// if r.len != 1 {
-	//     return error("couldn't parse zerodb version.\n${res.output}")
-	// }
-	// if texttools.version(version) == texttools.version(r[0]) {
-	//     return true
-	// }
-	return false
+fn installed() !bool {
+	res := os.execute('zdb --version')
+	return res.exit_code == 0
 }
 
 // get the Upload List of the files
@@ -87,101 +83,68 @@ fn ulist_get() !ulist.UList {
 }
 
 // uploads to S3 server if configured
-fn upload_() ! {
+fn upload() ! {
 	// installers.upload(
 	//     cmdname: 'zerodb'
 	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/zerodb'
 	// )!
 }
 
-fn install_() ! {
-	console.print_header('install zerodb')
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// mut url := ''
-	// if core.is_linux_arm()! {
-	//     url = 'https://github.com/zerodb-dev/zerodb/releases/download/v${version}/zerodb_${version}_linux_arm64.tar.gz'
-	// } else if core.is_linux_intel()! {
-	//     url = 'https://github.com/zerodb-dev/zerodb/releases/download/v${version}/zerodb_${version}_linux_amd64.tar.gz'
-	// } else if core.is_osx_arm()! {
-	//     url = 'https://github.com/zerodb-dev/zerodb/releases/download/v${version}/zerodb_${version}_darwin_arm64.tar.gz'
-	// } else if core.is_osx_intel()! {
-	//     url = 'https://github.com/zerodb-dev/zerodb/releases/download/v${version}/zerodb_${version}_darwin_amd64.tar.gz'
-	// } else {
-	//     return error('unsported platform')
-	// }
+fn install() ! {
+	console.print_header('install zdb')
 
-	// mut dest := osal.download(
-	//     url: url
-	//     minsize_kb: 9000
-	//     expand_dir: '/tmp/zerodb'
-	// )!
+	mut url := ''
+	if core.is_linux_intel()! {
+		url = 'https://github.com/threefoldtech/0-db/releases/download/v${version}/zdb-${version}-linux-amd64-static'
+	} else {
+		return error('unsported platform, only linux 64 for zdb for now')
+	}
 
-	// //dest.moveup_single_subdir()!
+	mut dest := osal.download(
+		url:        url
+		minsize_kb: 1000
+	)!
 
-	// mut binpath := dest.file_get('zerodb')!
-	// osal.cmd_add(
-	//     cmdname: 'zerodb'
-	//     source: binpath.path
-	// )!
+	osal.cmd_add(
+		cmdname: 'zdb'
+		source:  dest.path
+	)!
 }
 
-fn build_() ! {
-	// url := 'https://github.com/threefoldtech/zerodb'
-
-	// make sure we install base on the node
-	// if core.platform()!= .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
-
-	// console.print_header('build zerodb')
-
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
-
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
-	// //now copy to the default bin path
-	// mut binpath := dest.file_get('...')!
-	// adds it to path
-	// osal.cmd_add(
-	//     cmdname: 'griddriver2'
-	//     source: binpath.path
-	// )!
+fn build() ! {
+	base.install()!
+	console.print_header('package_install install zdb')
+	if !osal.done_exists('install_zdb') && !osal.cmd_exists('zdb') {
+		mut gs := gittools.new()!
+		mut repo := gs.get_repo(
+			url:   'git@github.com:threefoldtech/0-db.git'
+			reset: false
+			pull:  true
+		)!
+		path := repo.path()
+		cmd := '
+		set -ex
+		cd ${path}
+		make
+		sudo rsync -rav ${path}/bin/zdb* /usr/local/bin/
+		'
+		osal.execute_silent(cmd) or { return error('Cannot install zdb.\n${err}') }
+		osal.done_set('install_zdb', 'OK')!
+	}
 }
 
-fn destroy_() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
+fn destroy() ! {
+	res := os.execute('sudo rm -rf /usr/local/bin/zdb')
+	if res.exit_code != 0 {
+		return error('Could not remove zdb binary due to: ${res.output}')
+	}
 
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+	mut zinit_factory := zinit.new()!
+	if zinit_factory.exists('zdb') {
+		zinit_factory.stop('zdb') or { return error('Could not stop zdb service due to: ${err}') }
+		zinit_factory.delete('zdb') or {
+			return error('Could not delete zdb service due to: ${err}')
+		}
+	}
+	console.print_header('zdb removed')
 }

@@ -46,7 +46,6 @@ fn (mut repo GitRepo) load() ! {
 	repo.has_changes = repo.detect_changes() or {
 		return error('Failed to detect changes in repository ${repo.name}: ${err}')
 	}
-
 	repo.cache_set() or {
 		return error('Failed to update cache for repository ${repo.name}: ${err}')
 	}

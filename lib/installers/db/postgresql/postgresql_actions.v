@@ -4,28 +4,8 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.installers.ulist
 import os
-
-fn installed_() !bool {
-	mut cfg := get()!
-	mut podman := podman_installer.get()!
-	podman.install()!
-
-	cmd := 'podman healthcheck run ${cfg.container_name}'
-	result := os.execute(cmd)
-
-	if result.exit_code != 0 {
-		return false
-	}
-	return true
-}
-
-fn install_() ! {
-	console.print_header('install postgresql')
-	mut podman := podman_installer.get()!
-	podman.install()!
-	osal.execute_silent('podman pull docker.io/library/postgres:latest')!
-}
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut cfg := get()!
@@ -43,9 +23,14 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	return res
 }
 
-fn running_() !bool {
-	mut mydb := get()!
-	mydb.check() or { return false }
+fn running() !bool {
+	cfg := get()!
+	cmd := 'podman healthcheck run ${cfg.container_name}'
+	result := os.execute(cmd)
+
+	if result.exit_code != 0 {
+		return false
+	}
 	return true
 }
 
@@ -61,7 +46,40 @@ fn stop_pre() ! {
 fn stop_post() ! {
 }
 
-fn destroy_() ! {
+//////////////////// following actions are not specific to instance of the object
+
+// checks if a certain version or above is installed
+fn installed() !bool {
+	mut cfg := get()!
+	mut podman := podman_installer.get()!
+	podman.install()!
+
+	cmd := 'podman healthcheck run ${cfg.container_name}'
+	result := os.execute(cmd)
+
+	if result.exit_code != 0 {
+		return false
+	}
+	return true
+}
+
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
+}
+
+// uploads to S3 server if configured
+fn upload() ! {}
+
+fn install() ! {
+	console.print_header('install postgresql')
+	mut podman := podman_installer.get()!
+	podman.install()!
+	osal.execute_silent('podman pull docker.io/library/postgres:latest')!
+}
+
+fn destroy() ! {
 	// remove the podman postgresql container
 	mut cfg := get()!
 	cmd := 'podman rm -f ${cfg.container_name}'
@@ -69,6 +87,21 @@ fn destroy_() ! {
 
 	if result.exit_code != 0 {
 		return error("Postgresql container isn't running: ${result.output}")
+	}
+
+	// Remove podman
+	mut podman := podman_installer.get()!
+	podman.destroy()!
+
+	// Remove zinit service, Q: Do we really need to run the postgresql inside a zinit service? it's already running in a container
+	mut zinit_factory := zinit.new()!
+	if zinit_factory.exists('postgresql') {
+		zinit_factory.stop('postgresql') or {
+			return error('Could not stop postgresql service due to: ${err}')
+		}
+		zinit_factory.delete('postgresql') or {
+			return error('Could not delete postgresql service due to: ${err}')
+		}
 	}
 	console.print_header('Postgresql container removed')
 }
