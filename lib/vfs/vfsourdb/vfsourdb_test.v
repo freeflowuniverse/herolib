@@ -81,6 +81,23 @@ fn test_directory_move() ! {
 	assert vfs.exists('/test_dir2/test.txt') == true
 }
 
+fn test_directory_copy() ! {
+	mut vfs, data_dir, meta_dir := setup_vfs()!
+	defer {
+		teardown_vfs(data_dir, meta_dir)
+	}
+
+	vfs.dir_create('/test_dir')!
+	vfs.file_create('/test_dir/test.txt')!
+
+	// Perform copy
+	copied_dir := vfs.copy('/test_dir', '/test_dir2')!
+	assert copied_dir.get_metadata().name == 'test_dir2'
+	assert vfs.exists('/test_dir') == true
+	assert vfs.exists('/test_dir/test.txt') == true
+	assert vfs.exists('/test_dir2/test.txt') == true
+}
+
 fn test_nested_directory_move() ! {
 	mut vfs, data_dir, meta_dir := setup_vfs()!
 	defer {

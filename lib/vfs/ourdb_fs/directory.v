@@ -93,22 +93,22 @@ pub fn (mut dir Directory) read(name string) !string {
 }
 
 // str returns a formatted string of directory contents (non-recursive)
-// pub fn (mut dir Directory) str() string {
-// mut result := '${dir.metadata.name}/\n'
+pub fn (mut dir Directory) str() string {
+	mut result := '${dir.metadata.name}/\n'
 
-// for child_id in dir.children {
-// 	if entry := dir.myvfs.load_entry(child_id) {
-// 		if entry is Directory {
-// 			result += '  📁 ${entry.metadata.name}/\n'
-// 		} else if entry is File {
-// 			result += '  📄 ${entry.metadata.name}\n'
-// 		} else if entry is Symlink {
-// 			result += '  🔗 ${entry.metadata.name} -> ${entry.target}\n'
-// 		}
-// 	}
-// }
-// return result
-// }
+	for child_id in dir.children {
+		if entry := dir.myvfs.load_entry(child_id) {
+			if entry is Directory {
+				result += '  📁 ${entry.metadata.name}/\n'
+			} else if entry is File {
+				result += '  📄 ${entry.metadata.name}\n'
+			} else if entry is Symlink {
+				result += '  🔗 ${entry.metadata.name} -> ${entry.target}\n'
+			}
+		}
+	}
+	return result
+}
 
 // printall prints the directory structure recursively
 pub fn (mut dir Directory) printall(indent string) !string {
@@ -313,48 +313,147 @@ fn move_children_recursive(mut dir Directory) ! {
 	}
 }
 
-pub fn (mut dir Directory) copy(src_name string, dst_name string) !Directory {
+pub struct CopyDirArgs {
+pub mut:
+	src_entry_name string     @[required] // source entry name
+	dst_entry_name string     @[required] // destination entry name
+	dst_parent_dir &Directory @[required] // destination directory
+}
+
+pub fn (mut dir Directory) copy(args_ CopyDirArgs) !&Directory {
 	mut found := false
-	mut new_entry := FSEntry(dir)
-	current_time := time.now().unix()
+	mut args := args_
 
 	for child_id in dir.children {
 		if mut entry := dir.myvfs.load_entry(child_id) {
-			if entry.metadata.name == src_name {
-				found = true
-				new_entry = entry
-				// Create a new copy
-				if entry is Directory {
-					mut entry_ := entry as Directory
-					mut new_dir := Directory{
-						metadata:  entry_.metadata
-						children:  entry_.children
-						parent_id: entry_.parent_id
-						myvfs:     entry_.myvfs
-					}
-
-					new_dir.metadata.id = entry_.myvfs.get_next_id()
-					new_dir.metadata.name = dst_name
-					new_dir.metadata.created_at = current_time
-					new_dir.metadata.modified_at = current_time
-					new_dir.metadata.accessed_at = current_time
-
-					dir.children << new_dir.metadata.id
-					dir.metadata.modified_at = current_time
-					dir.metadata.id = dir.myvfs.save_entry(dir)!
-
-					dir.myvfs.save_entry(new_dir)!
-					return new_dir
+			if entry.metadata.name == args.src_entry_name {
+				if entry is File {
+					return error('${args.src_entry_name} is a file, not a directory')
 				}
+
+				if entry is Symlink {
+					return error('${args.src_entry_name} is a symlink, not a directory')
+				}
+
+				found = true
+				mut src_dir := entry as Directory
+
+				// Create a new directory with copied metadata
+				current_time := time.now().unix()
+				mut new_dir := Directory{
+					metadata:  Metadata{
+						id:          args.dst_parent_dir.myvfs.get_next_id()
+						name:        args.dst_entry_name
+						file_type:   .directory
+						created_at:  current_time
+						modified_at: current_time
+						accessed_at: current_time
+						mode:        src_dir.metadata.mode
+						owner:       src_dir.metadata.owner
+						group:       src_dir.metadata.group
+					}
+					children:  []u32{}
+					parent_id: args.dst_parent_dir.metadata.id
+					myvfs:     args.dst_parent_dir.myvfs
+				}
+
+				// Recursively copy children
+				copy_children_recursive(mut src_dir, mut new_dir)!
+
+				// Save new directory
+				args.dst_parent_dir.myvfs.save_entry(new_dir)!
+				args.dst_parent_dir.children << new_dir.metadata.id
+				args.dst_parent_dir.save()!
+
+				return &new_dir
 			}
 		}
 	}
 
 	if !found {
-		return error('${src_name} not found')
+		return error('${args.src_entry_name} not found')
 	}
 
-	return &new_entry as Directory
+	return error('Unexpected copy failure')
+}
+
+fn copy_children_recursive(mut src_dir Directory, mut dst_dir Directory) ! {
+	for child_id in src_dir.children {
+		if mut entry := src_dir.myvfs.load_entry(child_id) {
+			current_time := time.now().unix()
+
+			match entry {
+				Directory {
+					mut entry_ := entry as Directory
+					mut new_subdir := Directory{
+						metadata:  Metadata{
+							id:          dst_dir.myvfs.get_next_id()
+							name:        entry_.metadata.name
+							file_type:   .directory
+							created_at:  current_time
+							modified_at: current_time
+							accessed_at: current_time
+							mode:        entry_.metadata.mode
+							owner:       entry_.metadata.owner
+							group:       entry_.metadata.group
+						}
+						children:  []u32{}
+						parent_id: dst_dir.metadata.id
+						myvfs:     dst_dir.myvfs
+					}
+
+					copy_children_recursive(mut entry_, mut new_subdir)!
+					dst_dir.myvfs.save_entry(new_subdir)!
+					dst_dir.children << new_subdir.metadata.id
+				}
+				File {
+					mut entry_ := entry as File
+					mut new_file := File{
+						metadata:  Metadata{
+							id:          dst_dir.myvfs.get_next_id()
+							name:        entry_.metadata.name
+							file_type:   .file
+							size:        entry_.metadata.size
+							created_at:  current_time
+							modified_at: current_time
+							accessed_at: current_time
+							mode:        entry_.metadata.mode
+							owner:       entry_.metadata.owner
+							group:       entry_.metadata.group
+						}
+						data:      entry_.data
+						parent_id: dst_dir.metadata.id
+						myvfs:     dst_dir.myvfs
+					}
+					dst_dir.myvfs.save_entry(new_file)!
+					dst_dir.children << new_file.metadata.id
+				}
+				Symlink {
+					mut entry_ := entry as Symlink
+					mut new_symlink := Symlink{
+						metadata:  Metadata{
+							id:          dst_dir.myvfs.get_next_id()
+							name:        entry_.metadata.name
+							file_type:   .symlink
+							created_at:  current_time
+							modified_at: current_time
+							accessed_at: current_time
+							mode:        entry_.metadata.mode
+							owner:       entry_.metadata.owner
+							group:       entry_.metadata.group
+						}
+						target:    entry_.target
+						parent_id: dst_dir.metadata.id
+						myvfs:     dst_dir.myvfs
+					}
+					dst_dir.myvfs.save_entry(new_symlink)!
+					dst_dir.children << new_symlink.metadata.id
+				}
+			}
+		}
+	}
+
+	dst_dir.save()!
 }
 
 pub fn (dir Directory) rename(src_name string, dst_name string) !&Directory {
