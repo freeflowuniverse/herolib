@@ -42,8 +42,12 @@ fn test_directory_operations() ! {
 	assert test_dir.get_metadata().file_type == .directory
 
 	// Test listing
-	entries := vfs.dir_list('/')!
+	mut entries := vfs.dir_list('/')!
 	assert entries.any(it.get_metadata().name == 'test_dir')
+
+	// Test listing entries in the created directory
+	entries = vfs.dir_list('/test_dir')!
+	assert entries.len == 0
 }
 
 fn test_file_operations() ! {
@@ -63,6 +67,10 @@ fn test_file_operations() ! {
 	test_content := 'Hello, World!'.bytes()
 	vfs.file_write('/test_dir/test.txt', test_content)!
 	assert vfs.file_read('/test_dir/test.txt')! == test_content
+
+	// Test listing entries in the created directory
+	entries := vfs.dir_list('/test_dir')!
+	assert entries.len == 1
 }
 
 fn test_directory_move() ! {
@@ -74,11 +82,19 @@ fn test_directory_move() ! {
 	vfs.dir_create('/test_dir')!
 	vfs.file_create('/test_dir/test.txt')!
 
+	// Test listing entries in the created directory
+	mut entries := vfs.dir_list('/test_dir')!
+	assert entries.len == 1
+
 	// Perform move
 	moved_dir := vfs.move('/test_dir', '/test_dir2')!
 	assert moved_dir.get_metadata().name == 'test_dir2'
 	assert vfs.exists('/test_dir') == false
 	assert vfs.exists('/test_dir2/test.txt') == true
+
+	// Test listing entries in the created directory
+	entries = vfs.dir_list('/test_dir2')!
+	assert entries.len == 1
 }
 
 fn test_directory_copy() ! {
