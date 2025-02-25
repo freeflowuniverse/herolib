@@ -167,7 +167,7 @@ lib/code
 lib/clients
 lib/core
 lib/develop
-lib/vfs
+// lib/vfs The vfs folder is not exists on the development branch, so we need to uncomment it after merging this PR https://github.com/freeflowuniverse/herolib/pull/68
 // lib/crypt
 '
 
