@@ -38,7 +38,7 @@ pub fn new(args NewArgs) !&DedupeStore {
 
 	return &DedupeStore{
 		radix: rt
-		data: db
+		data: &db
 	}
 }
 
