@@ -183,6 +183,8 @@ data/radixtree
 clients/livekit
 data/radixtree
 data/dedupestor
+core/playcmds
+
 '
 
 
