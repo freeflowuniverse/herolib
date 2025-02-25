@@ -3,7 +3,7 @@ module bun
 import freeflowuniverse.herolib.data.paramsparser
 import os
 
-pub const version = '1.2.2'
+pub const version = '1.2.3'
 const singleton = true
 const default = true
 
