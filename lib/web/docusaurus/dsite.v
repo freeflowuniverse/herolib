@@ -209,11 +209,13 @@ fn (mut site DocSite) template_install() ! {
 	mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
 	build_dev_publish_.template_write(build_dev_publish, true)!
 	build_dev_publish_.chmod(0o700)!
-
+	
+	develop_templ := $tmpl('templates/develop_src.sh')	
 	mut develop2_ := site.path_src.file_get_new('develop.sh')!
-	develop2_.template_write(develop, true)!
+	develop2_.template_write(develop_templ, true)!
 	develop2_.chmod(0o700)!
-
+	
+	build_templ := $tmpl('templates/build_src.sh')
 	mut build2_ := site.path_src.file_get_new('build.sh')!
 	build2_.template_write(build, true)!
 	build2_.chmod(0o700)!

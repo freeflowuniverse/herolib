@@ -181,6 +181,8 @@ systemd_process_test.v
 data/graphdb
 data/radixtree
 clients/livekit
+data/radixtree
+data/dedupestor
 '
 
 

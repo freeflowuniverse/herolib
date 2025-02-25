@@ -87,10 +87,10 @@ pub fn (mut s DocSite) dev()! {
 	console.print_item('  2. To detach from screen: Press Ctrl+A then D')
 	console.print_item('  3. To list all screens: screen -ls')
 	console.print_item('The site content is on::')
-	console.print_item('  1. location of documents: ${s.path_src.path}/docs')
+	console.print_item('  1. location of documents: ${s.path_src.path}/src')
 	if osal.cmd_exists('code') {
 		console.print_item('  2. We opened above dir in vscode.')
-		osal.exec(cmd: 'code ${s.path_src.path}/docs')!
+		osal.exec(cmd: 'code ${s.path_src.path}/src')!
 	}
 
 	// Start the watcher in a separate thread
@@ -99,7 +99,7 @@ pub fn (mut s DocSite) dev()! {
 	println('\n')
 
 	if s.args.watch_changes {
-		docs_path := '${s.path_src.path}/docs'
+		docs_path := '${s.path_src.path}/src'
 		watch_docs(docs_path, s.path_src.path, s.path_build.path)!
 	}
 
@@ -154,7 +154,7 @@ pub fn (mut site DocSite) generate() ! {
 			aa.copy(dest: '${site.path_build.path}/${item}')!
 		}
 	}
-	for item in ['docs'] {
+	for item in ['src'] {
 		if os.exists('${site.path_src.path}/${item}') {
 			mut aa := site.path_src.dir_get(item)!
 			aa.copy(dest: '${site.path_build.path}/${item}', delete: true)!

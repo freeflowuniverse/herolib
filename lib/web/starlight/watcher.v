@@ -39,8 +39,8 @@ fn handle_file_change(event notifier.NotifyEvent, path string, args map[string]s
 	}
 
 	// Get relative path from docs directory
-	rel_path := path.replace('${args['path_src']}/docs/', '')
-	dest_path := '${args['path_build']}/docs/${rel_path}'
+	rel_path := path.replace('${args['path_src']}/src/', '')
+	dest_path := '${args['path_build']}/src/${rel_path}'
 
 	match event {
 		.create, .modify {

@@ -78,7 +78,10 @@ pub fn load_config(cfg_dir string) !Config {
 
 	// Load and parse footer config
 	footer_content := os.read_file(os.join_path(cfg_dir, 'footer.json'))!
-	footer := json.decode(Footer, footer_content)!
+	footer := json.decode(Footer, footer_content) or {
+		eprintln('footer.json in ${cfg_dir} is not in the right format please fix.\nError: ${err}')
+		exit(99)
+	}
 
 	// Load and parse main config
 	main_config_path := os.join_path(cfg_dir, 'main.json')
@@ -115,7 +118,10 @@ pub fn load_config(cfg_dir string) !Config {
 
 	// Load and parse navbar config
 	navbar_content := os.read_file(os.join_path(cfg_dir, 'navbar.json'))!
-	navbar := json.decode(Navbar, navbar_content)!
+	navbar := json.decode(Navbar, navbar_content) or {
+		eprintln('navbar.json in ${cfg_dir} is not in the right format please fix.\nError: ${err}')
+		exit(99)
+	}
 
 	return Config{
 		footer: footer
