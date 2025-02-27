@@ -45,6 +45,7 @@ pub mut:
 	metadata       MainMetadata
 	build_dest     []string @[json: 'buildDest']
 	build_dest_dev []string @[json: 'buildDestDev']
+	copyright string = "someone"
 }
 
 // Navbar config structures
