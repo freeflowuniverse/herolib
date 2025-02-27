@@ -42,58 +42,87 @@ pub fn new(args NewArgs) !&DedupeStore {
 	}
 }
 
-// store stores a value and returns its hash
-// If the value already exists (same hash), returns the existing hash without storing again
-pub fn (mut ds DedupeStore) store(value []u8) !string {
+// store stores data with its reference and returns its id
+// If the data already exists (same hash), returns the existing id without storing again
+// appends reference to the radix tree entry of the hash to track references
+pub fn (mut ds DedupeStore) store(data []u8, ref Reference) !u32 {
 	// Check size limit
-	if value.len > max_value_size {
+	if data.len > max_value_size {
 		return error('value size exceeds maximum allowed size of 1MB')
 	}
 
 	// Calculate blake160 hash of the value
-	hash := blake2b.sum160(value).hex()
+	hash := blake2b.sum160(data).hex()
 
 	// Check if this hash already exists
-	if _ := ds.radix.search(hash) {
-		// Value already exists, return the hash
-		return hash
+	if metadata_bytes := ds.radix.search(hash) {
+		// Value already exists, add new ref & return the id
+		mut metadata := bytes_to_metadata(metadata_bytes)
+		metadata = metadata.add_reference(ref)!
+		ds.radix.update(hash, metadata.to_bytes())!
+		return metadata.id
 	}
 
 	// Store the actual data in ourdb
-	id := ds.data.set(data: value)!
-
-	// Convert id to bytes for storage in radixtree
-	id_bytes := u32_to_bytes(id)
+	id := ds.data.set(data: data)!
+	metadata := Metadata{
+		id: id
+		references: [ref]
+	}
 
 	// Store the mapping of hash -> id in radixtree
-	ds.radix.insert(hash, id_bytes)!
+	ds.radix.insert(hash, metadata.to_bytes())!
 
-	return hash
+	return metadata.id
 }
 
 // get retrieves a value by its hash
-pub fn (mut ds DedupeStore) get(hash string) ![]u8 {
-	// Get the ID from radixtree
-	id_bytes := ds.radix.search(hash)!
-	
-	// Convert bytes back to u32 id
-	id := bytes_to_u32(id_bytes)
-
-	// Get the actual data from ourdb
+pub fn (mut ds DedupeStore) get(id u32) ![]u8 {
 	return ds.data.get(id)!
 }
 
+// get retrieves a value by its hash
+pub fn (mut ds DedupeStore) get_from_hash(hash string) ![]u8 {
+	// Get the ID from radixtree
+	metadata_bytes := ds.radix.search(hash)!
+	
+	// Convert bytes back to metadata
+	metadata := bytes_to_metadata(metadata_bytes)
+
+	// Get the actual data from ourdb
+	return ds.data.get(metadata.id)!
+}
+
 // exists checks if a value with the given hash exists
-pub fn (mut ds DedupeStore) exists(hash string) bool {
+pub fn (mut ds DedupeStore) id_exists(id u32) bool {
+	if _ := ds.data.get(id) { return true } else {return false}
+}
+
+// exists checks if a value with the given hash exists
+pub fn (mut ds DedupeStore) hash_exists(hash string) bool {
 	return if _ := ds.radix.search(hash) { true } else { false }
 }
 
-// Helper function to convert u32 to []u8
-fn u32_to_bytes(n u32) []u8 {
-	return [u8(n), u8(n >> 8), u8(n >> 16), u8(n >> 24)]
-}
+// delete removes a reference from the hash entry
+// If it's the last reference, removes the hash entry and its data
+pub fn (mut ds DedupeStore) delete(id u32, ref Reference) ! {
+	// Calculate blake160 hash of the value
+	data := ds.data.get(id)!
+	hash := blake2b.sum160(data).hex()
 
-// Helper function to convert []u8 to u32
-fn bytes_to_u32(b []u8) u32 {
-	return u32(b[0]) | (u32(b[1]) << 8) | (u32(b[2]) << 16) | (u32(b[3]) << 24)
+	// Get the current entry from radixtree
+	metadata_bytes := ds.radix.search(hash)!
+	mut metadata := bytes_to_metadata(metadata_bytes)
+	metadata = metadata.remove_reference(ref)!
+	
+	if metadata.references.len == 0 {
+		// Delete from radixtree
+		ds.radix.delete(hash)!
+		// Delete from data db
+		ds.data.delete(id)!
+		return
+	}
+
+	// Update hash metadata
+	ds.radix.update(hash, metadata.to_bytes())!
 }
