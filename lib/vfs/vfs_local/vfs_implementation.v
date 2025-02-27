@@ -3,69 +3,6 @@ module vfs_local
 import os
 import freeflowuniverse.herolib.vfs
 
-// LocalVFS implements vfs.VFSImplementation for local filesystem
-pub struct LocalVFS {
-mut:
-	root_path string
-}
-
-// Create a new LocalVFS instance
-pub fn new_local_vfs(root_path string) !vfs.VFSImplementation {
-	mut myvfs := LocalVFS{
-		root_path: root_path
-	}
-	myvfs.init()!
-	return myvfs
-}
-
-// Initialize the local vfscore with a root path
-fn (mut myvfs LocalVFS) init() ! {
-	if !os.exists(myvfs.root_path) {
-		os.mkdir_all(myvfs.root_path) or {
-			return error('Failed to create root directory ${myvfs.root_path}: ${err}')
-		}
-	}
-}
-
-// Destroy the vfscore by removing all its contents
-pub fn (mut myvfs LocalVFS) destroy() ! {
-	if !os.exists(myvfs.root_path) {
-		return error('vfscore root path does not exist: ${myvfs.root_path}')
-	}
-	os.rmdir_all(myvfs.root_path) or {
-		return error('Failed to destroy vfscore at ${myvfs.root_path}: ${err}')
-	}
-	myvfs.init()!
-}
-
-// Convert path to vfs.Metadata with improved security and information gathering
-fn (myvfs LocalVFS) os_attr_to_metadata(path string) !vfs.Metadata {
-	// Get file info atomically to prevent TOCTOU issues
-	attr := os.stat(path) or { return error('Failed to get file attributes: ${err}') }
-
-	mut file_type := vfs.FileType.file
-	if os.is_dir(path) {
-		file_type = .directory
-	} else if os.is_link(path) {
-		file_type = .symlink
-	}
-
-	return vfs.Metadata{
-		id:          u32(attr.inode) // QUESTION: what should id be here
-		name:        os.base(path)
-		file_type:   file_type
-		size:        u64(attr.size)
-		created_at:  i64(attr.ctime) // Creation time from stat
-		modified_at: i64(attr.mtime) // Modification time from stat
-		accessed_at: i64(attr.atime) // Access time from stat
-	}
-}
-
-// Get absolute path from relative path
-fn (myvfs LocalVFS) abs_path(path string) string {
-	return os.join_path(myvfs.root_path, path)
-}
-
 // Basic operations
 pub fn (myvfs LocalVFS) root_get() !vfs.FSEntry {
 	if !os.exists(myvfs.root_path) {
@@ -179,6 +116,55 @@ pub fn (myvfs LocalVFS) dir_delete(path string) ! {
 	os.rmdir_all(abs_path) or { return error('Failed to delete directory ${path}: ${err}') }
 }
 
+// Symlink operations with improved handling
+pub fn (myvfs LocalVFS) link_create(target_path string, link_path string) !vfs.FSEntry {
+	abs_target := myvfs.abs_path(target_path)
+	abs_link := myvfs.abs_path(link_path)
+
+	if !os.exists(abs_target) {
+		return error('Target path does not exist: ${target_path}')
+	}
+	if os.exists(abs_link) {
+		return error('Link path already exists: ${link_path}')
+	}
+
+	os.symlink(target_path, abs_link) or {
+		return error('Failed to create symlink from ${target_path} to ${link_path}: ${err}')
+	}
+
+	metadata := myvfs.os_attr_to_metadata(abs_link) or {
+		return error('Failed to get metadata: ${err}')
+	}
+	return LocalFSEntry{
+		path:     link_path
+		metadata: metadata
+	}
+}
+
+pub fn (myvfs LocalVFS) link_read(path string) !string {
+	abs_path := myvfs.abs_path(path)
+	if !os.exists(abs_path) {
+		return error('Symlink does not exist: ${path}')
+	}
+	if !os.is_link(abs_path) {
+		return error('Path is not a symlink: ${path}')
+	}
+
+	real_path := os.real_path(abs_path)
+	return os.base(real_path)
+}
+
+pub fn (myvfs LocalVFS) link_delete(path string) ! {
+	abs_path := myvfs.abs_path(path)
+	if !os.exists(abs_path) {
+		return error('Symlink does not exist: ${path}')
+	}
+	if !os.is_link(abs_path) {
+		return error('Path is not a symlink: ${path}')
+	}
+	os.rm(abs_path) or { return error('Failed to delete symlink ${path}: ${err}') }
+}
+
 // Common operations with improved error handling
 pub fn (myvfs LocalVFS) exists(path string) bool {
 	// TODO: check is link if link the link can be broken but it stil exists
@@ -280,51 +266,13 @@ pub fn (myvfs LocalVFS) delete(path string) ! {
 	}
 }
 
-// Symlink operations with improved handling
-pub fn (myvfs LocalVFS) link_create(target_path string, link_path string) !vfs.FSEntry {
-	abs_target := myvfs.abs_path(target_path)
-	abs_link := myvfs.abs_path(link_path)
-
-	if !os.exists(abs_target) {
-		return error('Target path does not exist: ${target_path}')
+// Destroy the vfscore by removing all its contents
+pub fn (mut myvfs LocalVFS) destroy() ! {
+	if !os.exists(myvfs.root_path) {
+		return error('vfscore root path does not exist: ${myvfs.root_path}')
 	}
-	if os.exists(abs_link) {
-		return error('Link path already exists: ${link_path}')
+	os.rmdir_all(myvfs.root_path) or {
+		return error('Failed to destroy vfscore at ${myvfs.root_path}: ${err}')
 	}
-
-	os.symlink(target_path, abs_link) or {
-		return error('Failed to create symlink from ${target_path} to ${link_path}: ${err}')
-	}
-
-	metadata := myvfs.os_attr_to_metadata(abs_link) or {
-		return error('Failed to get metadata: ${err}')
-	}
-	return LocalFSEntry{
-		path:     link_path
-		metadata: metadata
-	}
-}
-
-pub fn (myvfs LocalVFS) link_read(path string) !string {
-	abs_path := myvfs.abs_path(path)
-	if !os.exists(abs_path) {
-		return error('Symlink does not exist: ${path}')
-	}
-	if !os.is_link(abs_path) {
-		return error('Path is not a symlink: ${path}')
-	}
-
-	real_path := os.real_path(abs_path)
-	return os.base(real_path)
-}
-
-pub fn (myvfs LocalVFS) link_delete(path string) ! {
-	abs_path := myvfs.abs_path(path)
-	if !os.exists(abs_path) {
-		return error('Symlink does not exist: ${path}')
-	}
-	if !os.is_link(abs_path) {
-		return error('Path is not a symlink: ${path}')
-	}
-	os.rm(abs_path) or { return error('Failed to delete symlink ${path}: ${err}') }
+	myvfs.init()!
 }

@@ -1,28 +1,31 @@
 module vfs_db
 
 import os
+import freeflowuniverse.herolib.data.ourdb
 import rand
 
-fn setup_vfs() !(&DatabaseVFS, string, string) {
+fn setup_vfs() !(&DatabaseVFS, string) {
 	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_data_${rand.string(3)}')
-	test_meta_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_meta_${rand.string(3)}')
 
 	os.mkdir_all(test_data_dir)!
-	os.mkdir_all(test_meta_dir)!
 
-	mut vfs := new(test_data_dir, test_meta_dir)!
-	return vfs, test_data_dir, test_meta_dir
+	mut db_data := ourdb.new(
+		path:             test_data_dir
+		incremental_mode: false
+	)!
+
+	mut vfs := new(mut db_data, data_dir: test_data_dir)!
+	return vfs, test_data_dir
 }
 
-fn teardown_vfs(data_dir string, meta_dir string) {
+fn teardown_vfs(data_dir string) {
 	os.rmdir_all(data_dir) or {}
-	os.rmdir_all(meta_dir) or {}
 }
 
 fn test_root_directory() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	mut root := vfs.root_get()!
@@ -31,9 +34,9 @@ fn test_root_directory() ! {
 }
 
 fn test_directory_operations() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	// Test creation
@@ -51,9 +54,9 @@ fn test_directory_operations() ! {
 }
 
 fn test_file_operations() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	vfs.dir_create('/test_dir')!
@@ -74,9 +77,9 @@ fn test_file_operations() ! {
 }
 
 fn test_directory_move() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	vfs.dir_create('/test_dir')!
@@ -98,9 +101,9 @@ fn test_directory_move() ! {
 }
 
 fn test_directory_copy() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	vfs.dir_create('/test_dir')!
@@ -115,9 +118,9 @@ fn test_directory_copy() ! {
 }
 
 fn test_nested_directory_move() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	vfs.dir_create('/test_dir2')!
@@ -132,9 +135,9 @@ fn test_nested_directory_move() ! {
 }
 
 fn test_deletion_operations() ! {
-	mut vfs, data_dir, meta_dir := setup_vfs()!
+	mut vfs, data_dir := setup_vfs()!
 	defer {
-		teardown_vfs(data_dir, meta_dir)
+		teardown_vfs(data_dir)
 	}
 
 	vfs.dir_create('/test_dir')!
