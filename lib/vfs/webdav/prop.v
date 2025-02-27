@@ -1,16 +1,18 @@
 module webdav
 
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.vfs.vfscore
+import freeflowuniverse.herolib.vfs
 import encoding.xml
 import os
 import time
 import veb
 
-fn generate_response_element(entry vfscore.FSEntry) !xml.XMLNode {
+fn generate_response_element(entry vfs.FSEntry) !xml.XMLNode {
 	path := if entry.is_dir() && entry.get_path() != '/' {
 		'${entry.get_path()}/'
-	} else { entry.get_path() }
+	} else {
+		entry.get_path()
+	}
 
 	return xml.XMLNode{
 		name:     'D:response'
@@ -18,8 +20,8 @@ fn generate_response_element(entry vfscore.FSEntry) !xml.XMLNode {
 			xml.XMLNode{
 				name:     'D:href'
 				children: [path]
-			}, 
-			generate_propstat_element(entry)!
+			},
+			generate_propstat_element(entry)!,
 		]
 	}
 }
@@ -34,7 +36,7 @@ const xml_500_status = xml.XMLNode{
 	children: ['HTTP/1.1 500 Internal Server Error']
 }
 
-fn generate_propstat_element(entry vfscore.FSEntry) !xml.XMLNode {
+fn generate_propstat_element(entry vfs.FSEntry) !xml.XMLNode {
 	prop := generate_prop_element(entry) or {
 		// TODO: status should be according to returned error
 		return xml.XMLNode{
@@ -49,7 +51,7 @@ fn generate_propstat_element(entry vfscore.FSEntry) !xml.XMLNode {
 	}
 }
 
-fn generate_prop_element(entry vfscore.FSEntry) !xml.XMLNode {
+fn generate_prop_element(entry vfs.FSEntry) !xml.XMLNode {
 	metadata := entry.get_metadata()
 
 	display_name := xml.XMLNode{
@@ -135,14 +137,14 @@ fn format_iso8601(t time.Time) string {
 
 fn (mut app App) get_responses(path string, depth int) ![]xml.XMLNodeContents {
 	mut responses := []xml.XMLNodeContents{}
-	
+
 	entry := app.vfs.get(path)!
 	responses << generate_response_element(entry)!
 	if depth == 0 {
 		return responses
 	}
 
-	entries := app.vfs.dir_list(path) or {return responses}
+	entries := app.vfs.dir_list(path) or { return responses }
 	for e in entries {
 		responses << generate_response_element(e)!
 	}

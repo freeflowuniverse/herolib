@@ -1,14 +1,15 @@
-module ourdb_fs
+module vfs_db
 
 import os
 import time
+import freeflowuniverse.herolib.vfs
 
 fn test_directory_encoder_decoder() ! {
 	println('Testing encoding/decoding directories...')
 
 	current_time := time.now().unix()
 	dir := Directory{
-		metadata:  Metadata{
+		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'root'
 			file_type:   .directory
@@ -21,7 +22,6 @@ fn test_directory_encoder_decoder() ! {
 		}
 		children:  [u32(1), u32(2)]
 		parent_id: 0
-		myvfs:     unsafe { nil }
 	}
 
 	encoded := dir.encode()
@@ -50,7 +50,7 @@ fn test_file_encoder_decoder() ! {
 
 	current_time := time.now().unix()
 	file := File{
-		metadata:  Metadata{
+		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
 			file_type:   .file
@@ -63,7 +63,6 @@ fn test_file_encoder_decoder() ! {
 		}
 		data:      'Hello, world!'
 		parent_id: 0
-		myvfs:     unsafe { nil }
 	}
 
 	encoded := file.encode()
@@ -90,7 +89,7 @@ fn test_symlink_encoder_decoder() ! {
 
 	current_time := time.now().unix()
 	symlink := Symlink{
-		metadata:  Metadata{
+		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
 			file_type:   .symlink
@@ -103,7 +102,6 @@ fn test_symlink_encoder_decoder() ! {
 		}
 		target:    'test.txt'
 		parent_id: 0
-		myvfs:     unsafe { nil }
 	}
 
 	encoded := symlink.encode()

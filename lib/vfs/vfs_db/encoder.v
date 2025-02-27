@@ -1,9 +1,10 @@
-module ourdb_fs
+module vfs_db
 
 import freeflowuniverse.herolib.data.encoder
+import freeflowuniverse.herolib.vfs
 
 // encode_metadata encodes the common metadata structure
-fn encode_metadata(mut e encoder.Encoder, m Metadata) {
+fn encode_metadata(mut e encoder.Encoder, m vfs.Metadata) {
 	e.add_u32(m.id)
 	e.add_string(m.name)
 	e.add_u8(u8(m.file_type)) // FileType enum as u8
@@ -17,7 +18,7 @@ fn encode_metadata(mut e encoder.Encoder, m Metadata) {
 }
 
 // decode_metadata decodes the common metadata structure
-fn decode_metadata(mut d encoder.Decoder) !Metadata {
+fn decode_metadata(mut d encoder.Decoder) !vfs.Metadata {
 	id := d.get_u32()!
 	name := d.get_string()!
 	file_type_byte := d.get_u8()!
@@ -29,10 +30,10 @@ fn decode_metadata(mut d encoder.Decoder) !Metadata {
 	owner := d.get_string()!
 	group := d.get_string()!
 
-	return Metadata{
+	return vfs.Metadata{
 		id:          id
 		name:        name
-		file_type:   unsafe { FileType(file_type_byte) }
+		file_type:   unsafe { vfs.FileType(file_type_byte) }
 		size:        size
 		created_at:  created_at
 		modified_at: modified_at
@@ -49,7 +50,7 @@ fn decode_metadata(mut d encoder.Decoder) !Metadata {
 pub fn (dir Directory) encode() []u8 {
 	mut e := encoder.new()
 	e.add_u8(1) // version byte
-	e.add_u8(u8(FileType.directory)) // type byte
+	e.add_u8(u8(vfs.FileType.directory)) // type byte
 
 	// Encode metadata
 	encode_metadata(mut e, dir.metadata)
@@ -75,7 +76,7 @@ pub fn decode_directory(data []u8) !Directory {
 	}
 
 	type_byte := d.get_u8()!
-	if type_byte != u8(FileType.directory) {
+	if type_byte != u8(vfs.FileType.directory) {
 		return error('Invalid type byte for directory')
 	}
 
@@ -97,7 +98,6 @@ pub fn decode_directory(data []u8) !Directory {
 		metadata:  metadata
 		parent_id: parent_id
 		children:  children
-		myvfs:     unsafe { nil } // Will be set by caller
 	}
 }
 
@@ -107,7 +107,7 @@ pub fn decode_directory(data []u8) !Directory {
 pub fn (f File) encode() []u8 {
 	mut e := encoder.new()
 	e.add_u8(1) // version byte
-	e.add_u8(u8(FileType.file)) // type byte
+	e.add_u8(u8(vfs.FileType.file)) // type byte
 
 	// Encode metadata
 	encode_metadata(mut e, f.metadata)
@@ -130,7 +130,7 @@ pub fn decode_file(data []u8) !File {
 	}
 
 	type_byte := d.get_u8()!
-	if type_byte != u8(FileType.file) {
+	if type_byte != u8(vfs.FileType.file) {
 		return error('Invalid type byte for file')
 	}
 
@@ -147,7 +147,6 @@ pub fn decode_file(data []u8) !File {
 		metadata:  metadata
 		parent_id: parent_id
 		data:      data_content
-		myvfs:     unsafe { nil } // Will be set by caller
 	}
 }
 
@@ -157,7 +156,7 @@ pub fn decode_file(data []u8) !File {
 pub fn (sl Symlink) encode() []u8 {
 	mut e := encoder.new()
 	e.add_u8(1) // version byte
-	e.add_u8(u8(FileType.symlink)) // type byte
+	e.add_u8(u8(vfs.FileType.symlink)) // type byte
 
 	// Encode metadata
 	encode_metadata(mut e, sl.metadata)
@@ -180,7 +179,7 @@ pub fn decode_symlink(data []u8) !Symlink {
 	}
 
 	type_byte := d.get_u8()!
-	if type_byte != u8(FileType.symlink) {
+	if type_byte != u8(vfs.FileType.symlink) {
 		return error('Invalid type byte for symlink')
 	}
 
@@ -197,6 +196,5 @@ pub fn decode_symlink(data []u8) !Symlink {
 		metadata:  metadata
 		parent_id: parent_id
 		target:    target
-		myvfs:     unsafe { nil } // Will be set by caller
 	}
 }

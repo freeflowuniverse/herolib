@@ -1,45 +1,16 @@
-module vfscore
+module vfs_local
 
 import os
+import freeflowuniverse.herolib.vfs
 
-// LocalFSEntry implements FSEntry for local filesystem
-struct LocalFSEntry {
-mut:
-	path     string
-	metadata Metadata
-}
-
-// is_dir returns true if the entry is a directory
-pub fn (self &LocalFSEntry) is_dir() bool {
-	return self.metadata.file_type == .directory
-}
-
-// is_file returns true if the entry is a file
-pub fn (self &LocalFSEntry) is_file() bool {
-	return self.metadata.file_type == .file
-}
-
-// is_symlink returns true if the entry is a symlink
-pub fn (self &LocalFSEntry) is_symlink() bool {
-	return self.metadata.file_type == .symlink
-}
-
-fn (e LocalFSEntry) get_metadata() Metadata {
-	return e.metadata
-}
-
-fn (e LocalFSEntry) get_path() string {
-	return e.path
-}
-
-// LocalVFS implements VFSImplementation for local filesystem
+// LocalVFS implements vfs.VFSImplementation for local filesystem
 pub struct LocalVFS {
 mut:
 	root_path string
 }
 
 // Create a new LocalVFS instance
-pub fn new_local_vfs(root_path string) !VFSImplementation {
+pub fn new_local_vfs(root_path string) !vfs.VFSImplementation {
 	mut myvfs := LocalVFS{
 		root_path: root_path
 	}
@@ -67,19 +38,20 @@ pub fn (mut myvfs LocalVFS) destroy() ! {
 	myvfs.init()!
 }
 
-// Convert path to Metadata with improved security and information gathering
-fn (myvfs LocalVFS) os_attr_to_metadata(path string) !Metadata {
+// Convert path to vfs.Metadata with improved security and information gathering
+fn (myvfs LocalVFS) os_attr_to_metadata(path string) !vfs.Metadata {
 	// Get file info atomically to prevent TOCTOU issues
 	attr := os.stat(path) or { return error('Failed to get file attributes: ${err}') }
 
-	mut file_type := FileType.file
+	mut file_type := vfs.FileType.file
 	if os.is_dir(path) {
 		file_type = .directory
 	} else if os.is_link(path) {
 		file_type = .symlink
 	}
 
-	return Metadata{
+	return vfs.Metadata{
+		id:          u32(attr.inode) // QUESTION: what should id be here
 		name:        os.base(path)
 		file_type:   file_type
 		size:        u64(attr.size)
@@ -95,7 +67,7 @@ fn (myvfs LocalVFS) abs_path(path string) string {
 }
 
 // Basic operations
-pub fn (myvfs LocalVFS) root_get() !FSEntry {
+pub fn (myvfs LocalVFS) root_get() !vfs.FSEntry {
 	if !os.exists(myvfs.root_path) {
 		return error('Root path does not exist: ${myvfs.root_path}')
 	}
@@ -109,7 +81,7 @@ pub fn (myvfs LocalVFS) root_get() !FSEntry {
 }
 
 // File operations with improved error handling and TOCTOU protection
-pub fn (myvfs LocalVFS) file_create(path string) !FSEntry {
+pub fn (myvfs LocalVFS) file_create(path string) !vfs.FSEntry {
 	abs_path := myvfs.abs_path(path)
 	if os.exists(abs_path) {
 		return error('File already exists: ${path}')
@@ -157,7 +129,7 @@ pub fn (myvfs LocalVFS) file_delete(path string) ! {
 }
 
 // Directory operations with improved error handling
-pub fn (myvfs LocalVFS) dir_create(path string) !FSEntry {
+pub fn (myvfs LocalVFS) dir_create(path string) !vfs.FSEntry {
 	abs_path := myvfs.abs_path(path)
 	if os.exists(abs_path) {
 		return error('Path already exists: ${path}')
@@ -172,7 +144,7 @@ pub fn (myvfs LocalVFS) dir_create(path string) !FSEntry {
 	}
 }
 
-pub fn (myvfs LocalVFS) dir_list(path string) ![]FSEntry {
+pub fn (myvfs LocalVFS) dir_list(path string) ![]vfs.FSEntry {
 	abs_path := myvfs.abs_path(path)
 	if !os.exists(abs_path) {
 		return error('Directory does not exist: ${path}')
@@ -182,7 +154,7 @@ pub fn (myvfs LocalVFS) dir_list(path string) ![]FSEntry {
 	}
 
 	entries := os.ls(abs_path) or { return error('Failed to list directory ${path}: ${err}') }
-	mut result := []FSEntry{cap: entries.len}
+	mut result := []vfs.FSEntry{cap: entries.len}
 
 	for entry in entries {
 		rel_path := os.join_path(path, entry)
@@ -213,7 +185,7 @@ pub fn (myvfs LocalVFS) exists(path string) bool {
 	return os.exists(myvfs.abs_path(path))
 }
 
-pub fn (myvfs LocalVFS) get(path string) !FSEntry {
+pub fn (myvfs LocalVFS) get(path string) !vfs.FSEntry {
 	abs_path := myvfs.abs_path(path)
 	if !os.exists(abs_path) {
 		return error('Entry does not exist: ${path}')
@@ -227,7 +199,7 @@ pub fn (myvfs LocalVFS) get(path string) !FSEntry {
 	}
 }
 
-pub fn (myvfs LocalVFS) rename(old_path string, new_path string) !FSEntry {
+pub fn (myvfs LocalVFS) rename(old_path string, new_path string) !vfs.FSEntry {
 	abs_old := myvfs.abs_path(old_path)
 	abs_new := myvfs.abs_path(new_path)
 
@@ -241,16 +213,16 @@ pub fn (myvfs LocalVFS) rename(old_path string, new_path string) !FSEntry {
 	os.mv(abs_old, abs_new) or {
 		return error('Failed to rename ${old_path} to ${new_path}: ${err}')
 	}
-	metadata := myvfs.os_attr_to_metadata(new_path) or {
+	metadata := myvfs.os_attr_to_metadata(abs_new) or {
 		return error('Failed to get metadata: ${err}')
 	}
 	return LocalFSEntry{
-		path:     new_path
+		path:     abs_new
 		metadata: metadata
 	}
 }
 
-pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) !FSEntry {
+pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) !vfs.FSEntry {
 	abs_src := myvfs.abs_path(src_path)
 	abs_dst := myvfs.abs_path(dst_path)
 
@@ -271,7 +243,7 @@ pub fn (myvfs LocalVFS) copy(src_path string, dst_path string) !FSEntry {
 	}
 }
 
-pub fn (myvfs LocalVFS) move(src_path string, dst_path string) !FSEntry {
+pub fn (myvfs LocalVFS) move(src_path string, dst_path string) !vfs.FSEntry {
 	abs_src := myvfs.abs_path(src_path)
 	abs_dst := myvfs.abs_path(dst_path)
 
@@ -309,7 +281,7 @@ pub fn (myvfs LocalVFS) delete(path string) ! {
 }
 
 // Symlink operations with improved handling
-pub fn (myvfs LocalVFS) link_create(target_path string, link_path string) !FSEntry {
+pub fn (myvfs LocalVFS) link_create(target_path string, link_path string) !vfs.FSEntry {
 	abs_target := myvfs.abs_path(target_path)
 	abs_link := myvfs.abs_path(link_path)
 

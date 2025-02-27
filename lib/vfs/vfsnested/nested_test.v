@@ -1,6 +1,6 @@
 module vfsnested
 
-import freeflowuniverse.herolib.vfs.vfscore
+import freeflowuniverse.herolib.vfs.vfs_local
 import os
 
 fn test_nested() ! {
@@ -12,9 +12,9 @@ fn test_nested() ! {
 	os.mkdir_all('/tmp/test_nested_vfs/vfs3') or { panic(err) }
 
 	// Create VFS instances
-	mut vfs1 := vfscore.new_local_vfs('/tmp/test_nested_vfs/vfs1') or { panic(err) }
-	mut vfs2 := vfscore.new_local_vfs('/tmp/test_nested_vfs/vfs2') or { panic(err) }
-	mut vfs3 := vfscore.new_local_vfs('/tmp/test_nested_vfs/vfs3') or { panic(err) }
+	mut vfs1 := vfs_local.new_local_vfs('/tmp/test_nested_vfs/vfs1') or { panic(err) }
+	mut vfs2 := vfs_local.new_local_vfs('/tmp/test_nested_vfs/vfs2') or { panic(err) }
+	mut vfs3 := vfs_local.new_local_vfs('/tmp/test_nested_vfs/vfs3') or { panic(err) }
 
 	// Create nested VFS
 	mut nested_vfs := new()

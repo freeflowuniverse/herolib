@@ -9,9 +9,9 @@ import veb
 @['/:path...'; options]
 pub fn (app &App) options(mut ctx Context, path string) veb.Result {
 	ctx.res.set_status(.ok)
-	ctx.res.header.add_custom('dav', '1,2') or {return ctx.server_error(err.msg())}
+	ctx.res.header.add_custom('dav', '1,2') or { return ctx.server_error(err.msg()) }
 	ctx.res.header.add(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	ctx.res.header.add_custom('MS-Author-Via', 'DAV') or {return ctx.server_error(err.msg())}
+	ctx.res.header.add_custom('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
 	ctx.res.header.add(.access_control_allow_origin, '*')
 	ctx.res.header.add(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
 	ctx.res.header.add(.access_control_allow_headers, 'Authorization, Content-Type')
@@ -22,7 +22,7 @@ pub fn (app &App) options(mut ctx Context, path string) veb.Result {
 @['/:path...'; lock]
 pub fn (mut app App) lock_handler(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
-	owner := ctx.get_custom_header('owner') or {return ctx.server_error(err.msg())}
+	owner := ctx.get_custom_header('owner') or { return ctx.server_error(err.msg()) }
 	if owner.len == 0 {
 		ctx.res.set_status(.bad_request)
 		return ctx.text('Owner header is required.')
@@ -36,14 +36,14 @@ pub fn (mut app App) lock_handler(mut ctx Context, path string) veb.Result {
 	}
 
 	ctx.res.set_status(.ok)
-	ctx.res.header.add_custom('Lock-Token', token) or {return ctx.server_error(err.msg())}
+	ctx.res.header.add_custom('Lock-Token', token) or { return ctx.server_error(err.msg()) }
 	return ctx.text('Lock granted with token: ${token}')
 }
 
 @['/:path...'; unlock]
 pub fn (mut app App) unlock_handler(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
-	token := ctx.get_custom_header('Lock-Token') or {return ctx.server_error(err.msg())}
+	token := ctx.get_custom_header('Lock-Token') or { return ctx.server_error(err.msg()) }
 	if token.len == 0 {
 		console.print_stderr('Unlock failed: `Lock-Token` header required.')
 		ctx.res.set_status(.bad_request)
@@ -96,23 +96,23 @@ pub fn (mut app App) exists(mut ctx Context, path string) veb.Result {
 	// Add necessary WebDAV headers
 	ctx.res.header.add(.authorization, 'Basic') // Indicates Basic auth usage
 	ctx.res.header.add_custom('DAV', '1, 2') or {
-		return ctx.server_error('Failed to set DAV header: $err')
+		return ctx.server_error('Failed to set DAV header: ${err}')
 	}
 	ctx.res.header.add_custom('Etag', 'abc123xyz') or {
-		return ctx.server_error('Failed to set ETag header: $err')
+		return ctx.server_error('Failed to set ETag header: ${err}')
 	}
 	ctx.res.header.add(.content_length, '0') // HEAD request, so no body
 	ctx.res.header.add(.date, time.now().as_utc().format()) // Correct UTC date format
 	// ctx.res.header.add(.content_type, 'application/xml') // XML is common for WebDAV metadata
 	ctx.res.header.add_custom('Allow', 'OPTIONS, GET, HEAD, PROPFIND, PROPPATCH, MKCOL, PUT, DELETE, COPY, MOVE, LOCK, UNLOCK') or {
-		return ctx.server_error('Failed to set Allow header: $err')
+		return ctx.server_error('Failed to set Allow header: ${err}')
 	}
 	ctx.res.header.add(.accept_ranges, 'bytes') // Allows range-based file downloads
 	ctx.res.header.add_custom('Cache-Control', 'no-cache, no-store, must-revalidate') or {
-		return ctx.server_error('Failed to set Cache-Control header: $err')
+		return ctx.server_error('Failed to set Cache-Control header: ${err}')
 	}
 	ctx.res.header.add_custom('Last-Modified', time.now().as_utc().format()) or {
-		return ctx.server_error('Failed to set Last-Modified header: $err')
+		return ctx.server_error('Failed to set Last-Modified header: ${err}')
 	}
 	ctx.res.set_status(.ok)
 	ctx.res.set_version(.v1_1)
@@ -217,7 +217,7 @@ fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 	if !app.vfs.exists(path) {
 		return ctx.not_found()
 	}
-	depth := ctx.req.header.get_custom('Depth') or {'0'}.int()
+	depth := ctx.req.header.get_custom('Depth') or { '0' }.int()
 
 	responses := app.get_responses(path, depth) or {
 		console.print_stderr('failed to get responses: ${err}')
@@ -251,11 +251,9 @@ fn (mut app App) create_or_update(mut ctx Context, path string) veb.Result {
 			return ctx.server_error('failed to get FS Entry ${path}: ${err.msg()}')
 		}
 	}
-	
+
 	data := ctx.req.data.bytes()
-	app.vfs.file_write(path, data) or {
-		return ctx.server_error(err.msg())
-	}
+	app.vfs.file_write(path, data) or { return ctx.server_error(err.msg()) }
 
 	return ctx.ok('HTTP 200: Successfully saved file: ${path}')
 }

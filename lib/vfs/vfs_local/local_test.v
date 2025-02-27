@@ -1,4 +1,4 @@
-module vfscore
+module vfs_local
 
 import os
 

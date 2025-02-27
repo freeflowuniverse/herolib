@@ -8,11 +8,11 @@ import rand
 
 fn test_run() {
 	mut app := new_app(
-		user_db:  {
+		user_db: {
 			'mario': '123'
 		}
 	)!
-	app.run()
+	spawn app.run()
 }
 
 // fn test_get() {

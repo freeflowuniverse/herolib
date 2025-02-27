@@ -1,9 +1,9 @@
-module vfsourdb
+module vfs_db
 
 import os
 import rand
 
-fn setup_vfs() !(&OurDBVFS, string, string) {
+fn setup_vfs() !(&DatabaseVFS, string, string) {
 	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_data_${rand.string(3)}')
 	test_meta_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_meta_${rand.string(3)}')
 

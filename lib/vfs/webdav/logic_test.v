@@ -1,15 +1,15 @@
 import freeflowuniverse.herolib.vfs.webdav
 import freeflowuniverse.herolib.vfs.vfsnested
-import freeflowuniverse.herolib.vfs.vfscore
-import freeflowuniverse.herolib.vfs.vfsourdb
+import freeflowuniverse.herolib.vfs
+import freeflowuniverse.herolib.vfs.vfs_db
 import os
 
 fn test_logic() ! {
 	println('Testing OurDB VFS Logic to WebDAV Server...')
 
 	// Create test directories
-	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_data')
-	test_meta_dir := os.join_path(os.temp_dir(), 'vfsourdb_test_meta')
+	test_data_dir := os.join_path(os.temp_dir(), 'vfs_db_test_data')
+	test_meta_dir := os.join_path(os.temp_dir(), 'vfs_db_test_meta')
 
 	os.mkdir_all(test_data_dir)!
 	os.mkdir_all(test_meta_dir)!
@@ -20,7 +20,7 @@ fn test_logic() ! {
 	}
 
 	// Create VFS instance; lower level VFS Implementations that use OurDB
-	mut vfs1 := vfsourdb.new(test_data_dir, test_meta_dir)!
+	mut vfs1 := vfs_db.new(test_data_dir, test_meta_dir)!
 
 	mut high_level_vfs := vfsnested.new()
 
@@ -30,8 +30,6 @@ fn test_logic() ! {
 	// Test directory listing
 	entries := high_level_vfs.dir_list('/')!
 	assert entries.len == 1 // Data directory
-
-	panic('entries: ${entries[0]}')
 
 	// // Check if dir is existing
 	// assert high_level_vfs.exists('/') == true

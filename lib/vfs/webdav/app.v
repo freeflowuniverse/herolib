@@ -2,17 +2,17 @@ module webdav
 
 import veb
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.vfs.vfscore
+import freeflowuniverse.herolib.vfs
 
 @[heap]
 pub struct App {
 	veb.Middleware[Context]
 pub mut:
 	lock_manager LockManager
-	user_db 	 map[string]string @[required]
-	vfs          vfscore.VFSImplementation
+	user_db      map[string]string @[required]
+	vfs          vfs.VFSImplementation
 }
-	
+
 pub struct Context {
 	veb.Context
 }
@@ -20,28 +20,27 @@ pub struct Context {
 @[params]
 pub struct AppArgs {
 pub mut:
-	user_db     map[string]string @[required]
-	vfs         vfscore.VFSImplementation
+	user_db map[string]string @[required]
+	vfs     vfs.VFSImplementation
 }
 
 pub fn new_app(args AppArgs) !&App {
 	mut app := &App{
-		user_db:     args.user_db.clone()
-		vfs:         args.vfs
+		user_db: args.user_db.clone()
+		vfs:     args.vfs
 	}
 
-    // register middlewares for all routes
-    app.use(handler: app.auth_middleware)
-    app.use(handler: logging_middleware)
+	// register middlewares for all routes
+	app.use(handler: app.auth_middleware)
+	app.use(handler: logging_middleware)
 
 	return app
 }
 
-
 @[params]
 pub struct RunParams {
 pub mut:
-	port int = 8088
+	port       int = 8088
 	background bool
 }
 
