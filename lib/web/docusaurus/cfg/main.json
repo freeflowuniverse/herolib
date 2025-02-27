@@ -12,5 +12,6 @@
     "title": "ThreeFold Technology Vision"
   },
   "buildDest":["root@info.ourworld.tf:/root/hero/www/info"],
-  "buildDestDev":["root@info.ourworld.tf:/root/hero/www/infodev"]
+  "buildDestDev":["root@info.ourworld.tf:/root/hero/www/infodev"],
+  "copyright": "someone"
 }
