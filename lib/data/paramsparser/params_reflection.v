@@ -1,6 +1,7 @@
 module paramsparser
 
 import time
+import freeflowuniverse.herolib.data.ourtime
 import v.reflection
 // import freeflowuniverse.herolib.data.encoderhero
 // TODO: support more field types
@@ -66,6 +67,13 @@ pub fn (params Params) decode_value[T](_ T, key string) !T {
 			return time.Time{}
 		}
 		return time.parse(time_str)!
+	} $else $if T is ourtime.OurTime {
+		time_str := params.get(key)!
+		// todo: 'handle other null times'
+		if time_str == '0000-00-00 00:00:00' {
+			return ourtime.new('0000-00-00 00:00:00')!
+		}
+		return ourtime.new(time_str)!
 	} $else $if T is $struct {
 		child_params := params.get_params(key)!
 		child := child_params.decode_struct(T{})!
@@ -100,7 +108,7 @@ pub fn encode[T](t T, args EncodeArgs) !Params {
 			key = field_attrs['alias']
 		}
 		$if val is string || val is int || val is bool || val is i64 || val is u32
-			|| val is time.Time {
+			|| val is time.Time || val is ourtime.OurTime {
 			params.set(key, '${val}')
 		} $else $if field.is_enum {
 			params.set(key, '${int(val)}')

@@ -1,6 +1,7 @@
 module encoderhero
 
 import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.ourtime
 import time
 import v.reflection
 
@@ -11,6 +12,40 @@ struct Base {
 
 struct Remark {
 	text string
+}
+
+struct Company {
+	name    string
+	founded ourtime.OurTime
+	employees []Person
+}
+
+const company = Company{
+	name: "Tech Corp"
+	founded: ourtime.new('2022-12-05 20:14')!
+	employees: [
+		person,
+		Person{
+			id: 2
+			name: "Alice"
+			age: 30
+			birthday: time.new(
+				day:   20
+				month:  6
+				year:  1990
+			)
+			car: Car{
+				name: "Alice's car"
+				year: 2018
+			}
+			profiles: [
+				Profile{
+					platform: 'LinkedIn'
+					url: 'linkedin.com/alice'
+				},
+			]
+		},
+	]
 }
 
 struct Person {
@@ -43,7 +78,7 @@ struct Profile {
 const person_heroscript = "
 !!define.person id:1 name:Bob birthday:'2012-12-12 00:00:00'
 !!define.person.car name:'Bob\\'s car' year:2014
-!!define.person.car.insurance expiration:'0000-00-00 00:00:00' provider:''
+!!define.person.car.insurance provider:insurer
 
 !!define.person.profile platform:Github url:github.com/example
 "
@@ -60,6 +95,9 @@ const person = Person{
 	car:      Car{
 		name: "Bob's car"
 		year: 2014
+		insurance: Insurance {
+			provider: "insurer"
+		}
 	}
 	profiles: [
 		Profile{
@@ -69,7 +107,23 @@ const person = Person{
 	]
 }
 
+const company_script = "
+!!define.company name:'Tech Corp' founded:'2022-12-05 20:14'
+!!define.company.person id:1 name:Bob birthday:'2012-12-12 00:00:00'
+!!define.company.person.car name:'Bob\'s car' year:2014
+!!define.company.person.car.insurance provider:insurer'
+
+!!define.company.person.profile platform:Github url:github.com/example
+
+!!define.company.person id:2 name:Alice birthday:'1990-06-20 00:00:00'
+!!define.company.person.car name:'Alice\'s car' year:2018
+!!define.company.person.car.insurance
+
+!!define.company.person.profile platform:LinkedIn url:linkedin.com/alice
+"
+
 fn test_encode() ! {
 	person_script := encode[Person](person)!
 	assert person_script.trim_space() == person_heroscript.trim_space()
+	assert encode[Company](company)!.trim_space() == company_script.trim_space()
 }
