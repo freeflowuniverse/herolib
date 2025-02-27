@@ -45,7 +45,8 @@ fn upload() ! {
 
 fn install() ! {
 	console.print_header('install bun')
-	osal.exec(cmd: 'curl -fsSL https://bun.sh/install | bash')!
+	destroy()! 
+	osal.exec(cmd: 'unset BUN_INSTALL && curl -fsSL https://bun.sh/install | bash')!
 }
 
 fn destroy() ! {
