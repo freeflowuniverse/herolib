@@ -117,6 +117,49 @@ fn (lut LookupTable) get(x u32) !Location {
 	return lut.location_new(lut.data[start..start + entry_size])!
 }
 
+// find_last_entry scans the lookup table to find the highest ID with a non-zero entry
+fn (mut lut LookupTable) find_last_entry() !u32 {
+	mut last_id := u32(0)
+	entry_size := lut.keysize
+
+	if lut.lookuppath.len > 0 {
+		// For disk-based lookup, read the file in chunks
+		mut file := os.open(lut.get_data_file_path()!)!
+		defer { file.close() }
+
+		file_size := os.file_size(lut.get_data_file_path()!)
+		mut buffer := []u8{len: int(entry_size)}
+		mut pos := u32(0)
+
+		for {
+			if i64(pos) * i64(entry_size) >= file_size {
+				break
+			}
+
+			bytes_read := file.read(mut buffer)!
+			if bytes_read == 0 || bytes_read < entry_size {
+				break
+			}
+
+			location := lut.location_new(buffer)!
+			if location.position != 0 || location.file_nr != 0 {
+				last_id = pos
+			}
+			pos++
+		}
+	} else {
+		// For memory-based lookup
+		for i := u32(0); i < u32(lut.data.len / entry_size); i++ {
+			location := lut.get(i) or { continue }
+			if location.position != 0 || location.file_nr != 0 {
+				last_id = i
+			}
+		}
+	}
+
+	return last_id
+}
+
 fn (mut lut LookupTable) get_next_id() !u32 {
 	incremental := lut.incremental or { return error('lookup table not in incremental mode') }
 
