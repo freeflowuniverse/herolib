@@ -14,6 +14,7 @@ pub mut:
 	description string
 	mode        grid_models.ZdbMode = 'user'
 	public      bool
+	use_hetzner_node bool
 }
 
 pub struct ZDB {

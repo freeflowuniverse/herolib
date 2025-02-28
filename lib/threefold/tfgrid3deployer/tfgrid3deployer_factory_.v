@@ -2,6 +2,9 @@ module tfgrid3deployer
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.installers.threefold.griddriver
+
 
 __global (
 	tfgrid3deployer_global  map[string]&TFGridDeployer
@@ -19,52 +22,61 @@ pub mut:
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
 	if args.name == '' {
-		args.name = tfgrid3deployer_default
-	}
-	if args.name == '' {
 		args.name = 'default'
 	}
 	return args
 }
 
 pub fn get(args_ ArgsGet) !&TFGridDeployer {
+
+	mut installer:=griddriver.get()!
+	installer.install()!
+
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := TFGridDeployer{}
 	if args.name !in tfgrid3deployer_global {
-		if args.name == 'default' {
-			if !config_exists(args) {
-				if default {
-					config_save(args)!
-				}
-			}
-			config_load(args)!
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('tfgrid3deployer', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
 	}
 	return tfgrid3deployer_global[args.name] or {
 		println(tfgrid3deployer_global)
-		panic('could not get config for tfgrid3deployer with name:${args.name}')
+		// bug if we get here because should be in globals
+		panic('could not get config for tfgrid3deployer with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o TFGridDeployer) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('tfgrid3deployer', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('tfgrid3deployer', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('tfgrid3deployer', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('tfgrid3deployer', args.name)!
+	if args.name in tfgrid3deployer_global {
+		// del tfgrid3deployer_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('tfgrid3deployer', args.name, heroscript_default()!)!
-}
-
-fn set(o TFGridDeployer) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o TFGridDeployer) ! {
 	mut o2 := obj_init(o)!
 	tfgrid3deployer_global[o.name] = &o2
 	tfgrid3deployer_default = o.name
@@ -81,16 +93,14 @@ pub mut:
 pub fn play(args_ PlayArgs) ! {
 	mut args := args_
 
-	if args.heroscript == '' {
-		args.heroscript = heroscript_default()!
-	}
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut install_actions := plbook.find(filter: 'tfgrid3deployer.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			cfg_play(p)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 }
@@ -98,4 +108,11 @@ pub fn play(args_ PlayArgs) ! {
 // switch instance to be used for tfgrid3deployer
 pub fn switch(name string) {
 	tfgrid3deployer_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

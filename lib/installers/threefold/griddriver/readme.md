@@ -8,29 +8,11 @@ To get started
 
 
 
-import freeflowuniverse.herolib.installers.something. griddriver
+import freeflowuniverse.herolib.installers.threefold.griddriver
 
 mut installer:= griddriver.get()!
 
 installer.start()!
 
 
-
-
 ```
-
-## example heroscript
-
-
-```hero
-!!griddriver.install
-    homedir: '/home/user/griddriver'
-    username: 'admin'
-    password: 'secretpassword'
-    title: 'Some Title'
-    host: 'localhost'
-    port: 8888
-
-```
-
-

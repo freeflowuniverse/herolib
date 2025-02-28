@@ -1,28 +1,15 @@
 module tfgrid3deployer
 
 import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
 import os
 
 pub const version = '1.0.0'
 const singleton = false
 const default = true
 
-pub fn heroscript_default() !string {
-	ssh_key := os.getenv_opt('SSH_KEY') or { '' }
-	mnemonic := os.getenv_opt('TFGRID_MNEMONIC') or { '' }
-	network := os.getenv_opt('TFGRID_NETWORK') or { 'main' } // main,test,dev,qa
-	heroscript := "
-    !!tfgrid3deployer.configure name:'default'
-        ssh_key: '${ssh_key}'
-        mnemonic: '${mnemonic}'
-        network: ${network}
+// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 
-    "
-	if ssh_key.len == 0 || mnemonic.len == 0 || network.len == 0 {
-		return error('please configure the tfgrid deployer or set SSH_KEY, TFGRID_MNEMONIC, and TFGRID_NETWORK.')
-	}
-	return heroscript
-}
 
 pub enum Network {
 	dev
@@ -31,6 +18,7 @@ pub enum Network {
 	qa
 }
 
+@[heap]
 pub struct TFGridDeployer {
 pub mut:
 	name     string = 'default'
@@ -39,25 +27,51 @@ pub mut:
 	network  Network
 }
 
-fn cfg_play(p paramsparser.Params) ! {
-	network_str := p.get_default('network', 'main')!
-	network := match network_str {
-		'dev' { Network.dev }
-		'test' { Network.test }
-		'qa' { Network.qa }
-		else { Network.main }
-	}
 
-	mut mycfg := TFGridDeployer{
-		ssh_key:  p.get_default('ssh_key', '')!
-		mnemonic: p.get_default('mnemonic', '')!
-		network:  network
+// your checking & initialization code if needed
+fn obj_init(mycfg_ TFGridDeployer) !TFGridDeployer {
+	mut mycfg := mycfg_
+	ssh_key := os.getenv_opt('SSH_KEY') or { '' }
+	if ssh_key.len>0{
+		mycfg.ssh_key = ssh_key
 	}
-	set(mycfg)!
+	mnemonic := os.getenv_opt('TFGRID_MNEMONIC') or { '' }
+	if mnemonic.len>0{
+		mycfg.mnemonic = mnemonic
+	}	
+	network := os.getenv_opt('TFGRID_NETWORK') or { 'main' } // 
+	if network.len>0{
+		match network {
+			"main"{
+				mycfg.network = .main
+			} "dev" {
+				mycfg.network = .dev
+			} "test" {
+				mycfg.network = .test
+			} "qa" {
+				mycfg.network = .qa
+			}else{
+				return error("can't find network with type; ${network}")
+			}		
+		}	
+	}
+	if mycfg.ssh_key.len == 0 {
+		return error('ssh_key cannot be empty')
+	}
+	if mycfg.mnemonic.len == 0 {
+		return error('mnemonic cannot be empty')
+	}
+	// println(mycfg)
+	return mycfg
 }
 
-fn obj_init(obj_ TFGridDeployer) !TFGridDeployer {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj TFGridDeployer) !string {
+	return encoderhero.encode[TFGridDeployer](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !TFGridDeployer {
+	mut obj := encoderhero.decode[TFGridDeployer](heroscript)!
 	return obj
 }
