@@ -103,8 +103,8 @@ pub fn decode_directory(data []u8) !Directory {
 
 // File encoding/decoding
 
-// encode encodes a File to binary format
-pub fn (f File) encode() []u8 {
+// encode encodes a File metadata to binary format (without the actual file data)
+pub fn (f File) encode(data_db_id ?u32) []u8 {
 	mut e := encoder.new()
 	e.add_u8(1) // version byte
 	e.add_u8(u8(vfs.FileType.file)) // type byte
@@ -114,15 +114,21 @@ pub fn (f File) encode() []u8 {
 
 	// Encode parent_id
 	e.add_u32(f.parent_id)
+	if id := data_db_id {
+		// only encode data_db_id if it's given
+		// if file has no data, it also doesn't have corresponding id in data_db
+		e.add_u32(id)
+	}
 
-	// Encode file data
-	e.add_string(f.data)
+	// Note: We no longer encode file data here
+	// The data ID will be appended by the save_entry function
 
 	return e.data
 }
 
-// decode_file decodes a binary format back to File
-pub fn decode_file(data []u8) !File {
+// decode_file decodes a binary format back to File (without the actual file data)
+// returns file without data and the key of data in data db
+pub fn decode_file_metadata(data []u8) !(File, ?u32) {
 	mut d := encoder.decoder_new(data)
 	version := d.get_u8()!
 	if version != 1 {
@@ -140,14 +146,20 @@ pub fn decode_file(data []u8) !File {
 	// Decode parent_id
 	parent_id := d.get_u32()!
 
-	// Decode file data
-	data_content := d.get_string()!
-
-	return File{
+	decoded_file := File{
 		metadata:  metadata
 		parent_id: parent_id
-		data:      data_content
+		data:      '' // Empty data, will be loaded separately
 	}
+
+	if d.data.len == 0 {
+		return decoded_file, none
+		// means there was no data_db id stored with file, so is empty file
+	}
+	// Decode data ID reference
+	// This will be used to fetch the actual data from db_data
+	data_id := d.get_u32()!
+	return decoded_file, data_id
 }
 
 // Symlink encoding/decoding

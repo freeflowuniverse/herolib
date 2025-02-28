@@ -143,7 +143,6 @@ pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name string) !&File 
 			}
 		}
 	}
-
 	new_file := fs.new_file(
 		parent_id: dir.metadata.id
 		name:      name
@@ -181,8 +180,16 @@ pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
 		return error('${name} not found')
 	}
 
-	// Delete entry from DB
-	fs.db_data.delete(found_id) or { return error('Failed to delete entry: ${err}') }
+	// get entry from db_metadata
+	metadata_bytes := fs.db_metadata.get(fs.get_database_id(found_id)!) or { return error('Failed to delete entry: ${err}') }
+	file, data_id := decode_file_metadata(metadata_bytes)!
+
+	if id := data_id {
+		// means file has associated data in db_data
+		fs.db_data.delete(id)!
+	}
+
+	fs.db_metadata.delete(file.metadata.id) or { return error('Failed to delete entry: ${err}') }
 
 	// Update children list
 	dir.children.delete(found_idx)

@@ -7,11 +7,13 @@ import time
 // Implementation of VFSImplementation interface
 pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 	// Try to load root directory from DB if it exists
-	if data := fs.db_data.get(fs.root_id) {
-		mut loaded_root := decode_directory(data) or {
-			return error('Failed to decode root directory: ${err}')
+	if fs.root_id in fs.id_table {
+		if data := fs.db_metadata.get(fs.get_database_id(fs.root_id)!) {
+			mut loaded_root := decode_directory(data) or {
+				return error('Failed to decode root directory: ${err}')
+			}
+			return &loaded_root
 		}
-		return &loaded_root
 	}
 
 	// Create and save new root directory
@@ -44,7 +46,6 @@ fn (mut self DatabaseVFS) get_entry(path string) !FSEntry {
 	for i := 0; i < parts.len; i++ {
 		mut found := false
 		children := self.directory_children(mut current, false)!
-
 		for child in children {
 			if child.metadata.name == parts[i] {
 				match child {
