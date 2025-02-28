@@ -88,6 +88,34 @@ fn test_edge_cases() ! {
 	assert value3.bytestr() == 'value3'
 }
 
+fn test_update_metadata() ! {
+	mut rt := new(path: '/tmp/radixtree_test_update')!
+
+	// Simulate hash.bytes + id_bytes + metadata_bytes
+	prefix := 'hashbytes123id456'
+	initial_metadata := 'metadata_initial'.bytes()
+	new_metadata := 'metadata_updated'.bytes()
+
+	// Insert initial entry
+	rt.insert(prefix, initial_metadata)!
+	
+	// Verify initial value
+	value := rt.search(prefix)!
+	assert value.bytestr() == 'metadata_initial'
+
+	// Update metadata while keeping the same prefix
+	rt.update(prefix, new_metadata)!
+
+	// Verify updated value
+	updated_value := rt.search(prefix)!
+	assert updated_value.bytestr() == 'metadata_updated'
+
+	// Test updating non-existent prefix
+	if _ := rt.update('nonexistent', 'test'.bytes()) {
+		assert false, 'Expected error for non-existent prefix'
+	}
+}
+
 fn test_multiple_operations() ! {
 	mut rt := new(path: '/tmp/radixtree_test_multiple')!
 

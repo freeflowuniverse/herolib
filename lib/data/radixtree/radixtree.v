@@ -235,6 +235,47 @@ pub fn (mut rt RadixTree) search(key string) ![]u8 {
 	return error('Key not found')
 }
 
+// Updates the value at a given key prefix, preserving the prefix while replacing the remainder
+pub fn (mut rt RadixTree) update(prefix string, new_value []u8) ! {
+	mut current_id := rt.root_id
+	mut offset := 0
+
+	// Handle empty prefix case
+	if prefix.len == 0 {
+		return error('Empty prefix not allowed')
+	}
+
+	for offset < prefix.len {
+		node := deserialize_node(rt.db.get(current_id)!)!
+
+		mut found := false
+		for child in node.children {
+			if prefix[offset..].starts_with(child.key_part) {
+				if offset + child.key_part.len == prefix.len {
+					// Found exact prefix match
+					mut child_node := deserialize_node(rt.db.get(child.node_id)!)!
+					if child_node.is_leaf {
+						// Update the value
+						child_node.value = new_value
+						rt.db.set(id: child.node_id, data: serialize_node(child_node))!
+						return
+					}
+				}
+				current_id = child.node_id
+				offset += child.key_part.len
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return error('Prefix not found')
+		}
+	}
+
+	return error('Prefix not found')
+}
+
 // Deletes a key from the tree
 pub fn (mut rt RadixTree) delete(key string) ! {
 	mut current_id := rt.root_id
