@@ -192,7 +192,7 @@ fn (p Params) export_helper(args_ ExportArgs) ![]ParamExportItem {
 }
 
 fn val_is_empty(val string) bool {
-	return val == '' || val == '[]'
+	return val == '' || val == '[]' || val == '0000-00-00 00:00:00'
 }
 
 @[params]
