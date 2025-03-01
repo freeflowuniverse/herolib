@@ -217,7 +217,7 @@ fn (mut site DocSite) template_install() ! {
 	
 	build_templ := $tmpl('templates/build_src.sh')
 	mut build2_ := site.path_src.file_get_new('build.sh')!
-	build2_.template_write(build, true)!
+	build2_.template_write(build_templ, true)!
 	build2_.chmod(0o700)!
 
 }
