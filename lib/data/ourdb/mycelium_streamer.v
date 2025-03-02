@@ -7,6 +7,7 @@ pub mut:
 	master           &OurDB            @[skip; str: skip]
 	workers          map[string]&OurDB @[skip; str: skip] // key is mycelium public key, value is ourdb
 	incremental_mode bool = true // default is true
+	mycelium_client  &mycelium.Mycelium
 }
 
 pub struct NewStreamerArgs {
@@ -35,7 +36,9 @@ pub fn new_streamer(args NewStreamerArgs) !MyceliumStreamer {
 		master:           &db
 		workers:          {}
 		incremental_mode: args.incremental_mode
+		mycelium_client:  &mycelium.Mycelium{}
 	}
+	s.mycelium_client = mycelium.get()!
 	return s
 }
 
@@ -52,13 +55,15 @@ pub fn (mut s MyceliumStreamer) write(record MyceliumRecordArgs) !u32 {
 	}
 
 	// Get updates from the beginning (id 0) to ensure complete sync
-	data := s.master.push_updates(0) or { return error('Failed to push updates due to: ${err}') }
+	data := s.master.push_updates(id) or { return error('Failed to push updates due to: ${err}') }
 
 	// Broadcast to all workers
-	for _, mut worker in s.workers {
-		worker.sync_updates(data) or {
-			return error('Failed to sync updates to worker due to: ${err}')
-		}
+	for worker_key, mut _ in s.workers {
+		s.mycelium_client.send_msg(
+			public_key: worker_key // destination public key
+			payload:    data.str() // message payload
+			topic:      'sync_db' // optional topic
+		)!
 	}
 	return id
 }
