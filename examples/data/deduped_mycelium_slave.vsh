@@ -48,12 +48,12 @@ defer {
 
 // Send the last inserted record id to the master
 // data := 'Test data for sync - ' + time.now().str()
-id := db.get_last_id()!
+id := db.get_last_index()!
 println('Last inserted record id: ${id}')
 
 // Send sync message to slave
 println('\nSending sync message to slave...')
-msg := master.send_msg(
+msg := slave.send_msg(
 	public_key: master_public_key
 	payload:    'last_inserted_record_id,${id}'
 	topic:      'db_sync'
