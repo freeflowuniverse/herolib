@@ -75,3 +75,12 @@ println('Sync message sent with ID: ${msg.id} to slave with public key: ${slave_
 received := master.receive_msg(wait: true, peek: false, topic: 'db_sync')!
 println('Received message from: ${received.src_pk}')
 println('Message payload: ${base64.decode_str(received.payload)}')
+
+master.reply_msg(
+	id:         received.id
+	public_key: received.src_pk
+	payload:    'Got your message!'
+	topic:      'db_sync'
+)!
+
+println('Message sent to slave with ID: ${msg.id}')
