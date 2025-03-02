@@ -46,6 +46,12 @@ defer {
 	db.destroy() or { panic('failed to destroy db1: ${err}') }
 }
 
+// Receive messages
+// Parameters: wait_for_message, peek_only, topic_filter
+received := slave.receive_msg(wait: true, peek: false, topic: 'db_sync')!
+println('Received message from: ${received.src_pk}')
+println('Message payload: ${base64.decode_str(received.payload)}')
+
 // Send the last inserted record id to the master
 // data := 'Test data for sync - ' + time.now().str()
 id := db.get_last_index()!
@@ -59,17 +65,11 @@ msg := slave.send_msg(
 	topic:      'db_sync'
 )!
 
-// Receive messages
-// Parameters: wait_for_message, peek_only, topic_filter
-received := slave.receive_msg(wait: true, peek: false, topic: 'db_sync')!
-println('Received message from: ${received.src_pk}')
-println('Message payload: ${base64.decode_str(received.payload)}')
+// slave.reply_msg(
+// 	id:         received.id
+// 	public_key: received.src_pk
+// 	payload:    'Got your message!'
+// 	topic:      'db_sync'
+// )!
 
-slave.reply_msg(
-	id:         received.id
-	public_key: received.src_pk
-	payload:    'Got your message!'
-	topic:      'db_sync'
-)!
-
-println('Message sent to master with ID: ${msg.id}')
+// println('Message sent to master with ID: ${msg.id}')
