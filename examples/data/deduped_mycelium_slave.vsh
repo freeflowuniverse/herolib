@@ -51,28 +51,3 @@ defer {
 received := slave.receive_msg(wait: true, peek: false, topic: 'db_sync')!
 println('Received message from: ${received.src_pk}')
 println('Message payload: ${base64.decode_str(received.payload)}')
-
-// // Store in slave db
-// println('\nStoring data in slave node DB...')
-// data := 'Test data for sync - ' + time.now().str()
-// id := db.set(data: data.bytes())!
-// println('Successfully stored data in slave node DB with ID: ${id}')
-
-// // Create sync data
-// sync_data := SyncData{
-// 	id:   id
-// 	data: data
-// }
-
-// // Convert to JSON
-// json_data := json.encode(sync_data)
-
-// // Send sync message to slave
-// println('\nSending sync message to slave...')
-// msg := slave.send_msg(
-// 	public_key: '46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c'
-// 	payload:    json_data
-// 	topic:      'db_sync'
-// )!
-
-// println('Sync message sent with ID: ${msg.id} to slave with public key: 46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c')

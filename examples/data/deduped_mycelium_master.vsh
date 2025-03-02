@@ -30,9 +30,8 @@ master.server_url = 'http://localhost:${master_port}'
 master.name = 'master_node'
 
 // Get public keys for communication
-master_inspect := mycelium.inspect(key_file_path: '/tmp/mycelium_server1/priv_key.bin')!
-
-println('Server 1 (Master Node) public key: ${master_inspect.public_key}')
+// master_inspect := mycelium.inspect(key_file_path: '/tmp/mycelium_server1/priv_key.bin')!
+// println('Server 1 (Master Node) public key: ${master_inspect.public_key}')
 
 // Initialize ourdb instances
 mut db := ourdb.new(
@@ -64,9 +63,15 @@ json_data := json.encode(sync_data)
 // Send sync message to slave
 println('\nSending sync message to slave...')
 msg := master.send_msg(
-	public_key: '46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c'
+	public_key: slave_public_key
 	payload:    json_data
 	topic:      'db_sync'
 )!
 
-println('Sync message sent with ID: ${msg.id} to slave with public key: 46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c')
+println('Sync message sent with ID: ${msg.id} to slave with public key: ${slave_public_key}')
+
+// Receive messages
+// Parameters: wait_for_message, peek_only, topic_filter
+received := master.receive_msg(wait: true, peek: false, topic: 'db_sync')!
+println('Received message from: ${received.src_pk}')
+println('Message payload: ${base64.decode_str(received.payload)}')
