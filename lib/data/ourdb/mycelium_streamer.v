@@ -13,6 +13,7 @@ pub mut:
 pub struct NewStreamerArgs {
 pub mut:
 	incremental_mode bool = true // default is true
+	server_port      int  = 9000 // default is 9000
 }
 
 fn new_db_streamer(args NewStreamerArgs) !OurDB {
@@ -38,7 +39,14 @@ pub fn new_streamer(args NewStreamerArgs) !MyceliumStreamer {
 		incremental_mode: args.incremental_mode
 		mycelium_client:  &mycelium.Mycelium{}
 	}
+
 	s.mycelium_client = mycelium.get()!
+	s.mycelium_client.server_url = 'http://localhost:${args.server_port}'
+	s.mycelium_client.name = 'master_node'
+
+	// Get public keys for communication
+	// inspect := mycelium.inspect(key_file_path: '/tmp/mycelium_server1/priv_key.bin')!
+	// println('Server 2 (slave Node) public key: ${slave_inspect.public_key}')
 	return s
 }
 
