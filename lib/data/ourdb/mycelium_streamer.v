@@ -67,11 +67,13 @@ pub fn (mut s MyceliumStreamer) write(record MyceliumRecordArgs) !u32 {
 
 	// Broadcast to all workers
 	for worker_key, mut _ in s.workers {
-		s.mycelium_client.send_msg(
+		println('Sending message to worker: ${worker_key}')
+		msg := s.mycelium_client.send_msg(
 			public_key: worker_key // destination public key
 			payload:    data.str() // message payload
 			topic:      'sync_db' // optional topic
 		)!
+		println('Sent message ID: ${msg.id}')
 	}
 	return id
 }
