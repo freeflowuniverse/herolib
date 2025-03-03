@@ -19,15 +19,25 @@ println('Starting master node...')
 streamer.add_worker(worker_public_key)!
 
 // Write some test data
-id := streamer.write(id: 1, value: 'Record 1')!
-println('Wrote record with ID: ${id}')
+// id := streamer.write(id: 1, value: 'Record 1')!
+// println('Wrote record with ID: ${id}')
 
-// Verify data in master
-master_data := streamer.read(id: id)!
-master_data_str := master_data.bytestr()
-println('Master data: ${master_data_str}')
+// // Verify data in master
+// master_data := streamer.read(id: id)!
+// master_data_str := master_data.bytestr()
+// println('Master data: ${master_data_str}')
 
 // Keep master running to handle worker connections
+mut id_ := u32(1)
+
 for {
 	time.sleep(1 * time.second)
+	// Write some test data
+	mut id := streamer.write(id: id_, value: 'Record ${id_}')!
+	println('Wrote record with ID: ${id}')
+	// Verify data in master
+	master_data := streamer.read(id: id)!
+	master_data_str := master_data.bytestr()
+	println('Master data: ${master_data_str}')
+	id_++
 }

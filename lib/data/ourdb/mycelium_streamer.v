@@ -4,7 +4,6 @@ import freeflowuniverse.herolib.clients.mycelium
 import rand
 import time
 import encoding.base64
-import json
 
 struct MyceliumStreamer {
 pub mut:
@@ -125,43 +124,20 @@ pub:
 
 // listen continuously checks for messages from master and applies updates
 pub fn (mut s MyceliumStreamer) listen() ! {
-	println('Starting to listen for messages...')
-	spawn fn [mut s] () {
-		for {
-			println('Listening for messages...')
-			// Check for updates from master
-			if msg := s.mycelium_client.receive_msg(
-				wait:  true
-				peek:  false
-				topic: 'db_sync'
-			)
-			{
-				// Decode the base64 data
-				update_data := base64.decode(msg.payload)
-				if update_data.len == 0 {
-					eprintln('Failed to decode base64 data')
-					continue
-				}
+	spawn fn [mut s] () ! {
+		println('Starting to listen for messages...')
+		msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'db_sync')!
 
-				// Find the target worker and apply updates
-				if mut worker := s.workers[msg.src_pk] {
-					println('Received update from worker: ${msg.src_pk}')
-					worker.sync_updates(update_data) or {
-						eprintln('Failed to sync worker: ${err}')
-						continue
-					}
-					println('Successfully applied updates from master')
-				} else {
-					eprintln('Received update from unknown source: ${msg.src_pk}')
-				}
-			}
+		update_data := base64.decode(msg.payload)
+		println('Received update from worker: ${msg.src_pk}')
+		println('Received update with payload: ${update_data.str()}')
+		if mut worker := s.workers[msg.src_pk] {
+			println('Worker with public key ${msg.src_pk} found')
+			worker.sync_updates(update_data) or { return error('Failed to sync worker: ${err}') }
 		}
 	}()
-
-	// Keep the main thread alive
-	for {
-		time.sleep(1 * time.second)
-	}
+	time.sleep(time.second * 1)
+	return s.listen()
 }
 
 pub fn (mut s MyceliumStreamer) read(args MyceliumReadArgs) ![]u8 {
