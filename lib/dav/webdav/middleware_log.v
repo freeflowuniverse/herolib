@@ -1,12 +1,17 @@
 module webdav
 
 import freeflowuniverse.herolib.ui.console
+import log
 
-fn logging_middleware(mut ctx Context) bool {
-	console.print_green('=== New Request ===')
-	console.print_green('Method: ${ctx.req.method.str()}')
-	console.print_green('Path: ${ctx.req.url}')
-	console.print_green('Headers: ${ctx.req.header}')
-	console.print_green('')
+fn middleware_log_request(mut ctx Context) bool {
+	log.debug('[WebDAV] New Request: Method: ${ctx.req.method.str()} Path: ${ctx.req.url}')
+	log.debug('[WebDAV] New Request: Method: ${ctx.req.method.str()} Path: ${ctx.req.url}')
 	return true
 }
+
+fn middleware_log_response(mut ctx Context) bool {
+	log.debug('[WebDAV] Response: Method: ${ctx.req.method.str()} Path: ${ctx.req.url}')
+	log.debug('[WebDAV] Response: ${ctx.res}')
+	return true
+}
+ 

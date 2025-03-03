@@ -1,5 +1,5 @@
-import freeflowuniverse.herolib.vfs.webdav
-import freeflowuniverse.herolib.vfs.vfsnested
+import freeflowuniverse.herolib.dav.webdav
+import freeflowuniverse.herolib.vfs.vfs_nested
 import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.vfs.vfs_db
 import os

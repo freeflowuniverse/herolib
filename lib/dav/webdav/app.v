@@ -32,7 +32,8 @@ pub fn new_app(args AppArgs) !&App {
 
 	// register middlewares for all routes
 	app.use(handler: app.auth_middleware)
-	app.use(handler: logging_middleware)
+	app.use(handler: middleware_log_request)
+	app.use(handler: middleware_log_response, after: true)
 
 	return app
 }

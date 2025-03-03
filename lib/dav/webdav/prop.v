@@ -136,14 +136,12 @@ fn format_iso8601(t time.Time) string {
 }
 
 fn (mut app App) get_responses(path string, depth int) ![]xml.XMLNodeContents {
-	mut responses := []xml.XMLNodeContents{}
-
-	entry := app.vfs.get(path)!
-	responses << generate_response_element(entry)!
 	if depth == 0 {
-		return responses
+		entry := app.vfs.get(path)!
+		return [generate_response_element(entry)!]
 	}
 
+	mut responses := []xml.XMLNodeContents{}
 	entries := app.vfs.dir_list(path) or { return responses }
 	for e in entries {
 		responses << generate_response_element(e)!

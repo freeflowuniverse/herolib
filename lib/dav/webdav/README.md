@@ -26,7 +26,7 @@ This project implements a WebDAV server using the `vweb` framework and modules f
 ```v
 module main
 
-import freeflowuniverse.herolib.vfs.webdav
+import freeflowuniverse.herolib.dav.webdav
 
 fn main() {
 	mut app := webdav.new_app(

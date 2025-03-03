@@ -1,4 +1,4 @@
-import freeflowuniverse.herolib.vfs.webdav
+import freeflowuniverse.herolib.dav.webdav
 import cli { Command, Flag }
 import os
 
