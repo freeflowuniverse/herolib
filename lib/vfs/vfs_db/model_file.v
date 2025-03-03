@@ -64,6 +64,7 @@ pub:
 pub fn (mut fs DatabaseVFS) new_file(file NewFile) !&File {
 	f := File{
 		data:     file.data
+		parent_id: file.parent_id
 		metadata: fs.new_metadata(NewMetadata{
 			name:      file.name
 			mode:      file.mode
@@ -87,5 +88,6 @@ pub fn (mut fs DatabaseVFS) copy_file(file File) !&File {
 		mode:  file.metadata.mode
 		owner: file.metadata.owner
 		group: file.metadata.group
+		parent_id: file.parent_id
 	)
 }

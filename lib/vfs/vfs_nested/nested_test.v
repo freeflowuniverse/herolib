@@ -1,4 +1,4 @@
-module vfsnested
+module vfs_nested
 
 import freeflowuniverse.herolib.vfs.vfs_local
 import os

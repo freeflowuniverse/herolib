@@ -1,6 +1,8 @@
 module vfs_db
 
 import freeflowuniverse.herolib.vfs
+import freeflowuniverse.herolib.core.texttools
+import log
 import os
 import time
 
@@ -10,6 +12,7 @@ pub fn (mut fs DatabaseVFS) root_get() !vfs.FSEntry {
 }
 
 pub fn (mut self DatabaseVFS) file_create(path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Creating file ${path}')
 	// Get parent directory
 	parent_path := os.dir(path)
 	file_name := os.base(path)
@@ -19,6 +22,7 @@ pub fn (mut self DatabaseVFS) file_create(path string) !vfs.FSEntry {
 }
 
 pub fn (mut self DatabaseVFS) file_read(path string) ![]u8 {
+	log.info('[DatabaseVFS] Reading file ${path}')
 	mut entry := self.get_entry(path)!
 	if mut entry is File {
 		return entry.read().bytes()
@@ -27,12 +31,18 @@ pub fn (mut self DatabaseVFS) file_read(path string) ![]u8 {
 }
 
 pub fn (mut self DatabaseVFS) file_write(path string, data []u8) ! {
-	mut entry := self.get_entry(path)!
-	if mut entry is File {
-		entry.write(data.bytestr())
-		self.save_entry(entry)!
+	if mut entry := self.get_entry(path) {
+		if mut entry is File {
+			log.info('[DatabaseVFS] Writing file ${path}')
+			log.info('[DatabaseVFS] Writing data ${data.bytestr()}')
+			entry.write(data.bytestr())
+			self.save_entry(entry)!
+		} else {
+			panic('handle error')
+		}
 	} else {
-		return error('Not a file: ${path}')
+		self.file_create(path)!
+		self.file_write(path, data)!
 	}
 }
 
@@ -45,6 +55,7 @@ pub fn (mut self DatabaseVFS) file_delete(path string) ! {
 }
 
 pub fn (mut self DatabaseVFS) dir_create(path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Creating Directory ${path}')
 	parent_path := os.dir(path)
 	dir_name := os.base(path)
 
@@ -53,8 +64,19 @@ pub fn (mut self DatabaseVFS) dir_create(path string) !vfs.FSEntry {
 }
 
 pub fn (mut self DatabaseVFS) dir_list(path string) ![]vfs.FSEntry {
+	log.info('[DatabaseVFS] Listing Directory ${path}')
 	mut dir := self.get_directory(path)!
-	return self.directory_children(mut dir, false)!.map(vfs.FSEntry(it))
+	mut entries := []vfs.FSEntry{}
+	for child in self.directory_children(mut dir, false)! {
+		if child is File {
+			entries << vfs.FSEntry(child)
+		} else if child is Directory {
+			entries << vfs.FSEntry(child)
+		} else if child is Symlink {
+			entries << vfs.FSEntry(child)
+		}
+	}
+	return entries
 }
 
 pub fn (mut self DatabaseVFS) dir_delete(path string) ! {
@@ -125,6 +147,7 @@ pub fn (mut fs DatabaseVFS) get(path string) !vfs.FSEntry {
 }
 
 pub fn (mut self DatabaseVFS) rename(old_path string, new_path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Renaming ${old_path} to ${new_path}')
 	src_parent_path := os.dir(old_path)
 	src_name := os.base(old_path)
 	dst_name := os.base(new_path)
@@ -163,8 +186,11 @@ pub fn (mut self DatabaseVFS) copy(src_path string, dst_path string) !vfs.FSEntr
 }
 
 pub fn (mut self DatabaseVFS) move(src_path string, dst_path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Moving ${src_path} to ${dst_path}')
+	
 	src_parent_path := os.dir(src_path)
 	dst_parent_path := os.dir(dst_path)
+	log.info('${src_parent_path}')
 
 	if !self.exists(src_parent_path) {
 		return error('${src_parent_path} does not exist')

@@ -11,8 +11,6 @@ pub struct DatabaseVFS {
 pub mut:
 	root_id          u32    // ID of root directory
 	block_size       u32    // Size of data blocks in bytes
-	data_dir         string // Directory to store DatabaseVFS data
-	metadata_dir     string // Directory where we store the metadata
 	db_data          &Database @[str: skip] // Database instance for file data storage
 	db_metadata      &Database @[str: skip] // Database instance for metadata storage
 	last_inserted_id u32

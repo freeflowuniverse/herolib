@@ -1,5 +1,9 @@
 module vfs_db
 
+pub fn (mut fs DatabaseVFS) print() ! {
+	println(fs.directory_printall(fs.root_get_as_dir()!, '')!)
+}
+
 // str returns a formatted string of directory contents (non-recursive)
 pub fn (mut fs DatabaseVFS) directory_print(dir Directory) string {
 	mut result := '${dir.metadata.name}/\n'

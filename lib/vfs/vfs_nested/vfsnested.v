@@ -1,4 +1,4 @@
-module vfsnested
+module vfs_nested
 
 import freeflowuniverse.herolib.vfs
 
@@ -33,12 +33,10 @@ fn (self &NestedVFS) find_vfs(path string) !(vfs.VFSImplementation, string) {
 	mut prefixes := self.vfs_map.keys()
 	prefixes.sort(a.len > b.len)
 
+	println('debugzone ${path} ${prefixes}')
 	for prefix in prefixes {
 		if path.starts_with(prefix) {
 			relative_path := path[prefix.len..]
-			if relative_path.starts_with('/') {
-				return self.vfs_map[prefix], relative_path[1..]
-			}
 			return self.vfs_map[prefix], relative_path
 		}
 	}
@@ -73,10 +71,22 @@ pub fn (mut self NestedVFS) link_delete(path string) ! {
 
 pub fn (mut self NestedVFS) file_create(path string) !vfs.FSEntry {
 	mut impl, rel_path := self.find_vfs(path)!
-	return impl.file_create(rel_path)
+	sub_entry := impl.file_create(rel_path)!
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(sub_entry, prefix)
 }
 
 pub fn (mut self NestedVFS) file_read(path string) ![]u8 {
+	println('debuzone- File read ${path}')
 	mut impl, rel_path := self.find_vfs(path)!
 	return impl.file_read(rel_path)
 }
@@ -93,7 +103,18 @@ pub fn (mut self NestedVFS) file_delete(path string) ! {
 
 pub fn (mut self NestedVFS) dir_create(path string) !vfs.FSEntry {
 	mut impl, rel_path := self.find_vfs(path)!
-	return impl.dir_create(rel_path)
+	sub_entry := impl.dir_create(rel_path)!
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(sub_entry, prefix)
 }
 
 pub fn (mut self NestedVFS) dir_list(path string) ![]vfs.FSEntry {
@@ -119,7 +140,24 @@ pub fn (mut self NestedVFS) dir_list(path string) ![]vfs.FSEntry {
 	}
 
 	mut impl, rel_path := self.find_vfs(path)!
-	return impl.dir_list(rel_path)
+	sub_entries := impl.dir_list(rel_path)!
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == impl {
+			prefix = p
+			break
+		}
+	}
+	
+	// Convert all entries to nested entries
+	mut entries := []vfs.FSEntry{}
+	for sub_entry in sub_entries {
+		entries << self.nester_entry(sub_entry, prefix)
+	}
+	
+	return entries
 }
 
 pub fn (mut self NestedVFS) dir_delete(path string) ! {
@@ -141,7 +179,29 @@ pub fn (mut self NestedVFS) get(path string) !vfs.FSEntry {
 		return self.root_get()
 	}
 	mut impl, rel_path := self.find_vfs(path)!
-	return impl.get(rel_path)
+	
+	// now must convert entry of nested fvs to entry of nester
+	sub_entry := impl.get(rel_path)!
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(sub_entry, prefix)
+}
+
+// nester_entry converts an FSEntry from a sub VFS to an FSEntry for the nester VFS
+// by prefixing the nested VFS's path onto the FSEntry's path
+fn (self &NestedVFS) nester_entry(entry vfs.FSEntry, prefix string) vfs.FSEntry {
+	return &NestedEntry{
+		original: entry
+		prefix: prefix
+	}
 }
 
 pub fn (mut self NestedVFS) rename(old_path string, new_path string) !vfs.FSEntry {
@@ -153,7 +213,17 @@ pub fn (mut self NestedVFS) rename(old_path string, new_path string) !vfs.FSEntr
 	}
 
 	renamed_file := old_impl.rename(old_rel_path, new_rel_path)!
-	return renamed_file
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == old_impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(renamed_file, prefix)
 }
 
 pub fn (mut self NestedVFS) copy(src_path string, dst_path string) !vfs.FSEntry {
@@ -161,7 +231,18 @@ pub fn (mut self NestedVFS) copy(src_path string, dst_path string) !vfs.FSEntry 
 	mut dst_impl, dst_rel_path := self.find_vfs(dst_path)!
 
 	if src_impl == dst_impl {
-		return src_impl.copy(src_rel_path, dst_rel_path)
+		copied_file := src_impl.copy(src_rel_path, dst_rel_path)!
+		
+		// Find the prefix for this VFS implementation
+		mut prefix := ''
+		for p, v in self.vfs_map {
+			if v == src_impl {
+				prefix = p
+				break
+			}
+		}
+		
+		return self.nester_entry(copied_file, prefix)
 	}
 
 	// Copy across different VFS implementations
@@ -169,18 +250,50 @@ pub fn (mut self NestedVFS) copy(src_path string, dst_path string) !vfs.FSEntry 
 	data := src_impl.file_read(src_rel_path)!
 	new_file := dst_impl.file_create(dst_rel_path)!
 	dst_impl.file_write(dst_rel_path, data)!
-	return new_file
+	
+	// Find the prefix for the destination VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == dst_impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(new_file, prefix)
 }
 
 pub fn (mut self NestedVFS) move(src_path string, dst_path string) !vfs.FSEntry {
 	mut src_impl, src_rel_path := self.find_vfs(src_path)!
 	_, dst_rel_path := self.find_vfs(dst_path)!
-	return src_impl.move(src_rel_path, dst_rel_path)
+	moved_file := src_impl.move(src_rel_path, dst_rel_path)!
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == src_impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(moved_file, prefix)
 }
 
 pub fn (mut self NestedVFS) link_create(target_path string, link_path string) !vfs.FSEntry {
 	mut impl, rel_path := self.find_vfs(link_path)!
-	return impl.link_create(target_path, rel_path)
+	link_entry := impl.link_create(target_path, rel_path)!
+	
+	// Find the prefix for this VFS implementation
+	mut prefix := ''
+	for p, v in self.vfs_map {
+		if v == impl {
+			prefix = p
+			break
+		}
+	}
+	
+	return self.nester_entry(link_entry, prefix)
 }
 
 pub fn (mut self NestedVFS) link_read(path string) !string {
@@ -249,4 +362,38 @@ pub fn (self &MountEntry) is_file() bool {
 // is_symlink returns true if the entry is a symlink
 pub fn (self &MountEntry) is_symlink() bool {
 	return self.metadata.file_type == .symlink
+}
+
+// NestedEntry wraps an FSEntry from a sub VFS and prefixes its path
+pub struct NestedEntry {
+pub mut:
+	original vfs.FSEntry
+	prefix   string
+}
+
+fn (e &NestedEntry) get_metadata() vfs.Metadata {
+	return e.original.get_metadata()
+}
+
+fn (e &NestedEntry) get_path() string {
+	original_path := e.original.get_path()
+	if original_path == '/' {
+		return e.prefix
+	}
+	return e.prefix + original_path
+}
+
+// is_dir returns true if the entry is a directory
+pub fn (self &NestedEntry) is_dir() bool {
+	return self.original.is_dir()
+}
+
+// is_file returns true if the entry is a file
+pub fn (self &NestedEntry) is_file() bool {
+	return self.original.is_file()
+}
+
+// is_symlink returns true if the entry is a symlink
+pub fn (self &NestedEntry) is_symlink() bool {
+	return self.original.is_symlink()
 }
