@@ -4,32 +4,33 @@ import freeflowuniverse.herolib.data.ourdb
 import time
 
 // Known worker public key
-worker_public_key := '46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c'
+worker1_public_key := '46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c'
+worker2_public_key := '46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c'
 
 // Create master node
+println('Starting master node...')
 mut streamer := ourdb.new_streamer(
 	incremental_mode: false
 	server_port:      9000 // Master uses default port
 	is_worker:        false
-	id:               'frBvtZQeqf'
 )!
 
-println('Starting master node...')
+println('Initializing workers...')
+// Add workers and initialize its database
+// You should run the deduped_mycelium_worker.vsh script for each worker
+streamer.add_worker(worker1_public_key)!
+streamer.add_worker(worker2_public_key)!
 
-// Add worker to whitelist and initialize its database
-streamer.add_worker(worker_public_key)!
+// When we preforming a write, we get the ID of the record
+// We basically write to the master database, and read from the workers normally
+mut id1 := streamer.write(id: 1, value: 'Record 1')!
+mut id2 := streamer.write(id: 2, value: 'Record 2')!
+println('Master record 1 data: ${id1}')
+println('Master record 2 data: ${id2}')
 
-// Keep master running to handle worker connections
-mut id_ := u32(1)
+// Read data from workers
+worker_id1 := streamer.read(id: 1)!
+worker_id2 := streamer.read(id: 2)!
 
-for {
-	time.sleep(1 * time.second)
-	// Write some test data
-	mut id := streamer.write(id: id_, value: 'Record ${id_}')!
-	println('Wrote record with ID: ${id}')
-	// Verify data in master
-	master_data := streamer.read(id: id)!
-	master_data_str := master_data.bytestr()
-	println('Master data: ${master_data_str}')
-	id_++
-}
+println('Worker 1 data: ${worker_id1}')
+println('Worker 2 data: ${worker_id2}')
