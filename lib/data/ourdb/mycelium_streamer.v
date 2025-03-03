@@ -24,6 +24,7 @@ pub mut:
 	incremental_mode bool = true // default is true
 	server_port      int  = 9000 // default is 9000
 	is_worker        bool // true if this is a worker node
+	id               string = rand.string(10)
 }
 
 fn new_db_streamer(args NewStreamerArgs) !OurDB {
@@ -62,6 +63,7 @@ pub fn new_streamer(args NewStreamerArgs) !MyceliumStreamer {
 		workers:          {}
 		incremental_mode: args.incremental_mode
 		mycelium_client:  client
+		id:               args.id
 	}
 
 	mut instances_factory := MyceliumStreamerInstances{}
