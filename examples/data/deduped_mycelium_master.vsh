@@ -11,6 +11,7 @@ mut streamer := ourdb.new_streamer(
 	incremental_mode: false
 	server_port:      9000 // Master uses default port
 	is_worker:        false
+	id:               'frBvtZQeqf'
 )!
 
 println('Starting master node...')

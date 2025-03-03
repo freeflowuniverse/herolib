@@ -2,6 +2,8 @@
 
 import freeflowuniverse.herolib.data.ourdb
 
+worker_public_key := '46a9f9cee1ce98ef7478f3dea759589bbf6da9156533e63fed9f233640ac072c'
+
 // Create a worker node with a unique database path
 mut streamer := ourdb.get_streamer(id: 'frBvtZQeqf') or {
 	ourdb.new_streamer(
@@ -11,6 +13,16 @@ mut streamer := ourdb.get_streamer(id: 'frBvtZQeqf') or {
 	)!
 }
 
-println('Starting worker node...')
-println('Listening for updates from master...')
-streamer.listen()! // This will keep running and listening for updates
+// Add worker to the tree
+streamer.add_worker(worker_public_key)!
+// This will keep running and listening for updates
+streamer.listen()!
+
+println('Listening for updates...')
+// Now we can read from the database
+data := streamer.read(
+	id:                1
+	worker_public_key: worker_public_key
+)!
+
+println('Worker data: ${data.bytestr()}')

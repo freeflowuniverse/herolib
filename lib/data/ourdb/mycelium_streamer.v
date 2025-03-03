@@ -124,25 +124,29 @@ pub:
 
 // listen continuously checks for messages from master and applies updates
 pub fn (mut s MyceliumStreamer) listen() ! {
+	println('Listening for updates from master...')
 	spawn fn [mut s] () ! {
-		println('Starting to listen for messages...')
-		msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'db_sync')!
-
-		update_data := base64.decode(msg.payload)
-		println('Received update from worker: ${msg.src_pk}')
-		println('Received update with payload: ${update_data.str()}')
-		if mut worker := s.workers[msg.src_pk] {
-			println('Worker with public key ${msg.src_pk} found')
-			worker.sync_updates(update_data) or { return error('Failed to sync worker: ${err}') }
-		}
+		s.listen_()!
 	}()
+}
+
+fn (mut s MyceliumStreamer) listen_() ! {
+	println('Listening...')
+	msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'db_sync')!
+
+	update_data := base64.decode(msg.payload)
+	if mut worker := s.workers[msg.src_pk] {
+		worker.sync_updates(update_data) or { return error('Failed to sync worker: ${err}') }
+	}
+
 	time.sleep(time.second * 1)
-	return s.listen()
+	return s.listen_()
 }
 
 pub fn (mut s MyceliumStreamer) read(args MyceliumReadArgs) ![]u8 {
 	if args.worker_public_key.len > 0 {
 		if mut worker := s.workers[args.worker_public_key] {
+			println('Reading from worker: ${args.worker_public_key}')
 			return worker.get(args.id)!
 		}
 		return error('Worker with public key ${args.worker_public_key} not found')
