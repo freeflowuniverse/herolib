@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.data.ourdb
 mut streamer := ourdb.get_streamer(id: 'frBvtZQeqf') or {
 	ourdb.new_streamer(
 		incremental_mode: false
-		server_port:      9001 // Use different port than master
+		server_port:      9000 // Use different port than master
 		is_worker:        true
 	)!
 }
