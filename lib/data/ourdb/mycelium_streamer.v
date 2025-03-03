@@ -126,23 +126,21 @@ pub:
 
 // listen continuously checks for messages from master and applies updates
 pub fn (mut s MyceliumStreamer) listen() ! {
-	println('Listening for updates from master...')
 	spawn fn [mut s] () ! {
-		s.listen_()!
+		msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'db_sync') or {
+			return error('Failed to receive message: ${err}')
+		}
+		if msg.payload.len > 0 {
+			update_data := base64.decode(msg.payload)
+			if mut worker := s.workers[msg.dst_pk] {
+				worker.sync_updates(update_data) or {
+					return error('Failed to sync worker: ${err}')
+				}
+			}
+		}
 	}()
-}
-
-fn (mut s MyceliumStreamer) listen_() ! {
-	println('Listening...')
-	msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'db_sync')!
-
-	update_data := base64.decode(msg.payload)
-	if mut worker := s.workers[msg.src_pk] {
-		worker.sync_updates(update_data) or { return error('Failed to sync worker: ${err}') }
-	}
-
 	time.sleep(time.second * 1)
-	return s.listen_()
+	return s.listen()
 }
 
 pub fn (mut s MyceliumStreamer) read(args MyceliumReadArgs) ![]u8 {

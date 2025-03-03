@@ -19,15 +19,6 @@ println('Starting master node...')
 // Add worker to whitelist and initialize its database
 streamer.add_worker(worker_public_key)!
 
-// Write some test data
-// id := streamer.write(id: 1, value: 'Record 1')!
-// println('Wrote record with ID: ${id}')
-
-// // Verify data in master
-// master_data := streamer.read(id: id)!
-// master_data_str := master_data.bytestr()
-// println('Master data: ${master_data_str}')
-
 // Keep master running to handle worker connections
 mut id_ := u32(1)
 
