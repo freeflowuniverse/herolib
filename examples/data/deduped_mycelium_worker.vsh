@@ -11,5 +11,7 @@ mut streamer := ourdb.new_streamer(
 	is_worker:        true
 )!
 
+streamer.add_worker(worker_public_key)!
+
 // Initialize and run worker node
 streamer.listen()!
