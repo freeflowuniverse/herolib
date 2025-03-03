@@ -4,6 +4,8 @@ import freeflowuniverse.herolib.clients.mycelium
 import rand
 import time
 import encoding.base64
+import json
+import x.json2
 
 struct MyceliumStreamer {
 pub mut:
@@ -127,15 +129,34 @@ pub:
 // listen continuously checks for messages from master and applies updates
 pub fn (mut s MyceliumStreamer) listen() ! {
 	spawn fn [mut s] () ! {
-		msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'db_sync') or {
+		msg := s.mycelium_client.receive_msg(wait: true, peek: true) or {
 			return error('Failed to receive message: ${err}')
 		}
-		if msg.payload.len > 0 {
-			update_data := base64.decode(msg.payload)
-			if mut worker := s.workers[msg.dst_pk] {
-				worker.sync_updates(update_data) or {
-					return error('Failed to sync worker: ${err}')
+		println('Received message topic: ${msg.topic}')
+
+		if msg.topic == 'db_sync' {
+			if msg.payload.len > 0 {
+				update_data := base64.decode(msg.payload)
+				if mut worker := s.workers[msg.dst_pk] {
+					worker.sync_updates(update_data) or {
+						return error('Failed to sync worker: ${err}')
+					}
 				}
+			}
+		}
+
+		if msg.topic == 'get_db' {
+			// Send the entire database to the worker
+			if mut worker := s.workers[msg.dst_pk] {
+				// convert database to base64
+				to_json := json2.encode(worker).bytes()
+				to_base64 := base64.encode(to_json)
+				s.mycelium_client.reply_msg(
+					id:         msg.id
+					public_key: msg.src_pk
+					payload:    to_base64
+					topic:      'get_db'
+				)!
 			}
 		}
 	}()
@@ -145,11 +166,36 @@ pub fn (mut s MyceliumStreamer) listen() ! {
 
 pub fn (mut s MyceliumStreamer) read(args MyceliumReadArgs) ![]u8 {
 	if args.worker_public_key.len > 0 {
-		if mut worker := s.workers[args.worker_public_key] {
-			println('Reading from worker: ${args.worker_public_key}')
-			return worker.get(args.id)!
-		}
-		return error('Worker with public key ${args.worker_public_key} not found')
+		return s.read_from_worker(args)
 	}
 	return s.master.get(args.id)!
+}
+
+fn (mut s MyceliumStreamer) read_from_worker(args MyceliumReadArgs) ![]u8 {
+	println('Reading from worker: ${args.worker_public_key}')
+	if mut _ := s.workers[args.worker_public_key] {
+		s.mycelium_client.send_msg(
+			public_key: args.worker_public_key
+			payload:    ''
+			topic:      'get_db'
+		)!
+	}
+
+	msg := s.mycelium_client.receive_msg(wait: true, peek: true, topic: 'get_db') or {
+		return error('Failed to receive message: ${err}')
+	}
+
+	println('msg: ${msg}')
+
+	if msg.payload.len > 0 {
+		to_json := base64.decode(msg.payload)
+		mut worker_db := json2.decode[OurDB](to_json.bytestr())!
+		println('worker_db: ${worker_db}')
+		value := worker_db.get(args.id) or {
+			return error('Failed to get id ${args.id} from worker db: ${err}')
+		}
+		return value
+	}
+
+	return error('read_from_worker failed')
 }
