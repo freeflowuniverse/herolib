@@ -7,7 +7,6 @@
     default:1
     title:''
     supported_platforms:''
-    reset:0
     startupmanager:0
     build:1
     hasconfig:0

@@ -22,7 +22,6 @@ deployment.add_machine(
 	wireguard:  true
 	public_ip4: false
 	size:       10 // 10 gig
-	mycelium:   tfgrid3deployer.Mycelium{}
 )
 deployment.deploy()!
 

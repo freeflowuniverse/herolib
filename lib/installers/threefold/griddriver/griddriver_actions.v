@@ -9,7 +9,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('/bin/bash -c "griddriver --version"')
+	res := os.execute("griddriver --version")
 	if res.exit_code != 0 {
 		return false
 	}
@@ -26,7 +26,6 @@ fn installed() !bool {
 	return true
 }
 
-// get the Upload List of the files
 fn ulist_get() !ulist.UList {
 	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
 	return ulist.UList{}
@@ -37,7 +36,7 @@ fn upload() ! {}
 
 fn install() ! {
 	console.print_header('install griddriver')
-	build()!
+	panic("to implement")
 	console.print_header('install griddriver OK')
 }
 

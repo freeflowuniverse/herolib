@@ -18,8 +18,7 @@ fn main() {
 		memory:     2
 		planetary:  false
 		public_ip4: false
-		mycelium:   tfgrid3deployer.Mycelium{}
-		nodes:      [u32(167)]
+		nodes:      [167]
 	)
 	// deployment.add_machine(
 	// 	name:       'my_vm2'
@@ -27,7 +26,6 @@ fn main() {
 	// 	memory:     2
 	// 	planetary:  false
 	// 	public_ip4: true
-	// 	mycelium:   tfgrid3deployer.Mycelium{}
 	// 	// nodes:     [u32(164)]
 	// )
 

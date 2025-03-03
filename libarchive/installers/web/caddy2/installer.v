@@ -8,69 +8,7 @@ import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.installers.lang.golang
 import os
 
-pub const version = '2.8.4'
 
-// @[params]
-// pub struct InstallArgs {
-// pub mut:
-// 	reset     bool
-// 	start     bool
-// 	restart   bool
-// 	stop      bool
-// 	homedir   string = '/var/www'
-// 	file_path string   // path to caddyfile
-// 	file_url  string   // path to caddyfile
-// 	xcaddy    bool     // wether to install caddy with xcaddy
-// 	plugins   []string // list of plugins to build caddy with
-// }
-
-// // install caddy will return true if it was already installed
-// pub fn install_(args_ InstallArgs) ! {
-// 	mut args := args_
-// 	version := '2.8.4'
-
-// 	installed := is_installed(version)!
-
-// 	if args.reset || !installed {
-// 		console.print_header('install caddy')
-// 		if args.xcaddy || args.plugins.len > 0 {
-// 			golang.install()!
-// 			install_caddy_with_xcaddy(args.plugins)!
-// 		} else {
-// 			install_caddy_from_release()!
-// 		}
-// 	} else if args.plugins.any(!plugin_is_installed(it)!) {
-// 		golang.install()!
-// 		install_caddy_with_xcaddy(args.plugins)!
-// 	}
-
-// 	if args.restart {
-// 		restart(args)!
-// 		return
-// 	}
-
-// 	if args.start {
-// 		start(args)!
-// 	}
-// }
-
-pub fn is_installed(version string) !bool {
-	res := os.execute('${osal.profile_path_source_and()!} caddy version')
-	if res.exit_code == 0 {
-		mut r := res.output.split_into_lines().filter(it.trim_space().len > 0)
-		if r.len > 1 {
-			r = r.filter(it.starts_with('v'))
-		}
-		if r.len != 1 {
-			return error("couldn't parse caddy version.\n${r}")
-		}
-		if texttools.version(version) > texttools.version(r[0]) {
-			return false
-		}
-		return true
-	}
-	return false
-}
 
 pub fn install_caddy_from_release() ! {
 	version := '2.8.4'
