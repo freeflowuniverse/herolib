@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.data.ourdb
 import os
 
 mut server := ourdb.new_server(
-	port:               9000
+	port:               3000
 	allowed_hosts:      ['localhost']
 	allowed_operations: ['set', 'get', 'delete']
 	secret_key:         'secret'
