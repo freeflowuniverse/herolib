@@ -32,7 +32,7 @@ fn (f &File) get_metadata() vfs.Metadata {
 }
 
 fn (f &File) get_path() string {
-	return f.metadata.name
+	return '/${f.metadata.name.trim_string_left('/')}'
 }
 
 // is_dir returns true if the entry is a directory
@@ -53,6 +53,7 @@ pub fn (f &File) is_symlink() bool {
 pub struct NewFile {
 pub:
 	name      string @[required] // name of file or directory
+	path      string @[required] // path of file or directory
 	data      string
 	mode      u32    = 0o644 // file permissions
 	owner     string = 'user'
@@ -67,6 +68,7 @@ pub fn (mut fs DatabaseVFS) new_file(file NewFile) !&File {
 		parent_id: file.parent_id
 		metadata: fs.new_metadata(NewMetadata{
 			name:      file.name
+			path:      file.path
 			mode:      file.mode
 			owner:     file.owner
 			group:     file.group
@@ -85,6 +87,7 @@ pub fn (mut fs DatabaseVFS) copy_file(file File) !&File {
 	return fs.new_file(
 		data:  file.data
 		name:  file.metadata.name
+		path:  file.metadata.path
 		mode:  file.metadata.mode
 		owner: file.metadata.owner
 		group: file.metadata.group

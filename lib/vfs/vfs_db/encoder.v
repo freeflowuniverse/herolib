@@ -7,6 +7,7 @@ import freeflowuniverse.herolib.vfs
 fn encode_metadata(mut e encoder.Encoder, m vfs.Metadata) {
 	e.add_u32(m.id)
 	e.add_string(m.name)
+	e.add_string(m.path)
 	e.add_u8(u8(m.file_type)) // FileType enum as u8
 	e.add_u64(m.size)
 	e.add_i64(m.created_at)
@@ -21,6 +22,7 @@ fn encode_metadata(mut e encoder.Encoder, m vfs.Metadata) {
 fn decode_metadata(mut d encoder.Decoder) !vfs.Metadata {
 	id := d.get_u32()!
 	name := d.get_string()!
+	path := d.get_string()!
 	file_type_byte := d.get_u8()!
 	size := d.get_u64()!
 	created_at := d.get_i64()!
@@ -33,6 +35,7 @@ fn decode_metadata(mut d encoder.Decoder) !vfs.Metadata {
 	return vfs.Metadata{
 		id:          id
 		name:        name
+		path:        path
 		file_type:   unsafe { vfs.FileType(file_type_byte) }
 		size:        size
 		created_at:  created_at

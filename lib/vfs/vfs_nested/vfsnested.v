@@ -1,6 +1,7 @@
 module vfs_nested
 
 import freeflowuniverse.herolib.vfs
+import time
 
 // NestedVFS represents a VFS that can contain multiple nested VFS instances
 pub struct NestedVFS {
@@ -33,7 +34,6 @@ fn (self &NestedVFS) find_vfs(path string) !(vfs.VFSImplementation, string) {
 	mut prefixes := self.vfs_map.keys()
 	prefixes.sort(a.len > b.len)
 
-	println('debugzone ${path} ${prefixes}')
 	for prefix in prefixes {
 		if path.starts_with(prefix) {
 			relative_path := path[prefix.len..]
@@ -50,6 +50,7 @@ pub fn (mut self NestedVFS) root_get() !vfs.FSEntry {
 		metadata: vfs.Metadata{
 			id:          0
 			name:        ''
+			path: '/'
 			file_type:   .directory
 			size:        0
 			created_at:  0
@@ -87,6 +88,13 @@ pub fn (mut self NestedVFS) file_create(path string) !vfs.FSEntry {
 
 pub fn (mut self NestedVFS) file_read(path string) ![]u8 {
 	println('debuzone- File read ${path}')
+	
+	// Special handling for macOS resource fork files (._*)
+	if path.starts_with('/._') || path.contains('/._') {
+		// Return empty data for resource fork files
+		return []u8{}
+	}
+	
 	mut impl, rel_path := self.find_vfs(path)!
 	return impl.file_read(rel_path)
 }
@@ -127,6 +135,7 @@ pub fn (mut self NestedVFS) dir_list(path string) ![]vfs.FSEntry {
 				metadata: vfs.Metadata{
 					id:          0
 					name:        prefix
+					path: prefix
 					file_type:   .directory
 					size:        0
 					created_at:  0
@@ -170,6 +179,12 @@ pub fn (mut self NestedVFS) exists(path string) bool {
 	if path == '' || path == '/' {
 		return true
 	}
+	
+	// // Special handling for macOS resource fork files (._*)
+	// if path.starts_with('/._') || path.contains('/._') {
+	// 	return true // Pretend these files exist for WebDAV Class 2 compatibility
+	// }
+	
 	mut impl, rel_path := self.find_vfs(path) or { return false }
 	return impl.exists(rel_path)
 }
@@ -178,6 +193,27 @@ pub fn (mut self NestedVFS) get(path string) !vfs.FSEntry {
 	if path == '' || path == '/' {
 		return self.root_get()
 	}
+	
+	// // Special handling for macOS resource fork files (._*)
+	// if path.starts_with('/._') || path.contains('/._') {
+	// 	// Extract the filename from the path
+	// 	filename := path.all_after_last('/')
+		
+	// 	// Create a dummy resource fork entry
+	// 	return &ResourceForkEntry{
+	// 		metadata: vfs.Metadata{
+	// 			id:          0
+	// 			name:        filename
+	// 			file_type:   .file
+	// 			size:        0
+	// 			created_at:  time.now().unix()
+	// 			modified_at: time.now().unix()
+	// 			accessed_at: time.now().unix()
+	// 		}
+	// 		path: path
+	// 	}
+	// }
+	
 	mut impl, rel_path := self.find_vfs(path)!
 	
 	// now must convert entry of nested fvs to entry of nester
@@ -380,7 +416,7 @@ fn (e &NestedEntry) get_path() string {
 	if original_path == '/' {
 		return e.prefix
 	}
-	return e.prefix + original_path
+	return e.prefix + '/${original_path.trim_string_left("/")}'
 }
 
 // is_dir returns true if the entry is a directory
@@ -397,3 +433,33 @@ pub fn (self &NestedEntry) is_file() bool {
 pub fn (self &NestedEntry) is_symlink() bool {
 	return self.original.is_symlink()
 }
+
+// // ResourceForkEntry represents a macOS resource fork file (._*)
+// pub struct ResourceForkEntry {
+// pub mut:
+// 	metadata vfs.Metadata
+// 	path     string
+// }
+
+// fn (e &ResourceForkEntry) get_metadata() vfs.Metadata {
+// 	return e.metadata
+// }
+
+// fn (e &ResourceForkEntry) get_path() string {
+// 	return e.path
+// }
+
+// // is_dir returns true if the entry is a directory
+// pub fn (self &ResourceForkEntry) is_dir() bool {
+// 	return false
+// }
+
+// // is_file returns true if the entry is a file
+// pub fn (self &ResourceForkEntry) is_file() bool {
+// 	return true
+// }
+
+// // is_symlink returns true if the entry is a symlink
+// pub fn (self &ResourceForkEntry) is_symlink() bool {
+// 	return false
+// }
