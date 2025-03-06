@@ -32,7 +32,7 @@ fn (f &File) get_metadata() vfs.Metadata {
 }
 
 fn (f &File) get_path() string {
-	return '/${f.metadata.name.trim_string_left('/')}'
+	return f.metadata.path
 }
 
 // is_dir returns true if the entry is a directory

@@ -32,12 +32,12 @@ pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
 	return error('Not a file: ${path}')
 }
 
-pub fn (mut self DatabaseVFS) file_write(path string, data []u8) ! {
-	self.print()!
+pub fn (mut self DatabaseVFS) file_write(path_ string, data []u8) ! {
+	log.info('[DatabaseVFS] Writing file ${path_}')
+	path := '/${path_.trim_left('/').trim_right('/')}'
 	if mut entry := self.get_entry(path) {
-		println(entry)
 		if mut entry is File {
-			log.info('[DatabaseVFS] Writing file ${path}')
+			log.info('[DatabaseVFS] Writing to file ${path}')
 			entry.write(data.bytestr())
 			self.save_entry(entry)!
 		} else {
@@ -50,6 +50,7 @@ pub fn (mut self DatabaseVFS) file_write(path string, data []u8) ! {
 }
 
 pub fn (mut self DatabaseVFS) file_delete(path string) ! {
+	log.info('[DatabaseVFS] Deleting file ${path}')
 	parent_path := os.dir(path)
 	file_name := os.base(path)
 
@@ -83,6 +84,7 @@ pub fn (mut self DatabaseVFS) dir_list(path string) ![]vfs.FSEntry {
 }
 
 pub fn (mut self DatabaseVFS) dir_delete(path string) ! {
+	log.info('[DatabaseVFS] Deleting Directory ${path}')
 	parent_path := os.dir(path)
 	dir_name := os.base(path)
 
@@ -91,6 +93,7 @@ pub fn (mut self DatabaseVFS) dir_delete(path string) ! {
 }
 
 pub fn (mut self DatabaseVFS) link_create(target_path string, link_path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Creating link ${target_path}')
 	parent_path := os.dir(link_path)
 	link_name := os.base(link_path)
 
@@ -118,6 +121,7 @@ pub fn (mut self DatabaseVFS) link_create(target_path string, link_path string) 
 }
 
 pub fn (mut self DatabaseVFS) link_read(path string) !string {
+	log.info('[DatabaseVFS] Reading link ${path}')
 	mut entry := self.get_entry(path)!
 	if mut entry is Symlink {
 		return entry.get_target()!
@@ -126,6 +130,7 @@ pub fn (mut self DatabaseVFS) link_read(path string) !string {
 }
 
 pub fn (mut self DatabaseVFS) link_delete(path string) ! {
+	log.info('[DatabaseVFS] Deleting link ${path}')
 	parent_path := os.dir(path)
 	file_name := os.base(path)
 
@@ -134,8 +139,6 @@ pub fn (mut self DatabaseVFS) link_delete(path string) ! {
 }
 
 pub fn (mut self DatabaseVFS) exists(path_ string) bool {
-	println('debugznoiki')
-	self.print() or {panic(err.msg())}
 	path := if !path_.starts_with('/') {
 		'/${path_}'
 	} else {
@@ -144,6 +147,8 @@ pub fn (mut self DatabaseVFS) exists(path_ string) bool {
 	if path == '/' {
 		return true
 	}
+	// self.print() or {panic(err)}
+	log.info('[DatabaseVFS] Checking path exists ${path}')
 	self.get_entry(path) or { return false }
 	return true
 }
@@ -164,6 +169,7 @@ pub fn (mut self DatabaseVFS) rename(old_path string, new_path string) !vfs.FSEn
 }
 
 pub fn (mut self DatabaseVFS) copy(src_path string, dst_path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Copying ${src_path} to ${dst_path}')
 	src_parent_path := os.dir(src_path)
 	dst_parent_path := os.dir(dst_path)
 
@@ -197,7 +203,6 @@ pub fn (mut self DatabaseVFS) move(src_path string, dst_path string) !vfs.FSEntr
 	
 	src_parent_path := os.dir(src_path)
 	dst_parent_path := os.dir(dst_path)
-	log.info('${src_parent_path}')
 
 	if !self.exists(src_parent_path) {
 		return error('${src_parent_path} does not exist')

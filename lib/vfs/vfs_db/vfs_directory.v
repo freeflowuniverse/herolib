@@ -18,7 +18,7 @@ pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name_ string) !&D
 	path := if dir.metadata.path == '/' {
 		'/${name}'
 	} else {
-		"${dir.metadata.path.trim('/')}/${name}"
+		"/${dir.metadata.path.trim('/')}/${name}"
 	}
 
 	new_dir := fs.new_directory(
@@ -26,7 +26,6 @@ pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name_ string) !&D
 		path: path
 		parent_id: dir.metadata.id
 	)!
-	println('new_dit ${new_dir}')
 	dir.children << new_dir.metadata.id
 	fs.save_entry(dir)!
 	return new_dir
@@ -108,12 +107,18 @@ pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name_ string) !&File
 			}
 		}
 	}
+
+	path := if dir.metadata.path == '/' {
+		'/${name}'
+	} else {
+		"/${dir.metadata.path.trim('/')}/${name}"
+	}
 	
 	// Create new file with correct parent_id
 	mut new_file := fs.new_file(
 		parent_id: dir.metadata.id
 		name: name
-		path: "${dir.metadata.path.trim('/')}/${name}"
+		path: path
 	)!
 	
 	// Ensure parent_id is set correctly
@@ -222,11 +227,16 @@ pub fn (mut fs DatabaseVFS) directory_move(dir_ Directory, args_ MoveDirArgs) !&
 				found = true
 				child_id_to_remove = child_id
 
+				new_path := if args.dst_parent_dir.metadata.path == '/' {
+					'/${args.dst_entry_name}'
+				} else {
+					"/${args.dst_parent_dir.metadata.path.trim('/')}/${args.dst_entry_name}"
+				}
 				// Handle both files and directories
 				if entry is File {
 					mut file_entry := entry as File
 					file_entry.metadata.name = args.dst_entry_name
-					file_entry.metadata.path = "/${args.dst_parent_dir.metadata.path.trim('/')}/${args.dst_entry_name}"
+					file_entry.metadata.path = new_path
 					file_entry.metadata.modified_at = time.now().unix()
 					file_entry.parent_id = args.dst_parent_dir.metadata.id
 
@@ -248,7 +258,7 @@ pub fn (mut fs DatabaseVFS) directory_move(dir_ Directory, args_ MoveDirArgs) !&
 					// Handle directory
 					mut dir_entry := entry as Directory
 					dir_entry.metadata.name = args.dst_entry_name
-					dir_entry.metadata.path = "${args.dst_parent_dir.metadata.path.trim_string_right('/')}/${args.dst_entry_name}"
+					dir_entry.metadata.path = new_path
 					dir_entry.metadata.modified_at = time.now().unix()
 					dir_entry.parent_id = args.dst_parent_dir.metadata.id
 
@@ -285,6 +295,7 @@ fn (mut fs DatabaseVFS) move_children_recursive(mut dir Directory) ! {
 	for child in dir.children {
 		if mut child_entry := fs.load_entry(child) {
 			child_entry.parent_id = dir.metadata.id
+			child_entry.metadata.path = '${dir.metadata.path}/${child_entry.metadata.name}'
 
 			if child_entry is Directory {
 				// Recursively move subdirectories
@@ -393,6 +404,7 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 						metadata: Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
+							path: '${dst_dir.metadata.path}/${entry_.metadata.name}'
 						}
 						children: []u32{}
 						parent_id: dst_dir.metadata.id
@@ -408,6 +420,7 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 						metadata: Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
+							path: '${dst_dir.metadata.path}/${entry_.metadata.name}'
 						}
 						data: entry_.data
 						parent_id: dst_dir.metadata.id
@@ -420,6 +433,7 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 						metadata: Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
+							path: '${dst_dir.metadata.path}/${entry_.metadata.name}'
 						}
 						target: entry_.target
 						parent_id: dst_dir.metadata.id

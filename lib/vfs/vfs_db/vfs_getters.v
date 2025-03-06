@@ -53,7 +53,6 @@ fn (mut self DatabaseVFS) directory_get_entry(mut dir Directory, path string) ?F
 		panic('this should never happen')
 	}
 	for mut child in children {
-		println('debugzoni1 ${child.metadata.path} ${path}')
 		if child.metadata.path == path {
 			return child
 		} else if child is Directory {

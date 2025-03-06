@@ -87,7 +87,6 @@ pub fn (mut self NestedVFS) file_create(path string) !vfs.FSEntry {
 }
 
 pub fn (mut self NestedVFS) file_read(path string) ![]u8 {
-	println('debuzone- File read ${path}')
 	
 	// Special handling for macOS resource fork files (._*)
 	if path.starts_with('/._') || path.contains('/._') {

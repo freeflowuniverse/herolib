@@ -4,6 +4,7 @@ import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.encoder
 import time
+import log
 
 // DatabaseVFS represents the virtual filesystem
 @[heap]
@@ -31,7 +32,7 @@ pub fn (mut fs DatabaseVFS) get_next_id() u32 {
 }
 
 // load_entry loads an entry from the database by ID and sets up parent references
-pub fn (mut fs DatabaseVFS) load_entry(vfs_id u32) !FSEntry {
+fn (mut fs DatabaseVFS) load_entry(vfs_id u32) !FSEntry {
 	if metadata := fs.db_metadata.get(fs.get_database_id(vfs_id)!) {
 		// First byte is version, second byte indicates the type
 		// TODO: check we dont overflow filetype (u8 in boundaries of filetype)
@@ -79,12 +80,12 @@ pub fn (mut fs DatabaseVFS) save_entry(entry FSEntry) !u32 {
 		}
 		File {
 			// First encode file data and store in db_data
-			data_encoded := entry.data.bytes()
-			metadata_bytes := if data_encoded.len == 0 {
+			metadata_bytes := if entry.data.len == 0 {
 				entry.encode(none)
 			} else {
 				// file has data so that will be stored in data_db
 				// its corresponding id stored with file metadata
+				data_encoded := entry.data.bytes()
 				data_db_id := fs.db_data.set(id: entry.metadata.id, data: data_encoded) or {
 					return error('Failed to save file data on id:${entry.metadata.id}: ${err}')
 				}
