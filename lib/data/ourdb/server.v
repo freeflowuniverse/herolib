@@ -136,8 +136,8 @@ fn (server OurDBServer) success[T](args SuccessResponse[T]) SuccessResponse[T] {
 }
 
 // Request body structure for the `/set` endpoint
-struct SetRequestBody {
-mut:
+pub struct KeyValueData {
+pub mut:
 	id    u32    // Record ID
 	value string // Value to store
 }
@@ -146,7 +146,7 @@ mut:
 @['/set'; post]
 pub fn (mut server OurDBServer) set(mut ctx ServerContext) veb.Result {
 	request_body := ctx.req.data.str()
-	mut decoded_body := json.decode(SetRequestBody, request_body) or {
+	mut decoded_body := json.decode(KeyValueData, request_body) or {
 		ctx.res.set_status(.bad_request)
 		return ctx.json[ErrorResponse](server.error(
 			error:   'bad_request'
@@ -197,7 +197,7 @@ pub fn (mut server OurDBServer) get(mut ctx ServerContext, id string) veb.Result
 		))
 	}
 
-	data := SetRequestBody{
+	data := KeyValueData{
 		id:    id_
 		value: record.bytestr()
 	}
