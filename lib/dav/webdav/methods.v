@@ -10,128 +10,19 @@ import strings
 
 @['/:path...'; options]
 pub fn (app &App) options(mut ctx Context, path string) veb.Result {
-	ctx.res.set_status(.ok)
-	ctx.res.header.add_custom('dav', '1,2') or { return ctx.server_error(err.msg()) }
-	ctx.res.header.add(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	ctx.res.header.add_custom('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
-	ctx.res.header.add(.access_control_allow_origin, '*')
-	ctx.res.header.add(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	ctx.res.header.add(.access_control_allow_headers, 'Authorization, Content-Type')
-	ctx.res.header.add(.content_length, '0')
-	return ctx.text('')
-}
-
-// parse_lock_xml parses the XML data from a WebDAV LOCK request
-// and extracts the lock parameters (scope, type, owner)
-fn parse_lock_xml(xml_data string) !LockInfo {
-	mut lock_info := LockInfo{
-		scope: 'exclusive' // default values
-		lock_type: 'write'
-		owner: ''
-	}
-	
-	// Parse the XML document
-	doc := xml.XMLDocument.from_string(xml_data) or { 
-		return error('Failed to parse XML: ${err}')
-	}
-	
-	// Get the root element (lockinfo)
-	root := doc.root
-	
-	// Handle namespace prefixes (D:) in element names
-	// WebDAV uses namespaces, so we need to check for both prefixed and non-prefixed names
-	
-	// Extract lockscope
-	for child in root.children {
-		if child is xml.XMLNode {
-			node := child as xml.XMLNode
-			
-			// Check for lockscope (with or without namespace prefix)
-			if node.name == 'lockscope' || node.name == 'D:lockscope' {
-				for scope_child in node.children {
-					if scope_child is xml.XMLNode {
-						scope_node := scope_child as xml.XMLNode
-						if scope_node.name == 'exclusive' || scope_node.name == 'D:exclusive' {
-							lock_info.scope = 'exclusive'
-						} else if scope_node.name == 'shared' || scope_node.name == 'D:shared' {
-							lock_info.scope = 'shared'
-						}
-					}
-				}
-			}
-			
-			// Check for locktype (with or without namespace prefix)
-			if node.name == 'locktype' || node.name == 'D:locktype' {
-				for type_child in node.children {
-					if type_child is xml.XMLNode {
-						type_node := type_child as xml.XMLNode
-						if type_node.name == 'write' || type_node.name == 'D:write' {
-							lock_info.lock_type = 'write'
-						}
-					}
-				}
-			}
-			
-			// Check for owner (with or without namespace prefix)
-			if node.name == 'owner' || node.name == 'D:owner' {
-				for owner_child in node.children {
-					if owner_child is xml.XMLNode {
-						owner_node := owner_child as xml.XMLNode
-						if owner_node.name == 'href' || owner_node.name == 'D:href' {
-							for href_content in owner_node.children {
-								if href_content is string {
-									lock_info.owner = (href_content as string).trim_space()
-									break
-								}
-							}
-						}
-					} else if owner_child is string {
-						// Some clients might include owner text directly
-						lock_info.owner = (owner_child as string).trim_space()
-					}
-				}
-			}
-		}
-	}
-	
-	// If owner is still empty, try to extract it from any text content in the owner node
-	if lock_info.owner.len == 0 {
-		for child in root.children {
-			if child is xml.XMLNode {
-				node := child as xml.XMLNode
-				if node.name == 'owner' || node.name == 'D:owner' {
-					for content in node.children {
-						if content is string {
-							lock_info.owner = (content as string).trim_space()
-							break
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	// Use a default owner if none was found
-	if lock_info.owner.len == 0 {
-		lock_info.owner = 'unknown-client'
-	}
-	
-	// Debug output
-	println('Parsed lock info: scope=${lock_info.scope}, type=${lock_info.lock_type}, owner=${lock_info.owner}')
-	
-	return lock_info
-}
-
-// LockInfo holds the parsed information from a WebDAV LOCK request
-struct LockInfo {
-pub mut:
-	scope     string // 'exclusive' or 'shared'
-	lock_type string // typically 'write'
-	owner     string // owner identifier
+	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
+	ctx.set_header(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	// ctx.set_header(.connection, 'close')
+	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
+	ctx.set_header(.access_control_allow_origin, '*')
+	ctx.set_header(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	ctx.set_header(.access_control_allow_headers, 'Authorization, Content-Type')
+	ctx.set_header(.content_length, '0')
+	return ctx.ok('')
 }
 
 @['/:path...'; lock]
-pub fn (mut app App) lock_handler(mut ctx Context, path string) veb.Result {
+pub fn (mut app App) lock(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
 	
 	// Parse lock information from XML body instead of headers
@@ -161,12 +52,7 @@ pub fn (mut app App) lock_handler(mut ctx Context, path string) veb.Result {
 			// Resource is locked by a different owner
 			// Return a 423 Locked status with information about the existing lock
 			ctx.res.set_status(.locked)
-			
-			// Create a response with information about the existing lock
-			lock_discovery_response := create_lock_discovery_response(existing_lock)
-			ctx.res.header.add(.content_type, 'application/xml; charset="utf-8"')
-			
-			return ctx.text(lock_discovery_response)
+			return ctx.send_response_to_client('application/xml', existing_lock.xml())
 		}
 	}
 	
@@ -177,70 +63,14 @@ pub fn (mut app App) lock_handler(mut ctx Context, path string) veb.Result {
 		return ctx.text('Resource is already locked by a different owner.')
 	}
 	ctx.res.set_status(.ok)
-	ctx.res.header.add_custom('Lock-Token', '${lock_result.token}') or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Lock-Token', '${lock_result.token}') or { return ctx.server_error(err.msg()) }
 	
 	// Create a proper WebDAV lock response
-	lock_response := create_lock_response(lock_result.token, lock_info, resource, timeout)
-	println('debugzo4444 ${lock_response}')
-	return ctx.send_response_to_client('application/xml', lock_response)
-}
-
-// create_lock_discovery_response generates an XML response with information about an existing lock
-fn create_lock_discovery_response(lock_ Lock) string {
-	mut sb := strings.new_builder(500)
-	sb.write_string('<?xml version="1.0" encoding="utf-8"?>\n')
-	// sb.write_string('<D:prop xmlns:D="DAV:">\n')
-	// sb.write_string('  <D:lockdiscovery>\n')
-	sb.write_string('    <D:activelock>\n')
-	sb.write_string('      <D:locktype><D:write/></D:locktype>\n')
-	sb.write_string('      <D:lockscope><D:exclusive/></D:lockscope>\n')
-	sb.write_string('      <D:depth>${lock_.depth}</D:depth>\n')
-	sb.write_string('      <D:owner>\n')
-	sb.write_string('        <D:href>${lock_.owner}</D:href>\n')
-	sb.write_string('      </D:owner>\n')
-	sb.write_string('      <D:timeout>Second-${lock_.timeout}</D:timeout>\n')
-	sb.write_string('      <D:locktoken>\n')
-	sb.write_string('        <D:href>${lock_.token}</D:href>\n')
-	sb.write_string('      </D:locktoken>\n')
-	sb.write_string('      <D:lockroot>\n')
-	sb.write_string('        <D:href>${lock_.resource}</D:href>\n')
-	sb.write_string('      </D:lockroot>\n')
-	sb.write_string('    </D:activelock>\n')
-	// sb.write_string('  </D:lockdiscovery>\n')
-	// sb.write_string('</D:prop>\n')
-	
-	return sb.str()
-}
-
-// create_lock_response generates the XML response for a successful lock request
-fn create_lock_response(token string, lock_info LockInfo, resource string, timeout int) string {
-	mut sb := strings.new_builder(500)
-	sb.write_string('<?xml version="1.0" encoding="utf-8"?>\n')
-	sb.write_string('<D:prop xmlns:D="DAV:">\n')
-	sb.write_string('  <D:lockdiscovery xmlns:D="DAV:">\n')
-	sb.write_string('    <D:activelock>\n')
-	sb.write_string('      <D:locktype><D:${lock_info.lock_type}/></D:locktype>\n')
-	sb.write_string('      <D:lockscope><D:${lock_info.scope}/></D:lockscope>\n')
-	sb.write_string('      <D:depth>infinity</D:depth>\n')
-	sb.write_string('      <D:owner>\n')
-	sb.write_string('        <D:href>${lock_info.owner}</D:href>\n')
-	sb.write_string('      </D:owner>\n')
-	sb.write_string('      <D:timeout>Second-${timeout}</D:timeout>\n')
-	sb.write_string('      <D:locktoken>\n')
-	sb.write_string('        <D:href>${token}</D:href>\n')
-	sb.write_string('      </D:locktoken>\n')
-	sb.write_string('      <D:lockroot>\n')
-	sb.write_string('        <D:href>${resource}</D:href>\n')
-	sb.write_string('      </D:lockroot>\n')
-	sb.write_string('    </D:activelock>\n')
-	sb.write_string('  </D:lockdiscovery>\n')
-	sb.write_string('</D:prop>\n')
-	
-	return sb.str()
+	return ctx.send_response_to_client('application/xml', lock_result.xml())
 }
 
 @['/:path...'; unlock]
-pub fn (mut app App) unlock_handler(mut ctx Context, path string) veb.Result {
+pub fn (mut app App) unlock(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
 	token_ := ctx.get_custom_header('Lock-Token') or { return ctx.server_error(err.msg()) }
 	token := token_.trim_string_left('<').trim_string_right('>')
@@ -250,7 +80,6 @@ pub fn (mut app App) unlock_handler(mut ctx Context, path string) veb.Result {
 		return ctx.text('Lock failed: `Owner` header missing.')
 	}
 
-	println('debugzoZ ${token}')
 	if app.lock_manager.unlock_with_token(resource, token) {
 		ctx.res.set_status(.no_content)
 		return ctx.text('Lock successfully released')
@@ -263,16 +92,16 @@ pub fn (mut app App) unlock_handler(mut ctx Context, path string) veb.Result {
 
 @['/:path...'; get]
 pub fn (mut app App) get_file(mut ctx Context, path string) veb.Result {
+	log.info('[WebDAV] Getting file ${path}')
 	if !app.vfs.exists(path) {
 		return ctx.not_found()
 	}
 
 	fs_entry := app.vfs.get(path) or {
-		console.print_stderr('failed to get FS Entry ${path}: ${err}')
+		log.error('[WebDAV] failed to get FS Entry ${path}: ${err}')
 		return ctx.server_error(err.msg())
 	}
 
-	println('debugzone-- ${fs_entry.get_path()} >> ${path}')
 	file_data := app.vfs.file_read(path) or { return ctx.server_error(err.msg()) }
 
 	ext := fs_entry.get_metadata().name.all_after_last('.')
@@ -284,7 +113,13 @@ pub fn (mut app App) get_file(mut ctx Context, path string) veb.Result {
 
 @[head]
 pub fn (app &App) index(mut ctx Context) veb.Result {
-	ctx.res.header.add(.content_length, '0')
+	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
+	ctx.set_header(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
+	ctx.set_header(.access_control_allow_origin, '*')
+	ctx.set_header(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	ctx.set_header(.access_control_allow_headers, 'Authorization, Content-Type')
+	ctx.set_header(.content_length, '0')
 	return ctx.ok('')
 }
 
@@ -296,32 +131,26 @@ pub fn (mut app App) exists(mut ctx Context, path string) veb.Result {
 	}
 
 	// Add necessary WebDAV headers
-	ctx.res.header.add(.authorization, 'Basic') // Indicates Basic auth usage
-	ctx.res.header.add_custom('DAV', '1, 2') or {
+	// ctx.set_header(.authorization, 'Basic') // Indicates Basic auth usage
+	ctx.set_custom_header('dav', '1, 2') or {
 		return ctx.server_error('Failed to set DAV header: ${err}')
 	}
-	ctx.res.header.add_custom('Etag', 'abc123xyz') or {
-		return ctx.server_error('Failed to set ETag header: ${err}')
-	}
-	ctx.res.header.add(.content_length, '0') // HEAD request, so no body
-	ctx.res.header.add(.date, time.now().as_utc().format()) // Correct UTC date format
-	// ctx.res.header.add(.content_type, 'application/xml') // XML is common for WebDAV metadata
-	ctx.res.header.add_custom('Allow', 'OPTIONS, GET, HEAD, PROPFIND, PROPPATCH, MKCOL, PUT, DELETE, COPY, MOVE, LOCK, UNLOCK') or {
+	ctx.set_header(.content_length, '0') // HEAD request, so no body
+	// ctx.set_header(.date, time.now().as_utc().format_rfc1123()) // Correct UTC date format
+	// ctx.set_header(.content_type, 'application/xml') // XML is common for WebDAV metadata
+	ctx.set_custom_header('Allow', 'OPTIONS, GET, HEAD, PROPFIND, PROPPATCH, MKCOL, PUT, DELETE, COPY, MOVE, LOCK, UNLOCK') or {
 		return ctx.server_error('Failed to set Allow header: ${err}')
 	}
-	ctx.res.header.add(.accept_ranges, 'bytes') // Allows range-based file downloads
-	ctx.res.header.add_custom('Cache-Control', 'no-cache, no-store, must-revalidate') or {
+	ctx.set_header(.accept_ranges, 'bytes') // Allows range-based file downloads
+	ctx.set_custom_header('Cache-Control', 'no-cache, no-store, must-revalidate') or {
 		return ctx.server_error('Failed to set Cache-Control header: ${err}')
 	}
-	ctx.res.header.add_custom('Last-Modified', time.now().as_utc().format()) or {
+	ctx.set_custom_header('Last-Modified', time.now().as_utc().format()) or {
 		return ctx.server_error('Failed to set Last-Modified header: ${err}')
 	}
-	ctx.res.set_status(.ok)
 	ctx.res.set_version(.v1_1)
 
 	// Debugging output (can be removed in production)
-	println('HEAD response: ${ctx.res}')
-
 	return ctx.ok('')
 }
 
@@ -336,6 +165,14 @@ pub fn (mut app App) delete(mut ctx Context, path string) veb.Result {
 		return ctx.server_error(err.msg())
 	}
 
+	// Check if the resource is locked
+	if app.lock_manager.is_locked(ctx.req.url) {
+		// Resource is locked, return a 207 Multi-Status response with a 423 Locked status
+		ctx.res.set_status(.multi_status)
+		return ctx.send_response_to_client('application/xml', $tmpl('./templates/delete_response.xml'))
+	}
+
+	// If not locked, proceed with deletion
 	if fs_entry.is_dir() {
 		console.print_debug('deleting directory: ${path}')
 		app.vfs.dir_delete(path) or { return ctx.server_error(err.msg()) }
@@ -346,8 +183,8 @@ pub fn (mut app App) delete(mut ctx Context, path string) veb.Result {
 		app.vfs.file_delete(path) or { return ctx.server_error(err.msg()) }
 	}
 
-	ctx.res.set_status(.no_content)
-	return ctx.text('entry ${path} is deleted')
+	// Return success response
+	return ctx.no_content()
 }
 
 @['/:path...'; copy]
@@ -418,28 +255,52 @@ pub fn (mut app App) mkcol(mut ctx Context, path string) veb.Result {
 
 @['/:path...'; propfind]
 fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
+	log.info('[WebDAV] ${@FN} ${path}')
+	
+	// Check if resource exists
 	if !app.vfs.exists(path) {
-		return ctx.not_found()
+		return ctx.error(
+			status: .not_found
+			message: 'Path ${path} does not exist'
+			tag: 'resource-must-be-null'
+		)
 	}
-	depth := ctx.req.header.get_custom('Depth') or { '0' }.int()
+	
+	// Parse Depth header
+	depth_str := ctx.req.header.get_custom('Depth') or { '0' }
+	depth := parse_depth(depth_str)
+	
+	
+	// Parse PROPFIND request
+	propfind_req := parse_propfind_xml(ctx.req.data) or {
+		return ctx.error(WebDAVError{
+			status: .bad_request
+			message: 'Failed to parse PROPFIND XML: ${err}'
+			tag: 'propfind-parse-error'
+		})
+	}
 
-	responses := app.get_responses(path, depth) or {
-		console.print_stderr('failed to get responses: ${err}')
-		return ctx.server_error(err.msg())
+	log.debug('[WebDAV] ${@FN} Propfind Request: ${propfind_req.typ} ${propfind_req.depth}')
+
+	
+	// Check if resource is locked
+	if app.lock_manager.is_locked(ctx.req.url) {
+		// If the resource is locked, we should still return properties
+		// but we might need to indicate the lock status in the response
+		// This is handled in the property generation
+		log.info('[WebDAV] Resource is locked: ${ctx.req.url}')
 	}
-	doc := xml.XMLDocument{
-		root: xml.XMLNode{
-			name:       'D:multistatus'
-			children:   responses
-			attributes: {
-				'xmlns:D': 'DAV:'
-			}
-		}
+	
+	entry := app.vfs.get(path) or {return ctx.server_error('entry not found ${err}')}
+	
+	responses := app.get_responses(entry, propfind_req) or {
+		return ctx.server_error('Failed to get entry properties ${err}')
 	}
-	res := '<?xml version="1.0" encoding="UTF-8"?>${doc.pretty_str('').split('\n')[1..].join('')}'
+	println('debugzo ${responses}')
+
+	// Create multistatus response using the responses
 	ctx.res.set_status(.multi_status)
-	return ctx.send_response_to_client('application/xml', res)
-	// return veb.not_found()
+	return ctx.send_response_to_client('application/xml', responses.xml())
 }
 
 @['/:path...'; put]
@@ -454,12 +315,15 @@ fn (mut app App) create_or_update(mut ctx Context, path string) veb.Result {
 		} else {
 			return ctx.server_error('failed to get FS Entry ${path}: ${err.msg()}')
 		}
-		data := ctx.req.data.bytes()
-		app.vfs.file_write(path, data) or { return ctx.server_error(err.msg()) }
-		return ctx.ok('HTTP 200: Successfully saved file: ${path}')
+		// return ctx.ok('HTTP 200: Successfully saved file: ${path}')
 	} else {
+		data := ctx.req.data.bytes()
 		app.vfs.file_create(path) or { return ctx.server_error(err.msg()) }
 	}
+	if ctx.req.data.len > 0 {
+		data := ctx.req.data.bytes()
+		app.vfs.file_write(path, data) or { return ctx.server_error(err.msg()) }
+		return ctx.ok('HTTP 200: Successfully wrote file: ${path}')
+	}
 	return ctx.ok('HTTP 200: Successfully created file: ${path}')
-
 }

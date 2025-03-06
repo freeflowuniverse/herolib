@@ -34,7 +34,6 @@ pub fn new_app(args AppArgs) !&App {
 	app.use(handler: app.auth_middleware)
 	app.use(handler: middleware_log_request)
 	app.use(handler: middleware_log_response, after: true)
-
 	return app
 }
 

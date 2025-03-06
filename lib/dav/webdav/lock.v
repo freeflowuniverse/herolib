@@ -3,15 +3,6 @@ module webdav
 import time
 import rand
 
-struct Lock {
-	resource   string
-	owner      string
-	token      string
-	depth      int // 0 for a single resource, 1 for recursive
-	timeout    int // in seconds
-	created_at time.Time
-}
-
 struct LockManager {
 mut:
 	locks map[string]Lock
@@ -27,7 +18,7 @@ pub:
 // lock attempts to lock a resource for a specific owner
 // Returns a LockResult with the lock token and whether it's a new lock
 // Returns an error if the resource is already locked by a different owner
-pub fn (mut lm LockManager) lock(resource string, owner string, depth int, timeout int) !LockResult {
+pub fn (mut lm LockManager) lock(resource string, owner string, depth int, timeout int) !Lock {
 	if resource in lm.locks {
 		// Check if the lock is still valid
 		existing_lock := lm.locks[resource]
@@ -35,18 +26,15 @@ pub fn (mut lm LockManager) lock(resource string, owner string, depth int, timeo
 			// Resource is already locked
 			if existing_lock.owner == owner {
 				// Same owner, refresh the lock
-				lm.locks[resource] = Lock{
+				refreshed_lock := Lock {...existing_lock,
 					resource:   resource
 					owner:      owner
-					token:      existing_lock.token
 					depth:      depth
 					timeout:    timeout
 					created_at: time.now()
 				}
-				return LockResult{
-					token: existing_lock.token
-					is_new_lock: false
-				}
+				lm.locks[resource] = refreshed_lock
+				return refreshed_lock
 			} else {
 				// Different owner, return an error
 				return error('Resource is already locked by a different owner')
@@ -57,19 +45,16 @@ pub fn (mut lm LockManager) lock(resource string, owner string, depth int, timeo
 	}
 
 	// Generate a new lock token
-	token := rand.uuid_v4()
-	lm.locks[resource] = Lock{
+	new_lock := Lock{
 		resource:   resource
 		owner:      owner
-		token:      token
+		token:      rand.uuid_v4()
 		depth:      depth
 		timeout:    timeout
 		created_at: time.now()
 	}
-	return LockResult{
-		token: token
-		is_new_lock: true
-	}
+	lm.locks[resource] = new_lock
+	return new_lock
 }
 
 pub fn (mut lm LockManager) unlock(resource string) bool {
@@ -107,9 +92,7 @@ pub fn (lm LockManager) get_lock(resource string) ?Lock {
 }
 
 pub fn (mut lm LockManager) unlock_with_token(resource string, token string) bool {
-	println('debugzoA ${resource} ${lm.locks}')
 	if resource in lm.locks {
-		println('debugzoB ${token} ${lm.locks[resource]}')
 		lock_ := lm.locks[resource]
 		if lock_.token == token {
 			lm.locks.delete(resource)
@@ -119,7 +102,7 @@ pub fn (mut lm LockManager) unlock_with_token(resource string, token string) boo
 	return false
 }
 
-fn (mut lm LockManager) lock_recursive(resource string, owner string, depth int, timeout int) !LockResult {
+fn (mut lm LockManager) lock_recursive(resource string, owner string, depth int, timeout int) !Lock {
 	if depth == 0 {
 		return lm.lock(resource, owner, depth, timeout)
 	}
