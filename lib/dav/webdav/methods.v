@@ -107,8 +107,9 @@ pub fn (mut app App) get_file(mut ctx Context, path string) veb.Result {
 	ext := fs_entry.get_metadata().name.all_after_last('.')
 	content_type := veb.mime_types[ext] or { 'text/plain' }
 
+	ctx.res.header.set(.content_length, file_data.len.str())
 	ctx.res.set_status(.ok)
-	return ctx.text(file_data.str())
+	return ctx.send_response_to_client(content_type, file_data.bytestr())
 }
 
 @[head]
@@ -256,7 +257,7 @@ pub fn (mut app App) mkcol(mut ctx Context, path string) veb.Result {
 @['/:path...'; propfind]
 fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 	log.info('[WebDAV] ${@FN} ${path}')
-	
+
 	// Check if resource exists
 	if !app.vfs.exists(path) {
 		return ctx.error(
@@ -266,13 +267,8 @@ fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 		)
 	}
 	
-	// Parse Depth header
-	depth_str := ctx.req.header.get_custom('Depth') or { '0' }
-	depth := parse_depth(depth_str)
-	
-	
 	// Parse PROPFIND request
-	propfind_req := parse_propfind_xml(ctx.req.data) or {
+	propfind_req := parse_propfind_xml(ctx.req) or {
 		return ctx.error(WebDAVError{
 			status: .bad_request
 			message: 'Failed to parse PROPFIND XML: ${err}'
@@ -296,7 +292,6 @@ fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 	responses := app.get_responses(entry, propfind_req) or {
 		return ctx.server_error('Failed to get entry properties ${err}')
 	}
-	println('debugzo ${responses}')
 
 	// Create multistatus response using the responses
 	ctx.res.set_status(.multi_status)
@@ -315,9 +310,7 @@ fn (mut app App) create_or_update(mut ctx Context, path string) veb.Result {
 		} else {
 			return ctx.server_error('failed to get FS Entry ${path}: ${err.msg()}')
 		}
-		// return ctx.ok('HTTP 200: Successfully saved file: ${path}')
 	} else {
-		data := ctx.req.data.bytes()
 		app.vfs.file_create(path) or { return ctx.server_error(err.msg()) }
 	}
 	if ctx.req.data.len > 0 {

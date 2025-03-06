@@ -7,6 +7,7 @@ import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.vfs.vfs_db
 import os
 import time
+import net.http
 import veb
 
 // PropfindRequest represents a parsed PROPFIND request
@@ -14,8 +15,14 @@ pub struct PropfindRequest {
 pub:
 	typ         PropfindType
 	props       []string    // Property names if typ is prop
-	depth       int         // Depth of the request (0, 1, or -1 for infinity)
+	depth       Depth         // Depth of the request (0, 1, or -1 for infinity)
 	xml_content string      // Original XML content
+}
+
+pub enum Depth {
+	infinity = -1
+	zero = 0
+	one = 1
 }
 
 // PropfindType represents the type of PROPFIND request
@@ -27,12 +34,19 @@ pub enum PropfindType {
 }
 
 // parse_propfind_xml parses the XML body of a PROPFIND request
-pub fn parse_propfind_xml(data string) !PropfindRequest {
+pub fn parse_propfind_xml(req http.Request) !PropfindRequest {
+
+	data := req.data
+	// Parse Depth header
+	depth_str := req.header.get_custom('Depth') or { '0' }
+	depth := parse_depth(depth_str)
+	
+
 	if data.len == 0 {
 		// If no body is provided, default to allprop
 		return PropfindRequest{
 			typ: .allprop
-			depth: 0
+			depth: depth
 			xml_content: ''
 		}
 	}
@@ -89,26 +103,20 @@ pub fn parse_propfind_xml(data string) !PropfindRequest {
 	return PropfindRequest{
 		typ: typ
 		props: props
-		depth: 0
+		depth: depth
 		xml_content: data
 	}
 }
 
 // parse_depth parses the Depth header value
-pub fn parse_depth(depth_str string) int {
-	if depth_str == 'infinity' {
-		return -1 // Use -1 to represent infinity
+pub fn parse_depth(depth_str string) Depth {
+	if depth_str == 'infinity' { return .infinity}
+	else if depth_str == '0' { return .zero}
+	else if depth_str == '1' { return .one}
+	else {
+		log.warn('[WebDAV] Invalid Depth header value: ${depth_str}, defaulting to infinity')
+		return .infinity
 	}
-	
-	depth := depth_str.int()
-	// Only 0, 1, and infinity are valid values for Depth
-	if depth != 0 && depth != 1 {
-		// Invalid depth value, default to 0
-		log.warn('[WebDAV] Invalid Depth header value: ${depth_str}, defaulting to 0')
-		return 0
-	}
-	
-	return depth
 }
 
 // returns the properties of a filesystem entry
@@ -143,8 +151,7 @@ pub:
 
 fn (r Response) xml() string {
 	return '<D:response>\n<D:href>${r.href}</D:href>
-	<D:propstat>${r.found_props.xml()}<D:status>HTTP/1.1 200 OK</D:status></D:propstat>
-	<D:propstat>${r.not_found_props.xml()}<D:status>HTTP/1.1 404 Not Found</D:status></D:propstat>
+	<D:propstat><D:prop>${r.found_props.map(it.xml()).join_lines()}</D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat>
 	</D:response>'
 }
 
@@ -174,6 +181,7 @@ fn (mut app App) get_responses(entry vfs.FSEntry, req PropfindRequest) ![]Respon
 	} else {
 		entry.get_path()
 	}
+	log.debug('Finfing for ${path}')
 	// main entry response
 	responses << Response {
 		href: path
@@ -181,7 +189,9 @@ fn (mut app App) get_responses(entry vfs.FSEntry, req PropfindRequest) ![]Respon
 		found_props: get_properties(entry)
 	}
 	
-	if req.depth == 0 && entry.get_path() != '/' { return responses }
+	if !entry.is_dir() || req.depth == .zero { 
+		return responses
+	}
 
 	entries := app.vfs.dir_list(path) or { 
 		log.error('Failed to list directory for ${path} ${err}')
@@ -189,7 +199,7 @@ fn (mut app App) get_responses(entry vfs.FSEntry, req PropfindRequest) ![]Respon
 	for e in entries {
 		responses << app.get_responses(e, PropfindRequest {
 			...req,
-			depth: if req.depth == 1 { 0 } else {-1}
+			depth: if req.depth == .one { .zero } else { .infinity }
 		})!
 	}
 	return responses
