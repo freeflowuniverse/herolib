@@ -22,6 +22,7 @@ pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 			id:          fs.get_next_id()
 			file_type:   .directory
 			name:        ''
+			path:        '/'
 			created_at:  time.now().unix()
 			modified_at: time.now().unix()
 			accessed_at: time.now().unix()
@@ -35,42 +36,34 @@ pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 	return &myroot
 }
 
-fn (mut self DatabaseVFS) get_entry(path string) !FSEntry {
+fn (mut self DatabaseVFS) get_entry(path_ string) !FSEntry {
+	path := '/${path_.trim_left('/').trim_right('/')}'
 	if path == '/' || path == '' || path == '.' {
 		return FSEntry(self.root_get_as_dir()!)
 	}
 
 	mut current := *self.root_get_as_dir()!
-	parts := path.trim_left('/').split('/')
+	return self.directory_get_entry(mut current, path) or {
+		return error('Path not found: ${path}')
+	}
+}
 
-	for i := 0; i < parts.len; i++ {
-		mut found := false
-		children := self.directory_children(mut current, false)!
-		for child in children {
-			if child.metadata.name == parts[i] {
-				match child {
-					Directory {
-						current = child
-						found = true
-						break
-					}
-					else {
-						if i == parts.len - 1 {
-							return child
-						} else {
-							return error('Not a directory: ${parts[i]}')
-						}
-					}
-				}
+fn (mut self DatabaseVFS) directory_get_entry(mut dir Directory, path string) ?FSEntry {
+	mut children := self.directory_children(mut dir, false) or {
+		panic('this should never happen')
+	}
+	for mut child in children {
+		println('debugzoni1 ${child.metadata.path} ${path}')
+		if child.metadata.path == path {
+			return child
+		} else if child is Directory {
+			mut child_dir := child as Directory
+			return self.directory_get_entry(mut child_dir, path) or {
+				continue
 			}
 		}
-
-		if !found {
-			return error('Path not found: ${path}')
-		}
 	}
-
-	return FSEntry(current)
+	return none
 }
 
 fn (mut self DatabaseVFS) get_directory(path string) !&Directory {

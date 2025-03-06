@@ -10,7 +10,7 @@ fn (e &FSEntry) get_metadata() vfs.Metadata {
 }
 
 fn (e &FSEntry) get_path() string {
-	return e.metadata.name
+	return e.metadata.path
 }
 
 fn (e &FSEntry) is_dir() bool {

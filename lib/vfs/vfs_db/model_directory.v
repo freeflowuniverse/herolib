@@ -15,7 +15,7 @@ fn (d &Directory) get_metadata() vfs.Metadata {
 }
 
 fn (d &Directory) get_path() string {
-	return d.metadata.name
+	return '/${d.metadata.name.trim_string_left('/')}'
 }
 
 // is_dir returns true if the entry is a directory

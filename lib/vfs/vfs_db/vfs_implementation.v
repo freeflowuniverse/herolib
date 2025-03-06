@@ -11,7 +11,8 @@ pub fn (mut fs DatabaseVFS) root_get() !vfs.FSEntry {
 	return fs.root_get_as_dir()!
 }
 
-pub fn (mut self DatabaseVFS) file_create(path string) !vfs.FSEntry {
+pub fn (mut self DatabaseVFS) file_create(path_ string) !vfs.FSEntry {
+	path := '/${path_.trim_left('/').trim_right('/')}'
 	log.info('[DatabaseVFS] Creating file ${path}')
 	// Get parent directory
 	parent_path := os.dir(path)
@@ -21,7 +22,8 @@ pub fn (mut self DatabaseVFS) file_create(path string) !vfs.FSEntry {
 	return self.directory_touch(parent_dir, file_name)!
 }
 
-pub fn (mut self DatabaseVFS) file_read(path string) ![]u8 {
+pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
+	path := '/${path_.trim_left('/').trim_right('/')}'
 	log.info('[DatabaseVFS] Reading file ${path}')
 	mut entry := self.get_entry(path)!
 	if mut entry is File {
@@ -31,16 +33,17 @@ pub fn (mut self DatabaseVFS) file_read(path string) ![]u8 {
 }
 
 pub fn (mut self DatabaseVFS) file_write(path string, data []u8) ! {
+	self.print()!
 	if mut entry := self.get_entry(path) {
+		println(entry)
 		if mut entry is File {
 			log.info('[DatabaseVFS] Writing file ${path}')
-			log.info('[DatabaseVFS] Writing data ${data.bytestr()}')
 			entry.write(data.bytestr())
 			self.save_entry(entry)!
 		} else {
 			panic('handle error')
 		}
-	} else {
+	} else {	
 		self.file_create(path)!
 		self.file_write(path, data)!
 	}
@@ -54,13 +57,13 @@ pub fn (mut self DatabaseVFS) file_delete(path string) ! {
 	self.directory_rm(mut parent_dir, file_name)!
 }
 
-pub fn (mut self DatabaseVFS) dir_create(path string) !vfs.FSEntry {
+pub fn (mut self DatabaseVFS) dir_create(path_ string) !vfs.FSEntry {
+	path := '/${path_.trim_left('/').trim_right('/')}'
 	log.info('[DatabaseVFS] Creating Directory ${path}')
 	parent_path := os.dir(path)
-	dir_name := os.base(path)
-
+	file_name := os.base(path)
 	mut parent_dir := self.get_directory(parent_path)!
-	return self.directory_mkdir(mut parent_dir, dir_name)!
+	return self.directory_mkdir(mut parent_dir, file_name)!
 }
 
 pub fn (mut self DatabaseVFS) dir_list(path string) ![]vfs.FSEntry {
@@ -97,6 +100,7 @@ pub fn (mut self DatabaseVFS) link_create(target_path string, link_path string) 
 		metadata:  vfs.Metadata{
 			id:          self.get_next_id()
 			name:        link_name
+			path:        link_path
 			file_type:   .symlink
 			created_at:  time.now().unix()
 			modified_at: time.now().unix()
@@ -130,6 +134,8 @@ pub fn (mut self DatabaseVFS) link_delete(path string) ! {
 }
 
 pub fn (mut self DatabaseVFS) exists(path_ string) bool {
+	println('debugznoiki')
+	self.print() or {panic(err.msg())}
 	path := if !path_.starts_with('/') {
 		'/${path_}'
 	} else {
@@ -143,6 +149,7 @@ pub fn (mut self DatabaseVFS) exists(path_ string) bool {
 }
 
 pub fn (mut fs DatabaseVFS) get(path string) !vfs.FSEntry {
+	log.info('[DatabaseVFS] Getting filesystem entry ${path}')
 	return fs.get_entry(path)!
 }
 

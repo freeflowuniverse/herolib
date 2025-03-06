@@ -4,7 +4,8 @@ import freeflowuniverse.herolib.vfs { Metadata }
 import time
 
 // mkdir creates a new directory with default permissions
-pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name string) !&Directory {
+pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name_ string) !&Directory {
+	name := name_.trim('/')
 	// Check if directory already exists
 	for child_id in dir.children {
 		if entry := fs.load_entry(child_id) {
@@ -14,7 +15,18 @@ pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name string) !&Di
 		}
 	}
 
-	new_dir := fs.new_directory(name: name, parent_id: dir.metadata.id)!
+	path := if dir.metadata.path == '/' {
+		'/${name}'
+	} else {
+		"${dir.metadata.path.trim('/')}/${name}"
+	}
+
+	new_dir := fs.new_directory(
+		name: name, 
+		path: path
+		parent_id: dir.metadata.id
+	)!
+	println('new_dit ${new_dir}')
 	dir.children << new_dir.metadata.id
 	fs.save_entry(dir)!
 	return new_dir
@@ -23,6 +35,7 @@ pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name string) !&Di
 pub struct NewDirectory {
 pub:
 	name      string @[required] // name of file or directory
+	path      string @[required] // name of file or directory
 	mode      u32    = 0o755 // file permissions
 	owner     string = 'user'
 	group     string = 'user'
@@ -36,6 +49,7 @@ pub fn (mut fs DatabaseVFS) new_directory(dir NewDirectory) !&Directory {
 		parent_id: dir.parent_id
 		metadata:  fs.new_metadata(NewMetadata{
 			name:      dir.name
+			path:      dir.path
 			mode:      dir.mode
 			owner:     dir.owner
 			group:     dir.group
@@ -75,7 +89,8 @@ pub fn (mut fs DatabaseVFS) copy_directory(dir Directory) !&Directory {
 }
 
 // touch creates a new empty file with default permissions
-pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name string) !&File {
+pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name_ string) !&File {
+	name := name_.trim('/')
 	mut dir := dir_
 
 	// First, make sure we're working with the latest version of the directory
@@ -98,6 +113,7 @@ pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name string) !&File 
 	mut new_file := fs.new_file(
 		parent_id: dir.metadata.id
 		name: name
+		path: "${dir.metadata.path.trim('/')}/${name}"
 	)!
 	
 	// Ensure parent_id is set correctly
@@ -199,44 +215,60 @@ pub fn (mut fs DatabaseVFS) directory_move(dir_ Directory, args_ MoveDirArgs) !&
 	for child_id in dir.children {
 		if mut entry := fs.load_entry(child_id) {
 			if entry.metadata.name == args.src_entry_name {
-				if entry is File {
-					return error('${args.src_entry_name} is a file')
-				}
-
 				if entry is Symlink {
 					return error('${args.src_entry_name} is a symlink')
 				}
 
 				found = true
 				child_id_to_remove = child_id
-				mut entry_ := entry as Directory
-				entry_.metadata.name = args.dst_entry_name
-				entry_.metadata.modified_at = time.now().unix()
-				entry_.parent_id = args.dst_parent_dir.metadata.id
 
-				// Recursively update all child paths in moved directory
-				fs.move_children_recursive(mut entry_)!
+				// Handle both files and directories
+				if entry is File {
+					mut file_entry := entry as File
+					file_entry.metadata.name = args.dst_entry_name
+					file_entry.metadata.path = "/${args.dst_parent_dir.metadata.path.trim('/')}/${args.dst_entry_name}"
+					file_entry.metadata.modified_at = time.now().unix()
+					file_entry.parent_id = args.dst_parent_dir.metadata.id
 
-				// Ensure no duplicate entries in dst_parent_dir
-				if entry_.metadata.id !in args.dst_parent_dir.children {
-					args.dst_parent_dir.children << entry_.metadata.id
-				}
-
-				// Remove from old parent's children before saving the entry
-				dir.children = dir.children.filter(it != child_id_to_remove)
-				fs.save_entry(dir)!
-
-				fs.save_entry(entry_)!
-				fs.save_entry(args.dst_parent_dir)!
-				
-				// Reload the source directory to ensure we have the latest version
-				if updated_src_dir := fs.load_entry(dir.metadata.id) {
-					if updated_src_dir is Directory {
-						dir = updated_src_dir
+					// Ensure no duplicate entries in dst_parent_dir
+					if file_entry.metadata.id !in args.dst_parent_dir.children {
+						args.dst_parent_dir.children << file_entry.metadata.id
 					}
-				}
 
-				return &entry_
+					// Remove from old parent's children before saving the entry
+					dir.children = dir.children.filter(it != child_id_to_remove)
+					fs.save_entry(dir)!
+
+					fs.save_entry(file_entry)!
+					fs.save_entry(args.dst_parent_dir)!
+					
+					// Return the destination directory
+					return args.dst_parent_dir
+				} else {
+					// Handle directory
+					mut dir_entry := entry as Directory
+					dir_entry.metadata.name = args.dst_entry_name
+					dir_entry.metadata.path = "${args.dst_parent_dir.metadata.path.trim_string_right('/')}/${args.dst_entry_name}"
+					dir_entry.metadata.modified_at = time.now().unix()
+					dir_entry.parent_id = args.dst_parent_dir.metadata.id
+
+					// Recursively update all child paths in moved directory
+					fs.move_children_recursive(mut dir_entry)!
+
+					// Ensure no duplicate entries in dst_parent_dir
+					if dir_entry.metadata.id !in args.dst_parent_dir.children {
+						args.dst_parent_dir.children << dir_entry.metadata.id
+					}
+
+					// Remove from old parent's children before saving the entry
+					dir.children = dir.children.filter(it != child_id_to_remove)
+					fs.save_entry(dir)!
+
+					fs.save_entry(dir_entry)!
+					fs.save_entry(args.dst_parent_dir)!
+					
+					return &dir_entry
+				}
 			}
 		}
 	}
@@ -418,6 +450,7 @@ pub fn (mut fs DatabaseVFS) directory_rename(dir Directory, src_name string, dst
 				found = true
 				mut dir_entry := entry as Directory
 				dir_entry.metadata.name = dst_name
+				dir_entry.metadata.path = "${dir_entry.metadata.path.all_before_last('/')}/dst_name"
 				dir_entry.metadata.modified_at = time.now().unix()
 				fs.save_entry(dir_entry)!
 				return &dir_entry
