@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Navigator provides an easy way to navigate through the document structure
 @[heap]
@@ -221,14 +221,16 @@ pub fn (mut n Navigator) next_sibling() ?&MarkdownElement {
 pub fn (mut n Navigator) prev_sibling() ?&MarkdownElement {
 	parent := n.parent() or { return none }
 	
-	mut prev := &MarkdownElement(0)
-	for child in parent.children {
-		if child == n.current_element && prev != 0 {
+	mut prev := &MarkdownElement(unsafe { nil })
+	for i, child in parent.children {
+		if child == n.current_element && prev != unsafe { nil } {
 			n.current_element = prev
 			return prev
 		}
 		
-		prev = child
+		if i < parent.children.len - 1 {
+			prev = parent.children[i]
+		}
 	}
 	
 	return none
@@ -262,7 +264,7 @@ pub fn (n Navigator) footnotes() map[string]&MarkdownElement {
 // Get a footnote by identifier
 pub fn (n Navigator) footnote(id string) ?&MarkdownElement {
 	if id in n.doc.footnotes {
-		return n.doc.footnotes[id]
+		return unsafe { n.doc.footnotes[id] }
 	}
 	
 	return none

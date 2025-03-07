@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parser is responsible for parsing markdown text
 struct Parser {
@@ -43,7 +43,7 @@ fn (mut p Parser) process_footnotes() {
 	p.doc.root.children << hr
 	
 	// Add footnotes section
-	for key, footnote in p.doc.footnotes {
+	for _, footnote in p.doc.footnotes {
 		p.doc.root.children << footnote
 	}
 }

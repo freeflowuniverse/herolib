@@ -1,8 +1,9 @@
-module mlib2
+module markdownparser2
 
 // Parse a table element
 fn (mut p Parser) parse_table() ?&MarkdownElement {
-	start_pos := p.pos
+	// Save starting position for potential rollback
+	start_pos := p.pos // Unused but kept for consistency
 	start_line := p.line
 	start_column := p.column
 	
@@ -146,7 +147,7 @@ fn (mut p Parser) parse_table() ?&MarkdownElement {
 	}
 	
 	// Set alignment for header cells
-	for i, cell in header_row.children {
+	for i, mut cell in header_row.children {
 		if i < alignments.len {
 			cell.attributes['align'] = alignments[i]
 		}

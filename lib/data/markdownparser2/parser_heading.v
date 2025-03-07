@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse a heading element
 fn (mut p Parser) parse_heading() ?&MarkdownElement {
@@ -41,9 +41,9 @@ fn (mut p Parser) parse_heading() ?&MarkdownElement {
 	}
 	
 	// Trim trailing whitespace and optional closing #s
-	content = content.trim_right()
+	content = content.trim_right(' \t')
 	for content.ends_with('#') {
-		content = content.trim_right('#').trim_right()
+		content = content.trim_right('#').trim_right(' \t')
 	}
 	
 	// Create the heading element

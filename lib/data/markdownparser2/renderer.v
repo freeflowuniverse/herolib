@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Renderer is the interface for all renderers
 pub interface Renderer {

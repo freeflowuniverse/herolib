@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse a block-level element
 fn (mut p Parser) parse_block() ?&MarkdownElement {
@@ -17,7 +17,7 @@ fn (mut p Parser) parse_block() ?&MarkdownElement {
 		return p.parse_blockquote()
 	} else if p.text[p.pos] == `-` && p.peek(1) == `-` && p.peek(2) == `-` {
 		return p.parse_horizontal_rule()
-	} else if p.text[p.pos] == '`' && p.peek(1) == '`' && p.peek(2) == '`' {
+    } else if p.text[p.pos] == `\`` && p.peek(1) == `\`` && p.peek(2) == `\`` {
 		return p.parse_fenced_code_block()
 	} else if p.is_list_start() {
 		return p.parse_list()

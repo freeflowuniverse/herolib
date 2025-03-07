@@ -1,7 +1,7 @@
-module mlib2
+module markdownparser2
 
 // Helper function to peek ahead in the text
-fn (p Parser) peek(offset int) byte {
+fn (p Parser) peek(offset int) u8 {
 	if p.pos + offset >= p.text.len {
 		return 0
 	}
@@ -89,16 +89,12 @@ fn (p Parser) is_table_start() bool {
 	}
 	
 	// Check for pattern like |---|---|...
-	mut has_separator := false
+	// We just need to check if there's a valid separator line
 	mut j := next_line_start + 1
 	for j < p.text.len && p.text[j] != `\n` {
-		if p.text[j] == `-` {
-			has_separator = true
-		} else if p.text[j] == `|` {
-			// Reset for next column
-			has_separator = false
-		} else if p.text[j] != `:` && p.text[j] != ` ` && p.text[j] != `\t` {
-			// Only allow :, space, or tab besides - and |
+		// Only allow -, |, :, space, or tab in the separator line
+		if p.text[j] != `-` && p.text[j] != `|` && p.text[j] != `:` && 
+		   p.text[j] != ` ` && p.text[j] != `\t` {
 			return false
 		}
 		j++

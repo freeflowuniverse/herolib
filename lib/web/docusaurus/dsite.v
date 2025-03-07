@@ -195,17 +195,15 @@ fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport)!{
 	mydest:='${site.path_build.path}/docs/${args.dest}/${texttools.name_fix(path.name())}'
 	mut mydesto:=pathlib.get_file(path:mydest,create:true)!
 
-	println(path.path)
 	mut mymd:=markdownparser.new(path:path.path)!
-	println(2)
-	// mut myfm:=mymd.frontmatter2()!
-	// if ! args.visible{
-	// 	myfm.args["draft"]= 'true'
-	// }
-	//println(myfm)
-	//println(mymd.markdown()!)
-	// mydesto.write(mymd.markdown()!)!
-	//exit(0)
+	mut myfm:=mymd.frontmatter2()!
+	if ! args.visible{
+		myfm.args["draft"]= 'true'
+	}
+	println(myfm)
+	println(mymd.markdown()!)
+	mydesto.write(mymd.markdown()!)!
+	exit(0)
 }
 
 fn (mut site DocSite) template_install() ! {

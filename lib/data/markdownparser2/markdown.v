@@ -1,14 +1,16 @@
-module mlib2
+module markdownparser2
 
 // MarkdownElement represents a single element in a markdown document
+@[heap]
 pub struct MarkdownElement {
 pub:
 	typ ElementType
 	content string
-	children []&MarkdownElement
-	attributes map[string]string
 	line_number int
 	column int
+pub mut:
+	children []&MarkdownElement
+	attributes map[string]string
 }
 
 // ElementType represents the type of a markdown element
@@ -64,7 +66,7 @@ pub fn parse(text string) MarkdownDocument {
 		pos: 0
 		line: 1
 		column: 1
+		doc: new_document()
 	}
 	return parser.parse()
 }
-

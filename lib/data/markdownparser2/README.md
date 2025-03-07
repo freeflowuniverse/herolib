@@ -28,11 +28,11 @@ A pure V implementation of a Markdown parser that supports extended Markdown syn
 ### Parsing Markdown
 
 ```v
-import mlib2
+import markdownparser2
 
 // Parse Markdown text
 md_text := '# Hello World\n\nThis is a paragraph.'
-doc := mlib2.parse(md_text)
+doc := markdownparser2.parse(md_text)
 
 // Access the document structure
 root := doc.root
@@ -44,14 +44,14 @@ for child in root.children {
 ### Navigating the Document
 
 ```v
-import mlib2
+import markdownparser2
 
 // Parse Markdown text
 md_text := '# Hello World\n\nThis is a paragraph.'
-doc := mlib2.parse(md_text)
+doc := markdownparser2.parse(md_text)
 
 // Create a navigator
-mut nav := mlib2.new_navigator(doc)
+mut nav := markdownparser2.new_navigator(doc)
 
 // Find elements by type
 headings := nav.find_all_by_type(.heading)
@@ -79,17 +79,17 @@ if first_heading := nav.find_by_type(.heading) {
 ### Rendering the Document
 
 ```v
-import mlib2
+import markdownparser2
 
 // Parse Markdown text
 md_text := '# Hello World\n\nThis is a paragraph.'
 
 // Render as structure (for debugging)
-structure := mlib2.to_structure(md_text)
+structure := markdownparser2.to_structure(md_text)
 println(structure)
 
 // Render as plain text
-plain_text := mlib2.to_plain(md_text)
+plain_text := markdownparser2.to_plain(md_text)
 println(plain_text)
 ```
 

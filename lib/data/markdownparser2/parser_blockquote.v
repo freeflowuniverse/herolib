@@ -1,8 +1,8 @@
-module mlib2
+module markdownparser2
 
 // Parse a blockquote element
 fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
-	start_pos := p.pos
+	start_pos := p.pos // Unused but kept for consistency
 	start_line := p.line
 	start_column := p.column
 	
@@ -86,8 +86,9 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 	mut nested_parser := Parser{
 		text: content
 		pos: 0
-		line: start_line
-		column: start_column
+		line: 1
+		column: 1
+		doc: new_document()
 	}
 	
 	nested_doc := nested_parser.parse()

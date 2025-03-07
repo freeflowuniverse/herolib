@@ -1,4 +1,4 @@
-module mlib
+module markdownrenderer
 
 import markdown
 

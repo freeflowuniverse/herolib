@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse a footnote definition
 fn (mut p Parser) parse_footnote_definition() ?&MarkdownElement {

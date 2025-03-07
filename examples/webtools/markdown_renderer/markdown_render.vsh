@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.ui.console
 import log
 import os
 import markdown
-import mlib
+import freeflowuniverse.herolib.data.markdownparser2
 
 path2:="${os.home_dir()}/code/github/freeflowuniverse/herolib/examples/webtools/mdbook_markdown/content/links.md"
 path1:="${os.home_dir()}/code/github/freeflowuniverse/herolib/examples/webtools/mdbook_markdown/content/test.md"
@@ -19,7 +19,7 @@ println('')
 
 // Example 2: Using our custom structure renderer to show markdown structure
 println('=== STRUCTURE RENDERING ===')
-println(mlib.to_structure(text))
+println(markdownparser2.to_structure(text))
 
 // // Example 3: Using a simple markdown example to demonstrate structure
 // println('\n=== STRUCTURE OF A SIMPLE MARKDOWN EXAMPLE ===')

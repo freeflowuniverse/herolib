@@ -1,8 +1,9 @@
-module mlib2
+module markdownparser2
 
 // Parse a paragraph element
 fn (mut p Parser) parse_paragraph() ?&MarkdownElement {
-	start_pos := p.pos
+	// Save starting position for potential rollback
+	start_pos := p.pos // Unused but kept for consistency
 	start_line := p.line
 	start_column := p.column
 	

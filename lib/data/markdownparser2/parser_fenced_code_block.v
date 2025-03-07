@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse a fenced code block element
 fn (mut p Parser) parse_fenced_code_block() ?&MarkdownElement {
@@ -8,7 +8,7 @@ fn (mut p Parser) parse_fenced_code_block() ?&MarkdownElement {
 	
 	// Check for opening fence (``` or ~~~)
 	fence_char := p.text[p.pos]
-	if fence_char != '`' && fence_char != '~' {
+	if fence_char != `\`` && fence_char != `~` {
 		p.pos = start_pos
 		p.line = start_line
 		p.column = start_column

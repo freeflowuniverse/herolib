@@ -1,8 +1,9 @@
-module mlib2
+module markdownparser2
 
 // Parse a list item
 fn (mut p Parser) parse_list_item(is_ordered bool, marker string) ?&MarkdownElement {
-	start_pos := p.pos
+	// Save starting position for potential rollback
+	start_pos := p.pos // Unused but kept for consistency
 	start_line := p.line
 	start_column := p.column
 	

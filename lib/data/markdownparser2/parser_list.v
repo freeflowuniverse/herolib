@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse a list element
 fn (mut p Parser) parse_list() ?&MarkdownElement {

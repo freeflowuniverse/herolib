@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse inline elements within a block
 fn (mut p Parser) parse_inline(text string) []&MarkdownElement {

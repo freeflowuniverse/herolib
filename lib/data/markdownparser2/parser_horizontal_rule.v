@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // Parse a horizontal rule element
 fn (mut p Parser) parse_horizontal_rule() ?&MarkdownElement {
@@ -7,8 +7,8 @@ fn (mut p Parser) parse_horizontal_rule() ?&MarkdownElement {
 	start_column := p.column
 	
 	// Check for at least 3 of the same character (-, *, _)
-	char := p.text[p.pos]
-	if char != `-` && char != `*` && char != `_` {
+	hr_char := p.text[p.pos]
+	if hr_char != `-` && hr_char != `*` && hr_char != `_` {
 		p.pos = start_pos
 		p.line = start_line
 		p.column = start_column
@@ -16,7 +16,7 @@ fn (mut p Parser) parse_horizontal_rule() ?&MarkdownElement {
 	}
 	
 	mut count := 0
-	for p.pos < p.text.len && p.text[p.pos] == char {
+	for p.pos < p.text.len && p.text[p.pos] == hr_char {
 		count++
 		p.pos++
 		p.column++

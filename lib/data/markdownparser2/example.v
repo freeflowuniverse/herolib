@@ -1,4 +1,4 @@
-module mlib2
+module markdownparser2
 
 // This file contains examples of how to use the Markdown parser
 
