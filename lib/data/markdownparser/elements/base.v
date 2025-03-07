@@ -29,9 +29,9 @@ fn (mut self DocBase) process_base() ! {
 fn (mut self DocBase) parent_doc() &Doc {
 	mut pd := self.parent_doc_ or {
 		e := doc_new() or { panic('bug') }
+		self.parent_doc_ = &e
 		&e
 	}
-
 	return pd
 }
 
