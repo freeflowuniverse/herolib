@@ -1,18 +1,25 @@
 # griddriver
 
-
-
-To get started
+To use the installer:
 
 ```vlang
-
-
-
 import freeflowuniverse.herolib.installers.threefold.griddriver
 
-mut installer:= griddriver.get()!
+fn main() {
+	mut installer := griddriver.get()!
+	installer.install()!
+}
+```
 
-installer.start()!
+## example heroscript
 
+```hero
+!!griddriver.install
+    homedir: '/home/user/griddriver'
+    username: 'admin'
+    password: 'secretpassword'
+    title: 'Some Title'
+    host: 'localhost'
+    port: 8888
 
 ```
