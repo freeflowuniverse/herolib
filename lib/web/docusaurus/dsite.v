@@ -186,7 +186,7 @@ fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport)!{
 			mypatho_img.copy(dest:dest,rsync:false)!
 		}
 
-		mut pathlist:=path.list()!
+		mut pathlist:=path.list(regex: [r'.*\.md$'],recursive:true)!
 		for mut mypatho2 in pathlist.paths{
 			site.process_md(mut mypatho2,args)!
 		}
@@ -195,14 +195,16 @@ fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport)!{
 	mydest:='${site.path_build.path}/docs/${args.dest}/${texttools.name_fix(path.name())}'
 	mut mydesto:=pathlib.get_file(path:mydest,create:true)!
 
+	println(path.path)
 	mut mymd:=markdownparser.new(path:path.path)!
-	mut myfm:=mymd.frontmatter2()!
-	if ! args.visible{
-		myfm.args["draft"]= 'true'
-	}
+	println(2)
+	// mut myfm:=mymd.frontmatter2()!
+	// if ! args.visible{
+	// 	myfm.args["draft"]= 'true'
+	// }
 	//println(myfm)
 	//println(mymd.markdown()!)
-	mydesto.write(mymd.markdown()!)!
+	// mydesto.write(mymd.markdown()!)!
 	//exit(0)
 }
 

@@ -37,7 +37,7 @@ fn (mut self DocBase) parent_doc() &Doc {
 
 fn (mut self DocBase) remove_empty_children() {
 	self.children = self.children.filter(!(it.content == '' && it.children.len == 0
-		&& it.type_name in ['text', 'empty']))
+		&& it.type_name in ['paragraph','text', 'empty']))
 }
 
 pub fn (mut self DocBase) process() !int {
