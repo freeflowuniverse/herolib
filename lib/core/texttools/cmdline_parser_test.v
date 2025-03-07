@@ -36,21 +36,3 @@ fn test_cmdline_args() {
 	r = cmd_line_args_parser('echo "hi" > /tmp/a.txt') or { panic(err) }
 	assert r == ['echo', '"hi" > /tmp/a.txt']
 }
-module texttools
-
-import texttools.cmdline_parser
-
-test fn test_text_remove_quotes() {
-    assert cmdline_parser.text_remove_quotes('hello "world"') == 'hello '
-    assert cmdline_parser.text_remove_quotes("hello 'world'") == 'hello '
-}
-
-test fn test_check_exists_outside_quotes() {
-    assert cmdline_parser.check_exists_outside_quotes('hello world', ['world']) == true
-    assert cmdline_parser.check_exists_outside_quotes('hello "world"', ['world']) == false
-}
-
-test fn test_cmd_line_args_parser() {
-    assert cmdline_parser.cmd_line_args_parser('hello world') == ['hello', 'world']
-    assert cmdline_parser.cmd_line_args_parser('hello "world"') == ['hello', 'world']
-}
