@@ -43,7 +43,52 @@ if path.is_dir() { /* is directory */ }
 if path.is_link() { /* is symlink */ }
 ```
 
-## 3. Common File Operations
+## 3. File Listing and Filtering
+
+```v
+// List all files in a directory (recursive by default)
+mut dir := pathlib.get('/some/dir')
+mut pathlist := dir.list()!
+
+// List only files matching specific extensions using regex
+mut pathlist_images := dir.list(
+    regex: [r'.*\.png$', r'.*\.jpg$', r'.*\.svg$', r'.*\.jpeg$'],
+    recursive: true
+)!
+
+// List only directories
+mut pathlist_dirs := dir.list(
+    dirs_only: true,
+    recursive: true
+)!
+
+// List only files
+mut pathlist_files := dir.list(
+    files_only: true,
+    recursive: false  // only in current directory
+)!
+
+// Include symlinks in the results
+mut pathlist_with_links := dir.list(
+    include_links: true
+)!
+
+// Don't ignore hidden files (those starting with . or _)
+mut pathlist_all := dir.list(
+    ignoredefault: false
+)!
+
+// Access the resulting paths
+for path in pathlist.paths {
+    println(path.path)
+}
+
+// Perform operations on all paths in the list
+pathlist.copy('/destination/dir')!
+pathlist.delete()!
+```
+
+## 4. Common File Operations
 
 ```v
 // Empty a directory

@@ -13,7 +13,7 @@ pub mut:
 	delete         bool     // do we want to delete the destination
 	ignore         []string // arguments to ignore e.g. ['*.pyc','*.bak']
 	ignore_default bool = true // if set will ignore a common set
-	debug          bool = true
+	debug          bool
 	fast_rsync     bool
 	sshkey         string
 }
@@ -37,8 +37,8 @@ pub fn rsync(args_ RsyncArgs) ! {
 		get(args.source)
 	}
 	cmdoptions := rsync_cmd_options(args)!
-	$if debug {
-		console.print_debug(' rsync command:\nrsync ${cmdoptions}')
+	if args.debug {
+		console.print_debug('rsync ${cmdoptions}')
 	}
 	r := os.execute('which rsync')
 	if r.exit_code > 0 {

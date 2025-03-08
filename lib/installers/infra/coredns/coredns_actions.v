@@ -24,7 +24,6 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 }
 
 fn running() !bool {
-	mut installer := get()!
 	mut conn := httpconnection.new(name: 'coredns', url: 'http://localhost:3334')!
 	r := conn.get(prefix: 'health')!
 	if r.trim_space() == 'OK' {
@@ -51,7 +50,7 @@ fn stop_post() ! {
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} coredns version')
+	res := os.execute('/bin/bash -c "coredns --version"')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -73,39 +72,11 @@ fn ulist_get() !ulist.UList {
 
 // uploads to S3 server if configured
 fn upload() ! {
-	// installers.upload(
-	//     cmdname: 'coredns'
-	//     source: '${gitpath}/target/x86_64-unknown-linux-musl/release/coredns'
-	// )!
 }
 
 fn install() ! {
 	console.print_header('install coredns')
 	build()! // because we need the plugins
-	// mut url := ''
-	// if core.is_linux_arm()! {
-	//     url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_linux_arm64.tgz'
-	// } else if core.is_linux_intel()! {
-	//     url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_linux_amd64.tgz'
-	// } else if core.is_osx_arm()! {
-	//     url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_darwin_arm64.tgz'
-	// } else if core.is_osx_intel()! {
-	//     url = 'https://github.com/coredns/coredns/releases/download/v${version}/coredns_${version}_darwin_amd64.tgz'
-	// } else {
-	//     return error('unsported platform')
-	// }
-
-	// mut dest := osal.download(
-	//     url:        url
-	//     minsize_kb: 13000
-	//     expand_dir: '/tmp/coredns'
-	// )!
-
-	// mut binpath := dest.file_get('coredns')!
-	// osal.cmd_add(
-	//     cmdname: 'coredns'
-	//     source:  binpath.path
-	// )!
 }
 
 fn build() ! {
@@ -132,10 +103,7 @@ fn build() ! {
 	mut path := pathlib.get_file(path: '${gitpath}/plugin.cfg', create: true)!
 	path.write(pluginsfile)!
 
-	cmd := '
-    cd ${gitpath}
-    make
-    '
+	cmd := 'bash -c "cd ${gitpath} && make"'
 	osal.execute_stdout(cmd)!
 
 	// now copy to the default bin path
@@ -148,33 +116,12 @@ fn build() ! {
 }
 
 fn destroy() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
+	for zprocess in startupcmd()! {
+		mut sm := startupmanager_get(zprocess.startuptype)!
+		sm.delete(zprocess.name) or { return error('failed to delete coredns process: ${err}') }
+	}
 
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+	osal.execute_silent('sudo rm /usr/local/bin/coredns') or {
+		return error('failed to delete coredns bin: ${err}')
+	}
 }

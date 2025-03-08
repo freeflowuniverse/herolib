@@ -3,10 +3,8 @@
 import freeflowuniverse.herolib.threefold.gridproxy
 import freeflowuniverse.herolib.threefold.tfgrid3deployer
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.installers.threefold.griddriver
 
 fn main() {
-	griddriver.install()!
 
 	v := tfgrid3deployer.get()!
 	println('cred: ${v}')
@@ -19,19 +17,19 @@ fn main() {
 		cpu:        1
 		memory:     2
 		planetary:  false
-		public_ip4: true
+		public_ip4: false
 		mycelium:   tfgrid3deployer.Mycelium{}
 		nodes:      [u32(167)]
 	)
-	deployment.add_machine(
-		name:       'my_vm2'
-		cpu:        1
-		memory:     2
-		planetary:  false
-		public_ip4: true
-		mycelium:   tfgrid3deployer.Mycelium{}
-		// nodes:     [u32(164)]
-	)
+	// deployment.add_machine(
+	// 	name:       'my_vm2'
+	// 	cpu:        1
+	// 	memory:     2
+	// 	planetary:  false
+	// 	public_ip4: true
+	// 	mycelium:   tfgrid3deployer.Mycelium{}
+	// 	// nodes:     [u32(164)]
+	// )
 
 	deployment.add_zdb(name: 'my_zdb', password: 'my_passw&rd', size: 2)
 	deployment.add_webname(name: 'mywebname2', backend: 'http://37.27.132.47:8000')

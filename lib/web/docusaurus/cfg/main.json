@@ -4,13 +4,19 @@
   "favicon": "img/favicon.png",
   "url": "https://friends.threefold.info",
   "url_home": "docs/",
-  "baseUrl": "/kristof/",
+  "baseUrl": "/",
   "image": "img/tf_graph.png",
   "metadata": {
     "description": "ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet.",
     "image": "https://threefold.info/kristof/img/tf_graph.png",
     "title": "ThreeFold Technology Vision"
   },
-  "buildDest":"root@info.ourworld.tf:/root/hero/www/info",
-  "buildDestDev":"root@info.ourworld.tf:/root/hero/www/infodev"
+  "buildDest":["root@info.ourworld.tf:/root/hero/www/info"],
+  "buildDestDev":["root@info.ourworld.tf:/root/hero/www/infodev"],
+  "import":[{
+    "url":"",
+    "dest":"",
+    "visible":true
+  }],
+  "copyright": "someone"
 }

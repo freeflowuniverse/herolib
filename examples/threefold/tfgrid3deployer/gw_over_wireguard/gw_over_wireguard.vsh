@@ -1,6 +1,5 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -d use_openssl -enable-globals -cg run
 
-//#!/usr/bin/env -S v -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals -cg run
 import freeflowuniverse.herolib.threefold.gridproxy
 import freeflowuniverse.herolib.threefold.tfgrid3deployer
 import freeflowuniverse.herolib.installers.threefold.griddriver
@@ -20,7 +19,8 @@ deployment.add_machine(
 	cpu:        1
 	memory:     2
 	planetary:  false
-	public_ip4: true
+	wireguard:  true
+	public_ip4: false
 	size:       10 // 10 gig
 	mycelium:   tfgrid3deployer.Mycelium{}
 )

@@ -54,7 +54,7 @@ pub fn new(args_ PythonEnvArgs) !PythonEnv {
 	toinstall := !py.db.exists(key: key_install)!
 	if toinstall {
 		console.print_debug('Installing Python environment')
-		python.install()!
+		// python.install()!
 		py.init_env()!
 		py.db.set(key: key_install, value: 'done')!
 		console.print_debug('Python environment setup complete')
@@ -92,6 +92,31 @@ pub fn (py PythonEnv) update() ! {
 	'
 	osal.exec(cmd: cmd)!
 	console.print_debug('Pip update complete')
+}
+
+// comma separated list of packages to uninstall
+pub fn (mut py PythonEnv) pip_uninstall(packages string) ! {
+	mut to_uninstall := []string{}
+	for i in packages.split(',') {
+		pip := i.trim_space()
+		if !py.pips_done_check(pip)! {
+			to_uninstall << pip
+			console.print_debug('Package to uninstall: ${pip}')
+		}
+	}
+
+	if to_uninstall.len == 0 {
+		return
+	}
+
+	console.print_debug('uninstalling Python packages: ${packages}')
+	packages2 := to_uninstall.join(' ')
+	cmd := '
+	cd ${py.path.path}
+	source bin/activate
+	pip3 uninstall ${packages2} -q
+	'
+	osal.exec(cmd: cmd)!
 }
 
 // comma separated list of packages to install

@@ -3,7 +3,7 @@ module bizmodel
 import freeflowuniverse.herolib.core.playbook { Action }
 import freeflowuniverse.herolib.core.texttools
 
-fn (mut m BizModel) cost_define_action(action Action) ! {
+fn (mut m BizModel) cost_define_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
@@ -73,6 +73,7 @@ fn (mut m BizModel) cost_define_action(action Action) ! {
 		)!
 		m.sheet.row_delete('tmp3')
 	}
+	return action
 }
 
 fn (mut sim BizModel) cost_total() ! {

@@ -11,7 +11,11 @@ fn get_repo_status(gr GitRepo) !string {
 		statuses << 'COMMIT'
 	}
 
-	if repo.need_push_or_pull()! {
+	if repo.need_push()! {
+		statuses << 'PUSH'
+	}
+
+	if repo.need_pull()! {
 		statuses << 'PULL'
 	}
 
@@ -28,7 +32,7 @@ fn format_repo_info(repo GitRepo) ![]string {
 		'[${repo.status_local.branch}]' // Otherwise, display branch
 	}
 
-	relative_path := repo.get_relative_path()!
+	relative_path := repo.get_human_path()!
 	return [' - ${relative_path}', tag_or_branch, status]
 }
 

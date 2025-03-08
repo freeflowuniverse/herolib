@@ -1,60 +1,79 @@
 module daguserver
 
-import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
+import freeflowuniverse.herolib.crypt.secrets
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.pathlib
 import os
 
 pub const version = '1.14.3'
 const singleton = true
 const default = true
+pub const homedir = os.home_dir()
 
-pub fn heroscript_default() !string {
-	heroscript := "
-    !!daguserver.configure 
-        name:'daguserver'
-        title: 'My Hero DAG'
-        host: 'localhost'
-        port: 8888
-        "
-
-	return heroscript
-}
-
+// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+@[heap]
 pub struct DaguInstaller {
 pub mut:
-	name string = 'default'
-
-	dagsdir    string
-	configpath string
+	name       string = 'default'
+	dagsdir    string = '${os.home_dir()}/.dagu'
+	configpath string = '${os.home_dir()}/.config/dagu'
 	username   string
 	password   string @[secret]
 	secret     string @[secret]
 	title      string
-	host       string
-	port       int
+	host       string = 'localhost'
+	port       int    = 8014
 }
 
-fn cfg_play(p paramsparser.Params) !DaguInstaller {
-	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
-	mut mycfg := DaguInstaller{
-		name:       p.get_default('name', 'default')!
-		dagsdir:    p.get_default('homedir', '${os.home_dir()}/hero/var/daguserver')!
-		configpath: p.get_default('configpath', '${os.home_dir()}/hero/cfg/dagu')!
-		username:   p.get_default('username', 'admin')!
-		password:   p.get_default('password', 'secretpassword')!
-		secret:     p.get_default('secret', '')!
-		title:      p.get_default('title', 'HERO DAG')!
-		host:       p.get_default('host', 'localhost')!
-		port:       p.get_int_default('port', 8888)!
-	}
-
-	if mycfg.password == '' && mycfg.secret == '' {
-		return error('password or secret needs to be filled in for daguserver')
-	}
+// your checking & initialization code if needed
+fn obj_init(mycfg_ DaguInstaller) !DaguInstaller {
+	mut mycfg := mycfg_
 	return mycfg
 }
 
-fn obj_init(obj_ DaguInstaller) !DaguInstaller {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
+// called before start if done
+fn configure() ! {
+	mut cfg := get()!
+
+	if cfg.password == '' {
+		cfg.password = secrets.hex_secret()!
+	}
+
+	// TODO:use DAGU_SECRET from env variables in os if not set then empty string
+	if cfg.secret == '' {
+		cfg.secret = secrets.openssl_hex_secret(input: cfg.password)!
+	}
+
+	if cfg.dagsdir == '' {
+		cfg.dagsdir = '${homedir}/.dagu'
+	}
+
+	if cfg.configpath == '' {
+		cfg.configpath = '${homedir}/.config/dagu'
+	}
+
+	if cfg.host == '' {
+		cfg.host = 'localhost'
+	}
+
+	if cfg.port == 0 {
+		cfg.port = 8014
+	}
+
+	mut mycode := $tmpl('templates/dagu.yaml')
+	mut path := pathlib.get_file(path: '${cfg.configpath}/admin.yaml', create: true)!
+	path.write(mycode)!
+	console.print_debug(mycode)
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj DaguInstaller) !string {
+	return encoderhero.encode[DaguInstaller](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !DaguInstaller {
+	mut obj := encoderhero.decode[DaguInstaller](heroscript)!
 	return obj
 }

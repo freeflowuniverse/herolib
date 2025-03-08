@@ -50,7 +50,7 @@ fn args_get(path string) !GeneratorArgs {
 				classname:           p.get('classname')!
 				title:               p.get_default('title', '')!
 				default:             p.get_default_true('default')
-				supported_platforms: p.get_list('supported_platforms')!
+				supported_platforms: p.get_list_default('supported_platforms', [])!
 				singleton:           p.get_default_false('singleton')
 				templates:           p.get_default_false('templates')
 				reset:               p.get_default_false('reset')

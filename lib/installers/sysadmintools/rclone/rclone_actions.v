@@ -1,13 +1,16 @@
 module rclone
 
 import freeflowuniverse.herolib.osal
-import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.installers.ulist
 import os
 
+//////////////////// following actions are not specific to instance of the object
+
 // checks if a certain version or above is installed
-fn installed_() !bool {
+fn installed() !bool {
 	res := os.execute('${osal.profile_path_source_and()!} rclone version')
 	if res.exit_code != 0 {
 		return false
@@ -23,58 +26,40 @@ fn installed_() !bool {
 	return true
 }
 
-fn install_() ! {
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
+}
+
+// uploads to S3 server if configured
+fn upload() ! {}
+
+fn install() ! {
 	console.print_header('install rclone')
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	mut url := ''
-	if core.is_linux_arm()! {
-		url = 'https://github.com/rclone/rclone/releases/download/v${version}/rclone-v${version}-linux-arm64.zip'
-	} else if core.is_linux_intel()! {
-		url = 'https://github.com/rclone/rclone/releases/download/v${version}/rclone-v${version}-linux-amd64.zip'
-	} else if core.is_osx_arm()! {
-		url = 'https://downloads.rclone.org/rclone-current-osx-amd64.zip'
-	} else if core.is_osx_intel()! {
-		url = 'https://github.com/rclone/rclone/releases/download/v${version}/rclone-v${version}-osx-amd64.zip'
+	// Check if curl is installed
+	mut res := os.execute('curl --version')
+	if res.exit_code == 0 {
+		console.print_header('curl is already installed')
 	} else {
-		return error('unsported platform')
+		osal.package_install('curl') or {
+			return error('Could not install curl, its required to install rclone.\nerror:\n${err}')
+		}
 	}
 
-	mut dest := osal.download(
-		url:        url
-		minsize_kb: 9000
-		expand_dir: '/tmp/rclone'
-	)!
-	// dest.moveup_single_subdir()!
-	mut binpath := dest.file_get('rclone')!
-	osal.cmd_add(
-		cmdname: 'rclone'
-		source:  binpath.path
-	)!
+	// Check if rclone is installed
+	osal.execute_stdout('sudo -v ; curl https://rclone.org/install.sh | sudo bash') or {
+		return error('cannot install rclone due to: ${err}')
+	}
+
+	console.print_header('rclone is installed')
 }
 
-fn configure() ! {
-	_ := get()!
-
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-
-	_ := $tmpl('templates/rclone.yaml')
-	// mut path := pathlib.get_file(path: cfg.configpath, create: true)!
-	// path.write(mycode)!
-	// console.print_debug(mycode)
-	// implement if steps need to be done for configuration
-}
-
-fn destroy_() ! {
-}
-
-fn start_pre() ! {
-}
-
-fn start_post() ! {
-}
-
-fn stop_pre() ! {
-}
-
-fn stop_post() ! {
+fn destroy() ! {
+	console.print_header('uninstall rclone')
+	res := os.execute('sudo rm -rf /usr/local/bin/rclone /usr/local/rclone /usr/bin/rclone /usr/share/man/man1/rclone.1.gz')
+	if res.exit_code != 0 {
+		return error('failed to uninstall rclone: ${res.output}')
+	}
+	console.print_header('rclone is uninstalled')
 }

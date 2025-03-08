@@ -5,8 +5,72 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.osal.zinit
-// import freeflowuniverse.herolib.osal.systemd
+import freeflowuniverse.herolib.installers.ulist
+import freeflowuniverse.herolib.core.httpconnection
 import os
+import json
+
+fn startupcmd() ![]zinit.ZProcessNewArgs {
+	mut res := []zinit.ZProcessNewArgs{}
+	res << zinit.ZProcessNewArgs{
+		name:        'garage_s3'
+		cmd:         'garage_s3 -c /var/garage/config.toml server'
+		startuptype: .zinit
+		env:         {
+			'HOME': '/root'
+		}
+	}
+
+	return res
+}
+
+struct GarageS3InstanceStatus {
+	status            string
+	known_nodes       int @[json: 'knownNodes']
+	connected_nodes   int @[json: 'connectedNodes']
+	storage_nodes     int @[json: 'storageNodes']
+	storage_nodes_ok  int @[json: 'storageNodesOk']
+	partitions        int @[json: 'partitions']
+	partitions_quorum int @[json: 'partitionsQuorum']
+	partitions_all_ok int @[json: 'partitionsAllOk']
+}
+
+fn running() !bool {
+	mut installer := get()!
+	url := 'http://127.0.0.1:3903/'
+	if installer.admin_token.len < 0 {
+		return false
+	}
+
+	mut conn := httpconnection.new(name: 'garage_s3', url: url)!
+	conn.default_header.add(.authorization, 'Bearer ${installer.admin_token}')
+
+	r := conn.get_json_dict(prefix: 'v1/health', debug: false) or { return false }
+	if r.len == 0 {
+		return false
+	}
+
+	decoded_response := json.decode(GarageS3InstanceStatus, r.str()) or { return false }
+
+	if decoded_response.status != 'healthy' {
+		return false
+	}
+	return true
+}
+
+fn start_pre() ! {
+}
+
+fn start_post() ! {
+}
+
+fn stop_pre() ! {
+}
+
+fn stop_post() ! {
+}
+
+//////////////////// following actions are not specific to instance of the object
 
 // checks if a certain version or above is installed
 fn installed() !bool {
@@ -28,114 +92,77 @@ fn installed() !bool {
 	return true
 }
 
-fn install() ! {
-	console.print_header('install garage_s3')
-	// mut installer := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	mut url := ''
-	if core.is_linux_arm()! {
-		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_arm64.tar.gz'
-	} else if core.is_linux_intel()! {
-		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_linux_amd64.tar.gz'
-	} else if core.is_osx_arm()! {
-		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_darwin_arm64.tar.gz'
-	} else if core.is_osx_intel()! {
-		url = 'https://github.com/garage_s3-dev/garage_s3/releases/download/v${version}/garage_s3_${version}_darwin_amd64.tar.gz'
-	} else {
-		return error('unsported platform')
-	}
-
-	mut dest := osal.download(
-		url:        url
-		minsize_kb: 9000
-		expand_dir: '/tmp/garage_s3'
-	)!
-
-	// dest.moveup_single_subdir()!
-
-	mut binpath := dest.file_get('garage_s3')!
-	osal.cmd_add(
-		cmdname: 'garage_s3'
-		source:  binpath.path
-	)!
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
 }
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut res := []zinit.ZProcessNewArgs{}
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	res << zinit.ZProcessNewArgs{
-		name: 'garage_s3'
-		cmd:  'garage_s3 server'
-		env:  {
-			'HOME': '/root'
+// uploads to S3 server if configured
+fn upload() ! {}
+
+fn install() ! {
+	console.print_header('install garage_s3')
+
+	mut res := os.execute('garage_s3 --version')
+	if res.exit_code == 0 {
+		console.print_header('garage_s3 is already installed')
+		return
+	}
+
+	p := core.platform()!
+
+	if p != .ubuntu {
+		return error('unsupported platform')
+	}
+
+	mut url := ''
+	if core.is_linux_arm()! {
+		url = 'https://garagehq.deuxfleurs.fr/_releases/v${version}/aarch64-unknown-linux-musl/garage'
+	}
+	if core.is_linux_intel()! {
+		url = 'https://garagehq.deuxfleurs.fr/_releases/v${version}/x86_64-unknown-linux-musl/garage'
+	}
+
+	res = os.execute('wget --version')
+	if res.exit_code == 0 {
+		console.print_header('wget is already installed')
+	} else {
+		osal.package_install('wget') or {
+			return error('Could not install wget, its required to install rclone.\nerror:\n${err}')
 		}
 	}
 
-	return res
+	// Check if garage_s3 is installed
+	osal.execute_stdout('sudo wget -O /usr/local/bin/garage_s3 ${url}') or {
+		return error('cannot install garage_s3 due to: ${err}')
+	}
+
+	res = os.execute('sudo chmod +x /usr/local/bin/garage_s3')
+	if res.exit_code != 0 {
+		return error('failed to install garage_s3: ${res.output}')
+	}
+
+	console.print_header('garage_s3 is installed')
 }
 
-fn running_() !bool {
-	_ := get()!
-	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
-	// this checks health of garage_s3
-	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
-	// url:='http://127.0.0.1:${cfg.port}/api/v1'
-	// mut conn := httpconnection.new(name: 'garage_s3', url: url)!
+fn destroy() ! {
+	console.print_header('uninstall garage_s3')
+	res := os.execute('sudo rm -rf /usr/local/bin/garage_s3')
+	if res.exit_code != 0 {
+		return error('failed to uninstall garage_s3: ${res.output}')
+	}
 
-	// if cfg.secret.len > 0 {
-	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
-	// }
-	// conn.default_header.add(.content_type, 'application/json')
-	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
-	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
-	// println(r)
-	// if true{panic("ssss")}
-	// tags := r['Tags'] or { return false }
-	// console.print_debug(tags)
-	// console.print_debug('garage_s3 is answering.')
-	return false
-}
+	mut zinit_factory := zinit.new()!
 
-fn start_pre() ! {
-}
+	if zinit_factory.exists('garage_s3') {
+		zinit_factory.stop('garage_s3') or {
+			return error('Could not stop garage_s3 service due to: ${err}')
+		}
+		zinit_factory.delete('garage_s3') or {
+			return error('Could not delete garage_s3 service due to: ${err}')
+		}
+	}
 
-fn start_post() ! {
-}
-
-fn stop_pre() ! {
-}
-
-fn stop_post() ! {
-}
-
-fn destroy_() ! {
-	// mut systemdfactory := systemd.new()!
-	// systemdfactory.destroy("zinit")!
-
-	// osal.process_kill_recursive(name:'zinit')!
-	// osal.cmd_delete('zinit')!
-
-	// osal.package_remove('
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	// ')!
-
-	// //will remove all paths where go/bin is found
-	// osal.profile_path_add_remove(paths2delete:"go/bin")!
-
-	// osal.rm("
-	//    podman
-	//    conmon
-	//    buildah
-	//    skopeo
-	//    runc
-	//    /var/lib/containers
-	//    /var/lib/podman
-	//    /var/lib/buildah
-	//    /tmp/podman
-	//    /tmp/conmon
-	// ")!
+	console.print_header('garage_s3 is uninstalled')
 }

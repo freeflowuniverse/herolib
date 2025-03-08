@@ -1,25 +1,32 @@
 module tailwind
 
-import freeflowuniverse.herolib.data.paramsparser
-import os
+import freeflowuniverse.herolib.data.encoderhero
 
+pub const version = '3.4.12'
 const singleton = false
 const default = true
 
-// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-
+@[heap]
 pub struct Tailwind {
 pub mut:
 	name string = 'default'
 }
 
-fn obj_init(obj_ Tailwind) !Tailwind {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+fn obj_init(mycfg_ Tailwind) !Tailwind {
+	mut mycfg := mycfg_
+	return mycfg
 }
 
-// called before start if done
 fn configure() ! {
-	// mut installer := get()!
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj Tailwind) !string {
+	return encoderhero.encode[Tailwind](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !Tailwind {
+	mut obj := encoderhero.decode[Tailwind](heroscript)!
+	return obj
 }

@@ -110,10 +110,10 @@ pub fn ipaddr_pub_get() !string {
 	return public_ip
 }
 
-//also check the address is on local interface
+// also check the address is on local interface
 pub fn ipaddr_pub_get_check() !string {
 	// Check if the public IP matches any local interface
-	public_ip := ipaddr_pub_get_check()!
+	public_ip := ipaddr_pub_get()!
 	if !is_ip_on_local_interface(public_ip)! {
 		return error('Public IP ${public_ip} is NOT bound to any local interface (possibly behind a NAT firewall).')
 	}
@@ -123,7 +123,7 @@ pub fn ipaddr_pub_get_check() !string {
 // Check if the public IP matches any of the local network interfaces
 pub fn is_ip_on_local_interface(public_ip string) !bool {
 	interfaces := exec(cmd: 'ip addr show', stdout: false) or {
-		return error('Failed to enumerate network interfaces.')
+		return error('Failed to enumerate network interfaces: ${err}')
 	}
 	lines := interfaces.output.split('\n')
 

@@ -8,7 +8,7 @@ cd "??{script_dir}"
 
 echo "Docs directory: ??script_dir"
 
-cd ${site.path_build.path}
+cd "${mydir}"
 
 export PATH=/tmp/docusaurus_build/node_modules/.bin:??{HOME}/.bun/bin/:??PATH
 
