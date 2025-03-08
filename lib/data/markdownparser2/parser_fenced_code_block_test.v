@@ -18,6 +18,11 @@ fn test_parse_fenced_code_block_basic() {
 	assert element.attributes['language'] == ''
 	assert element.line_number == 1
 	assert element.column == 1
+	
+	// Parser position should be at the start of the next line
+	assert parser.pos == 5 // "```\n" is 3 characters
+	assert parser.line == 2
+	assert parser.column == 1
 }
 
 fn test_parse_fenced_code_block_with_language() {

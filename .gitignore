@@ -1,4 +1,13 @@
-
+# Additional ignore files and directories
+Thumbs.db
+# Logs
+logs/
+*.log
+*.out
+# Compiled Python files
+*.pyc
+*.pyo
+__pycache__/
 *dSYM/
 .vmodules/
 .vscode
@@ -29,3 +38,4 @@ output/
 data.ms/
 test_basic
 cli/hero
+.aider*
