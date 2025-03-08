@@ -1,6 +1,6 @@
 module gridproxy
 
-import freeflowuniverse.herolib.threefold.gridproxy.model { Contract, ContractFilter, Farm, FarmFilter, Node, NodeFilter, ResourceFilter, Twin }
+import freeflowuniverse.herolib.threefold.grid3.gridproxy.model { Contract, ContractFilter, Farm, FarmFilter, Node, NodeFilter, ResourceFilter, Twin }
 
 // fetch specific twin information by twin id.
 //

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S v -gc none  -d use_openssl -enable-globals -cg run
 
 //#!/usr/bin/env -S v -gc none  -cc tcc -d use_openssl -enable-globals -cg run
-import freeflowuniverse.herolib.threefold.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
 import freeflowuniverse.herolib.threefold.tfgrid3deployer
 import freeflowuniverse.herolib.installers.threefold.griddriver
 import os

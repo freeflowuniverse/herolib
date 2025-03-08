@@ -3,7 +3,7 @@ module gridproxy
 // client library for threefold gridproxy API.
 import json
 import math
-import freeflowuniverse.herolib.threefold.gridproxy.model { Bill, Contract, ContractFilter, ContractIterator, Farm, FarmFilter, FarmIterator, GridStat, Node, NodeFilter, NodeIterator, NodeStats, Node_, StatFilter, Twin, TwinFilter, TwinIterator }
+import freeflowuniverse.herolib.threefold.grid3.gridproxy.model { Bill, Contract, ContractFilter, ContractIterator, Farm, FarmFilter, FarmIterator, GridStat, Node, NodeFilter, NodeIterator, NodeStats, Node_, StatFilter, Twin, TwinFilter, TwinIterator }
 import freeflowuniverse.herolib.ui.console
 
 /*

@@ -7,7 +7,7 @@ This script automates the deployment of an OpenWebUI instance on the ThreeFold G
 - V compiler installed
 - OpenSSL support enabled
 - herolib dependencies:
-  - `freeflowuniverse.herolib.threefold.gridproxy`
+  - `freeflowuniverse.herolib.threefold.grid3.gridproxy`
   - `freeflowuniverse.herolib.threefold.tfgrid3deployer`
   - `freeflowuniverse.herolib.installers.threefold.griddriver`
 

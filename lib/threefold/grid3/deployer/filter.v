@@ -1,10 +1,9 @@
 module deployer
 
-import freeflowuniverse.herolib.threefold.gridproxy
-import freeflowuniverse.herolib.threefold.gridproxy.model as gridproxy_models
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.gridproxy.model as gridproxy_models
 
-
-//TODO: put all code in relation to filtering in file filter.v
+// TODO: put all code in relation to filtering in file filter.v
 @[params]
 pub struct FilterNodesArgs {
 	gridproxy_models.NodeFilter

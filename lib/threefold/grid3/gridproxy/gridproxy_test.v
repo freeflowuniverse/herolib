@@ -1,6 +1,6 @@
 module gridproxy
 
-import freeflowuniverse.herolib.threefold.gridproxy.model
+import freeflowuniverse.herolib.threefold.grid3.gridproxy.model
 import time
 
 const cache = false

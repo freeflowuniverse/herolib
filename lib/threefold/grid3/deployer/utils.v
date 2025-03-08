@@ -1,9 +1,9 @@
 module deployer
 
-import freeflowuniverse.herolib.threefold.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.threefold.grid.models as grid_models
-import freeflowuniverse.herolib.threefold.gridproxy.model as gridproxy_models
+import freeflowuniverse.herolib.threefold.grid3.gridproxy.model as gridproxy_models
 import rand
 import freeflowuniverse.herolib.ui.console
 
@@ -36,7 +36,7 @@ fn wireguard_routing_ip(ip string) string {
 pub fn (mut deployer TFGridDeployer) mycelium_address_create() grid_models.Mycelium {
 	return grid_models.Mycelium{
 		hex_key: rand.string(32).bytes().hex()
-		peers: []
+		peers:   []
 	}
 }
 

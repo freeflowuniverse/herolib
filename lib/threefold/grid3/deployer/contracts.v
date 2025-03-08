@@ -1,7 +1,7 @@
 module deployer
 
-import freeflowuniverse.herolib.threefold.gridproxy
-import freeflowuniverse.herolib.threefold.gridproxy.model as proxy_models
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.gridproxy.model as proxy_models
 
 @[params]
 pub struct ContractGetArgs {

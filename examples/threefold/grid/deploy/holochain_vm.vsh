@@ -2,7 +2,7 @@
 
 import freeflowuniverse.herolib.threefold.grid.models
 import freeflowuniverse.herolib.threefold.grid as tfgrid
-import freeflowuniverse.herolib.threefold.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
 import flag
 import rand
 import json
