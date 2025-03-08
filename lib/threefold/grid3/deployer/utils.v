@@ -2,7 +2,7 @@ module deployer
 
 import freeflowuniverse.herolib.threefold.grid3.gridproxy
 import freeflowuniverse.herolib.threefold.grid
-import freeflowuniverse.herolib.threefold.grid.models as grid_models
+import freeflowuniverse.herolib.threefold.grid3.models as grid_models
 import freeflowuniverse.herolib.threefold.grid3.gridproxy.model as gridproxy_models
 import rand
 import freeflowuniverse.herolib.ui.console

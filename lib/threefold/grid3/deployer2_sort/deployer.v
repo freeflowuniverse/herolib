@@ -4,7 +4,7 @@ import os
 import json
 import time
 import log
-import freeflowuniverse.herolib.threefold.grid.models
+import freeflowuniverse.herolib.threefold.grid3.models
 import freeflowuniverse.herolib.threefold.griddriver
 import freeflowuniverse.herolib.ui.console
 

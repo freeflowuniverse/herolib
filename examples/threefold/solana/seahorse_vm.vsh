@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.threefold.grid.models
+import freeflowuniverse.herolib.threefold.grid3.models
 import freeflowuniverse.herolib.threefold.grid as tfgrid
 import freeflowuniverse.herolib.threefold.grid3.gridproxy
 import time

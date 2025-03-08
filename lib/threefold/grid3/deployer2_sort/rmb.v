@@ -1,7 +1,7 @@
 module deployer2
 
 import json
-import freeflowuniverse.herolib.threefold.grid.models
+import freeflowuniverse.herolib.threefold.grid3.models
 
 // TODO: decode/encode the params/result here
 pub fn (mut d Deployer) rmb_deployment_changes(dst u32, contract_id u64) !string {

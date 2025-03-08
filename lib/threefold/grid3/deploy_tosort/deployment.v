@@ -1,6 +1,6 @@
 module deploy
 
-import freeflowuniverse.herolib.threefold.grid.models as grid_models
+import freeflowuniverse.herolib.threefold.grid3.models as grid_models
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.data.encoder

@@ -1,7 +1,7 @@
 // This file should only contains any functions, helpers that related to the deployment setup.
 module deployer
 
-import freeflowuniverse.herolib.threefold.grid.models as grid_models
+import freeflowuniverse.herolib.threefold.grid3.models as grid_models
 import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import rand
