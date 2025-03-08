@@ -11,6 +11,7 @@ fn test_directory_encoder_decoder() ! {
 	dir := Directory{
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)
+			path:          '/root'
 			name:        'root'
 			file_type:   .directory
 			created_at:  current_time
@@ -53,6 +54,7 @@ fn test_file_encoder_decoder() ! {
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
+			path:        '/test.txt'
 			file_type:   .file
 			created_at:  current_time
 			modified_at: current_time
@@ -61,13 +63,14 @@ fn test_file_encoder_decoder() ! {
 			owner:       'user'
 			group:       'user'
 		}
-		data:      'Hello, world!'
+		// data:      'Hello, world!'
 		parent_id: 0
+		chunk_ids: [u32(12), u32(27)]
 	}
 
 	encoded := file.encode()
 
-	mut decoded := decode_file(encoded) or { return error('Failed to decode file: ${err}') }
+	decoded := decode_file_metadata(encoded) or { return error('Failed to decode file: ${err}') }
 
 	assert decoded.metadata.id == file.metadata.id
 	assert decoded.metadata.name == file.metadata.name
@@ -78,8 +81,8 @@ fn test_file_encoder_decoder() ! {
 	assert decoded.metadata.mode == file.metadata.mode
 	assert decoded.metadata.owner == file.metadata.owner
 	assert decoded.metadata.group == file.metadata.group
-	assert decoded.data == file.data
 	assert decoded.parent_id == file.parent_id
+	assert decoded.chunk_ids == [u32(12), u32(27)]
 
 	println('Test completed successfully!')
 }
@@ -92,6 +95,7 @@ fn test_symlink_encoder_decoder() ! {
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
+			path:        '/test.txt'
 			file_type:   .symlink
 			created_at:  current_time
 			modified_at: current_time

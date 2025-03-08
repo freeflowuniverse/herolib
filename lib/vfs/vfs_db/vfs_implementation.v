@@ -13,33 +13,50 @@ pub fn (mut fs DatabaseVFS) root_get() !vfs.FSEntry {
 
 pub fn (mut self DatabaseVFS) file_create(path_ string) !vfs.FSEntry {
 	path := '/${path_.trim_left('/').trim_right('/')}'
-	log.info('[DatabaseVFS] Creating file ${path}')
 	// Get parent directory
 	parent_path := os.dir(path)
 	file_name := os.base(path)
 
 	mut parent_dir := self.get_directory(parent_path)!
-	return self.directory_touch(parent_dir, file_name)!
+	log.info('[DatabaseVFS] Creating file ${file_name} in ${parent_path}')
+	entry := self.directory_touch(mut parent_dir, file_name)!
+	log.info('[DatabaseVFS] Created file ${file_name} in ${parent_path}')
+	return entry
 }
 
 pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
 	path := '/${path_.trim_left('/').trim_right('/')}'
 	log.info('[DatabaseVFS] Reading file ${path}')
-	mut entry := self.get_entry(path)!
-	if mut entry is File {
-		return entry.read().bytes()
+	mut file := self.get_entry(path)!
+	if mut file is File {
+		metadata := self.db_metadata.get(self.get_database_id(file.metadata.id)!) or {
+		return error('Failed to get file metadata ${err}')
+	}
+	_, chunk_ids := decode_file_metadata(metadata) or { return error('Failed to decode file: ${err}') }
+	println('debugzo-1 ${chunk_ids}')
+	mut file_data := []u8{}
+	// log.debug('[DatabaseVFS] Got database chunk ids ${chunk_ids}')
+	for id in chunk_ids {
+		log.debug('[DatabaseVFS] Getting chunk ${id}')
+		// there were chunk ids stored with file so file has data
+		if chunk_bytes := self.db_data.get(id) {
+			file_data << chunk_bytes
+		} else {
+			return error('Failed to fetch file data: ${err}')
+		}
+	}
+	return file_data
 	}
 	return error('Not a file: ${path}')
 }
 
 pub fn (mut self DatabaseVFS) file_write(path_ string, data []u8) ! {
-	log.info('[DatabaseVFS] Writing file ${path_}')
-	path := '/${path_.trim_left('/').trim_right('/')}'
+	path := texttools.path_fix_absolute(path_)
+	
 	if mut entry := self.get_entry(path) {
 		if mut entry is File {
-			log.info('[DatabaseVFS] Writing to file ${path}')
-			entry.write(data.bytestr())
-			self.save_entry(entry)!
+			log.info('[DatabaseVFS] Writing ${data.len} bytes to ${path}')
+			self.save_file(entry, data)!
 		} else {
 			panic('handle error')
 		}
@@ -55,7 +72,10 @@ pub fn (mut self DatabaseVFS) file_delete(path string) ! {
 	file_name := os.base(path)
 
 	mut parent_dir := self.get_directory(parent_path)!
-	self.directory_rm(mut parent_dir, file_name)!
+	self.directory_rm(mut parent_dir, file_name) or {
+		log.error(err.msg())
+		return err
+	}
 }
 
 pub fn (mut self DatabaseVFS) dir_create(path_ string) !vfs.FSEntry {
@@ -138,7 +158,7 @@ pub fn (mut self DatabaseVFS) link_delete(path string) ! {
 	self.directory_rm(mut parent_dir, file_name)!
 }
 
-pub fn (mut self DatabaseVFS) exists(path_ string) bool {
+	pub fn (mut self DatabaseVFS) exists(path_ string) bool {
 	path := if !path_.starts_with('/') {
 		'/${path_}'
 	} else {
@@ -229,8 +249,20 @@ pub fn (mut self DatabaseVFS) move(src_path string, dst_path string) !vfs.FSEntr
 	)!
 }
 
-pub fn (mut self DatabaseVFS) delete(path string) ! {
-	// TODO: implement
+pub fn (mut self DatabaseVFS) delete(path_ string) ! {
+	if path_ == '/' || path_ == '' || path_ == '.' {
+		return error('cant delete root')
+	}
+	path := '/${path_.trim_left('/').trim_right('/')}'
+	parent_path := os.dir(path)
+	file_name := os.base(path)
+
+	mut parent_dir := self.get_directory(parent_path)!
+
+	self.directory_rm(mut parent_dir, file_name) or {
+		log.error('[DatabaseVFS] Failed to remove ${file_name} from ${parent_dir.metadata.path}\n${err}')
+		return err
+	}
 }
 
 pub fn (mut self DatabaseVFS) destroy() ! {

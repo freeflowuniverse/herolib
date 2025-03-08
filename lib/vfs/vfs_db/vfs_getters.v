@@ -37,29 +37,45 @@ pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 }
 
 fn (mut self DatabaseVFS) get_entry(path_ string) !FSEntry {
-	path := '/${path_.trim_left('/').trim_right('/')}'
+	path := '${path_.trim_left('/').trim_right('/')}'
 	if path == '/' || path == '' || path == '.' {
 		return FSEntry(self.root_get_as_dir()!)
 	}
 
-	mut current := *self.root_get_as_dir()!
-	return self.directory_get_entry(mut current, path) or {
-		return error('Path not found: ${path}')
+	parts := path.split('/')
+	mut parent_dir := *self.root_get_as_dir()!
+	for i, part in parts {
+		entry := self.directory_get_entry(parent_dir, part) or { 
+			return error('Failed to get entry ${err}')
+		}
+		if i == parts.len - 1 {
+			// last part, means entry is found
+			return entry
+		}
+		if entry is Directory {
+			parent_dir = entry
+		} else {
+			return error('Failed to get entry, expected dir')
+		}
 	}
+	// mut current := *self.root_get_as_dir()!
+	// return self.directory_get_entry(mut current, path) or {
+		return error('Path not found: ${path}')
+	// }
 }
 
-fn (mut self DatabaseVFS) directory_get_entry(mut dir Directory, path string) ?FSEntry {
-	mut children := self.directory_children(mut dir, false) or {
-		panic('this should never happen')
-	}
-	for mut child in children {
-		if child.metadata.path == path {
-			return child
-		} else if child is Directory {
-			mut child_dir := child as Directory
-			return self.directory_get_entry(mut child_dir, path) or {
-				continue
+// internal function to get an entry of some name from a directory
+fn (mut self DatabaseVFS) directory_get_entry(dir Directory, name string) ?FSEntry {
+	// mut children := self.directory_children(mut dir, false) or {
+	// 	panic('this should never happen')
+	// }
+	for child_id in dir.children {
+		if entry := self.load_entry(child_id) {
+			if entry.metadata.name == name {
+				return entry
 			}
+		} else {
+			panic('Filesystem is corrupted, this should never happen ${err}')
 		}
 	}
 	return none

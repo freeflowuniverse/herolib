@@ -2,6 +2,7 @@ module vfs_db
 
 import freeflowuniverse.herolib.vfs { Metadata }
 import time
+import log
 
 // mkdir creates a new directory with default permissions
 pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name_ string) !&Directory {
@@ -88,17 +89,9 @@ pub fn (mut fs DatabaseVFS) copy_directory(dir Directory) !&Directory {
 }
 
 // touch creates a new empty file with default permissions
-pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name_ string) !&File {
+pub fn (mut fs DatabaseVFS) directory_touch(mut dir Directory, name_ string) !&File {
 	name := name_.trim('/')
-	mut dir := dir_
-
-	// First, make sure we're working with the latest version of the directory
-	if updated_dir := fs.load_entry(dir.metadata.id) {
-		if updated_dir is Directory {
-			dir = updated_dir
-		}
-	}
-
+	
 	// Check if file already exists
 	for child_id in dir.children {
 		if entry := fs.load_entry(child_id) {
@@ -115,85 +108,49 @@ pub fn (mut fs DatabaseVFS) directory_touch(dir_ Directory, name_ string) !&File
 	}
 	
 	// Create new file with correct parent_id
-	mut new_file := fs.new_file(
+	mut new_file := fs.save_file(File{
 		parent_id: dir.metadata.id
-		name: name
-		path: path
-	)!
+		metadata: vfs.Metadata {
+			name: name
+			path: path
+		}
+	}, [])!
 	
-	// Ensure parent_id is set correctly
-	if new_file.parent_id != dir.metadata.id {
-		new_file.parent_id = dir.metadata.id
-		fs.save_entry(new_file)!
-	}
-
 	// Update children list
 	dir.children << new_file.metadata.id
 	fs.save_entry(dir)!
-	
-	// Reload the directory to ensure we have the latest version
-	if updated_dir := fs.load_entry(dir.metadata.id) {
-		if updated_dir is Directory {
-			dir = updated_dir
-		}
-	}
-	
 	return new_file
 }
 
 // rm removes a file or directory by name
 pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
-	mut found := false
-	mut found_id := u32(0)
-	mut found_idx := 0
-
-	// First, make sure we're working with the latest version of the directory
-	if updated_dir := fs.load_entry(dir.metadata.id) {
-		if updated_dir is Directory {
-			dir = updated_dir
-		}
-	}
-
-	for i, child_id in dir.children {
-		if entry := fs.load_entry(child_id) {
-			if entry.metadata.name == name {
-				found = true
-				found_id = child_id
-				found_idx = i
-				if entry is Directory {
-					if entry.children.len > 0 {
-						return error('Directory not empty')
-					}
-				}
-				break
-			}
-		}
-	}
-
-	if !found {
+	entry := fs.directory_get_entry(dir, name) or {
 		return error('${name} not found')
+	}
+	if entry is Directory {
+		if entry.children.len > 0 {
+			return error('Directory not empty')
+		}
 	}
 
 	// get entry from db_metadata
-	metadata_bytes := fs.db_metadata.get(fs.get_database_id(found_id)!) or { return error('Failed to delete entry: ${err}') }
-	file, data_id := decode_file_metadata(metadata_bytes)!
+	metadata_bytes := fs.db_metadata.get(fs.get_database_id(entry.metadata.id)!) or { return error('Failed to delete entry: ${err}') }
+	file, chunk_ids := decode_file_metadata(metadata_bytes)!
 
-	if id := data_id {
-		// means file has associated data in db_data
+	// delete file chunks in data_db
+	for id in chunk_ids {
+		log.debug('[DatabaseVFS] Deleting chunk ${id}')
 		fs.db_data.delete(id)!
 	}
+	
+	log.debug('[DatabaseVFS] Deleting file metadata ${file.metadata.id}')
+	fs.db_metadata.delete(fs.get_database_id(entry.metadata.id)!) or { return error('Failed to delete entry: ${err}') }
 
-	fs.db_metadata.delete(file.metadata.id) or { return error('Failed to delete entry: ${err}') }
 
 	// Update children list - make sure we don't remove the wrong child
-	dir.children.delete(found_idx)
-	fs.save_entry(dir)!
-	
-	// Reload the directory to ensure we have the latest version
-	if updated_dir := fs.load_entry(dir.metadata.id) {
-		if updated_dir is Directory {
-			dir = updated_dir
-		}
+	dir.children = dir.children.filter(it != entry.metadata.id).clone()
+	fs.save_entry(dir) or {
+		return error('Failed to save updated directory.\n${err}')
 	}
 }
 
@@ -483,13 +440,6 @@ pub fn (mut fs DatabaseVFS) directory_rename(dir Directory, src_name string, dst
 pub fn (mut fs DatabaseVFS) directory_children(mut dir Directory, recursive bool) ![]FSEntry {
 	mut entries := []FSEntry{}
 	
-	// Make sure we're working with the latest version of the directory
-	if updated_dir := fs.load_entry(dir.metadata.id) {
-		if updated_dir is Directory {
-			dir = updated_dir
-		}
-	}
-	
 	for child_id in dir.children {
 		if entry := fs.load_entry(child_id) {
 			entries << entry
@@ -497,6 +447,8 @@ pub fn (mut fs DatabaseVFS) directory_children(mut dir Directory, recursive bool
 				mut d := entry as Directory
 				entries << fs.directory_children(mut d, true)!
 			}
+		} else {
+			panic('Filesystem is corrupted, this should never happen ${err}')
 		}
 	}
 	return entries.clone()

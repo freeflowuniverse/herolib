@@ -6,25 +6,13 @@ import freeflowuniverse.herolib.vfs
 pub struct File {
 pub mut:
 	metadata  vfs.Metadata // vfs.Metadata from models_common.v
-	data      string       // File content stored in DB
 	parent_id u32          // ID of parent directory
-}
-
-// write updates the file's content and returns updated file
-pub fn (mut file File) write(content string) {
-	file.data = content
-	file.metadata.size = u64(content.len)
-	file.metadata.modified()
+	chunk_ids []u32    // a list of data addresses for chunks of 64 kb in data_db
 }
 
 // Rename the file
 fn (mut f File) rename(name string) {
 	f.metadata.name = name
-}
-
-// read returns the file's content
-pub fn (mut f File) read() string {
-	return f.data
 }
 
 fn (f &File) get_metadata() vfs.Metadata {
@@ -61,36 +49,36 @@ pub:
 	parent_id u32
 }
 
-// mkdir creates a new directory with default permissions
-pub fn (mut fs DatabaseVFS) new_file(file NewFile) !&File {
-	f := File{
-		data:     file.data
-		parent_id: file.parent_id
-		metadata: fs.new_metadata(NewMetadata{
-			name:      file.name
-			path:      file.path
-			mode:      file.mode
-			owner:     file.owner
-			group:     file.group
-			size:      u64(file.data.len)
-			file_type: .file
-		})
-	}
+// // mkdir creates a new directory with default permissions
+// pub fn (mut fs DatabaseVFS) new_file(file NewFile) !&File {
+// 	f := File{
+// 		parent_id: file.parent_id
+// 		parent_id: file.parent_id
+// 		metadata: fs.new_metadata(NewMetadata{
+// 			name:      file.name
+// 			path:      file.path
+// 			mode:      file.mode
+// 			owner:     file.owner
+// 			group:     file.group
+// 			size:      u64(file.data.len)
+// 			file_type: .file
+// 		})
+// 	}
 
-	// Save new directory to DB
-	fs.save_entry(f)!
-	return &f
-}
+// 	// Save new directory to DB
+// 	fs.save_entry(f)!
+// 	return &f
+// }
 
-// mkdir creates a new directory with default permissions
-pub fn (mut fs DatabaseVFS) copy_file(file File) !&File {
-	return fs.new_file(
-		data:  file.data
-		name:  file.metadata.name
-		path:  file.metadata.path
-		mode:  file.metadata.mode
-		owner: file.metadata.owner
-		group: file.metadata.group
-		parent_id: file.parent_id
-	)
-}
+// // mkdir creates a new directory with default permissions
+// pub fn (mut fs DatabaseVFS) copy_file(file File) !&File {
+// 	return fs.new_file(
+// 		data:  file.data
+// 		name:  file.metadata.name
+// 		path:  file.metadata.path
+// 		mode:  file.metadata.mode
+// 		owner: file.metadata.owner
+// 		group: file.metadata.group
+// 		parent_id: file.parent_id
+// 	)
+// }
