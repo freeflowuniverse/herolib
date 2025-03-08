@@ -35,13 +35,13 @@ fn get_deployer() !Deployer {
 	mut grid_client := get()!
 
 	network := match grid_client.network {
-		.dev { grid.ChainNetwork.dev }
-		.qa { grid.ChainNetwork.qa }
-		.test { grid.ChainNetwork.test }
-		.main { grid.ChainNetwork.main }
+		.dev { ChainNetwork.dev }
+		.qa { ChainNetwork.qa }
+		.test { ChainNetwork.test }
+		.main { ChainNetwork.main }
 	}
 
-	return grid.new_deployer(grid_client.mnemonic, network)!
+	return new_deployer(grid_client.mnemonic, network)!
 }
 
 pub fn new_deployment(name string) !TFDeployment {

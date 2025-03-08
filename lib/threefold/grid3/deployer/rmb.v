@@ -1,4 +1,4 @@
-module deployer2
+module deployer
 
 import json
 import freeflowuniverse.herolib.threefold.grid3.models
