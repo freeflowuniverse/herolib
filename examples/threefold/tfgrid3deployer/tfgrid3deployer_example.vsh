@@ -1,11 +1,10 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.threefold.gridproxy
-import freeflowuniverse.herolib.threefold.tfgrid3deployer
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.deployer
 import freeflowuniverse.herolib.ui.console
 
 fn main() {
-
 	v := tfgrid3deployer.get()!
 	println('cred: ${v}')
 	deployment_name := 'my_deployment27'
@@ -18,8 +17,7 @@ fn main() {
 		memory:     2
 		planetary:  false
 		public_ip4: false
-		mycelium:   tfgrid3deployer.Mycelium{}
-		nodes:      [u32(167)]
+		nodes:      [167]
 	)
 	// deployment.add_machine(
 	// 	name:       'my_vm2'
@@ -27,7 +25,6 @@ fn main() {
 	// 	memory:     2
 	// 	planetary:  false
 	// 	public_ip4: true
-	// 	mycelium:   tfgrid3deployer.Mycelium{}
 	// 	// nodes:     [u32(164)]
 	// )
 

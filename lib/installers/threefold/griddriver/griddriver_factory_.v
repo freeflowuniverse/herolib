@@ -91,11 +91,6 @@ pub fn (mut self GridDriverInstaller) install(args InstallArgs) ! {
 	}
 }
 
-pub fn (mut self GridDriverInstaller) build() ! {
-	switch(self.name)
-	build()!
-}
-
 pub fn (mut self GridDriverInstaller) destroy() ! {
 	switch(self.name)
 	destroy()!

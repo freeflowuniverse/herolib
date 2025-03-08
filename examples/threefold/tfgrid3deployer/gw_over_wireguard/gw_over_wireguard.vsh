@@ -1,7 +1,7 @@
 #!/usr/bin/env -S v -gc none -no-retry-compilation -d use_openssl -enable-globals -cg run
 
-import freeflowuniverse.herolib.threefold.gridproxy
-import freeflowuniverse.herolib.threefold.tfgrid3deployer
+import freeflowuniverse.herolib.threefold.grid3.gridproxy
+import freeflowuniverse.herolib.threefold.grid3.deployer
 import freeflowuniverse.herolib.installers.threefold.griddriver
 import os
 import time
@@ -22,7 +22,6 @@ deployment.add_machine(
 	wireguard:  true
 	public_ip4: false
 	size:       10 // 10 gig
-	mycelium:   tfgrid3deployer.Mycelium{}
 )
 deployment.deploy()!
 
