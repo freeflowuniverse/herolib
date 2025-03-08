@@ -1,7 +1,6 @@
 module deployer
 
 import freeflowuniverse.herolib.threefold.grid3.models as grid_models
-import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import compress.zlib
 import encoding.hex
@@ -28,11 +27,11 @@ pub mut:
 mut:
 	// Set the deployed contracts on the deployment and save the full deployment to be able to delete the whole deployment when need.
 	contracts GridContracts
-	deployer  &grid.Deployer @[skip; str: skip]
+	deployer  &Deployer @[skip; str: skip]
 	kvstore   KVStoreFS      @[skip; str: skip]
 }
 
-fn get_deployer() !grid.Deployer {
+fn get_deployer() !Deployer {
 	mut grid_client := get()!
 
 	network := match grid_client.network {

@@ -2,7 +2,6 @@
 module deployer
 
 import freeflowuniverse.herolib.threefold.grid3.models as grid_models
-import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import rand
 
@@ -12,7 +11,7 @@ mut:
 	workloads       map[u32][]grid_models.Workload
 	network_handler NetworkHandler
 
-	deployer          &grid.Deployer @[skip; str: skip]
+	deployer          &Deployer @[skip; str: skip]
 	contracts_map     map[u32]u64
 	name_contract_map map[string]u64
 }
@@ -23,12 +22,12 @@ mut:
 // - vms: Array of VMachine instances representing the virtual machines to set up workloads for
 // - zdbs: Array of ZDB objects containing ZDB requirements
 // - webnames: Array of WebName instances representing web names
-// - deployer: Reference to the grid.Deployer for deployment operations
+// - deployer: Reference to the Deployer for deployment operations
 // Modifies:
 // - dls: Modified DeploymentSetup struct with network, VM, and ZDB workloads set up
 // Returns:
 // - None
-fn new_deployment_setup(network_specs NetworkSpecs, vms []VMachine, zdbs []ZDB, webnames []WebName, old_deployments map[u32]grid_models.Deployment, mut deployer grid.Deployer) !DeploymentSetup {
+fn new_deployment_setup(network_specs NetworkSpecs, vms []VMachine, zdbs []ZDB, webnames []WebName, old_deployments map[u32]grid_models.Deployment, mut deployer Deployer) !DeploymentSetup {
 	mut dls := DeploymentSetup{
 		deployer:        deployer
 		network_handler: NetworkHandler{

@@ -1,7 +1,6 @@
 module deployer
 
 import freeflowuniverse.herolib.threefold.grid3.gridproxy
-import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.threefold.grid3.models as grid_models
 import freeflowuniverse.herolib.threefold.grid3.gridproxy.model as gridproxy_models
 import rand
@@ -44,7 +43,7 @@ fn convert_to_gigabytes(bytes u64) u64 {
 	return bytes * 1024 * 1024 * 1024
 }
 
-fn pick_node(mut deployer grid.Deployer, nodes []gridproxy_models.Node) !gridproxy_models.Node {
+fn pick_node(mut deployer Deployer, nodes []gridproxy_models.Node) !gridproxy_models.Node {
 	mut node := ?gridproxy_models.Node(none)
 	mut checked := []bool{len: nodes.len}
 	mut checked_cnt := 0
@@ -69,7 +68,7 @@ fn pick_node(mut deployer grid.Deployer, nodes []gridproxy_models.Node) !gridpro
 	}
 }
 
-fn ping_node(mut deployer grid.Deployer, twin_id u32) bool {
+fn ping_node(mut deployer Deployer, twin_id u32) bool {
 	if _ := deployer.client.get_zos_version(twin_id) {
 		return true
 	} else {

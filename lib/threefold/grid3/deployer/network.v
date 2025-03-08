@@ -1,7 +1,6 @@
 module deployer
 
 import freeflowuniverse.herolib.threefold.grid3.models as grid_models
-import freeflowuniverse.herolib.threefold.grid
 import freeflowuniverse.herolib.ui.console
 import json
 import rand
@@ -63,7 +62,7 @@ mut:
 	// user_access_endopoints int
 	user_access_configs []UserAccessConfig
 
-	deployer &grid.Deployer @[skip; str: skip]
+	deployer &Deployer @[skip; str: skip]
 }
 
 // TODO: maybe rename to fill_network or something similar
