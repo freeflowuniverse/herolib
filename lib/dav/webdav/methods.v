@@ -31,10 +31,8 @@ pub fn (mut app App) lock(mut ctx Context, path string) veb.Result {
 		ctx.res.set_status(.bad_request)
 		return ctx.text('Invalid lock request: ${err}')
 	}
-		
+
 	// Get depth and timeout from headers (these are still in headers)
-	depth := ctx.get_custom_header('Depth') or { '0' }.int()
-	
 	// Parse timeout header which can be in format "Second-600"
 	timeout_str := ctx.get_custom_header('Timeout') or { 'Second-3600' }
 	mut timeout := 3600 // Default 1 hour
@@ -45,23 +43,22 @@ pub fn (mut app App) lock(mut ctx Context, path string) veb.Result {
 			timeout = timeout_val.int()
 		}
 	}
-		
-	// Check if the resource is already locked by a different owner
-	if existing_lock := app.lock_manager.get_lock(resource) {
-		if existing_lock.owner != lock_info.owner {
-			// Resource is locked by a different owner
-			// Return a 423 Locked status with information about the existing lock
-			ctx.res.set_status(.locked)
-			return ctx.send_response_to_client('application/xml', existing_lock.xml())
-		}
+
+	new_lock := Lock {
+		...lock_info,
+		resource: ctx.req.url
+		depth: ctx.get_custom_header('Depth') or { '0' }.int()
+		timeout: timeout
 	}
 	
 	// Try to acquire the lock
-	lock_result := app.lock_manager.lock(resource, lock_info.owner, depth, timeout) or {
+	lock_result := app.lock_manager.lock(new_lock) or {
 		// If we get here, the resource is locked by a different owner
 		ctx.res.set_status(.locked)
 		return ctx.text('Resource is already locked by a different owner.')
 	}
+
+	log.debug('[WebDAV] Received lock result ${lock_result.xml()}')
 	ctx.res.set_status(.ok)
 	ctx.set_custom_header('Lock-Token', '${lock_result.token}') or { return ctx.server_error(err.msg()) }
 	
@@ -93,22 +90,13 @@ pub fn (mut app App) unlock(mut ctx Context, path string) veb.Result {
 @['/:path...'; get]
 pub fn (mut app App) get_file(mut ctx Context, path string) veb.Result {
 	log.info('[WebDAV] Getting file ${path}')
-	if !app.vfs.exists(path) {
-		return ctx.not_found()
-	}
-
-	fs_entry := app.vfs.get(path) or {
-		log.error('[WebDAV] failed to get FS Entry ${path}: ${err}')
-		return ctx.server_error(err.msg())
-	}
-
 	file_data := app.vfs.file_read(path) or { return ctx.server_error(err.msg()) }
-
-	ext := fs_entry.get_metadata().name.all_after_last('.')
-	content_type := veb.mime_types[ext] or { 'text/plain' }
-
-	ctx.res.header.set(.content_length, file_data.len.str())
-	ctx.res.set_status(.ok)
+	ext := path.all_after_last('.')
+	content_type := veb.mime_types['.${ext}'] or { 'text/plain' }
+	println('debugzo000 ${file_data.bytestr().len}')
+	println('debugzo001 ${file_data.len}')
+	// ctx.res.header.set(.content_length, file_data.len.str())
+	// ctx.res.set_status(.ok)
 	return ctx.send_response_to_client(content_type, file_data.bytestr())
 }
 
@@ -157,32 +145,10 @@ pub fn (mut app App) exists(mut ctx Context, path string) veb.Result {
 
 @['/:path...'; delete]
 pub fn (mut app App) delete(mut ctx Context, path string) veb.Result {
-	if !app.vfs.exists(path) {
-		return ctx.not_found()
-	}
-
-	fs_entry := app.vfs.get(path) or {
-		console.print_stderr('failed to get FS Entry ${path}: ${err}')
+	app.vfs.delete(path) or {
 		return ctx.server_error(err.msg())
 	}
-
-	// Check if the resource is locked
-	if app.lock_manager.is_locked(ctx.req.url) {
-		// Resource is locked, return a 207 Multi-Status response with a 423 Locked status
-		ctx.res.set_status(.multi_status)
-		return ctx.send_response_to_client('application/xml', $tmpl('./templates/delete_response.xml'))
-	}
-
-	// If not locked, proceed with deletion
-	if fs_entry.is_dir() {
-		console.print_debug('deleting directory: ${path}')
-		app.vfs.dir_delete(path) or { return ctx.server_error(err.msg()) }
-	}
-
-	if fs_entry.is_file() {
-		console.print_debug('deleting file: ${path}')
-		app.vfs.file_delete(path) or { return ctx.server_error(err.msg()) }
-	}
+	
 
 	// Return success response
 	return ctx.no_content()
@@ -255,18 +221,7 @@ pub fn (mut app App) mkcol(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; propfind]
-fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
-	log.info('[WebDAV] ${@FN} ${path}')
-
-	// Check if resource exists
-	if !app.vfs.exists(path) {
-		return ctx.error(
-			status: .not_found
-			message: 'Path ${path} does not exist'
-			tag: 'resource-must-be-null'
-		)
-	}
-	
+fn (mut app App) propfind(mut ctx Context, path string) veb.Result {	
 	// Parse PROPFIND request
 	propfind_req := parse_propfind_xml(ctx.req) or {
 		return ctx.error(WebDAVError{
@@ -276,7 +231,7 @@ fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 		})
 	}
 
-	log.debug('[WebDAV] ${@FN} Propfind Request: ${propfind_req.typ} ${propfind_req.depth}')
+	log.debug('[WebDAV] Propfind Request: ${propfind_req.typ} ${propfind_req.depth}')
 
 	
 	// Check if resource is locked
@@ -287,11 +242,19 @@ fn (mut app App) propfind(mut ctx Context, path string) veb.Result {
 		log.info('[WebDAV] Resource is locked: ${ctx.req.url}')
 	}
 	
-	entry := app.vfs.get(path) or {return ctx.server_error('entry not found ${err}')}
+	entry := app.vfs.get(path) or { 
+		return ctx.error(
+			status: .not_found
+			message: 'Path ${path} does not exist'
+			tag: 'resource-must-be-null'
+		)
+	}
 	
 	responses := app.get_responses(entry, propfind_req) or {
 		return ctx.server_error('Failed to get entry properties ${err}')
 	}
+
+	// log.debug('[WebDAV] Propfind responses ${responses}')
 
 	// Create multistatus response using the responses
 	ctx.res.set_status(.multi_status)

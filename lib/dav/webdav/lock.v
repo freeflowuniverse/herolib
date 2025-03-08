@@ -18,22 +18,22 @@ pub:
 // lock attempts to lock a resource for a specific owner
 // Returns a LockResult with the lock token and whether it's a new lock
 // Returns an error if the resource is already locked by a different owner
-pub fn (mut lm LockManager) lock(resource string, owner string, depth int, timeout int) !Lock {
-	if resource in lm.locks {
+pub fn (mut lm LockManager) lock(l Lock) !Lock {
+	if l.resource in lm.locks {
 		// Check if the lock is still valid
-		existing_lock := lm.locks[resource]
+		existing_lock := lm.locks[l.resource]
 		if time.now().unix() - existing_lock.created_at.unix() < existing_lock.timeout {
 			// Resource is already locked
-			if existing_lock.owner == owner {
+			if existing_lock.owner == l.owner {
 				// Same owner, refresh the lock
 				refreshed_lock := Lock {...existing_lock,
-					resource:   resource
-					owner:      owner
-					depth:      depth
-					timeout:    timeout
+					resource:   l.resource
+					owner:      l.owner
+					depth:      l.depth
+					timeout:    l.timeout
 					created_at: time.now()
 				}
-				lm.locks[resource] = refreshed_lock
+				lm.locks[l.resource] = refreshed_lock
 				return refreshed_lock
 			} else {
 				// Different owner, return an error
@@ -41,19 +41,16 @@ pub fn (mut lm LockManager) lock(resource string, owner string, depth int, timeo
 			}
 		}
 		// Expired lock, remove it
-		lm.unlock(resource)
+		lm.unlock(l.resource)
 	}
 
 	// Generate a new lock token
 	new_lock := Lock{
-		resource:   resource
-		owner:      owner
+		...l,
 		token:      rand.uuid_v4()
-		depth:      depth
-		timeout:    timeout
 		created_at: time.now()
 	}
-	lm.locks[resource] = new_lock
+	lm.locks[l.resource] = new_lock
 	return new_lock
 }
 
@@ -102,13 +99,13 @@ pub fn (mut lm LockManager) unlock_with_token(resource string, token string) boo
 	return false
 }
 
-fn (mut lm LockManager) lock_recursive(resource string, owner string, depth int, timeout int) !Lock {
-	if depth == 0 {
-		return lm.lock(resource, owner, depth, timeout)
+fn (mut lm LockManager) lock_recursive(l Lock) !Lock {
+	if l.depth == 0 {
+		return lm.lock(l)
 	}
 	// Implement logic to lock child resources if depth == 1
 	// For now, just lock the parent resource
-	return lm.lock(resource, owner, depth, timeout)
+	return lm.lock(l)
 }
 
 pub fn (mut lm LockManager) cleanup_expired_locks() {
