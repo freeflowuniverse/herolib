@@ -117,6 +117,18 @@ pub fn (mut base DocBase) frontmatter_new(mut docparent ?&Doc, content string) &
 	return &fm
 }
 
+pub fn (mut base DocBase) frontmatter2_new(mut docparent ?&Doc, content string) &Frontmatter2 {
+	mut fm := Frontmatter2{
+		content:     content
+		type_name:   'frontmatter2'
+		parent_doc_: docparent
+	}
+
+	base.children << fm
+	return &fm
+}
+
+
 pub fn (mut base DocBase) link_new(mut docparent ?&Doc, content string) &Link {
 	mut a := Link{
 		content:   content

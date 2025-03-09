@@ -30,7 +30,6 @@ fn obj_init(mycfg_ CaddyServer) !CaddyServer {
 // user needs to us switch to make sure we get the right object
 fn configure() ! {
 	mut cfg := get()!
-
 	if !os.exists('/etc/caddy/Caddyfile') {
 		// set the default caddyfile
 		configure_examples(path: cfg.path)!

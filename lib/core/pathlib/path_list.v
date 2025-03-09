@@ -126,10 +126,17 @@ fn (mut path Path) list_internal(args ListArgsInternal) ![]Path {
 			}
 		}
 
-		mut addthefile := true
-		for r in args.regex {
-			if !(r.matches_string(item)) {
-				addthefile = false
+		mut addthefile := false
+		// If no regex patterns provided, include all files
+		if args.regex.len == 0 {
+			addthefile = true
+		} else {
+			// Include file if ANY regex pattern matches (OR operation)
+			for r in args.regex {
+				if r.matches_string(item) {
+					addthefile = true
+					break
+				}
 			}
 		}
 		if addthefile && !args.dirs_only {
