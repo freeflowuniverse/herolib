@@ -62,6 +62,12 @@ pub enum AgentServiceState {
 	halted // service/action has been manually stopped
 }
 
+pub fn (c Agent) index_keys() map[string]string {
+	return {"pubkey": c.pubkey}
+}
+
+
+
 // dumps serializes the Agent struct to binary format using the encoder
 pub fn (a Agent) dumps() ![]u8 {
 	mut e := encoder.new()

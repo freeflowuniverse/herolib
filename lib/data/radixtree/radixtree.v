@@ -19,6 +19,7 @@ mut:
 }
 
 // RadixTree represents a radix tree data structure
+@[heap]
 pub struct RadixTree {
 mut:
 	db      &ourdb.OurDB // Database for persistent storage

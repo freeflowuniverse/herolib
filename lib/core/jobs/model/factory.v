@@ -5,12 +5,13 @@ import freeflowuniverse.herolib.data.radixtree
 import os
 
 // HeroRunner is the main factory for managing jobs, agents, services and circles
+@[heap]
 pub struct HeroRunner {
 pub mut:
-	jobs     &JobManager
 	agents   &AgentManager
-	services &ServiceManager
-	circles   &CircleManager
+	// jobs     &JobManager
+	// services &ServiceManager
+	// circles   &CircleManager
 }
 
 @[params]
@@ -37,7 +38,7 @@ pub fn new(args_ HeroRunnerArgs) !&HeroRunner {
 	// Create the data database (non-incremental mode for custom IDs)
 	mut db_data := ourdb.new(
 		path: os.join_path(args.path, 'data')
-		incremental_mode: true // Using auto-increment for IDs
+		incremental_mode: false // Using auto-increment for IDs
 	)!
 	println(2)
 
@@ -47,25 +48,22 @@ pub fn new(args_ HeroRunnerArgs) !&HeroRunner {
 	)!
 
 	// Initialize the agent manager with proper ourdb instances
-	mut agent_manager	:= &AgentManager{db_data:&db_data,db_meta:db_meta}
-
-	// Initialize other managers
-	// Note: These will need to be updated similarly when implementing their database functions
-	mut job_manager := &JobManager{db_data:&db_data,db_meta:db_meta}
-	mut service_manager := &ServiceManager{db_data:&db_data,db_meta:db_meta}
-	mut circle_manager := &CircleManager{db_data:&db_data,db_meta:db_meta}
+	mut agent_manager	:= new_agentmanager(db_data, db_meta)
+	// mut job_manager := &JobManager{db_data:&db_data,db_meta:db_meta}
+	// mut service_manager := &ServiceManager{db_data:&db_data,db_meta:db_meta}
+	// mut circle_manager := &CircleManager{db_data:&db_data,db_meta:db_meta}
 
 	mut hr := &HeroRunner{
-		jobs:     job_manager
-		agents:   agent_manager
-		services: service_manager
-		circles:   circle_manager
+		agents:   &agent_manager
+		// services: service_manager
+		// circles:   circle_manager
+		// jobs:     job_manager
 	}
 
 	return hr
 }
 
-// cleanup_jobs removes jobs older than the specified number of days
-pub fn (mut hr HeroRunner) cleanup_jobs(days int) !int {
-	return hr.jobs.cleanup(days)
-}
+// // cleanup_jobs removes jobs older than the specified number of days
+// pub fn (mut hr HeroRunner) cleanup_jobs(days int) !int {
+// 	return hr.jobs.cleanup(days)
+// }

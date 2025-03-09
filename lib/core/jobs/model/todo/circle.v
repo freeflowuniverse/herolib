@@ -31,11 +31,12 @@ pub mut:
 }
 
 pub fn (c Circle) index_keys() map[string]string {
-	return {"pubkey": c.pubkey}
+	return {"name": c.name}
 }
 
 
 // dumps serializes the Circle struct to binary format using the encoder
+// This implements the Serializer interface
 pub fn (c Circle) dumps() ![]u8 {
 	mut e := encoder.new()
 
