@@ -49,7 +49,7 @@ pub mut:
 // GitRepoConfig holds repository-specific configuration options.
 pub struct GitRepoConfig {
 pub mut:
-	remote_check_period int = 3600 * 24 * 3 // Seconds to wait between remote checks (0 = check every time), default 3 days
+	remote_check_period int = 3600 * 24 * 7 // Seconds to wait between remote checks (0 = check every time), default 7 days
 }
 
 // just some initialization mechanism

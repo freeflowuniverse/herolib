@@ -13,6 +13,9 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 	// Check current time vs last check, if needed (check period) then load
 	repo.cache_get() or { return error('Failed to get cache for repo ${repo.name}: ${err}') } // Ensure we have the situation from redis
 	repo.init() or { return error('Failed to initialize repo ${repo.name}: ${err}') }
+	if 'OFFLINE' !in os.environ() {
+		return
+	}
 	current_time := int(time.now().unix())
 	if args.reload || repo.last_load == 0
 		|| current_time - repo.last_load >= repo.config.remote_check_period {

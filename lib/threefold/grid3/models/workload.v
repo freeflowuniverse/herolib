@@ -49,10 +49,10 @@ pub fn challenge(data string, type_ string) !string {
 			mut w := json.decode(Zmachine, data)!
 			return w.challenge()
 		}
-		workload_types.qsfs {
-			mut w := json.decode(QuantumSafeFS, data)!
-			return w.challenge()
-		}
+		// workload_types.qsfs {
+		// 	mut w := json.decode(QuantumSafeFS, data)!
+		// 	return w.challenge()
+		// }
 		workload_types.public_ip {
 			mut w := json.decode(PublicIP, data)!
 			return w.challenge()
