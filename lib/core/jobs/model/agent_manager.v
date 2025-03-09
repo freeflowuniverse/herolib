@@ -3,11 +3,8 @@ module model
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
-import json
-import os
 
-// AgentManager handles all agent-related operations
-// It uses the generic Manager[Agent] for common operations
+
 @[heap]
 pub struct AgentManager {
 pub mut:
@@ -25,20 +22,14 @@ pub fn (mut m AgentManager) new() Agent {
 }
 
 // set adds or updates an agent
-pub fn (mut m AgentManager) set(mut agent Agent) ! {
-	m.manager.set(mut agent)!
+pub fn (mut m AgentManager) set(agent Agent) !Agent {
+	return m.manager.set(agent)!
 }
 
 // get retrieves an agent by its ID
 pub fn (mut m AgentManager) get(id u32) !Agent {
 	return m.manager.get(id)!
 }
-
-// get_by_pubkey retrieves an agent by its public key
-pub fn (mut m AgentManager) get_by_pubkey(pubkey string) !Agent {
-	return m.manager.get_by_key('pubkey', pubkey)!
-}
-
 // list returns all agent IDs
 pub fn (mut m AgentManager) list() ![]u32 {
 	return m.manager.list()!
@@ -55,6 +46,11 @@ pub fn (mut m AgentManager) delete(id u32) ! {
 
 //////////////////CUSTOM METHODS//////////////////////////////////
 
+// get_by_pubkey retrieves an agent by its public key
+pub fn (mut m AgentManager) get_by_pubkey(pubkey string) !Agent {
+	return m.manager.get_by_key('pubkey', pubkey)!
+}
+
 // delete_by_pubkey removes an agent by its public key
 pub fn (mut m AgentManager) delete_by_pubkey(pubkey string) ! {
 	// Get the agent by pubkey
@@ -68,7 +64,7 @@ pub fn (mut m AgentManager) delete_by_pubkey(pubkey string) ! {
 }
 
 // update_status updates just the status of an agent
-pub fn (mut m AgentManager) update_status(pubkey string, status AgentState) ! {
+pub fn (mut m AgentManager) update_status(pubkey string, status AgentState) !Agent {
 	// Get the agent by pubkey
 	mut agent := m.get_by_pubkey(pubkey)!
 	
@@ -77,7 +73,7 @@ pub fn (mut m AgentManager) update_status(pubkey string, status AgentState) ! {
 	agent.status.timestamp_last = ourtime.now()
 	
 	// Save the updated agent
-	m.set(mut agent)!
+	return m.set(agent)!
 }
 
 // get_all_agent_pubkeys returns all agent pubkeys
@@ -94,8 +90,6 @@ fn (mut m AgentManager) get_all_agent_pubkeys() ![]string {
 	
 	return pubkeys
 }
-
-
 
 // get_by_service returns all agents that provide a specific service
 pub fn (mut m AgentManager) get_by_service(actor string, action string) ![]Agent {

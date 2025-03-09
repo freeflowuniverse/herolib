@@ -14,44 +14,46 @@ pub mut:
 }
 
 // set adds or updates an item
-pub fn (mut m Manager[T]) set(mut item T) ! {
-	if true{
-		println(m)
-		exit(0)
+pub fn (mut m Manager[T]) set(item_ T) !T {
+
+	mut item:=item_
+
+	// Store the item data in the database and get the assigned ID
+	item.id=m.db_data.set(id: item.id, data: item.dumps()!)!
+
+	// Update index keys
+	keys := item.index_keys()	
+	for key, value in keys {
+		index_key := '${m.prefix}:${key}:${value}'
+		m.db_meta.insert(index_key, item.id.str().bytes())!
+	}	
+	
+	// Get current list of all IDs
+	mut all_keys := m.list()!
+	
+	// Check if the item ID is already in the list
+	mut found := false
+	for item_id in all_keys {
+		if item_id == item.id {
+			found = true
+			break
+		}
+	}
+	
+	// Add the new ID if it doesn't exist in the list
+	if !found {
+		all_keys << item.id
+		
+		// Create a comma-separated string of all IDs
+		mut new_all_keys_str := all_keys.map(fn (id u32) string {
+			return id.str()
+		}).join(',')
+		
+		// Store the updated list
+		m.db_meta.insert('${m.prefix}:all', new_all_keys_str.bytes())!
 	}
 
-	item_data := item.dumps()!
-	
-
-	// if item.id == 0 {
-	// 	item.id = m.db_data.get_next_id()!
-	// }
-
-	// m.db_data.set(id: item.id, data: item_data)!
-
-	// keys := item.index_keys()	
-	// for key, value in keys {
-	// 	index_key := '${m.prefix}:${key}:${value}'
-	// 	m.db_meta.insert(index_key, item.id.str().bytes())!
-	// }	
-	
-	// mut all_keys := m.list()!
-	
-	// // Check if the key is already in the list
-	// for item_id in all_keys {
-	// 	if item_id == item.id {
-	// 		// Key already exists, nothing to do
-	// 		return
-	// 	}
-	// }
-	
-	// // Add the new key
-	// all_keys << item.id
-	
-	// // Join the keys with commas and store
-	// new_all_keys_str := all_keys.map(it.str()).join(',')
-	// m.db_meta.insert('${m.prefix}:all', new_all_keys_str.bytes())!	
-
+	return item
 }
 
 // get retrieves an item by its ID
@@ -64,7 +66,9 @@ pub fn (mut m Manager[T]) get(id u32) !T {
 	
 	// Deserialize the item data using the loader function
 	$if T is Agent {
-		return agent_loads(item_data)!
+		mut o:= agent_loads(item_data)!
+		o.id = id
+		return o
 	} $else {
 		return error('Unsupported type for deserialization')
 	}
