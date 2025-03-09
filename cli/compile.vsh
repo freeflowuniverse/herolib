@@ -1,5 +1,5 @@
-#!/usr/bin/env -S v -n -w -parallel-cc -enable-globals run
-// #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -cg -w -parallel-cc -enable-globals run
+// #!/usr/bin/env -S v -n -w -gc none -cc tcc -d use_openssl -enable-globals run
 
 import os
 import flag
