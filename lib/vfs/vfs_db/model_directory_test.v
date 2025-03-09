@@ -1,19 +1,21 @@
 module vfs_db
 
-import freeflowuniverse.herolib.vfs
+import freeflowuniverse.herolib.vfs as vfs_mod
 
 fn test_directory_get_metadata() {
 	// Create a directory with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_dir'
+		path: '/test_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	dir := Directory{
@@ -35,16 +37,18 @@ fn test_directory_get_metadata() {
 
 fn test_directory_get_path() {
 	// Create a directory with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_dir'
+		path: '/test_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	dir := Directory{
@@ -55,21 +59,23 @@ fn test_directory_get_path() {
 	
 	// Test get_path
 	path := dir.get_path()
-	assert path == 'test_dir'
+	assert path == '/test_dir'
 }
 
 fn test_directory_is_dir() {
 	// Create a directory with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_dir'
+		path: '/test_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	dir := Directory{
@@ -86,16 +92,18 @@ fn test_directory_is_dir() {
 
 fn test_directory_with_children() {
 	// Create a directory with children
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'parent_dir'
+		path: '/parent_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	dir := Directory{
@@ -113,16 +121,18 @@ fn test_directory_with_children() {
 
 fn test_directory_with_parent() {
 	// Create a directory with a parent
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 2
 		name: 'child_dir'
+		path: '/parent_dir/child_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	dir := Directory{

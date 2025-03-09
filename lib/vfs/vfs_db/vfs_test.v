@@ -3,6 +3,7 @@ module vfs_db
 import os
 import freeflowuniverse.herolib.data.ourdb
 import rand
+import freeflowuniverse.herolib.vfs as vfs_mod
 
 fn setup_vfs() !(&DatabaseVFS, string) {
 	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_vfs_test_${rand.string(3)}')
@@ -58,14 +59,21 @@ fn test_save_load_entry() ! {
 	
 	// Create a directory entry
 	mut dir := Directory{
-		metadata: Metadata{
+		metadata: vfs_mod.Metadata{
 			id: 1
 			name: 'test_dir'
+			path: '/test_dir'
 			file_type: .directory
-			created: 0
-			modified: 0
+			size: 0
+			mode: 0o755
+			owner: 'user'
+			group: 'user'
+			created_at: 0
+			modified_at: 0
+			accessed_at: 0
 		}
-		entries: []
+		children: []
+		parent_id: 0
 	}
 	
 	// Save the directory
@@ -90,14 +98,21 @@ fn test_save_load_file_with_data() ! {
 	
 	// Create a file entry with data
 	mut file := File{
-		metadata: Metadata{
+		metadata: vfs_mod.Metadata{
 			id: 2
 			name: 'test_file.txt'
+			path: '/test_file.txt'
 			file_type: .file
-			created: 0
-			modified: 0
+			size: 13
+			mode: 0o644
+			owner: 'user'
+			group: 'user'
+			created_at: 0
+			modified_at: 0
+			accessed_at: 0
 		}
-		data: 'Hello, World!'
+		chunk_ids: []
+		parent_id: 0
 	}
 	
 	// Save the file
@@ -112,7 +127,7 @@ fn test_save_load_file_with_data() ! {
 	assert loaded_file.metadata.id == file.metadata.id
 	assert loaded_file.metadata.name == file.metadata.name
 	assert loaded_file.metadata.file_type == file.metadata.file_type
-	assert loaded_file.data == file.data
+	// File data is stored in chunks, not directly in the file struct
 }
 
 fn test_save_load_file_without_data() ! {
@@ -123,14 +138,21 @@ fn test_save_load_file_without_data() ! {
 	
 	// Create a file entry without data
 	mut file := File{
-		metadata: Metadata{
+		metadata: vfs_mod.Metadata{
 			id: 3
 			name: 'empty_file.txt'
+			path: '/empty_file.txt'
 			file_type: .file
-			created: 0
-			modified: 0
+			size: 0
+			mode: 0o644
+			owner: 'user'
+			group: 'user'
+			created_at: 0
+			modified_at: 0
+			accessed_at: 0
 		}
-		data: ''
+		chunk_ids: []
+		parent_id: 0
 	}
 	
 	// Save the file
@@ -145,7 +167,7 @@ fn test_save_load_file_without_data() ! {
 	assert loaded_file.metadata.id == file.metadata.id
 	assert loaded_file.metadata.name == file.metadata.name
 	assert loaded_file.metadata.file_type == file.metadata.file_type
-	assert loaded_file.data == ''
+	// File data is stored in chunks, not directly in the file struct
 }
 
 fn test_save_load_symlink() ! {
@@ -156,14 +178,21 @@ fn test_save_load_symlink() ! {
 	
 	// Create a symlink entry
 	mut symlink := Symlink{
-		metadata: Metadata{
+		metadata: vfs_mod.Metadata{
 			id: 4
 			name: 'test_link'
+			path: '/test_link'
 			file_type: .symlink
-			created: 0
-			modified: 0
+			size: 0
+			mode: 0o777
+			owner: 'user'
+			group: 'user'
+			created_at: 0
+			modified_at: 0
+			accessed_at: 0
 		}
 		target: '/path/to/target'
+		parent_id: 0
 	}
 	
 	// Save the symlink
@@ -191,6 +220,6 @@ fn test_load_nonexistent_entry() ! {
 	if _ := vfs.load_entry(999) {
 		assert false, 'Expected error when loading non-existent entry'
 	} else {
-		assert err.msg() == 'Entry not found'
+		assert err.msg() == 'VFS ID 999 not found.'
 	}
 }

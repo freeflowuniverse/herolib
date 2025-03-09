@@ -1,19 +1,21 @@
 module vfs_db
 
-import freeflowuniverse.herolib.vfs
+import freeflowuniverse.herolib.vfs as vfs_mod
 
 fn test_symlink_get_metadata() {
 	// Create a symlink with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
+		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	symlink := Symlink{
@@ -35,16 +37,18 @@ fn test_symlink_get_metadata() {
 
 fn test_symlink_get_path() {
 	// Create a symlink with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
+		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	symlink := Symlink{
@@ -55,21 +59,23 @@ fn test_symlink_get_path() {
 	
 	// Test get_path
 	path := symlink.get_path()
-	assert path == 'test_link'
+	assert path == '/test_link'
 }
 
 fn test_symlink_is_symlink() {
 	// Create a symlink with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
+		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	symlink := Symlink{
@@ -86,16 +92,18 @@ fn test_symlink_is_symlink() {
 
 fn test_symlink_update_target() ! {
 	// Create a symlink with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
+		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	mut symlink := Symlink{
@@ -111,16 +119,18 @@ fn test_symlink_update_target() ! {
 
 fn test_symlink_get_target() ! {
 	// Create a symlink with metadata
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
+		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	mut symlink := Symlink{
@@ -136,16 +146,18 @@ fn test_symlink_get_target() ! {
 
 fn test_symlink_with_parent() {
 	// Create a symlink with a parent
-	metadata := vfs.Metadata{
+	metadata := vfs_mod.Metadata{
 		id: 2
 		name: 'test_link'
+		path: '/parent_dir/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
 		owner: 'user'
 		group: 'user'
-		created: 0
-		modified: 0
+		created_at: 0
+		modified_at: 0
+		accessed_at: 0
 	}
 	
 	symlink := Symlink{

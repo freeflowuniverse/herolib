@@ -108,18 +108,32 @@ pub fn (mut fs DatabaseVFS) directory_touch(mut dir Directory, name_ string) !&F
 	}
 	
 	// Create new file with correct parent_id
-	mut new_file := fs.save_file(File{
+	mut file_id := fs.save_file(File{
 		parent_id: dir.metadata.id
 		metadata: vfs.Metadata {
+			id: fs.get_next_id()
 			name: name
 			path: path
+			file_type: .file
+			created_at: time.now().unix()
+			modified_at: time.now().unix()
+			accessed_at: time.now().unix()
+			mode: 0o644
+			owner: 'user'
+			group: 'user'
 		}
 	}, [])!
 	
 	// Update children list
-	dir.children << new_file.metadata.id
+	dir.children << file_id
 	fs.save_entry(dir)!
-	return new_file
+	
+	// Load and return the file
+	mut entry := fs.load_entry(file_id)!
+	if mut entry is File {
+		return &entry
+	}
+	return error('Failed to create file')
 }
 
 // rm removes a file or directory by name
@@ -135,17 +149,21 @@ pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
 
 	// get entry from db_metadata
 	metadata_bytes := fs.db_metadata.get(fs.get_database_id(entry.metadata.id)!) or { return error('Failed to delete entry: ${err}') }
-	file, chunk_ids := decode_file_metadata(metadata_bytes)!
-
-	// delete file chunks in data_db
-	for id in chunk_ids {
-		log.debug('[DatabaseVFS] Deleting chunk ${id}')
-		fs.db_data.delete(id)!
+	
+	// Handle file data deletion if it's a file
+	if entry is File {
+		mut file := decode_file_metadata(metadata_bytes)!
+		
+		// delete file chunks in data_db
+		for id in file.chunk_ids {
+			log.debug('[DatabaseVFS] Deleting chunk ${id}')
+			fs.db_data.delete(id)!
+		}
+		
+		log.debug('[DatabaseVFS] Deleting file metadata ${file.metadata.id}')
 	}
 	
-	log.debug('[DatabaseVFS] Deleting file metadata ${file.metadata.id}')
 	fs.db_metadata.delete(fs.get_database_id(entry.metadata.id)!) or { return error('Failed to delete entry: ${err}') }
-
 
 	// Update children list - make sure we don't remove the wrong child
 	dir.children = dir.children.filter(it != entry.metadata.id).clone()
@@ -374,15 +392,16 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 				File {
 					mut entry_ := entry as File
 					mut new_file := fs.copy_file(File{
-						metadata: Metadata{
+						metadata: vfs.Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
 							path: '${dst_dir.metadata.path}/${entry_.metadata.name}'
 						}
-						data: entry_.data
+						chunk_ids: entry_.chunk_ids
 						parent_id: dst_dir.metadata.id
 					})!
 					dst_dir.children << new_file.metadata.id
+					fs.save_entry(dst_dir)!
 				}
 				Symlink {
 					mut entry_ := entry as Symlink
@@ -405,26 +424,37 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 	fs.save_entry(dst_dir)!
 }
 
-pub fn (mut fs DatabaseVFS) directory_rename(dir Directory, src_name string, dst_name string) !&Directory {
+pub fn (mut fs DatabaseVFS) directory_rename(dir Directory, src_name string, dst_name string) !FSEntry {
 	mut found := false
 
 	for child_id in dir.children {
 		if mut entry := fs.load_entry(child_id) {
 			if entry.metadata.name == src_name {
-				if entry is File {
-					return error('${src_name} is a file')
-				}
-				if entry is Symlink {
-					return error('${src_name} is a symlink')
-				}
-
 				found = true
-				mut dir_entry := entry as Directory
-				dir_entry.metadata.name = dst_name
-				dir_entry.metadata.path = "${dir_entry.metadata.path.all_before_last('/')}/dst_name"
-				dir_entry.metadata.modified_at = time.now().unix()
-				fs.save_entry(dir_entry)!
-				return &dir_entry
+				
+				// Handle different entry types
+				if mut entry is Directory {
+					// Handle directory rename
+					entry.metadata.name = dst_name
+					entry.metadata.path = "${entry.metadata.path.all_before_last('/')}/${dst_name}"
+					entry.metadata.modified_at = time.now().unix()
+					fs.save_entry(entry)!
+					return entry
+				} else if mut entry is File {
+					// Handle file rename
+					entry.metadata.name = dst_name
+					entry.metadata.path = "${entry.metadata.path.all_before_last('/')}/${dst_name}"
+					entry.metadata.modified_at = time.now().unix()
+					fs.save_entry(entry)!
+					return entry
+				} else if mut entry is Symlink {
+					// Handle symlink rename
+					entry.metadata.name = dst_name
+					entry.metadata.path = "${entry.metadata.path.all_before_last('/')}/${dst_name}"
+					entry.metadata.modified_at = time.now().unix()
+					fs.save_entry(entry)!
+					return entry
+				}
 			}
 		}
 	}

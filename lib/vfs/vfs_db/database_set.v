@@ -47,33 +47,47 @@ pub fn (mut fs DatabaseVFS) save_entry(entry FSEntry) !u32 {
 
 // save_entry saves an entry to the database
 pub fn (mut fs DatabaseVFS) save_file(file_ File, data []u8) !u32 {
+	// Preserve the existing ID if it's set, otherwise get a new one
+	mut file_id := file_.metadata.id
+	if file_id == 0 {
+		file_id = fs.get_next_id()
+	}
+
 	file := File {...file_
 		metadata: vfs.Metadata {...file_.metadata
-			id: fs.get_next_id()
+			id: file_id
 		}
 	}
-	metadata_bytes := if data.len == 0 {
-		file.encode()
-	} else {
+	// Create a file with the updated metadata and chunk IDs
+	mut updated_file := file
+	
+	if data.len > 0 {
 		// file has data so that will be stored in data_db
-		// its corresponding id stored with file metadata
 		// split data_encoded into chunks of 64 kb
 		chunks := arrays.chunk(data, 64 * 1024)
 		mut chunk_ids := []u32{}
-		for chunk in chunks {
-			chunk_ids << fs.db_data.set(data: chunk) or {
+		
+		for i, chunk in chunks {
+			// Generate a unique ID for each chunk based on the file ID
+			chunk_id := file_id * 1000 + u32(i) + 1
+			chunk_ids << fs.db_data.set(id: chunk_id, data: chunk) or {
 				return error('Failed to save file data on id:${file.metadata.id}: ${err}')
 			}
 		}
-		new_file := File{...file,
-			metadata: vfs.Metadata{...file.metadata,
+		
+		// Update the file with chunk IDs and size
+		updated_file = File{
+			metadata: vfs.Metadata{
+				...file.metadata
 				size: u64(data.len)
 			}
 			chunk_ids: chunk_ids
+			parent_id: file.parent_id
 		}
-		// Encode the db_data ID in with the file metadata
-		file.encode()
 	}
+	
+	// Encode the file with all its metadata
+	metadata_bytes := updated_file.encode()
 	// Save the metadata_bytes to metadata_db
 	metadata_db_id := fs.db_metadata.set(id: file.metadata.id, data: metadata_bytes) or {
 		return error('Failed to save file metadata on id:${file.metadata.id}: ${err}')

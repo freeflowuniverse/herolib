@@ -32,11 +32,11 @@ pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
 		metadata := self.db_metadata.get(self.get_database_id(file.metadata.id)!) or {
 		return error('Failed to get file metadata ${err}')
 	}
-	_, chunk_ids := decode_file_metadata(metadata) or { return error('Failed to decode file: ${err}') }
-	println('debugzo-1 ${chunk_ids}')
+	mut decoded_file := decode_file_metadata(metadata) or { return error('Failed to decode file: ${err}') }
+	println('debugzo-1 ${decoded_file.chunk_ids}')
 	mut file_data := []u8{}
 	// log.debug('[DatabaseVFS] Got database chunk ids ${chunk_ids}')
-	for id in chunk_ids {
+	for id in decoded_file.chunk_ids {
 		log.debug('[DatabaseVFS] Getting chunk ${id}')
 		// there were chunk ids stored with file so file has data
 		if chunk_bytes := self.db_data.get(id) {
@@ -51,7 +51,7 @@ pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
 }
 
 pub fn (mut self DatabaseVFS) file_write(path_ string, data []u8) ! {
-	path := texttools.path_fix_absolute(path_)
+	path := os.abs_path(path_)
 	
 	if mut entry := self.get_entry(path) {
 		if mut entry is File {
@@ -216,6 +216,21 @@ pub fn (mut self DatabaseVFS) copy(src_path string, dst_path string) !vfs.FSEntr
 		dst_entry_name: dst_name
 		dst_parent_dir: dst_parent_dir
 	)!
+}
+
+// copy_file creates a copy of a file
+pub fn (mut self DatabaseVFS) copy_file(file File) !&File {
+	log.info('[DatabaseVFS] Copying file ${file.metadata.path}')
+	
+	// Save the file with its metadata and data
+	file_id := self.save_file(file, [])!
+	
+	// Load the file from the database
+	mut entry := self.load_entry(file_id)!
+	if mut entry is File {
+		return &entry
+	}
+	return error('Failed to copy file: entry is not a file')
 }
 
 pub fn (mut self DatabaseVFS) move(src_path string, dst_path string) !vfs.FSEntry {

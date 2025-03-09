@@ -2,7 +2,7 @@ module vfs_db
 
 import os
 import freeflowuniverse.herolib.data.ourdb
-import freeflowuniverse.herolib.vfs
+import freeflowuniverse.herolib.vfs as vfs_mod
 import rand
 
 fn setup_vfs() !&DatabaseVFS {
@@ -21,16 +21,17 @@ fn setup_vfs() !&DatabaseVFS {
 	)!
 
 	// Create VFS with separate databases for data and metadata
-	mut vfs := new(mut db_data, mut db_metadata)!
-	return vfs
+	mut fs := new(mut db_data, mut db_metadata)!
+	return fs
 }
 
 fn test_new_metadata_file() ! {
-	mut vfs := setup_vfs()!
+	mut fs := setup_vfs()!
 	
 	// Test creating file metadata
-	metadata := vfs.new_metadata(
+	metadata := fs.new_metadata(
 		name: 'test_file.txt'
+		path: '/test_file.txt'
 		file_type: .file
 		size: 1024
 	)
@@ -46,11 +47,12 @@ fn test_new_metadata_file() ! {
 }
 
 fn test_new_metadata_directory() ! {
-	mut vfs := setup_vfs()!
+	mut fs := setup_vfs()!
 	
 	// Test creating directory metadata
-	metadata := vfs.new_metadata(
+	metadata := fs.new_metadata(
 		name: 'test_dir'
+		path: '/test_dir'
 		file_type: .directory
 		size: 0
 	)
@@ -66,11 +68,12 @@ fn test_new_metadata_directory() ! {
 }
 
 fn test_new_metadata_symlink() ! {
-	mut vfs := setup_vfs()!
+	mut fs := setup_vfs()!
 	
 	// Test creating symlink metadata
-	metadata := vfs.new_metadata(
+	metadata := fs.new_metadata(
 		name: 'test_link'
+		path: '/test_link'
 		file_type: .symlink
 		size: 0
 	)
@@ -86,11 +89,12 @@ fn test_new_metadata_symlink() ! {
 }
 
 fn test_new_metadata_custom_permissions() ! {
-	mut vfs := setup_vfs()!
+	mut fs := setup_vfs()!
 	
 	// Test creating metadata with custom permissions
-	metadata := vfs.new_metadata(
+	metadata := fs.new_metadata(
 		name: 'custom_file.txt'
+		path: '/custom_file.txt'
 		file_type: .file
 		size: 2048
 		mode: 0o755
@@ -109,25 +113,28 @@ fn test_new_metadata_custom_permissions() ! {
 }
 
 fn test_new_metadata_sequential_ids() ! {
-	mut vfs := setup_vfs()!
+	mut fs := setup_vfs()!
 	
 	// Create multiple metadata objects and verify IDs are sequential
-	metadata1 := vfs.new_metadata(
+	metadata1 := fs.new_metadata(
 		name: 'file1.txt'
+		path: '/file1.txt'
 		file_type: .file
 		size: 100
 	)
 	assert metadata1.id == 1
 	
-	metadata2 := vfs.new_metadata(
+	metadata2 := fs.new_metadata(
 		name: 'file2.txt'
+		path: '/file2.txt'
 		file_type: .file
 		size: 200
 	)
 	assert metadata2.id == 2
 	
-	metadata3 := vfs.new_metadata(
+	metadata3 := fs.new_metadata(
 		name: 'file3.txt'
+		path: '/file3.txt'
 		file_type: .file
 		size: 300
 	)

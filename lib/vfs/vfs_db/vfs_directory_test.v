@@ -2,10 +2,10 @@ module vfs_db
 
 import os
 import freeflowuniverse.herolib.data.ourdb
-import freeflowuniverse.herolib.vfs { Metadata }
+import freeflowuniverse.herolib.vfs as vfs_mod
 import rand
 
-fn setup_vfs() !(&DatabaseVFS, string) {
+fn setup_fs() !(&DatabaseVFS, string) {
 	test_data_dir := os.join_path(os.temp_dir(), 'vfsourdb_directory_test_${rand.string(3)}')
 	os.mkdir_all(test_data_dir)!
 
@@ -25,19 +25,20 @@ fn setup_vfs() !(&DatabaseVFS, string) {
 	return fs, test_data_dir
 }
 
-fn teardown_vfs(data_dir string) {
+fn teardown_fs(data_dir string) {
 	os.rmdir_all(data_dir) or {}
 }
 
 fn test_new_directory() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Test creating a new directory
 	mut dir := fs.new_directory(
 		name: 'test_dir'
+		path: '/test_dir'
 	)!
 	
 	// Verify the directory
@@ -51,14 +52,15 @@ fn test_new_directory() ! {
 }
 
 fn test_new_directory_with_custom_permissions() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Test creating a directory with custom permissions
 	mut dir := fs.new_directory(
 		name: 'custom_dir'
+		path: '/custom_dir'
 		mode: 0o700
 		owner: 'admin'
 		group: 'staff'
@@ -74,16 +76,17 @@ fn test_new_directory_with_custom_permissions() ! {
 }
 
 fn test_copy_directory() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a directory to copy
 	original_dir := Directory{
-		metadata: Metadata{
+		metadata: vfs_mod.Metadata{
 			id: 1
 			name: 'original_dir'
+			path: '/original_dir'
 			file_type: .directory
 			size: 0
 			mode: 0o755
@@ -112,14 +115,15 @@ fn test_copy_directory() ! {
 }
 
 fn test_directory_mkdir() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
+		path: '/parent_dir'
 	)!
 	
 	// Test creating a subdirectory
@@ -143,18 +147,19 @@ fn test_directory_mkdir() ! {
 }
 
 fn test_directory_touch() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
+		path: '/parent_dir'
 	)!
 	
 	// Test creating a file
-	mut file := fs.directory_touch(parent_dir, 'test_file.txt')!
+	mut file := fs.directory_touch(mut parent_dir, 'test_file.txt')!
 	
 	// Reload the parent directory to get the latest version
 	if updated_dir := fs.load_entry(parent_dir.metadata.id) {
@@ -168,14 +173,14 @@ fn test_directory_touch() ! {
 	assert file.metadata.name == 'test_file.txt'
 	assert file.metadata.file_type == .file
 	assert file.parent_id == parent_dir.metadata.id
-	assert file.data == '' // Should be empty
+	// File data is stored in chunks, not directly in the file struct
 	
 	// Verify the parent directory's children
 	assert parent_dir.children.len == 1
 	assert parent_dir.children[0] == file.metadata.id
 	
 	// Test creating a duplicate file (should fail)
-	if _ := fs.directory_touch(parent_dir, 'test_file.txt') {
+	if _ := fs.directory_touch(mut parent_dir, 'test_file.txt') {
 		assert false, 'Expected error when creating duplicate file'
 	} else {
 		assert err.msg().contains('already exists')
@@ -183,18 +188,19 @@ fn test_directory_touch() ! {
 }
 
 fn test_directory_rm() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
+		path: '/parent_dir'
 	)!
 	
 	// Create a file to remove
-	mut file := fs.directory_touch(parent_dir, 'test_file.txt')!
+	mut file := fs.directory_touch(mut parent_dir, 'test_file.txt')!
 	
 	// Reload the parent directory to get the latest version
 	if updated_dir := fs.load_entry(parent_dir.metadata.id) {
@@ -230,14 +236,15 @@ fn test_directory_rm() ! {
 }
 
 fn test_directory_rename() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
+		path: '/parent_dir'
 	)!
 	
 	// Create a subdirectory to rename
@@ -258,26 +265,28 @@ fn test_directory_rename() ! {
 }
 
 fn test_directory_children() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
+		path: '/parent_dir'
 	)!
 
+	// Initially, the directory should be empty
 	ch := fs.directory_children(mut parent_dir, false)!
-	panic(ch)
+	assert ch.len == 0
 	
 	// Create subdirectories and files
 	mut subdir1 := fs.directory_mkdir(mut parent_dir, 'subdir1')!
 	mut subdir2 := fs.directory_mkdir(mut parent_dir, 'subdir2')!
-	mut file1 := fs.directory_touch(parent_dir, 'file1.txt')!
+	mut file1 := fs.directory_touch(mut parent_dir, 'file1.txt')!
 	
 	// Create a nested file
-	mut nested_file := fs.directory_touch(subdir1, 'nested.txt')!
+	mut nested_file := fs.directory_touch(mut subdir1, 'nested.txt')!
 	
 	// Test getting non-recursive children
 	children := fs.directory_children(mut parent_dir, false)!
@@ -302,19 +311,19 @@ fn test_directory_children() ! {
 }
 
 fn test_directory_move() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create source and destination parent directories
-	mut src_parent := fs.new_directory(name: 'src_parent')!
-	mut dst_parent := fs.new_directory(name: 'dst_parent')!
+	mut src_parent := fs.new_directory(name: 'src_parent', path: '/src_parent')!
+	mut dst_parent := fs.new_directory(name: 'dst_parent', path: '/dst_parent')!
 	
 	// Create a directory to move with nested structure
 	mut dir_to_move := fs.directory_mkdir(mut src_parent, 'dir_to_move')!
 	mut nested_dir := fs.directory_mkdir(mut dir_to_move, 'nested_dir')!
-	mut nested_file := fs.directory_touch(dir_to_move, 'nested_file.txt')!
+	mut nested_file := fs.directory_touch(mut dir_to_move, 'nested_file.txt')!
 	
 	// Reload the directories to get the latest versions
 	if updated_dir := fs.load_entry(src_parent.metadata.id) {
@@ -385,19 +394,19 @@ fn test_directory_move() ! {
 }
 
 fn test_directory_copy() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create source and destination parent directories
-	mut src_parent := fs.new_directory(name: 'src_parent')!
-	mut dst_parent := fs.new_directory(name: 'dst_parent')!
+	mut src_parent := fs.new_directory(name: 'src_parent', path: '/src_parent')!
+	mut dst_parent := fs.new_directory(name: 'dst_parent', path: '/dst_parent')!
 	
 	// Create a directory to copy with nested structure
 	mut dir_to_copy := fs.directory_mkdir(mut src_parent, 'dir_to_copy')!
 	mut nested_dir := fs.directory_mkdir(mut dir_to_copy, 'nested_dir')!
-	mut nested_file := fs.directory_touch(dir_to_copy, 'nested_file.txt')!
+	mut nested_file := fs.directory_touch(mut dir_to_copy, 'nested_file.txt')!
 	
 	// Reload the directories to get the latest versions
 	if updated_dir := fs.load_entry(src_parent.metadata.id) {
@@ -476,21 +485,23 @@ fn test_directory_copy() ! {
 }
 
 fn test_directory_add_symlink() ! {
-	mut fs, data_dir := setup_vfs()!
+	mut fs, data_dir := setup_fs()!
 	defer {
-		teardown_vfs(data_dir)
+		teardown_fs(data_dir)
 	}
 	
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
+		path: '/parent_dir'
 	)!
 	
 	// Create a symlink
 	mut symlink := Symlink{
-		metadata: Metadata{
+		metadata: vfs_mod.Metadata{
 			id: fs.get_next_id()
 			name: 'test_link'
+			path: '/parent_dir/test_link'
 			file_type: .symlink
 			size: 0
 			mode: 0o777

@@ -56,6 +56,7 @@ fn test_file_encoder_decoder() ! {
 			name:        'test.txt'
 			path:        '/test.txt'
 			file_type:   .file
+			size:        13 // Size of 'Hello, world!'
 			created_at:  current_time
 			modified_at: current_time
 			accessed_at: current_time

@@ -27,7 +27,7 @@ fn (s &Symlink) get_metadata() vfs.Metadata {
 }
 
 fn (s &Symlink) get_path() string {
-	return s.metadata.name
+	return s.metadata.path
 }
 
 // is_dir returns true if the entry is a directory
