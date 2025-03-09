@@ -46,7 +46,17 @@ pub mut:
 	build_dest     []string @[json: 'buildDest']
 	build_dest_dev []string @[json: 'buildDestDev']
 	copyright string = "someone"
+	to_import []MyImport  @[json: 'import']
 }
+
+pub struct MyImport {
+pub mut:
+	url  string
+	dest string
+	visible bool
+	replace map[string]string
+}
+
 
 // Navbar config structures
 pub struct NavbarItem {
