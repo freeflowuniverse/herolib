@@ -1,6 +1,8 @@
 
 # V Binary Encoder/Decoder
 
+see lib/data/encoder
+
 A high-performance binary encoder/decoder module for V that provides efficient serialization and deserialization of data structures. The encoder supports automatic encoding/decoding of structs using V's compile-time reflection capabilities.
 
 ## Features

@@ -1,15 +1,18 @@
 module model
 
-import freeflowuniverse.herolib.core.redisclient
 import freeflowuniverse.herolib.data.ourtime
 import json
-
-const jobs_key = 'herorunner:jobs' // Redis key for storing jobs
+import time
 
 // JobManager handles all job-related operations
 pub struct JobManager {
-mut:
-	redis &redisclient.Redis
+}
+
+// job_path returns the path for a job
+fn job_path(guid string) string {
+	// We'll organize jobs by first 2 characters of the GUID to avoid too many files in one directory
+	prefix := if guid.len >= 2 { guid[..2] } else { guid }
+	return '/jobs/${prefix}/${guid}.json'
 }
 
 // new creates a new Job instance
@@ -26,43 +29,58 @@ pub fn (mut m JobManager) new() Job {
 	}
 }
 
-// add adds a new job to Redis
+// set adds or updates a job
 pub fn (mut m JobManager) set(job Job) ! {
-	// Store job in Redis hash where key is job.guid and value is JSON of job
-	job_json := json.encode(job)
-	m.redis.hset(jobs_key, job.guid, job_json)!
+	// Ensure the job has a valid GUID
+	if job.guid.len == 0 {
+		return error('Cannot store job with empty GUID')
+	}
+
+	// Implementation removed
 }
 
 // get retrieves a job by its GUID
 pub fn (mut m JobManager) get(guid string) !Job {
-	job_json := m.redis.hget(jobs_key, guid)!
-	return json.decode(Job, job_json)
+	// Ensure the GUID is valid
+	if guid.len == 0 {
+		return error('Cannot get job with empty GUID')
+	}
+
+	// Implementation removed
+	return Job{}
 }
 
 // list returns all jobs
 pub fn (mut m JobManager) list() ![]Job {
 	mut jobs := []Job{}
 
-	// Get all jobs from Redis hash
-	jobs_map := m.redis.hgetall(jobs_key)!
-
-	// Convert each JSON value to Job struct
-	for _, job_json in jobs_map {
-		job := json.decode(Job, job_json)!
-		jobs << job
-	}
+	// Implementation removed
 
 	return jobs
 }
 
 // delete removes a job by its GUID
 pub fn (mut m JobManager) delete(guid string) ! {
-	m.redis.hdel(jobs_key, guid)!
+	// Ensure the GUID is valid
+	if guid.len == 0 {
+		return error('Cannot delete job with empty GUID')
+	}
+
+	// Implementation removed
 }
 
 // update_status updates just the status of a job
 pub fn (mut m JobManager) update_status(guid string, status Status) ! {
-	mut job := m.get(guid)!
-	job.status.status = status
-	m.set(job)!
+	// Implementation removed
+}
+
+// cleanup removes jobs older than the specified number of days
+pub fn (mut m JobManager) cleanup(days int) !int {
+	if days <= 0 {
+		return error('Days must be a positive number')
+	}
+
+	// Implementation removed
+	
+	return 0
 }

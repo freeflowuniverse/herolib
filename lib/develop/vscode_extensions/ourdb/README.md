@@ -16,19 +16,30 @@ A Visual Studio Code extension for viewing OurDB files line by line. This extens
 
 ## Installation
 
-You can install this extension using the provided installation scripts:
+//TODO: needs to be added to hero cmd line in installers
 
-### Automatic Installation
+```
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-1. For macOS/Linux:
-   ```
-   ./install.sh
-   ```
+import freeflowuniverse.herolib.develop.vscode_extensions.ourdb
 
-2. For Windows:
-   ```
-   install.bat
-   ```
+// This example shows how to use the ourdb module to install or uninstall the VSCode extension
+
+// Install the extension
+ourdb.install_extension() or {
+	eprintln('Failed to install extension: ${err}')
+	exit(1)
+}
+
+// To uninstall, uncomment the following lines:
+/*
+ourdb.uninstall_extension() or {
+	eprintln('Failed to uninstall extension: ${err}')
+	exit(1)
+}
+
+
+```
 
 3. Restart VSCode
 
