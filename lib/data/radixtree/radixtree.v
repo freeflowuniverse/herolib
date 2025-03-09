@@ -40,9 +40,9 @@ pub fn new(args NewArgs) !&RadixTree {
 		reset:            args.reset
 	)!
 
-	mut root_id := u32(0)
+	mut root_id := u32(1) // First ID in ourdb is now 1 instead of 0
 	println('Debug: Initializing root node')
-	if db.get_next_id()! == 0 {
+	if db.get_next_id()! == 1 {
 		println('Debug: Creating new root node')
 		root := Node{
 			key_segment: ''
@@ -52,10 +52,10 @@ pub fn new(args NewArgs) !&RadixTree {
 		}
 		root_id = db.set(data: serialize_node(root))!
 		println('Debug: Created root node with ID ${root_id}')
-		assert root_id == 0
+		assert root_id == 1 // First ID is now 1
 	} else {
 		println('Debug: Using existing root node')
-		root_data := db.get(0)!
+		root_data := db.get(1)! // Get root node with ID 1
 		root_node := deserialize_node(root_data)!
 		println('Debug: Root node has ${root_node.children.len} children')
 	}

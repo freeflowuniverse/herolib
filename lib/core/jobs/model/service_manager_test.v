@@ -12,7 +12,7 @@ fn test_services() {
 
 	// Create an ACL
 	mut ace := ACE{
-		groups: ['admin-group']
+		circles: ['admin-circle']
 		users:  ['user-1-pubkey']
 		right:  'write'
 	}
@@ -63,9 +63,9 @@ fn test_services() {
 		[])!
 	assert has_access == true
 
-	has_group_access := runner.services.check_access(service.actor, 'start', 'user-2-pubkey',
-		['admin-group'])!
-	assert has_group_access == true
+	has_circle_access := runner.services.check_access(service.actor, 'start', 'user-2-pubkey',
+		['admin-circle'])!
+	assert has_circle_access == true
 
 	no_access := runner.services.check_access(service.actor, 'start', 'user-3-pubkey',
 		[])!

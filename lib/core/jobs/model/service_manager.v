@@ -1,18 +1,14 @@
 module model
 
 import json
+import freeflowuniverse.herolib.data.ourdb
+import freeflowuniverse.herolib.data.radixtree
 
 // ServiceManager handles all service-related operations
 pub struct ServiceManager {
-}
-
-// new creates a new Service instance
-pub fn (mut m ServiceManager) new() Service {
-	return Service{
-		actor:   '' // Empty actor name to be filled by caller
-		actions: []ServiceAction{}
-		status:  .ok
-	}
+pub mut:
+	db_data   &ourdb.OurDB     // Database for storing agent data
+	db_meta   &radixtree.RadixTree // Radix tree for mapping keys to IDs
 }
 
 // set adds or updates a service
@@ -55,7 +51,7 @@ pub fn (mut m ServiceManager) get_by_action(action string) ![]Service {
 }
 
 // check_access verifies if a user has access to a service action
-pub fn (mut m ServiceManager) check_access(actor string, action string, user_pubkey string, groups []string) !bool {
+pub fn (mut m ServiceManager) check_access(actor string, action string, user_pubkey string, circles []string) !bool {
 	// Implementation removed
 	return true
 }

@@ -128,18 +128,18 @@ We have a mechanism to be specific on who can execute which, this is sort of ACL
 
 ```v
 
-pub struct Group {
+pub struct Circle {
 pub mut:
     guid string //unique id
     name string
     description string
-    members []string //can be other group or member which is defined by pubkey
+    members []string //can be other circle or member which is defined by pubkey
 }
 
 
 ```
 
-this info is stored in in redis on herorunner:groups
+this info is stored in in redis on herorunner:circles
 
 
 
@@ -172,8 +172,8 @@ pub mut:
 
 pub struct ACE {
 pub mut:
-    groups []string //guid's of the groups who have access
-    users []string //in case groups are not used then is users
+    circles []string //guid's of the circles who have access
+    users []string //in case circles are not used then is users
     right string e.g. read, write, admin, block
 }
 

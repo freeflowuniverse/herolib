@@ -3,10 +3,16 @@ module model
 import freeflowuniverse.herolib.data.ourtime
 import json
 import time
+import freeflowuniverse.herolib.data.ourdb
+import freeflowuniverse.herolib.data.radixtree
 
 // JobManager handles all job-related operations
 pub struct JobManager {
-}
+pub mut:
+	db_data   &ourdb.OurDB     // Database for storing agent data
+	db_meta   &radixtree.RadixTree // Radix tree for mapping keys to IDs
+}	
+
 
 // job_path returns the path for a job
 fn job_path(guid string) string {

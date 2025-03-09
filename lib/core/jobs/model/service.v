@@ -30,8 +30,8 @@ pub mut:
 // ACE represents an access control entry
 pub struct ACE {
 pub mut:
-	groups []string // guid's of the groups who have access
-	users  []string // in case groups are not used then is users
+	circles []string // guid's of the circles who have access
+	users  []string // in case circles are not used then is users
 	right  string   // e.g. read, write, admin, block
 }
 

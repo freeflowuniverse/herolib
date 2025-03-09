@@ -66,6 +66,9 @@ pub enum AgentServiceState {
 pub fn (a Agent) dumps() ![]u8 {
 	mut e := encoder.new()
 	
+	// Add unique encoding ID to identify this type of data
+	e.add_u16(100)
+	
 	// Encode Agent fields
 	e.add_string(a.pubkey)
 	e.add_string(a.address)
@@ -111,9 +114,15 @@ pub fn (a Agent) dumps() ![]u8 {
 }
 
 // loads deserializes binary data into an Agent struct
-pub fn loads(data []u8) !Agent {
+pub fn agent_loads(data []u8) !Agent {
 	mut d := encoder.decoder_new(data)
 	mut agent := Agent{}
+	
+	// Check encoding ID to verify this is the correct type of data
+	encoding_id := d.get_u16()!
+	if encoding_id != 100 {
+		return error('Wrong file type: expected encoding ID 100, got ${encoding_id}, for agent')
+	}
 	
 	// Decode Agent fields
 	agent.pubkey = d.get_string()!

@@ -23,6 +23,13 @@ struct Response[T] {
 	data    T      // Response data
 }
 
+// KeyValueData represents the data structure returned by the OurDB server
+pub struct KeyValueData {
+pub:
+	id    u32
+	value string
+}
+
 pub fn new_client(args OurDBClientArgs) !OurDBClient {
 	mut client := OurDBClient{
 		port: args.port

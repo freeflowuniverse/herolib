@@ -69,7 +69,7 @@ fn get_incremental_info(config LookupConfig) ?u32 {
 	if config.lookuppath.len > 0 {
 		if !os.exists(os.join_path(config.lookuppath, incremental_file_name)) {
 			// Create a separate file for storing the incremental value
-			os.write_file(os.join_path(config.lookuppath, incremental_file_name), '0') or {
+			os.write_file(os.join_path(config.lookuppath, incremental_file_name), '1') or {
 				panic('failed to write .inc file: ${err}')
 			}
 		}
@@ -82,7 +82,7 @@ fn get_incremental_info(config LookupConfig) ?u32 {
 		return incremental
 	}
 
-	return 0
+	return 1
 }
 
 // Method to get value from a specific position

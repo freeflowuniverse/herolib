@@ -63,10 +63,10 @@ The service system defines the capabilities available in the system:
 
 The access control system manages permissions:
 
-- **Group**: Represents a collection of members (users or other groups)
+- **Circle**: Represents a collection of members (users or other circles)
 - **ACL**: Access Control List containing multiple ACEs
-- **ACE**: Access Control Entry defining permissions for users or groups
-- **GroupManager**: Handles CRUD operations for groups, storing them in Redis under the `herorunner:groups` key.
+- **ACE**: Access Control Entry defining permissions for users or circles
+- **CircleManager**: Handles CRUD operations for circles, storing them in Redis under the `herorunner:circles` key.
 
 ### 5. HeroRunner
 
@@ -97,7 +97,7 @@ The `HeroRunner` is the main factory that brings all components together, provid
    - If an agent fails, the herorunner can retry with another agent
 
 5. **Access Control**:
-   - Users and groups are organized in a hierarchical structure
+   - Users and circles are organized in a hierarchical structure
    - ACLs define who can access which services and actions
    - The service manager checks access permissions before allowing job execution
 
@@ -107,7 +107,7 @@ All data is stored in Redis using the following keys:
 - `herorunner:jobs` - Hash map of job GUIDs to job JSON
 - `herorunner:agents` - Hash map of agent public keys to agent JSON
 - `herorunner:services` - Hash map of service actor names to service JSON
-- `herorunner:groups` - Hash map of group GUIDs to group JSON
+- `herorunner:circles` - Hash map of circle GUIDs to circle JSON
 
 ## Potential Issues
 
