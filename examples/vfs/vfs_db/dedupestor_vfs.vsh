@@ -23,6 +23,8 @@ pub fn (mut db VFSDedupeDB) delete(id u32) ! {
 example_data_dir := os.join_path(os.dir(@FILE), 'example_db')
 os.mkdir_all(example_data_dir)!
 
+data_path := os.join_path(example_data_dir, 'data')
+
 // Create separate databases for data and metadata
 mut db_data := VFSDedupeDB{
 	DedupeStore: dedupestor.new(
@@ -36,39 +38,85 @@ mut db_metadata := ourdb.new(
 )!
 
 // Create VFS with separate databases for data and metadata
-mut vfs := vfs_db.new_with_separate_dbs(
-	mut db_data, 
-	mut db_metadata, 
-	data_dir: os.join_path(example_data_dir, 'data'),
-	metadata_dir: os.join_path(example_data_dir, 'metadata')
-)!
+mut vfs := vfs_db.new(mut db_data, mut db_metadata) or {
+	panic('Failed to create VFS: ${err}')
+}
 
 println('\n---------BEGIN EXAMPLE')
 println('---------WRITING FILES')
-vfs.file_create('some_file.txt')!
-vfs.file_create('another_file.txt')!
+vfs.file_create('/some_file.txt') or {
+	panic('Failed to create file: ${err}')
+}
+vfs.file_create('/another_file.txt') or {
+	panic('Failed to create file: ${err}')
+}
 
-vfs.file_write('some_file.txt', 'gibberish'.bytes())!
-vfs.file_write('another_file.txt', 'abcdefg'.bytes())!
+vfs.file_write('/some_file.txt', 'gibberish'.bytes()) or {
+	panic('Failed to write file: ${err}')
+}
+vfs.file_write('/another_file.txt', 'abcdefg'.bytes()) or {
+	panic('Failed to write file: ${err}')
+}
 
 println('\n---------READING FILES')
-println(vfs.file_read('some_file.txt')!.bytestr())
-println(vfs.file_read('another_file.txt')!.bytestr())
+some_file_content := vfs.file_read('/some_file.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(some_file_content.bytestr())
+
+another_file_content := vfs.file_read('/another_file.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(another_file_content.bytestr())
 
 println("\n---------WRITING DUPLICATE FILE (DB SIZE: ${os.file_size(os.join_path(example_data_dir, 'data/0.db'))})")
-vfs.file_create('duplicate.txt')!
-vfs.file_write('duplicate.txt', 'gibberish'.bytes())!
+vfs.file_create('/duplicate.txt') or {
+	panic('Failed to create file: ${err}')
+}
+vfs.file_write('/duplicate.txt', 'gibberish'.bytes()) or {
+	panic('Failed to write file: ${err}')
+}
 
 println("\n---------WROTE DUPLICATE FILE (DB SIZE: ${os.file_size(os.join_path(example_data_dir, 'data/0.db'))})")
 println('---------READING FILES')
-println(vfs.file_read('some_file.txt')!.bytestr())
-println(vfs.file_read('another_file.txt')!.bytestr())
-println(vfs.file_read('duplicate.txt')!.bytestr())
+some_file_content3 := vfs.file_read('/some_file.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(some_file_content3.bytestr())
+
+another_file_content3 := vfs.file_read('/another_file.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(another_file_content3.bytestr())
+
+duplicate_content := vfs.file_read('/duplicate.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(duplicate_content.bytestr())
 
 println("\n---------DELETING DUPLICATE FILE (DB SIZE: ${os.file_size(os.join_path(example_data_dir, 'data/0.db'))})")
-vfs.file_delete('duplicate.txt')!
-println("---------READING FILES (DB SIZE: ${os.file_size(os.join_path(example_data_dir, 'data/0.db'))})")
-println(vfs.file_read('some_file.txt')!.bytestr())
-println(vfs.file_read('another_file.txt')!.bytestr())
+vfs.file_delete('/duplicate.txt') or {
+	panic('Failed to delete file: ${err}')
+}
+
+data_path := os.join_path(example_data_dir, 'data/0.db')
+db_file_path := os.join_path(data_path, '0.db')
+println("---------READING FILES (DB SIZE: ${if os.exists(db_file_path) { os.file_size(db_file_path) } else { 0 }})")
+some_file_content2 := vfs.file_read('/some_file.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(some_file_content2.bytestr())
+
+another_file_content2 := vfs.file_read('/another_file.txt') or {
+	panic('Failed to read file: ${err}')
+}
+println(another_file_content2.bytestr())
+
 // FAILS SUCCESSFULLY
-// println(vfs.file_read('duplicate.txt')!.bytestr())
+// duplicate_content := vfs.file_read('duplicate.txt') or {
+//     println('Expected error: ${err}')
+//     []u8{}
+// }
+// if duplicate_content.len > 0 {
+//     println(duplicate_content.bytestr())
+// }
