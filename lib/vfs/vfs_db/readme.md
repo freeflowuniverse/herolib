@@ -81,35 +81,42 @@ mut:
 ## Usage
 
 ```v
-import vfs
+import freeflowuniverse.herolib.vfs.vfs_db
 
-fn main() ! {
-    // Create a new database-backed VFS
-    mut fs := vfs.new_vfs('db', {
-        data_dir: '/path/to/data'
-        metadata_dir: '/path/to/metadata'
-    })!
-    
-    // Create directory structure
-    fs.dir_create('documents')!
-    fs.dir_create('documents/reports')!
-    
-    // Create and write files
-    fs.file_create('documents/reports/q1.txt')!
-    fs.file_write('documents/reports/q1.txt', 'Q1 Report Content'.bytes())!
-    
-    // Create symbolic links
-    fs.link_create('documents/reports/q1.txt', 'documents/latest.txt')!
-    
-    // List directory contents
-    entries := fs.dir_list('documents')!
-    for entry in entries {
-        println('${entry.get_path()} (${entry.get_metadata().size} bytes)')
-    }
-    
-    // Clean up
-    fs.destroy()!
+// Create separate databases for data and metadata
+mut db_data := ourdb.new(
+    path: os.join_path(test_data_dir, 'data')
+    incremental_mode: false
+)!
+
+mut db_metadata := ourdb.new(
+    path: os.join_path(test_data_dir, 'metadata')
+    incremental_mode: false
+)!
+
+// Create VFS with separate databases for data and metadata
+mut fs := new(mut db_data, mut db_metadata)!
+
+// Create directory structure
+fs.dir_create('documents')!
+fs.dir_create('documents/reports')!
+
+// Create and write files
+fs.file_create('documents/reports/q1.txt')!
+fs.file_write('documents/reports/q1.txt', 'Q1 Report Content'.bytes())!
+
+// Create symbolic links
+fs.link_create('documents/reports/q1.txt', 'documents/latest.txt')!
+
+// List directory contents
+entries := fs.dir_list('documents')!
+for entry in entries {
+    println('${entry.get_path()} (${entry.get_metadata().size} bytes)')
 }
+
+// Clean up
+fs.destroy()!
+
 ```
 
 ## Implementation Notes

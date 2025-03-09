@@ -24,20 +24,18 @@ This project implements a WebDAV server using the `vweb` framework and modules f
 ### Running the Server
 
 ```v
-module main
 
 import freeflowuniverse.herolib.dav.webdav
 
-fn main() {
-	mut app := webdav.new_app(
-		root_dir: '/tmp/rootdir' // Directory to serve via WebDAV
-		user_db: {
-			'admin': 'admin' // Username and password for authentication
-		}
-	)!
+mut app := webdav.new_app(
+   root_dir: '/tmp/rootdir' // Directory to serve via WebDAV
+   user_db: {
+      'admin': 'admin' // Username and password for authentication
+   }
+)!
 
-	app.run()
-}
+app.run()
+
 ```
 
 ### **Mounting the Server**

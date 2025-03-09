@@ -61,4 +61,5 @@ pub fn (mut path Path) copy(args_ CopyArgs) ! {
 
 		dest.check()
 	}
+	
 }

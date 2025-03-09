@@ -1,9 +1,9 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.vfs.webdav
-import freeflowuniverse.herolib.vfs.vfsnested
-import freeflowuniverse.herolib.vfs.vfscore
-import freeflowuniverse.herolib.vfs.vfsourdb
+// import freeflowuniverse.herolib.vfs.webdav
+import freeflowuniverse.herolib.vfs.vfs_nested
+import freeflowuniverse.herolib.vfs.vfs_core
+import freeflowuniverse.herolib.vfs.vfs_ourdb
 
 mut high_level_vfs := vfsnested.new()
 
@@ -17,11 +17,11 @@ high_level_vfs.add_vfs('/data', vfs1) or { panic(err) }
 high_level_vfs.add_vfs('/config', vfs2) or { panic(err) }
 high_level_vfs.add_vfs('/data/backup', vfs3) or { panic(err) } // Nested under /data
 
-// Create WebDAV Server that uses high level VFS
-mut webdav_server := webdav.new_app(
-	vfs:     high_level_vfs
-	user_db: {
-		'omda': '123'
-	}
-)!
-webdav_server.run()
+// // Create WebDAV Server that uses high level VFS
+// mut webdav_server := webdav.new_app(
+// 	vfs:     high_level_vfs
+// 	user_db: {
+// 		'omda': '123'
+// 	}
+// )!
+// webdav_server.run()

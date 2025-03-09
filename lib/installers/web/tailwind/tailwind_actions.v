@@ -10,7 +10,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('tailwind -h')
+	res := os.execute('tailwindcss -h')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines().filter(it.contains('tailwindcss v'))
 		if r.len != 1 {
@@ -22,6 +22,9 @@ fn installed() !bool {
 			return false
 		}
 		return true
+	}else{
+		println("error in executing tailwindcss")
+		println(res)
 	}
 	return false
 }

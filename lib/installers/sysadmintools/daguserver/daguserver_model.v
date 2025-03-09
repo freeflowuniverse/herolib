@@ -9,15 +9,15 @@ import os
 pub const version = '1.14.3'
 const singleton = true
 const default = true
-const homedir = os.home_dir()
+pub const homedir = os.home_dir()
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 @[heap]
 pub struct DaguInstaller {
 pub mut:
 	name       string = 'default'
-	dagsdir    string = '${homedir}/.dagu'
-	configpath string = '${homedir}/.config/dagu'
+	dagsdir    string = '${os.home_dir()}/.dagu'
+	configpath string = '${os.home_dir()}/.config/dagu'
 	username   string
 	password   string @[secret]
 	secret     string @[secret]

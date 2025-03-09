@@ -55,4 +55,7 @@ fn (mut self DocusaurusFactory) template_install(args TemplateInstallArgs) ! {
 		)!
 	}
 
+	mut aa := template_path.dir_get("docs") or {return}
+	aa.delete()!
+
 }

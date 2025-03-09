@@ -15,7 +15,7 @@ pub fn (mut m BizModel) act(action Action) !Action {
 			m.funding_define_action(action)!
 		}
 		'revenue_define' {
-			m.funding_define_action(action)!
+			m.revenue_action(action)!
 		}
 		'costcenter_define' {
 			m.costcenter_define_action(action)!
@@ -58,7 +58,7 @@ fn (mut m BizModel) export_sheet_action(action Action) !Action {
 }
 
 fn (mut m BizModel) export_graph_title_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_title_chart(row_args_from_params(action.params)!), action)
+	return m.export_action(m.sheet.wiki_title_chart(row_args_from_params(action.params)!)!, action)
 }
 
 fn (mut m BizModel) export_graph_line_action(action Action) !Action {

@@ -48,6 +48,7 @@
 - Html
   - cannot have children
   - markdown() -> returns the original
+- FrontMatter
 - Paragraph
   - has children which were parsed with the char parser
   - children

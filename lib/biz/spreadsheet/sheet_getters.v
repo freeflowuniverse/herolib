@@ -71,19 +71,19 @@ pub fn (s Sheet) rowname_get(args RowGetArgs) !string {
 }
 
 // return e.g. "'Y1', 'Y2', 'Y3', 'Y4', 'Y5', 'Y6'" if year, is for header
-pub fn (mut s Sheet) header_get_as_list(period_type PeriodType) ![]string {
+pub fn (s Sheet) header_get_as_list(period_type PeriodType) ![]string {
 	str := s.header_get_as_string(period_type)!
 	return str.split(',')
 }
 
 // return e.g. "'Y1', 'Y2', 'Y3', 'Y4', 'Y5', 'Y6'" if year, is for header
-pub fn (mut s Sheet) data_get_as_list(args RowGetArgs) ![]string {
+pub fn (s Sheet) data_get_as_list(args RowGetArgs) ![]string {
 	str := s.data_get_as_string(args)!
 	return str.split(',')
 }
 
 // return e.g. "'Y1', 'Y2', 'Y3', 'Y4', 'Y5', 'Y6'" if year, is for header
-pub fn (mut s Sheet) header_get_as_string(period_type PeriodType) !string {
+pub fn (s Sheet) header_get_as_string(period_type PeriodType) !string {
 	err_pre := "Can't get header for sheet:${s.name}\n"
 	nryears := int(s.nrcol / 12)
 	mut out := ''
@@ -112,7 +112,7 @@ pub fn (mut s Sheet) header_get_as_string(period_type PeriodType) !string {
 }
 
 // return the values
-pub fn (mut s Sheet) data_get_as_string(args RowGetArgs) !string {
+pub fn (s Sheet) data_get_as_string(args RowGetArgs) !string {
 	if args.rowname == '' {
 		return error('rowname needs to be specified')
 	}
@@ -166,7 +166,7 @@ pub fn (mut s Sheet) data_get_as_string(args RowGetArgs) !string {
 }
 
 // use RowGetArgs to get to smaller version of sheet
-pub fn (mut s Sheet) filter(args RowGetArgs) !&Sheet {
+pub fn (s Sheet) filter(args RowGetArgs) !&Sheet {
 	period_months := match args.period_type {
 		.year { 12 }
 		.month { 1 }
