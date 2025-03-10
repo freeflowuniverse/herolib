@@ -2,6 +2,7 @@ module model
 
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
+import freeflowuniverse.herolib.core.playbook
 
 @[heap]
 pub struct CircleManager {
@@ -177,4 +178,96 @@ pub fn (mut m CircleManager) get_members_by_role(circle_id u32, role Role) ![]Me
 	}
 	
 	return members_with_role
+}
+
+// play processes heroscript commands for circles
+pub fn play_circle(mut cm CircleManager, mut plbook playbook.PlayBook) ! {
+	// Find all actions that start with 'circle.'
+	circle_actions := plbook.actions_find(actor: 'circle')!
+	if circle_actions.len == 0 {
+		return
+	}
+
+	// Process circle.create actions
+	mut create_actions := plbook.actions_find(actor: 'circle', name: 'create')!
+	for mut action in create_actions {
+		mut p := action.params
+		
+		// Create a new circle
+		mut circle := cm.new()
+		circle.name = p.get('name')!
+		circle.description = p.get_default('description', '')!
+		
+		// Save the circle
+		circle = cm.set(circle)!
+		
+		// Mark the action as done
+		action.done = true
+		
+		// Return the created circle as a result
+		action.result.set('id', circle.id.str())
+		action.result.set('name', circle.name)
+	}
+	
+	// Process circle.add_member actions
+	mut add_member_actions := plbook.actions_find(actor: 'circle', name: 'add_member')!
+	for mut action in add_member_actions {
+		mut p := action.params
+		
+		// Get circle name
+		circle_name := p.get('circle')!
+		
+		// Find the circle by name
+		mut circle := cm.get_by_name(circle_name) or {
+			action.result.set('error', 'Circle with name ${circle_name} not found')
+			action.done = true
+			continue
+		}
+		
+		// Create a new member
+		mut member := Member{
+			name: p.get('name')!
+			description: p.get_default('description', '')!
+		}
+		
+		// Get pubkeys if provided
+		if p.exists('pubkey') {
+			member.pubkeys << p.get('pubkey')!
+		} else if p.exists('pubkeys') {
+			member.pubkeys = p.get_list('pubkeys')!
+		}
+		
+		// Get emails if provided
+		if p.exists('email') {
+			member.emails << p.get('email')!
+		} else if p.exists('emails') {
+			member.emails = p.get_list('emails')!
+		}
+		
+		// Get role if provided
+		role_str := p.get_default('role', 'member')!
+		member.role = match role_str.to_lower() {
+			'admin' { Role.admin }
+			'stakeholder' { Role.stakeholder }
+			'member' { Role.member }
+			'contributor' { Role.contributor }
+			'guest' { Role.guest }
+			else { Role.member }
+		}
+		
+		// Add the member to the circle
+		circle = cm.add_member(circle.id, member) or {
+			action.result.set('error', err.str())
+			action.done = true
+			continue
+		}
+		
+		// Mark the action as done
+		action.done = true
+		
+		// Return the member info as a result
+		action.result.set('circle_id', circle.id.str())
+		action.result.set('member_name', member.name)
+		action.result.set('role', role_str)
+	}
 }

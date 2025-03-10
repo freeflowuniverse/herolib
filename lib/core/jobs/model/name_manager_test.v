@@ -230,3 +230,99 @@ fn test_name_manager() {
 
 	println('All name manager tests passed successfully')
 }
+
+
+
+fn test_name_play() {
+
+	test_dir := os.join_path(os.temp_dir(), 'hero_name_test_${rand.intn(9000) or { 0 } + 1000}')
+	os.mkdir_all(test_dir) or { panic(err) }
+	defer { os.rmdir_all(test_dir) or {} }
+	
+	mut runner := new(path: test_dir)!
+
+	
+	// Create heroscript for testing
+	heroscript_text := "
+	!!name.create
+		domain: 'example.org'
+		description: 'Example domain for testing'
+		admins: 'admin1-pubkey,admin2-pubkey'
+	
+	!!name.add_record
+		domain: 'example.org'
+		name: 'www'
+		type: 'a'
+		addrs: '192.168.1.1,192.168.1.2'
+		text: 'Web server'
+	
+	!!name.add_record
+		domain: 'example.org'
+		name: 'mail'
+		type: 'mx'
+		addr: '192.168.1.10'
+		text: 'Mail server'
+	
+	!!name.add_admin
+		domain: 'example.org'
+		pubkey: 'admin3-pubkey'
+	"
+	
+	// Parse the heroscript
+	mut pb := playbook.new(text: heroscript_text)!
+
+	name_manager:=runner.names
+
+	runner.names.play(mut pb)!
+
+	// Verify the domain was created
+	mut names := name_manager.getall()!
+	assert names.len == 1
+	
+	// Get the created domain
+	mut name := name_manager.get_by_domain('example.org')!
+	
+	// Verify domain properties
+	assert name.domain == 'example.org'
+	assert name.description == 'Example domain for testing'
+	
+	// Verify admins
+	assert name.admins.len == 3
+	assert 'admin1-pubkey' in name.admins
+	assert 'admin2-pubkey' in name.admins
+	assert 'admin3-pubkey' in name.admins
+	
+	// Verify records
+	assert name.records.len == 2
+	
+	// Find and verify the www record
+	mut www_record := Record{}
+	mut mail_record := Record{}
+	
+	for record in name.records {
+		if record.name == 'www' {
+			www_record = record
+		} else if record.name == 'mail' {
+			mail_record = record
+		}
+	}
+	
+	// Verify www record
+	assert www_record.name == 'www'
+	assert www_record.category == RecordType.a
+	assert www_record.text == 'Web server'
+	assert www_record.addr.len == 2
+	assert www_record.addr[0] == '192.168.1.1'
+	assert www_record.addr[1] == '192.168.1.2'
+	
+	// Verify mail record
+	assert mail_record.name == 'mail'
+	assert mail_record.category == RecordType.mx
+	assert mail_record.text == 'Mail server'
+	assert mail_record.addr.len == 1
+	assert mail_record.addr[0] == '192.168.1.10'
+	
+	// No need to explicitly close the databases
+	
+	println('Name play heroscript test passed successfully')
+}

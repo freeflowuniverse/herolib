@@ -182,3 +182,186 @@ service.actions << model.ServiceAction{
 }
 hr.services.set(service)!
 ```
+
+## Circle Management with HeroScript
+
+You can use HeroScript to create and manage circles. Here's an example of how to create a circle and add members to it:
+
+```heroscript
+!!circle.create
+    name: 'development'
+    description: 'Development team circle'
+
+!!circle.add_member
+    circle: 'development'
+    name: 'John Doe'
+    pubkey: 'user-123'
+    email: 'john@example.com'
+    role: 'admin'
+    description: 'Lead developer'
+
+!!circle.add_member
+    circle: 'development'
+    name: 'Jane Smith'
+    pubkeys: 'user-456,user-789'
+    emails: 'jane@example.com,jsmith@company.com'
+    role: 'member'
+    description: 'Frontend developer'
+```
+
+To process this HeroScript in your V code:
+
+```v
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+
+import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.data.ourdb
+import freeflowuniverse.herolib.data.radixtree
+import freeflowuniverse.herolib.core.jobs.model
+
+// Example HeroScript text
+const heroscript_text = """
+!!circle.create
+    name: 'development'
+    description: 'Development team circle'
+
+!!circle.add_member
+    circle: 'development'
+    name: 'John Doe'
+    pubkey: 'user-123'
+    email: 'john@example.com'
+    role: 'admin'
+    description: 'Lead developer'
+
+!!circle.add_member
+    circle: 'development'
+    name: 'Jane Smith'
+    pubkeys: 'user-456,user-789'
+    emails: 'jane@example.com,jsmith@company.com'
+    role: 'member'
+    description: 'Frontend developer'
+"""
+
+fn main() ! {
+    // Initialize database
+    mut db_data := ourdb.new(path: '/tmp/herorunner_data')!
+    mut db_meta := radixtree.new(path: '/tmp/herorunner_meta')!
+    
+    // Create circle manager
+    mut circle_manager := model.new_circlemanager(db_data, db_meta)
+    
+    // Parse the HeroScript
+    mut pb := playbook.new(text: heroscript_text)!
+    
+    // Process the circle commands
+    model.play_circle(mut circle_manager, mut pb)!
+    
+    // Check the results
+    circles := circle_manager.getall()!
+    println('Created ${circles.len} circles:')
+    for circle in circles {
+        println('Circle: ${circle.name} (ID: ${circle.id})')
+        println('Members: ${circle.members.len}')
+        for member in circle.members {
+            println('  - ${member.name} (${member.role})')
+        }
+    }
+}
+```
+
+## Domain Name Management with HeroScript
+
+You can use HeroScript to create and manage domain names and DNS records. Here's an example of how to create a domain and add various DNS records to it:
+
+```heroscript
+!!name.create
+    domain: 'example.org'
+    description: 'Example organization domain'
+    admins: 'admin1-pubkey,admin2-pubkey'
+
+!!name.add_record
+    domain: 'example.org'
+    name: 'www'
+    type: 'a'
+    addrs: '192.168.1.1,192.168.1.2'
+    text: 'Web server'
+
+!!name.add_record
+    domain: 'example.org'
+    name: 'mail'
+    type: 'mx'
+    addr: '192.168.1.10'
+    text: 'Mail server'
+
+!!name.add_admin
+    domain: 'example.org'
+    pubkey: 'admin3-pubkey'
+```
+
+To process this HeroScript in your V code:
+
+```v
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+
+import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.data.ourdb
+import freeflowuniverse.herolib.data.radixtree
+import freeflowuniverse.herolib.core.jobs.model
+
+// Example HeroScript text
+const heroscript_text = """
+!!name.create
+    domain: 'example.org'
+    description: 'Example organization domain'
+    admins: 'admin1-pubkey,admin2-pubkey'
+
+!!name.add_record
+    domain: 'example.org'
+    name: 'www'
+    type: 'a'
+    addrs: '192.168.1.1,192.168.1.2'
+    text: 'Web server'
+
+!!name.add_record
+    domain: 'example.org'
+    name: 'mail'
+    type: 'mx'
+    addr: '192.168.1.10'
+    text: 'Mail server'
+
+!!name.add_admin
+    domain: 'example.org'
+    pubkey: 'admin3-pubkey'
+"""
+
+fn main() ! {
+    // Initialize database
+    mut db_data := ourdb.new(path: '/tmp/dns_data')!
+    mut db_meta := radixtree.new(path: '/tmp/dns_meta')!
+    
+    // Create name manager
+    mut name_manager := model.new_namemanager(db_data, db_meta)
+    
+    // Parse the HeroScript
+    mut pb := playbook.new(text: heroscript_text)!
+    
+    // Process the name commands
+    model.play_name(mut name_manager, mut pb)!
+    
+    // Check the results
+    names := name_manager.getall()!
+    println('Created ${names.len} domains:')
+    for name in names {
+        println('Domain: ${name.domain} (ID: ${name.id})')
+        println('Records: ${name.records.len}')
+        for record in name.records {
+            println('  - ${record.name}.${name.domain} (${record.category})')
+            println('    Addresses: ${record.addr}')
+        }
+        println('Admins: ${name.admins.len}')
+        for admin in name.admins {
+            println('  - ${admin}')
+        }
+    }
+}
+```

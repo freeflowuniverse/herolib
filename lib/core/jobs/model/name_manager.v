@@ -2,6 +2,7 @@ module model
 
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
+import freeflowuniverse.herolib.core.playbook
 
 @[heap]
 pub struct NameManager {
@@ -218,4 +219,137 @@ pub fn (mut m NameManager) remove_admin(name_id u32, pubkey string) !Name {
 	
 	// Save the updated name
 	return m.set(name)!
+}
+
+// play processes heroscript commands for names
+pub fn (mut m NameManager) play(mut plbook playbook.PlayBook) ! {
+	// Find all actions that start with 'name.'
+	name_actions := plbook.actions_find(actor: 'name')!
+	if name_actions.len == 0 {
+		return
+	}
+
+	// Process name.create actions
+	mut create_actions := plbook.actions_find(actor: 'name', name: 'create')!
+	for mut action in create_actions {
+		mut p := action.params
+		
+		// Create a new name
+		mut name := m.new()
+		name.domain = p.get('domain')!
+		name.description = p.get_default('description', '')!
+		
+		// Add admin if provided
+		if p.exists('admin') {
+			name.admins << p.get('admin')!
+		} else if p.exists('admins') {
+			name.admins = p.get_list('admins')!
+		}
+		
+		// Save the name
+		name = m.set(name)!
+		
+		// Mark the action as done
+		action.done = true
+		
+		// Return the created name as a result
+		action.result.set('id', name.id.str())
+		action.result.set('domain', name.domain)
+	}
+	
+	// Process name.add_record actions
+	mut add_record_actions := plbook.actions_find(actor: 'name', name: 'add_record')!
+	for mut action in add_record_actions {
+		mut p := action.params
+		
+		// Get domain name
+		domain := p.get('domain')!
+		
+		// Find the name by domain
+		mut name := m.get_by_domain(domain) or {
+			action.result.set('error', 'Domain ${domain} not found')
+			action.done = true
+			continue
+		}
+		
+		// Create a new record
+		mut record := Record{
+			name: p.get('name')!
+			text: p.get_default('text', '')!
+		}
+		
+		// Get record type
+		type_str := p.get('type')!
+		record.category = match type_str.to_lower() {
+			'a' { RecordType.a }
+			'aaaa' { RecordType.aaaa }
+			'cname' { RecordType.cname }
+			'mx' { RecordType.mx }
+			'ns' { RecordType.ns }
+			'ptr' { RecordType.ptr }
+			'soa' { RecordType.soa }
+			'srv' { RecordType.srv }
+			'txt' { RecordType.txt }
+			else { 
+				action.result.set('error', 'Invalid record type: ${type_str}')
+				action.done = true
+				continue
+			}
+		}
+		
+		// Get addresses
+		if p.exists('addr') {
+			record.addr << p.get('addr')!
+		} else if p.exists('addrs') {
+			record.addr = p.get_list('addrs')!
+		}
+		
+		// Add the record to the name
+		name = m.add_record(name.id, record) or {
+			action.result.set('error', err.str())
+			action.done = true
+			continue
+		}
+		
+		// Mark the action as done
+		action.done = true
+		
+		// Return the record info as a result
+		action.result.set('domain_id', name.id.str())
+		action.result.set('record_name', record.name)
+		action.result.set('type', type_str)
+	}
+	
+	// Process name.add_admin actions
+	mut add_admin_actions := plbook.actions_find(actor: 'name', name: 'add_admin')!
+	for mut action in add_admin_actions {
+		mut p := action.params
+		
+		// Get domain name
+		domain := p.get('domain')!
+		
+		// Find the name by domain
+		mut name := m.get_by_domain(domain) or {
+			action.result.set('error', 'Domain ${domain} not found')
+			action.done = true
+			continue
+		}
+		
+		// Get admin pubkey
+		pubkey := p.get('pubkey')!
+		
+		// Add the admin to the name
+		name = m.add_admin(name.id, pubkey) or {
+			action.result.set('error', err.str())
+			action.done = true
+			continue
+		}
+		
+		// Mark the action as done
+		action.done = true
+		
+		// Return the admin info as a result
+		action.result.set('domain_id', name.id.str())
+		action.result.set('pubkey', pubkey)
+	}
 }

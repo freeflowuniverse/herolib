@@ -1,5 +1,9 @@
 module model
 
+import freeflowuniverse.herolib.data.ourdb
+import freeflowuniverse.herolib.data.radixtree
+import freeflowuniverse.herolib.core.playbook
+
 fn test_name_dumps_loads() {
 	// Create a test name with some sample data
 	mut name := Name{
