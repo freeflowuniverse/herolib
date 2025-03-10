@@ -10,7 +10,7 @@ fn test_circle_dumps_loads() {
 
 	// Add a member
 	mut member1 := Member{
-		pubkey: 'user1-pubkey'
+		pubkeys: ['user1-pubkey']
 		name: 'User One'
 		description: 'First test user'
 		role: .admin
@@ -21,7 +21,7 @@ fn test_circle_dumps_loads() {
 
 	// Add another member
 	mut member2 := Member{
-		pubkey: 'user2-pubkey'
+		pubkeys: ['user2-pubkey']
 		name: 'User Two'
 		description: 'Second test user'
 		role: .member
@@ -51,7 +51,8 @@ fn test_circle_dumps_loads() {
 	assert decoded_circle.members.len == circle.members.len
 	
 	// Verify first member
-	assert decoded_circle.members[0].pubkey == circle.members[0].pubkey
+	assert decoded_circle.members[0].pubkeys.len == circle.members[0].pubkeys.len
+	assert decoded_circle.members[0].pubkeys[0] == circle.members[0].pubkeys[0]
 	assert decoded_circle.members[0].name == circle.members[0].name
 	assert decoded_circle.members[0].description == circle.members[0].description
 	assert decoded_circle.members[0].role == circle.members[0].role
@@ -60,7 +61,8 @@ fn test_circle_dumps_loads() {
 	assert decoded_circle.members[0].emails[1] == circle.members[0].emails[1]
 	
 	// Verify second member
-	assert decoded_circle.members[1].pubkey == circle.members[1].pubkey
+	assert decoded_circle.members[1].pubkeys.len == circle.members[1].pubkeys.len
+	assert decoded_circle.members[1].pubkeys[0] == circle.members[1].pubkeys[0]
 	assert decoded_circle.members[1].name == circle.members[1].name
 	assert decoded_circle.members[1].description == circle.members[1].description
 	assert decoded_circle.members[1].role == circle.members[1].role
@@ -80,7 +82,7 @@ fn test_circle_complex_structure() {
 
 	// Add admin member
 	circle.members << Member{
-		pubkey: 'admin-pubkey'
+		pubkeys: ['admin-pubkey']
 		name: 'Admin User'
 		description: 'Circle administrator'
 		role: .admin
@@ -89,7 +91,7 @@ fn test_circle_complex_structure() {
 
 	// Add stakeholder member
 	circle.members << Member{
-		pubkey: 'stakeholder-pubkey'
+		pubkeys: ['stakeholder-pubkey']
 		name: 'Stakeholder User'
 		description: 'Circle stakeholder'
 		role: .stakeholder
@@ -98,7 +100,7 @@ fn test_circle_complex_structure() {
 
 	// Add regular members
 	circle.members << Member{
-		pubkey: 'member1-pubkey'
+		pubkeys: ['member1-pubkey']
 		name: 'Regular Member 1'
 		description: 'First regular member'
 		role: .member
@@ -106,7 +108,7 @@ fn test_circle_complex_structure() {
 	}
 
 	circle.members << Member{
-		pubkey: 'member2-pubkey'
+		pubkeys: ['member2-pubkey']
 		name: 'Regular Member 2'
 		description: 'Second regular member'
 		role: .member
@@ -115,7 +117,7 @@ fn test_circle_complex_structure() {
 
 	// Add contributor
 	circle.members << Member{
-		pubkey: 'contributor-pubkey'
+		pubkeys: ['contributor-pubkey']
 		name: 'Contributor'
 		description: 'Circle contributor'
 		role: .contributor
@@ -124,7 +126,7 @@ fn test_circle_complex_structure() {
 
 	// Add guest
 	circle.members << Member{
-		pubkey: 'guest-pubkey'
+		pubkeys: ['guest-pubkey']
 		name: 'Guest User'
 		description: 'Circle guest'
 		role: .guest
@@ -168,10 +170,11 @@ fn test_circle_complex_structure() {
 	assert role_counts[Role.contributor] == 1
 	assert role_counts[Role.guest] == 1
 
-	// Verify specific members by pubkey
+	// Verify specific members by pubkeys
 	for i, member in circle.members {
 		decoded_member := decoded_circle.members[i]
-		assert decoded_member.pubkey == member.pubkey
+		assert decoded_member.pubkeys.len == member.pubkeys.len
+		assert decoded_member.pubkeys[0] == member.pubkeys[0]
 		assert decoded_member.name == member.name
 		assert decoded_member.description == member.description
 		assert decoded_member.role == member.role

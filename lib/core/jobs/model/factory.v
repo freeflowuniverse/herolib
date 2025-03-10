@@ -4,14 +4,15 @@ import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
 import os
 
-// HeroRunner is the main factory for managing jobs, agents, services and circles
+// HeroRunner is the main factory for managing jobs, agents, services, circles and names
 @[heap]
 pub struct HeroRunner {
 pub mut:
 	agents   &AgentManager
+	circles  &CircleManager
+	names    &NameManager
 	// jobs     &JobManager
 	// services &ServiceManager
-	// circles   &CircleManager
 }
 
 @[params]
@@ -47,16 +48,18 @@ pub fn new(args_ HeroRunnerArgs) !&HeroRunner {
 		path: os.join_path(args.path, 'meta')
 	)!
 
-	// Initialize the agent manager with proper ourdb instances
-	mut agent_manager	:= new_agentmanager(db_data, db_meta)
+	// Initialize the managers with proper ourdb instances
+	mut agent_manager := new_agentmanager(db_data, db_meta)
+	mut circle_manager := new_circlemanager(db_data, db_meta)
+	mut name_manager := new_namemanager(db_data, db_meta)
 	// mut job_manager := &JobManager{db_data:&db_data,db_meta:db_meta}
 	// mut service_manager := &ServiceManager{db_data:&db_data,db_meta:db_meta}
-	// mut circle_manager := &CircleManager{db_data:&db_data,db_meta:db_meta}
 
 	mut hr := &HeroRunner{
 		agents:   &agent_manager
+		circles:  &circle_manager
+		names:    &name_manager
 		// services: service_manager
-		// circles:   circle_manager
 		// jobs:     job_manager
 	}
 

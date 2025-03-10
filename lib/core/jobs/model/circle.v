@@ -14,7 +14,7 @@ pub enum Role {
 // Member represents a member of a circle
 pub struct Member {
 pub mut:
-	pubkey      string   // public key of the member
+	pubkeys     []string // public keys of the member
 	emails      []string // list of emails
 	name        string   // name of the member
 	description string   // optional description
@@ -53,7 +53,11 @@ pub fn (c Circle) dumps() ![]u8 {
 	e.add_u16(u16(c.members.len))
 	for member in c.members {
 		// Encode Member fields
-		e.add_string(member.pubkey)
+		// Encode pubkeys array
+		e.add_u16(u16(member.pubkeys.len))
+		for pubkey in member.pubkeys {
+			e.add_string(pubkey)
+		}
 		
 		// Encode emails array
 		e.add_u16(u16(member.emails.len))
@@ -92,7 +96,12 @@ pub fn circle_loads(data []u8) !Circle {
 		mut member := Member{}
 		
 		// Decode Member fields
-		member.pubkey = d.get_string()!
+		// Decode pubkeys array
+		pubkeys_len := d.get_u16()!
+		member.pubkeys = []string{len: int(pubkeys_len)}
+		for j in 0 .. pubkeys_len {
+			member.pubkeys[j] = d.get_string()!
+		}
 		
 		// Decode emails array
 		emails_len := d.get_u16()!

@@ -69,6 +69,14 @@ pub fn (mut m Manager[T]) get(id u32) !T {
 		mut o:= agent_loads(item_data)!
 		o.id = id
 		return o
+	} $else $if T is Circle {
+		mut o:= circle_loads(item_data)!
+		o.id = id
+		return o
+	} $else $if T is Name {
+		mut o:= name_loads(item_data)!
+		o.id = id
+		return o
 	} $else {
 		return error('Unsupported type for deserialization')
 	}
