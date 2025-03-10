@@ -1,4 +1,4 @@
-module model
+module core
 
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
@@ -7,12 +7,12 @@ import freeflowuniverse.herolib.core.playbook
 @[heap]
 pub struct NameManager {
 pub mut:
-	manager Manager[Name]
+	manager DBSession[Name]
 }
 
 pub fn new_namemanager(db_data &ourdb.OurDB, db_meta &radixtree.RadixTree) NameManager {
 	return NameManager{
-		manager: Manager[Name]{db_data: db_data, db_meta: db_meta, prefix: 'name'}
+		manager: session.new_dbsession[Name](db_data, db_meta, 'name')
 	}
 }
 

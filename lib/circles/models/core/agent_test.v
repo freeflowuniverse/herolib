@@ -1,4 +1,4 @@
-module model
+module core
 
 import freeflowuniverse.herolib.data.ourtime
 

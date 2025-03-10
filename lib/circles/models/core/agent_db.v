@@ -1,19 +1,20 @@
-module model
+module core
 
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
+import freeflowuniverse.herolib.circles.models
 
 
 @[heap]
 pub struct AgentManager {
 pub mut:
-	manager Manager[Agent]
+	db models.DBHandler[Agent]
 }
 
-pub fn new_agentmanager(db_data &ourdb.OurDB, db_meta &radixtree.RadixTree) AgentManager {
+pub fn new_agentdb(session_state SessionState) AgentManager {
 	return AgentManager{
-		manager: Manager[Agent]{db_data: db_data, db_meta: db_meta, prefix: 'agent'}
+		db:models.new_dbhandler[Agent]('agent', session_state)
 	}
 }
 
@@ -23,32 +24,32 @@ pub fn (mut m AgentManager) new() Agent {
 
 // set adds or updates an agent
 pub fn (mut m AgentManager) set(agent Agent) !Agent {
-	return m.manager.set(agent)!
+	return m.db.set(agent)!
 }
 
 // get retrieves an agent by its ID
 pub fn (mut m AgentManager) get(id u32) !Agent {
-	return m.manager.get(id)!
+	return m.db.get(id)!
 }
 // list returns all agent IDs
 pub fn (mut m AgentManager) list() ![]u32 {
-	return m.manager.list()!
+	return m.db.list()!
 }
 
-pub fn (mut m AgentManager) getall	() ![]Agent {
-	return m.manager.getall()!
+pub fn (mut m AgentManager) getall() ![]Agent {
+	return m.db.getall()!
 }
 
 // delete removes an agent by its ID
 pub fn (mut m AgentManager) delete(id u32) ! {
-	m.manager.delete(id)!
+	m.db.delete(id)!
 }
 
 //////////////////CUSTOM METHODS//////////////////////////////////
 
 // get_by_pubkey retrieves an agent by its public key
 pub fn (mut m AgentManager) get_by_pubkey(pubkey string) !Agent {
-	return m.manager.get_by_key('pubkey', pubkey)!
+	return m.db.get_by_key('pubkey', pubkey)!
 }
 
 // delete_by_pubkey removes an agent by its public key

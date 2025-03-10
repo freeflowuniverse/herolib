@@ -1,4 +1,4 @@
-module model
+module core
 
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.encoder
@@ -120,7 +120,7 @@ pub fn (a Agent) dumps() ![]u8 {
 }
 
 // loads deserializes binary data into an Agent struct
-pub fn agent_loads(data []u8) !Agent {
+pub fn Agent.loads(data []u8) !Agent {
 	mut d := encoder.decoder_new(data)
 	mut agent := Agent{}
 	

@@ -1,4 +1,4 @@
-module model
+module core
 
 import freeflowuniverse.herolib.data.encoder
 
@@ -74,7 +74,7 @@ pub fn (c Circle) dumps() ![]u8 {
 }
 
 // loads deserializes binary data into a Circle struct
-pub fn circle_loads(data []u8) !Circle {
+pub fn Circle.loads(data []u8) !Circle {
 	mut d := encoder.decoder_new(data)
 	mut circle := Circle{}
 

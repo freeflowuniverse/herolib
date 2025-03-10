@@ -1,4 +1,4 @@
-module model
+module core
 
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
@@ -7,12 +7,12 @@ import freeflowuniverse.herolib.core.playbook
 @[heap]
 pub struct CircleManager {
 pub mut:
-	manager Manager[Circle]
+	manager DBSession[Circle]
 }
 
 pub fn new_circlemanager(db_data &ourdb.OurDB, db_meta &radixtree.RadixTree) CircleManager {
 	return CircleManager{
-		manager: Manager[Circle]{db_data: db_data, db_meta: db_meta, prefix: 'circle'}
+		manager: session.new_dbsession[Circle](db_data, db_meta, 'circle')
 	}
 }
 

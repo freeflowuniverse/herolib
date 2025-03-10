@@ -1,4 +1,4 @@
-# HeroLib Job Manager
+# HeroLib Job DBSession
 
 This document explains the job management system in HeroLib, which is designed to coordinate distributed task execution across multiple agents.
 
