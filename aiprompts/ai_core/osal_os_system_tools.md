@@ -3,7 +3,7 @@
 import as
 
 ```vlang
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.osal
 
 osal.ping...
 
@@ -70,14 +70,14 @@ mut pm:=process.processmap_get()?
 info returns like:
 
 ```json
-}, freeflowuniverse.herolib.process.ProcessInfo{
+}, freeflowuniverse.process.ProcessInfo{
         cpu_perc: 0
         mem_perc: 0
         cmd: 'mc'
         pid: 84455
         ppid: 84467
         rss: 3168
-    }, freeflowuniverse.herolib.process.ProcessInfo{
+    }, freeflowuniverse.process.ProcessInfo{
         cpu_perc: 0
         mem_perc: 0
         cmd: 'zsh -Z -g'
