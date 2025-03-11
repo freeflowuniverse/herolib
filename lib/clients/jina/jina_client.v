@@ -1,20 +1,23 @@
 module jina
 
 import freeflowuniverse.herolib.core.httpconnection
-import json
-import os
-import net.http
+
+@[params]
+pub struct CreateEmbeddingParams {
+pub mut:
+	input []string            @[required] // Input texts
+	model JinaModelEnumerator @[required] // Model name
+	task  string              @[required] // Task type
+}
 
 // Create embeddings for input texts
-pub fn (mut j Jina) create_embeddings(input []string, model string, task string) !ModelEmbeddingOutput {
-	model_ := jina_model_from_string(model)!
-	task_ := task_type_from_string(task)!
+pub fn (mut j Jina) create_embeddings(params CreateEmbeddingParams) !ModelEmbeddingOutput {
+	task := task_type_from_string(params.task)!
 
 	mut embedding_input := TextEmbeddingInput{
-		input:         input
-		model:         model_
-		task:          task_
-		late_chunking: false
+		input: params.input
+		model: params.model.to_string()
+		task:  task
 	}
 
 	req := httpconnection.Request{

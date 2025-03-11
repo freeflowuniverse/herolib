@@ -144,25 +144,31 @@ mut:
 // TextEmbeddingInput represents the input for text embedding requests with enum types
 pub struct TextEmbeddingInput {
 pub mut:
-	model         JinaModelEnumerator = JinaModelEnumerator.embeddings_v2_base_en
+	model         string = 'jina-embeddings-v2-base-en'
 	input         []string @[required]
-	task          TaskType      // task type
-	type_         EmbeddingType // embedding type
-	truncate      TruncateType  // truncation type
-	late_chunking bool          // Flag to determine if late chunking is applied
+	task          TaskType       // task type
+	type_         ?EmbeddingType // embedding type
+	truncate      ?TruncateType  // truncation type
+	late_chunking ?bool          // Flag to determine if late chunking is applied
 }
 
 // dumps converts TextEmbeddingInput to JSON string
 pub fn (t TextEmbeddingInput) dumps() !string {
 	mut raw := TextEmbeddingInputRaw{
-		model:         t.model.to_string()
+		model:         t.model
 		input:         t.input
-		late_chunking: t.late_chunking
+		late_chunking: if v := t.late_chunking { true } else { false }
 	}
 
 	raw.task = t.task.to_string()
-	raw.type_ = t.type_.to_string()
-	raw.truncate = t.truncate.to_string()
+	if v := t.type_ {
+		raw.type_ = v.to_string()
+	}
+
+	if v := t.truncate {
+		raw.truncate = v.to_string()
+	}
+
 	return json.encode(raw)
 }
 
