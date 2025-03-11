@@ -3,7 +3,7 @@ module jina
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.httpconnection
-import freeflowuniverse.herolib.osal
+import net.http
 import os
 
 pub const version = '0.0.0'
@@ -29,22 +29,20 @@ fn obj_init(mycfg_ Jina) !Jina {
 	
 	// Get API key from environment variable if not set
 	if mycfg.secret == '' {
-		if osal.env_exists(env_key) {
-			mycfg.secret = osal.env_get(env_key) or {
-				return error('Failed to get API key from environment variable ${env_key}: ${err}')
-			}
+		if env_key in os.environ() {
+			mycfg.secret = os.environ()[env_key]
 		} else {
 			return error('Jina API key not provided and ${env_key} environment variable not set')
 		}
 	}
 	
 	// Initialize HTTP connection
+	mut header := http.new_header()
+	header.add_custom('Authorization', 'Bearer ${mycfg.secret}')
+	
 	mycfg.http = httpconnection.HTTPConnection{
 		base_url: mycfg.base_url
-		default_header: http.new_header(
-			key: .authorization
-			value: 'Bearer ${mycfg.secret}'
-		)
+		default_header: header
 	}
 	
 	return mycfg

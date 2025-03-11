@@ -1,0 +1,209 @@
+module jina
+
+// RankAPIInput represents the input for reranking requests
+// model:
+// jina-reranker-v2-base-multilingual, 278M
+// jina-reranker-v1-base-en, 137M
+// jina-reranker-v1-tiny-en, 33M
+// jina-reranker-v1-turbo-en, 38M
+// jina-colbert-v1-en, 137M
+pub struct RankAPIInputRAW {
+pub mut:
+	model     string   @[required]
+	query     string   @[required]
+	documents []string @[required]
+	top_n     int      // Optional: Number of top results to return
+}
+
+// RankingOutput represents the response from reranking requests
+pub struct RankingOutput {
+pub mut:
+	model     string
+	results   []RankResult
+	usage     Usage
+	object    string
+}
+
+// RankResult represents a single reranking result
+pub struct RankResult {
+pub mut:
+	document        string
+	index           int
+	relevance_score f64
+}
+
+// ClassificationAPIInput represents the input for classification requests
+pub struct ClassificationAPIInput {
+pub mut:
+	model     string   @[required]
+	input     []string @[required]
+	labels    []string @[required]
+}
+
+// ClassificationOutput represents the response from classification requests
+pub struct ClassificationOutput {
+pub mut:
+	model     string
+	data      []ClassificationData
+	usage     Usage
+	object    string
+}
+
+// ClassificationData represents a single classification result
+pub struct ClassificationData {
+pub mut:
+	classifications []Classification
+	index           int
+}
+
+// Classification represents a single label classification with score
+pub struct Classification {
+pub mut:
+	label string
+	score f64
+}
+
+// TrainingExample represents a single training example for classifier training
+pub struct TrainingExample {
+pub mut:
+	text  string
+	label string
+}
+
+// TrainingAPIInput represents the input for training a classifier
+pub struct TrainingAPIInput {
+pub mut:
+	model     string            @[required]
+	input     []TrainingExample @[required]
+	access    string            // Optional: "public" or "private"
+}
+
+// TrainingOutput represents the response from training a classifier
+pub struct TrainingOutput {
+pub mut:
+	classifier_id string
+	model         string
+	status        string
+	object        string
+}
+
+// BulkEmbeddingJobResponse represents the response from bulk embedding operations
+pub struct BulkEmbeddingJobResponse {
+pub mut:
+	job_id        string
+	status        string
+	model         string
+	created_at    string
+	completed_at  string
+	error_message string
+}
+
+// DownloadResultResponse represents the response for downloading bulk embedding results
+pub struct DownloadResultResponse {
+pub mut:
+	download_url string
+	expires_at   string
+}
+
+// MultiVectorUsage represents token usage information for multi-vector embeddings
+pub struct MultiVectorUsage {
+pub mut:
+	total_tokens int
+}
+
+// MultiVectorEmbeddingData represents a single multi-vector embedding result
+pub struct MultiVectorEmbeddingData {
+pub mut:
+	embeddings [][]f64
+	index      int
+}
+
+// ColbertModelEmbeddingsOutput represents the response from multi-vector embedding requests
+pub struct ColbertModelEmbeddingsOutput {
+pub mut:
+	model  string
+	object string
+	data   []MultiVectorEmbeddingData
+	usage  MultiVectorUsage
+}
+
+// HTTPValidationError represents a validation error response
+pub struct HTTPValidationError {
+pub mut:
+	detail []ValidationError
+}
+
+// ValidationError represents a single validation error
+pub struct ValidationError {
+pub mut:
+	loc     []string
+	msg     string
+	type_   string   @[json: 'type'] // 'type' is a keyword, so we need to specify the JSON name
+}
+
+// Serialize and deserialize functions for the main request/response types
+
+// Serialize TextEmbeddingInput to JSON
+pub fn (input TextEmbeddingInput) to_json() string {
+	return json.encode(input)
+}
+
+// Parse JSON to TextEmbeddingInput
+pub fn parse_text_embedding_input(json_str string) !TextEmbeddingInput {
+	return json.decode(TextEmbeddingInput, json_str)
+}
+
+// Parse JSON to ModelEmbeddingOutput
+pub fn parse_model_embedding_output(json_str string) !ModelEmbeddingOutput {
+	return json.decode(ModelEmbeddingOutput, json_str)
+}
+
+// Serialize RankAPIInput to JSON
+pub fn (input RankAPIInput) to_json() string {
+	return json.encode(input)
+}
+
+// Parse JSON to RankingOutput
+pub fn parse_ranking_output(json_str string) !RankingOutput {
+	return json.decode(RankingOutput, json_str)
+}
+
+// Serialize ClassificationAPIInput to JSON
+pub fn (input ClassificationAPIInput) to_json() string {
+	return json.encode(input)
+}
+
+// Parse JSON to ClassificationOutput
+pub fn parse_classification_output(json_str string) !ClassificationOutput {
+	return json.decode(ClassificationOutput, json_str)
+}
+
+// Serialize TrainingAPIInput to JSON
+pub fn (input TrainingAPIInput) to_json() string {
+	return json.encode(input)
+}
+
+// Parse JSON to TrainingOutput
+pub fn parse_training_output(json_str string) !TrainingOutput {
+	return json.decode(TrainingOutput, json_str)
+}
+
+// Parse JSON to BulkEmbeddingJobResponse
+pub fn parse_bulk_embedding_job_response(json_str string) !BulkEmbeddingJobResponse {
+	return json.decode(BulkEmbeddingJobResponse, json_str)
+}
+
+// Parse JSON to DownloadResultResponse
+pub fn parse_download_result_response(json_str string) !DownloadResultResponse {
+	return json.decode(DownloadResultResponse, json_str)
+}
+
+// Parse JSON to ColbertModelEmbeddingsOutput
+pub fn parse_colbert_model_embeddings_output(json_str string) !ColbertModelEmbeddingsOutput {
+	return json.decode(ColbertModelEmbeddingsOutput, json_str)
+}
+
+// Parse JSON to HTTPValidationError
+pub fn parse_http_validation_error(json_str string) !HTTPValidationError {
+	return json.decode(HTTPValidationError, json_str)
+}

@@ -1,5 +1,7 @@
 # jina
 
+see https://jina.ai/
+
 
 
 To get started
