@@ -33,30 +33,6 @@ pub mut:
 	score f64
 }
 
-// TrainingExample represents a single training example for classifier training
-pub struct TrainingExample {
-pub mut:
-	text  string
-	label string
-}
-
-// TrainingAPIInput represents the input for training a classifier
-pub struct TrainingAPIInput {
-pub mut:
-	model  string            @[required]
-	input  []TrainingExample @[required]
-	access string // Optional: "public" or "private"
-}
-
-// TrainingOutput represents the response from training a classifier
-pub struct TrainingOutput {
-pub mut:
-	classifier_id string
-	model         string
-	status        string
-	object        string
-}
-
 // BulkEmbeddingJobResponse represents the response from bulk embedding operations
 pub struct BulkEmbeddingJobResponse {
 pub mut:
@@ -146,16 +122,6 @@ pub fn (input ClassificationAPIInput) to_json() string {
 // Parse JSON to ClassificationOutput
 pub fn parse_classification_output(json_str string) !ClassificationOutput {
 	return json.decode(ClassificationOutput, json_str)
-}
-
-// Serialize TrainingAPIInput to JSON
-pub fn (input TrainingAPIInput) to_json() string {
-	return json.encode(input)
-}
-
-// Parse JSON to TrainingOutput
-pub fn parse_training_output(json_str string) !TrainingOutput {
-	return json.decode(TrainingOutput, json_str)
 }
 
 // Parse JSON to BulkEmbeddingJobResponse
