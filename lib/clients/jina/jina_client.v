@@ -85,14 +85,6 @@ pub fn (mut j Jina) rerank(params RerankParams) !RankingOutput {
 	return json.decode(RankingOutput, response)!
 }
 
-@[params]
-pub struct ClassifyParams {
-pub mut:
-	model  string   @[required] // The classification model
-	input  []string @[required] // Input texts or image URLs
-	labels []string @[required] // Classification labels
-}
-
 // // Create embeddings with a TextDoc input
 // pub fn (mut j Jina) create_embeddings_with_docs(args TextEmbeddingInput) !ModelEmbeddingOutput {
 

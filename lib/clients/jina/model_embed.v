@@ -207,13 +207,6 @@ pub fn (t TextEmbeddingInput) dumps() !string {
 // 	return text_embedding_input_from_raw(raw)
 // }
 
-// TextDoc represents a document with ID and text for embedding
-pub struct TextDoc {
-pub mut:
-	id   string
-	text string
-}
-
 // ModelEmbeddingOutput represents the response from embedding requests
 pub struct ModelEmbeddingOutput {
 pub mut:

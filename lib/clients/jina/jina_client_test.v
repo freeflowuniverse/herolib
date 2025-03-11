@@ -55,3 +55,26 @@ fn test_train() {
 	assert train_result.classifier_id.len > 0
 	assert train_result.num_samples == 2
 }
+
+fn test_classify() {
+	time.sleep(1 * time.second)
+	mut client := setup_client()!
+	classify_result := client.classify(
+		model:  .jina_clip_v1
+		input:  [
+			ClassificationInput{
+				text: 'A photo of a cat'
+			},
+			ClassificationInput{
+				image: 'https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg'
+			},
+		]
+		labels: ['cat', 'dog']
+	) or { panic('Error while classifying: ${err}') }
+
+	assert classify_result.data.len == 2
+	assert classify_result.data[0].prediction in ['cat', 'dog']
+	assert classify_result.data[1].prediction in ['cat', 'dog']
+	assert classify_result.data[0].object == 'classification'
+	assert classify_result.data[1].object == 'classification'
+}

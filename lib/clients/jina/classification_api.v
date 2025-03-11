@@ -130,3 +130,133 @@ pub fn (mut j Jina) train(params ClassificationTrain) !ClassificationTrainOutput
 	result := json.decode(ClassificationTrainOutput, response)!
 	return result
 }
+
+// TextDoc represents a text document for classification
+pub struct TextDoc {
+pub mut:
+	text string // The text content
+}
+
+// ImageDoc represents an image document for classification
+pub struct ImageDoc {
+pub mut:
+	image string // The image URL or base64-encoded string
+}
+
+// ClassificationInput represents a single input for classification (text or image)
+pub struct ClassificationInput {
+pub mut:
+	text  ?string // Optional text content
+	image ?string // Optional image content
+}
+
+// ClassificationOutput represents the response from the classify endpoint
+pub struct ClassificationOutput {
+pub mut:
+	data  []ClassificationResult // List of classification results
+	usage ClassificationUsage    // Token usage details
+}
+
+// ClassificationResult represents a single classification result
+pub struct ClassificationResult {
+pub mut:
+	index       int          // Index of the input
+	prediction  string       // Predicted label
+	score       f64          // Confidence score
+	object      string       // Type of object (e.g., "classification")
+	predictions []LabelScore // List of label scores
+}
+
+// LabelScore represents a label and its corresponding score
+pub struct LabelScore {
+pub mut:
+	label string // Label name
+	score f64    // Confidence score
+}
+
+// ClassificationUsage represents token usage for the classification request
+pub struct ClassificationUsage {
+pub mut:
+	total_tokens int // Total tokens consumed
+}
+
+// ClassifyRequest represents the JSON request body for the /v1/classify endpoint
+struct ClassifyRequest {
+mut:
+	model         ?string
+	classifier_id ?string
+	input         []ClassificationInput
+	labels        []string
+}
+
+// ClassifyParams represents parameters for the classification request
+@[params]
+pub struct ClassifyParams {
+pub mut:
+	model         ?JinaModel            // Optional model identifier
+	classifier_id ?string               // Optional classifier ID
+	input         []ClassificationInput // Array of inputs (text or image)
+	labels        []string              // List of labels for classification
+}
+
+// Classify inputs by sending a POST request to /v1/classify
+pub fn (mut j Jina) classify(params ClassifyParams) !ClassificationOutput {
+	// Validate that only one of model or classifier_id is provided
+	mut model_provided := false
+	mut classifier_id_provided := false
+	if _ := params.model {
+		model_provided = true
+	}
+	if _ := params.classifier_id {
+		classifier_id_provided = true
+	}
+	if model_provided && classifier_id_provided {
+		return error('Provide either model or classifier_id, not both')
+	}
+	if !model_provided && !classifier_id_provided {
+		return error('Either model or classifier_id must be provided')
+	}
+
+	// Validate each input has exactly one of text or image
+	for input in params.input {
+		mut text_provided := false
+		mut image_provided := false
+		if _ := input.text {
+			text_provided = true
+		}
+		if _ := input.image {
+			image_provided = true
+		}
+		if text_provided && image_provided {
+			return error('Each input must have either text or image, not both')
+		}
+		if !text_provided && !image_provided {
+			return error('Each input must have either text or image')
+		}
+	}
+
+	// Construct the request body
+	mut request := ClassifyRequest{
+		input:  params.input
+		labels: params.labels
+	}
+	if v := params.model {
+		request.model = v.to_string() // Convert JinaModel enum to string
+	}
+	if v := params.classifier_id {
+		request.classifier_id = v
+	}
+
+	// Create and send the HTTP request
+	req := httpconnection.Request{
+		method:     .post
+		prefix:     'v1/classify'
+		dataformat: .json
+		data:       json.encode(request)
+	}
+
+	mut httpclient := j.httpclient()!
+	response := httpclient.post_json_str(req)!
+	result := json.decode(ClassificationOutput, response)!
+	return result
+}

@@ -2,37 +2,6 @@ module jina
 
 import json
 
-// ClassificationAPIInput represents the input for classification requests
-pub struct ClassificationAPIInput {
-pub mut:
-	model  string   @[required]
-	input  []string @[required]
-	labels []string @[required]
-}
-
-// ClassificationOutput represents the response from classification requests
-pub struct ClassificationOutput {
-pub mut:
-	model  string
-	data   []ClassificationData
-	usage  Usage
-	object string
-}
-
-// ClassificationData represents a single classification result
-pub struct ClassificationData {
-pub mut:
-	classifications []Classification
-	index           int
-}
-
-// Classification represents a single label classification with score
-pub struct Classification {
-pub mut:
-	label string
-	score f64
-}
-
 // BulkEmbeddingJobResponse represents the response from bulk embedding operations
 pub struct BulkEmbeddingJobResponse {
 pub mut:
@@ -112,16 +81,6 @@ pub fn parse_model_embedding_output(json_str string) !ModelEmbeddingOutput {
 // Parse JSON to RankingOutput
 pub fn parse_ranking_output(json_str string) !RankingOutput {
 	return json.decode(RankingOutput, json_str)
-}
-
-// Serialize ClassificationAPIInput to JSON
-pub fn (input ClassificationAPIInput) to_json() string {
-	return json.encode(input)
-}
-
-// Parse JSON to ClassificationOutput
-pub fn parse_classification_output(json_str string) !ClassificationOutput {
-	return json.decode(ClassificationOutput, json_str)
 }
 
 // Parse JSON to BulkEmbeddingJobResponse
