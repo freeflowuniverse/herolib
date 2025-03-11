@@ -195,13 +195,13 @@ fn initname() !string
 e.g. systemd, bash, zinit
 fn ipaddr_pub_get() !string
 Returns the ipaddress as known on the public side is using resolver4.opendns.com
-fn is_linux() bool
+fn is_linux()! bool
 fn is_linux_arm()! bool
-fn is_linux_intel() bool
-fn is_osx() bool
-fn is_osx_arm() bool
-fn is_osx_intel() bool
-fn is_ubuntu() bool
+fn is_linux_intel()! bool
+fn is_osx()! bool
+fn is_osx_arm()! bool
+fn is_osx_intel()! bool
+fn is_ubuntu()! bool
 fn load_env_file(file_path string) !
 fn memdb_exists(key string) bool
 fn memdb_get(key string) string

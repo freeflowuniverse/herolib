@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 
 @if args.cat == .installer
-import freeflowuniverse.herolib.sysadmin.startupmanager
+import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 @if args.startupmanager
 import time
