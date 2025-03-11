@@ -55,3 +55,6 @@ classify_result := jina_client.classify(
 ) or { panic('Error while classifying: ${err}') }
 
 println('Classification result: ${classify_result}')
+
+classifiers := jina_client.list_classifiers() or { panic('Error fetching classifiers: ${err}') }
+println('Classifiers: ${classifiers}')

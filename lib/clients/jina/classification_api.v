@@ -260,3 +260,32 @@ pub fn (mut j Jina) classify(params ClassifyParams) !ClassificationOutput {
 	result := json.decode(ClassificationOutput, response)!
 	return result
 }
+
+// Define the Classifier struct
+pub struct Classifier {
+pub mut:
+	classifier_id  string
+	model_name     string
+	labels         []string
+	access         string
+	updated_number int
+	used_number    int
+	created_at     string
+	updated_at     string
+	used_at        ?string
+	metadata       map[string]string
+}
+
+// Implement the list_classifiers function
+pub fn (mut j Jina) list_classifiers() ![]Classifier {
+	req := httpconnection.Request{
+		method: .get
+		prefix: 'v1/classifiers'
+	}
+
+	mut httpclient := j.httpclient()!
+	response := httpclient.get(req)!
+	println('response: ${response}')
+	classifiers := json.decode([]Classifier, response)!
+	return classifiers
+}

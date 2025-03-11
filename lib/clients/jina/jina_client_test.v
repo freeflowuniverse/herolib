@@ -78,3 +78,10 @@ fn test_classify() {
 	assert classify_result.data[0].object == 'classification'
 	assert classify_result.data[1].object == 'classification'
 }
+
+fn test_get_classifiers() {
+	time.sleep(1 * time.second)
+	mut client := setup_client()!
+	classifiers := client.list_classifiers() or { panic('Error fetching classifiers: ${err}') }
+	assert classifiers.len != 0
+}
