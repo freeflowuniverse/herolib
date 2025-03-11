@@ -2,44 +2,44 @@ module jina
 
 import json
 
-// JinaModelEnumerator represents the available models for Jina API
-pub enum JinaModelEnumerator {
-	clip_v1                 // jina-clip-v1, 223M, 768
-	clip_v2                 // jina-clip-v2, 865M, 1024
-	embeddings_v2_base_en   // jina-embeddings-v2-base-en, 137M, 768
-	embeddings_v2_base_es   // jina-embeddings-v2-base-es, 161M, 768
-	embeddings_v2_base_de   // jina-embeddings-v2-base-de, 161M, 768
-	embeddings_v2_base_zh   // jina-embeddings-v2-base-zh, 161M, 768
-	embeddings_v2_base_code // jina-embeddings-v2-base-code, 137M, 768
-	embeddings_v3           // jina-embeddings-v3, 570M, 1024
+// JinaModel represents the available Jina models
+pub enum JinaModel {
+	jina_clip_v1
+	jina_clip_v2
+	jina_embeddings_v2_base_en
+	jina_embeddings_v2_base_es
+	jina_embeddings_v2_base_de
+	jina_embeddings_v2_base_zh
+	jina_embeddings_v2_base_code
+	jina_embeddings_v3
 }
 
-// to_string converts JinaModelEnumerator enum to its string representation
-pub fn (m JinaModelEnumerator) to_string() string {
+// to_string converts a JinaModel enum to its string representation as expected by the Jina API
+pub fn (m JinaModel) to_string() string {
 	return match m {
-		.clip_v1 { 'jina-clip-v1' }
-		.clip_v2 { 'jina-clip-v2' }
-		.embeddings_v2_base_en { 'jina-embeddings-v2-base-en' }
-		.embeddings_v2_base_es { 'jina-embeddings-v2-base-es' }
-		.embeddings_v2_base_de { 'jina-embeddings-v2-base-de' }
-		.embeddings_v2_base_zh { 'jina-embeddings-v2-base-zh' }
-		.embeddings_v2_base_code { 'jina-embeddings-v2-base-code' }
-		.embeddings_v3 { 'jina-embeddings-v3' }
+		.jina_clip_v1 { 'jina-clip-v1' }
+		.jina_clip_v2 { 'jina-clip-v2' }
+		.jina_embeddings_v2_base_en { 'jina-embeddings-v2-base-en' }
+		.jina_embeddings_v2_base_es { 'jina-embeddings-v2-base-es' }
+		.jina_embeddings_v2_base_de { 'jina-embeddings-v2-base-de' }
+		.jina_embeddings_v2_base_zh { 'jina-embeddings-v2-base-zh' }
+		.jina_embeddings_v2_base_code { 'jina-embeddings-v2-base-code' }
+		.jina_embeddings_v3 { 'jina-embeddings-v3' }
 	}
 }
 
-// from_string converts string to JinaModelEnumerator enum
-pub fn jina_model_from_string(s string) !JinaModelEnumerator {
+// from_string converts a string to a JinaModel enum, returning an error if the string is invalid
+pub fn jina_model_from_string(s string) !JinaModel {
 	return match s {
-		'jina-clip-v1' { JinaModelEnumerator.clip_v1 }
-		'jina-clip-v2' { JinaModelEnumerator.clip_v2 }
-		'jina-embeddings-v2-base-en' { JinaModelEnumerator.embeddings_v2_base_en }
-		'jina-embeddings-v2-base-es' { JinaModelEnumerator.embeddings_v2_base_es }
-		'jina-embeddings-v2-base-de' { JinaModelEnumerator.embeddings_v2_base_de }
-		'jina-embeddings-v2-base-zh' { JinaModelEnumerator.embeddings_v2_base_zh }
-		'jina-embeddings-v2-base-code' { JinaModelEnumerator.embeddings_v2_base_code }
-		'jina-embeddings-v3' { JinaModelEnumerator.embeddings_v3 }
-		else { error('Invalid model string: ${s}') }
+		'jina-clip-v1' { JinaModel.jina_clip_v1 }
+		'jina-clip-v2' { JinaModel.jina_clip_v2 }
+		'jina-embeddings-v2-base-en' { JinaModel.jina_embeddings_v2_base_en }
+		'jina-embeddings-v2-base-es' { JinaModel.jina_embeddings_v2_base_es }
+		'jina-embeddings-v2-base-de' { JinaModel.jina_embeddings_v2_base_de }
+		'jina-embeddings-v2-base-zh' { JinaModel.jina_embeddings_v2_base_zh }
+		'jina-embeddings-v2-base-code' { JinaModel.jina_embeddings_v2_base_code }
+		'jina-embeddings-v3' { JinaModel.jina_embeddings_v3 }
+		else { error('Invalid Jina model string: ${s}') }
 	}
 }
 

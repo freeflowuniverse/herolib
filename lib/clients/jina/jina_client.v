@@ -1,13 +1,18 @@
 module jina
 
 import freeflowuniverse.herolib.core.httpconnection
+import os
+import json
 
 @[params]
 pub struct CreateEmbeddingParams {
 pub mut:
-	input []string            @[required] // Input texts
-	model JinaModelEnumerator @[required] // Model name
-	task  string              @[required] // Task type
+	input         []string  @[required] // Input texts
+	model         JinaModel @[required] // Model name
+	task          string    @[required] // Task type
+	type_         ?EmbeddingType // embedding type
+	truncate      ?TruncateType  // truncation type
+	late_chunking ?bool          // Flag to determine if late chunking is applied
 }
 
 // Create embeddings for input texts
@@ -20,6 +25,16 @@ pub fn (mut j Jina) create_embeddings(params CreateEmbeddingParams) !ModelEmbedd
 		task:  task
 	}
 
+	if v := params.type_ {
+		embedding_input.type_ = v
+	}
+
+	if v := params.truncate {
+		embedding_input.truncate = v
+	}
+
+	embedding_input.late_chunking = if _ := params.late_chunking { true } else { false }
+
 	req := httpconnection.Request{
 		method:     .post
 		prefix:     'v1/embeddings'
@@ -31,37 +46,6 @@ pub fn (mut j Jina) create_embeddings(params CreateEmbeddingParams) !ModelEmbedd
 	response := httpclient.post_json_str(req)!
 	return parse_model_embedding_output(response)!
 }
-
-// pub fn (mut j Jina) start_bulk_embedding(file_path string, model string, email string) !BulkEmbeddingJobResponse {
-//     // Read the file content
-//     file_content := os.read_file(file_path) or {
-//         return error('Failed to read file: ${err}')
-//     }
-
-//     // Create a multipart form
-//     mut form := http.FormData{}
-//     form.add_field('file', file_content, 'input.csv', 'text/csv')
-//     form.add_field('model', model)
-//     form.add_field('email', email)
-
-//     // Create a custom HTTP request
-//     mut req := http.new_request(.post, '${j.base_url}/v1/bulk-embeddings', '')!
-//     req.header = j.http.default_header // Add Authorization header
-//     req.set_form_data(form) // Set multipart form data
-
-//     // Send the request
-//     response := req.do() or {
-//         return error('Failed to send bulk embedding request: ${err}')
-//     }
-
-//     // Check for errors
-//     if response.status_code != 200 {
-//         return error('Bulk embedding request failed with status ${response.status_code}: ${response.body}')
-//     }
-
-//     // Parse the JSON response
-//     return json.decode(BulkEmbeddingJobResponse, response.body)!
-// }
 
 // // Create embeddings with a TextDoc input
 // pub fn (mut j Jina) create_embeddings_with_docs(args TextEmbeddingInput) !ModelEmbeddingOutput {

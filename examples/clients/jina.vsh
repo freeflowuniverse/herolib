@@ -6,7 +6,7 @@ mut jina_client := jina.get()!
 
 embeddings := jina_client.create_embeddings(
 	input: ['Hello', 'World']
-	model: .embeddings_v3
+	model: .jina_embeddings_v3
 	task:  'separation'
 ) or { panic('Error while creating embeddings: ${err}') }
 
