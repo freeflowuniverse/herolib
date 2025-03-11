@@ -34,3 +34,24 @@ fn test_rerank() {
 	assert rerank_result.results.len == 2
 	assert rerank_result.model == 'jina-reranker-v2-base-multilingual'
 }
+
+fn test_train() {
+	time.sleep(1 * time.second)
+	mut client := setup_client()!
+	train_result := client.train(
+		model: .jina_clip_v1
+		input: [
+			TrainingExample{
+				text:  'A photo of a cat'
+				label: 'cat'
+			},
+			TrainingExample{
+				text:  'A photo of a dog'
+				label: 'dog'
+			},
+		]
+	) or { panic('Error while training: ${err}') }
+
+	assert train_result.classifier_id.len > 0
+	assert train_result.num_samples == 2
+}
