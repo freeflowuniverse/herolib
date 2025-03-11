@@ -47,6 +47,44 @@ pub fn (mut j Jina) create_embeddings(params CreateEmbeddingParams) !ModelEmbedd
 	return parse_model_embedding_output(response)!
 }
 
+@[params]
+pub struct RerankParams {
+pub mut:
+	model            JinaRerankModel @[required]
+	query            string          @[required]
+	documents        []string        @[required]
+	top_n            ?int  // Optional: Number of top results to return
+	return_documents ?bool // Optional: Flag to determine if the documents should be returned
+}
+
+// Rerank documents based on a query
+pub fn (mut j Jina) rerank(params RerankParams) !RankingOutput {
+	mut rank_input := RerankInput{
+		model:     params.model.to_string()
+		query:     params.query
+		documents: params.documents
+	}
+
+	if v := params.top_n {
+		rank_input.top_n = v
+	}
+
+	if v := params.return_documents {
+		rank_input.return_documents = v
+	}
+
+	req := httpconnection.Request{
+		method:     .post
+		prefix:     'v1/rerank'
+		dataformat: .json
+		data:       json.encode(rank_input)
+	}
+
+	mut httpclient := j.httpclient()!
+	response := httpclient.post_json_str(req)!
+	return json.decode(RankingOutput, response)!
+}
+
 // // Create embeddings with a TextDoc input
 // pub fn (mut j Jina) create_embeddings_with_docs(args TextEmbeddingInput) !ModelEmbeddingOutput {
 

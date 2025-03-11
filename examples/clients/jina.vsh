@@ -11,3 +11,12 @@ embeddings := jina_client.create_embeddings(
 ) or { panic('Error while creating embeddings: ${err}') }
 
 println('Created embeddings: ${embeddings}')
+
+rerank_result := jina_client.rerank(
+	model:     .reranker_v2_base_multilingual
+	query:     'skincare products'
+	documents: ['Product A', 'Product B', 'Product C']
+	top_n:     2
+) or { panic('Error while reranking: ${err}') }
+
+println('Rerank result: ${rerank_result}')

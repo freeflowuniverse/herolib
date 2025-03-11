@@ -2,38 +2,6 @@ module jina
 
 import json
 
-// RankAPIInput represents the input for reranking requests
-// model:
-// jina-reranker-v2-base-multilingual, 278M
-// jina-reranker-v1-base-en, 137M
-// jina-reranker-v1-tiny-en, 33M
-// jina-reranker-v1-turbo-en, 38M
-// jina-colbert-v1-en, 137M
-pub struct RankAPIInputRAW {
-pub mut:
-	model     string   @[required]
-	query     string   @[required]
-	documents []string @[required]
-	top_n     int // Optional: Number of top results to return
-}
-
-// RankingOutput represents the response from reranking requests
-pub struct RankingOutput {
-pub mut:
-	model   string
-	results []RankResult
-	usage   Usage
-	object  string
-}
-
-// RankResult represents a single reranking result
-pub struct RankResult {
-pub mut:
-	document        string
-	index           int
-	relevance_score f64
-}
-
 // ClassificationAPIInput represents the input for classification requests
 pub struct ClassificationAPIInput {
 pub mut:
