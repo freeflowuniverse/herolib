@@ -1,5 +1,7 @@
 module jina
 
+import json
+
 // RankAPIInput represents the input for reranking requests
 // model:
 // jina-reranker-v2-base-multilingual, 278M
@@ -12,16 +14,16 @@ pub mut:
 	model     string   @[required]
 	query     string   @[required]
 	documents []string @[required]
-	top_n     int      // Optional: Number of top results to return
+	top_n     int // Optional: Number of top results to return
 }
 
 // RankingOutput represents the response from reranking requests
 pub struct RankingOutput {
 pub mut:
-	model     string
-	results   []RankResult
-	usage     Usage
-	object    string
+	model   string
+	results []RankResult
+	usage   Usage
+	object  string
 }
 
 // RankResult represents a single reranking result
@@ -35,18 +37,18 @@ pub mut:
 // ClassificationAPIInput represents the input for classification requests
 pub struct ClassificationAPIInput {
 pub mut:
-	model     string   @[required]
-	input     []string @[required]
-	labels    []string @[required]
+	model  string   @[required]
+	input  []string @[required]
+	labels []string @[required]
 }
 
 // ClassificationOutput represents the response from classification requests
 pub struct ClassificationOutput {
 pub mut:
-	model     string
-	data      []ClassificationData
-	usage     Usage
-	object    string
+	model  string
+	data   []ClassificationData
+	usage  Usage
+	object string
 }
 
 // ClassificationData represents a single classification result
@@ -73,9 +75,9 @@ pub mut:
 // TrainingAPIInput represents the input for training a classifier
 pub struct TrainingAPIInput {
 pub mut:
-	model     string            @[required]
-	input     []TrainingExample @[required]
-	access    string            // Optional: "public" or "private"
+	model  string            @[required]
+	input  []TrainingExample @[required]
+	access string // Optional: "public" or "private"
 }
 
 // TrainingOutput represents the response from training a classifier
@@ -136,9 +138,9 @@ pub mut:
 // ValidationError represents a single validation error
 pub struct ValidationError {
 pub mut:
-	loc     []string
-	msg     string
-	type_   string   @[json: 'type'] // 'type' is a keyword, so we need to specify the JSON name
+	loc   []string
+	msg   string
+	type_ string @[json: 'type'] // 'type' is a keyword, so we need to specify the JSON name
 }
 
 // Serialize and deserialize functions for the main request/response types
@@ -158,10 +160,10 @@ pub fn parse_model_embedding_output(json_str string) !ModelEmbeddingOutput {
 	return json.decode(ModelEmbeddingOutput, json_str)
 }
 
-// Serialize RankAPIInput to JSON
-pub fn (input RankAPIInput) to_json() string {
-	return json.encode(input)
-}
+// // Serialize RankAPIInput to JSON
+// pub fn (input RankAPIInput) to_json() string {
+// 	return json.encode(input)
+// }
 
 // Parse JSON to RankingOutput
 pub fn parse_ranking_output(json_str string) !RankingOutput {

@@ -1,6 +1,5 @@
 module jina
 
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.httpconnection
 import net.http
@@ -17,16 +16,29 @@ const env_key = 'JINAKEY'
 @[heap]
 pub struct Jina {
 pub mut:
-	name          string = 'default'
-	secret        string
-	base_url      string = api_base_url
-	http          httpconnection.HTTPConnection @[str: skip]
+	name     string = 'default'
+	secret   string
+	base_url string = api_base_url
+	// http     httpconnection.HTTPConnection @[str: skip]
+}
+
+fn (mut self Jina) httpclient() !&httpconnection.HTTPConnection {
+	mut http_conn := httpconnection.new(
+		name: 'Jina_vclient'
+		url:  self.base_url
+	)!
+
+	// Add authentication header if API key is provided
+	if self.secret.len > 0 {
+		http_conn.default_header.add(.authorization, 'Bearer ${self.secret}')
+	}
+	return http_conn
 }
 
 // your checking & initialization code if needed
 fn obj_init(mycfg_ Jina) !Jina {
 	mut mycfg := mycfg_
-	
+
 	// Get API key from environment variable if not set
 	if mycfg.secret == '' {
 		if env_key in os.environ() {
@@ -35,16 +47,7 @@ fn obj_init(mycfg_ Jina) !Jina {
 			return error('Jina API key not provided and ${env_key} environment variable not set')
 		}
 	}
-	
-	// Initialize HTTP connection
-	mut header := http.new_header()
-	header.add_custom('Authorization', 'Bearer ${mycfg.secret}')
-	
-	mycfg.http = httpconnection.HTTPConnection{
-		base_url: mycfg.base_url
-		default_header: header
-	}
-	
+
 	return mycfg
 }
 
