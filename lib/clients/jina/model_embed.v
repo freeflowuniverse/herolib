@@ -2,53 +2,53 @@ module jina
 
 import json
 
-// JinaModelEnumerator represents the available models for Jina API
-pub enum JinaModelEnumerator {
-	clip_v1                  // jina-clip-v1, 223M, 768
-	clip_v2                  // jina-clip-v2, 865M, 1024
-	embeddings_v2_base_en    // jina-embeddings-v2-base-en, 137M, 768
-	embeddings_v2_base_es    // jina-embeddings-v2-base-es, 161M, 768
-	embeddings_v2_base_de    // jina-embeddings-v2-base-de, 161M, 768
-	embeddings_v2_base_zh    // jina-embeddings-v2-base-zh, 161M, 768
-	embeddings_v2_base_code  // jina-embeddings-v2-base-code, 137M, 768
-	embeddings_v3            // jina-embeddings-v3, 570M, 1024
+// JinaModel represents the available Jina models
+pub enum JinaModel {
+	jina_clip_v1
+	jina_clip_v2
+	jina_embeddings_v2_base_en
+	jina_embeddings_v2_base_es
+	jina_embeddings_v2_base_de
+	jina_embeddings_v2_base_zh
+	jina_embeddings_v2_base_code
+	jina_embeddings_v3
 }
 
-// to_string converts JinaModelEnumerator enum to its string representation
-pub fn (m JinaModelEnumerator) to_string() string {
+// to_string converts a JinaModel enum to its string representation as expected by the Jina API
+pub fn (m JinaModel) to_string() string {
 	return match m {
-		.clip_v1 { 'jina-clip-v1' }
-		.clip_v2 { 'jina-clip-v2' }
-		.embeddings_v2_base_en { 'jina-embeddings-v2-base-en' }
-		.embeddings_v2_base_es { 'jina-embeddings-v2-base-es' }
-		.embeddings_v2_base_de { 'jina-embeddings-v2-base-de' }
-		.embeddings_v2_base_zh { 'jina-embeddings-v2-base-zh' }
-		.embeddings_v2_base_code { 'jina-embeddings-v2-base-code' }
-		.embeddings_v3 { 'jina-embeddings-v3' }
+		.jina_clip_v1 { 'jina-clip-v1' }
+		.jina_clip_v2 { 'jina-clip-v2' }
+		.jina_embeddings_v2_base_en { 'jina-embeddings-v2-base-en' }
+		.jina_embeddings_v2_base_es { 'jina-embeddings-v2-base-es' }
+		.jina_embeddings_v2_base_de { 'jina-embeddings-v2-base-de' }
+		.jina_embeddings_v2_base_zh { 'jina-embeddings-v2-base-zh' }
+		.jina_embeddings_v2_base_code { 'jina-embeddings-v2-base-code' }
+		.jina_embeddings_v3 { 'jina-embeddings-v3' }
 	}
 }
 
-// from_string converts string to JinaModelEnumerator enum
-pub fn jina_model_from_string(s string) ?JinaModelEnumerator {
+// from_string converts a string to a JinaModel enum, returning an error if the string is invalid
+pub fn jina_model_from_string(s string) !JinaModel {
 	return match s {
-		'jina-clip-v1' { JinaModelEnumerator.clip_v1 }
-		'jina-clip-v2' { JinaModelEnumerator.clip_v2 }
-		'jina-embeddings-v2-base-en' { JinaModelEnumerator.embeddings_v2_base_en }
-		'jina-embeddings-v2-base-es' { JinaModelEnumerator.embeddings_v2_base_es }
-		'jina-embeddings-v2-base-de' { JinaModelEnumerator.embeddings_v2_base_de }
-		'jina-embeddings-v2-base-zh' { JinaModelEnumerator.embeddings_v2_base_zh }
-		'jina-embeddings-v2-base-code' { JinaModelEnumerator.embeddings_v2_base_code }
-		'jina-embeddings-v3' { JinaModelEnumerator.embeddings_v3 }
-		else { error('Invalid model string: $s') }
+		'jina-clip-v1' { JinaModel.jina_clip_v1 }
+		'jina-clip-v2' { JinaModel.jina_clip_v2 }
+		'jina-embeddings-v2-base-en' { JinaModel.jina_embeddings_v2_base_en }
+		'jina-embeddings-v2-base-es' { JinaModel.jina_embeddings_v2_base_es }
+		'jina-embeddings-v2-base-de' { JinaModel.jina_embeddings_v2_base_de }
+		'jina-embeddings-v2-base-zh' { JinaModel.jina_embeddings_v2_base_zh }
+		'jina-embeddings-v2-base-code' { JinaModel.jina_embeddings_v2_base_code }
+		'jina-embeddings-v3' { JinaModel.jina_embeddings_v3 }
+		else { error('Invalid Jina model string: ${s}') }
 	}
 }
 
 // EmbeddingType represents the available embedding types
 pub enum EmbeddingType {
-	float    // "float"
-	base64   // "base64"
-	binary   // "binary"
-	ubinary  // "ubinary"
+	float   // "float"
+	base64  // "base64"
+	binary  // "binary"
+	ubinary // "ubinary"
 }
 
 // to_string converts EmbeddingType enum to its string representation
@@ -68,17 +68,17 @@ pub fn embedding_type_from_string(s string) !EmbeddingType {
 		'base64' { EmbeddingType.base64 }
 		'binary' { EmbeddingType.binary }
 		'ubinary' { EmbeddingType.ubinary }
-		else { error('Invalid embedding type string: $s') }
+		else { error('Invalid embedding type string: ${s}') }
 	}
 }
 
 // TaskType represents the available task types for embeddings
 pub enum TaskType {
-	retrieval_query     // "retrieval.query"
-	retrieval_passage   // "retrieval.passage"
-	text_matching       // "text-matching"
-	classification      // "classification"
-	separation          // "separation"
+	retrieval_query   // "retrieval.query"
+	retrieval_passage // "retrieval.passage"
+	text_matching     // "text-matching"
+	classification    // "classification"
+	separation        // "separation"
 }
 
 // to_string converts TaskType enum to its string representation
@@ -100,13 +100,13 @@ pub fn task_type_from_string(s string) !TaskType {
 		'text-matching' { TaskType.text_matching }
 		'classification' { TaskType.classification }
 		'separation' { TaskType.separation }
-		else { error('Invalid task type string: $s') }
+		else { error('Invalid task type string: ${s}') }
 	}
 }
 
 // TruncateType represents the available truncation options
 pub enum TruncateType {
-	none  // "NONE"
+	none_ // "NONE"
 	start // "START"
 	end   // "END"
 }
@@ -114,7 +114,7 @@ pub enum TruncateType {
 // to_string converts TruncateType enum to its string representation
 pub fn (t TruncateType) to_string() string {
 	return match t {
-		.none { 'NONE' }
+		.none_ { 'NONE' }
 		.start { 'START' }
 		.end { 'END' }
 	}
@@ -123,90 +123,89 @@ pub fn (t TruncateType) to_string() string {
 // from_string converts string to TruncateType enum
 pub fn truncate_type_from_string(s string) !TruncateType {
 	return match s {
-		'NONE' { TruncateType.none }
+		'NONE' { TruncateType.none_ }
 		'START' { TruncateType.start }
 		'END' { TruncateType.end }
-		else { error('Invalid truncate type string: $s') }
+		else { error('Invalid truncate type string: ${s}') }
 	}
 }
 
 // TextEmbeddingInputRaw represents the raw input for text embedding requests as sent to the server
 struct TextEmbeddingInputRaw {
 mut:
-	model          string   = 'jina-embeddings-v2-base-en'
-	input          []string @[required]
-	task           string   // Optional: task type as string
-	type_          string   @[json: 'type'] // Optional: embedding type as string
-	truncate       string   // Optional: "NONE", "START", "END"
-	late_chunking  bool     // Optional: Flag to determine if late chunking is applied
+	model         string = 'jina-embeddings-v2-base-en'
+	input         []string @[required]
+	task          string // Optional: task type as string
+	type_         string @[json: 'type'] // Optional: embedding type as string
+	truncate      string // Optional: "NONE", "START", "END"
+	late_chunking bool   // Optional: Flag to determine if late chunking is applied
 }
 
 // TextEmbeddingInput represents the input for text embedding requests with enum types
 pub struct TextEmbeddingInput {
 pub mut:
-	model          JinaModelEnumerator      = JinaModelEnumerator.embeddings_v2_base_en
-	input          []string       @[required]
-	task           TaskType      // task type
-	type_          EmbeddingType // embedding type
-	truncate       TruncateType  // truncation type
-	late_chunking  bool           //Flag to determine if late chunking is applied
+	model         string = 'jina-embeddings-v2-base-en'
+	input         []string @[required]
+	task          TaskType       // task type
+	type_         ?EmbeddingType // embedding type
+	truncate      ?TruncateType  // truncation type
+	late_chunking ?bool          // Flag to determine if late chunking is applied
 }
 
 // dumps converts TextEmbeddingInput to JSON string
 pub fn (t TextEmbeddingInput) dumps() !string {
 	mut raw := TextEmbeddingInputRaw{
-		model: t.model.to_string()
-		input: t.input
-		late_chunking: t.late_chunking
+		model:         t.model
+		input:         t.input
+		late_chunking: if v := t.late_chunking { true } else { false }
 	}
-	
+
 	raw.task = t.task.to_string()
-	raw.type_ = t.type_.to_string()
-	raw.truncate = t.truncate.to_string()	
+	if v := t.type_ {
+		raw.type_ = v.to_string()
+	}
+
+	if v := t.truncate {
+		raw.truncate = v.to_string()
+	}
+
 	return json.encode(raw)
 }
 
 // from_raw converts TextEmbeddingInputRaw to TextEmbeddingInput
-pub fn loads_text_embedding_input(text string	) !TextEmbeddingInput {
-	// TODO: go from text to InputObject over json
-	mut input := TextEmbeddingInput{
-		model: jina_model_from_string(raw.model)?
-		input: raw.input
-		late_chunking: raw.late_chunking
-	}
-	
-	if raw.task != '' {
-		input.task = task_type_from_string(raw.task)!
-	}
-	
-	if raw.type_ != '' {
-		input.type_ = embedding_type_from_string(raw.type_)!
-	}
-	
-	if raw.truncate != '' {
-		input.truncate = truncate_type_from_string(raw.truncate)!
-	}
-	
-	return input
-}
+// pub fn loads_text_embedding_input(text string) !TextEmbeddingInput {
+// 	// TODO: go from text to InputObject over json
+// 	// mut input := TextEmbeddingInput{
+// 	// 	model:         jina_model_from_string(raw.model)?
+// 	// 	input:         raw.input
+// 	// 	late_chunking: raw.late_chunking
+// 	// }
+
+// 	// if raw.task != '' {
+// 	// 	input.task = task_type_from_string(raw.task)!
+// 	// }
+
+// 	// if raw.type_ != '' {
+// 	// 	input.type_ = embedding_type_from_string(raw.type_)!
+// 	// }
+
+// 	// if raw.truncate != '' {
+// 	// 	input.truncate = truncate_type_from_string(raw.truncate)!
+// 	// }
+
+// 	return TextEmbeddingInput{}
+// }
 
 // loads converts a JSON string to TextEmbeddingInput
-pub fn loads(text string) !TextEmbeddingInput {
-	// First decode the JSON string to the raw struct
-	raw := json.decode(TextEmbeddingInputRaw, text) or {
-		return error('Failed to decode JSON: $err')
-	}
-	
-	// Then convert the raw struct to the typed struct
-	return text_embedding_input_from_raw(raw)
-}
+// pub fn loads(text string) !TextEmbeddingInput {
+// 	// First decode the JSON string to the raw struct
+// 	raw := json.decode(TextEmbeddingInputRaw, text) or {
+// 		return error('Failed to decode JSON: ${err}')
+// 	}
 
-// TextDoc represents a document with ID and text for embedding
-pub struct TextDoc {
-pub mut:
-	id   string
-	text string
-}
+// 	// Then convert the raw struct to the typed struct
+// 	return text_embedding_input_from_raw(raw)
+// }
 
 // ModelEmbeddingOutput represents the response from embedding requests
 pub struct ModelEmbeddingOutput {
