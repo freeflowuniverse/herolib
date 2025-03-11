@@ -1,6 +1,6 @@
 module models
 
-import freeflowuniverse.herolib.circles.models.core { agent_loads, Agent }
+import freeflowuniverse.herolib.circles.models.core { agent_loads, Agent, circle_loads, Circle, name_loads, Name }
 
 pub struct DBHandler[T] {
 pub mut:
@@ -39,18 +39,24 @@ pub fn (mut m DBHandler[T]) get(id u32) !T {
 	item_data := m.session_state.dbs.db_data_core.get(id) or {
 		return error('Item data not found for ID ${id}')
 	}
-	mut o:= T{}
-	match o {
-		 Agent {
-			o=agent_loads(item_data)!
-		}else{
-			return panic('Not implemented object')
-		}
-	}
-	
-	// o.loads(item_data)!
-	o.id = id
-	return o
+
+	//THIS IS SUPER ANNOYING AND NOT NICE
+	$if T is Agent {
+		mut o:= agent_loads(item_data)!
+		o.id = id
+		return o
+	} $else $if T is Circle {
+		mut o:= circle_loads(item_data)!
+		o.id = id
+		return o
+	} $else $if T is Name {
+		mut o:= name_loads(item_data)!
+		o.id = id
+		return o
+	} $else {
+		return error('Unsupported type for deserialization')
+	}	
+	panic("bug")
 }
 
 pub fn (mut m DBHandler[T]) exists(id u32) !bool {	

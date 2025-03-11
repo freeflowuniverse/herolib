@@ -19,9 +19,10 @@ pub fn decoder_new(data []u8) Decoder {
 
 pub fn (mut d Decoder) get_string() !string {
 	n := d.get_u16()!
-	if n > 64 * 1024 { // 64KB limit
-		return error('string length ${n} exceeds 64KB limit')
-	}
+	//THIS IS ALWAYS TRYE BECAUSE u16 is max 64KB
+	// if n > 64 * 1024 { // 64KB limit
+	// 	return error('string length ${n} exceeds 64KB limit')
+	// }
 	if n > d.data.len {
 		return error('string length ${n} exceeds remaining data length ${d.data.len}')
 	}

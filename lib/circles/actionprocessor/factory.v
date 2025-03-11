@@ -17,8 +17,8 @@ pub struct CircleCoordinator {
 pub mut:
 	name string //is a unique name on planetary scale is a dns name
 	agents   &core.AgentDB
-	// circles  &core.CircleDB
-	// names    &core.NameDB
+	circles  &core.CircleDB
+	names    &core.NameDB
 	session_state 	 models.SessionState
 }
 
@@ -54,13 +54,13 @@ pub fn new(args_ CircleCoordinatorArgs) !&CircleCoordinator {
 
 	// Initialize the db handlers with proper ourdb instances
 	mut agent_db := core.new_agentdb(session_state)!
-	// mut circle_db := core.new_circledb(session_state)!
-	// mut name_db := core.new_namedb(session_state)!
+	mut circle_db := core.new_circledb(session_state)!
+	mut name_db := core.new_namedb(session_state)!
 
 	mut cm := &CircleCoordinator{
 		agents:   &agent_db
-		// circles:  &circle_db
-		// names:    &name_db
+		circles:  &circle_db
+		names:    &name_db
 		session_state: session_state
 	}
 

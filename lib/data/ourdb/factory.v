@@ -40,10 +40,8 @@ pub fn new(args OurDBConfig) !OurDB {
 		keysize = 2
 	} else if args.record_nr_max < 16777216 {
 		keysize = 3
-	} else if args.record_nr_max < 4294967296 {
-		keysize = 4
 	} else {
-		return error('max supported records is 4294967296 in OurDB')
+		keysize = 4
 	}
 
 	if f64(args.record_size_max * args.record_nr_max) / 2 > mbyte_ * 10 {
