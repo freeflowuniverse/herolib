@@ -2,14 +2,15 @@ module core
 
 import os
 import rand
-
-fn test_agents_model() {
+import freeflowuniverse.herolib.circles.actionprocessor
+import freeflowuniverse.herolib.circles.models.core
+fn test_agent_db() {
 	// Create a temporary directory for testing
 	test_dir := os.join_path(os.temp_dir(), 'hero_agent_test_${rand.intn(9000) or { 0 } + 1000}')
 	os.mkdir_all(test_dir) or { panic(err) }
 	defer { os.rmdir_all(test_dir) or {} }
 	
-	mut runner := new(path: test_dir)!
+	mut runner := actionprocessor.new(path: test_dir)!
 
 	// Create multiple agents for testing
 	mut agent1 := runner.agents.new()
@@ -27,29 +28,19 @@ fn test_agents_model() {
 	agent3.address = '127.0.0.3'
 	agent3.description = 'Test Agent 3'
 
-	// Create a service action
-	mut action := AgentServiceAction{
-		action:         'start'
-		description:    'Start a VM'
-		params:         {
-			'name': 'string'
-		}
-		params_example: {
-			'name': 'myvm'
-		}
-		status:         .ok
-		public:         true
+	// Create a service using the factory method
+	mut service := agent1.new_service(actor: 'vm_manager', description: 'VM Management Service')
+	
+	// Create a service action using the factory method
+	mut action := service.new_action(action:'start', description: 'Start a VM')
+	
+	// Set additional properties for the action
+	action.params = {
+		'name': 'string'
 	}
-
-	// Create a service
-	mut service := AgentService{
-		actor:       'vm_manager'
-		actions:     [action]
-		description: 'VM Management Service'
-		status:      .ok
+	action.params_example = {
+		'name': 'myvm'
 	}
-
-	agent1.services = [service]
 
 	// Add the agents
 	println('Adding agent 1')
@@ -72,11 +63,14 @@ fn test_agents_model() {
 	println('Agent IDs in list: ${agent_ids}')
 	
 	// Debug: Print the 'all' key from the radix tree
-	if all_bytes := runner.agents.manager.db_meta.search('agent:all') {
+	all_bytes := runner.agents.db.session_state.dbs.db_meta_core.get('agent:id') or {
+		println('No agent:id key found in radix tree')
+		[]u8{}
+	}
+	
+	if all_bytes.len > 0 {
 		all_str := all_bytes.bytestr()
-		println('Raw agent:all key content: "${all_str}"')
-	} else {
-		println('No agent:all key found in radix tree')
+		println('Raw agent:id key content: "${all_str}"')
 	}
 	
 	// Get all agents
@@ -174,7 +168,7 @@ fn test_agents_model() {
 	agents_after_all_deleted := runner.agents.getall() or {
 		// This is expected to fail with 'No agents found' error
 		assert err.msg() == 'No agents found'
-		[]Agent{}
+		[]core.Agent{cap: 0}
 	}
 	assert agents_after_all_deleted.len == 0, 'Expected 0 agents after all deletions, got ${agents_after_all_deleted.len}'
 

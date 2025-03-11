@@ -1,59 +1,58 @@
 module core
 
 import freeflowuniverse.herolib.data.ourtime
-import freeflowuniverse.herolib.data.ourdb
-import freeflowuniverse.herolib.data.radixtree
-import freeflowuniverse.herolib.circles.models
+import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.models.core { Agent, AgentService, AgentServiceAction, AgentState }
 
 
 @[heap]
-pub struct AgentManager {
+pub struct AgentDB {
 pub mut:
-	db models.DBHandler[Agent]
+	db DBHandler[Agent]
 }
 
-pub fn new_agentdb(session_state SessionState) AgentManager {
-	return AgentManager{
+pub fn new_agentdb(session_state SessionState) !AgentDB {
+	return AgentDB{
 		db:models.new_dbhandler[Agent]('agent', session_state)
 	}
 }
 
-pub fn (mut m AgentManager) new() Agent {
+pub fn (mut m AgentDB) new() Agent {
 	return Agent{}
 }
 
 // set adds or updates an agent
-pub fn (mut m AgentManager) set(agent Agent) !Agent {
+pub fn (mut m AgentDB) set(agent Agent) !Agent {
 	return m.db.set(agent)!
 }
 
 // get retrieves an agent by its ID
-pub fn (mut m AgentManager) get(id u32) !Agent {
+pub fn (mut m AgentDB) get(id u32) !Agent {
 	return m.db.get(id)!
 }
 // list returns all agent IDs
-pub fn (mut m AgentManager) list() ![]u32 {
+pub fn (mut m AgentDB) list() ![]u32 {
 	return m.db.list()!
 }
 
-pub fn (mut m AgentManager) getall() ![]Agent {
+pub fn (mut m AgentDB) getall() ![]Agent {
 	return m.db.getall()!
 }
 
 // delete removes an agent by its ID
-pub fn (mut m AgentManager) delete(id u32) ! {
+pub fn (mut m AgentDB) delete(id u32) ! {
 	m.db.delete(id)!
 }
 
 //////////////////CUSTOM METHODS//////////////////////////////////
 
 // get_by_pubkey retrieves an agent by its public key
-pub fn (mut m AgentManager) get_by_pubkey(pubkey string) !Agent {
+pub fn (mut m AgentDB) get_by_pubkey(pubkey string) !Agent {
 	return m.db.get_by_key('pubkey', pubkey)!
 }
 
 // delete_by_pubkey removes an agent by its public key
-pub fn (mut m AgentManager) delete_by_pubkey(pubkey string) ! {
+pub fn (mut m AgentDB) delete_by_pubkey(pubkey string) ! {
 	// Get the agent by pubkey
 	agent := m.get_by_pubkey(pubkey) or {
 		// Agent not found, nothing to delete
@@ -65,7 +64,7 @@ pub fn (mut m AgentManager) delete_by_pubkey(pubkey string) ! {
 }
 
 // update_status updates just the status of an agent
-pub fn (mut m AgentManager) update_status(pubkey string, status AgentState) !Agent {
+pub fn (mut m AgentDB) update_status(pubkey string, status AgentState) !Agent {
 	// Get the agent by pubkey
 	mut agent := m.get_by_pubkey(pubkey)!
 	
@@ -78,7 +77,7 @@ pub fn (mut m AgentManager) update_status(pubkey string, status AgentState) !Age
 }
 
 // get_all_agent_pubkeys returns all agent pubkeys
-fn (mut m AgentManager) get_all_agent_pubkeys() ![]string {
+pub fn (mut m AgentDB) get_all_agent_pubkeys() ![]string {
 	// Get all agent IDs
 	agent_ids := m.list()!
 	
@@ -93,7 +92,7 @@ fn (mut m AgentManager) get_all_agent_pubkeys() ![]string {
 }
 
 // get_by_service returns all agents that provide a specific service
-pub fn (mut m AgentManager) get_by_service(actor string, action string) ![]Agent {
+pub fn (mut m AgentDB) get_by_service(actor string, action string) ![]Agent {
 	mut matching_agents := []Agent{}
 	
 	// Get all agent IDs

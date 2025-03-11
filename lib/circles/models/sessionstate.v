@@ -11,6 +11,7 @@ pub mut:
 	name string
 	pubkey        string   // pubkey of user who called this
 	addr string //mycelium address
+	dbs Databases
 }
 
 pub struct Databases{
@@ -42,22 +43,27 @@ pub fn new_session(args_ StateArgs) !SessionState {
 
 	mypath:=os.join_path(args.path, args.name)
 
-	mut dbs:=Databases{
-		db_data_core : ourdb.new(
+		mut db_data_core := ourdb.new(
 			path: os.join_path(mypath, 'data_core')
 			incremental_mode: true
 		)!
-		db_meta_core : radixtree.new(
+		mut db_meta_core := radixtree.new(
 			path: os.join_path(mypath, 'meta_core')
 		)!
-		db_data_mcc : ourdb.new(
+		mut db_data_mcc := ourdb.new(
 			path: os.join_path(mypath, 'data_mcc')
 			incremental_mode: false
 		)!
-		db_meta_mcc : radixtree.new(
+		mut db_meta_mcc := radixtree.new(
 			path: os.join_path(mypath, 'meta_mcc')
 		)!
-	}
+
+		mut dbs := Databases{
+			db_data_core: &db_data_core
+			db_meta_core: &db_meta_core
+			db_data_mcc: &db_data_mcc
+			db_meta_mcc: &db_meta_mcc
+		}
 
 	mut s := SessionState{
 		name: args.name

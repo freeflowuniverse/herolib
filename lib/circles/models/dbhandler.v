@@ -1,9 +1,6 @@
 module models
 
-import freeflowuniverse.herolib.data.radixtree
-import freeflowuniverse.herolib.data.ourdb
-import json
-
+import freeflowuniverse.herolib.circles.models.core { agent_loads, Agent }
 
 pub struct DBHandler[T] {
 pub mut:
@@ -25,7 +22,7 @@ pub fn (mut m DBHandler[T]) set(item_ T) !T {
 	mut item := item_
 
 	// Store the item data in the database and get the assigned ID
-	item.id = m.session_state.dbs.db_data_core.set(id: item.id, data: item.dumps()!)!
+	item.id = m.session_state.dbs.db_data_core.set(data: item.dumps()!)!
 
 	// Update index keys
 	for key, value in m.index_keys(item)! {
@@ -42,13 +39,23 @@ pub fn (mut m DBHandler[T]) get(id u32) !T {
 	item_data := m.session_state.dbs.db_data_core.get(id) or {
 		return error('Item data not found for ID ${id}')
 	}
-	mut o:=T.loads(item_data)!
+	mut o:= T{}
+	match o {
+		 Agent {
+			o=agent_loads(item_data)!
+		}else{
+			return panic('Not implemented object')
+		}
+	}
+	
+	// o.loads(item_data)!
 	o.id = id
 	return o
 }
 
 pub fn (mut m DBHandler[T]) exists(id u32) !bool {	
-	return m.db_data.get(id) or { return false } != []u8{}
+	item_data := m.session_state.dbs.db_data_core.get(id) or { return false }
+	return item_data != []u8{}
 }
 
 
@@ -99,12 +106,33 @@ fn (mut m DBHandler[T]) index_keys(item T) !map[string]string {
 	return keymap
 }
 
-// list returns all ids from the manager
+// list returns all ids from the db handler
 pub fn (mut m DBHandler[T]) list() ![]u32 {
 	// Use the RadixTree's prefix capabilities to list all items
-	defaultkey:=m.index_keys(T{})[0] or {panic('no index keys')}
-	keys := m.session_state.dbs.db_meta_core.getall('${m.prefix}:${defaultkey}')!
-	return keys
+	mut empty_item := T{}
+	mut keys_map := m.index_keys(empty_item)!
+	if keys_map.len == 0 {
+		return error('No index keys defined for this type')
+	}
+	
+	// Get the first key from the map
+	mut default_key := ''
+	for k, _ in keys_map {
+		default_key = k
+		break
+	}
+	
+	// Get all IDs from the meta database
+	id_bytes := m.session_state.dbs.db_meta_core.getall('${m.prefix}:${default_key}')!
+	
+	// Convert bytes to u32 IDs
+	mut result := []u32{}
+	for id_byte in id_bytes {
+		id_str := id_byte.bytestr()
+		result << id_str.u32()
+	}
+	
+	return result
 }
 
 

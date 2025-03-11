@@ -3,56 +3,57 @@ module core
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.circles.models
 
 @[heap]
-pub struct CircleManager {
+pub struct CircleDB {
 pub mut:
-	manager DBSession[Circle]
+	db models.DBHandler[Circle]
 }
 
-pub fn new_circlemanager(db_data &ourdb.OurDB, db_meta &radixtree.RadixTree) CircleManager {
-	return CircleManager{
-		manager: session.new_dbsession[Circle](db_data, db_meta, 'circle')
+pub fn new_circledb(session_state models.SessionState) !CircleDB {
+	return CircleDB{
+		db: models.new_dbhandler[Circle]('circle', session_state)
 	}
 }
 
-pub fn (mut m CircleManager) new() Circle {
+pub fn (mut m CircleDB) new() Circle {
 	return Circle{}
 }
 
 // set adds or updates a circle
-pub fn (mut m CircleManager) set(circle Circle) !Circle {
-	return m.manager.set(circle)!
+pub fn (mut m CircleDB) set(circle Circle) !Circle {
+	return m.db.set(circle)!
 }
 
 // get retrieves a circle by its ID
-pub fn (mut m CircleManager) get(id u32) !Circle {
-	return m.manager.get(id)!
+pub fn (mut m CircleDB) get(id u32) !Circle {
+	return m.db.get(id)!
 }
 
 // list returns all circle IDs
-pub fn (mut m CircleManager) list() ![]u32 {
-	return m.manager.list()!
+pub fn (mut m CircleDB) list() ![]u32 {
+	return m.db.list()!
 }
 
-pub fn (mut m CircleManager) getall() ![]Circle {
-	return m.manager.getall()!
+pub fn (mut m CircleDB) getall() ![]Circle {
+	return m.db.getall()!
 }
 
 // delete removes a circle by its ID
-pub fn (mut m CircleManager) delete(id u32) ! {
-	m.manager.delete(id)!
+pub fn (mut m CircleDB) delete(id u32) ! {
+	m.db.delete(id)!
 }
 
 //////////////////CUSTOM METHODS//////////////////////////////////
 
 // get_by_name retrieves a circle by its name
-pub fn (mut m CircleManager) get_by_name(name string) !Circle {
-	return m.manager.get_by_key('name', name)!
+pub fn (mut m CircleDB) get_by_name(name string) !Circle {
+	return m.db.get_by_key('name', name)!
 }
 
 // delete_by_name removes a circle by its name
-pub fn (mut m CircleManager) delete_by_name(name string) ! {
+pub fn (mut m CircleDB) delete_by_name(name string) ! {
 	// Get the circle by name
 	circle := m.get_by_name(name) or {
 		// Circle not found, nothing to delete
@@ -64,7 +65,7 @@ pub fn (mut m CircleManager) delete_by_name(name string) ! {
 }
 
 // add_member adds a member to a circle
-pub fn (mut m CircleManager) add_member(circle_id u32, member Member) !Circle {
+pub fn (mut m CircleDB) add_member(circle_id u32, member Member) !Circle {
 	// Get the circle by ID
 	mut circle := m.get(circle_id)!
 	
@@ -91,7 +92,7 @@ pub fn (mut m CircleManager) add_member(circle_id u32, member Member) !Circle {
 }
 
 // remove_member removes a member from a circle by pubkey
-pub fn (mut m CircleManager) remove_member(circle_id u32, pubkey string) !Circle {
+pub fn (mut m CircleDB) remove_member(circle_id u32, pubkey string) !Circle {
 	// Get the circle by ID
 	mut circle := m.get(circle_id)!
 	
@@ -127,7 +128,7 @@ pub fn (mut m CircleManager) remove_member(circle_id u32, pubkey string) !Circle
 }
 
 // update_member_role updates the role of a member in a circle
-pub fn (mut m CircleManager) update_member_role(circle_id u32, pubkey string, role Role) !Circle {
+pub fn (mut m CircleDB) update_member_role(circle_id u32, pubkey string, role Role) !Circle {
 	// Get the circle by ID
 	mut circle := m.get(circle_id)!
 	
@@ -156,7 +157,7 @@ pub fn (mut m CircleManager) update_member_role(circle_id u32, pubkey string, ro
 }
 
 // get_members returns all members of a circle
-pub fn (mut m CircleManager) get_members(circle_id u32) ![]Member {
+pub fn (mut m CircleDB) get_members(circle_id u32) ![]Member {
 	// Get the circle by ID
 	circle := m.get(circle_id)!
 	
@@ -164,7 +165,7 @@ pub fn (mut m CircleManager) get_members(circle_id u32) ![]Member {
 }
 
 // get_members_by_role returns all members of a circle with a specific role
-pub fn (mut m CircleManager) get_members_by_role(circle_id u32, role Role) ![]Member {
+pub fn (mut m CircleDB) get_members_by_role(circle_id u32, role Role) ![]Member {
 	// Get the circle by ID
 	circle := m.get(circle_id)!
 	
@@ -181,7 +182,7 @@ pub fn (mut m CircleManager) get_members_by_role(circle_id u32, role Role) ![]Me
 }
 
 // play processes heroscript commands for circles
-pub fn play_circle(mut cm CircleManager, mut plbook playbook.PlayBook) ! {
+pub fn play_circle(mut cm CircleDB, mut plbook playbook.PlayBook) ! {
 	// Find all actions that start with 'circle.'
 	circle_actions := plbook.actions_find(actor: 'circle')!
 	if circle_actions.len == 0 {

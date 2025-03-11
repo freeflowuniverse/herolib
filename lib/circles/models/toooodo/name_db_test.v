@@ -3,7 +3,7 @@ module core
 import os
 import rand
 
-fn test_name_manager() {
+fn test_name_db() {
 	// Create a temporary directory for testing
 	test_dir := os.join_path(os.temp_dir(), 'hero_name_test_${rand.intn(9000) or { 0 } + 1000}')
 	os.mkdir_all(test_dir) or { panic(err) }

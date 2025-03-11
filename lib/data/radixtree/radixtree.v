@@ -1,7 +1,7 @@
 module radixtree
 
 import freeflowuniverse.herolib.data.ourdb
-import freeflowuniverse.herolib.ui.console
+// import freeflowuniverse.herolib.ui.console
 
 // Represents a node in the radix tree
 struct Node {
@@ -34,7 +34,7 @@ pub mut:
 }
 
 // Creates a new radix tree with the specified database path
-pub fn new(args NewArgs) !&RadixTree {
+pub fn new(args NewArgs) !RadixTree {
 	mut db := ourdb.new(
 		path:             args.path
 		record_size_max:  1024 * 4 // 4KB max record size
@@ -58,11 +58,12 @@ pub fn new(args NewArgs) !&RadixTree {
 	} else {
 		//console.print_debug('Debug: Using existing root node')
 		root_data := db.get(1)! // Get root node with ID 1
-		root_node := deserialize_node(root_data)!
+		// root_node := 
+		deserialize_node(root_data)!
 		//console.print_debug('Debug: Root node has ${root_node.children.len} children')
 	}
 
-	return &RadixTree{
+	return RadixTree{
 		db:      &db
 		root_id: root_id
 	}
@@ -128,7 +129,7 @@ pub fn (mut rt RadixTree) set(key string, value []u8) ! {
 
 			// First verify we can deserialize the data correctly
 			//console.print_debug('Debug: Verifying serialization...')
-			if test_node := deserialize_node(parent_data) {
+			if _ := deserialize_node(parent_data) {
 				//console.print_debug('Debug: Serialization test successful - node has ${test_node.children.len} children')
 			} else {
 				//console.print_debug('Debug: ERROR - Failed to deserialize test data')

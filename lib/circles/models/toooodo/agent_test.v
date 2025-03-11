@@ -70,7 +70,8 @@ fn test_agent_dumps_loads() {
 	}
 
 	// Test binary decoding
-	decoded_agent := agent_loads(binary_data) or {
+	mut decoded_agent := Agent{}
+	decoded_agent.loads(binary_data) or {
 		assert false, 'Failed to decode agent: ${err}'
 		return
 	}
@@ -232,7 +233,8 @@ fn test_agent_complex_structure() {
 	}
 
 	// Test binary decoding
-	decoded_agent := agent_loads(binary_data) or {
+	mut decoded_agent := Agent{}
+	decoded_agent.loads(binary_data) or {
 		assert false, 'Failed to decode complex agent: ${err}'
 		return
 	}
@@ -303,7 +305,8 @@ fn test_agent_empty_structures() {
 	}
 
 	// Test binary decoding
-	decoded_agent := agent_loads(binary_data) or {
+	mut decoded_agent := Agent{}
+	decoded_agent.loads(binary_data) or {
 		assert false, 'Failed to decode empty agent: ${err}'
 		return
 	}

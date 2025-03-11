@@ -3,56 +3,57 @@ module core
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.circles.models
 
 @[heap]
-pub struct NameManager {
+pub struct NameDB {
 pub mut:
-	manager DBSession[Name]
+	db models.DBHandler[Name]
 }
 
-pub fn new_namemanager(db_data &ourdb.OurDB, db_meta &radixtree.RadixTree) NameManager {
-	return NameManager{
-		manager: session.new_dbsession[Name](db_data, db_meta, 'name')
+pub fn new_namedb(session_state models.SessionState) !NameDB {
+	return NameDB{
+		db: models.new_dbhandler[Name]('name', session_state)
 	}
 }
 
-pub fn (mut m NameManager) new() Name {
+pub fn (mut m NameDB) new() Name {
 	return Name{}
 }
 
 // set adds or updates a name
-pub fn (mut m NameManager) set(name Name) !Name {
-	return m.manager.set(name)!
+pub fn (mut m NameDB) set(name Name) !Name {
+	return m.db.set(name)!
 }
 
 // get retrieves a name by its ID
-pub fn (mut m NameManager) get(id u32) !Name {
-	return m.manager.get(id)!
+pub fn (mut m NameDB) get(id u32) !Name {
+	return m.db.get(id)!
 }
 
 // list returns all name IDs
-pub fn (mut m NameManager) list() ![]u32 {
-	return m.manager.list()!
+pub fn (mut m NameDB) list() ![]u32 {
+	return m.db.list()!
 }
 
-pub fn (mut m NameManager) getall() ![]Name {
-	return m.manager.getall()!
+pub fn (mut m NameDB) getall() ![]Name {
+	return m.db.getall()!
 }
 
 // delete removes a name by its ID
-pub fn (mut m NameManager) delete(id u32) ! {
-	m.manager.delete(id)!
+pub fn (mut m NameDB) delete(id u32) ! {
+	m.db.delete(id)!
 }
 
 //////////////////CUSTOM METHODS//////////////////////////////////
 
 // get_by_domain retrieves a name by its domain
-pub fn (mut m NameManager) get_by_domain(domain string) !Name {
-	return m.manager.get_by_key('domain', domain)!
+pub fn (mut m NameDB) get_by_domain(domain string) !Name {
+	return m.db.get_by_key('domain', domain)!
 }
 
 // delete_by_domain removes a name by its domain
-pub fn (mut m NameManager) delete_by_domain(domain string) ! {
+pub fn (mut m NameDB) delete_by_domain(domain string) ! {
 	// Get the name by domain
 	name := m.get_by_domain(domain) or {
 		// Name not found, nothing to delete
@@ -64,7 +65,7 @@ pub fn (mut m NameManager) delete_by_domain(domain string) ! {
 }
 
 // add_record adds a record to a name
-pub fn (mut m NameManager) add_record(name_id u32, record Record) !Name {
+pub fn (mut m NameDB) add_record(name_id u32, record Record) !Name {
 	// Get the name by ID
 	mut name := m.get(name_id)!
 	
@@ -83,7 +84,7 @@ pub fn (mut m NameManager) add_record(name_id u32, record Record) !Name {
 }
 
 // remove_record removes a record from a name by name and category
-pub fn (mut m NameManager) remove_record(name_id u32, record_name string, category RecordType) !Name {
+pub fn (mut m NameDB) remove_record(name_id u32, record_name string, category RecordType) !Name {
 	// Get the name by ID
 	mut name := m.get(name_id)!
 	
@@ -111,7 +112,7 @@ pub fn (mut m NameManager) remove_record(name_id u32, record_name string, catego
 }
 
 // update_record updates a record in a name
-pub fn (mut m NameManager) update_record(name_id u32, record_name string, category RecordType, new_record Record) !Name {
+pub fn (mut m NameDB) update_record(name_id u32, record_name string, category RecordType, new_record Record) !Name {
 	// Get the name by ID
 	mut name := m.get(name_id)!
 	
@@ -145,7 +146,7 @@ pub fn (mut m NameManager) update_record(name_id u32, record_name string, catego
 }
 
 // get_records returns all records of a name
-pub fn (mut m NameManager) get_records(name_id u32) ![]Record {
+pub fn (mut m NameDB) get_records(name_id u32) ![]Record {
 	// Get the name by ID
 	name := m.get(name_id)!
 	
@@ -153,7 +154,7 @@ pub fn (mut m NameManager) get_records(name_id u32) ![]Record {
 }
 
 // get_records_by_category returns all records of a name with a specific category
-pub fn (mut m NameManager) get_records_by_category(name_id u32, category RecordType) ![]Record {
+pub fn (mut m NameDB) get_records_by_category(name_id u32, category RecordType) ![]Record {
 	// Get the name by ID
 	name := m.get(name_id)!
 	
@@ -170,7 +171,7 @@ pub fn (mut m NameManager) get_records_by_category(name_id u32, category RecordT
 }
 
 // add_admin adds an admin to a name
-pub fn (mut m NameManager) add_admin(name_id u32, pubkey string) !Name {
+pub fn (mut m NameDB) add_admin(name_id u32, pubkey string) !Name {
 	// Get the name by ID
 	mut name := m.get(name_id)!
 	
@@ -189,7 +190,7 @@ pub fn (mut m NameManager) add_admin(name_id u32, pubkey string) !Name {
 }
 
 // remove_admin removes an admin from a name
-pub fn (mut m NameManager) remove_admin(name_id u32, pubkey string) !Name {
+pub fn (mut m NameDB) remove_admin(name_id u32, pubkey string) !Name {
 	// Get the name by ID
 	mut name := m.get(name_id)!
 	
@@ -222,7 +223,7 @@ pub fn (mut m NameManager) remove_admin(name_id u32, pubkey string) !Name {
 }
 
 // play processes heroscript commands for names
-pub fn (mut m NameManager) play(mut plbook playbook.PlayBook) ! {
+pub fn (mut m NameDB) play(mut plbook playbook.PlayBook) ! {
 	// Find all actions that start with 'name.'
 	name_actions := plbook.actions_find(actor: 'name')!
 	if name_actions.len == 0 {
