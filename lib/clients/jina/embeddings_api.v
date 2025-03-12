@@ -1,5 +1,6 @@
 module jina
 
+import freeflowuniverse.herolib.core.httpconnection
 import json
 
 // JinaModel represents the available Jina models
@@ -43,6 +44,32 @@ pub fn jina_model_from_string(s string) !JinaModel {
 	}
 }
 
+// TruncateType represents the available truncation options
+pub enum TruncateType {
+	none_ // "NONE"
+	start // "START"
+	end   // "END"
+}
+
+// to_string converts TruncateType enum to its string representation
+pub fn (t TruncateType) to_string() string {
+	return match t {
+		.none_ { 'NONE' }
+		.start { 'START' }
+		.end { 'END' }
+	}
+}
+
+// from_string converts string to TruncateType enum
+pub fn truncate_type_from_string(s string) !TruncateType {
+	return match s {
+		'NONE' { TruncateType.none_ }
+		'START' { TruncateType.start }
+		'END' { TruncateType.end }
+		else { error('Invalid truncate type string: ${s}') }
+	}
+}
+
 // EmbeddingType represents the available embedding types
 pub enum EmbeddingType {
 	float   // "float"
@@ -81,17 +108,6 @@ pub enum TaskType {
 	separation        // "separation"
 }
 
-// to_string converts TaskType enum to its string representation
-pub fn (t TaskType) to_string() string {
-	return match t {
-		.retrieval_query { 'retrieval.query' }
-		.retrieval_passage { 'retrieval.passage' }
-		.text_matching { 'text-matching' }
-		.classification { 'classification' }
-		.separation { 'separation' }
-	}
-}
-
 // from_string converts string to TaskType enum
 pub fn task_type_from_string(s string) !TaskType {
 	return match s {
@@ -104,41 +120,22 @@ pub fn task_type_from_string(s string) !TaskType {
 	}
 }
 
-// TruncateType represents the available truncation options
-pub enum TruncateType {
-	none_ // "NONE"
-	start // "START"
-	end   // "END"
-}
-
-// to_string converts TruncateType enum to its string representation
-pub fn (t TruncateType) to_string() string {
+// to_string converts TaskType enum to its string representation
+pub fn (t TaskType) to_string() string {
 	return match t {
-		.none_ { 'NONE' }
-		.start { 'START' }
-		.end { 'END' }
+		.retrieval_query { 'retrieval.query' }
+		.retrieval_passage { 'retrieval.passage' }
+		.text_matching { 'text-matching' }
+		.classification { 'classification' }
+		.separation { 'separation' }
 	}
 }
 
-// from_string converts string to TruncateType enum
-pub fn truncate_type_from_string(s string) !TruncateType {
-	return match s {
-		'NONE' { TruncateType.none_ }
-		'START' { TruncateType.start }
-		'END' { TruncateType.end }
-		else { error('Invalid truncate type string: ${s}') }
-	}
-}
-
-// TextEmbeddingInputRaw represents the raw input for text embedding requests as sent to the server
-struct TextEmbeddingInputRaw {
-mut:
-	model         string = 'jina-embeddings-v2-base-en'
-	input         []string @[required]
-	task          string // Optional: task type as string
-	type_         string @[json: 'type'] // Optional: embedding type as string
-	truncate      string // Optional: "NONE", "START", "END"
-	late_chunking bool   // Optional: Flag to determine if late chunking is applied
+// Usage represents token usage information
+pub struct Usage {
+pub mut:
+	total_tokens int
+	unit         string
 }
 
 // TextEmbeddingInput represents the input for text embedding requests with enum types
@@ -152,60 +149,13 @@ pub mut:
 	late_chunking ?bool          // Flag to determine if late chunking is applied
 }
 
-// dumps converts TextEmbeddingInput to JSON string
-pub fn (t TextEmbeddingInput) dumps() !string {
-	mut raw := TextEmbeddingInputRaw{
-		model:         t.model
-		input:         t.input
-		late_chunking: if v := t.late_chunking { true } else { false }
-	}
-
-	raw.task = t.task.to_string()
-	if v := t.type_ {
-		raw.type_ = v.to_string()
-	}
-
-	if v := t.truncate {
-		raw.truncate = v.to_string()
-	}
-
-	return json.encode(raw)
+// EmbeddingData represents a single embedding result
+pub struct EmbeddingData {
+pub mut:
+	embedding []f64
+	index     int
+	object    string
 }
-
-// from_raw converts TextEmbeddingInputRaw to TextEmbeddingInput
-// pub fn loads_text_embedding_input(text string) !TextEmbeddingInput {
-// 	// TODO: go from text to InputObject over json
-// 	// mut input := TextEmbeddingInput{
-// 	// 	model:         jina_model_from_string(raw.model)?
-// 	// 	input:         raw.input
-// 	// 	late_chunking: raw.late_chunking
-// 	// }
-
-// 	// if raw.task != '' {
-// 	// 	input.task = task_type_from_string(raw.task)!
-// 	// }
-
-// 	// if raw.type_ != '' {
-// 	// 	input.type_ = embedding_type_from_string(raw.type_)!
-// 	// }
-
-// 	// if raw.truncate != '' {
-// 	// 	input.truncate = truncate_type_from_string(raw.truncate)!
-// 	// }
-
-// 	return TextEmbeddingInput{}
-// }
-
-// loads converts a JSON string to TextEmbeddingInput
-// pub fn loads(text string) !TextEmbeddingInput {
-// 	// First decode the JSON string to the raw struct
-// 	raw := json.decode(TextEmbeddingInputRaw, text) or {
-// 		return error('Failed to decode JSON: ${err}')
-// 	}
-
-// 	// Then convert the raw struct to the typed struct
-// 	return text_embedding_input_from_raw(raw)
-// }
 
 // ModelEmbeddingOutput represents the response from embedding requests
 pub struct ModelEmbeddingOutput {
@@ -217,17 +167,46 @@ pub mut:
 	dimension int
 }
 
-// EmbeddingData represents a single embedding result
-pub struct EmbeddingData {
+// CreateEmbeddingParams represents the parameters for creating embeddings
+@[params]
+pub struct CreateEmbeddingParams {
 pub mut:
-	embedding []f64
-	index     int
-	object    string
+	input         []string  @[required] // Input texts
+	model         JinaModel @[required] // Model name
+	task          string    @[required] // Task type
+	type_         ?EmbeddingType // embedding type
+	truncate      ?TruncateType  // truncation type
+	late_chunking ?bool          // Flag to determine if late chunking is applied
 }
 
-// Usage represents token usage information
-pub struct Usage {
-pub mut:
-	total_tokens int
-	unit         string
+// Create embeddings for input texts
+pub fn (mut j Jina) create_embeddings(params CreateEmbeddingParams) !ModelEmbeddingOutput {
+	task := task_type_from_string(params.task)!
+
+	mut embedding_input := TextEmbeddingInput{
+		input: params.input
+		model: params.model.to_string()
+		task:  task
+	}
+
+	if v := params.type_ {
+		embedding_input.type_ = v
+	}
+
+	if v := params.truncate {
+		embedding_input.truncate = v
+	}
+
+	embedding_input.late_chunking = if _ := params.late_chunking { true } else { false }
+
+	req := httpconnection.Request{
+		method:     .post
+		prefix:     'v1/embeddings'
+		dataformat: .json
+		data:       json.encode(embedding_input)
+	}
+
+	mut httpclient := j.httpclient()!
+	response := httpclient.post_json_str(req)!
+	return json.decode(ModelEmbeddingOutput, response)!
 }

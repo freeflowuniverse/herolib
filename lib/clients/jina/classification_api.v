@@ -285,7 +285,25 @@ pub fn (mut j Jina) list_classifiers() ![]Classifier {
 
 	mut httpclient := j.httpclient()!
 	response := httpclient.get(req)!
-	println('response: ${response}')
 	classifiers := json.decode([]Classifier, response)!
 	return classifiers
+}
+
+// ClassifyParams represents parameters for the classification request
+@[params]
+pub struct DeleteClassifierParams {
+pub mut:
+	classifier_id string @[required] // The ID of the classifier to delete
+}
+
+// Function to delete a classifier by its ID
+pub fn (mut j Jina) delete_classifier(params DeleteClassifierParams) !string {
+	req := httpconnection.Request{
+		method: .delete
+		prefix: 'v1/classifiers/${params.classifier_id}'
+	}
+
+	mut httpclient := j.httpclient()!
+	response := httpclient.delete(req)!
+	return response
 }

@@ -85,3 +85,18 @@ fn test_get_classifiers() {
 	classifiers := client.list_classifiers() or { panic('Error fetching classifiers: ${err}') }
 	assert classifiers.len != 0
 }
+
+// Delete classifier
+fn test_delete_classifiers() {
+	time.sleep(1 * time.second)
+	mut client := setup_client()!
+
+	classifiers := client.list_classifiers() or { panic('Error fetching classifiers: ${err}') }
+	assert classifiers.len != 0
+
+	delete_result := client.delete_classifier(classifier_id: classifiers[0].classifier_id) or {
+		panic('Error deleting classifier: ${err}')
+	}
+
+	assert delete_result == '{"message":"Classifier ${classifiers[0].classifier_id} deleted"}'
+}

@@ -56,5 +56,12 @@ classify_result := jina_client.classify(
 
 println('Classification result: ${classify_result}')
 
+// List classifiers
 classifiers := jina_client.list_classifiers() or { panic('Error fetching classifiers: ${err}') }
 println('Classifiers: ${classifiers}')
+
+// Delete classifier
+delete_result := jina_client.delete_classifier(classifier_id: classifiers[0].classifier_id) or {
+	panic('Error deleting classifier: ${err}')
+}
+println('Delete result: ${delete_result}')
