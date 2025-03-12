@@ -129,7 +129,7 @@ pub fn (mut d Deployment) add_signature(twin u32, signature string) {
 		signature_type: 'sr25519'
 	}
 }
-pub fn (mut d Deployment) json_encode() string {
+pub fn (d Deployment) json_encode() string {
     return json.encode(d)
 }
 
@@ -177,7 +177,7 @@ pub:
 // 	return "{\\\"type\\\":\\\"${data.type_}\\\",\\\"name\\\":\\\"${data.name}\\\",\\\"projectName\\\":\\\"${data.project_name}\\\"}"
 // }
 
-pub fn (mut d DeploymentData) json_encode() string {
+pub fn (d DeploymentData) json_encode() string {
     return json.encode(d)
 }
 
