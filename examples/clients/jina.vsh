@@ -65,3 +65,20 @@ delete_result := jina_client.delete_classifier(classifier_id: classifiers[0].cla
 	panic('Error deleting classifier: ${err}')
 }
 println('Delete result: ${delete_result}')
+
+// Create multi vector
+multi_vector := jina_client.create_multi_vector(
+	input:          [
+		jina.MultiVectorTextDoc{
+			text:       'Hello world'
+			input_type: .document
+		},
+		jina.MultiVectorTextDoc{
+			text:       "What's up?"
+			input_type: .query
+		},
+	]
+	embedding_type: ['float']
+	// dimensions:     96
+)!
+println('Multi vector: ${multi_vector}')
