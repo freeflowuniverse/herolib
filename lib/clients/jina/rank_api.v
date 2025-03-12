@@ -1,6 +1,6 @@
 module jina
 
-import json
+// import json
 
 pub enum JinaRerankModel {
 	reranker_v2_base_multilingual // 278M

@@ -1,7 +1,7 @@
 module jina
 
 import freeflowuniverse.herolib.core.httpconnection
-import os
+// import os
 import json
 
 @[params]

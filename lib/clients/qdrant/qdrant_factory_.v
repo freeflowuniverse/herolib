@@ -2,7 +2,7 @@ module qdrant
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
+// import freeflowuniverse.herolib.ui.console
 
 __global (
 	qdrant_global  map[string]&QDrantClient
