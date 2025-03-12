@@ -9,10 +9,6 @@ fn (e &FSEntry) get_metadata() vfs.Metadata {
 	return e.metadata
 }
 
-fn (e &FSEntry) get_path() string {
-	return e.metadata.path
-}
-
 fn (e &FSEntry) is_dir() bool {
 	return e.metadata.file_type == .directory
 }

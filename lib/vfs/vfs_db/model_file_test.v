@@ -30,7 +30,6 @@ fn test_file_get_metadata() {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_file.txt'
-		path: '/test_file.txt'
 		file_type: .file
 		size: 13
 		mode: 0o644
@@ -58,39 +57,11 @@ fn test_file_get_metadata() {
 	assert retrieved_metadata.group == 'user'
 }
 
-fn test_file_get_path() {
-	// Create a file with metadata
-	metadata := vfs_mod.Metadata{
-		id: 1
-		name: 'test_file.txt'
-		path: '/test_file.txt'
-		file_type: .file
-		size: 13
-		mode: 0o644
-		owner: 'user'
-		group: 'user'
-		created_at: 0
-		modified_at: 0
-		accessed_at: 0
-	}
-	
-	file := File{
-		metadata: metadata
-		parent_id: 0
-		chunk_ids: []
-	}
-	
-	// Test get_path
-	path := file.get_path()
-	assert path == '/test_file.txt'
-}
-
 fn test_file_is_file() {
 	// Create a file with metadata
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_file.txt'
-		path: '/test_file.txt'
 		file_type: .file
 		size: 13
 		mode: 0o644
@@ -118,7 +89,6 @@ fn test_file_write_read() {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_file.txt'
-		path: '/test_file.txt'
 		file_type: .file
 		size: 13
 		mode: 0o644
@@ -153,7 +123,6 @@ fn test_file_rename() {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_file.txt'
-		path: '/test_file.txt'
 		file_type: .file
 		size: 13
 		mode: 0o644
@@ -180,7 +149,6 @@ fn test_new_file() ! {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_file.txt'
-		path: '/test_file.txt'
 		file_type: .file
 		size: 13
 		mode: 0o644
@@ -202,7 +170,6 @@ fn test_new_file() ! {
 	assert file.metadata.name == 'test_file.txt'
 	assert file.metadata.file_type == .file
 	assert file.metadata.size == 13
-	assert file.get_path() == '/test_file.txt'
 }
 
 fn test_copy_file() ! {
@@ -210,7 +177,6 @@ fn test_copy_file() ! {
 	original_metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'original.txt'
-		path: '/original.txt'
 		file_type: .file
 		size: 13
 		mode: 0o755
@@ -231,7 +197,6 @@ fn test_copy_file() ! {
 	copied_metadata := vfs_mod.Metadata{
 		id: 2 // Different ID
 		name: 'copied.txt'
-		path: '/copied.txt'
 		file_type: .file
 		size: 13
 		mode: 0o755

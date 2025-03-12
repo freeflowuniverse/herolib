@@ -11,7 +11,6 @@ fn test_directory_encoder_decoder() ! {
 	dir := Directory{
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)
-			path:          '/root'
 			name:        'root'
 			file_type:   .directory
 			created_at:  current_time
@@ -54,7 +53,6 @@ fn test_file_encoder_decoder() ! {
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
-			path:        '/test.txt'
 			file_type:   .file
 			size:        13 // Size of 'Hello, world!'
 			created_at:  current_time
@@ -96,7 +94,6 @@ fn test_symlink_encoder_decoder() ! {
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
-			path:        '/test.txt'
 			file_type:   .symlink
 			created_at:  current_time
 			modified_at: current_time

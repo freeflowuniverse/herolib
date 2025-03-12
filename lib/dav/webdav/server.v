@@ -8,11 +8,22 @@ import veb
 import log
 import strings
 
-@['/:path...'; options]
-pub fn (app &App) options(mut ctx Context, path string) veb.Result {
+@[head]
+pub fn (server &Server) index(mut ctx Context) veb.Result {
 	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
 	ctx.set_header(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	// ctx.set_header(.connection, 'close')
+	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
+	ctx.set_header(.access_control_allow_origin, '*')
+	ctx.set_header(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
+	ctx.set_header(.access_control_allow_headers, 'Authorization, Content-Type')
+	ctx.set_header(.content_length, '0')
+	return ctx.ok('')
+}
+
+@['/:path...'; options]
+pub fn (server &Server) options(mut ctx Context, path string) veb.Result {
+	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
+	ctx.set_header(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
 	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
 	ctx.set_header(.access_control_allow_origin, '*')
 	ctx.set_header(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
@@ -22,7 +33,7 @@ pub fn (app &App) options(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; lock]
-pub fn (mut app App) lock(mut ctx Context, path string) veb.Result {
+pub fn (mut server Server) lock(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
 	
 	// Parse lock information from XML body instead of headers
@@ -52,13 +63,13 @@ pub fn (mut app App) lock(mut ctx Context, path string) veb.Result {
 	}
 	
 	// Try to acquire the lock
-	lock_result := app.lock_manager.lock(new_lock) or {
+	lock_result := server.lock_manager.lock(new_lock) or {
 		// If we get here, the resource is locked by a different owner
 		ctx.res.set_status(.locked)
 		return ctx.text('Resource is already locked by a different owner.')
 	}
 
-	log.debug('[WebDAV] Received lock result ${lock_result.xml()}')
+	// log.debug('[WebDAV] Received lock result ${lock_result.xml()}')
 	ctx.res.set_status(.ok)
 	ctx.set_custom_header('Lock-Token', '${lock_result.token}') or { return ctx.server_error(err.msg()) }
 	
@@ -67,7 +78,7 @@ pub fn (mut app App) lock(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; unlock]
-pub fn (mut app App) unlock(mut ctx Context, path string) veb.Result {
+pub fn (mut server Server) unlock(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
 	token_ := ctx.get_custom_header('Lock-Token') or { return ctx.server_error(err.msg()) }
 	token := token_.trim_string_left('<').trim_string_right('>')
@@ -77,7 +88,7 @@ pub fn (mut app App) unlock(mut ctx Context, path string) veb.Result {
 		return ctx.text('Lock failed: `Owner` header missing.')
 	}
 
-	if app.lock_manager.unlock_with_token(resource, token) {
+	if server.lock_manager.unlock_with_token(resource, token) {
 		ctx.res.set_status(.no_content)
 		return ctx.text('Lock successfully released')
 	}
@@ -88,34 +99,23 @@ pub fn (mut app App) unlock(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; get]
-pub fn (mut app App) get_file(mut ctx Context, path string) veb.Result {
+pub fn (mut server Server) get_file(mut ctx Context, path string) veb.Result {
 	log.info('[WebDAV] Getting file ${path}')
-	file_data := app.vfs.file_read(path) or { return ctx.server_error(err.msg()) }
+	file_data := server.vfs.file_read(path) or { 
+		log.error('[WebDAV] ${err.msg()}')
+		return ctx.server_error(err.msg()) 
+	}
 	ext := path.all_after_last('.')
 	content_type := veb.mime_types['.${ext}'] or { 'text/plain' }
-	println('debugzo000 ${file_data.bytestr().len}')
-	println('debugzo001 ${file_data.len}')
 	// ctx.res.header.set(.content_length, file_data.len.str())
 	// ctx.res.set_status(.ok)
 	return ctx.send_response_to_client(content_type, file_data.bytestr())
 }
 
-@[head]
-pub fn (app &App) index(mut ctx Context) veb.Result {
-	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
-	ctx.set_header(.allow, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
-	ctx.set_header(.access_control_allow_origin, '*')
-	ctx.set_header(.access_control_allow_methods, 'OPTIONS, PROPFIND, MKCOL, GET, HEAD, POST, PUT, DELETE, COPY, MOVE')
-	ctx.set_header(.access_control_allow_headers, 'Authorization, Content-Type')
-	ctx.set_header(.content_length, '0')
-	return ctx.ok('')
-}
-
 @['/:path...'; head]
-pub fn (mut app App) exists(mut ctx Context, path string) veb.Result {
+pub fn (mut server Server) exists(mut ctx Context, path string) veb.Result {
 	// Check if the requested path exists in the virtual filesystem
-	if !app.vfs.exists(path) {
+	if !server.vfs.exists(path) {
 		return ctx.not_found()
 	}
 
@@ -144,19 +144,18 @@ pub fn (mut app App) exists(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; delete]
-pub fn (mut app App) delete(mut ctx Context, path string) veb.Result {
-	app.vfs.delete(path) or {
+pub fn (mut server Server) delete(mut ctx Context, path string) veb.Result {
+	server.vfs.delete(path) or {
 		return ctx.server_error(err.msg())
 	}
 	
-
 	// Return success response
 	return ctx.no_content()
 }
 
 @['/:path...'; copy]
-pub fn (mut app App) copy(mut ctx Context, path string) veb.Result {
-	if !app.vfs.exists(path) {
+pub fn (mut server Server) copy(mut ctx Context, path string) veb.Result {
+	if !server.vfs.exists(path) {
 		return ctx.not_found()
 	}
 
@@ -169,8 +168,10 @@ pub fn (mut app App) copy(mut ctx Context, path string) veb.Result {
 	}
 	destination_path_str := destination_url.path
 
-	app.vfs.copy(path, destination_path_str) or {
-		console.print_stderr('failed to copy: ${err}')
+	server.vfs.copy(path, destination_path_str) or {
+	log.set_level(.debug)
+		
+		println('[WebDAV] Failed to copy: ${err}')
 		return ctx.server_error(err.msg())
 	}
 
@@ -179,8 +180,8 @@ pub fn (mut app App) copy(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; move]
-pub fn (mut app App) move(mut ctx Context, path string) veb.Result {
-	if !app.vfs.exists(path) {
+pub fn (mut server Server) move(mut ctx Context, path string) veb.Result {
+	if !server.vfs.exists(path) {
 		return ctx.not_found()
 	}
 
@@ -194,8 +195,8 @@ pub fn (mut app App) move(mut ctx Context, path string) veb.Result {
 	destination_path_str := destination_url.path
 
 	log.info('[WebDAV] ${@FN} from ${path} to ${destination_path_str}')
-	app.vfs.move(path, destination_path_str) or {
-		console.print_stderr('failed to move: ${err}')
+	server.vfs.move(path, destination_path_str) or {
+		log.error('Failed to move: ${err}')
 		return ctx.server_error(err.msg())
 	}
 
@@ -204,14 +205,14 @@ pub fn (mut app App) move(mut ctx Context, path string) veb.Result {
 }
 
 @['/:path...'; mkcol]
-pub fn (mut app App) mkcol(mut ctx Context, path string) veb.Result {
-	if app.vfs.exists(path) {
+pub fn (mut server Server) mkcol(mut ctx Context, path string) veb.Result {
+	if server.vfs.exists(path) {
 		ctx.res.set_status(.bad_request)
 		return ctx.text('Another collection exists at ${path}')
 	}
 
 	log.info('[WebDAV] Make Collection ${path}')
-	app.vfs.dir_create(path) or {
+	server.vfs.dir_create(path) or {
 		console.print_stderr('failed to create directory ${path}: ${err}')
 		return ctx.server_error(err.msg())
 	}
@@ -220,51 +221,10 @@ pub fn (mut app App) mkcol(mut ctx Context, path string) veb.Result {
 	return ctx.text('HTTP 201: Created')
 }
 
-@['/:path...'; propfind]
-fn (mut app App) propfind(mut ctx Context, path string) veb.Result {	
-	// Parse PROPFIND request
-	propfind_req := parse_propfind_xml(ctx.req) or {
-		return ctx.error(WebDAVError{
-			status: .bad_request
-			message: 'Failed to parse PROPFIND XML: ${err}'
-			tag: 'propfind-parse-error'
-		})
-	}
-
-	log.debug('[WebDAV] Propfind Request: ${propfind_req.typ} ${propfind_req.depth}')
-
-	
-	// Check if resource is locked
-	if app.lock_manager.is_locked(ctx.req.url) {
-		// If the resource is locked, we should still return properties
-		// but we might need to indicate the lock status in the response
-		// This is handled in the property generation
-		log.info('[WebDAV] Resource is locked: ${ctx.req.url}')
-	}
-	
-	entry := app.vfs.get(path) or { 
-		return ctx.error(
-			status: .not_found
-			message: 'Path ${path} does not exist'
-			tag: 'resource-must-be-null'
-		)
-	}
-	
-	responses := app.get_responses(entry, propfind_req) or {
-		return ctx.server_error('Failed to get entry properties ${err}')
-	}
-
-	// log.debug('[WebDAV] Propfind responses ${responses}')
-
-	// Create multistatus response using the responses
-	ctx.res.set_status(.multi_status)
-	return ctx.send_response_to_client('application/xml', responses.xml())
-}
-
 @['/:path...'; put]
-fn (mut app App) create_or_update(mut ctx Context, path string) veb.Result {
-	if app.vfs.exists(path) {
-		if fs_entry := app.vfs.get(path) {
+fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result {
+	if server.vfs.exists(path) {
+		if fs_entry := server.vfs.get(path) {
 			if fs_entry.is_dir() {
 				console.print_stderr('Cannot PUT to a directory: ${path}')
 				ctx.res.set_status(.method_not_allowed)
@@ -274,11 +234,11 @@ fn (mut app App) create_or_update(mut ctx Context, path string) veb.Result {
 			return ctx.server_error('failed to get FS Entry ${path}: ${err.msg()}')
 		}
 	} else {
-		app.vfs.file_create(path) or { return ctx.server_error(err.msg()) }
+		server.vfs.file_create(path) or { return ctx.server_error(err.msg()) }
 	}
 	if ctx.req.data.len > 0 {
 		data := ctx.req.data.bytes()
-		app.vfs.file_write(path, data) or { return ctx.server_error(err.msg()) }
+		server.vfs.file_write(path, data) or { return ctx.server_error(err.msg()) }
 		return ctx.ok('HTTP 200: Successfully wrote file: ${path}')
 	}
 	return ctx.ok('HTTP 200: Successfully created file: ${path}')

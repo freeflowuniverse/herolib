@@ -3,7 +3,7 @@ module webdav
 import time
 import rand
 
-struct LockManager {
+struct Locker {
 mut:
 	locks map[string]Lock
 }
@@ -18,7 +18,7 @@ pub:
 // lock attempts to lock a resource for a specific owner
 // Returns a LockResult with the lock token and whether it's a new lock
 // Returns an error if the resource is already locked by a different owner
-pub fn (mut lm LockManager) lock(l Lock) !Lock {
+pub fn (mut lm Locker) lock(l Lock) !Lock {
 	if l.resource in lm.locks {
 		// Check if the lock is still valid
 		existing_lock := lm.locks[l.resource]
@@ -54,7 +54,7 @@ pub fn (mut lm LockManager) lock(l Lock) !Lock {
 	return new_lock
 }
 
-pub fn (mut lm LockManager) unlock(resource string) bool {
+pub fn (mut lm Locker) unlock(resource string) bool {
 	if resource in lm.locks {
 		lm.locks.delete(resource)
 		return true
@@ -63,7 +63,7 @@ pub fn (mut lm LockManager) unlock(resource string) bool {
 }
 
 // is_locked checks if a resource is currently locked
-pub fn (lm LockManager) is_locked(resource string) bool {
+pub fn (lm Locker) is_locked(resource string) bool {
 	if resource in lm.locks {
 		lock_ := lm.locks[resource]
 		// Check if lock is expired
@@ -76,7 +76,7 @@ pub fn (lm LockManager) is_locked(resource string) bool {
 }
 
 // get_lock returns the Lock object for a resource if it exists and is valid
-pub fn (lm LockManager) get_lock(resource string) ?Lock {
+pub fn (lm Locker) get_lock(resource string) ?Lock {
 	if resource in lm.locks {
 		lock_ := lm.locks[resource]
 		// Check if lock is expired
@@ -88,7 +88,7 @@ pub fn (lm LockManager) get_lock(resource string) ?Lock {
 	return none
 }
 
-pub fn (mut lm LockManager) unlock_with_token(resource string, token string) bool {
+pub fn (mut lm Locker) unlock_with_token(resource string, token string) bool {
 	if resource in lm.locks {
 		lock_ := lm.locks[resource]
 		if lock_.token == token {
@@ -99,7 +99,7 @@ pub fn (mut lm LockManager) unlock_with_token(resource string, token string) boo
 	return false
 }
 
-fn (mut lm LockManager) lock_recursive(l Lock) !Lock {
+fn (mut lm Locker) lock_recursive(l Lock) !Lock {
 	if l.depth == 0 {
 		return lm.lock(l)
 	}
@@ -108,7 +108,7 @@ fn (mut lm LockManager) lock_recursive(l Lock) !Lock {
 	return lm.lock(l)
 }
 
-pub fn (mut lm LockManager) cleanup_expired_locks() {
+pub fn (mut lm Locker) cleanup_expired_locks() {
 	// now := time.now().unix()
 	// lm.locks
 	// lm.locks = lm.locks.filter(it.value.created_at.unix() + it.value.timeout > now)

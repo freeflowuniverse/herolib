@@ -14,10 +14,6 @@ fn (d &Directory) get_metadata() vfs.Metadata {
 	return d.metadata
 }
 
-fn (d &Directory) get_path() string {
-	return d.metadata.path
-}
-
 // is_dir returns true if the entry is a directory
 pub fn (d &Directory) is_dir() bool {
 	return d.metadata.file_type == .directory

@@ -120,7 +120,6 @@ pub fn decode_symlink(data []u8) !Symlink {
 fn decode_metadata(mut d encoder.Decoder) !vfs.Metadata {
 	id := d.get_u32()!
 	name := d.get_string()!
-	path := d.get_string()!
 	file_type_byte := d.get_u8()!
 	size := d.get_u64()!
 	created_at := d.get_i64()!
@@ -133,7 +132,6 @@ fn decode_metadata(mut d encoder.Decoder) !vfs.Metadata {
 	return vfs.Metadata{
 		id:          id
 		name:        name
-		path:        path
 		file_type:   unsafe { vfs.FileType(file_type_byte) }
 		size:        size
 		created_at:  created_at

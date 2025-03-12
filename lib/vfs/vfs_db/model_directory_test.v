@@ -7,7 +7,6 @@ fn test_directory_get_metadata() {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_dir'
-		path: '/test_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
@@ -35,39 +34,11 @@ fn test_directory_get_metadata() {
 	assert retrieved_metadata.group == 'user'
 }
 
-fn test_directory_get_path() {
-	// Create a directory with metadata
-	metadata := vfs_mod.Metadata{
-		id: 1
-		name: 'test_dir'
-		path: '/test_dir'
-		file_type: .directory
-		size: 0
-		mode: 0o755
-		owner: 'user'
-		group: 'user'
-		created_at: 0
-		modified_at: 0
-		accessed_at: 0
-	}
-	
-	dir := Directory{
-		metadata: metadata
-		children: []
-		parent_id: 0
-	}
-	
-	// Test get_path
-	path := dir.get_path()
-	assert path == '/test_dir'
-}
-
 fn test_directory_is_dir() {
 	// Create a directory with metadata
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_dir'
-		path: '/test_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
@@ -95,7 +66,6 @@ fn test_directory_with_children() {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'parent_dir'
-		path: '/parent_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
@@ -124,7 +94,6 @@ fn test_directory_with_parent() {
 	metadata := vfs_mod.Metadata{
 		id: 2
 		name: 'child_dir'
-		path: '/parent_dir/child_dir'
 		file_type: .directory
 		size: 0
 		mode: 0o755
