@@ -177,7 +177,7 @@ pub:
 // 	return "{\\\"type\\\":\\\"${data.type_}\\\",\\\"name\\\":\\\"${data.name}\\\",\\\"projectName\\\":\\\"${data.project_name}\\\"}"
 // }
 
-pub fn (mut d Deployment) json_encode() string {
+pub fn (mut d DeploymentData) json_encode() string {
     return json.encode(d)
 }
 
