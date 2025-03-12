@@ -2,7 +2,6 @@ module jina
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
 
 __global (
 	jina_global  map[string]&Jina

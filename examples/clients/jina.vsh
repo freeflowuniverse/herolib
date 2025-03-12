@@ -3,6 +3,8 @@
 import freeflowuniverse.herolib.clients.jina
 
 mut jina_client := jina.get()!
+health := jina_client.health()!
+println('Server health: ${health}')
 
 // Create embeddings
 embeddings := jina_client.create_embeddings(

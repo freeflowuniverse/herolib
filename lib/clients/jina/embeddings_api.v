@@ -210,3 +210,31 @@ pub fn (mut j Jina) create_embeddings(params CreateEmbeddingParams) !ModelEmbedd
 	response := httpclient.post_json_str(req)!
 	return json.decode(ModelEmbeddingOutput, response)!
 }
+
+pub struct HealthResponse {
+pub mut:
+	status  string
+	message string
+	healthy bool
+}
+
+pub fn (mut j Jina) health() !HealthResponse {
+	req := httpconnection.Request{
+		method: .get
+	}
+
+	mut httpclient := j.httpclient()!
+	response := httpclient.send(req)!
+	if response.code == 200 {
+		return HealthResponse{
+			status:  response.code.str()
+			message: '200 Service available'
+			healthy: true
+		}
+	}
+	return HealthResponse{
+		status:  response.code.str()
+		message: '${response.code} Service Unavailable'
+		healthy: false
+	}
+}
