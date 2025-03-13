@@ -1,7 +1,7 @@
 module specification
 
 import freeflowuniverse.herolib.web.openapi { Components, Info, OpenAPI, Operation, Parameter, PathItem, ServerSpec }
-import freeflowuniverse.herolib.core.codemodel { Function, Param, Struct }
+import freeflowuniverse.herolib.core.code { Function, Param, Struct }
 import freeflowuniverse.herolib.data.jsonschema { SchemaRef }
 
 // Helper function: Convert OpenAPI parameter to codemodel Param

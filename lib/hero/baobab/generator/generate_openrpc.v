@@ -1,7 +1,7 @@
 module generator
 
 import json
-import freeflowuniverse.herolib.core.codemodel { File, Function, Struct, VFile }
+import freeflowuniverse.herolib.core.code { File, Function, Struct, VFile }
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.hero.baobab.specification

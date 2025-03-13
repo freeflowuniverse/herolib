@@ -1,0 +1,7 @@
+Module {
+    name: '@{mod.name}'
+    description: '@{mod.description}'
+    version: '@{mod.version}'
+    vcs: '@{mod.vcs}'
+    license: '@{mod.license}'
+}

@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { CustomCode, File, Folder, IFile, Module, VFile }
+import freeflowuniverse.herolib.core.code { CustomCode, File, Folder, IFile, Module, VFile }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.data.markdownparser
@@ -56,7 +56,7 @@ pub fn generate_actor_module(spec ActorSpecification) !Module {
 
 	// create module with code files and docs folder
 	name_fixed := texttools.name_fix_snake(spec.name)
-	return codemodel.new_module(
+	return code.new_module(
 		name:    '${name_fixed}_actor'
 		files:   files
 		folders: [docs_folder]

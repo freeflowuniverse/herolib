@@ -1,0 +1,26 @@
+@{comments}
+@if struct_.attrs.len > 0
+[
+@for attr in struct_.attrs 
+    @{attr.name}
+@end
+]
+@end
+@{prefix}struct @{name} {
+@for embed in struct_.embeds
+    @{embed.get_type_symbol()}
+@end
+@{priv_fields.join_lines()}
+@if pub_fields.len > 0
+pub:
+@{pub_fields.join_lines()}
+@end
+@if mut_fields.len > 0
+mut:
+@{mut_fields.join_lines()}
+@end
+@if pub_mut_fields.len > 0
+pub mut: 
+@{pub_mut_fields.join_lines()}
+@end
+}

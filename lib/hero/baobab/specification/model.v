@@ -1,6 +1,6 @@
 module specification
 
-import freeflowuniverse.herolib.core.codemodel { Function, Struct }
+import freeflowuniverse.herolib.core.code { Function, Struct }
 
 pub struct ActorSpecification {
 pub mut:

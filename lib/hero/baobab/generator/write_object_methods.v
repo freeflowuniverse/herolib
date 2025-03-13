@@ -1,7 +1,7 @@
 module generator
 
 import freeflowuniverse.herolib.hero.baobab.specification { BaseObject }
-import freeflowuniverse.herolib.core.codemodel { CodeItem, Function, Import, Param, Result, Struct, StructField, Type, VFile }
+import freeflowuniverse.herolib.core.code { CodeItem, Function, Import, Param, Result, Struct, StructField, Type, VFile }
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.core.texttools
 import os
@@ -14,7 +14,7 @@ const id_param = Param{
 }
 
 pub fn generate_object_code(actor Struct, object BaseObject) VFile {
-	obj_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	obj_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	mut items := []CodeItem{}
@@ -23,7 +23,7 @@ pub fn generate_object_code(actor Struct, object BaseObject) VFile {
 		generate_list_result_struct(actor, object), generate_list_method(actor, object)]
 
 	items << generate_object_methods(actor, object)
-	mut file := codemodel.new_file(
+	mut file := code.new_file(
 		mod:     texttools.name_fix(actor.name)
 		name:    obj_name
 		imports: [
@@ -51,7 +51,7 @@ pub fn generate_object_code(actor Struct, object BaseObject) VFile {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_get_method(actor Struct, object BaseObject) Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	get_method := Function{
@@ -78,7 +78,7 @@ fn generate_get_method(actor Struct, object BaseObject) Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_set_method(actor Struct, object BaseObject) Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	param_getters := generate_param_getters(
@@ -115,7 +115,7 @@ fn generate_set_method(actor Struct, object BaseObject) Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_delete_method(actor Struct, object BaseObject) Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	body := 'actor.backend.delete[${object_type}](id)!'
@@ -140,7 +140,7 @@ fn generate_delete_method(actor Struct, object BaseObject) Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_new_method(actor Struct, object BaseObject) Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	param_getters := generate_param_getters(
@@ -180,7 +180,7 @@ fn generate_new_method(actor Struct, object BaseObject) Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_list_result_struct(actor Struct, object BaseObject) Struct {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 	return Struct{
 		name:   '${object_type}List'
@@ -198,7 +198,7 @@ fn generate_list_result_struct(actor Struct, object BaseObject) Struct {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_list_method(actor Struct, object BaseObject) Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	list_struct := Struct{
@@ -242,7 +242,7 @@ fn generate_list_method(actor Struct, object BaseObject) Function {
 }
 
 fn generate_filter_params(actor Struct, object BaseObject) []Struct {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	return [
@@ -272,7 +272,7 @@ fn generate_filter_params(actor Struct, object BaseObject) []Struct {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_filter_method(actor Struct, object BaseObject) Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	param_getters := generate_param_getters(
@@ -312,7 +312,7 @@ fn generate_filter_method(actor Struct, object BaseObject) Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_object_methods(actor Struct, object BaseObject) []Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	mut funcs := []Function{}

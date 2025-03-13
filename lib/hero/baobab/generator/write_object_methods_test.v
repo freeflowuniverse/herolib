@@ -1,12 +1,12 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel
+import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.core.codeparser
 import os
 import freeflowuniverse.herolib.ui.console
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
-// pub fn (generator ActorGenerator) generate_object_methods(structure codemodel.Struct) []codemodel.Function {
+// pub fn (generator ActorGenerator) generate_object_methods(structure code.Struct) []code.Function {
 // 	return [
 // 		generator.generate_get_method(structure),
 // 		// generator.generate_set_method(structure),
@@ -18,19 +18,19 @@ import freeflowuniverse.herolib.ui.console
 // generate_object_methods generates CRUD actor methods for a provided structure
 pub fn test_generate_get_method() {
 	generator := ActorGenerator{'test'}
-	actor_struct := codemodel.Struct{
+	actor_struct := code.Struct{
 		name:   'TestActor'
 		fields: [
-			codemodel.StructField{
+			code.StructField{
 				name: 'test_struct_map'
-				typ:  codemodel.Type{
+				typ:  code.Type{
 					symbol: 'map[string]&TestStruct'
 				}
 			},
 		]
 	}
 
-	test_struct := codemodel.Struct{
+	test_struct := code.Struct{
 		name: 'TestStruct'
 	}
 	field := get_child_field(
@@ -47,27 +47,27 @@ pub fn test_generate_get_method() {
 }
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
-// pub fn (generator ActorGenerator) generate_set_method(structure codemodel.Struct) codemodel.Function {
+// pub fn (generator ActorGenerator) generate_set_method(structure code.Struct) code.Function {
 // 	params_getter := "id := params.get('id')!"
 // 	field := generator.get_object_field(structure)
 // 	object_getter := 'object := actor.${field.name}[id]'
 // 	body := '${params_getter}\n${object_getter}\nreturn object'
-// 	get_method := codemodel.Function{
+// 	get_method := code.Function{
 // 		name: 'get_${generator.model_name}'
 // 		description: 'gets the ${structure.name} with the given object id'
-// 		receiver: codemodel.Param{
+// 		receiver: code.Param{
 // 			name: 'actor'
 // 			struct_: generator.actor_struct
 // 		}
 // 		params: [
-// 			codemodel.Param{
+// 			code.Param{
 // 				name: 'id'
-// 				typ: codemodel.Type{
+// 				typ: code.Type{
 // 					symbol: 'string'
 // 				}
 // 			},
 // 		]
-// 		result: codemodel.Result{
+// 		result: code.Result{
 // 			structure: structure
 // 		}
 // 		body: body
@@ -76,27 +76,27 @@ pub fn test_generate_get_method() {
 // }
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
-// pub fn (generator ActorGenerator) generate_get_method(structure codemodel.Struct) codemodel.Function {
+// pub fn (generator ActorGenerator) generate_get_method(structure code.Struct) code.Function {
 // 	params_getter := "id := params.get('id')!"
 // 	field := generator.get_object_field(structure)
 // 	object_getter := 'object := actor.${field.name}[id]'
 // 	body := '${params_getter}\n${object_getter}\nreturn object'
-// 	get_method := codemodel.Function{
+// 	get_method := code.Function{
 // 		name: 'get_${generator.model_name}'
 // 		description: 'gets the ${structure.name} with the given object id'
-// 		receiver: codemodel.Param{
+// 		receiver: code.Param{
 // 			name: 'actor'
 // 			struct_: generator.actor_struct
 // 		}
 // 		params: [
-// 			codemodel.Param{
+// 			code.Param{
 // 				name: 'id'
-// 				typ: codemodel.Type{
+// 				typ: code.Type{
 // 					symbol: 'string'
 // 				}
 // 			},
 // 		]
-// 		result: codemodel.Result{
+// 		result: code.Result{
 // 			structure: structure
 // 		}
 // 		body: body
@@ -105,27 +105,27 @@ pub fn test_generate_get_method() {
 // }
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
-// pub fn (generator ActorGenerator) generate_delete_method(structure codemodel.Struct) codemodel.Function {
+// pub fn (generator ActorGenerator) generate_delete_method(structure code.Struct) code.Function {
 // 	params_getter := "id := params.get('id')!"
 // 	field := generator.get_object_field(structure)
 // 	object_getter := 'object := actor.${field.name}[id]'
 // 	body := '${params_getter}\n${object_getter}\nreturn object'
-// 	get_method := codemodel.Function{
+// 	get_method := code.Function{
 // 		name: 'get_${generator.model_name}'
 // 		description: 'gets the ${structure.name} with the given object id'
-// 		receiver: codemodel.Param{
+// 		receiver: code.Param{
 // 			name: 'actor'
 // 			struct_: generator.actor_struct
 // 		}
 // 		params: [
-// 			codemodel.Param{
+// 			code.Param{
 // 				name: 'id'
-// 				typ: codemodel.Type{
+// 				typ: code.Type{
 // 					symbol: 'string'
 // 				}
 // 			},
 // 		]
-// 		result: codemodel.Result{
+// 		result: code.Result{
 // 			structure: structure
 // 		}
 // 		body: body
@@ -133,7 +133,7 @@ pub fn test_generate_get_method() {
 // 	return get_method
 // }
 
-// pub fn (generator ActorGenerator) get_object_field(structure codemodel.Struct) codemodel.StructField {
+// pub fn (generator ActorGenerator) get_object_field(structure code.Struct) code.StructField {
 // 	fields := generator.actor_struct.fields.filter(it.typ.symbol == 'map[string]&${structure.name}')
 // 	if fields.len != 1 {
 // 		panic('this should never happen')
