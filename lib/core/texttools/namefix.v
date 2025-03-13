@@ -84,38 +84,6 @@ pub fn name_fix_no_underscore(name string) string {
 	return x
 }
 
-pub fn name_fix_snake_to_pascal(name string) string {
-	x := name.replace('_', ' ')
-	p := x.title().replace(' ', '')
-	return p
-}
-
-pub fn name_fix_dot_notation_to_pascal(name string) string {
-	x := name.replace('.', ' ')
-	p := x.title().replace(' ', '')
-	return p
-}
-
-pub fn name_fix_pascal(name string) string {
-	name_ := name_fix_snake_to_pascal(name)
-	return name_fix_dot_notation_to_pascal(name_)
-}
-
-pub fn name_fix_pascal_to_snake(name string) string {
-	mut fixed := ''
-	for i, c in name {
-		if c.is_capital() && i != 0 {
-			fixed += '_'
-		}
-		fixed += c.ascii_str()
-	}
-	return fixed.to_lower()
-}
-
-pub fn name_fix_dot_notation_to_snake_case(name string) string {
-	return name.replace('.', '_')
-}
-
 // remove underscores and extension
 pub fn name_fix_no_underscore_no_ext(name_ string) string {
 	return name_fix_keepext(name_).all_before_last('.').replace('_', '')

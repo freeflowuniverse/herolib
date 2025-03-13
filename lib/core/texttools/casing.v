@@ -1,4 +1,4 @@
-module texttools
+module texttools 
 
 pub fn snake_case(s string) string {
 	return separate_words(s).join('_')
@@ -22,7 +22,7 @@ const separators = ['.', '_', '-', '/', ' ', ':', ',', ';']
 fn separate_words(s string) []string {
 	mut words := []string{}
 	mut word := ''
-	for i, c in s {
+	for _, c in s {
 		if (c.is_capital() || c.ascii_str() in separators) && word != '' {
 			words << word.to_lower()
 			word = ''

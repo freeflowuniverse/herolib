@@ -41,7 +41,7 @@ The TextTools module provides a comprehensive set of utilities for text manipula
 - `name_fix_keepspace(name string) !string` - Like name_fix but preserves spaces
 - `name_fix_no_ext(name_ string) string` - Removes file extension
 - `name_fix_snake_to_pascal(name string) string` - Converts snake_case to PascalCase
-- `name_fix_pascal_to_snake(name string) string` - Converts PascalCase to snake_case
+- `snake_case(name string) string` - Converts PascalCase to snake_case
 - `name_split(name string) !(string, string)` - Splits name into site and page components
 
 ### Text Splitting
@@ -103,7 +103,7 @@ text := texttools.dedent("    line1\n    line2")
 ### Name Processing
 ```v
 // Convert to snake case
-name := texttools.name_fix_pascal_to_snake("HelloWorld")
+name := texttools.snake_case("HelloWorld")
 // Result: "hello_world"
 
 // Convert to pascal case
