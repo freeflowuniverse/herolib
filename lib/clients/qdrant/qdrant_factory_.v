@@ -1,12 +1,12 @@
-module jina
+module qdrant
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 // import freeflowuniverse.herolib.ui.console
 
 __global (
-	jina_global  map[string]&Jina
-	jina_default string
+	qdrant_global  map[string]&QDrantClient
+	qdrant_default string
 )
 
 /////////FACTORY
@@ -25,55 +25,55 @@ fn args_get(args_ ArgsGet) ArgsGet {
 	return args
 }
 
-pub fn get(args_ ArgsGet) !&Jina {
+pub fn get(args_ ArgsGet) !&QDrantClient {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := Jina{}
-	if args.name !in jina_global {
+	mut obj := QDrantClient{}
+	if args.name !in qdrant_global {
 		if !exists(args)! {
 			set(obj)!
 		} else {
-			heroscript := context.hero_config_get('jina', args.name)!
+			heroscript := context.hero_config_get('qdrant', args.name)!
 			mut obj_ := heroscript_loads(heroscript)!
 			set_in_mem(obj_)!
 		}
 	}
-	return jina_global[args.name] or {
-		println(jina_global)
+	return qdrant_global[args.name] or {
+		println(qdrant_global)
 		// bug if we get here because should be in globals
-		panic('could not get config for jina with name, is bug:${args.name}')
+		panic('could not get config for qdrant with name, is bug:${args.name}')
 	}
 }
 
 // register the config for the future
-pub fn set(o Jina) ! {
+pub fn set(o QDrantClient) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('jina', o.name, heroscript)!
+	context.hero_config_set('qdrant', o.name, heroscript)!
 }
 
 // does the config exists?
 pub fn exists(args_ ArgsGet) !bool {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	return context.hero_config_exists('jina', args.name)
+	return context.hero_config_exists('qdrant', args.name)
 }
 
 pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_delete('jina', args.name)!
-	if args.name in jina_global {
-		// del jina_global[args.name]
+	context.hero_config_delete('qdrant', args.name)!
+	if args.name in qdrant_global {
+		// del qdrant_global[args.name]
 	}
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o Jina) ! {
+fn set_in_mem(o QDrantClient) ! {
 	mut o2 := obj_init(o)!
-	jina_global[o.name] = &o2
-	jina_default = o.name
+	qdrant_global[o.name] = &o2
+	qdrant_default = o.name
 }
 
 @[params]
@@ -89,7 +89,7 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
-	mut install_actions := plbook.find(filter: 'jina.configure')!
+	mut install_actions := plbook.find(filter: 'qdrant.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
@@ -99,9 +99,9 @@ pub fn play(args_ PlayArgs) ! {
 	}
 }
 
-// switch instance to be used for jina
+// switch instance to be used for qdrant
 pub fn switch(name string) {
-	jina_default = name
+	qdrant_default = name
 }
 
 // helpers

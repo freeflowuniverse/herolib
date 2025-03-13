@@ -246,7 +246,7 @@ pub fn load_config(cfg_dir string) !Config {
 	// Load and parse navbar config
 	navbar_content := os.read_file(os.join_path(cfg_dir, 'navbar.json'))!
 	navbar := json.decode(Navbar, navbar_content) or {
-		eprintln('navbar.json in ${cfg_dir} is not in the right format please fix.\nError: ${err}')
+		eprintln('navbar.json in ${cfg_dir} is not in the right format please fix.\nError: $err')
 		exit(99)
 	}
 
