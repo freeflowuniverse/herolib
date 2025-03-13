@@ -11,12 +11,10 @@ fn setup_vfs() !(&DatabaseVFS, string) {
 
 	mut db_data := ourdb.new(
 		path:             os.join_path(test_data_dir, 'data')
-		incremental_mode: false
 	)!
 	
 	mut db_metadata := ourdb.new(
 		path:             os.join_path(test_data_dir, 'metadata')
-		incremental_mode: false
 	)!
 
 	mut vfs := new(mut db_data, mut db_metadata)!

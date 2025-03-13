@@ -12,12 +12,10 @@ fn setup_fs() !(&DatabaseVFS, string) {
 	// Create separate databases for data and metadata
 	mut db_data := ourdb.new(
 		path: os.join_path(test_data_dir, 'data')
-		incremental_mode: false
 	)!
 	
 	mut db_metadata := ourdb.new(
 		path: os.join_path(test_data_dir, 'metadata')
-		incremental_mode: false
 	)!
 
 	// Create VFS with separate databases for data and metadata
@@ -38,7 +36,6 @@ fn test_directory_print_empty() ! {
 	// Create an empty directory
 	mut dir := fs.new_directory(
 		name: 'test_dir'
-		path: '/test_dir'
 	)!
 	
 	// Test printing the empty directory
@@ -57,7 +54,6 @@ fn test_directory_print_with_contents() ! {
 	// Create a directory with various contents
 	mut dir := fs.new_directory(
 		name: 'test_dir'
-		path: '/test_dir'
 	)!
 	
 	// Add a subdirectory
@@ -71,7 +67,6 @@ fn test_directory_print_with_contents() ! {
 		metadata: vfs_mod.Metadata{
 			id: fs.get_next_id()
 			name: 'test_link'
-			path: '/test_dir/test_link'
 			file_type: .symlink
 			size: 0
 			mode: 0o777
@@ -105,7 +100,6 @@ fn test_directory_printall_simple() ! {
 	// Create a simple directory structure
 	mut dir := fs.new_directory(
 		name: 'root_dir'
-		path: '/root_dir'
 	)!
 	
 	// Add a file
@@ -128,7 +122,6 @@ fn test_directory_printall_nested() ! {
 	// Create a nested directory structure
 	mut root := fs.new_directory(
 		name: 'root'
-		path: '/root'
 	)!
 	
 	// Add a subdirectory
@@ -151,7 +144,6 @@ fn test_directory_printall_nested() ! {
 		metadata: vfs_mod.Metadata{
 			id: fs.get_next_id()
 			name: 'test_link'
-			path: '/root/subdir1/subdir2/test_link'
 			file_type: .symlink
 			size: 0
 			mode: 0o777
@@ -188,7 +180,6 @@ fn test_directory_printall_empty() ! {
 	// Create an empty directory
 	mut dir := fs.new_directory(
 		name: 'empty_dir'
-		path: '/empty_dir'
 	)!
 	
 	// Test printing the empty directory recursively

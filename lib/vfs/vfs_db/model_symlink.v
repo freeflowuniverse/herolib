@@ -26,10 +26,6 @@ fn (s &Symlink) get_metadata() vfs.Metadata {
 	return s.metadata
 }
 
-fn (s &Symlink) get_path() string {
-	return s.metadata.path
-}
-
 // is_dir returns true if the entry is a directory
 pub fn (self &Symlink) is_dir() bool {
 	return self.metadata.file_type == .directory

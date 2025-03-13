@@ -12,12 +12,10 @@ fn setup_vfs() !(&DatabaseVFS, string) {
 	// Create separate databases for data and metadata
 	mut db_data := ourdb.new(
 		path: os.join_path(test_data_dir, 'data')
-		incremental_mode: false
 	)!
 	
 	mut db_metadata := ourdb.new(
 		path: os.join_path(test_data_dir, 'metadata')
-		incremental_mode: false
 	)!
 
 	// Create VFS with separate databases for data and metadata

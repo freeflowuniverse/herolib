@@ -2,6 +2,7 @@ module vfs_db
 
 import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.core.texttools
+import arrays
 import log
 import os
 import time
@@ -16,30 +17,27 @@ pub fn (mut self DatabaseVFS) file_create(path_ string) !vfs.FSEntry {
 	// Get parent directory
 	parent_path := os.dir(path)
 	file_name := os.base(path)
-
-	mut parent_dir := self.get_directory(parent_path)!
-	log.info('[DatabaseVFS] Creating file ${file_name} in ${parent_path}')
+	log.info('[DatabaseVFS] Creating file ${file_name} in ${parent_path} for ${path_}')
+	mut parent_dir := self.get_directory(parent_path) or { 
+		return error('Failed to get parent directory ${parent_path}: ${err}')
+	 }
 	entry := self.directory_touch(mut parent_dir, file_name)!
 	log.info('[DatabaseVFS] Created file ${file_name} in ${parent_path}')
 	return entry
 }
 
 pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
-	path := '/${path_.trim_left('/').trim_right('/')}'
+	path := texttools.path_fix(path_)
 	log.info('[DatabaseVFS] Reading file ${path}')
 	mut file := self.get_entry(path)!
+	log.info('[DatabaseVFS] Got file ${path}')
 	if mut file is File {
-		metadata := self.db_metadata.get(self.get_database_id(file.metadata.id)!) or {
-		return error('Failed to get file metadata ${err}')
-	}
-	mut decoded_file := decode_file_metadata(metadata) or { return error('Failed to decode file: ${err}') }
-	println('debugzo-1 ${decoded_file.chunk_ids}')
-	mut file_data := []u8{}
-	// log.debug('[DatabaseVFS] Got database chunk ids ${chunk_ids}')
-	for id in decoded_file.chunk_ids {
-		log.debug('[DatabaseVFS] Getting chunk ${id}')
-		// there were chunk ids stored with file so file has data
-		if chunk_bytes := self.db_data.get(id) {
+		mut file_data := []u8{}
+		// log.debug('[DatabaseVFS] Got database chunk ids ${chunk_ids}')
+		for id in file.chunk_ids {
+			log.debug('[DatabaseVFS] Getting chunk ${id}')
+			// there were chunk ids stored with file so file has data
+			if chunk_bytes := self.db_data.get(id) {
 			file_data << chunk_bytes
 		} else {
 			return error('Failed to fetch file data: ${err}')
@@ -51,17 +49,76 @@ pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
 }
 
 pub fn (mut self DatabaseVFS) file_write(path_ string, data []u8) ! {
-	path := os.abs_path(path_)
-	
+	path := texttools.path_fix(path_)
 	if mut entry := self.get_entry(path) {
 		if mut entry is File {
 			log.info('[DatabaseVFS] Writing ${data.len} bytes to ${path}')
-			self.save_file(entry, data)!
+			self.save_file(entry, data) or {
+				return error('Failed to save file: ${err}')
+			}
 		} else {
 			panic('handle error')
 		}
-	} else {	
-		self.file_create(path)!
+	} else {
+		self.file_create(path) or { 
+			return error('Failed to create file: ${err}')
+		}
+		self.file_write(path, data)!
+	}
+}
+
+pub fn (mut self DatabaseVFS) file_concatenate(path_ string, data []u8) ! {
+	path := texttools.path_fix(path_)
+	if data.len == 0 {
+		return // Nothing to append
+	}
+	
+	if mut entry := self.get_entry(path) {
+		if mut entry is File {
+			log.info('[DatabaseVFS] Appending ${data.len} bytes to ${path}')
+			
+			// Split new data into chunks of 64 KB
+			chunks := arrays.chunk(data, (64 * 1024) - 1)
+			mut chunk_ids := entry.chunk_ids.clone() // Start with existing chunk IDs
+			
+			// Add new chunks
+			for chunk in chunks {
+				chunk_id := self.db_data.set(data: chunk) or {
+					return error('Failed to save file data chunk: ${err}')
+				}
+				chunk_ids << chunk_id
+				log.debug('[DatabaseVFS] Added chunk ${chunk_id} to ${path}')
+			}
+			
+			// Update the file with new chunk IDs and updated size
+			updated_file := File{
+				metadata: vfs.Metadata{
+					...entry.metadata
+					size: entry.metadata.size + u64(data.len)
+					modified_at: time.now().unix()
+				}
+				chunk_ids: chunk_ids
+				parent_id: entry.parent_id
+			}
+			
+			// Encode the file with all its metadata
+			metadata_bytes := updated_file.encode()
+			
+			// Save the metadata_bytes to metadata_db
+			metadata_db_id := self.db_metadata.set(data: metadata_bytes) or {
+				return error('Failed to save file metadata on id:${entry.metadata.id}: ${err}')
+			}
+			
+			self.id_table[entry.metadata.id] = metadata_db_id
+		} else {
+			return error('Not a file: ${path}')
+		}
+	} else {
+		// If file doesn't exist, create it first
+		self.file_create(path) or { 
+			return error('Failed to create file: ${err}')
+		}
+		// Then write data to it
 		self.file_write(path, data)!
 	}
 }
@@ -123,7 +180,6 @@ pub fn (mut self DatabaseVFS) link_create(target_path string, link_path string) 
 		metadata:  vfs.Metadata{
 			id:          self.get_next_id()
 			name:        link_name
-			path:        link_path
 			file_type:   .symlink
 			created_at:  time.now().unix()
 			modified_at: time.now().unix()
@@ -168,12 +224,13 @@ pub fn (mut self DatabaseVFS) link_delete(path string) ! {
 		return true
 	}
 	// self.print() or {panic(err)}
-	log.info('[DatabaseVFS] Checking path exists ${path}')
+	log.debug('[DatabaseVFS] Checking path exists ${path}')
 	self.get_entry(path) or { return false }
 	return true
 }
 
-pub fn (mut fs DatabaseVFS) get(path string) !vfs.FSEntry {
+pub fn (mut fs DatabaseVFS) get(path_ string) !vfs.FSEntry {
+	path := texttools.path_fix(path_)
 	log.info('[DatabaseVFS] Getting filesystem entry ${path}')
 	return fs.get_entry(path)!
 }
@@ -188,7 +245,9 @@ pub fn (mut self DatabaseVFS) rename(old_path string, new_path string) !vfs.FSEn
 	return self.directory_rename(src_parent_dir, src_name, dst_name)!
 }
 
-pub fn (mut self DatabaseVFS) copy(src_path string, dst_path string) !vfs.FSEntry {
+pub fn (mut self DatabaseVFS) copy(src_path_ string, dst_path_ string) !vfs.FSEntry {
+	src_path := texttools.path_fix_absolute(src_path_)
+	dst_path := texttools.path_fix_absolute(dst_path_)
 	log.info('[DatabaseVFS] Copying ${src_path} to ${dst_path}')
 	src_parent_path := os.dir(src_path)
 	dst_parent_path := os.dir(dst_path)
@@ -220,13 +279,13 @@ pub fn (mut self DatabaseVFS) copy(src_path string, dst_path string) !vfs.FSEntr
 
 // copy_file creates a copy of a file
 pub fn (mut self DatabaseVFS) copy_file(file File) !&File {
-	log.info('[DatabaseVFS] Copying file ${file.metadata.path}')
+	log.info('[DatabaseVFS] Copying file ${file.metadata.name}')
 	
 	// Save the file with its metadata and data
-	file_id := self.save_file(file, [])!
+	self.save_file(file, [])!
 	
 	// Load the file from the database
-	mut entry := self.load_entry(file_id)!
+	mut entry := self.load_entry(file.metadata.id)!
 	if mut entry is File {
 		return &entry
 	}
@@ -234,10 +293,9 @@ pub fn (mut self DatabaseVFS) copy_file(file File) !&File {
 }
 
 pub fn (mut self DatabaseVFS) move(src_path string, dst_path string) !vfs.FSEntry {
-	log.info('[DatabaseVFS] Moving ${src_path} to ${dst_path}')
-	
-	src_parent_path := os.dir(src_path)
-	dst_parent_path := os.dir(dst_path)
+	log.info('[DatabaseVFS] Moving ${texttools.path_fix(src_path)} to ${texttools.path_fix(dst_path)}')
+	src_parent_path := os.dir(texttools.path_fix_absolute(src_path))
+	dst_parent_path := os.dir(texttools.path_fix_absolute(dst_path))
 
 	if !self.exists(src_parent_path) {
 		return error('${src_parent_path} does not exist')
@@ -275,7 +333,7 @@ pub fn (mut self DatabaseVFS) delete(path_ string) ! {
 	mut parent_dir := self.get_directory(parent_path)!
 
 	self.directory_rm(mut parent_dir, file_name) or {
-		log.error('[DatabaseVFS] Failed to remove ${file_name} from ${parent_dir.metadata.path}\n${err}')
+		log.error('[DatabaseVFS] Failed to remove ${file_name} from ${parent_dir.metadata.name}\n${err}')
 		return err
 	}
 }

@@ -8,7 +8,6 @@ fn test_fsentry_directory() {
 		metadata: vfs_mod.Metadata{
 			id: 1
 			name: 'test_dir'
-			path: '/test_dir'
 			file_type: .directory
 			size: 0
 			mode: 0o755
@@ -29,7 +28,6 @@ fn test_fsentry_directory() {
 	assert entry.get_metadata().id == 1
 	assert entry.get_metadata().name == 'test_dir'
 	assert entry.get_metadata().file_type == .directory
-	assert entry.get_path() == '/test_dir'
 	assert entry.is_dir() == true
 	assert entry.is_file() == false
 	assert entry.is_symlink() == false
@@ -41,7 +39,6 @@ fn test_fsentry_file() {
 		metadata: vfs_mod.Metadata{
 			id: 2
 			name: 'test_file.txt'
-			path: '/test_file.txt'
 			file_type: .file
 			size: 13
 			mode: 0o644
@@ -62,7 +59,6 @@ fn test_fsentry_file() {
 	assert entry.get_metadata().id == 2
 	assert entry.get_metadata().name == 'test_file.txt'
 	assert entry.get_metadata().file_type == .file
-	assert entry.get_path() == '/test_file.txt'
 	assert entry.is_dir() == false
 	assert entry.is_file() == true
 	assert entry.is_symlink() == false
@@ -74,7 +70,6 @@ fn test_fsentry_symlink() {
 		metadata: vfs_mod.Metadata{
 			id: 3
 			name: 'test_link'
-			path: '/test_link'
 			file_type: .symlink
 			size: 0
 			mode: 0o777
@@ -95,7 +90,6 @@ fn test_fsentry_symlink() {
 	assert entry.get_metadata().id == 3
 	assert entry.get_metadata().name == 'test_link'
 	assert entry.get_metadata().file_type == .symlink
-	assert entry.get_path() == '/test_link'
 	assert entry.is_dir() == false
 	assert entry.is_file() == false
 	assert entry.is_symlink() == true
@@ -107,7 +101,6 @@ fn test_fsentry_match() {
 		metadata: vfs_mod.Metadata{
 			id: 1
 			name: 'test_dir'
-			path: '/test_dir'
 			file_type: .directory
 			size: 0
 			mode: 0o755
@@ -125,7 +118,6 @@ fn test_fsentry_match() {
 		metadata: vfs_mod.Metadata{
 			id: 2
 			name: 'test_file.txt'
-			path: '/test_file.txt'
 			file_type: .file
 			size: 13
 			mode: 0o644
@@ -143,7 +135,6 @@ fn test_fsentry_match() {
 		metadata: vfs_mod.Metadata{
 			id: 3
 			name: 'test_link'
-			path: '/test_link'
 			file_type: .symlink
 			size: 0
 			mode: 0o777

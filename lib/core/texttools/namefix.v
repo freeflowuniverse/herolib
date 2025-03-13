@@ -116,10 +116,19 @@ pub fn name_fix_dot_notation_to_snake_case(name string) string {
 	return name.replace('.', '_')
 }
 
-// remove underscores and extension
-pub fn name_fix_no_underscore_no_ext(name_ string) string {
-	return name_fix_keepext(name_).all_before_last('.').replace('_', '')
+// normalize a file path while preserving path structure
+pub fn path_fix(path_ string) string {
+	if path_.len == 0 {
+		return ''
+	}
+	return "${path_.trim('/')}"
 }
+
+// normalize a file path while preserving path structure
+pub fn path_fix_absolute(path string) string {
+	return "/${path_fix(path)}"
+}
+
 
 // remove underscores and extension
 pub fn name_fix_no_ext(name_ string) string {

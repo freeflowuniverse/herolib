@@ -7,7 +7,6 @@ fn test_symlink_get_metadata() {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
-		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
@@ -35,39 +34,11 @@ fn test_symlink_get_metadata() {
 	assert retrieved_metadata.group == 'user'
 }
 
-fn test_symlink_get_path() {
-	// Create a symlink with metadata
-	metadata := vfs_mod.Metadata{
-		id: 1
-		name: 'test_link'
-		path: '/test_link'
-		file_type: .symlink
-		size: 0
-		mode: 0o777
-		owner: 'user'
-		group: 'user'
-		created_at: 0
-		modified_at: 0
-		accessed_at: 0
-	}
-	
-	symlink := Symlink{
-		metadata: metadata
-		target: '/path/to/target'
-		parent_id: 0
-	}
-	
-	// Test get_path
-	path := symlink.get_path()
-	assert path == '/test_link'
-}
-
 fn test_symlink_is_symlink() {
 	// Create a symlink with metadata
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
-		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
@@ -95,7 +66,6 @@ fn test_symlink_update_target() ! {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
-		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
@@ -122,7 +92,6 @@ fn test_symlink_get_target() ! {
 	metadata := vfs_mod.Metadata{
 		id: 1
 		name: 'test_link'
-		path: '/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777
@@ -149,7 +118,6 @@ fn test_symlink_with_parent() {
 	metadata := vfs_mod.Metadata{
 		id: 2
 		name: 'test_link'
-		path: '/parent_dir/test_link'
 		file_type: .symlink
 		size: 0
 		mode: 0o777

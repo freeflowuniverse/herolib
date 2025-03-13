@@ -12,6 +12,7 @@ mut:
 	file_create(path string) !FSEntry
 	file_read(path string) ![]u8
 	file_write(path string, data []u8) !
+	file_concatenate(path string, data []u8) !
 	file_delete(path string) !
 
 	// Directory operations
@@ -32,6 +33,11 @@ mut:
 	move(src_path string, dst_path string) !FSEntry
 	delete(path string) !
 
+	// FSEntry Operations
+	get_path(entry &FSEntry) !string
+	
+	print() !
+
 	// Cleanup operation
 	destroy() !
 }
@@ -39,7 +45,7 @@ mut:
 // FSEntry represents a filesystem entry (file, directory, or symlink)
 pub interface FSEntry {
 	get_metadata() Metadata
-	get_path() string
+	// get_path() string
 	is_dir() bool
 	is_file() bool
 	is_symlink() bool

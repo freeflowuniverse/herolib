@@ -12,12 +12,10 @@ fn setup_fs() !(&DatabaseVFS, string) {
 	// Create separate databases for data and metadata
 	mut db_data := ourdb.new(
 		path: os.join_path(test_data_dir, 'data')
-		incremental_mode: false
 	)!
 	
 	mut db_metadata := ourdb.new(
 		path: os.join_path(test_data_dir, 'metadata')
-		incremental_mode: false
 	)!
 
 	// Create VFS with separate databases for data and metadata
@@ -38,7 +36,6 @@ fn test_new_directory() ! {
 	// Test creating a new directory
 	mut dir := fs.new_directory(
 		name: 'test_dir'
-		path: '/test_dir'
 	)!
 	
 	// Verify the directory
@@ -60,7 +57,6 @@ fn test_new_directory_with_custom_permissions() ! {
 	// Test creating a directory with custom permissions
 	mut dir := fs.new_directory(
 		name: 'custom_dir'
-		path: '/custom_dir'
 		mode: 0o700
 		owner: 'admin'
 		group: 'staff'
@@ -86,7 +82,6 @@ fn test_copy_directory() ! {
 		metadata: vfs_mod.Metadata{
 			id: 1
 			name: 'original_dir'
-			path: '/original_dir'
 			file_type: .directory
 			size: 0
 			mode: 0o755
@@ -123,7 +118,6 @@ fn test_directory_mkdir() ! {
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
-		path: '/parent_dir'
 	)!
 	
 	// Test creating a subdirectory
@@ -155,7 +149,6 @@ fn test_directory_touch() ! {
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
-		path: '/parent_dir'
 	)!
 	
 	// Test creating a file
@@ -196,7 +189,6 @@ fn test_directory_rm() ! {
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
-		path: '/parent_dir'
 	)!
 	
 	// Create a file to remove
@@ -244,7 +236,6 @@ fn test_directory_rename() ! {
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
-		path: '/parent_dir'
 	)!
 	
 	// Create a subdirectory to rename
@@ -273,7 +264,6 @@ fn test_directory_children() ! {
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
-		path: '/parent_dir'
 	)!
 
 	// Initially, the directory should be empty
@@ -317,8 +307,8 @@ fn test_directory_move() ! {
 	}
 	
 	// Create source and destination parent directories
-	mut src_parent := fs.new_directory(name: 'src_parent', path: '/src_parent')!
-	mut dst_parent := fs.new_directory(name: 'dst_parent', path: '/dst_parent')!
+	mut src_parent := fs.new_directory(name: 'src_parent')!
+	mut dst_parent := fs.new_directory(name: 'dst_parent')!
 	
 	// Create a directory to move with nested structure
 	mut dir_to_move := fs.directory_mkdir(mut src_parent, 'dir_to_move')!
@@ -400,8 +390,8 @@ fn test_directory_copy() ! {
 	}
 	
 	// Create source and destination parent directories
-	mut src_parent := fs.new_directory(name: 'src_parent', path: '/src_parent')!
-	mut dst_parent := fs.new_directory(name: 'dst_parent', path: '/dst_parent')!
+	mut src_parent := fs.new_directory(name: 'src_parent')!
+	mut dst_parent := fs.new_directory(name: 'dst_parent')!
 	
 	// Create a directory to copy with nested structure
 	mut dir_to_copy := fs.directory_mkdir(mut src_parent, 'dir_to_copy')!
@@ -493,7 +483,6 @@ fn test_directory_add_symlink() ! {
 	// Create a parent directory
 	mut parent_dir := fs.new_directory(
 		name: 'parent_dir'
-		path: '/parent_dir'
 	)!
 	
 	// Create a symlink
@@ -501,7 +490,6 @@ fn test_directory_add_symlink() ! {
 		metadata: vfs_mod.Metadata{
 			id: fs.get_next_id()
 			name: 'test_link'
-			path: '/parent_dir/test_link'
 			file_type: .symlink
 			size: 0
 			mode: 0o777

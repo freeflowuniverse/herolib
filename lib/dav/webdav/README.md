@@ -149,3 +149,106 @@ You can configure the WebDAV server using the following parameters when calling 
 - Support for advanced WebDAV methods like `LOCK` and `UNLOCK`.
 - Integration with persistent databases for user credentials.
 - TLS/SSL support for secure connections.
+
+
+# WebDAV Property Model
+
+This file implements the WebDAV property model as defined in [RFC 4918](https://tools.ietf.org/html/rfc4918). It provides a set of property types that represent various WebDAV properties used in PROPFIND and PROPPATCH operations.
+
+## Overview
+
+The `model_property.v` file defines:
+
+1. A `Property` interface that all WebDAV properties must implement
+2. Various property type implementations for standard WebDAV properties
+3. Helper functions for XML serialization and time formatting
+
+## Property Interface
+
+```v
+pub interface Property {
+	xml() string
+	xml_name() string
+}
+```
+
+All WebDAV properties must implement:
+- `xml()`: Returns the full XML representation of the property with its value
+- `xml_name()`: Returns just the XML tag name of the property (used in property requests)
+
+## Property Types
+
+The file implements the following WebDAV property types:
+
+| Property Type | Description |
+|---------------|-------------|
+| `DisplayName` | The display name of a resource |
+| `GetLastModified` | Last modification time of a resource |
+| `GetContentType` | MIME type of a resource |
+| `GetContentLength` | Size of a resource in bytes |
+| `ResourceType` | Indicates if a resource is a collection (directory) or not |
+| `CreationDate` | Creation date of a resource |
+| `SupportedLock` | Lock capabilities supported by the server |
+| `LockDiscovery` | Active locks on a resource |
+
+## Helper Functions
+
+- `fn (p []Property) xml() string`: Generates XML for a list of properties
+- `fn format_iso8601(t time.Time) string`: Formats a time in ISO8601 format for WebDAV
+
+## Usage
+
+These property types are used when responding to WebDAV PROPFIND requests to describe resources in the WebDAV server.
+
+
+# WebDAV Locker
+
+This file implements a locking mechanism for resources in a WebDAV context. It provides functionality to manage locks on resources, ensuring that they are not modified by multiple clients simultaneously.
+
+## Overview
+
+The `locker.v` file defines:
+
+1. A `Locker` structure that manages locks for resources.
+2. A `LockResult` structure that represents the result of a lock operation.
+3. Methods for locking and unlocking resources, checking lock status, and managing locks.
+
+## Locker Structure
+
+```v
+struct Locker {
+mut:
+	locks map[string]Lock
+}
+```
+
+- `locks`: A mutable map that stores locks keyed by resource name.
+
+## LockResult Structure
+
+```v
+pub struct LockResult {
+pub:
+	token       string // The lock token
+	is_new_lock bool   // Whether this is a new lock or an existing one
+}
+```
+
+- `token`: The unique identifier for the lock.
+- `is_new_lock`: Indicates if this is a new lock or an existing one.
+
+## Locking and Unlocking
+
+- `pub fn (mut lm Locker) lock(l Lock) !Lock`: Attempts to lock a resource for a specific owner. Returns a `LockResult` with the lock token and whether it's a new lock.
+- `pub fn (mut lm Locker) unlock(resource string) bool`: Unlocks a resource by removing its lock.
+- `pub fn (lm Locker) is_locked(resource string) bool`: Checks if a resource is currently locked.
+- `pub fn (lm Locker) get_lock(resource string) ?Lock`: Returns the lock object for a resource if it exists and is valid.
+- `pub fn (mut lm Locker) unlock_with_token(resource string, token string) bool`: Unlocks a resource if the correct token is provided.
+
+## Recursive Locking
+
+- `pub fn (mut lm Locker) lock_recursive(l Lock) !Lock`: Locks a resource recursively, allowing for child resources to be locked (implementation for child resources is not complete).
+
+## Cleanup
+
+- `pub fn (mut lm Locker) cleanup_expired_locks()`: Cleans up expired locks (implementation is currently commented out).

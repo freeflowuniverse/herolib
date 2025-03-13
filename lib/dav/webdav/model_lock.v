@@ -3,7 +3,7 @@ module webdav
 import encoding.xml
 import time
 
-pub struct Lock {
+struct Lock {
 pub mut:
 	resource   string
 	owner      string
