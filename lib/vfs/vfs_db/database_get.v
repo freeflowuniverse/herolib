@@ -164,9 +164,9 @@ pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 			id:          fs.get_next_id()
 			file_type:   .directory
 			name:        ''
-			created_at:  time.now().unix()
-			modified_at: time.now().unix()
-			accessed_at: time.now().unix()
+			created_at:  time.utc().unix()
+			modified_at: time.utc().unix()
+			accessed_at: time.utc().unix()
 			mode:        0o755  // default directory permissions
 			owner:       'user' // TODO: get from system
 			group:       'user' // TODO: get from system

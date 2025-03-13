@@ -60,7 +60,7 @@ pub fn parse_propfind_xml(req http.Request) !PropfindRequest {
 		return error('Invalid PROPFIND request: root element must be propfind')
 	}
 
-	mut typ := PropfindType.invalid
+	mut typ := PropfindType.allprop
 	mut props := []string{}
 	
 	// Check for allprop, propname, or prop elements
@@ -120,23 +120,58 @@ pub fn parse_depth(depth_str string) Depth {
 }
 
 // Response represents a WebDAV response for a resource
-pub struct Response {
+pub struct PropfindResponse {
 pub:
 	href           string
 	found_props    	[]Property
 	not_found_props []Property
 }
 
-fn (r Response) xml() string {
-	return '<D:response>\n<D:href>${r.href}</D:href>
-	<D:propstat><D:prop>${r.found_props.map(it.xml()).join_lines()}</D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat>
-	</D:response>'
+fn (r PropfindResponse) xml() xml.XMLNodeContents {
+	return xml.XMLNode{
+		name: 'D:response'
+		children: [
+			xml.XMLNode{
+				name: 'D:href'
+				children: [xml.XMLNodeContents(r.href)]
+			},
+			xml.XMLNode{
+				name: 'D:propstat'
+				children: [
+					xml.XMLNode{
+						name: 'D:prop'
+						children: r.found_props.map(it.xml())
+					},
+					xml.XMLNode{
+						name: 'D:status'
+						children: [xml.XMLNodeContents('HTTP/1.1 200 OK')]
+					}
+				]
+			}
+		]
+	}
 }
 
 // generate_propfind_response generates a PROPFIND response XML string from Response structs
-pub fn (r []Response) xml () string {
-	return '<?xml version="1.0" encoding="UTF-8"?>\n<D:multistatus xmlns:D="DAV:">
-	${r.map(it.xml()).join_lines()}\n</D:multistatus>'
+pub fn (r []PropfindResponse) xml() string {
+	// Create multistatus root node
+	multistatus_node := xml.XMLNode{
+		name: 'D:multistatus'
+		attributes: {
+			'xmlns:D': 'DAV:'
+		}
+		children: r.map(it.xml())
+	}
+	
+	// Create a new XML document with the root node
+	doc := xml.XMLDocument{
+		version: '1.0'
+		root: multistatus_node
+	}
+	
+	// Generate XML string
+	doc.validate() or {panic('this should never happen ${err}')}
+	return format_xml(doc.str())
 }
 
 fn get_file_content_type(path string) string {
@@ -148,4 +183,55 @@ fn get_file_content_type(path string) string {
 	}
 
 	return content_type
+}
+
+// parse_xml takes an XML string and returns a cleaned version with whitespace removed between tags
+pub fn format_xml(xml_str string) string {
+	mut result := ''
+	mut i := 0
+	mut in_tag := false
+	mut content_start := 0
+	
+	// Process the string character by character
+	for i < xml_str.len {
+		ch := xml_str[i]
+		
+		// Start of a tag
+		if ch == `<` {
+			// If we were collecting content between tags, process it
+			if !in_tag && i > content_start {
+				// Get the content between tags and trim whitespace
+				content := xml_str[content_start..i].trim_space()
+				result += content
+			}
+			
+			in_tag = true
+			result += '<'
+		}
+		// End of a tag
+		else if ch == `>` {
+			in_tag = false
+			result += '>'
+			content_start = i + 1
+		}
+		// Inside a tag - preserve all characters including whitespace
+		else if in_tag {
+			result += ch.ascii_str()
+		}
+		// Outside a tag - only add non-whitespace or handle whitespace in content
+		else if !in_tag {
+			// We'll collect and process this content when we reach the next tag
+			// or at the end of the string
+		}
+		
+		i++
+	}
+	
+	// Handle any remaining content at the end of the string
+	if !in_tag && content_start < xml_str.len {
+		content := xml_str[content_start..].trim_space()
+		result += content
+	}
+	
+	return result
 }

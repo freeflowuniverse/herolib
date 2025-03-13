@@ -31,8 +31,8 @@ pub fn new_server(args ServerArgs) !&Server {
 	}
 
 	// register middlewares for all routes
-	server.use(handler: server.auth_middleware)
 	server.use(handler: middleware_log_request)
+	server.use(handler: server.auth_middleware)
 	server.use(handler: middleware_log_response, after: true)
 	return server
 }

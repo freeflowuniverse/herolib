@@ -2,6 +2,7 @@ module vfs_db
 
 import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.core.texttools
+import arrays
 import log
 import os
 import time
@@ -49,7 +50,6 @@ pub fn (mut self DatabaseVFS) file_read(path_ string) ![]u8 {
 
 pub fn (mut self DatabaseVFS) file_write(path_ string, data []u8) ! {
 	path := texttools.path_fix(path_)
-	
 	if mut entry := self.get_entry(path) {
 		if mut entry is File {
 			log.info('[DatabaseVFS] Writing ${data.len} bytes to ${path}')
@@ -59,10 +59,66 @@ pub fn (mut self DatabaseVFS) file_write(path_ string, data []u8) ! {
 		} else {
 			panic('handle error')
 		}
-	} else {	
+	} else {
 		self.file_create(path) or { 
 			return error('Failed to create file: ${err}')
 		}
+		self.file_write(path, data)!
+	}
+}
+
+pub fn (mut self DatabaseVFS) file_concatenate(path_ string, data []u8) ! {
+	path := texttools.path_fix(path_)
+	if data.len == 0 {
+		return // Nothing to append
+	}
+	
+	if mut entry := self.get_entry(path) {
+		if mut entry is File {
+			log.info('[DatabaseVFS] Appending ${data.len} bytes to ${path}')
+			
+			// Split new data into chunks of 64 KB
+			chunks := arrays.chunk(data, (64 * 1024) - 1)
+			mut chunk_ids := entry.chunk_ids.clone() // Start with existing chunk IDs
+			
+			// Add new chunks
+			for chunk in chunks {
+				chunk_id := self.db_data.set(data: chunk) or {
+					return error('Failed to save file data chunk: ${err}')
+				}
+				chunk_ids << chunk_id
+				log.debug('[DatabaseVFS] Added chunk ${chunk_id} to ${path}')
+			}
+			
+			// Update the file with new chunk IDs and updated size
+			updated_file := File{
+				metadata: vfs.Metadata{
+					...entry.metadata
+					size: entry.metadata.size + u64(data.len)
+					modified_at: time.now().unix()
+				}
+				chunk_ids: chunk_ids
+				parent_id: entry.parent_id
+			}
+			
+			// Encode the file with all its metadata
+			metadata_bytes := updated_file.encode()
+			
+			// Save the metadata_bytes to metadata_db
+			metadata_db_id := self.db_metadata.set(data: metadata_bytes) or {
+				return error('Failed to save file metadata on id:${entry.metadata.id}: ${err}')
+			}
+			
+			self.id_table[entry.metadata.id] = metadata_db_id
+		} else {
+			return error('Not a file: ${path}')
+		}
+	} else {
+		// If file doesn't exist, create it first
+		self.file_create(path) or { 
+			return error('Failed to create file: ${err}')
+		}
+		// Then write data to it
 		self.file_write(path, data)!
 	}
 }

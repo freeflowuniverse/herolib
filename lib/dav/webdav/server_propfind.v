@@ -7,6 +7,7 @@ import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.vfs.vfs_db
 import os
 import time
+import freeflowuniverse.herolib.core.texttools
 import net.http
 import veb
 
@@ -21,7 +22,7 @@ fn (mut server Server) propfind(mut ctx Context, path string) veb.Result {
 		})
 	}
 
-	log.debug('[WebDAV] Propfind Request: ${propfind_req.typ} ${propfind_req.depth}')
+	log.debug('[WebDAV] Propfind Request: ${propfind_req.typ}')
 	
 	// Check if resource is locked
 	if server.lock_manager.is_locked(ctx.req.url) {
@@ -38,29 +39,64 @@ fn (mut server Server) propfind(mut ctx Context, path string) veb.Result {
 			tag: 'resource-must-be-null'
 		)
 	}
-	
+
 	responses := server.get_responses(entry, propfind_req, path) or {
 		return ctx.server_error('Failed to get entry properties ${err}')
 	}
 
-	// log.debug('[WebDAV] Propfind responses ${responses}')
+
+	// Add WsgiDAV-like headers
+	ctx.set_header(.content_type, 'application/xml; charset=utf-8')
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Server', 'WsgiDAV-compatible WebDAV Server') or { return ctx.server_error(err.msg()) }
 
 	// Create multistatus response using the responses
 	ctx.res.set_status(.multi_status)
 	return ctx.send_response_to_client('application/xml', responses.xml())
 }
 
-// get_responses returns all properties for the given path and depth
-fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, path string) ![]Response {
-	mut responses := []Response{}
-	
-	// path := server.vfs.get_path(entry)!
+// returns the properties of a filesystem entry
+fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Property {
+	return match name {
+		'creationdate' { Property(CreationDate(format_iso8601(entry.get_metadata().created_time()))) }
+		'getetag' { Property(GetETag(entry.get_metadata().id.str())) }
+		'resourcetype' { Property(ResourceType(entry.is_dir())) }
+		'getlastmodified' { Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time()))) }
+		'getcontentlength' { Property(GetContentLength(entry.get_metadata().size.str())) }
+		'quota-available-bytes' { Property(QuotaAvailableBytes(16184098816)) }
+		'quota-used-bytes' { Property(QuotaUsedBytes(16184098816)) }
+		'quotaused' { Property(QuotaUsed(16184098816)) }
+		'quota' { Property(Quota(16184098816)) }
+		else { panic('implement ${name}')}
+	}
+}
 
-	// main entry response
-	responses << Response {
-		href: path
-		// not_found: entry.get_unfound_properties(req)
-		found_props: server.get_properties(entry)
+// get_responses returns all properties for the given path and depth
+fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, path string) ![]PropfindResponse {
+	mut responses := []PropfindResponse{}
+	
+	if req.typ == .prop {
+		mut properties := []Property{}
+		mut erronous_properties := map[int][]Property{} // properties that have errors indexed by error code
+		for name in req.props {
+			if property := server.get_entry_property(entry, name.trim_string_left('D:')) {
+				properties << property
+			} else {
+				// TODO: implement error reporting
+			}
+		}
+		// main entry response
+		responses << PropfindResponse {
+			href: if entry.is_dir() {'${path.trim_string_right("/")}/'} else {path}
+			// not_found: entry.get_unfound_properties(req)
+			found_props: properties
+		}
+	} else {
+		responses << PropfindResponse {
+			href: if entry.is_dir() {'${path.trim_string_right("/")}/'} else {path}
+			// not_found: entry.get_unfound_properties(req)
+			found_props: server.get_properties(entry)
+		}
 	}
 	
 	if !entry.is_dir() || req.depth == .zero { 
@@ -84,12 +120,19 @@ fn (mut server Server) get_properties(entry &vfs.FSEntry) []Property {
 	mut props := []Property{}
 
 	metadata := entry.get_metadata()
-
 	// Display name
 	props << DisplayName(metadata.name)
-	props << GetLastModified(format_iso8601(metadata.modified_time()))
-	props << GetContentType(if entry.is_dir() {'httpd/unix-directory'} else {get_file_content_type(entry.get_metadata().name)})
+	props << GetLastModified(texttools.format_rfc1123(metadata.modified_time()))
+
+	if entry.is_dir() {
+		props << QuotaAvailableBytes(16184098816)
+		props << QuotaUsedBytes(16184098816)
+	} else {
+		props << GetContentType(if entry.is_dir() {'httpd/unix-directory'} else {get_file_content_type(entry.get_metadata().name)})
+	}
 	props << ResourceType(entry.is_dir())
+	// props << SupportedLock('')
+	// props << LockDiscovery('')
 	
 	// Content length (only for files)
 	if !entry.is_dir() {

@@ -12,6 +12,7 @@ mut:
 	file_create(path string) !FSEntry
 	file_read(path string) ![]u8
 	file_write(path string, data []u8) !
+	file_concatenate(path string, data []u8) !
 	file_delete(path string) !
 
 	// Directory operations
@@ -34,6 +35,8 @@ mut:
 
 	// FSEntry Operations
 	get_path(entry &FSEntry) !string
+	
+	print() !
 
 	// Cleanup operation
 	destroy() !

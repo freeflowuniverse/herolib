@@ -48,7 +48,7 @@ fn test_directory_encoder_decoder() ! {
 fn test_file_encoder_decoder() ! {
 	println('Testing encoding/decoding files...')
 
-	current_time := time.now().unix()
+	current_time := time.utc().unix()
 	file := File{
 		metadata:  vfs.Metadata{
 			id:          u32(current_time)

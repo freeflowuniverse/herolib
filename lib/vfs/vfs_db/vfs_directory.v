@@ -144,7 +144,10 @@ pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
 		// delete file chunks in data_db
 		for id in file.chunk_ids {
 			log.debug('[DatabaseVFS] Deleting chunk ${id}')
-			fs.db_data.delete(id)!
+			fs.db_data.delete(id) or {
+				log.error('Failed to delete chunk ${id}: ${err}')
+				return error('Failed to delete chunk ${id}: ${err}')
+			}
 		}
 		
 		log.debug('[DatabaseVFS] Deleting file metadata ${file.metadata.id}')
@@ -288,15 +291,26 @@ pub fn (mut fs DatabaseVFS) directory_copy(mut dir Directory, args_ CopyDirArgs)
 				found = true
 				if entry is File {
 					mut file_entry := entry as File
+					
+					mut file_data := []u8{}
+					// log.debug('[DatabaseVFS] Got database chunk ids ${chunk_ids}')
+					for id in file_entry.chunk_ids {
+						// there were chunk ids stored with file so file has data
+						if chunk_bytes := fs.db_data.get(id) {
+						file_data << chunk_bytes
+					} else {
+						return error('Failed to fetch file data: ${err}')
+					}
+					}
+
 					mut new_file := File{
-						...file_entry,
 						metadata: Metadata{...file_entry.metadata, 
 							id: fs.get_next_id()
 							name: args.dst_entry_name
 						}
 						parent_id: args.dst_parent_dir.metadata.id
 					}
-					fs.save_entry(new_file)!
+					fs.save_file(new_file, file_data)!
 					args.dst_parent_dir.children << new_file.metadata.id
 					fs.save_entry(args.dst_parent_dir)!
 					return args.dst_parent_dir
