@@ -12,10 +12,10 @@ The generate.v file provides functions that can generate JSONSchema from [codemo
 
 Example: 
 ```go
-struct_ := codemodel.Struct {
+struct_ := code.Struct {
     name: "Mystruct"
     fields: [
-        codemodel.StructField {
+        code.StructField {
             name: "myfield"
             typ: "string"
         }

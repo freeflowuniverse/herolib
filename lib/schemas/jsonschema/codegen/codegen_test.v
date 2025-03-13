@@ -1,8 +1,9 @@
-module jsonschema
+module codegen
 
-import freeflowuniverse.herolib.ui.console
+import log
+import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef, Reference }
 
-fn test_encode_simple() ! {
+fn test_schema_to_structs_simple() ! {
 	struct_str := '
 // person struct used for test schema encoding
 struct TestPerson {
@@ -11,27 +12,27 @@ struct TestPerson {
 }'
 
 	schema := Schema{
-		schema:      'test'
-		title:       'TestPerson'
+		schema: 'test'
+		title: 'TestPerson'
 		description: 'person struct used for test schema encoding'
-		typ:         'object'
-		properties:  {
+		typ: 'object'
+		properties: {
 			'name': Schema{
-				typ:         'string'
+				typ: 'string'
 				description: 'name of the test person'
 			}
 			'age':  Schema{
-				typ:         'integer'
+				typ: 'integer'
 				description: 'age of the test person'
 			}
 		}
 	}
-	encoded := schema.vstructs_encode()!
+	encoded := schema_to_structs(schema)
 	assert encoded.len == 1
 	assert encoded[0].trim_space() == struct_str.trim_space()
 }
 
-fn test_encode_schema_with_reference() ! {
+fn test_schema_to_structs_with_reference() ! {
 	struct_str := '
 // person struct used for test schema encoding
 struct TestPerson {
@@ -41,17 +42,17 @@ struct TestPerson {
 }'
 
 	schema := Schema{
-		schema:      'test'
-		title:       'TestPerson'
+		schema: 'test'
+		title: 'TestPerson'
 		description: 'person struct used for test schema encoding'
-		typ:         'object'
-		properties:  {
+		typ: 'object'
+		properties: {
 			'name':   Schema{
-				typ:         'string'
+				typ: 'string'
 				description: 'name of the test person'
 			}
 			'age':    Schema{
-				typ:         'integer'
+				typ: 'integer'
 				description: 'age of the test person'
 			}
 			'friend': Reference{
@@ -59,43 +60,43 @@ struct TestPerson {
 			}
 		}
 	}
-	encoded := schema.vstructs_encode()!
+	encoded := schema_to_structs(schema)
 	assert encoded.len == 1
 	assert encoded[0].trim_space() == struct_str.trim_space()
 }
 
-fn test_encode_recursive() ! {
+fn test_schema_to_structs_recursive() ! {
 	schema := Schema{
-		schema:      'test'
-		title:       'TestPerson'
+		schema: 'test'
+		title: 'TestPerson'
 		description: 'person struct used for test schema encoding'
-		typ:         'object'
-		properties:  {
+		typ: 'object'
+		properties: {
 			'name':   Schema{
-				typ:         'string'
+				typ: 'string'
 				description: 'name of the test person'
 			}
 			'age':    Schema{
-				typ:         'integer'
+				typ: 'integer'
 				description: 'age of the test person'
 			}
 			'friend': Schema{
-				title:       'TestFriend'
-				typ:         'object'
+				title: 'TestFriend'
+				typ: 'object'
 				description: 'friend of the test person'
-				properties:  {
+				properties: {
 					'name': Schema{
-						typ:         'string'
+						typ: 'string'
 						description: 'name of the test friend person'
 					}
 					'age':  Schema{
-						typ:         'integer'
+						typ: 'integer'
 						description: 'age of the test friend person'
 					}
 				}
 			}
 		}
 	}
-	encoded := schema.vstructs_encode()!
-	console.print_debug(encoded)
+	encoded := schema_to_structs(schema)
+	log.debug(encoded.str())
 }

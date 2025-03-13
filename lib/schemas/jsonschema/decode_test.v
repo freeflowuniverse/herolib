@@ -1,7 +1,5 @@
 module jsonschema
 
-import json
-import x.json2
 import os
 import freeflowuniverse.herolib.core.pathlib
 
@@ -13,34 +11,34 @@ struct Pet {
 
 fn test_decode() ! {
 	mut pet_schema_file := pathlib.get_file(
-		path: '${testdata}/pet.json'
+		path: '${jsonschema.testdata}/pet.json'
 	)!
 	pet_schema_str := pet_schema_file.read()!
 	pet_schema := decode(pet_schema_str)!
 	assert pet_schema == Schema{
-		typ:        'object'
+		typ: 'object'
 		properties: {
 			'name': Schema{
 				typ: 'string'
 			}
 		}
-		required:   ['name']
+		required: ['name']
 	}
 }
 
 fn test_decode_schemaref() ! {
 	mut pet_schema_file := pathlib.get_file(
-		path: '${testdata}/pet.json'
+		path: '${jsonschema.testdata}/pet.json'
 	)!
 	pet_schema_str := pet_schema_file.read()!
 	pet_schemaref := decode(pet_schema_str)!
 	assert pet_schemaref == Schema{
-		typ:        'object'
+		typ: 'object'
 		properties: {
 			'name': Schema{
 				typ: 'string'
 			}
 		}
-		required:   ['name']
+		required: ['name']
 	}
 }

@@ -1,21 +1,22 @@
-module jsonschema
+module codegen
 
-import freeflowuniverse.herolib.code.codemodel { Param, Result, Struct, Type }
+import freeflowuniverse.herolib.core.code { Param, Result, Struct, Type }
+import freeflowuniverse.herolib.schemas.jsonschema { SchemaRef, Schema, Reference, Number}
 
 // struct_to_schema generates a json schema or reference from a struct model
-pub fn sumtype_to_schema(sumtype codemodel.Sumtype) SchemaRef {
+pub fn sumtype_to_schema(sumtype code.Sumtype) SchemaRef {
 	mut one_of := []SchemaRef{}
 	for type_ in sumtype.types {
-		property_schema := typesymbol_to_schema(type_.symbol)
+		property_schema := typesymbol_to_schema(type_.symbol())
 		one_of << property_schema
 	}
 
 	title := sumtype.name
 
 	return SchemaRef(Schema{
-		title:       title
+		title: title
 		description: sumtype.description
-		one_of:      one_of
+		one_of: one_of
 	})
 }
 
@@ -24,7 +25,7 @@ pub fn struct_to_schema(struct_ Struct) SchemaRef {
 	mut properties := map[string]SchemaRef{}
 	for field in struct_.fields {
 		mut property_schema := SchemaRef(Schema{})
-		if field.typ.symbol.starts_with('_VAnonStruct') {
+		if field.typ.symbol().starts_with('_VAnonStruct') {
 			property_schema = struct_to_schema(field.anon_struct)
 		} else {
 			property_schema = type_to_schema(field.typ)
@@ -46,24 +47,14 @@ pub fn struct_to_schema(struct_ Struct) SchemaRef {
 	}
 
 	return SchemaRef(Schema{
-		title:       title
+		title: title
 		description: struct_.description
-		properties:  properties
+		properties: properties
 	})
 }
 
 pub fn param_to_schema(param Param) SchemaRef {
-	if param.struct_ != Struct{} {
-		return struct_to_schema(param.struct_)
-	}
-	return typesymbol_to_schema(param.typ.symbol)
-}
-
-pub fn result_to_schema(result Result) SchemaRef {
-	if result.structure != Struct{} {
-		return struct_to_schema(result.structure)
-	}
-	return typesymbol_to_schema(result.typ.symbol)
+	return typesymbol_to_schema(param.typ.symbol())
 }
 
 // typesymbol_to_schema receives a typesymbol, if the typesymbol belongs to a user defined struct
@@ -77,20 +68,20 @@ pub fn typesymbol_to_schema(symbol_ string) SchemaRef {
 	} else if symbol.starts_with('[]') {
 		mut array_type := symbol.trim_string_left('[]')
 		return SchemaRef(Schema{
-			typ:   'array'
+			typ: 'array'
 			items: typesymbol_to_schema(array_type)
 		})
 	} else if symbol.starts_with('map[string]') {
 		mut map_type := symbol.trim_string_left('map[string]')
 		return SchemaRef(Schema{
-			typ:                   'object'
+			typ: 'object'
 			additional_properties: typesymbol_to_schema(map_type)
 		})
 	} else if symbol[0].is_capital() {
 		// todo: better imported type handling
 		if symbol == 'Uint128' {
 			return SchemaRef(Schema{
-				typ:     'integer'
+				typ: 'integer'
 				minimum: Number(0)
 				// todo: implement uint128 number
 				// maximum: Number('340282366920938463463374607431768211455')
@@ -171,28 +162,28 @@ pub fn typesymbol_to_schema(symbol_ string) SchemaRef {
 }
 
 pub fn type_to_schema(typ Type) SchemaRef {
-	mut symbol := typ.symbol.trim_string_left('!').trim_string_left('?')
+	mut symbol := typ.symbol().trim_string_left('!').trim_string_left('?')
 	if symbol == '' {
 		return SchemaRef(Schema{
 			typ: 'null'
 		})
-	} else if symbol.starts_with('[]') || typ.is_array {
+	} else if symbol.starts_with('[]') {
 		mut array_type := symbol.trim_string_left('[]')
 		return SchemaRef(Schema{
-			typ:   'array'
+			typ: 'array'
 			items: typesymbol_to_schema(array_type)
 		})
 	} else if symbol.starts_with('map[string]') {
 		mut map_type := symbol.trim_string_left('map[string]')
 		return SchemaRef(Schema{
-			typ:                   'object'
+			typ: 'object'
 			additional_properties: typesymbol_to_schema(map_type)
 		})
 	} else if symbol[0].is_capital() {
 		// todo: better imported type handling
 		if symbol == 'Uint128' {
 			return SchemaRef(Schema{
-				typ:     'integer'
+				typ: 'integer'
 				minimum: Number(0)
 				// todo: implement uint128 number
 				// maximum: Number('340282366920938463463374607431768211455')
