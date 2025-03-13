@@ -23,7 +23,7 @@ pub fn from_openrpc(spec OpenRPC) !ActorSpecification {
 	// for key, schema_ref in openrpc_doc.components.schemas {
 	// 	struct_obj := schema_ref.to_code()! // Assuming schema_ref.to_code() converts schema to Struct
 	// 	// objects << BaseObject{
-	// 	// 	structure: codemodel.Struct{
+	// 	// 	structure: code.Struct{
 	// 	// 		name: struct_obj.name
 	// 	// 	}
 	// 	// }

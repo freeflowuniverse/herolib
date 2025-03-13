@@ -14,13 +14,13 @@ const actor_spec = specification.ActorSpecification{
 		specification.ActorMethod{
 			name:        'listPets'
 			description: 'List all pets'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name:   'listPets'
 				params: [
-					codemodel.Param{
+					code.Param{
 						description: 'Maximum number of pets to return'
 						name:        'limit'
-						typ:         codemodel.Type{
+						typ:         code.Type{
 							symbol: 'int'
 						}
 					},
@@ -30,21 +30,21 @@ const actor_spec = specification.ActorSpecification{
 		specification.ActorMethod{
 			name:        'createPet'
 			description: 'Create a new pet'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name: 'createPet'
 			}
 		},
 		specification.ActorMethod{
 			name:        'getPet'
 			description: 'Get a pet by ID'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name:   'getPet'
 				params: [
-					codemodel.Param{
+					code.Param{
 						required:    true
 						description: 'ID of the pet to retrieve'
 						name:        'petId'
-						typ:         codemodel.Type{
+						typ:         code.Type{
 							symbol: 'int'
 						}
 					},
@@ -54,14 +54,14 @@ const actor_spec = specification.ActorSpecification{
 		specification.ActorMethod{
 			name:        'deletePet'
 			description: 'Delete a pet by ID'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name:   'deletePet'
 				params: [
-					codemodel.Param{
+					code.Param{
 						required:    true
 						description: 'ID of the pet to delete'
 						name:        'petId'
-						typ:         codemodel.Type{
+						typ:         code.Type{
 							symbol: 'int'
 						}
 					},
@@ -71,21 +71,21 @@ const actor_spec = specification.ActorSpecification{
 		specification.ActorMethod{
 			name:        'listOrders'
 			description: 'List all orders'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name: 'listOrders'
 			}
 		},
 		specification.ActorMethod{
 			name:        'getOrder'
 			description: 'Get an order by ID'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name:   'getOrder'
 				params: [
-					codemodel.Param{
+					code.Param{
 						required:    true
 						description: 'ID of the order to retrieve'
 						name:        'orderId'
-						typ:         codemodel.Type{
+						typ:         code.Type{
 							symbol: 'int'
 						}
 					},
@@ -95,14 +95,14 @@ const actor_spec = specification.ActorSpecification{
 		specification.ActorMethod{
 			name:        'deleteOrder'
 			description: 'Delete an order by ID'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name:   'deleteOrder'
 				params: [
-					codemodel.Param{
+					code.Param{
 						required:    true
 						description: 'ID of the order to delete'
 						name:        'orderId'
-						typ:         codemodel.Type{
+						typ:         code.Type{
 							symbol: 'int'
 						}
 					},
@@ -112,39 +112,39 @@ const actor_spec = specification.ActorSpecification{
 		specification.ActorMethod{
 			name:        'createUser'
 			description: 'Create a user'
-			func:        codemodel.Function{
+			func:        code.Function{
 				name: 'createUser'
 			}
 		},
 	]
 	objects:     [
 		specification.BaseObject{
-			structure: codemodel.Struct{
+			structure: code.Struct{
 				name: 'Pet'
 			}
 		},
 		specification.BaseObject{
-			structure: codemodel.Struct{
+			structure: code.Struct{
 				name: 'NewPet'
 			}
 		},
 		specification.BaseObject{
-			structure: codemodel.Struct{
+			structure: code.Struct{
 				name: 'Pets'
 			}
 		},
 		specification.BaseObject{
-			structure: codemodel.Struct{
+			structure: code.Struct{
 				name: 'Order'
 			}
 		},
 		specification.BaseObject{
-			structure: codemodel.Struct{
+			structure: code.Struct{
 				name: 'User'
 			}
 		},
 		specification.BaseObject{
-			structure: codemodel.Struct{
+			structure: code.Struct{
 				name: 'NewUser'
 			}
 		},

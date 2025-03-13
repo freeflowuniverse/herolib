@@ -23,7 +23,7 @@ pub fn generate_object_code(actor Struct, object BaseObject) VFile {
 		generate_list_result_struct(actor, object), generate_list_method(actor, object)]
 
 	items << generate_object_methods(actor, object)
-	mut file := codemodel.new_file(
+	mut file := code.new_file(
 		mod:     texttools.name_fix(actor.name)
 		name:    obj_name
 		imports: [

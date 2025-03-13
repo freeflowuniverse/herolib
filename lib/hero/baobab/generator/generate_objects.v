@@ -10,7 +10,7 @@ module generator
 // 		generate_list_result_struct(actor, object), generate_list_method(actor, object)]
 
 // 	items << generate_object_methods(actor, object)
-// 	mut file := codemodel.new_file(
+// 	mut file := code.new_file(
 // 		mod: texttools.name_fix(actor.name)
 // 		name: obj_name
 // 		imports: [
@@ -38,7 +38,7 @@ module generator
 
 // pub fn (a Actor) generate_model_files() ![]VFile {
 // 	structs := a.objects.map(it.structure)
-// 	return a.objects.map(codemodel.new_file(
+// 	return a.objects.map(code.new_file(
 // 		mod: texttools.name_fix(a.name)
 // 		name: '${texttools.name_fix(it.structure.name)}_model'
 // 		// imports: [Import{mod:'freeflowuniverse.herolib.baobab.actor'}]

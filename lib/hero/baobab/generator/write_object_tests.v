@@ -79,7 +79,7 @@ fn generate_new_method_test(actor Struct, object BaseObject) !Function {
 	return Function{
 		name:        'test_new_${object_name}'
 		description: 'news the ${object_type} with the given object id'
-		result:      codemodel.Result{
+		result:      code.Result{
 			result: true
 		}
 		body:        body
@@ -105,7 +105,7 @@ fn generate_get_method_test(actor Struct, object BaseObject) !Function {
 	return Function{
 		name:        'test_get_${object_name}'
 		description: 'news the ${object_type} with the given object id'
-		result:      codemodel.Result{
+		result:      code.Result{
 			result: true
 		}
 		body:        body
@@ -143,7 +143,7 @@ fn generate_filter_test(actor Struct, object BaseObject) !Function {
 	return Function{
 		name:        'test_filter_${object_name}'
 		description: 'news the ${object_type} with the given object id'
-		result:      codemodel.Result{
+		result:      code.Result{
 			result: true
 		}
 		body:        body
