@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel
+import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.hero.baobab.specification
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.core.pathlib

@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { CodeItem, CustomCode, Import, VFile }
+import freeflowuniverse.herolib.core.code { CodeItem, CustomCode, Import, VFile }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.hero.baobab.specification { ActorMethod, ActorSpecification }
 

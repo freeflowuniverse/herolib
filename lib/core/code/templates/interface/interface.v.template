@@ -1,0 +1,15 @@
+// @{iface.description}
+@if iface.attrs.len > 0
+[
+@for attr in iface.attrs 
+    @{attr.name}
+@end
+]
+@end
+@{prefix} interface @{name} {
+@{fields.join_lines()}
+@if mut_fields.len > 0
+mut:
+@{mut_fields.join_lines()}
+@end
+}

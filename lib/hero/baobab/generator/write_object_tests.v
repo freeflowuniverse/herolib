@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { CustomCode, Function, Import, Struct, VFile }
+import freeflowuniverse.herolib.core.code { CustomCode, Function, Import, Struct, VFile }
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.hero.baobab.specification { BaseObject }
 import rand
@@ -25,7 +25,7 @@ pub fn generate_object_test_code(actor Struct, object BaseObject) !VFile {
 	}
 
 	actor_name := texttools.name_fix(actor.name)
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 	// TODO: support modules outside of hero
 
@@ -60,7 +60,7 @@ pub fn generate_object_test_code(actor Struct, object BaseObject) !VFile {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_new_method_test(actor Struct, object BaseObject) !Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	required_fields := object.structure.fields.filter(it.attrs.any(it.name == 'required'))
@@ -88,7 +88,7 @@ fn generate_new_method_test(actor Struct, object BaseObject) !Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_get_method_test(actor Struct, object BaseObject) !Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	required_fields := object.structure.fields.filter(it.attrs.any(it.name == 'required'))
@@ -114,7 +114,7 @@ fn generate_get_method_test(actor Struct, object BaseObject) !Function {
 
 // generate_object_methods generates CRUD actor methods for a provided structure
 fn generate_filter_test(actor Struct, object BaseObject) !Function {
-	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+	object_name := texttools.snake_case(object.structure.name)
 	object_type := object.structure.name
 
 	index_fields := object.structure.fields.filter(it.attrs.any(it.name == 'index'))

@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel { CodeItem, CustomCode, VFile }
+import freeflowuniverse.herolib.core.code { CodeItem, CustomCode, VFile }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.codeparser
 import freeflowuniverse.herolib.data.markdownparser

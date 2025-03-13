@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.codemodel
+import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.core.codeparser
 import os
 import freeflowuniverse.herolib.ui.console
