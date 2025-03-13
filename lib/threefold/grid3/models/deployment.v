@@ -129,19 +129,19 @@ pub fn (mut d Deployment) add_signature(twin u32, signature string) {
 		signature_type: 'sr25519'
 	}
 }
-pub fn (mut d Deployment) json_encode() string {
-    return json.encode(d)
-}
-
-// pub fn (mut d Deployment) json_encode() string {
-// 	mut encoded_workloads := []string{}
-// 	for mut w in d.workloads {
-// 		encoded_workloads << w.json_encode()
-// 	}
-
-// 	workloads := '[${encoded_workloads.join(',')}]'
-// 	return '{"version":${d.version},"twin_id":${d.twin_id},"contract_id":${d.contract_id},"expiration":${d.expiration},"metadata":"${d.metadata}","description":"${d.description}","workloads":${workloads},"signature_requirement":${json.encode(d.signature_requirement)}}'
+// pub fn (d Deployment) json_encode() string {
+//     return json.encode(d)
 // }
+
+pub fn (mut d Deployment) json_encode() string {
+	mut encoded_workloads := []string{}
+	for mut w in d.workloads {
+		encoded_workloads << w.json_encode()
+	}
+
+	workloads := '[${encoded_workloads.join(',')}]'
+	return '{"version":${d.version},"twin_id":${d.twin_id},"contract_id":${d.contract_id},"expiration":${d.expiration},"metadata":"${d.metadata}","description":"${d.description}","workloads":${workloads},"signature_requirement":${json.encode(d.signature_requirement)}}'
+}
 
 pub fn (dl Deployment) count_public_ips() u8 {
 	mut count := u8(0)
@@ -173,13 +173,13 @@ pub:
 	project_name string @[json: 'projectName']
 }
 
-// pub fn (data DeploymentData) json_encode() string {
-// 	return "{\\\"type\\\":\\\"${data.type_}\\\",\\\"name\\\":\\\"${data.name}\\\",\\\"projectName\\\":\\\"${data.project_name}\\\"}"
-// }
-
-pub fn (mut d Deployment) json_encode() string {
-    return json.encode(d)
+pub fn (data DeploymentData) json_encode() string {
+	return "{\\\"type\\\":\\\"${data.type_}\\\",\\\"name\\\":\\\"${data.name}\\\",\\\"projectName\\\":\\\"${data.project_name}\\\"}"
 }
+
+// pub fn (d DeploymentData) json_encode() string {
+//     return json.encode(d)
+// }
 
 pub fn (mut dl Deployment) add_metadata(type_ string, project_name string) {
 	mut data := DeploymentData{
