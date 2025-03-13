@@ -68,6 +68,44 @@ vtest ~/code/github/freeflowuniverse/herolib/lib/osal
 vtest is an alias to test functionality
 
 
+## Troubleshooting
+
+### TCC Compiler Error on macOS
+
+If you encounter the following error when using TCC compiler on macOS:
+
+```
+In file included from /Users/timurgordon/code/github/vlang/v/thirdparty/cJSON/cJSON.c:42:
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/math.h:614: error: ';' expected (got "__fabsf16")
+```
+
+This is caused by incompatibility between TCC and the half precision math functions in the macOS SDK. To fix this issue:
+
+1. Open the math.h file:
+   ```bash
+   sudo nano /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/math.h
+   ```
+
+2. Comment out the following lines (around line 612-626):
+   ```c
+   /* half precision math functions */
+   // extern _Float16 __fabsf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __hypotf16(_Float16, _Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __sqrtf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __ceilf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __floorf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __rintf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __roundf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __truncf16(_Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __copysignf16(_Float16, _Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __nextafterf16(_Float16, _Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __fmaxf16(_Float16, _Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __fminf16(_Float16, _Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   // extern _Float16 __fmaf16(_Float16, _Float16, _Float16) __API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0));
+   ```
+
+3. Save the file and try compiling again.
+
 ## important to read
 
 - [aiprompts/starter/0_start_here.md](aiprompts/starter/0_start_here.md)
