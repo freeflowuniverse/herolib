@@ -1,5 +1,6 @@
 module jsonrpc
 
+import json
 import x.json2
 import rand
 
@@ -20,7 +21,7 @@ pub mut:
 	
 	// An identifier established by the client that must be included in the response
 	// This is used to correlate requests with their corresponding responses
-	id      string @[required] 
+	id      int @[required] 
 }
 
 // new_request creates a new JSON-RPC request with the specified method and parameters.
@@ -37,7 +38,7 @@ pub fn new_request(method string, params string) Request {
 		jsonrpc: jsonrpc.jsonrpc_version
 		method: method
 		params: params
-		id: rand.uuid_v4() // Automatically generate a unique ID using UUID v4
+		id: rand.i32() // Automatically generate a unique ID using UUID v4
 	}
 }
 
@@ -68,7 +69,7 @@ pub fn (req Request) encode() string {
 pub fn (req Request) validate() ! {
 	if req.jsonrpc == '' {
 		return error('request jsonrpc version not specified')
-	} else if req.id == '' {
+	} else if req.id == -1 {
 		return error('request id is empty')
 	} else if req.method == '' {
 		return error('request method is empty')
@@ -90,7 +91,7 @@ pub mut:
 	params  T      
 	
 	// An identifier established by the client
-	id      string @[required]
+	id      int @[required]
 }
 
 // new_request_generic creates a new generic JSON-RPC request with strongly-typed parameters.
@@ -107,7 +108,7 @@ pub fn new_request_generic[T](method string, params T) RequestGeneric[T] {
 		jsonrpc: jsonrpc.jsonrpc_version
 		method: method
 		params: params
-		id: rand.uuid_v4()
+		id: rand.i32()
 	}
 }
 
@@ -119,11 +120,11 @@ pub fn new_request_generic[T](method string, params T) RequestGeneric[T] {
 //
 // Returns:
 //   - The ID as a string, or an error if the ID field is missing
-pub fn decode_request_id(data string) !string {
+pub fn decode_request_id(data string) !int {
 	data_any := json2.raw_decode(data)!
 	data_map := data_any.as_map()
 	id_any := data_map['id'] or { return error('ID field not found') }
-	return id_any.str()
+	return id_any.int()
 }
 
 // decode_request_method extracts just the method field from a JSON-RPC request string.
@@ -149,7 +150,7 @@ pub fn decode_request_method(data string) !string {
 // Returns:
 //   - A RequestGeneric object with parameters of type T, or an error if parsing fails
 pub fn decode_request_generic[T](data string) !RequestGeneric[T] {
-	return json2.decode[RequestGeneric[T]](data)!
+	return json.decode(RequestGeneric[T], data)!
 }
 
 // encode serializes the RequestGeneric object into a JSON string.

@@ -73,7 +73,7 @@ pub mut:
 //
 // Returns:
 //   - A Response object containing the error
-pub fn new_error(id string, error RPCError) Response {
+pub fn new_error(id int, error RPCError) Response {
 	return Response{
 		jsonrpc: jsonrpc_version
 		error_: error

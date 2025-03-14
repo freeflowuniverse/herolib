@@ -9,7 +9,7 @@ import net.websocket
 // Handler is a JSON-RPC request handler that maps method names to their corresponding procedure handlers.
 // It can be used with a WebSocket server to handle incoming JSON-RPC requests.
 pub struct Handler {
-pub:
+pub mut:
 	// A map where keys are method names and values are the corresponding procedure handler functions
 	procedures map[string]ProcedureHandler
 }
@@ -20,7 +20,7 @@ pub:
 // 2. Execute the procedure with the extracted parameters
 // 3. Return the result as a JSON-encoded string
 // If an error occurs during any of these steps, it should be returned.
-type ProcedureHandler = fn (payload string) !string
+pub type ProcedureHandler = fn (payload string) !string
 
 // new_handler creates a new JSON-RPC handler with the specified procedure handlers.
 //
@@ -31,6 +31,15 @@ type ProcedureHandler = fn (payload string) !string
 //   - A pointer to a new Handler instance or an error if creation fails
 pub fn new_handler(handler Handler) !&Handler {
 	return &Handler{...handler}
+}
+
+// register_procedure registers a new procedure handler for the specified method.
+//
+// Parameters:
+//   - method: The name of the method to register
+//   - procedure: The procedure handler function to register
+pub fn (mut handler Handler) register_procedure(method string, procedure ProcedureHandler) {
+	handler.procedures[method] = procedure
 }
 
 // handler is a callback function compatible with the WebSocket server's message handler interface.
@@ -58,14 +67,14 @@ pub fn (handler Handler) handler(client &websocket.Client, message string) strin
 pub fn (handler Handler) handle(message string) !string {
 	// Extract the method name from the request
 	method := decode_request_method(message)!
-	log.info('Handling remote procedure call to method: ${method}')
+	// log.info('Handling remote procedure call to method: ${method}')
 	
 	// Look up the procedure handler for the requested method
 	procedure_func := handler.procedures[method] or {
-		log.error('No procedure handler for method ${method} found')
+		// log.error('No procedure handler for method ${method} found')
 		return method_not_found
 	}
-	
+
 	// Execute the procedure handler with the request payload
 	response := procedure_func(message) or { panic(err) }
 	return response
