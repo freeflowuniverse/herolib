@@ -10,7 +10,7 @@ fn test_chat_completion() {
 
 	mut client := get()!
 
-	res := client.chat_completion(.gpt_4o_2024_08_06, Messages{
+	res := client.chat_completion(.gpt_4o_2024_08_06.str(), Messages{
 		messages: [
 			Message{
 				role:    .user
