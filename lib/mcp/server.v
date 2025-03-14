@@ -14,6 +14,7 @@ pub struct Server {
 pub mut:
 	client_config ClientConfiguration
 	handler jsonrpc.Handler
+	backend Backend
 }
 
 // start starts the MCP server
@@ -41,7 +42,13 @@ pub fn (mut s Server) start() ! {
 		}
 		
 		// Send the response
-		println(response)
-		flush_stdout()
+		s.send(response)
 	}
+}
+
+// send sends a response to the client
+pub fn (mut s Server) send(response string) {
+	// Send the response
+	println(response)
+	flush_stdout()
 }
