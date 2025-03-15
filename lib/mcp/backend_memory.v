@@ -118,7 +118,7 @@ fn (b &MemoryBackend) tool_list() ![]Tool {
 	return b.tools.values()
 }
 
-fn (b &MemoryBackend) tool_call(name string, arguments map[string]string) !ToolCallResult {
+fn (b &MemoryBackend) tool_call(name string, arguments map[string]Any) !ToolCallResult {
 	// Get the tool handler
 	handler := b.tool_handlers[name] or { return error("tool handler not found") }
 	

@@ -19,3 +19,11 @@ const create_mcp_tool_tool = mcp.Tool{
 		required: ['function']
 	}
 }
+
+pub fn (d &Developer) create_mcp_tool_tool_handler(arguments map[string]string) !mcp.Tool {
+	json.decode(arguments)
+	// TODO: Implement the tool creation logic
+	return error('Not implemented')
+
+	return mcp.tool_call_result(result)
+}

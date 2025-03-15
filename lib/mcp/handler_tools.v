@@ -79,7 +79,7 @@ fn (mut s Server) tools_list_handler(data string) !string {
 pub struct ToolCallParams {
 pub:
 	name      string
-	arguments map[string]string
+	arguments map[string]Any
 }
 
 pub struct ToolCallResult {
