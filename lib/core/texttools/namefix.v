@@ -90,6 +90,14 @@ pub fn name_fix_no_underscore_no_ext(name_ string) string {
 }
 
 // normalize a file path while preserving path structure
+pub fn path_fix(path string) string {
+	if path == '' {
+		return ''
+	}
+	return path.to_lower()
+}
+
+// normalize a file path while preserving path structure
 pub fn path_fix_absolute(path string) string {
 	return "/${path_fix(path)}"
 }

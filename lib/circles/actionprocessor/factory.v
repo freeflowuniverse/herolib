@@ -19,6 +19,7 @@ pub mut:
 	agents   &core.AgentDB
 	circles  &core.CircleDB
 	names    &core.NameDB
+	mails    &core.MailDB
 	session_state 	 models.SessionState
 }
 
@@ -56,11 +57,13 @@ pub fn new(args_ CircleCoordinatorArgs) !&CircleCoordinator {
 	mut agent_db := core.new_agentdb(session_state)!
 	mut circle_db := core.new_circledb(session_state)!
 	mut name_db := core.new_namedb(session_state)!
+	mut mail_db := core.new_maildb(session_state)!
 
 	mut cm := &CircleCoordinator{
 		agents:   &agent_db
 		circles:  &circle_db
 		names:    &name_db
+		mails:    &mail_db
 		session_state: session_state
 	}
 

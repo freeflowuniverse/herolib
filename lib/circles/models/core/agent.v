@@ -12,7 +12,7 @@ pub mut:
 	port        u16    // default 9999
 	description string // optional
 	status      AgentStatus
-	services    []AgentService // these are the public services
+	services    []AgentService
 	signature   string         // signature as done by private key of $address+$port+$description+$status
 }
 
@@ -243,5 +243,19 @@ pub fn agent_loads(data []u8) !Agent {
 	self.signature = d.get_string()!
 
 	return self
+}
+
+// loads deserializes binary data into the Agent struct
+pub fn (mut self Agent) loads(data []u8) ! {
+	loaded := agent_loads(data)!
 	
+	// Copy all fields from loaded to self
+	self.id = loaded.id
+	self.pubkey = loaded.pubkey
+	self.address = loaded.address
+	self.port = loaded.port
+	self.description = loaded.description
+	self.status = loaded.status
+	self.services = loaded.services
+	self.signature = loaded.signature
 }
