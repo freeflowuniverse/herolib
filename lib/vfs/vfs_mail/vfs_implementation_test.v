@@ -2,7 +2,7 @@ module vfs_mail
 
 import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.circles.models
-import freeflowuniverse.herolib.circles.models.mail
+import freeflowuniverse.herolib.circles.models.mcc.mail
 import freeflowuniverse.herolib.circles.dbs.core
 import json
 import time

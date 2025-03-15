@@ -1,4 +1,4 @@
-module calendar
+module mcc
 
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.encoder

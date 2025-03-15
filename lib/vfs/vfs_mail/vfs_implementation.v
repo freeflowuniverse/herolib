@@ -4,7 +4,7 @@ import json
 import os
 import time
 import freeflowuniverse.herolib.vfs
-import freeflowuniverse.herolib.circles.models.mail
+import freeflowuniverse.herolib.circles.models.mcc.mail
 import freeflowuniverse.herolib.circles.dbs.core
 import freeflowuniverse.herolib.core.texttools
 

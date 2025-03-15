@@ -1,7 +1,7 @@
-module core
+module mcc
 
 import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
-import freeflowuniverse.herolib.circles.models.mail { Email, email_loads }
+import freeflowuniverse.herolib.circles.models.mcc { Email, email_loads }
 
 @[heap]
 pub struct MailDB {

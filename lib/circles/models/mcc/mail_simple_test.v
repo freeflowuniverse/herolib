@@ -1,4 +1,4 @@
-module mail
+module mcc
 
 // A simplified test file to verify basic functionality
 

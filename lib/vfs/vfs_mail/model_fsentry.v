@@ -1,7 +1,7 @@
 module vfs_mail
 
 import freeflowuniverse.herolib.vfs
-import freeflowuniverse.herolib.circles.models.mail
+import freeflowuniverse.herolib.circles.models.mcc.mail
 
 // MailFSEntry implements FSEntry for mail objects
 pub struct MailFSEntry {

@@ -1,9 +1,9 @@
-module mail
+module mcc
 
-import freeflowuniverse.herolib.data.ourtime
+// import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.encoder
-import strings
-import strconv
+// import strings
+// import strconv
 
 // Email represents an email message with all its metadata and content
 pub struct Email {

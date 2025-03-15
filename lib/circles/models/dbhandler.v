@@ -1,8 +1,7 @@
 module models
 
 import freeflowuniverse.herolib.circles.models.core { agent_loads, Agent, circle_loads, Circle, name_loads, Name }
-import freeflowuniverse.herolib.circles.models.mcc.mail { Email, email_loads }
-import freeflowuniverse.herolib.circles.models.mcc.caledar { CalendarEvent, calendar_event_loads }
+import freeflowuniverse.herolib.circles.models.mcc { Email, email_loads, CalendarEvent, calendar_event_loads }
 
 pub struct DBHandler[T] {
 pub mut:

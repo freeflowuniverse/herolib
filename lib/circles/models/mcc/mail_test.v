@@ -1,4 +1,4 @@
-module mail
+module mcc
 
 import freeflowuniverse.herolib.data.ourtime
 
