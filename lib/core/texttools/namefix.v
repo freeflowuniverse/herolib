@@ -102,6 +102,11 @@ pub fn path_fix_absolute(path string) string {
 	return "/${path_fix(path)}"
 }
 
+// normalize a file path while preserving path structure
+pub fn path_fix(path string) string {
+	return path.trim('/')
+}
+
 
 // remove underscores and extension
 pub fn name_fix_no_ext(name_ string) string {

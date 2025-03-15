@@ -49,7 +49,7 @@ pub:
 // ServerConfiguration represents the server configuration
 pub struct ServerConfiguration {
 pub:
-	protocol_version string = protocol_version @[json: 'protocolVersion']
+	protocol_version string = '2024-11-05' @[json: 'protocolVersion']
 	capabilities    ServerCapabilities
 	server_info      ServerInfo @[json: 'serverInfo']
 }
