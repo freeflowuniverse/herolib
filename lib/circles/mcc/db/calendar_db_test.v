@@ -1,6 +1,6 @@
-module mcc
+module db
 
-import freeflowuniverse.herolib.circles.models { SessionState, new_session }
+import freeflowuniverse.herolib.circles.base { SessionState, new_session }
 import freeflowuniverse.herolib.circles.mcc.models { CalendarEvent }
 import freeflowuniverse.herolib.data.ourtime
 import os

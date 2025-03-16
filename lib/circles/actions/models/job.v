@@ -19,9 +19,9 @@ pub mut:
 	timeout            u16  = 3600 // timeout in sec
 	log                bool = true
 	ignore_error       bool  // means if error will just exit and not raise, there will be no error reporting
-	ignore_error_codes []int // of we want to ignore certain error codes
+	ignore_error_codes []u16 // of we want to ignore certain error codes
 	debug              bool  // if debug will get more context
-	retry              int   // default there is no debug
+	retry              u8   // default there is no debug
 	status             JobStatus
 	dependencies       []JobDependency // will not execute until other jobs are done
 }
@@ -101,17 +101,17 @@ pub fn (j Job) dumps() ![]u8 {
 	// Encode ignore_error_codes array
 	e.add_u16(u16(j.ignore_error_codes.len))
 	for code in j.ignore_error_codes {
-		e.add_i32(code)
+		e.add_u16(code)
 	}
 	
 	e.add_bool(j.debug)
-	e.add_i32(j.retry)
+	e.add_u8(j.retry)
 	
 	// Encode JobStatus
 	e.add_string(j.status.guid)
-	e.add_i64(j.status.created.unix)
-	e.add_i64(j.status.start.unix)
-	e.add_i64(j.status.end.unix)
+	e.add_u32(u32(j.status.created.unix()))
+	e.add_u32(u32(j.status.start.unix()))
+	e.add_u32(u32(j.status.end.unix()))
 	e.add_u8(u8(j.status.status))
 	
 	// Encode dependencies array
@@ -172,20 +172,20 @@ pub fn job_loads(data []u8) !Job {
 	job.ignore_error = d.get_bool()!
 	
 	// Decode ignore_error_codes array
-	error_codes_len := d.get_u16()!
-	job.ignore_error_codes = []int{len: int(error_codes_len)}
+	error_codes_len := d.get_u8()!
+	job.ignore_error_codes = []u16{len: int(error_codes_len)}
 	for i in 0 .. error_codes_len {
-		job.ignore_error_codes[i] = d.get_i32()!
+		job.ignore_error_codes[i] = d.get_u8()!
 	}
 	
 	job.debug = d.get_bool()!
-	job.retry = d.get_i32()!
+	job.retry = d.get_u8()!
 	
 	// Decode JobStatus
 	job.status.guid = d.get_string()!
-	job.status.created.unix = d.get_i64()!
-	job.status.start.unix = d.get_i64()!
-	job.status.end.unix = d.get_i64()!
+	job.status.created.unixt = u64(d.get_u32()!)
+	job.status.start.unixt = u64(d.get_u32()!)
+	job.status.end.unixt = u64(d.get_u32()!)
 	status_val := d.get_u8()!
 	job.status.status = match status_val {
 		0 { Status.created }

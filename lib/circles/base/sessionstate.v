@@ -1,4 +1,4 @@
-module models
+module base
 
 import freeflowuniverse.herolib.data.ourdb
 import freeflowuniverse.herolib.data.radixtree

@@ -1,7 +1,7 @@
-module core
+module dbmodule core
 
 import freeflowuniverse.herolib.data.ourtime
-import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
 import freeflowuniverse.herolib.circles.core.models { Agent, AgentService, AgentServiceAction, AgentState }
 
 

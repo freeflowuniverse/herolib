@@ -1,6 +1,6 @@
-module mcc
+module db
 
-import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
 import freeflowuniverse.herolib.circles.mcc.models { Email, email_loads }
 
 @[heap]

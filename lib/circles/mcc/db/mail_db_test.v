@@ -1,4 +1,4 @@
-module mcc
+module db
 
 import os
 import rand

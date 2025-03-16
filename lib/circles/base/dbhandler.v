@@ -1,4 +1,4 @@
-module models
+module base
 
 import freeflowuniverse.herolib.circles.core.models { agent_loads, Agent, circle_loads, Circle, name_loads, Name }
 import freeflowuniverse.herolib.circles.mcc.models { Email, email_loads, CalendarEvent, calendar_event_loads }

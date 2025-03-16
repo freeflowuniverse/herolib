@@ -1,4 +1,4 @@
-module core
+module models
 
 fn test_circle_dumps_loads() {
 	// Create a test circle with some sample data

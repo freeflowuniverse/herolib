@@ -1,9 +1,9 @@
-module core
+module db
 
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.core.model
+import freeflowuniverse.herolib.circles.core {Agent, AgentService, AgentServiceAction, AgentState}
 
 fn test_agent_db() {
 	// Create a temporary directory for testing
@@ -169,7 +169,7 @@ fn test_agent_db() {
 	agents_after_all_deleted := runner.agents.getall() or {
 		// This is expected to fail with 'No agents found' error
 		assert err.msg() == 'No agents found'
-		[]core.Agent{cap: 0}
+		[]Agent{cap: 0}
 	}
 	assert agents_after_all_deleted.len == 0, 'Expected 0 agents after all deletions, got ${agents_after_all_deleted.len}'
 

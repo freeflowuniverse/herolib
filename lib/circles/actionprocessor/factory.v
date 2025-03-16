@@ -4,7 +4,7 @@ module actionprocessor
 import freeflowuniverse.herolib.circles.core.db
 import freeflowuniverse.herolib.circles.mcc.db
 import freeflowuniverse.herolib.circles.actions.db
-import freeflowuniverse.herolib.circles.models
+import freeflowuniverse.herolib.circles.base
 import freeflowuniverse.herolib.core.texttools
 
 __global (
@@ -24,7 +24,7 @@ pub mut:
 	mails    &db.MailDB
 	calendar &db.CalendarDB
 	jobs     &db.JobDB
-	session_state 	 models.SessionState
+	session_state 	 base.SessionState
 }
 
 

@@ -1,7 +1,7 @@
-module core
+module db
 
-import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
-import freeflowuniverse.herolib.circles.core.models { Circle }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.core.models { Circle, Member }
 
 @[heap]
 pub struct CircleDB {
@@ -78,7 +78,7 @@ pub fn (mut m CircleDB) get_all_circle_names() ![]string {
 }
 
 // add_member adds a member to a circle
-pub fn (mut m CircleDB) add_member(circle_name string, member core.Member) !Circle {
+pub fn (mut m CircleDB) add_member(circle_name string, member Member) !Circle {
 	// Get the circle by name
 	mut circle := m.get_by_name(circle_name)!
 	
@@ -103,7 +103,7 @@ pub fn (mut m CircleDB) remove_member(circle_name string, member_name string) !C
 	
 	// Find and remove the member
 	mut found := false
-	mut new_members := []core.Member{}
+	mut new_members := []Member{}
 	
 	for member in circle.members {
 		if member.name == member_name {
@@ -125,7 +125,7 @@ pub fn (mut m CircleDB) remove_member(circle_name string, member_name string) !C
 }
 
 // update_member_role updates the role of a member in a circle
-pub fn (mut m CircleDB) update_member_role(circle_name string, member_name string, new_role core.Role) !Circle {
+pub fn (mut m CircleDB) update_member_role(circle_name string, member_name string, new_role Role) !Circle {
 	// Get the circle by name
 	mut circle := m.get_by_name(circle_name)!
 	

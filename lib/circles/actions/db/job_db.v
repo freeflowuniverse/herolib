@@ -1,17 +1,17 @@
-module actions
+module db
 
-import freeflowuniverse.herolib.circles.base { models }
-import freeflowuniverse.herolib.circles.actions.models { Job, job_loads }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
+import freeflowuniverse.herolib.circles.actions.models { Job, job_loads, JobStatus }
 
 @[heap]
 pub struct JobDB {
 pub mut:
-	db models.DBHandler[Job]
+	db DBHandler[Job]
 }
 
-pub fn new_jobdb(session_state models.SessionState) !JobDB {
+pub fn new_jobdb(session_state SessionState) !JobDB {
 	return JobDB{
-		db: models.new_dbhandler[Job]('job', session_state)
+		db: new_dbhandler[Job]('job', session_state)
 	}
 }
 
@@ -97,12 +97,12 @@ pub fn (mut m JobDB) get_by_circle_and_context(circle string, context string) ![
 }
 
 // update_job_status updates the status of a job
-pub fn (mut m JobDB) update_job_status(guid string, new_status models.Status) !Job {
+pub fn (mut m JobDB) update_job_status(guid string, new_status JobStatus) !Job {
 	// Get the job by GUID
 	mut job := m.get_by_guid(guid)!
 	
 	// Update the job status
-	job.status.status = new_status
+	job.status = new_status
 	
 	// Save the updated job
 	return m.set(job)!

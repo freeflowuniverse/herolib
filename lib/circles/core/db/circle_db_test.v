@@ -1,9 +1,9 @@
-module core
+module db
 
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.core.models
+import freeflowuniverse.herolib.circles.core {Circle, Member}
 
 fn test_circle_db() {
 	// Create a temporary directory for testing
@@ -184,7 +184,7 @@ fn test_circle_db() {
 	circles_after_all_deleted := runner.circles.getall() or {
 		// This is expected to fail with 'No circles found' error
 		assert err.msg().contains('No index keys defined for this type') || err.msg().contains('No circles found')
-		[]core.Circle{cap: 0}
+		[]Circle{cap: 0}
 	}
 	assert circles_after_all_deleted.len == 0, 'Expected 0 circles after all deletions, got ${circles_after_all_deleted.len}'
 

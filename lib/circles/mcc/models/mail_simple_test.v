@@ -1,4 +1,4 @@
-module mcc
+module models
 
 // A simplified test file to verify basic functionality
 

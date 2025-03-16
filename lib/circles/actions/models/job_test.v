@@ -1,4 +1,4 @@
-module model
+module models
 
 import freeflowuniverse.herolib.data.ourtime
 
@@ -21,7 +21,7 @@ fn test_job_serialization() {
 		timeout: 7200
 		log: true
 		ignore_error: false
-		ignore_error_codes: [404, 500]
+		ignore_error_codes: [u16(404), u16(500)]
 		debug: true
 		retry: 3
 	}
