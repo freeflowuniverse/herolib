@@ -1,6 +1,5 @@
 module paramsparser
 
-import freeflowuniverse.herolib.data.currency
 import os
 
 const testparams = Params{

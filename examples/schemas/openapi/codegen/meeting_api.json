@@ -1,0 +1,245 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Meeting Scheduler API",
+      "version": "1.0.0",
+      "description": "An API for managing meetings, availability, and scheduling."
+    },
+    "servers": [
+      {
+        "url": "https://api.meetingscheduler.com/v1",
+        "description": "Production server"
+      },
+      {
+        "url": "https://sandbox.api.meetingscheduler.com/v1",
+        "description": "Sandbox server"
+      }
+    ],
+    "paths": {
+      "/users": {
+        "get": {
+          "summary": "List all users",
+          "responses": {
+            "200": {
+              "description": "A list of users",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{userId}": {
+        "get": {
+          "operationId": "get_user",
+          "summary": "Get user by ID",
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The ID of the user"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/events": {
+        "post": {
+          "summary": "Create an event",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Event created",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/availability": {
+        "get": {
+          "summary": "Get availability for a user",
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The ID of the user"
+            },
+            {
+              "name": "date",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "format": "date"
+              },
+              "description": "The date to check availability (YYYY-MM-DD)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Availability details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TimeSlot"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/bookings": {
+        "post": {
+          "summary": "Book a meeting",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Booking created",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Booking"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        },
+        "Event": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "startTime": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "endTime": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "userId": {
+              "type": "string"
+            }
+          }
+        },
+        "TimeSlot": {
+          "type": "object",
+          "properties": {
+            "startTime": {
+              "type": "string",
+              "format": "time"
+            },
+            "endTime": {
+              "type": "string",
+              "format": "time"
+            },
+            "available": {
+              "type": "boolean"
+            }
+          }
+        },
+        "Booking": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "userId": {
+              "type": "string"
+            },
+            "eventId": {
+              "type": "string"
+            },
+            "timeSlot": {
+              "$ref": "#/components/schemas/TimeSlot"
+            }
+          }
+        }
+      }
+    }
+  }
+  

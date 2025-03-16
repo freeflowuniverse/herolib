@@ -19,7 +19,7 @@ import os
 // Returns the ID used (either x if specified, or auto-incremented if x=0)
 @[params]
 pub struct OurDBSetArgs {
-pub mut:
+pub:
 	id   ?u32
 	data []u8 @[required]
 }
