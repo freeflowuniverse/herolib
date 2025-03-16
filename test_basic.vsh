@@ -164,7 +164,6 @@ tests := '
 lib/data
 lib/osal
 lib/lang
-lib/code
 lib/clients
 lib/core
 lib/develop
