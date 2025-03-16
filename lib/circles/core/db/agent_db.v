@@ -2,7 +2,7 @@ module core
 
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
-import freeflowuniverse.herolib.circles.models.core { Agent, AgentService, AgentServiceAction, AgentState }
+import freeflowuniverse.herolib.circles.core.models { Agent, AgentService, AgentServiceAction, AgentState }
 
 
 @[heap]

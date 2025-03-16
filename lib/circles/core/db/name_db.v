@@ -1,7 +1,7 @@
 module core
 
 import freeflowuniverse.herolib.circles.models { DBHandler, SessionState }
-import freeflowuniverse.herolib.circles.models.core { Name, Record, RecordType }
+import freeflowuniverse.herolib.circles.core.models { Name, Record, RecordType }
 
 @[heap]
 pub struct NameDB {

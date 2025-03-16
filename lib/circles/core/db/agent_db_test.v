@@ -3,7 +3,8 @@ module core
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.models.core
+import freeflowuniverse.herolib.circles.core.model
+
 fn test_agent_db() {
 	// Create a temporary directory for testing
 	test_dir := os.join_path(os.temp_dir(), 'hero_agent_test_${rand.intn(9000) or { 0 } + 1000}')

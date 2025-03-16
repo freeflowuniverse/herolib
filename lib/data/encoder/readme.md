@@ -27,6 +27,7 @@ The binary format starts with a version byte (currently v1), followed by the enc
 ### Primitive Types
 - `string`
 - `int` (32-bit)
+- `bool`
 - `u8`
 - `u16`
 - `u32`
@@ -61,6 +62,7 @@ mut e := encoder.new()
 // Add primitive values
 e.add_string('hello')
 e.add_int(42)
+e.add_bool(true)
 e.add_u8(255)
 e.add_u16(65535)
 e.add_u32(4294967295)
@@ -89,6 +91,7 @@ mut d := encoder.decoder_new(encoded)
 // Read values in same order as encoded
 str := d.get_string()
 num := d.get_int()
+bool_val := d.get_bool()
 byte := d.get_u8()
 u16_val := d.get_u16()
 u32_val := d.get_u32()

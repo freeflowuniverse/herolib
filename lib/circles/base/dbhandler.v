@@ -1,7 +1,8 @@
 module models
 
-import freeflowuniverse.herolib.circles.models.core { agent_loads, Agent, circle_loads, Circle, name_loads, Name }
-import freeflowuniverse.herolib.circles.models.mcc { Email, email_loads, CalendarEvent, calendar_event_loads }
+import freeflowuniverse.herolib.circles.core.models { agent_loads, Agent, circle_loads, Circle, name_loads, Name }
+import freeflowuniverse.herolib.circles.mcc.models { Email, email_loads, CalendarEvent, calendar_event_loads }
+import freeflowuniverse.herolib.circles.actions.models { Job, job_loads }
 
 pub struct DBHandler[T] {
 pub mut:
@@ -60,6 +61,10 @@ pub fn (mut m DBHandler[T]) get(id u32) !T {
 		return o
 	} $else $if T is CalendarEvent {
 		mut o:= calendar_event_loads(item_data)!
+		o.id = id
+		return o
+	} $else $if T is Job {
+		mut o:= job_loads(item_data)!
 		o.id = id
 		return o
 	} $else {

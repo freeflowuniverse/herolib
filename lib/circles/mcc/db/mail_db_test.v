@@ -3,7 +3,7 @@ module mcc
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.models.mcc
+import freeflowuniverse.herolib.circles.mcc.models
 
 fn test_mail_db() {
 	// Create a temporary directory for testing

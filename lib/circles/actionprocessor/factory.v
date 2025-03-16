@@ -1,8 +1,9 @@
 module actionprocessor
 
 
-import freeflowuniverse.herolib.circles.dbs.core
-import freeflowuniverse.herolib.circles.dbs.mcc
+import freeflowuniverse.herolib.circles.core.db
+import freeflowuniverse.herolib.circles.mcc.db
+import freeflowuniverse.herolib.circles.actions.db
 import freeflowuniverse.herolib.circles.models
 import freeflowuniverse.herolib.core.texttools
 
@@ -17,11 +18,12 @@ __global (
 pub struct CircleCoordinator {
 pub mut:
 	name string //is a unique name on planetary scale is a dns name
-	agents   &core.AgentDB
-	circles  &core.CircleDB
-	names    &core.NameDB
-	mails    &mcc.MailDB
-	calendar &mcc.CalendarDB
+	agents   &db.AgentDB
+	circles  &db.CircleDB
+	names    &db.NameDB
+	mails    &db.MailDB
+	calendar &db.CalendarDB
+	jobs     &db.JobDB
 	session_state 	 models.SessionState
 }
 
@@ -61,6 +63,7 @@ pub fn new(args_ CircleCoordinatorArgs) !&CircleCoordinator {
 	mut name_db := core.new_namedb(session_state)!
 	mut mail_db := mcc.new_maildb(session_state)!
 	mut calendar_db := mcc.new_calendardb(session_state)!
+	mut job_db := actions.new_jobdb(session_state)!
 
 	mut cm := &CircleCoordinator{
 		agents:   &agent_db
@@ -68,6 +71,7 @@ pub fn new(args_ CircleCoordinatorArgs) !&CircleCoordinator {
 		names:    &name_db
 		mails:    &mail_db
 		calendar: &calendar_db
+		jobs:     &job_db
 		session_state: session_state
 	}
 

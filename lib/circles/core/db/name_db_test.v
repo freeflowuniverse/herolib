@@ -3,7 +3,7 @@ module core
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.models.core
+import freeflowuniverse.herolib.circles.core.models
 
 fn test_name_db() {
 	// Create a temporary directory for testing
