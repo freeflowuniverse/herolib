@@ -164,7 +164,6 @@ tests := '
 lib/data
 lib/osal
 lib/lang
-lib/code
 lib/clients
 lib/core
 lib/develop
@@ -181,6 +180,7 @@ systemd_process_test.v
 data/graphdb
 data/radixtree
 clients/livekit
+clients/rclone
 data/radixtree
 data/dedupestor
 core/playcmds
