@@ -29,11 +29,11 @@ get_collection := qdrant_client.get_collection(
 println('Get Collection: ${get_collection}')
 
 // 4. Delete the created collection
-deleted_collection := qdrant_client.delete_collection(
-	collection_name: collection_name
-)!
+// deleted_collection := qdrant_client.delete_collection(
+// 	collection_name: collection_name
+// )!
 
-println('Deleted Collection: ${deleted_collection}')
+// println('Deleted Collection: ${deleted_collection}')
 
 // 5. List all collections
 list_collection := qdrant_client.list_collections()!
