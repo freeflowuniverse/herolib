@@ -1,0 +1,41 @@
+import os
+import freeflowuniverse.herolib.baobab.stage
+import freeflowuniverse.herolib.core.redisclient
+import freeflowuniverse.herolib.schemas.openapi
+import time
+
+pub const configuration = stage.ActorConfig {
+	name: '@{name_snake}'
+	version: '@{version}'
+}
+
+@@[heap]
+struct @{name_pascal}Actor {
+    stage.Actor
+pub mut:
+	@{name_snake} I@{name_pascal}
+}
+
+pub fn new(core I@{name_pascal}, config stage.ActorConfig) !&@{name_pascal}Actor {
+    return &@{name_pascal}Actor {
+		Actor: stage.new_actor(config)!
+		@{name_snake}: core
+    }
+}
+
+pub fn (mut a @{name_pascal}Actor) handle(method string, data string) !string {
+	action := a.act(
+		name: method
+		params: data
+	)!
+	return action.result
+}
+
+// Actor listens to the Redis queue for method invocations
+pub fn (mut a @{name_pascal}Actor) run() ! {
+	mut rpc := a.get_redis_rpc()!
+	for {
+		rpc.process(a.handle)!
+		time.sleep(time.millisecond * 100) // Prevent CPU spinning
+	}
+}

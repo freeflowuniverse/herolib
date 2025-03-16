@@ -1,7 +1,7 @@
 module example_actor
 
 import os
-import freeflowuniverse.herolib.hero.baobab.actor { IActor, RunParams }
+import freeflowuniverse.herolib.hero.baobab.stage {IActor, RunParams}
 import freeflowuniverse.herolib.web.openapi
 import time
 
@@ -10,11 +10,13 @@ const openapi_spec_json = os.read_file(openapi_spec_path) or { panic(err) }
 const openapi_specification = openapi.json_decode(openapi_spec_json)!
 
 struct ExampleActor {
-	actor.Actor
+    stage.Actor
 }
 
 fn new() !ExampleActor {
-	return ExampleActor{actor.new('example')}
+    return ExampleActor{
+        stage.new_actor('example')
+    }
 }
 
 pub fn run() ! {

@@ -48,6 +48,9 @@ pub:
 // 	timeout u64=60000  //60 sec
 // 	wait bool=true
 pub fn (mut q RedisRpc) call(args RPCArgs) !string {
+	timeout := if args.timeout == 0 {
+		u64(60000)
+	} else {args.timeout}
 	retqueue := rand.uuid_v4()
 	now := time.now().unix()
 	message := Message{
@@ -60,7 +63,7 @@ pub fn (mut q RedisRpc) call(args RPCArgs) !string {
 	q.redis.lpush(q.key, encoded)!
 
 	if args.wait {
-		return q.result(args.timeout, retqueue)!
+		return q.result(timeout, retqueue)!
 	}
 	return ''
 }
@@ -80,7 +83,7 @@ pub fn (mut q RedisRpc) result(timeout u64, retqueue string) !string {
 		if u64(time.now().unix_milli()) > (start + timeout) {
 			break
 		}
-		time.sleep(time.millisecond)
+		time.sleep(time.millisecond * 10)
 	}
 	return error('timeout on returnqueue: ${retqueue}')
 }
@@ -88,6 +91,7 @@ pub fn (mut q RedisRpc) result(timeout u64, retqueue string) !string {
 @[params]
 pub struct ProcessParams {
 pub:
+	interval time.Duration = time.millisecond * 10
 	timeout u64
 }
 
@@ -125,7 +129,7 @@ pub fn (mut q RedisRpc) process(op fn (string, string) !string, params ProcessPa
 		if params.timeout != 0 && u64(time.now().unix_milli()) > (start + params.timeout) {
 			break
 		}
-		time.sleep(time.millisecond)
+		time.sleep(params.interval)
 	}
 	return error('timeout for waiting for cmd on ${q.key}')
 }
