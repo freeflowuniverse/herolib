@@ -1,38 +1,22 @@
 module garage_s3
 
-import freeflowuniverse.herolib.data.paramsparser
-import os
+import freeflowuniverse.herolib.data.encoderhero
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.pathlib
+import rand
 
-pub const version = '1.14.3'
+pub const version = '1.0.1'
 const singleton = false
 const default = true
 
-// TODO: THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE TO STRUCT BELOW, IS STRUCTURED AS HEROSCRIPT
-pub fn heroscript_default() !string {
-	heroscript := "
-    !!garage_s3.configure 
-        name:'garage_s3'
-        homedir: '{HOME}/hero/var/garage_s3'
-        configpath: '{HOME}/.config/garage_s3/admin.yaml'
-        username: 'admin'
-        password: 'secretpassword'
-        secret: ''
-        title: 'My Hero DAG'
-        host: 'localhost'
-        port: 8888
-
-        "
-
-	return heroscript
-}
-
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-
+@[heap]
 pub struct GarageS3 {
 pub mut:
 	name string = 'default'
 
 	replication_mode    string = '3'
+	config_path         string = '/var/garage/config.toml'
 	metadata_dir        string = '/var/garage/meta'
 	data_dir            string = '/var/garage/data'
 	sled_cache_capacity u32    = 128 // in MB
@@ -63,49 +47,102 @@ pub mut:
 	restart      bool = true
 }
 
-fn cfg_play(p paramsparser.Params) !GarageS3 {
-	mut mycfg := GarageS3{
-		name:                p.get_default('name', 'default')!
-		replication_mode:    p.get_default('replication_mode', '3')!
-		metadata_dir:        p.get_default('metadata_dir', '/var/garage/meta')!
-		data_dir:            p.get_default('data_dir', '/var/garage/data')!
-		sled_cache_capacity: p.get_u32_default('sled_cache_capacity', 128)!
-		compression_level:   p.get_u8_default('compression_level', 1)!
-		rpc_secret:          p.get_default('rpc_secret', '')!
-		rpc_bind_addr:       p.get_default('rpc_bind_addr', '[::]:3901')!
-		rpc_public_addr:     p.get_default('rpc_public_addr', '127.0.0.1:3901')!
-		api_bind_addr:       p.get_default('api_bind_addr', '[::]:3900')!
-		s3_region:           p.get_default('s3_region', 'garage')!
-		root_domain:         p.get_default('root_domain', '.s3.garage')!
-		web_bind_addr:       p.get_default('web_bind_addr', '[::]:3902')!
-		web_root_domain:     p.get_default('web_root_domain', '.web.garage')!
-		admin_api_bind_addr: p.get_default('admin_api_bind_addr', '[::]:3903')!
-		admin_metrics_token: p.get_default('admin_metrics_token', '')!
-		admin_token:         p.get_default('admin_token', '')!
-		admin_trace_sink:    p.get_default('admin_trace_sink', 'http://localhost:4317')!
-		bootstrap_peers:     p.get_list_default('bootstrap_peers', [])!
-		rpc_bind_outgoing:   p.get_default_false('rpc_bind_outgoing')
-		reset:               p.get_default_false('reset')
-		config_reset:        p.get_default_false('config_reset')
-		start:               p.get_default_true('start')
-		restart:             p.get_default_true('restart')
+// your checking & initialization code if needed
+fn obj_init(mycfg_ GarageS3) !GarageS3 {
+	mut mycfg := mycfg_
+
+	if mycfg.name == '' {
+		mycfg.name = 'default'
 	}
 
-	return mycfg
-}
+	if mycfg.config_path == '' {
+		mycfg.config_path = '/var/garage/config.toml'
+	}
 
-fn obj_init(obj_ GarageS3) !GarageS3 {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+	if mycfg.replication_mode == '' {
+		mycfg.replication_mode = '3'
+	}
+
+	if mycfg.metadata_dir == '' {
+		mycfg.replication_mode = '/var/garage/meta'
+	}
+
+	if mycfg.data_dir == '' {
+		mycfg.data_dir = '/var/garage/data'
+	}
+
+	if mycfg.sled_cache_capacity == 0 {
+		mycfg.sled_cache_capacity = 128
+	}
+
+	if mycfg.compression_level == 0 {
+		mycfg.compression_level = 1
+	}
+
+	if mycfg.rpc_bind_addr == '' {
+		mycfg.rpc_bind_addr = '[::]:3901'
+	}
+
+	if mycfg.rpc_public_addr == '' {
+		mycfg.rpc_public_addr = '127.0.0.1:3901'
+	}
+
+	if mycfg.api_bind_addr == '' {
+		mycfg.api_bind_addr = '[::]:3900'
+	}
+
+	if mycfg.s3_region == '' {
+		mycfg.s3_region = 'garage'
+	}
+
+	if mycfg.root_domain == '' {
+		mycfg.root_domain = '.s3.garage'
+	}
+
+	if mycfg.web_bind_addr == '' {
+		mycfg.web_bind_addr = '[::]:3902'
+	}
+
+	if mycfg.web_root_domain == '' {
+		mycfg.web_root_domain = '.web.garage'
+	}
+
+	if mycfg.admin_api_bind_addr == '' {
+		mycfg.admin_api_bind_addr = '[::]:3903'
+	}
+
+	if mycfg.admin_trace_sink == '' {
+		mycfg.admin_trace_sink = 'http://localhost:4317'
+	}
+
+	if mycfg.admin_token == '' {
+		mycfg.admin_token = rand.hex(64)
+	}
+
+	if mycfg.admin_metrics_token == '' {
+		mycfg.admin_metrics_token = rand.hex(64)
+	}
+
+	if mycfg.rpc_secret == '' {
+		mycfg.rpc_secret = rand.hex(64)
+	}
+	return mycfg
 }
 
 // called before start if done
 fn configure() ! {
-	// mut installer := get()!
+	server := get()!
+	mut mycode := $tmpl('templates/config.ini')
+	mut path := pathlib.get_file(path: server.config_path, create: true)!
+	path.write(mycode)!
+	console.print_debug(mycode)
+}
 
-	// mut mycode := $tmpl('templates/atemplate.yaml')
-	// mut path := pathlib.get_file(path: cfg.configpath, create: true)!
-	// path.write(mycode)!
-	// console.print_debug(mycode)
+pub fn heroscript_dumps(obj GarageS3) !string {
+	return encoderhero.encode[GarageS3](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !GarageS3 {
+	mut obj := encoderhero.decode[GarageS3](heroscript)!
+	return obj
 }

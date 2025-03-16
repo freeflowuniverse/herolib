@@ -1,11 +1,11 @@
 !!hero_code.generate_installer
     name: "zerodb"
     classname: "ZeroDB"
-    hasconfig: false
+    hasconfig: true
     singleton: true
     default: true
     title: ""
     templates: false
     build: true
     startupmanager: true
-
+    supported_platforms: ""

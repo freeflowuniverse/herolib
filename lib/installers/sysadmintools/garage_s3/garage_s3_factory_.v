@@ -2,9 +2,9 @@ module garage_s3
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import freeflowuniverse.herolib.ui.console
 import time
 
 __global (
@@ -17,14 +17,11 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string = 'default'
+	name string
 }
 
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
-	if args.name == '' {
-		args.name = garage_s3_default
-	}
 	if args.name == '' {
 		args.name = 'default'
 	}
@@ -32,74 +29,110 @@ fn args_get(args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&GarageS3 {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := GarageS3{}
 	if args.name !in garage_s3_global {
-		if !config_exists() {
-			if default {
-				config_save()!
-			}
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('garage_s3', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
-		config_load()!
 	}
 	return garage_s3_global[args.name] or {
 		println(garage_s3_global)
-		panic('bug in get from factory: ')
+		// bug if we get here because should be in globals
+		panic('could not get config for garage_s3 with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o GarageS3) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('garage_s3', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('garage_s3', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('garage_s3', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('garage_s3', args.name)!
+	if args.name in garage_s3_global {
+		// del garage_s3_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('garage_s3', args.name, heroscript_default()!)!
-}
-
-fn set(o GarageS3) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o GarageS3) ! {
 	mut o2 := obj_init(o)!
-	garage_s3_global['default'] = &o2
+	garage_s3_global[o.name] = &o2
+	garage_s3_default = o.name
 }
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-	name       string = 'default'
 	heroscript string // if filled in then plbook will be made out of it
 	plbook     ?playbook.PlayBook
 	reset      bool
-
-	start     bool
-	stop      bool
-	restart   bool
-	delete    bool
-	configure bool // make sure there is at least one installed
 }
 
 pub fn play(args_ PlayArgs) ! {
 	mut args := args_
 
-	if args.heroscript == '' {
-		args.heroscript = heroscript_default()!
-	}
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut install_actions := plbook.find(filter: 'garage_s3.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			mycfg := cfg_play(p)!
-			set(mycfg)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
+		}
+	}
+
+	mut other_actions := plbook.find(filter: 'garage_s3.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action garage_s3.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action garage_s3.install')
+				install()!
+			}
+		}
+		if other_action.name in ['start', 'stop', 'restart'] {
+			mut p := other_action.params
+			name := p.get('name')!
+			mut garage_s3_obj := get(name: name)!
+			console.print_debug('action object:\n${garage_s3_obj}')
+			if other_action.name == 'start' {
+				console.print_debug('install action garage_s3.${other_action.name}')
+				garage_s3_obj.start()!
+			}
+
+			if other_action.name == 'stop' {
+				console.print_debug('install action garage_s3.${other_action.name}')
+				garage_s3_obj.stop()!
+			}
+			if other_action.name == 'restart' {
+				console.print_debug('install action garage_s3.${other_action.name}')
+				garage_s3_obj.restart()!
+			}
 		}
 	}
 }
@@ -206,7 +239,7 @@ pub fn (mut self GarageS3) running() !bool {
 			return false
 		}
 	}
-	return running_()!
+	return running()!
 }
 
 @[params]
@@ -224,12 +257,18 @@ pub fn (mut self GarageS3) install(args InstallArgs) ! {
 
 pub fn (mut self GarageS3) destroy() ! {
 	switch(self.name)
-
 	self.stop() or {}
-	destroy_()!
+	destroy()!
 }
 
 // switch instance to be used for garage_s3
 pub fn switch(name string) {
 	garage_s3_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

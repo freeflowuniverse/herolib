@@ -19,6 +19,26 @@ fn playcmds_do(path string) ! {
 }
 
 fn do() ! {
+
+	if ! core.is_osx()! {
+		if os.getenv('SUDO_COMMAND') != '' || os.getenv('SUDO_USER') != '' {
+			println('Error: Please do not run this program with sudo!')
+			exit(1)  // Exit with error code
+		}
+	}
+
+    if os.getuid() == 0 {
+        if core.is_osx()! {
+			eprintln("please do not run hero as root in osx.")
+			exit(1)
+		}
+    } else {
+        if ! core.is_osx()! {
+			eprintln("please do run hero as root, don't use sudo.")
+			exit(1)
+		}
+    }
+
 	if os.args.len == 2 {
 		mypath := os.args[1]
 		if mypath.to_lower().ends_with('.hero') {
@@ -31,7 +51,7 @@ fn do() ! {
 	mut cmd := Command{
 		name:        'hero'
 		description: 'Your HERO toolset.'
-		version:     '1.0.11'
+		version:     '1.0.19'
 	}
 
 	// herocmds.cmd_run_add_flags(mut cmd)
@@ -82,6 +102,7 @@ fn do() ! {
 	// herocmds.cmd_juggler(mut cmd)
 	herocmds.cmd_generator(mut cmd)
 	herocmds.cmd_docusaurus(mut cmd)
+	herocmds.cmd_starlight(mut cmd)
 	// herocmds.cmd_docsorter(mut cmd)
 	// cmd.add_command(publishing.cmd_publisher(pre_func))
 	cmd.setup()

@@ -1,18 +1,22 @@
 #!/bin/bash
 
-set -e
+set -ex
 
-script_dir="??(cd "??(dirname "??{BASH_SOURCE[0]}")" && pwd)"
+script_dir="???cd "???dirname "??{BASH_SOURCE[0]}")" && pwd)"
 cd "??{script_dir}"
 
 echo "Docs directory: ??script_dir"
 
-cd ${site.path_build.path}
+cd "${mydir}"
 
-export PATH=/tmp/docusaurus_build/node_modules/.bin:??PATH
+export PATH=/tmp/docusaurus_build/node_modules/.bin:??{HOME}/.bun/bin/:??PATH
 
 rm -rf ${site.path_build.path}/build/
 
+${profile_include} 
+
 bun docusaurus build
 
-rsync -rv --delete ${site.path_build.path}/build/ ${cfg.main.build_dest.trim_right("/")}/${cfg.main.name.trim_right("/")}/
+mkdir -p ${site.args.publish_path.trim_right("/")}
+echo SYNC TO ${site.args.publish_path.trim_right("/")}
+rsync -rv --delete ${site.path_build.path}/build/ ${site.args.publish_path.trim_right("/")}/

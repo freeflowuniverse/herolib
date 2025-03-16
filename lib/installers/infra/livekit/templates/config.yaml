@@ -11,7 +11,7 @@ rtc:
   use_external_ip: true
 redis:
   # redis is recommended for production deploys
-  address: localhost:6379
+  address: 0.0.0.0:6379
 keys:
   # key-value pairs
   ${installer.apikey}: ${installer.apisecret}

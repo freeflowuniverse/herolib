@@ -17,10 +17,9 @@ fn (mut e CEngine) builders_load() ! {
 @[params]
 pub struct BuilderNewArgs {
 pub mut:
-	name string = 'default'
-	from string = 'docker.io/archlinux:latest'
-	// arch_scratch bool // means start from scratch with arch linux
-	delete bool = true
+	name   string = 'default'
+	from   string = 'docker.io/ubuntu:latest'
+	delete bool   = true
 }
 
 pub fn (mut e CEngine) builder_new(args_ BuilderNewArgs) !Builder {
@@ -66,14 +65,14 @@ pub fn (mut e CEngine) builder_get(name string) !Builder {
 }
 
 pub fn (mut e CEngine) builders_delete_all() ! {
-	console.print_debug("remove all")
+	console.print_debug('remove all')
 	osal.execute_stdout('buildah rm -a')!
 	e.builders_load()!
 }
 
 pub fn (mut e CEngine) builder_delete(name string) ! {
 	if e.builder_exists(name)! {
-		console.print_debug("remove ${name}")
+		console.print_debug('remove ${name}')
 		osal.execute_stdout('buildah rm ${name}')!
 		e.builders_load()!
 	}

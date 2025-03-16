@@ -11,9 +11,7 @@ fn test_struct_to_schema() {
 			code.StructField{
 				name: 'test_field'
 				description: 'a field of the test struct to test fields serialization into schema'
-				typ: code.Type{
-					symbol: 'string'
-				}
+				typ: code.String{}
 			},
 		]
 	}

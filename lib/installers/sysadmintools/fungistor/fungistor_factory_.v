@@ -1,6 +1,5 @@
 module fungistor
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
@@ -13,6 +12,65 @@ __global (
 )
 
 /////////FACTORY
+
+@[params]
+pub struct ArgsGet {
+pub mut:
+	name string
+}
+
+pub fn get(args_ ArgsGet) !&FungiStor {
+	return &FungiStor{}
+}
+
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+
+	mut other_actions := plbook.find(filter: 'fungistor.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action fungistor.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action fungistor.install')
+				install()!
+			}
+		}
+		if other_action.name in ['start', 'stop', 'restart'] {
+			mut p := other_action.params
+			name := p.get('name')!
+			mut fungistor_obj := get(name: name)!
+			console.print_debug('action object:\n${fungistor_obj}')
+			if other_action.name == 'start' {
+				console.print_debug('install action fungistor.${other_action.name}')
+				fungistor_obj.start()!
+			}
+
+			if other_action.name == 'stop' {
+				console.print_debug('install action fungistor.${other_action.name}')
+				fungistor_obj.stop()!
+			}
+			if other_action.name == 'restart' {
+				console.print_debug('install action fungistor.${other_action.name}')
+				fungistor_obj.restart()!
+			}
+		}
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
@@ -48,8 +106,8 @@ pub fn (mut self FungiStor) start() ! {
 
 	console.print_header('fungistor start')
 
-	if !installed_()! {
-		install_()!
+	if !installed()! {
+		install()!
 	}
 
 	configure()!
@@ -77,9 +135,9 @@ pub fn (mut self FungiStor) start() ! {
 	return error('fungistor did not install properly.')
 }
 
-pub fn (mut self FungiStor) install_start(model InstallArgs) ! {
+pub fn (mut self FungiStor) install_start(args InstallArgs) ! {
 	switch(self.name)
-	self.install(model)!
+	self.install(args)!
 	self.start()!
 }
 
@@ -119,19 +177,32 @@ pub mut:
 	reset bool
 }
 
-pub fn install(args InstallArgs) ! {
-	if args.reset {
-		destroy()!
-	}
-	if !(installed_()!) {
-		install_()!
+pub fn (mut self FungiStor) install(args InstallArgs) ! {
+	switch(self.name)
+	if args.reset || (!installed()!) {
+		install()!
 	}
 }
 
-pub fn destroy() ! {
-	destroy_()!
+pub fn (mut self FungiStor) build() ! {
+	switch(self.name)
+	build()!
 }
 
-pub fn build() ! {
-	build_()!
+pub fn (mut self FungiStor) destroy() ! {
+	switch(self.name)
+	self.stop() or {}
+	destroy()!
+}
+
+// switch instance to be used for fungistor
+pub fn switch(name string) {
+	fungistor_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

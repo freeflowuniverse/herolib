@@ -1,6 +1,7 @@
 module paramsparser
 
 import time
+import freeflowuniverse.herolib.data.ourtime
 import v.reflection
 // import freeflowuniverse.herolib.data.encoderhero
 // TODO: support more field types
@@ -17,11 +18,16 @@ pub fn (params Params) decode_struct[T](_ T) !T {
 		$if field.is_enum {
 			t.$(field.name) = params.get_int(field.name) or { 0 }
 		} $else {
-			if field.name[0].is_capital() {
-				// embed := params.decode_struct(t.$(field.name))!
-				t.$(field.name) = params.decode_struct(t.$(field.name))!
-			} else {
-				t.$(field.name) = params.decode_value(t.$(field.name), field.name)!
+			// super annoying didn't find other way, then to ignore options
+			$if field.is_option {
+			} $else {
+				if field.name[0].is_capital() {
+					// embed := params.decode_struct(t.$(field.name))!
+					t.$(field.name) = params.decode_struct(t.$(field.name))!
+					// panic("to implement")
+				} else {
+					t.$(field.name) = params.decode_value(t.$(field.name), field.name)!
+				}
 			}
 		}
 	}
@@ -30,11 +36,7 @@ pub fn (params Params) decode_struct[T](_ T) !T {
 
 pub fn (params Params) decode_value[T](_ T, key string) !T {
 	// $if T is $option {
-	// 	// unwrap and encode optionals
-	// 	workaround := t
-	// 	if workaround != none {
-	// 		encode(t, args)!
-	// 	}
+	// 	return error("is option")
 	// }
 	// value := params.get(field.name)!
 
@@ -65,6 +67,13 @@ pub fn (params Params) decode_value[T](_ T, key string) !T {
 			return time.Time{}
 		}
 		return time.parse(time_str)!
+	} $else $if T is ourtime.OurTime {
+		time_str := params.get(key)!
+		// todo: 'handle other null times'
+		if time_str == '0000-00-00 00:00:00' {
+			return ourtime.new('0000-00-00 00:00:00')!
+		}
+		return ourtime.new(time_str)!
 	} $else $if T is $struct {
 		child_params := params.get_params(key)!
 		child := child_params.decode_struct(T{})!
@@ -99,7 +108,7 @@ pub fn encode[T](t T, args EncodeArgs) !Params {
 			key = field_attrs['alias']
 		}
 		$if val is string || val is int || val is bool || val is i64 || val is u32
-			|| val is time.Time {
+			|| val is time.Time || val is ourtime.OurTime {
 			params.set(key, '${val}')
 		} $else $if field.is_enum {
 			params.set(key, '${int(val)}')

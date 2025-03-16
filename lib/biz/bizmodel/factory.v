@@ -11,8 +11,8 @@ pub fn get(name string) !&BizModel {
 		if name in bizmodels {
 			return bizmodels[name] or { panic('bug') }
 		}
+		return error("cann't find biz model:'${name}' in global bizmodels ${bizmodels.keys()}")
 	}
-	return error("cann't find biz model:'${name}' in global bizmodels")
 }
 
 // get bizmodel from global

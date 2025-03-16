@@ -171,36 +171,36 @@ pub fn cmd_git(mut cmdroot Command) {
 			description: 'Filter is part of path of repo e.g. threefoldtech/info_'
 		})
 
-		c.add_flag(Flag{
-			flag:        .string
-			required:    false
-			name:        'repo'
-			abbrev:      'r'
-			description: 'name of repo'
-		})
-		c.add_flag(Flag{
-			flag:        .string
-			required:    false
-			name:        'branch'
-			abbrev:      'b'
-			description: 'branch of repo (optional)'
-		})
+		// c.add_flag(Flag{
+		// 	flag:        .string
+		// 	required:    false
+		// 	name:        'repo'
+		// 	abbrev:      'r'
+		// 	description: 'name of repo'
+		// })
+		// c.add_flag(Flag{
+		// 	flag:        .string
+		// 	required:    false
+		// 	name:        'branch'
+		// 	abbrev:      'b'
+		// 	description: 'branch of repo (optional)'
+		// })
 
-		c.add_flag(Flag{
-			flag:        .string
-			required:    false
-			name:        'account'
-			abbrev:      'a'
-			description: 'name of account e.g. threefoldtech'
-		})
+		// c.add_flag(Flag{
+		// 	flag:        .string
+		// 	required:    false
+		// 	name:        'account'
+		// 	abbrev:      'a'
+		// 	description: 'name of account e.g. threefoldtech'
+		// })
 
-		c.add_flag(Flag{
-			flag:        .string
-			required:    false
-			name:        'provider'
-			abbrev:      'p'
-			description: 'name of provider e.g. github'
-		})
+		// c.add_flag(Flag{
+		// 	flag:        .string
+		// 	required:    false
+		// 	name:        'provider'
+		// 	abbrev:      'p'
+		// 	description: 'name of provider e.g. github'
+		// })
 	}
 	for mut c_ in allcmdsref {
 		mut c := *c_
@@ -245,21 +245,21 @@ fn cmd_git_execute(cmd Command) ! {
 
 	// create the filter for doing group actions, or action on 1 repo
 	mut filter := cmd.flags.get_string('filter') or { '' }
-	mut branch := cmd.flags.get_string('branch') or { '' }
-	mut repo := cmd.flags.get_string('repo') or { '' }
-	mut account := cmd.flags.get_string('account') or { '' }
-	mut provider := cmd.flags.get_string('provider') or { '' }
+	// mut branch := cmd.flags.get_string('branch') or { '' }
+	// mut repo := cmd.flags.get_string('repo') or { '' }
+	// mut account := cmd.flags.get_string('account') or { '' }
+	// mut provider := cmd.flags.get_string('provider') or { '' }
 
-	if cmd.name != 'cd' {
-		// check if we are in a git repo
-		if repo == '' && account == '' && provider == '' && filter == '' {
-			if r0 := gs.get_working_repo() {
-				repo = r0.name
-				account = r0.account
-				provider = r0.provider
-			}
-		}
-	}
+	// if cmd.name != 'cd' {
+	// 	// check if we are in a git repo
+	// 	if repo == '' && account == '' && provider == '' && filter == '' {
+	// 		if r0 := gs.get_working_repo() {
+	// 			repo = r0.name
+	// 			account = r0.account
+	// 			provider = r0.provider
+	// 		}
+	// 	}
+	// }
 
 	if cmd.name in gittools.gitcmds.split(',') {
 		mut pull := cmd.flags.get_bool('pull') or { false }
@@ -271,11 +271,7 @@ fn cmd_git_execute(cmd Command) ! {
 		}
 		mypath := gs.do(
 			filter:    filter
-			repo:      repo
 			reload:    reload
-			account:   account
-			provider:  provider
-			branch:    branch
 			recursive: recursive
 			cmd:       cmd.name
 			script:    cmd.flags.get_bool('script') or { false }

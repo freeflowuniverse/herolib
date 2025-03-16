@@ -92,7 +92,7 @@ pub fn playmacro(action Action) !string {
 			content = sh.wiki(args) or { panic(err) }
 		}
 		'graph_title_row' {
-			content = sh.wiki_title_chart(args)
+			content = sh.wiki_title_chart(args)!
 		}
 		'graph_line_row' {
 			content = sh.wiki_line_chart(args)!

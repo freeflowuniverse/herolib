@@ -1,20 +1,21 @@
 # Git Tools Module
 
-A comprehensive Git management module for V that provides high-level abstractions for Git operations, repository management, and automation of common Git workflows.
+### Get a specific path starting from url
 
-## Features
+below is powerful command, will get the repo, put on right location, you can force a pull or even reset everything
 
-- Repository management (clone, load, delete)
-- Branch operations (create, switch, checkout)
-- Tag management (create, switch, verify)
-- Change tracking and commits
-- Remote operations (push, pull)
-- SSH key integration
-- Submodule support
-- Repository status tracking
-- Light cloning option for large repositories
+```v
+import freeflowuniverse.herolib.develop.gittools
+mut gs := gittools.new()!
+mydocs_path:=gs.get_path(
+    pull:true,
+    reset:false,
+    url:'https://git.ourworld.tf/tfgrid/info_docs_depin/src/branch/main/docs'
+)!
 
-## Basic Usage
+println(mydocs_path)
+
+```
 
 ### Repository Management
 

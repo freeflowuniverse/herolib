@@ -88,7 +88,6 @@ pub fn (mut gitstructure GitStructure) get_repos(args_ ReposGetArgs) ![]&GitRepo
 // provider string // Git provider (e.g., GitHub).
 // pull     bool   // Pull the last changes.
 // reset    bool   // Reset the changes.
-// reload   bool   // Reload the repo into redis cache
 // url      string // Repository URL, used if cloning is needed.
 //```
 //
@@ -151,7 +150,6 @@ fn repo_match_check(repo GitRepo, args ReposGetArgs) !bool {
 // provider string // Git provider (e.g., GitHub).
 // pull     bool   // Pull the last changes.
 // reset    bool   // Reset the changes.
-// reload   bool   // Reload the repo into redis cache
 // url      string // Repository URL, used if cloning is needed.
 //```
 //
@@ -161,6 +159,10 @@ fn repo_match_check(repo GitRepo, args ReposGetArgs) !bool {
 // Raises:
 // - Error: If multiple repositories are found with similar names or if cloning fails.
 pub fn (mut gitstructure GitStructure) get_path(args_ ReposGetArgs) !string {
+	mut args := args_
+	if args.pull {
+		args.status_clean = true
+	}
 	mut r := gitstructure.get_repo(args_)!
 	mut mypath := r.get_path_of_url(args_.url)!
 	return mypath

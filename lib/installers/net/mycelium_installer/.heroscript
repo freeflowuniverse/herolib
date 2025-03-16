@@ -1,0 +1,12 @@
+!!hero_code.generate_installer
+    name: "mycelium_installer"
+    classname: "MyceliumInstaller"
+    hasconfig: true
+    singleton: false
+    default: true
+    title: ""
+    templates: false
+    build: true
+    startupmanager: true
+    supported_platforms: ""    
+

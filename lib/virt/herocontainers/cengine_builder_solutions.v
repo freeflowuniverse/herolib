@@ -6,6 +6,7 @@ import os
 
 @[params]
 pub struct GetArgs {
+pub mut:
 	reset bool
 }
 
@@ -13,16 +14,14 @@ pub struct GetArgs {
 pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 	name := 'base'
 	if !args.reset && e.builder_exists(name)! {
-		
 		return e.builder_get(name)!
 	}
 	console.print_header('buildah base build')
 
-
 	mut builder := e.builder_new(name: name, from: 'scratch', delete: true)!
 	mount_path := builder.mount_to_path()!
-	if mount_path.len<4{
-		return error("mount_path needs to be +4 chars")
+	if mount_path.len < 4 {
+		return error('mount_path needs to be +4 chars')
 	}
 	osal.exec(
 		cmd: '
@@ -51,7 +50,7 @@ pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 
 			# Install required packages
 			echo "Installing essential packages..."
-			chroot \${MOUNT_PATH} apt-get install -yq screen bash coreutils curl mc unzip sudo which openssh-client openssh-server redis
+			chroot \${MOUNT_PATH} apt-get install -yq screen bash coreutils curl mc unzip sudo which openssh-client openssh-server redis wget
 
 			echo "Cleaning up..."
 			umount "\${MOUNT_PATH}/dev" || true
@@ -60,6 +59,7 @@ pub fn (mut e CEngine) builder_base(args GetArgs) !Builder {
 
 			'
 	)!
+	builder.install_zinit()!
 	// builder.set_entrypoint('redis-server')!
 	builder.commit('localhost/${name}')!
 	return builder

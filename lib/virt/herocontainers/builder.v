@@ -214,7 +214,7 @@ pub fn (mut self Builder) inspect() !BuilderInfo {
 	return r
 }
 
-// mount the build container to a path and return
+// mount the build container to a path and return the path where its mounted
 pub fn (mut self Builder) mount_to_path() !string {
 	cmd := 'buildah mount ${self.containername}'
 	out := osal.execute_silent(cmd)!
@@ -227,7 +227,7 @@ pub fn (mut self Builder) commit(image_name string) ! {
 }
 
 pub fn (self Builder) set_entrypoint(entrypoint string) ! {
-	cmd := 'buildah config --entrypoint ${entrypoint} ${self.containername}'
+	cmd := 'buildah config --entrypoint \'${entrypoint}\' ${self.containername}'
 	osal.exec(cmd: cmd)!
 }
 

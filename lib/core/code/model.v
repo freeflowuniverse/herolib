@@ -30,10 +30,3 @@ pub:
 	has_arg bool
 	arg     string // [name: arg]
 }
-
-pub struct Alias {
-pub:
-	name        string
-	description string
-	typ         Type
-}

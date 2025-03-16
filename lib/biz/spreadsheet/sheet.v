@@ -202,7 +202,7 @@ pub fn (s Sheet) tosmaller(args_ ToYearQuarterArgs) !&Sheet {
 //   tagsfilter []string
 // tags if set will see that there is at least one corresponding tag per row
 // rawsfilter is list of names of rows which will be included
-pub fn (mut s Sheet) toyear(args ToYearQuarterArgs) !&Sheet {
+pub fn (s Sheet) toyear(args ToYearQuarterArgs) !&Sheet {
 	mut args2 := args
 	args2.period_months = 12
 	return s.tosmaller(args2)
@@ -215,7 +215,7 @@ pub fn (mut s Sheet) toyear(args ToYearQuarterArgs) !&Sheet {
 //   tagsfilter []string
 // tags if set will see that there is at least one corresponding tag per row
 // rawsfilter is list of names of rows which will be included
-pub fn (mut s Sheet) toquarter(args ToYearQuarterArgs) !&Sheet {
+pub fn (s Sheet) toquarter(args ToYearQuarterArgs) !&Sheet {
 	mut args2 := args
 	args2.period_months = 3
 	return s.tosmaller(args2)
@@ -259,13 +259,15 @@ pub fn (mut s Sheet) json() string {
 }
 
 // find row, report error if not found
-pub fn (mut s Sheet) row_get(name string) !&Row {
-	mut row := s.rows[name] or { return error('could not find row with name: ${name}') }
+pub fn (s Sheet) row_get(name string) !&Row {
+	row := s.rows[name] or {
+		return error('could not find row with name: ${name}, available rows: ${s.rows.keys()}')
+	}
 	return row
 }
 
-pub fn (mut s Sheet) values_get(name string) ![]f64 {
-	mut r := s.row_get(name)!
+pub fn (s Sheet) values_get(name string) ![]f64 {
+	r := s.row_get(name)!
 	vs := r.values_get()
 	return vs
 }

@@ -3,7 +3,7 @@ module bizmodel
 import freeflowuniverse.herolib.core.playbook { Action }
 import freeflowuniverse.herolib.core.texttools
 
-fn (mut m BizModel) costcenter_define_action(action Action) ! {
+fn (mut m BizModel) costcenter_define_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
@@ -20,4 +20,5 @@ fn (mut m BizModel) costcenter_define_action(action Action) ! {
 		department:  department
 	}
 	m.costcenters[name] = &cc
+	return action
 }

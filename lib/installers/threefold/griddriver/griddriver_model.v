@@ -1,19 +1,36 @@
 module griddriver
 
-pub const version = 'v0.1.0'
+import freeflowuniverse.herolib.data.encoderhero
+
+pub const version = '0.1.1'
 const singleton = true
 const default = true
 
+// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
+@[heap]
 pub struct GridDriverInstaller {
 pub mut:
 	name string = 'default'
 }
 
-fn obj_init(obj_ GridDriverInstaller) !GridDriverInstaller {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
-	return obj
+// your checking & initialization code if needed
+fn obj_init(mycfg_ GridDriverInstaller) !GridDriverInstaller {
+	mut mycfg := mycfg_
+	return mycfg
 }
 
+// called before start if done
 fn configure() ! {
+	// mut installer := get()!
+}
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj GridDriverInstaller) !string {
+	return encoderhero.encode[GridDriverInstaller](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !GridDriverInstaller {
+	mut obj := encoderhero.decode[GridDriverInstaller](heroscript)!
+	return obj
 }

@@ -11,7 +11,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	checkcmd := '${osal.profile_path_source_and()!} bun -version'
+	checkcmd := '${os.home_dir()}/.bun/bin/bun -version'
 	res := os.execute(checkcmd)
 	if res.exit_code != 0 {
 		println(res)
@@ -22,7 +22,7 @@ fn installed() !bool {
 	if r.len != 1 {
 		return error("couldn't parse bun version.\n${res.output}")
 	}
-	println(' ${texttools.version(version)} <= ${texttools.version(r[0])}')
+	// println(' ${texttools.version(version)} <= ${texttools.version(r[0])}')
 	if texttools.version(version) <= texttools.version(r[0]) {
 		return true
 	}
@@ -45,7 +45,8 @@ fn upload() ! {
 
 fn install() ! {
 	console.print_header('install bun')
-	osal.exec(cmd: 'curl -fsSL https://bun.sh/install | bash')!
+	destroy()! 
+	osal.exec(cmd: 'unset BUN_INSTALL && curl -fsSL https://bun.sh/install | bash')!
 }
 
 fn destroy() ! {

@@ -28,6 +28,7 @@ pub fn encode[T](val T) !string {
 	$if T is $struct {
 		e.encode_struct[T](val)!
 	} $else $if T is $array {
+		// TODO: need to make comma separated list only works if int,u8,u16,i8... or string if string put all elements in \''...\'',...
 		e.add_child_list[T](val, 'TODO')
 	} $else {
 		return error('can only add elements for struct or array of structs. \n${val}')
@@ -117,7 +118,7 @@ pub fn (mut e Encoder) encode_struct[T](t T) ! {
 	mut mytype := reflection.type_of[T](t)
 	struct_attrs := attrs_get_reflection(mytype)
 
-	mut action_name := texttools.name_fix_pascal_to_snake(T.name.all_after_last('.'))
+	mut action_name := texttools.snake_case(T.name.all_after_last('.'))
 	if 'alias' in struct_attrs {
 		action_name = struct_attrs['alias'].to_lower()
 	}
@@ -128,18 +129,30 @@ pub fn (mut e Encoder) encode_struct[T](t T) ! {
 
 	// encode children structs and array of structs
 	$for field in T.fields {
-		val := t.$(field.name)
-		// time is encoded in the above params encoding step so skip and dont treat as recursive struct
-		$if val is time.Time || val is ourtime.OurTime {
-		} $else $if val is $struct {
-			if field.name[0].is_capital() {
-				embedded_params := paramsparser.encode(val, recursive: false)!
-				e.params.params << embedded_params.params
-			} else {
-				e.add(val)!
+		// Check if field has skip attribute
+		mut should_skip := false
+
+		for attr in field.attrs {
+			if attr.contains('skip') {
+				should_skip = true
+				break
 			}
-		} $else $if val is $array {
-			e.encode_array(val)!
+		}
+
+		if !should_skip {
+			val := t.$(field.name)
+			// time is encoded in the above params encoding step so skip and dont treat as recursive struct
+			$if val is time.Time || val is ourtime.OurTime {
+			} $else $if val is $struct {
+				if field.name[0].is_capital() {
+					embedded_params := paramsparser.encode(val, recursive: false)!
+					e.params.params << embedded_params.params
+				} else {
+					e.add(val)!
+				}
+			} $else $if val is $array {
+				e.encode_array(val)!
+			}
 		}
 	}
 }

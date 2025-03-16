@@ -2,14 +2,15 @@ module golang
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.base
+import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.ulist
 import os
 
-// checks if a certain version or above is installed
-fn installed_() !bool {
+//////////////////// following actions are not specific to instance of the object
+
+fn installed() !bool {
 	res := os.execute('/bin/bash -c "go version"')
 	if res.exit_code == 0 {
 		r := res.output.split_into_lines()
@@ -30,7 +31,16 @@ fn installed_() !bool {
 	return false
 }
 
-fn install_() ! {
+// get the Upload List of the files
+fn ulist_get() !ulist.UList {
+	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
+	return ulist.UList{}
+}
+
+// uploads to S3 server if configured
+fn upload() ! {}
+
+fn install() ! {
 	console.print_header('install golang')
 	base.install()!
 	// destroy()!
@@ -61,19 +71,12 @@ fn install_() ! {
 	os.mv('${expand_dir}/go', go_dest)!
 	os.rmdir_all(expand_dir)!
 	osal.profile_path_add_remove(paths2add: '${go_dest}/bin')!
+	os.setenv('PATH', '${go_dest}/bin:${os.getenv('PATH')}', true)
 }
 
-fn build_() ! {
-}
+fn build() ! {}
 
-// get the Upload List of the files
-fn ulist_get() !ulist.UList {
-	// mut installer := get()!
-	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
-	return ulist.UList{}
-}
-
-fn destroy_() ! {
+fn destroy() ! {
 	console.print_debug('golang destroy')
 
 	osal.package_remove('golang')!

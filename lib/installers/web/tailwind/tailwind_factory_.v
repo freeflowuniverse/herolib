@@ -1,11 +1,9 @@
 module tailwind
 
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import freeflowuniverse.herolib.ui.console
-import time
 
 __global (
 	tailwind_global  map[string]&Tailwind
@@ -17,11 +15,41 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string = 'default'
+	name string
 }
 
 pub fn get(args_ ArgsGet) !&Tailwind {
 	return &Tailwind{}
+}
+
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript string // if filled in then plbook will be made out of it
+	plbook     ?playbook.PlayBook
+	reset      bool
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+
+	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+
+	mut other_actions := plbook.find(filter: 'tailwind.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action tailwind.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action tailwind.install')
+				install()!
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,18 +86,24 @@ pub mut:
 
 pub fn (mut self Tailwind) install(args InstallArgs) ! {
 	switch(self.name)
-	if args.reset || (!installed_()!) {
-		install_()!
+	if args.reset || (!installed()!) {
+		install()!
 	}
 }
 
 pub fn (mut self Tailwind) destroy() ! {
 	switch(self.name)
-
-	destroy_()!
+	destroy()!
 }
 
 // switch instance to be used for tailwind
 pub fn switch(name string) {
 	tailwind_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

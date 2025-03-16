@@ -2,10 +2,9 @@ module rclone
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.sysadmin.startupmanager
 import freeflowuniverse.herolib.osal.zinit
-import freeflowuniverse.herolib.ui.console
-import time
 
 __global (
 	rclone_global  map[string]&RClone
@@ -17,14 +16,11 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string = 'default'
+	name string
 }
 
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
-	if args.name == '' {
-		args.name = rclone_default
-	}
 	if args.name == '' {
 		args.name = 'default'
 	}
@@ -32,71 +28,91 @@ fn args_get(args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&RClone {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := RClone{}
 	if args.name !in rclone_global {
-		if !config_exists() {
-			if default {
-				config_save()!
-			}
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('rclone', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
-		config_load()!
 	}
 	return rclone_global[args.name] or {
 		println(rclone_global)
-		panic('bug in get from factory: ')
+		// bug if we get here because should be in globals
+		panic('could not get config for rclone with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o RClone) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('rclone', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('rclone', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('rclone', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('rclone', args.name)!
+	if args.name in rclone_global {
+		// del rclone_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('rclone', args.name, heroscript_default()!)!
-}
-
-fn set(o RClone) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o RClone) ! {
 	mut o2 := obj_init(o)!
-	rclone_global['default'] = &o2
+	rclone_global[o.name] = &o2
+	rclone_default = o.name
 }
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-	name       string = 'default'
 	heroscript string // if filled in then plbook will be made out of it
 	plbook     ?playbook.PlayBook
 	reset      bool
-
-	delete    bool
-	configure bool // make sure there is at least one installed
 }
 
 pub fn play(args_ PlayArgs) ! {
 	mut args := args_
 
-	if args.heroscript == '' {
-		args.heroscript = heroscript_default()!
-	}
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut install_actions := plbook.find(filter: 'rclone.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			mycfg := cfg_play(p)!
-			set(mycfg)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
+		}
+	}
+
+	mut other_actions := plbook.find(filter: 'rclone.')!
+	for other_action in other_actions {
+		if other_action.name in ['destroy', 'install', 'build'] {
+			mut p := other_action.params
+			reset := p.get_default_false('reset')
+			if other_action.name == 'destroy' || reset {
+				console.print_debug('install action rclone.destroy')
+				destroy()!
+			}
+			if other_action.name == 'install' {
+				console.print_debug('install action rclone.install')
+				install()!
+			}
 		}
 	}
 }
@@ -141,18 +157,24 @@ pub mut:
 
 pub fn (mut self RClone) install(args InstallArgs) ! {
 	switch(self.name)
-	if args.reset || (!installed_()!) {
-		install_()!
+	if args.reset || (!installed()!) {
+		install()!
 	}
 }
 
 pub fn (mut self RClone) destroy() ! {
 	switch(self.name)
-
-	destroy_()!
+	destroy()!
 }
 
 // switch instance to be used for rclone
 pub fn switch(name string) {
 	rclone_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

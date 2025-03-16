@@ -53,9 +53,9 @@ pub fn package_install(name_ string) ! {
 	platform_ := core.platform()!
 	cpu := core.cputype()!
 
-	mut sudo_pre:=""
+	mut sudo_pre := ''
 	if core.sudo_required()! {
-		sudo_pre="sudo "
+		sudo_pre = 'sudo '
 	}
 	if platform_ == .osx {
 		if cpu == .arm {
@@ -68,10 +68,11 @@ pub fn package_install(name_ string) ! {
 			}
 		}
 	} else if platform_ == .ubuntu {
-		exec(cmd: 'export DEBIAN_FRONTEND=noninteractive && ${sudo_pre}apt install -y ${name}  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --allow-downgrades --allow-remove-essential --allow-change-held-packages') 
-				or { return error('could not install package on Ubuntu: ${name}\nerror:\n${err}')}
+		exec(
+			cmd: 'export DEBIAN_FRONTEND=noninteractive && ${sudo_pre}apt install -y ${name}  -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --allow-downgrades --allow-remove-essential --allow-change-held-packages'
+		) or { return error('could not install package on Ubuntu: ${name}\nerror:\n${err}') }
 	} else if platform_ == .alpine {
-		exec(cmd: "${sudo_pre}apk add ${name}") or {
+		exec(cmd: '${sudo_pre}apk add ${name}') or {
 			return error('could not install package on Alpine: ${name}\nerror:\n${err}')
 		}
 	} else if platform_ == .arch {

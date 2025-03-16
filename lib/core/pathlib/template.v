@@ -10,7 +10,7 @@ pub fn template_write(template_ string, dest string, overwrite bool) ! {
 	if overwrite || !(os.exists(dest)) {
 		mut p := get_file(path: dest, create: true)!
 		$if debug {
-			console.print_header(" write template to '${dest}'")
+			console.print_debug(" write template to '${dest}'")
 		}
 		p.write(template)!
 	}

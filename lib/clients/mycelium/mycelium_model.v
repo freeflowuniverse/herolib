@@ -1,39 +1,33 @@
 module mycelium
 
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.httpconnection
-import os
+import freeflowuniverse.herolib.data.encoderhero
 
 pub const version = '0.0.0'
 const singleton = true
 const default = true
 
-pub fn heroscript_default() !string {
-	heroscript := "
-    !!mycelium.configure 
-        name:'mycelium'
-        "
-	return heroscript
-}
-
 @[heap]
 pub struct Mycelium {
 pub mut:
 	name       string = 'default'
-	server_url string
-	conn       ?&httpconnection.HTTPConnection
+	server_url string = 'http://localhost:8989'
+	conn       ?&httpconnection.HTTPConnection @[skip; str: skip]
 }
 
-fn cfg_play(p paramsparser.Params) ! {
-	mut mycfg := Mycelium{
-		name:       p.get_default('name', 'default')!
-		server_url: p.get_default('server_url', 'http://localhost:8989/api/v1/messages')!
-	}
-	set(mycfg)!
+// your checking & initialization code if needed
+fn obj_init(mycfg_ Mycelium) !Mycelium {
+	mut mycfg := mycfg_
+	return mycfg
 }
 
-fn obj_init(obj_ Mycelium) !Mycelium {
-	// never call get here, only thing we can do here is work on object itself
-	mut obj := obj_
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj Mycelium) !string {
+	return encoderhero.encode[Mycelium](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !Mycelium {
+	mut obj := encoderhero.decode[Mycelium](heroscript)!
 	return obj
 }
