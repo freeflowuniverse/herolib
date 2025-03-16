@@ -147,7 +147,25 @@ paths:
                         status: "ok"
                       dependencies: []
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - code
+                  - message
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  message:
+                    type: string
+              examples:
+                internalServerErrorExample:
+                  value:
+                    code: 500
+                    message: "Internal server error"
 
   /jobs/{id}:
     get:
@@ -259,7 +277,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/Job'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - code
+                  - message
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  message:
+                    type: string
+              examples:
+                badRequestExample:
+                  value:
+                    code: 400
+                    message: "Invalid request parameters"
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -396,7 +432,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/Job'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - code
+                  - message
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  message:
+                    type: string
+              examples:
+                badRequestExample:
+                  value:
+                    code: 400
+                    message: "Invalid request parameters"
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -609,23 +663,28 @@ components:
           description: The public keys of the agent(s) which can execute the command
           items:
             type: string
-
+            
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+        message:
+          type: string
+          description: Error message
+          
   responses:
     BadRequest:
       description: Bad request
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - code
-              - message
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
+            $ref: '#/components/schemas/Error'
           examples:
             badRequestExample:
               value:
@@ -637,16 +696,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - code
-              - message
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
+            $ref: '#/components/schemas/Error'
           examples:
             notFoundExample:
               value:
@@ -658,16 +708,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - code
-              - message
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
+            $ref: '#/components/schemas/Error'
           examples:
             internalServerErrorExample:
               value:

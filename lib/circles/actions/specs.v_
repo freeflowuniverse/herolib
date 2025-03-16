@@ -1,32 +1,40 @@
 module actions
 
-// new creates a new Job instance
-pub fn (mut m JobDB) new() Job
+// From file: /Users/despiegk/code/github/freeflowuniverse/herolib/lib/circles/actions/db/job_db.v
+pub struct JobDB {
+pub mut:
+	db DBHandler[Job]
+}
+
+pub fn new_jobdb(session_state SessionState) !JobDB {}
+
+pub fn (mut m JobDB) new() Job {}
 
 // set adds or updates a job
-pub fn (mut m JobDB) set(job Job) !Job
+pub fn (mut m JobDB) set(job Job) !Job {}
 
 // get retrieves a job by its ID
-pub fn (mut m JobDB) get(id u32) !Job
+pub fn (mut m JobDB) get(id u32) !Job {}
 
 // list returns all job IDs
-pub fn (mut m JobDB) list() ![]u32
+pub fn (mut m JobDB) list() ![]u32 {}
 
-// getall returns all jobs
-pub fn (mut m JobDB) getall() ![]Job
+pub fn (mut m JobDB) getall() ![]Job {}
 
 // delete removes a job by its ID
-pub fn (mut m JobDB) delete(id u32) !
+pub fn (mut m JobDB) delete(id u32) ! {}
 
 // get_by_guid retrieves a job by its GUID
-pub fn (mut m JobDB) get_by_guid(guid string) !Job
+pub fn (mut m JobDB) get_by_guid(guid string) !Job {}
 
 // delete_by_guid removes a job by its GUID
-pub fn (mut m JobDB) delete_by_guid(guid string) !
+pub fn (mut m JobDB) delete_by_guid(guid string) ! {}
 
 // update_job_status updates the status of a job
-pub fn (mut m JobDB) update_job_status(guid string, new_status JobStatus) !Job
+pub fn (mut m JobDB) update_job_status(guid string, new_status JobStatus) !Job {}
 
+
+// From file: /Users/despiegk/code/github/freeflowuniverse/herolib/lib/circles/actions/models/job.v
 // Job represents a task to be executed by an agent
 pub struct Job {
 pub mut:
