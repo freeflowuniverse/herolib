@@ -56,3 +56,30 @@ collection_points := qdrant_client.retrieve_points(
 )!
 
 println('Collection Points: ${collection_points}')
+
+// 8. Upsert points
+upsert_points := qdrant_client.upsert_points(
+	collection_name: collection_name
+	points:          [
+		qdrant.Point{
+			payload: {
+				'key': 'value'
+			}
+			vector:  [1.0, 2.0, 3.0]
+		},
+		qdrant.Point{
+			payload: {
+				'key': 'value'
+			}
+			vector:  [4.0, 5.0, 6.0]
+		},
+		qdrant.Point{
+			payload: {
+				'key': 'value'
+			}
+			vector:  [7.0, 8.0, 9.0]
+		},
+	]
+)!
+
+println('Upsert Points: ${upsert_points}')

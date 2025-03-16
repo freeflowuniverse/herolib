@@ -19,6 +19,18 @@ pub mut:
 	time   f64         // Response time
 }
 
+pub struct QDrantErrorResponse {
+pub mut:
+	status QDrantError // Response status
+	time   f64         // Response time
+}
+
+// Qdrant error response
+pub struct QDrantError {
+pub mut:
+	error string // Error message
+}
+
 // httpclient creates a new HTTP connection to the Qdrant API
 fn (mut self QDrantClient) httpclient() !&httpconnection.HTTPConnection {
 	mut http_conn := httpconnection.new(

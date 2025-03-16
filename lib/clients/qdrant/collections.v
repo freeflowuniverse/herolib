@@ -107,7 +107,6 @@ pub fn (mut self QDrantClient) get_collection(params GetCollectionParams) !QDran
 	}
 
 	mut response := http_conn.get_json(req)!
-	println('response: ${response}')
 	return json.decode(QDrantResponse[GetCollectionResponse], response)!
 }
 
@@ -133,6 +132,12 @@ pub fn (mut self QDrantClient) create_collection(params CreateCollectionParams) 
 	}
 
 	mut response := http_conn.send(req)!
+
+	if response.code >= 400 {
+		error_ := json.decode(QDrantErrorResponse, response.data)!
+		return error('Error creating collection: ' + error_.status.error)
+	}
+
 	return json.decode(QDrantResponse[bool], response.data)!
 }
 
@@ -152,6 +157,11 @@ pub fn (mut self QDrantClient) delete_collection(params DeleteCollectionParams) 
 	}
 
 	mut response := http_conn.send(req)!
+	if response.code >= 400 {
+		error_ := json.decode(QDrantErrorResponse, response.data)!
+		return error('Error deleting collection: ' + error_.status.error)
+	}
+
 	return json.decode(QDrantResponse[bool], response.data)!
 }
 
@@ -177,6 +187,11 @@ pub fn (mut self QDrantClient) list_collections() !QDrantResponse[ListCollection
 	}
 
 	mut response := http_conn.send(req)!
+	if response.code >= 400 {
+		error_ := json.decode(QDrantErrorResponse, response.data)!
+		return error('Error listing collection: ' + error_.status.error)
+	}
+
 	return json.decode(QDrantResponse[ListCollectionParams], response.data)!
 }
 
@@ -202,5 +217,10 @@ pub fn (mut self QDrantClient) is_collection_exists(params CollectionExistencePa
 	}
 
 	mut response := http_conn.send(req)!
+	if response.code >= 400 {
+		error_ := json.decode(QDrantErrorResponse, response.data)!
+		return error('Error checking collection: ' + error_.status.error)
+	}
+
 	return json.decode(QDrantResponse[CollectionExistenceResponse], response.data)!
 }
