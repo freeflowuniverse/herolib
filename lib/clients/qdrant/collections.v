@@ -194,7 +194,7 @@ pub mut:
 }
 
 // Check collection existence
-pub fn (mut self QDrantClient) is_exists(params CollectionExistenceParams) !QDrantResponse[CollectionExistenceResponse] {
+pub fn (mut self QDrantClient) is_collection_exists(params CollectionExistenceParams) !QDrantResponse[CollectionExistenceResponse] {
 	mut http_conn := self.httpclient()!
 	req := httpconnection.Request{
 		method: .get

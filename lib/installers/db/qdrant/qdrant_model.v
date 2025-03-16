@@ -3,7 +3,6 @@ module qdrant
 import os
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.ui.console
 
 pub const version = '1.13.4'
 const singleton = false

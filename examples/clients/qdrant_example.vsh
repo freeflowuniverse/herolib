@@ -40,7 +40,19 @@ list_collection := qdrant_client.list_collections()!
 println('List Collection: ${list_collection}')
 
 // 6. Check collection existence
-collection_existence := qdrant_client.is_exists(
+collection_existence := qdrant_client.is_collection_exists(
 	collection_name: collection_name
 )!
 println('Collection Existence: ${collection_existence}')
+
+// 7. Retrieve points
+collection_points := qdrant_client.retrieve_points(
+	collection_name: collection_name
+	ids:             [
+		0,
+		3,
+		100,
+	]
+)!
+
+println('Collection Points: ${collection_points}')
