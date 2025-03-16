@@ -180,6 +180,7 @@ systemd_process_test.v
 data/graphdb
 data/radixtree
 clients/livekit
+clients/rclone
 data/radixtree
 data/dedupestor
 core/playcmds
