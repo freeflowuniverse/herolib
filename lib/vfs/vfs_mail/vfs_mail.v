@@ -1,0 +1,17 @@
+module vfs_mail
+
+import freeflowuniverse.herolib.vfs
+import freeflowuniverse.herolib.circles.dbs.core
+
+// MailVFS implements the VFS interface for mail objects
+pub struct MailVFS {
+pub mut:
+	mail_db &core.MailDB
+}
+
+// new_mail_vfs creates a new mail VFS
+pub fn new_mail_vfs(mail_db &core.MailDB) !vfs.VFSImplementation {
+	return &MailVFS{
+		mail_db: mail_db
+	}
+}
