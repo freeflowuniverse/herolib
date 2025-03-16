@@ -1,6 +1,6 @@
-module dbmodule core
+module db
 
-import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
 import freeflowuniverse.herolib.circles.core.models { Name, Record, RecordType }
 
 @[heap]
@@ -11,7 +11,7 @@ pub mut:
 
 pub fn new_namedb(session_state SessionState) !NameDB {
 	return NameDB{
-		db: models.new_dbhandler[Name]('name', session_state)
+		db: new_dbhandler[Name]('name', session_state)
 	}
 }
 

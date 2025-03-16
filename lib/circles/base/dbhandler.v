@@ -1,8 +1,8 @@
 module base
 
-import freeflowuniverse.herolib.circles.core.models { agent_loads, Agent, circle_loads, Circle, name_loads, Name }
-import freeflowuniverse.herolib.circles.mcc.models { Email, email_loads, CalendarEvent, calendar_event_loads }
-import freeflowuniverse.herolib.circles.actions.models { Job, job_loads }
+import freeflowuniverse.herolib.circles.core.models as core_models
+import freeflowuniverse.herolib.circles.mcc.models as mcc_models
+import freeflowuniverse.herolib.circles.actions.models as actions_models
 
 pub struct DBHandler[T] {
 pub mut:
@@ -43,28 +43,28 @@ pub fn (mut m DBHandler[T]) get(id u32) !T {
 	}
 
 	//THIS IS SUPER ANNOYING AND NOT NICE
-	$if T is Agent {
-		mut o:= agent_loads(item_data)!
+	$if T is core_models.Agent {
+		mut o:= core_models.agent_loads(item_data)!
 		o.id = id
 		return o
-	} $else $if T is Circle {
-		mut o:= circle_loads(item_data)!
+	} $else $if T is core_models.Circle {
+		mut o:= core_models.circle_loads(item_data)!
 		o.id = id
 		return o
-	} $else $if T is Name {
-		mut o:= name_loads(item_data)!
+	} $else $if T is core_models.Name {
+		mut o:= core_models.name_loads(item_data)!
 		o.id = id
 		return o
-	} $else $if T is Email {
-		mut o:= email_loads(item_data)!
+	} $else $if T is mcc_models.Email {
+		mut o:= mcc_models.email_loads(item_data)!
 		o.id = id
 		return o
-	} $else $if T is CalendarEvent {
-		mut o:= calendar_event_loads(item_data)!
+	} $else $if T is mcc_models.CalendarEvent {
+		mut o:= mcc_models.calendar_event_loads(item_data)!
 		o.id = id
 		return o
-	} $else $if T is Job {
-		mut o:= job_loads(item_data)!
+	} $else $if T is actions_models.Job {
+		mut o:= actions_models.job_loads(item_data)!
 		o.id = id
 		return o
 	} $else {
@@ -168,28 +168,46 @@ pub fn (mut m DBHandler[T]) getall() ![]T {
 pub fn (mut m DBHandler[T]) list_by_prefix(key_field string, prefix_value string) ![]u32 {
 	// Create the prefix for the radix tree
 	prefix := '${m.prefix}:${key_field}:${prefix_value}'
+	println('DEBUG: Searching with prefix: ${prefix}')
 	
 	// Use RadixTree's list method to get all keys with this prefix
-	keys := m.	session_state.dbs.db_meta_core.list(prefix)!
+	keys := m.session_state.dbs.db_meta_core.list(prefix)!
+	println('DEBUG: Found ${keys.len} keys matching prefix')
+	for i, key in keys {
+		println('DEBUG: Key ${i}: ${key}')
+	}
 	
 	// Extract IDs from the values stored in these keys
 	mut ids := []u32{}
+	mut seen := map[u32]bool{}
+	
 	for key in keys {
 		if id_bytes := m.session_state.dbs.db_meta_core.get(key) {
 			id_str := id_bytes.bytestr()
 			if id_str.len > 0 {
-				ids << id_str.u32()
+				id := id_str.u32()
+				println('DEBUG: Found ID ${id} for key ${key}')
+				// Only add the ID if we haven't seen it before
+				if !seen[id] {
+					ids << id
+					seen[id] = true
+				}
 			}
 		}
 	}
 	
+	println('DEBUG: Returning ${ids.len} unique IDs')
 	return ids
 }
 
 // getall_by_prefix returns all items that match a specific prefix pattern
 pub fn (mut m DBHandler[T]) getall_by_prefix(key_field string, prefix_value string) ![]T {
+	// Get all IDs that match the prefix
+	ids := m.list_by_prefix(key_field, prefix_value)!
+	
+	// Get all items with these IDs
 	mut items := []T{}
-	for id in m.list_by_prefix(key_field, prefix_value)! {
+	for id in ids {
 		items << m.get(id)!
 	}
 	return items

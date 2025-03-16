@@ -64,19 +64,19 @@ pub fn (mut m JobDB) delete_by_guid(guid string) ! {
 
 // get_by_actor retrieves all jobs for a specific actor
 pub fn (mut m JobDB) get_by_actor(actor string) ![]Job {
-	// Get all jobs with this actor
+	// Get all jobs with this actor using the fixed getall_by_prefix method
 	return m.db.getall_by_prefix('actor', actor)!
 }
 
 // get_by_circle retrieves all jobs for a specific circle
 pub fn (mut m JobDB) get_by_circle(circle string) ![]Job {
-	// Get all jobs with this circle
+	// Get all jobs with this circle using the fixed getall_by_prefix method
 	return m.db.getall_by_prefix('circle', circle)!
 }
 
 // get_by_context retrieves all jobs for a specific context
 pub fn (mut m JobDB) get_by_context(context string) ![]Job {
-	// Get all jobs with this context
+	// Get all jobs with this context using the fixed getall_by_prefix method
 	return m.db.getall_by_prefix('context', context)!
 }
 

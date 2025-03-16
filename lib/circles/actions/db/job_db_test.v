@@ -3,7 +3,7 @@ module db
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.actions.models
+import freeflowuniverse.herolib.circles.actions.models { Status, JobStatus }
 import freeflowuniverse.herolib.data.ourtime
 
 fn test_job_db() {
@@ -67,12 +67,9 @@ fn test_job_db() {
 	println('Adding job 1')
 	job1 = runner.jobs.set(job1)!
 	
-	// Explicitly set different IDs for each job to avoid overwriting
-	job2.id = 1 // Set a different ID for job2
 	println('Adding job 2')
 	job2 = runner.jobs.set(job2)!
 	
-	job3.id = 2 // Set a different ID for job3
 	println('Adding job 3')
 	job3 = runner.jobs.set(job3)!
 
@@ -124,7 +121,31 @@ fn test_job_db() {
 
 	// Test get_by_actor method
 	println('Testing get_by_actor method')
+	
+	// Debug: Print all jobs and their actors
+	all_jobs_debug := runner.jobs.getall()!
+	println('Debug - All jobs:')
+	for job in all_jobs_debug {
+		println('Job ID: ${job.id}, GUID: ${job.guid}, Actor: ${job.actor}')
+	}
+	
+	// Debug: Print the index keys for job1 and job2
+	println('Debug - Index keys for job1:')
+	for k, v in job1.index_keys() {
+		println('${k}: ${v}')
+	}
+	println('Debug - Index keys for job2:')
+	for k, v in job2.index_keys() {
+		println('${k}: ${v}')
+	}
+	
 	vm_manager_jobs := runner.jobs.get_by_actor('vm_manager')!
+	println('Found ${vm_manager_jobs.len} jobs with actor "vm_manager"')
+	for i, job in vm_manager_jobs {
+		println('VM Manager Job ${i}: ID=${job.id}, GUID=${job.guid}')
+	}
+	
+	// Now we should find both jobs with actor "vm_manager"
 	assert vm_manager_jobs.len == 2
 	assert vm_manager_jobs[0].guid in ['job-1', 'job-2']
 	assert vm_manager_jobs[1].guid in ['job-1', 'job-2']
@@ -151,12 +172,12 @@ fn test_job_db() {
 
 	// Test update_job_status method
 	println('Testing update_job_status method')
-	updated_job1 := runner.jobs.update_job_status('job-1', .running)!
-	assert updated_job1.status.status == .running
+	updated_job1 := runner.jobs.update_job_status('job-1', JobStatus{status: Status.running})!
+	assert updated_job1.status.status == Status.running
 	
 	// Verify the status was updated in the database
 	status_updated_job1 := runner.jobs.get_by_guid('job-1')!
-	assert status_updated_job1.status.status == .running
+	assert status_updated_job1.status.status == Status.running
 
 	// Test delete functionality
 	println('Testing delete functionality')

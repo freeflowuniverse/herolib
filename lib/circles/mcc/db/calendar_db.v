@@ -1,6 +1,6 @@
 module db
 
-import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
 import freeflowuniverse.herolib.circles.mcc.models { CalendarEvent, calendar_event_loads }
 
 @[heap]
@@ -11,7 +11,7 @@ pub mut:
 
 pub fn new_calendardb(session_state SessionState) !CalendarDB {
 	return CalendarDB{
-		db: models.new_dbhandler[CalendarEvent]('calendar', session_state)
+		db: new_dbhandler[CalendarEvent]('calendar', session_state)
 	}
 }
 

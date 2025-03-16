@@ -1,7 +1,7 @@
 module db
 
-import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
-import freeflowuniverse.herolib.circles.core.models { Circle, Member }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
+import freeflowuniverse.herolib.circles.core.models { Circle, Member, Role }
 
 @[heap]
 pub struct CircleDB {
@@ -11,7 +11,7 @@ pub mut:
 
 pub fn new_circledb(session_state SessionState) !CircleDB {
 	return CircleDB{
-		db: models.new_dbhandler[Circle]('circle', session_state)
+		db: new_dbhandler[Circle]('circle', session_state)
 	}
 }
 

@@ -1,7 +1,7 @@
-module dbmodule core
+module db
 
 import freeflowuniverse.herolib.data.ourtime
-import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
 import freeflowuniverse.herolib.circles.core.models { Agent, AgentService, AgentServiceAction, AgentState }
 
 
@@ -13,7 +13,7 @@ pub mut:
 
 pub fn new_agentdb(session_state SessionState) !AgentDB {
 	return AgentDB{
-		db:models.new_dbhandler[Agent]('agent', session_state)
+		db: new_dbhandler[Agent]('agent', session_state)
 	}
 }
 

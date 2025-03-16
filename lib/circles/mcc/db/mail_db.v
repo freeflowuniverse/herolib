@@ -1,6 +1,6 @@
 module db
 
-import freeflowuniverse.herolib.circles.base { DBHandler, SessionState }
+import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
 import freeflowuniverse.herolib.circles.mcc.models { Email, email_loads }
 
 @[heap]
@@ -11,7 +11,7 @@ pub mut:
 
 pub fn new_maildb(session_state SessionState) !MailDB {
 	return MailDB{
-		db: models.new_dbhandler[Email]('mail', session_state)
+		db: new_dbhandler[Email]('mail', session_state)
 	}
 }
 

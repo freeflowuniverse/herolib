@@ -172,10 +172,10 @@ pub fn job_loads(data []u8) !Job {
 	job.ignore_error = d.get_bool()!
 	
 	// Decode ignore_error_codes array
-	error_codes_len := d.get_u8()!
+	error_codes_len := d.get_u16()!
 	job.ignore_error_codes = []u16{len: int(error_codes_len)}
 	for i in 0 .. error_codes_len {
-		job.ignore_error_codes[i] = d.get_u8()!
+		job.ignore_error_codes[i] = d.get_u16()!
 	}
 	
 	job.debug = d.get_bool()!
