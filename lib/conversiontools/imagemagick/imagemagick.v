@@ -1,6 +1,7 @@
 module imagemagick
 
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 
@@ -63,10 +64,7 @@ pub fn installed() bool {
 	return installed1
 }
 
-pub struct FilterImageMagic {}
-
-fn (f FilterImageMagic) filter (path_ pathlib.Path) !bool {
-	mut path := path_
+fn filter_imagemagic(mut path pathlib.Path, mut params_ paramsparser.Params) !bool {
 	// console.print_debug(" - check $path.path")
 	// console.print_debug(" ===== "+path.name_no_ext())
 	if path.name().starts_with('.') {
@@ -102,22 +100,28 @@ fn (f FilterImageMagic) filter (path_ pathlib.Path) !bool {
 	return true
 }
 
-pub struct ExecutorImageMagic {
-pub mut:
-	backupdir  string
-	redo       bool // if you want to check the file again, even if processed
-	convertpng bool // if yes will go from png to jpg
-}
-
-fn (e ExecutorImageMagic) execute(path_ pathlib.Path) ! {
-	mut path := path_
+fn executor_imagemagic(mut path pathlib.Path, mut params_ paramsparser.Params) !paramsparser.Params {
 	if path.is_dir() {
 		return params_
 	}
+	// console.print_debug(' image check ${path.path}')
+	mut backupdir := ''
+	if params_.exists('backupdir') {
+		backupdir = params_.get('backupdir') or { panic(error) }
+	}
 	mut image := image_new(mut path)
-	if e.backupdir.len > 0 {
-		image.downsize(backup: true, backup_dest: e.backupdir, e.redo: redo, convertpng: e.convertpng)!
+	mut redo := false
+	if params_.exists('redo') {
+		redo = true
+	}
+	mut convertpng := false
+	if params_.exists('convertpng') {
+		convertpng = true
+	}
+	if backupdir.len > 0 {
+		image.downsize(backup: true, backup_dest: backupdir, redo: redo, convertpng: convertpng)!
 	} else {
 		image.downsize(redo: redo, convertpng: convertpng)!
 	}
+	return params_
 }
