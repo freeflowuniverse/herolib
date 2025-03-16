@@ -39,3 +39,8 @@ data.ms/
 test_basic
 cli/hero
 .aider*
+.compile_cache
+compile_results.log
+tmp
+compile_summary.log
+.summary_lock
