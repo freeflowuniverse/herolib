@@ -3,7 +3,7 @@ module db
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.core {Agent, AgentService, AgentServiceAction, AgentState}
+import freeflowuniverse.herolib.circles.core.models {Agent, AgentService, AgentServiceAction, AgentState}
 
 fn test_agent_db() {
 	// Create a temporary directory for testing

@@ -3,7 +3,7 @@ module db
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.core {Name, Record}
+import freeflowuniverse.herolib.circles.core.models {Name, Record}
 
 fn test_name_db() {
 	// Create a temporary directory for testing
@@ -30,14 +30,14 @@ fn test_name_db() {
 	name3.admins = ['admin3_pubkey']
 
 	// Create records for testing
-	mut record1 := core.Record{
+	mut record1 := Record{
 		name: 'www'
 		text: 'Web server'
 		category: .a
 		addr: ['192.168.1.1', '192.168.1.2']
 	}
 
-	mut record2 := core.Record{
+	mut record2 := Record{
 		name: 'mail'
 		text: 'Mail server'
 		category: .mx
@@ -107,7 +107,7 @@ fn test_name_db() {
 
 	// Test add_record method
 	println('Testing add_record method')
-	mut record3 := core.Record{
+	mut record3 := Record{
 		name: 'api'
 		text: 'API server'
 		category: .a

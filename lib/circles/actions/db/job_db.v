@@ -62,40 +62,6 @@ pub fn (mut m JobDB) delete_by_guid(guid string) ! {
 	m.delete(job.id)!
 }
 
-// get_by_actor retrieves all jobs for a specific actor
-pub fn (mut m JobDB) get_by_actor(actor string) ![]Job {
-	// Get all jobs with this actor using the fixed getall_by_prefix method
-	return m.db.getall_by_prefix('actor', actor)!
-}
-
-// get_by_circle retrieves all jobs for a specific circle
-pub fn (mut m JobDB) get_by_circle(circle string) ![]Job {
-	// Get all jobs with this circle using the fixed getall_by_prefix method
-	return m.db.getall_by_prefix('circle', circle)!
-}
-
-// get_by_context retrieves all jobs for a specific context
-pub fn (mut m JobDB) get_by_context(context string) ![]Job {
-	// Get all jobs with this context using the fixed getall_by_prefix method
-	return m.db.getall_by_prefix('context', context)!
-}
-
-// get_by_circle_and_context retrieves all jobs for a specific circle and context
-pub fn (mut m JobDB) get_by_circle_and_context(circle string, context string) ![]Job {
-	// Get all jobs for this circle
-	circle_jobs := m.get_by_circle(circle)!
-	
-	// Filter for the specific context
-	mut result := []Job{}
-	for job in circle_jobs {
-		if job.context == context {
-			result << job
-		}
-	}
-	
-	return result
-}
-
 // update_job_status updates the status of a job
 pub fn (mut m JobDB) update_job_status(guid string, new_status JobStatus) !Job {
 	// Get the job by GUID

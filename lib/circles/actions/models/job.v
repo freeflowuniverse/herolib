@@ -55,9 +55,9 @@ pub enum Status {
 
 pub fn (j Job) index_keys() map[string]string {
 	return {
-		'guid': j.guid,
-		'actor': j.actor,
-		'circle': j.circle,
+		'guid': j.guid
+		'actor': j.actor
+		'circle': j.circle
 		'context': j.context
 	}
 }

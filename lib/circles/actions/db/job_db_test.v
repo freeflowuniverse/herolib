@@ -139,37 +139,6 @@ fn test_job_db() {
 		println('${k}: ${v}')
 	}
 	
-	vm_manager_jobs := runner.jobs.get_by_actor('vm_manager')!
-	println('Found ${vm_manager_jobs.len} jobs with actor "vm_manager"')
-	for i, job in vm_manager_jobs {
-		println('VM Manager Job ${i}: ID=${job.id}, GUID=${job.guid}')
-	}
-	
-	// Now we should find both jobs with actor "vm_manager"
-	assert vm_manager_jobs.len == 2
-	assert vm_manager_jobs[0].guid in ['job-1', 'job-2']
-	assert vm_manager_jobs[1].guid in ['job-1', 'job-2']
-
-	// Test get_by_circle method
-	println('Testing get_by_circle method')
-	circle1_jobs := runner.jobs.get_by_circle('circle1')!
-	assert circle1_jobs.len == 2
-	assert circle1_jobs[0].guid in ['job-1', 'job-2']
-	assert circle1_jobs[1].guid in ['job-1', 'job-2']
-
-	// Test get_by_context method
-	println('Testing get_by_context method')
-	context1_jobs := runner.jobs.get_by_context('context1')!
-	assert context1_jobs.len == 2
-	assert context1_jobs[0].guid in ['job-1', 'job-3']
-	assert context1_jobs[1].guid in ['job-1', 'job-3']
-
-	// Test get_by_circle_and_context method
-	println('Testing get_by_circle_and_context method')
-	circle1_context1_jobs := runner.jobs.get_by_circle_and_context('circle1', 'context1')!
-	assert circle1_context1_jobs.len == 1
-	assert circle1_context1_jobs[0].guid == 'job-1'
-
 	// Test update_job_status method
 	println('Testing update_job_status method')
 	updated_job1 := runner.jobs.update_job_status('job-1', JobStatus{status: Status.running})!

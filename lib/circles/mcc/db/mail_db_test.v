@@ -22,7 +22,7 @@ fn test_mail_db() {
 	email1.flags = ['\\Seen']
 	email1.internal_date = 1647123456
 	email1.size = 1024
-	email1.envelope = mcc.Envelope{
+	email1.envelope = models.Envelope{
 		subject: 'Test Email 1'
 		from: ['sender1@example.com']
 		to: ['recipient1@example.com']
@@ -36,7 +36,7 @@ fn test_mail_db() {
 	email2.flags = ['\\Seen', '\\Flagged']
 	email2.internal_date = 1647123457
 	email2.size = 2048
-	email2.envelope = mcc.Envelope{
+	email2.envelope = models.Envelope{
 		subject: 'Test Email 2'
 		from: ['sender2@example.com']
 		to: ['recipient2@example.com']
@@ -50,7 +50,7 @@ fn test_mail_db() {
 	email3.flags = ['\\Seen']
 	email3.internal_date = 1647123458
 	email3.size = 3072
-	email3.envelope = mcc.Envelope{
+	email3.envelope = models.Envelope{
 		subject: 'Test Email 3'
 		from: ['user@example.com']
 		to: ['recipient3@example.com']
@@ -215,7 +215,7 @@ fn test_mail_db() {
 	emails_after_all_deleted := runner.mails.getall() or {
 		// This is expected to fail with 'No emails found' error
 		assert err.msg().contains('No')
-		[]mcc.Email{cap: 0}
+		[]models.Email{cap: 0}
 	}
 	assert emails_after_all_deleted.len == 0, 'Expected 0 emails after all deletions, got ${emails_after_all_deleted.len}'
 

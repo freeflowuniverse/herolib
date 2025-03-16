@@ -3,7 +3,7 @@ module db
 import os
 import rand
 import freeflowuniverse.herolib.circles.actionprocessor
-import freeflowuniverse.herolib.circles.core {Circle, Member}
+import freeflowuniverse.herolib.circles.core.models {Circle, Member}
 
 fn test_circle_db() {
 	// Create a temporary directory for testing
@@ -27,7 +27,7 @@ fn test_circle_db() {
 	circle3.description = 'Test Circle 3'
 
 	// Create members for testing
-	mut member1 := core.Member{
+	mut member1 := Member{
 		name: 'member1'
 		description: 'Test Member 1'
 		role: .admin
@@ -35,7 +35,7 @@ fn test_circle_db() {
 		emails: ['member1@example.com']
 	}
 
-	mut member2 := core.Member{
+	mut member2 := Member{
 		name: 'member2'
 		description: 'Test Member 2'
 		role: .member
@@ -104,7 +104,7 @@ fn test_circle_db() {
 
 	// Test add_member method
 	println('Testing add_member method')
-	mut member3 := core.Member{
+	mut member3 := Member{
 		name: 'member3'
 		description: 'Test Member 3'
 		role: .contributor
