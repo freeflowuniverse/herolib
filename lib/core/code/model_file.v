@@ -4,8 +4,6 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import os
 
-<<<<<<<< HEAD:lib/core/code/vfile.v
-========
 pub interface IFile {
 	write(string, WriteOptions) !
 	name string
@@ -32,7 +30,6 @@ pub fn (f File) typescript(path string, params WriteOptions) ! {
 	}
 }
 
->>>>>>>> development:lib/core/code/model_file.v
 
 pub struct VFile {
 pub mut:

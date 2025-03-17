@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecific
 
 pub fn generate_client_file(spec ActorSpecification) !VFile {
 	actor_name_snake := texttools.snake_case(spec.name)
-	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
+	actor_name_pascal := texttools.pascal_case(spec.name)
 	
 	mut items := []CodeItem{}
 
@@ -47,7 +47,7 @@ pub fn generate_client_file(spec ActorSpecification) !VFile {
 
 pub fn generate_example_client_file(spec ActorSpecification) !VFile {
 	actor_name_snake := texttools.snake_case(spec.name)
-	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
+	actor_name_pascal := texttools.pascal_case(spec.name)
 	
 	mut items := []CodeItem{}
 

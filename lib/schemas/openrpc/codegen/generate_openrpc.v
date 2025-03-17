@@ -86,7 +86,7 @@ module codegen
 // 	// 	description: function.result.description
 // 	// }
 
-// 	pascal_name := texttools.snake_case_to_pascal(function.name)
+// 	pascal_name := texttools.pascal_case(function.name)
 // 	function_name := if function.mod != '' {
 // 		'${pascal_name}'
 // 	} else {

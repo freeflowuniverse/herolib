@@ -73,7 +73,7 @@ fn generate_actor_file(spec ActorSpecification) !VFile {
 	dollar := '$'
 	version := spec.version
 	name_snake := texttools.snake_case(spec.name)
-	name_pascal := texttools.snake_case_to_pascal(spec.name)
+	name_pascal := texttools.pascal_case(spec.name)
 	actor_code := $tmpl('./templates/actor.v.template')
 	return VFile {
 		name: 'actor'
@@ -84,7 +84,7 @@ fn generate_actor_file(spec ActorSpecification) !VFile {
 fn generate_actor_test_file(spec ActorSpecification) !VFile {
 	dollar := '$'
 	actor_name_snake := texttools.snake_case(spec.name)
-	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
+	actor_name_pascal := texttools.pascal_case(spec.name)
 	actor_test_code := $tmpl('./templates/actor_test.v.template')
 	return VFile {
 		name: 'actor_test'
@@ -97,7 +97,7 @@ fn generate_specs_file(name string, interfaces []ActorInterface) !VFile {
 	support_openapi := ActorInterface.openapi in interfaces
 	dollar := '$'
 	actor_name_snake := texttools.snake_case(name)
-	actor_name_pascal := texttools.snake_case_to_pascal(name)
+	actor_name_pascal := texttools.pascal_case(name)
 	actor_code := $tmpl('./templates/specifications.v.template')
 	return VFile {
 		name: 'specifications'

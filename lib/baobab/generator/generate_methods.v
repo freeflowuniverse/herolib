@@ -12,7 +12,7 @@ const crud_prefixes = ['new', 'get', 'set', 'delete', 'list']
 
 pub fn generate_methods_file(spec ActorSpecification) !VFile {
 	name_snake := texttools.snake_case(spec.name)
-	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
+	actor_name_pascal := texttools.pascal_case(spec.name)
 	
 	receiver := generate_methods_receiver(spec.name)
 	receiver_param := Param {

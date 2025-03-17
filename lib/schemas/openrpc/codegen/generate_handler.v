@@ -35,7 +35,7 @@ pub fn generate_handler_file(o OpenRPC, receiver Struct, method_map map[string]F
 pub fn generate_handler_test_file(o OpenRPC, receiver Struct, method_map map[string]Function, object_map map[string]Struct) !VFile {
 	name := texttools.name_fix(o.info.title)
 
-	handler_name := texttools.name_fix_pascal_to_snake(receiver.name)
+	handler_name := texttools.snake_case(receiver.name)
 
 	consts := CustomCode{"const actor_name = '${handler_name}_test_actor'"}
 	clean_code := 'mut actor := get(name: actor_name)!\nactor.backend.reset()!'

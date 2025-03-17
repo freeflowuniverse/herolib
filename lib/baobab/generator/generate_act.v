@@ -24,7 +24,7 @@ fn generate_handle_file(spec ActorSpecification) !VFile {
 }
 
 pub fn generate_handle_function(spec ActorSpecification) string {
-	actor_name_pascal := texttools.snake_case_to_pascal(spec.name)
+	actor_name_pascal := texttools.pascal_case(spec.name)
 	mut operation_handlers := []string{}
 	mut routes := []string{}
 
@@ -54,7 +54,7 @@ pub fn generate_handle_function(spec ActorSpecification) string {
 }
 
 pub fn generate_method_handle(actor_name string, method ActorMethod) !Function {
-	actor_name_pascal := texttools.snake_case_to_pascal(actor_name)
+	actor_name_pascal := texttools.pascal_case(actor_name)
 	name_fixed := texttools.snake_case(method.name)
 	mut body := ''
 	if method.parameters.len == 1 {
@@ -89,7 +89,7 @@ fn method_is_void(method ActorMethod) !bool {
 }
 
 pub fn generate_example_method_handle(actor_name string, method ActorMethod) !Function {
-	actor_name_pascal := texttools.snake_case_to_pascal(actor_name)
+	actor_name_pascal := texttools.pascal_case(actor_name)
 	name_fixed := texttools.snake_case(method.name)
 	body := if !method_is_void(method)! {
 		if method.example.result is Example {

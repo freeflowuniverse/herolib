@@ -24,7 +24,7 @@ import net.http
 
 // pub fn ts_client_get_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async get${name_pascal}(id: string): Promise<${name_pascal}> {\n        return this.restClient.get<${name_pascal}>(`/${root}/${name_snake}/\${id}`);\n    }"
@@ -32,7 +32,7 @@ import net.http
 
 // pub fn ts_client_set_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async set${name_pascal}(id: string, ${name_snake}: Partial<${name_pascal}>): Promise<${name_pascal}> {\n        return this.restClient.put<${name_pascal}>(`/${root}/${name_snake}/\${id}`, ${name_snake});\n    }"
@@ -40,7 +40,7 @@ import net.http
 
 // pub fn ts_client_delete_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async delete${name_pascal}(id: string): Promise<void> {\n        return this.restClient.delete<void>(`/${root}/${name_snake}/\${id}`);\n    }"
@@ -48,7 +48,7 @@ import net.http
 
 // pub fn ts_client_list_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
  
 //     return "async list${name_pascal}(): Promise<${name_pascal}[]> {\n        return this.restClient.get<${name_pascal}[]>(`/${root}/${name_snake}`);\n    }"
@@ -65,7 +65,7 @@ fn get_endpoint_root(root string) string {
 // // generates a Base Object's `create` method
 // pub fn ts_client_new_fn(object string, params TSClientFunctionParams) string {
 // 	name_snake := texttools.snake_case(object)
-// 	name_pascal := texttools.name_fix_pascal(object)
+// 	name_pascal := texttools.pascal_case(object)
 // 	root := get_endpoint_root(params.endpoint)
 
 // 	return "async create${name_snake}(object: Omit<${name_pascal}, 'id'>): Promise<${name_pascal}> {
@@ -75,7 +75,7 @@ fn get_endpoint_root(root string) string {
 
 // pub fn ts_client_get_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async get${name_pascal}(id: string): Promise<${name_pascal}> {\n        return this.restClient.get<${name_pascal}>(`/${root}/${name_snake}/\${id}`);\n    }"
@@ -83,7 +83,7 @@ fn get_endpoint_root(root string) string {
 
 // pub fn ts_client_set_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async set${name_pascal}(id: string, ${name_snake}: Partial<${name_pascal}>): Promise<${name_pascal}> {\n        return this.restClient.put<${name_pascal}>(`/${root}/${name_snake}/\${id}`, ${name_snake});\n    }"
@@ -91,7 +91,7 @@ fn get_endpoint_root(root string) string {
 
 // pub fn ts_client_delete_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async delete${name_pascal}(id: string): Promise<void> {\n        return this.restClient.delete<void>(`/${root}/${name_snake}/\${id}`);\n    }"
@@ -99,7 +99,7 @@ fn get_endpoint_root(root string) string {
 
 // pub fn ts_client_list_fn(object string, params TSClientFunctionParams) string {
 //     name_snake := texttools.snake_case(object)
-//     name_pascal := texttools.name_fix_pascal(object)
+//     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
 
 //     return "async list${name_pascal}(): Promise<${name_pascal}[]> {\n        return this.restClient.get<${name_pascal}[]>(`/${root}/${name_snake}`);\n    }"
@@ -107,7 +107,7 @@ fn get_endpoint_root(root string) string {
 
 // // generates a function prototype given an `ActorMethod`
 // pub fn ts_client_fn_prototype(method ActorMethod) string {
-// 	name := texttools.name_fix_pascal(method.name)
+// 	name := texttools.pascal_case(method.name)
 // 	params := method.parameters
 // 		.map(content_descriptor_to_parameter(it) or {panic(err)})
 // 		.map(it.typescript())

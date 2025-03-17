@@ -21,7 +21,7 @@ pub fn method_to_function(method Method) !Function {
 	}
 
 	return Function{
-		name: texttools.name_fix_pascal_to_snake(method.name)
+		name: texttools.snake_case(method.name)
 		params: params
 		result: result
 	}
