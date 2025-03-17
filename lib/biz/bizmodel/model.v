@@ -2,6 +2,7 @@ module bizmodel
 
 import os
 import freeflowuniverse.herolib.biz.spreadsheet
+import freeflowuniverse.herolib.data.ourtime
 
 pub struct BizModel {
 pub mut:
@@ -21,6 +22,7 @@ pub:
 	description          string
 	title                string
 	department           string
+	role string
 	cost                 string
 	cost_percent_revenue f64
 	nrpeople             string
@@ -28,6 +30,7 @@ pub:
 	cost_center          string
 	page                 string
 	fulltime_perc        f64
+	start_date           ?ourtime.OurTime
 }
 
 pub struct Department {
