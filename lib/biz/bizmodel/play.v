@@ -39,12 +39,6 @@ pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 		m.act(*action)!
 	}
 
-	if true{
-		println(actions)
-		exit(0)
-	}
-	
-
 	m.cost_total()!
 	m.revenue_total()!
 	m.funding_total()!
