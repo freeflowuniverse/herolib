@@ -52,8 +52,6 @@ fn test_contacts_vfs() ! {
 	// Create VFS instance
 	mut contacts_vfs := new(&contacts_db) or { panic(err) }
 
-	// vfs_instance := new_contacts_vfs(contacts_db)!
-
 	// Test root directory
 	root := contacts_vfs.root_get()!
 	assert root.is_dir()
