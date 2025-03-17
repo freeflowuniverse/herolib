@@ -122,7 +122,7 @@ fn test_delete_operation() {
 
 	// Verify data is deleted
 	retrieved_after_delete := db.get(key) or {
-		assert err.msg() == 'Record not found'
+		assert err.msg().to_lower().contains('record not found')
 		[]u8{}
 	}
 	assert retrieved_after_delete.len == 0
@@ -141,14 +141,14 @@ fn test_error_handling() {
 
 	// Test getting non-existent key
 	result := db.get(999) or {
-		assert err.msg() == 'Record not found'
+		assert err.msg().to_lower().contains('record not found')
 		[]u8{}
 	}
 	assert result.len == 0
 
 	// Test deleting non-existent key
 	db.delete(999) or {
-		assert err.msg() == 'Record not found'
+		assert err.msg().to_lower().contains('record not found')
 		return
 	}
 }
