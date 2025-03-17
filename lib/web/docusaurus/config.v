@@ -103,17 +103,20 @@ pub mut:
 pub struct Main {
 pub mut:
 	name           string
-	title          string
+	title          string = 'Docusaurus'
 	tagline        string
-	favicon        string
-	url            string
+	favicon        string = 'img/favicon.png'
+	url            string = 'http://localhost'
 	url_home       string
-	base_url       string @[json: 'baseUrl']
-	image          string
+	base_url       string = '/' @[json: 'baseUrl']
+	image          string = 'img/tf_graph.png' @[required]
 	metadata       MainMetadata
-	build_dest []string
-	build_dest_dev []string	
+	build_dest     []string @[json: 'buildDest']
+	build_dest_dev []string @[json: 'buildDestDev']
+	copyright string = "someone"
+	to_import []MyImport  @[json: 'import']
 }
+
 
 
 // Footer config structures
@@ -144,22 +147,6 @@ pub mut:
 	title       string = 'Docusaurus'
 }
 
-pub struct Main {
-pub mut:
-	name           string
-	title          string = 'Docusaurus'
-	tagline        string
-	favicon        string = 'img/favicon.png'
-	url            string = 'http://localhost'
-	url_home       string
-	base_url       string = '/' @[json: 'baseUrl']
-	image          string = 'img/tf_graph.png' @[required]
-	metadata       MainMetadata
-	build_dest     []string @[json: 'buildDest']
-	build_dest_dev []string @[json: 'buildDestDev']
-	copyright string = "someone"
-	to_import []MyImport  @[json: 'import']
-}
 
 pub struct MyImport {
 pub mut:
@@ -199,56 +186,9 @@ pub struct BuildDest {
 pub mut:
 	ssh_name string = 'main'
 	path string //can be on the ssh root or direct path e.g. /root/hero/www/info
-// load_config loads all configuration from the specified directory
-pub fn load_config(cfg_dir string) !Config {
-	// Ensure the config directory exists
-	if !os.exists(cfg_dir) {
-		return error('Config directory ${cfg_dir} does not exist')
-	}
-
-	// Load and parse footer config
-	footer_content := os.read_file(os.join_path(cfg_dir, 'footer.json'))!
-	footer := json.decode(Footer, footer_content) or {
-		eprintln('footer.json in ${cfg_dir} is not in the right format please fix.\nError: ${err}')
-		exit(99)
-	}
-
-	// Load and parse main config
-	main_config_path := os.join_path(cfg_dir, 'main.json')
-	main_content := os.read_file(main_config_path)!
-	main := json.decode(Main, main_content) or {
-		eprintln('main.json in ${cfg_dir} is not in the right format please fix.\nError: ${err}')
-		println('
-
-## EXAMPLE OF A GOOD ONE:
-
-- note the list for buildDest and buildDestDev
-- note its the full path where the html is pushed too
-
-{
-  "title": "ThreeFold Web4",
-  "tagline": "ThreeFold Web4",
-  "favicon": "img/favicon.png",
-  "url": "https://docs.threefold.io",
-  "url_home": "docs/introduction",
-  "baseUrl": "/",
-  "image": "img/tf_graph.png",
-  "metadata": {
-    "description": "ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet.",
-    "image": "https://threefold.info/kristof/img/tf_graph.png",
-    "title": "ThreeFold Docs"
-  },
-  "buildDest":["root@info.ourworld.tf:/root/hero/www/info/tfgrid4"],
-  "buildDestDev":["root@info.ourworld.tf:/root/hero/www/infodev/tfgrid4"]
-  
 }
 
-	// Load and parse navbar config
-	navbar_content := os.read_file(os.join_path(cfg_dir, 'navbar.json'))!
-	navbar := json.decode(Navbar, navbar_content) or {
-		eprintln('navbar.json in ${cfg_dir} is not in the right format please fix.\nError: $err')
-		exit(99)
-	}
+
 
 pub struct ImportSource {
 pub mut:

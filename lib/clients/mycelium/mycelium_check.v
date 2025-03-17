@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.osal.screen
 import freeflowuniverse.herolib.ui
-import freeflowuniverse.herolib.sysadmin.startupmanager
+import freeflowuniverse.herolib.osal.startupmanager
 import os
 import time
 import json
