@@ -1,5 +1,7 @@
 module radixtree
 
+import freeflowuniverse.herolib.ui.console
+
 // Gets a node from the database by its ID
 pub fn (mut rt RadixTree) get_node_by_id(id u32) !Node {
 	node_data := rt.db.get(id)!
@@ -29,18 +31,18 @@ pub fn (mut rt RadixTree) debug_db() ! {
 	for id := u32(0); id < next_id; id++ {
 		if data := rt.db.get(id) {
 			if node := deserialize_node(data) {
-				// console.print_debug('ID ${id}:')
-				// console.print_debug('  Key Segment: "${node.key_segment}"')
-				// console.print_debug('  Is Leaf: ${node.is_leaf}')
-				// console.print_debug('  Children: ${node.children.len}')
+				console.print_debug('ID ${id}:')
+				console.print_debug('  Key Segment: "${node.key_segment}"')
+				console.print_debug('  Is Leaf: ${node.is_leaf}')
+				console.print_debug('  Children: ${node.children.len}')
 				for child in node.children {
-					// console.print_debug('    - Child ID: ${child.node_id}, Key Part: "${child.key_part}"')
+					console.print_debug('    - Child ID: ${child.node_id}, Key Part: "${child.key_part}"')
 				}
 			} else {
-				// console.print_debug('ID ${id}: Failed to deserialize node')
+				console.print_debug('ID ${id}: Failed to deserialize node')
 			}
 		} else {
-			// console.print_debug('ID ${id}: No data')
+			console.print_debug('ID ${id}: No data')
 		}
 	}
 }
@@ -66,7 +68,7 @@ pub fn (mut rt RadixTree) print_tree_from_node(node_id u32, indent string) ! {
 		}
 		node_info += ']'
 	}
-	// console.print_debug(node_info)
+	console.print_debug(node_info)
 
 	// Print children recursively with increased indentation
 	for i, child in node.children {

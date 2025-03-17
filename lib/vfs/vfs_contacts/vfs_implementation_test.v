@@ -1,6 +1,5 @@
 module vfs_contacts
 
-import freeflowuniverse.herolib.vfs
 import freeflowuniverse.herolib.circles.base
 import freeflowuniverse.herolib.circles.mcc.db as core
 import freeflowuniverse.herolib.circles.mcc.models as contacts
