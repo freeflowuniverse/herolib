@@ -181,6 +181,7 @@ data/graphdb
 data/radixtree
 clients/livekit
 clients/rclone
+clients/jina
 data/radixtree
 data/dedupestor
 core/playcmds
