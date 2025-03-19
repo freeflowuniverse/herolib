@@ -2,7 +2,6 @@ module qdrant
 
 import freeflowuniverse.herolib.core.httpconnection
 import json
-// import os
 
 // QdrantClient is the main client for interacting with the Qdrant API
 pub struct QdrantClient {
@@ -16,12 +15,12 @@ pub mut:
 fn (mut self QdrantClient) httpclient() !&httpconnection.HTTPConnection {
 	mut http_conn := httpconnection.new(
 		name: 'Qdrant_vclient'
-		url: self.url
+		url:  self.url
 	)!
 
 	// Add authentication header if API key is provided
 	if self.secret.len > 0 {
-		http_conn.default_header.add(.api_key, self.secret)
+		http_conn.default_header.add_custom('api_key', self.secret)!
 	}
 	return http_conn
 }
@@ -31,18 +30,18 @@ fn (mut self QdrantClient) httpclient() !&httpconnection.HTTPConnection {
 @[params]
 pub struct CreateCollectionParams {
 pub mut:
-	collection_name string    @[required]
-	vectors         VectorsConfig @[required]
-	shard_number    ?int
-	replication_factor ?int
+	collection_name          string        @[required]
+	vectors                  VectorsConfig @[required]
+	shard_number             ?int
+	replication_factor       ?int
 	write_consistency_factor ?int
-	on_disk_payload ?bool
-	hnsw_config     ?HnswConfig
-	optimizers_config ?OptimizersConfig
-	wal_config      ?WalConfig
-	quantization_config ?QuantizationConfig
-	init_from       ?InitFrom
-	timeout         ?int
+	on_disk_payload          ?bool
+	hnsw_config              ?HnswConfig
+	optimizers_config        ?OptimizersConfig
+	wal_config               ?WalConfig
+	quantization_config      ?QuantizationConfig
+	init_from                ?InitFrom
+	timeout                  ?int
 }
 
 // Create a new collection
@@ -93,17 +92,17 @@ pub fn (mut q QdrantClient) create_collection(params CreateCollectionParams) !bo
 	}
 
 	req := httpconnection.Request{
-		method: .put
-		prefix: 'collections/${params.collection_name}'
+		method:     .put
+		prefix:     'collections/${params.collection_name}'
 		dataformat: .json
-		data: json.encode(collection_params)
-		params: query_params
+		data:       json.encode(collection_params)
+		params:     query_params
 	}
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	result := json.decode(OperationResponse, response.body)!
+
+	result := json.decode(OperationResponse, response.data)!
 	return result.result
 }
 
@@ -128,15 +127,15 @@ pub fn (mut q QdrantClient) list_collections(params ListCollectionsParams) !Coll
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	return json.decode(CollectionsResponse, response.body)!
+
+	return json.decode(CollectionsResponse, response.data)!
 }
 
 @[params]
 pub struct DeleteCollectionParams {
 pub mut:
 	collection_name string @[required]
-	timeout ?int
+	timeout         ?int
 }
 
 // Delete a collection
@@ -154,8 +153,8 @@ pub fn (mut q QdrantClient) delete_collection(params DeleteCollectionParams) !bo
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	result := json.decode(OperationResponse, response.body)!
+
+	result := json.decode(OperationResponse, response.data)!
 	return result.result
 }
 
@@ -163,7 +162,7 @@ pub fn (mut q QdrantClient) delete_collection(params DeleteCollectionParams) !bo
 pub struct GetCollectionParams {
 pub mut:
 	collection_name string @[required]
-	timeout ?int
+	timeout         ?int
 }
 
 // Get collection info
@@ -181,8 +180,8 @@ pub fn (mut q QdrantClient) get_collection(params GetCollectionParams) !Collecti
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	result := json.decode(CollectionInfoResponse, response.body)!
+
+	result := json.decode(CollectionInfoResponse, response.data)!
 	return result.result
 }
 
@@ -191,10 +190,10 @@ pub fn (mut q QdrantClient) get_collection(params GetCollectionParams) !Collecti
 @[params]
 pub struct UpsertPointsParams {
 pub mut:
-	collection_name string @[required]
-	points []PointStruct @[required]
-	wait ?bool
-	ordering ?WriteOrdering
+	collection_name string        @[required]
+	points          []PointStruct @[required]
+	wait            ?bool
+	ordering        ?WriteOrdering
 }
 
 // Upsert points
@@ -204,34 +203,34 @@ pub fn (mut q QdrantClient) upsert_points(params UpsertPointsParams) !PointsOper
 		query_params['wait'] = v.str()
 	}
 
-	mut request_body := map[string]json.Any{}
-	request_body['points'] = params.points
+	mut request_body := map[string]string{}
+	request_body['points'] = json.encode(params.points)
 
 	if v := params.ordering {
-		request_body['ordering'] = v
+		request_body['ordering'] = json.encode(v)
 	}
 
 	req := httpconnection.Request{
-		method: .put
-		prefix: 'collections/${params.collection_name}/points'
+		method:     .put
+		prefix:     'collections/${params.collection_name}/points'
 		dataformat: .json
-		data: json.encode(request_body)
-		params: query_params
+		data:       json.encode(request_body)
+		params:     query_params
 	}
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	return json.decode(PointsOperationResponse, response.body)!
+
+	return json.decode(PointsOperationResponse, response.data)!
 }
 
 @[params]
 pub struct DeletePointsParams {
 pub mut:
-	collection_name string @[required]
+	collection_name string         @[required]
 	points_selector PointsSelector @[required]
-	wait ?bool
-	ordering ?WriteOrdering
+	wait            ?bool
+	ordering        ?WriteOrdering
 }
 
 // Delete points
@@ -241,49 +240,49 @@ pub fn (mut q QdrantClient) delete_points(params DeletePointsParams) !PointsOper
 		query_params['wait'] = v.str()
 	}
 
-	mut request_body := map[string]json.Any{}
-	
+	mut request_body := map[string]string{}
+
 	if params.points_selector.points != none {
-		request_body['points'] = params.points_selector.points
+		request_body['points'] = params.points_selector.points.str()
 	} else if params.points_selector.filter != none {
-		request_body['filter'] = params.points_selector.filter
+		request_body['filter'] = params.points_selector.filter.str()
 	}
 
 	if v := params.ordering {
-		request_body['ordering'] = v
+		request_body['ordering'] = v.str()
 	}
 
 	req := httpconnection.Request{
-		method: .post
-		prefix: 'collections/${params.collection_name}/points/delete'
+		method:     .post
+		prefix:     'collections/${params.collection_name}/points/delete'
 		dataformat: .json
-		data: json.encode(request_body)
-		params: query_params
+		data:       json.encode(request_body)
+		params:     query_params
 	}
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	return json.decode(PointsOperationResponse, response.body)!
+
+	return json.decode(PointsOperationResponse, response.data)!
 }
 
 @[params]
 pub struct GetPointParams {
 pub mut:
 	collection_name string @[required]
-	id string @[required]
-	with_payload ?WithPayloadSelector
-	with_vector ?WithVector
+	id              string @[required]
+	with_payload    ?WithPayloadSelector
+	with_vector     ?WithVector
 }
 
 // Get a point by ID
 pub fn (mut q QdrantClient) get_point(params GetPointParams) !GetPointResponse {
 	mut query_params := map[string]string{}
-	
+
 	if v := params.with_payload {
 		query_params['with_payload'] = json.encode(v)
 	}
-	
+
 	if v := params.with_vector {
 		query_params['with_vector'] = json.encode(v)
 	}
@@ -296,20 +295,20 @@ pub fn (mut q QdrantClient) get_point(params GetPointParams) !GetPointResponse {
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
-	return json.decode(GetPointResponse, response.body)!
+
+	return json.decode(GetPointResponse, response.data)!
 }
 
 @[params]
 pub struct SearchParams {
 pub mut:
 	collection_name string @[required]
-	vector []f32 @[required]
-	limit int = 10
-	filter ?Filter
-	params ?SearchParamsConfig
-	with_payload ?WithPayloadSelector
-	with_vector ?WithVector
+	vector          []f32  @[required]
+	limit           int = 10
+	filter          ?Filter
+	params          ?SearchParamsConfig
+	with_payload    ?WithPayloadSelector
+	with_vector     ?WithVector
 	score_threshold ?f32
 }
 
@@ -318,18 +317,18 @@ pub fn (mut q QdrantClient) search(params SearchParams) !SearchResponse {
 	// Create a struct to serialize to JSON
 	struct SearchRequest {
 	pub mut:
-		vector []f32
-		limit int
-		filter ?Filter
-		params ?SearchParamsConfig
-		with_payload ?WithPayloadSelector
-		with_vector ?WithVector
+		vector          []f32
+		limit           int
+		filter          ?Filter
+		params          ?SearchParamsConfig
+		with_payload    ?WithPayloadSelector
+		with_vector     ?WithVector
 		score_threshold ?f32
 	}
 
 	mut request := SearchRequest{
 		vector: params.vector
-		limit: params.limit
+		limit:  params.limit
 	}
 
 	if v := params.filter {
@@ -353,15 +352,15 @@ pub fn (mut q QdrantClient) search(params SearchParams) !SearchResponse {
 	}
 
 	req := httpconnection.Request{
-		method: .post
-		prefix: 'collections/${params.collection_name}/points/search'
+		method:     .post
+		prefix:     'collections/${params.collection_name}/points/search'
 		dataformat: .json
-		data: json.encode(request)
+		data:       json.encode(request)
 	}
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
+
 	return json.decode(SearchResponse, response.data)!
 }
 
@@ -376,7 +375,7 @@ pub fn (mut q QdrantClient) get_service_info() !ServiceInfoResponse {
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
+
 	return json.decode(ServiceInfoResponse, response.data)!
 }
 
@@ -389,6 +388,6 @@ pub fn (mut q QdrantClient) health_check() !bool {
 
 	mut httpclient := q.httpclient()!
 	response := httpclient.send(req)!
-	
+
 	return response.code == 200
 }
