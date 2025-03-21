@@ -1,7 +1,7 @@
 module vfs_mail
 
 import freeflowuniverse.herolib.vfs
-import freeflowuniverse.herolib.circles.dbs.core
+import freeflowuniverse.herolib.circles.mcc.db as core
 
 // MailVFS implements the VFS interface for mail objects
 pub struct MailVFS {

@@ -1,7 +1,5 @@
 module vfs
 
-import time
-
 // VFSImplementation defines the interface that all vfscore implementations must follow
 pub interface VFSImplementation {
 mut:
@@ -35,7 +33,7 @@ mut:
 
 	// FSEntry Operations
 	get_path(entry &FSEntry) !string
-	
+
 	print() !
 
 	// Cleanup operation
