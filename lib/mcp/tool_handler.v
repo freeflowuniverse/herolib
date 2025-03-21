@@ -3,4 +3,4 @@ module mcp
 import x.json2
 
 // ToolHandler is a function type that handles tool calls
-pub type ToolHandler = fn (arguments map[string]Any) !ToolCallResult
+pub type ToolHandler = fn (arguments map[string]json2.Any) !ToolCallResult

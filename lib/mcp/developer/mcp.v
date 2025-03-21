@@ -4,19 +4,22 @@ import freeflowuniverse.herolib.mcp.logger
 import freeflowuniverse.herolib.mcp
 import freeflowuniverse.herolib.schemas.jsonrpc
 
-fn new_mcp_server() {
+pub fn new_mcp_server(d &Developer) ! &mcp.Server {
 	logger.info('Creating new Developer MCP server')
 
 	// Initialize the server with the empty handlers map
 	mut server := mcp.new_server(
 		mcp.MemoryBackend{
-			resources: map[string]mcp.Resource{},
-			resource_contents: map[string][]mcp.ResourceContent{},
-			resource_templates: map[string]mcp.ResourceTemplate{},
-			prompts: map[string]mcp.Prompt{},
-			prompt_messages: map[string][]mcp.PromptMessage{},
-			tools: map[string]mcp.Tool{},
-			tool_handlers: map[string]mcp.ToolHandler{},
+			tools: {
+				'create_mcp_tool': create_mcp_tool_tool,
+				'create_mcp_tool_handler': create_mcp_tool_handler_tool,
+				'create_mcp_tool_code': create_mcp_tool_code_tool
+			},
+			tool_handlers: {
+				'create_mcp_tool': d.create_mcp_tool_tool_handler,
+				'create_mcp_tool_handler': d.create_mcp_tool_handler_tool_handler,
+				'create_mcp_tool_code': d.create_mcp_tool_code_tool_handler
+			},
 		},
 		mcp.ServerParams{
 			config:mcp.ServerConfiguration{
@@ -26,9 +29,5 @@ fn new_mcp_server() {
 			}
 		}}
 	)!
-
-	server.start() or {
-		logger.fatal('Error starting server: $err')
-		exit(1)
-	}
+	return server
 }

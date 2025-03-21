@@ -2,6 +2,7 @@ module developer
 
 import freeflowuniverse.herolib.mcp
 import json
+import os
 
 fn test_parse_struct_fields() {
 	// Test case 1: Simple struct with primitive types
@@ -165,11 +166,44 @@ pub fn initialize() {
 	println('test_create_mcp_tool passed')
 }
 
+
+fn test_create_mcp_tool_code() {
+	d := Developer{}
+	
+	// Test with the complex function that has struct parameters and return type
+	module_path := '${os.dir(@FILE)}/testdata/mock_module'
+	function_name := 'test_function'
+	
+	code := d.create_mcp_tool_code(function_name, module_path) or {
+		panic('Failed to create MCP tool code: ${err}')
+	}
+	panic(code)
+	
+	// // Verify the generated code contains the expected elements
+	// assert code.contains('test_function_tool')
+	// assert code.contains('TestConfig')
+	// assert code.contains('TestResult')
+	
+	// // Test with a simple function that has primitive types
+	// simple_function_name := 'simple_function'
+	// simple_code := d.create_mcp_tool_code(simple_function_name, module_path) or {
+	// 	panic('Failed to create MCP tool code for simple function: ${err}')
+	// }
+	
+	// // Verify the simple function code
+	// assert simple_code.contains('simple_function_tool')
+	// assert simple_code.contains('name string')
+	// assert simple_code.contains('count int')
+	
+	// println('test_create_mcp_tool_code passed')
+}
+
 // Run all tests
 fn main() {
 	test_parse_struct_fields()
 	test_create_mcp_tool_input_schema()
 	test_create_mcp_tool()
+	test_create_mcp_tool_code()
 	
 	println('All tests passed successfully!')
 }

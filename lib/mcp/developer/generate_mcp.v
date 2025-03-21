@@ -1,6 +1,86 @@
 module developer
 
+import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.mcp
+
+// create_mcp_tool_code receives the name of a V language function string, and the path to the module in which it exists.
+// returns an MCP Tool code in v for attaching the function to the mcp server
+pub fn (d &Developer) create_mcp_tool_code(function_name string, module_path string) !string {
+	function_ := get_function_from_module(module_path, function_name)!
+	println('Function string found:\n${function_}')
+	
+	// Try to parse the function
+	function := code.parse_function(function_) or {
+		println('Error parsing function: ${err}')
+		return error('Failed to parse function: ${err}')
+	}
+
+	mut types := map[string]string{}
+	for param in function.params {
+		// Check if the type is an Object (struct)
+		if param.typ is code.Object {
+			types[param.typ.symbol()] = get_type_from_module(module_path, param.typ.symbol())!
+		}
+	}
+	
+	// Get the result type if it's a struct
+	mut result_ := ""
+	if function.result.typ is code.Result {
+		result_type := (function.result.typ as code.Result).typ
+		if result_type is code.Object {
+			result_ = get_type_from_module(module_path, result_type.symbol())!
+		}
+	} else if function.result.typ is code.Object {
+		result_ = get_type_from_module(module_path, function.result.typ.symbol())!
+	}
+
+	tool_name := function.name
+	tool := d.create_mcp_tool(function_, types)!
+	handler := d.create_mcp_tool_handler(function_, types, result_)!
+	str := $tmpl('./templates/tool_code.v.template')
+	return str
+}
+
+// create_mcp_tool parses a V language function string and returns an MCP Tool struct
+// function: The V function string including preceding comments
+// types: A map of struct names to their definitions for complex parameter types
+// result: The type of result of the create_mcp_tool function. Could be simply string, or struct {...}
+pub fn (d &Developer) create_mcp_tool_handler(function_ string, types map[string]string, result_ string) !string {
+	function := code.parse_function(function_)!
+	decode_stmts := function.params.map(argument_decode_stmt(it)).join_lines()
+	
+	result := code.parse_type(result_)
+	str := $tmpl('./templates/tool_handler.v.template')
+	return str
+}
+
+pub fn argument_decode_stmt(param code.Param) string {
+	return if param.typ is code.Integer {
+		'${param.name} := arguments["${param.name}"].int()'
+	} else if param.typ is code.Boolean {
+		'${param.name} := arguments["${param.name}"].bool()'
+	} else if param.typ is code.String {
+		'${param.name} := arguments["${param.name}"].str()'
+	} else if param.typ is code.Object {
+		'${param.name} := json.decode[${param.typ.symbol()}](arguments["${param.name}"].str())!'
+	} else if param.typ is code.Array {
+		'${param.name} := json.decode[${param.typ.symbol()}](arguments["${param.name}"].str())!'
+	} else if param.typ is code.Map {
+		'${param.name} := json.decode[${param.typ.symbol()}](arguments["${param.name}"].str())!'
+	} else {
+		panic('Unsupported type: ${param.typ}')
+	}
+}
+/*
+in @generate_mcp.v , implement a create_mpc_tool_handler function that given a vlang function string and the types  that map to their corresponding type definitions (for instance struct some_type: SomeType{...}), generates a vlang function such as the following:
+
+ou
+pub fn (d &Developer) create_mcp_tool_tool_handler(arguments map[string]Any) !mcp.Tool {
+	function := arguments['function'].str()
+	types := json.decode[map[string]string](arguments['types'].str())!
+	return d.create_mcp_tool(function, types)
+}
+*/
 
 
 // create_mcp_tool parses a V language function string and returns an MCP Tool struct

@@ -1,0 +1,12 @@
+{
+    "method": "tools/call",
+    "params": {
+        "name": "generate_module_from_openapi",
+        "arguments": {
+            "openapi_path": "/Users/timurgordon/code/github/freeflowuniverse/herolib/lib/circles/mcc/openapi.json"
+        },
+        "_meta": {
+            "progressToken": 0
+        }
+    }
+}

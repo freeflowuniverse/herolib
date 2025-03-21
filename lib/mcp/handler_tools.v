@@ -41,6 +41,10 @@ pub struct ToolContent {
 pub:
 	typ        string @[json: 'type']
 	text       string
+	number	int
+	boolean	bool
+	properties map[string]ToolContent
+	items []ToolContent
 }
 
 // Tool List Handler
@@ -79,7 +83,8 @@ fn (mut s Server) tools_list_handler(data string) !string {
 pub struct ToolCallParams {
 pub:
 	name      string
-	arguments map[string]Any
+	arguments map[string]json2.Any
+	meta map[string]json2.Any @[json: '_meta']
 }
 
 pub struct ToolCallResult {
@@ -91,29 +96,33 @@ pub:
 // tools_call_handler handles the tools/call request
 // This request is used to call a specific tool with arguments
 fn (mut s Server) tools_call_handler(data string) !string {
+	println('debugzo301')
 	// Decode the request with name and arguments parameters
-	request := jsonrpc.decode_request_generic[ToolCallParams](data)!
-	
-	if !s.backend.tool_exists(request.params.name)! {
-		return jsonrpc.new_error_response(request.id, tool_not_found(request.params.name)).encode()
+	request_map := json2.raw_decode(data)!.as_map()
+	println('debugzo30')
+	params_map := request_map['params'].as_map()
+	tool_name := params_map['name'].str()
+	if !s.backend.tool_exists(tool_name)! {
+		return jsonrpc.new_error_response(request_map['id'].int(), tool_not_found(tool_name)).encode()
 	}
 
+	arguments := params_map['arguments'].as_map()
 	// Get the tool by name
-	tool := s.backend.tool_get(request.params.name)!
+	tool := s.backend.tool_get(tool_name)!
 	
 	// Validate arguments against the input schema
 	// TODO: Implement proper JSON Schema validation
 	for req in tool.input_schema.required {
-		if req !in request.params.arguments {
-			return jsonrpc.new_error_response(request.id, missing_required_argument(req)).encode()
+		if req !in arguments {
+			return jsonrpc.new_error_response(request_map['id'].int(), missing_required_argument(req)).encode()
 		}
 	}
 	
 	// Call the tool with the provided arguments
-	result := s.backend.tool_call(request.params.name, request.params.arguments)!
+	result := s.backend.tool_call(tool_name, arguments)!
 	
 	// Create a success response with the result
-	response := jsonrpc.new_response_generic[ToolCallResult](request.id, result)
+	response := jsonrpc.new_response_generic[ToolCallResult](request_map['id'].int(), result)
 	return response.encode()
 }
 

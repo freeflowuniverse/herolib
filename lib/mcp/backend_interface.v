@@ -21,7 +21,7 @@ interface Backend {
 	tool_exists(name string) !bool
 	tool_get(name string) !Tool
 	tool_list() ![]Tool
-	tool_call(name string, arguments map[string]Any) !ToolCallResult
+	tool_call(name string, arguments map[string]json2.Any) !ToolCallResult
 mut:
 	resource_subscribe(uri string) !
 	resource_unsubscribe(uri string) !
