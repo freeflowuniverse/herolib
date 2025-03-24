@@ -45,8 +45,8 @@ pub fn get(args StartupManagerArgs) !StartupManager {
 	if args.cat == .unknown {
 		if zinit.check() {
 			sm.cat = .zinit
-		} else if systemd.check()! {
-			sm.cat = .systemd
+		}else { 
+			sm.cat = .screen
 		}
 	}
 	return sm
@@ -76,11 +76,11 @@ pub fn (mut sm StartupManager) new(args zinit.ZProcessNewArgs) ! {
 	match mycat {
 		.screen {
 			mut scr := screen.new(reset: false)!
-			console.print_debug('screen')
+			console.print_debug('screen startup manager ${args.name} cmd:${args.cmd}')
 			_ = scr.add(name: args.name, cmd: args.cmd, reset: args.restart)!
 		}
 		.systemd {
-			console.print_debug('systemd start  ${args.name}')
+			// console.print_debug('systemd start  ${args.name}')
 			mut systemdfactory := systemd.new()!
 			systemdfactory.new(
 				cmd:         args.cmd
@@ -309,6 +309,14 @@ pub fn (mut sm StartupManager) output(name string) !string {
 }
 
 pub fn (mut sm StartupManager) exists(name string) !bool {
+	println(sm.cat)
+	if sm.cat == .unknown {
+		if zinit.check() {
+			sm.cat = .zinit
+		}else { 
+			sm.cat = .screen
+		}
+	}
 	match sm.cat {
 		.screen {
 			mut scr := screen.new(reset: false) or { panic("can't get screen") }

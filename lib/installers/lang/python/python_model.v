@@ -1,8 +1,6 @@
 module python
 
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
-import os
 
 pub const version = '3.12.0'
 const singleton = true
