@@ -10,7 +10,7 @@ const id_param = Param{
 }
 
 // pub fn generate_object_code(actor Struct, object BaseObject) VFile {
-// 	obj_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	obj_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	mut items := []CodeItem{}
@@ -47,7 +47,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_get_method(actor Struct, object BaseObject) Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	get_method := Function{
@@ -71,7 +71,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_set_method(actor Struct, object BaseObject) Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	param_getters := generate_param_getters(
@@ -107,7 +107,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_delete_method(actor Struct, object BaseObject) Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	body := 'actor.backend.delete[${object_type}](id)!'
@@ -132,7 +132,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_new_method(actor Struct, object BaseObject) Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	param_getters := generate_param_getters(
@@ -172,7 +172,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_list_result_struct(actor Struct, object BaseObject) Struct {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 // 	return Struct{
 // 		name: '${object_type}List'
@@ -190,7 +190,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_list_method(actor Struct, object BaseObject) Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	list_struct := Struct{
@@ -234,7 +234,7 @@ const id_param = Param{
 // }
 
 // fn generate_filter_params(actor Struct, object BaseObject) []Struct {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	return [
@@ -264,7 +264,7 @@ const id_param = Param{
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_filter_method(actor Struct, object BaseObject) Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	param_getters := generate_param_getters(
@@ -304,7 +304,7 @@ const id_param = Param{
 
 // // // generate_object_methods generates CRUD actor methods for a provided structure
 // // fn generate_object_methods(actor Struct, object BaseObject) []Function {
-// // 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// // 	object_name := texttools.snake_case(object.structure.name)
 // // 	object_type := object.structure.name
 
 // // 	mut funcs := []Function{}

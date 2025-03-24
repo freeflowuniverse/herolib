@@ -11,7 +11,7 @@ msg << op.Message{
 mut msgs := op.Messages{
 	messages: msg
 }
-res := ai_cli.chat_completion(op.ModelType.gpt_3_5_turbo, msgs)!
+res := ai_cli.chat_completion(op.ModelType.gpt_3_5_turbo.str(), msgs)!
 print(res)
 
 models := ai_cli.list_models()!

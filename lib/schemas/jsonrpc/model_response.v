@@ -21,7 +21,7 @@ pub:
 	error_  ?RPCError @[json: 'error']
 	
 	// Must match the id of the request that generated this response
-	id      string @[required]
+	id      int @[required]
 }
 
 // new_response creates a successful JSON-RPC response with the given result.
@@ -32,7 +32,7 @@ pub:
 //
 // Returns:
 //   - A Response object containing the result
-pub fn new_response(id string, result string) Response {
+pub fn new_response(id int, result string) Response {
 	return Response{
 		jsonrpc: jsonrpc.jsonrpc_version
 		result: result
@@ -48,7 +48,7 @@ pub fn new_response(id string, result string) Response {
 //
 // Returns:
 //   - A Response object containing the error
-pub fn new_error_response(id string, error RPCError) Response {
+pub fn new_error_response(id int, error RPCError) Response {
 	return Response{
 		jsonrpc: jsonrpc.jsonrpc_version
 		error_: error
@@ -79,7 +79,7 @@ pub fn decode_response(data string) !Response {
 	if err := raw_map['error'] {
 		id_any := raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}
 		return Response {
-			id: id_any.str()
+			id: id_any.int()
 			jsonrpc: jsonrpc_version
 			error_: json2.decode[RPCError](err.str())!
 		}
@@ -87,7 +87,7 @@ pub fn decode_response(data string) !Response {
 
 	// Handle successful responses
 	return Response {
-		id: raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}.str()
+		id: raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}.int()
 		jsonrpc: jsonrpc_version
 		result: raw_map['result']!.str()
 	}
@@ -167,7 +167,7 @@ pub mut:
 	error_  ?RPCError @[json: 'error']
 	
 	// Must match the id of the request that generated this response
-	id      string @[required]
+	id      int @[required]
 }
 
 // new_response_generic creates a successful generic JSON-RPC response with a strongly-typed result.
@@ -178,7 +178,7 @@ pub mut:
 //
 // Returns:
 //   - A ResponseGeneric object with result of type D
-pub fn new_response_generic[D](id string, result D) ResponseGeneric[D] {
+pub fn new_response_generic[D](id int, result D) ResponseGeneric[D] {
 	return ResponseGeneric[D]{
 		jsonrpc: jsonrpc.jsonrpc_version
 		result: result
@@ -196,7 +196,6 @@ pub fn new_response_generic[D](id string, result D) ResponseGeneric[D] {
 //   - A ResponseGeneric object with result of type D, or an error if parsing fails
 pub fn decode_response_generic[D](data string) !ResponseGeneric[D] {
 	// Debug output - consider removing in production
-	println('respodata ${data}')
 	
 	raw := json2.raw_decode(data)!
 	raw_map := raw.as_map()
@@ -211,7 +210,7 @@ pub fn decode_response_generic[D](data string) !ResponseGeneric[D] {
 	// Handle error responses
 	if err := raw_map['error'] {
 		return ResponseGeneric[D] {
-			id: raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}.str()
+			id: raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}.int()
 			jsonrpc: jsonrpc_version
 			error_: json2.decode[RPCError](err.str())!
 		}
@@ -220,7 +219,7 @@ pub fn decode_response_generic[D](data string) !ResponseGeneric[D] {
 	// Handle successful responses
 	resp := json.decode(ResponseGeneric[D], data)!
 	return ResponseGeneric[D] {
-		id: raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}.str()
+		id: raw_map['id'] or {return error('Invalid JSONRPC response, no ID Field found')}.int()
 		jsonrpc: jsonrpc_version
 		result: resp.result
 	}

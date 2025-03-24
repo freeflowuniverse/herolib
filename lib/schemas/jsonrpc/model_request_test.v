@@ -5,7 +5,7 @@ fn test_new_request() {
 	assert request.jsonrpc == jsonrpc.jsonrpc_version
 	assert request.method == 'test_method'
 	assert request.params == 'test_params'
-	assert request.id != '' // Ensure the ID is generated
+	assert request.id != -1 // Ensure the ID is generated
 }
 
 fn test_decode_request() {
@@ -17,7 +17,7 @@ fn test_decode_request() {
 	assert request.jsonrpc == '2.0'
 	assert request.method == 'test_method'
 	assert request.params == 'test_params'
-	assert request.id == '123'
+	assert request.id == 123
 }
 
 fn test_request_encode() {
@@ -32,7 +32,7 @@ fn test_new_request_generic() {
 	assert request.jsonrpc == jsonrpc.jsonrpc_version
 	assert request.method == 'test_method'
 	assert request.params == params
-	assert request.id != '' // Ensure the ID is generated
+	assert request.id != -1 // Ensure the ID is generated
 }
 
 fn test_decode_request_id() {
@@ -41,7 +41,7 @@ fn test_decode_request_id() {
 		assert false, 'Failed to decode request ID: $err'
 		return
 	}
-	assert id == '123'
+	assert id == 123
 }
 
 fn test_decode_request_method() {
@@ -54,7 +54,7 @@ fn test_decode_request_method() {
 }
 
 fn test_decode_request_generic() {
-	data := '{"jsonrpc":"2.0","method":"test_method","params":{"key":"value"},"id":"123"}'
+	data := '{"jsonrpc":"2.0","method":"test_method","params":{"key":"value"},"id":123}'
 	request := decode_request_generic[map[string]string](data) or {
 		assert false, 'Failed to decode generic request: $err'
 		return
@@ -62,7 +62,7 @@ fn test_decode_request_generic() {
 	assert request.jsonrpc == '2.0'
 	assert request.method == 'test_method'
 	assert request.params == {'key': 'value'}
-	assert request.id == '123'
+	assert request.id == 123
 }
 
 fn test_request_generic_encode() {

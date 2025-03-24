@@ -15,7 +15,38 @@ If we have 60 months representation (5 year), we have 60 columns
 
 A sheet can also be represented per year or per quarter, if per year then there would be 5 columns only.
 
-There is also functionality to export a sheet to wiki (markdown) or html representation.
+There is also functionality to export a sheet to wiki (markdown), html representation, or CSV format.
+
+## Exporting to CSV
+
+You can export sheet data to CSV format with pipe separation (or custom separator) using the `export_csv` method:
+
+```v
+// Create a sheet
+mut sheet := sheet_new(name: 'my_sheet', nrcol: 12)!
+
+// Add rows and data to the sheet
+// ...
+
+// Export to a CSV file with default pipe separator
+sheet.export_csv(path: '~/output.csv')!
+
+// Export with custom separator and include empty cells
+csv_content := sheet.export_csv(
+    path: '~/output.csv',
+    separator: ',',
+    include_empty: true
+)!
+
+// Export to string only (no file)
+csv_string := sheet.export_csv(path: '')!
+```
+
+The CSV export includes the following features:
+- Default pipe (`|`) separator (configurable)
+- Proper handling of special characters in text fields
+- Option to include or exclude empty cells
+- Automatic formatting of numeric values
 
 ## offline
 

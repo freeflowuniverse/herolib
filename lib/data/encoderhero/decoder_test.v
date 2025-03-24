@@ -75,7 +75,7 @@ pub struct Person {
 	Base
 mut:
 	name     string
-	age      ?int
+	age      int
 	birthday time.Time
 	deathday time.Time
 	car      Car

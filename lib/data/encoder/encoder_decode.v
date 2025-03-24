@@ -54,6 +54,11 @@ pub fn (mut d Decoder) get_bytes() ![]u8 {
 	return bytes
 }
 
+pub fn (mut d Decoder) get_bool() !bool {
+	val := d.get_u8()!
+	return val == 1
+}
+
 // adds u16 length of string in bytes + the bytes
 pub fn (mut d Decoder) get_u8() !u8 {
 	if d.data.len < 1 {

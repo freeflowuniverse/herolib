@@ -132,14 +132,14 @@ pub fn (workload Workload) challenge_hash() []u8 {
 	return md5.sum(workload.challenge().bytes())
 }
 
-pub fn (mut w Workload) json_encode() string {
+pub fn (w Workload) json_encode() string {
 	return '{"version":${w.version},"name":"${w.name}","type":"${w.type_}","data":${w.data},"metadata":"${w.metadata}","description":"${w.description}"}'
 }
 
 type WorkloadData = GatewayFQDNProxy
 	| GatewayNameProxy
 	| PublicIP
-	| QuantumSafeFS
+	// | QuantumSafeFS
 	| ZLogs
 	| Zdb
 	| Zmachine

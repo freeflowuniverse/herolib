@@ -25,4 +25,4 @@ actor_module.write(example_dir,
 	compile: false
 )!
 
-os.execvp('bash', ['${example_dir}/meeting_scheduler_actor/scripts/run.sh'])!
+// os.execvp('bash', ['${example_dir}/meeting_scheduler_actor/scripts/run.sh'])!

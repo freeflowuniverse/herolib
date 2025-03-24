@@ -2,22 +2,22 @@ module code
 
 import freeflowuniverse.herolib.core.pathlib
 
-pub interface IFolder {
+pub interface IBasicFolder {
 	name string
 	files []IFile
 	modules []Module
 	write(string, WriteOptions) !
 }
 
-pub struct Folder {
+pub struct BasicFolder {
 pub:
 	name string
 	files []IFile
-	folders []IFolder
+	folders []IBasicFolder
 	modules []Module
 }
 
-pub fn (f Folder) write(path string, options WriteOptions) ! {
+pub fn (f BasicFolder) write(path string, options WriteOptions) ! {
 	mut dir := pathlib.get_dir(
 		path: '${path}/${f.name}'
 		empty: options.overwrite

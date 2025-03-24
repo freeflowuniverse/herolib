@@ -37,6 +37,7 @@ pub fn new_client(client Client) &Client {
 // These parameters control timeout and retry behavior.
 @[params]
 pub struct SendParams {
+pub:
 	// Maximum time in seconds to wait for a response (default: 60)
 	timeout int = 60
 	

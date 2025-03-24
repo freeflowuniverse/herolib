@@ -60,9 +60,41 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		extrapolate: false
 	)!
 
-	println(action)
-	println(revenue)
-	exit(0)
+	// Handle revenue_items parameter (non-recurring revenue items)
+	mut revenue_items := m.sheet.row_new(
+		name:        '${name}_revenue_items'
+		growth:      action.params.get_default('revenue_items', '0:0')!
+		tags:        'rev name:${name}'
+		descr:       'Revenue items for ${name2}'
+		extrapolate: false
+	)!
+
+	// Handle revenue_growth parameter
+	mut revenue_growth := m.sheet.row_new(
+		name:        '${name}_revenue_growth'
+		growth:      action.params.get_default('revenue_growth', '0:0')!
+		tags:        'rev name:${name}'
+		descr:       'Revenue growth for ${name2}'
+		extrapolate: true
+	)!
+
+	// Handle revenue_item parameter (singular item)
+	mut revenue_item := m.sheet.row_new(
+		name:        '${name}_revenue_item'
+		growth:      action.params.get_default('revenue_item', '0:0')!
+		tags:        'rev name:${name}'
+		descr:       'Revenue item for ${name2}'
+		extrapolate: false
+	)!
+
+	// Handle revenue_nr parameter (number of revenue items)
+	mut revenue_nr := m.sheet.row_new(
+		name:        '${name}_revenue_nr'
+		growth:      action.params.get_default('revenue_nr', '0:0')!
+		tags:        'rev name:${name}'
+		descr:       'Number of revenue items for ${name2}'
+		extrapolate: false
+	)!
 
 	mut revenue_setup := m.sheet.row_new(
 		name:          '${name}_revenue_setup'
@@ -222,16 +254,7 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		name:   '${name}_cogs_monthly_from_perc'
 	)!
 
-	println(action)
-	println(nr_sold)
-	println(revenue)
-	println(revenue_setup_total)
-	println(revenue_monthly_total)
-	println(cogs_setup_perc)
-	println(cogs_setup_from_perc)
-	println(cogs_monthly_perc)
-	println(cogs_monthly_from_perc)
-	exit(0)
+
 
 
 	// mut cogs_from_perc:=cogs_perc.action(action:.multiply,rows:[revenue],name:"cogs_from_perc")!
@@ -259,6 +282,24 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 
 	// temp_past.delete()
 
+	// Process revenue_item and revenue_nr if they are provided
+	mut revenue_item_total := m.sheet.row_new(
+		name:   '${name}_revenue_item_total'
+		growth: '0:0'
+		tags:   'rev name:${name}'
+		descr:  'Revenue item total for ${name2}'
+	)!
+
+	// If revenue_item and revenue_nr are provided, multiply them
+	if revenue_item.max() > 0 && revenue_nr.max() > 0 {
+		revenue_item_total = revenue_item.action(
+			name:   '${name}_revenue_item_total'
+			descr:  'Revenue item total for ${name2}'
+			action: .multiply
+			rows:   [revenue_nr]
+		)!
+	}
+
 	// TOTALS
 
 	mut revenue_total := m.sheet.row_new(
@@ -281,7 +322,7 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 
 	revenue_total = revenue_total.action(
 		action: .add
-		rows:   [revenue, revenue_monthly_total, revenue_setup_total, maintenance_month]
+		rows:   [revenue, revenue_items, revenue_growth, revenue_item_total, revenue_monthly_total, revenue_setup_total, maintenance_month]
 	)!
 
 	if revenue_total.max() > 0 {

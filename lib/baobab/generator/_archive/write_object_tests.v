@@ -23,7 +23,7 @@ import freeflowuniverse.herolib.core.texttools
 // 	}
 
 // 	actor_name := texttools.name_fix(actor.name)
-// 	object_name := texttools.name_fix_pascal_to_snake(object.schema.name)
+// 	object_name := texttools.snake_case(object.schema.name)
 // 	object_type := object.structure.name
 // 	// TODO: support modules outside of crystal
 
@@ -58,7 +58,7 @@ import freeflowuniverse.herolib.core.texttools
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_new_method_test(actor Struct, object BaseObject) !Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	required_fields := object.structure.fields.filter(it.attrs.any(it.name == 'required'))
@@ -86,7 +86,7 @@ import freeflowuniverse.herolib.core.texttools
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_get_method_test(actor Struct, object BaseObject) !Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	required_fields := object.structure.fields.filter(it.attrs.any(it.name == 'required'))
@@ -112,7 +112,7 @@ import freeflowuniverse.herolib.core.texttools
 
 // // generate_object_methods generates CRUD actor methods for a provided structure
 // fn generate_filter_test(actor Struct, object BaseObject) !Function {
-// 	object_name := texttools.name_fix_pascal_to_snake(object.structure.name)
+// 	object_name := texttools.snake_case(object.structure.name)
 // 	object_type := object.structure.name
 
 // 	index_fields := object.structure.fields.filter(it.attrs.any(it.name == 'index'))

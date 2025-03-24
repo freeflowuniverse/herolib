@@ -57,6 +57,14 @@ pub fn (mut b Encoder) add_bytes(data []u8) {
 	b.data << data
 }
 
+pub fn (mut b Encoder) add_bool(data bool) {
+	if data {
+		b.add_u8(1)
+	} else {
+		b.add_u8(0)
+	}
+}
+
 pub fn (mut b Encoder) add_u8(data u8) {
 	b.data << data
 }

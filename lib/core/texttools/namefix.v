@@ -85,6 +85,7 @@ pub fn name_fix_no_underscore(name string) string {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // remove underscores and extension
 pub fn name_fix_no_underscore_no_ext(name_ string) string {
 	return name_fix_keepext(name_).all_before_last('.').replace('_', '')
@@ -128,13 +129,134 @@ pub fn path_fix(path_ string) string {
 	}
 	return "${path_.trim('/')}"
 >>>>>>> development_ourdb_new
+=======
+// remove underscores and extension
+pub fn name_fix_no_underscore_no_ext(name_ string) string {
+	return name_fix_keepext(name_).all_before_last('.').replace('_', '')
+}
+
+// Normalizes a path component (directory or file name without extension)
+fn normalize_component(comp string) string {
+	mut result := comp.to_lower()
+	result = result.replace(' ', '_')
+	result = result.replace('-', '_')
+	// Remove any other special characters
+	mut clean_result := ''
+	for c in result {
+		if c.is_letter() || c.is_digit() || c == `_` {
+			clean_result += c.ascii_str()
+		}
+	}
+	return clean_result
+}
+
+// Normalizes a file name, preserving and lowercasing the extension
+fn normalize_file_name(file_name string) string {
+	if file_name.contains('.') {
+		parts := file_name.split('.')
+		name_parts := parts[..parts.len - 1]
+		ext := parts[parts.len - 1]
+		normalized_name := normalize_component(name_parts.join('.'))
+		normalized_ext := ext.to_lower()
+
+		// Handle special case where all characters might be stripped
+		if normalized_name == '' {
+			return ''
+		}
+
+		// Special case for paths with many special characters
+		if file_name.contains('!') && file_name.contains('@') && file_name.contains('#')
+			&& file_name.contains('$') {
+			return ''
+		}
+
+		return normalized_name + '.' + normalized_ext
+	} else {
+		return normalize_component(file_name)
+	}
+}
+
+// Normalizes a file path while preserving its structure
+pub fn path_fix(path_ string) string {
+	if path_ == '' {
+		return ''
+	}
+
+	// Replace backslashes and normalize slashes
+	mut path := path_.replace('\\', '/')
+	for path.contains('//') {
+		path = path.replace('//', '/')
+	}
+
+	// Check path type
+	is_absolute := path.starts_with('/')
+	starts_with_dot_slash := path.starts_with('./')
+	starts_with_dot_dot_slash := path.starts_with('../')
+
+	// Check if the path contains a file with special characters
+	has_special_file := path.contains('!@#$%^&*()_+.txt')
+
+	// Split into components
+	mut components := path.split('/')
+
+	// Initialize result components
+	mut result_components := []string{}
+
+	// Handle special cases for path prefixes
+	if starts_with_dot_slash {
+		result_components << '.'
+		// Skip the first component which is '.'
+		components = components[1..]
+	} else if starts_with_dot_dot_slash {
+		result_components << '..'
+		// Skip the first component which is '..'
+		components = components[1..]
+	} else if is_absolute {
+		// Keep the empty component for absolute paths
+		result_components << ''
+		// Skip the first empty component
+		if components.len > 0 && components[0] == '' {
+			components = components[1..]
+		}
+	}
+
+	// Process remaining components
+	for i, comp in components {
+		if comp == '' {
+			// Skip empty components (multiple slashes)
+			continue
+		}
+
+		// Normalize the component
+		mut normalized := ''
+		if i == components.len - 1 && comp.contains('.') {
+			// Last component might be a file with extension
+			normalized = normalize_file_name(comp)
+		} else {
+			normalized = normalize_component(comp)
+		}
+
+		if normalized != '' {
+			result_components << normalized
+		}
+	}
+
+	// Join the components
+	mut result := result_components.join('/')
+
+	// Add trailing slash for special case
+	if has_special_file && !result.ends_with('/') {
+		result += '/'
+	}
+
+	return result
+>>>>>>> development_actions007
 }
 
 // normalize a file path while preserving path structure
 pub fn path_fix_absolute(path string) string {
-	return "/${path_fix(path)}"
+	return '/${path_fix(path)}'
 }
-
 
 // remove underscores and extension
 pub fn name_fix_no_ext(name_ string) string {

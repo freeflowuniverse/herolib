@@ -87,7 +87,7 @@ pub fn from_openrpc(spec OpenRPC) !ActorSpecification {
 			if schema.typ == 'object' {
 				objects << BaseObject{
 					schema: Schema {...schema, 
-						title: texttools.name_fix_pascal(key)
+						title: texttools.pascal_case(key)
 						id: texttools.snake_case(key)
 					}
 				}

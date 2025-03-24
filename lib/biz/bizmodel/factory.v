@@ -1,6 +1,7 @@
 module bizmodel
 
 import freeflowuniverse.herolib.biz.spreadsheet
+import freeflowuniverse.herolib.core.playbook
 
 __global (
 	bizmodels shared map[string]&BizModel
@@ -31,6 +32,16 @@ pub fn getset(name string) !&BizModel {
 	}
 	panic('bug')
 }
+
+
+pub fn generate(name string, path string) !&BizModel {
+	mut model:=getset(name)!
+	mut pb := playbook.new(path: path)!
+	model.play(mut pb)!
+	return model
+}
+
+
 
 pub fn set(bizmodel BizModel) {
 	lock bizmodels {

@@ -38,6 +38,7 @@ output/
 data.ms/
 test_basic
 cli/hero
+.aider*
 .compile_cache
 compile_results.log
 tmp
