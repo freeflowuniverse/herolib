@@ -28,7 +28,7 @@ mut:
 	// Set the deployed contracts on the deployment and save the full deployment to be able to delete the whole deployment when need.
 	contracts GridContracts
 	deployer  &Deployer @[skip; str: skip]
-	kvstore   KVStoreFS      @[skip; str: skip]
+	kvstore   KVStoreFS @[skip; str: skip]
 }
 
 fn get_deployer() !Deployer {

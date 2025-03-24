@@ -1,7 +1,7 @@
 module db
 
 import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
-import freeflowuniverse.herolib.circles.actions.models { Job, job_loads, JobStatus }
+import freeflowuniverse.herolib.circles.actions.models { Job, JobStatus }
 
 @[heap]
 pub struct JobDB {
@@ -57,7 +57,7 @@ pub fn (mut m JobDB) delete_by_guid(guid string) ! {
 		// Job not found, nothing to delete
 		return
 	}
-	
+
 	// Delete the job by ID
 	m.delete(job.id)!
 }
@@ -66,10 +66,10 @@ pub fn (mut m JobDB) delete_by_guid(guid string) ! {
 pub fn (mut m JobDB) update_job_status(guid string, new_status JobStatus) !Job {
 	// Get the job by GUID
 	mut job := m.get_by_guid(guid)!
-	
+
 	// Update the job status
 	job.status = new_status
-	
+
 	// Save the updated job
 	return m.set(job)!
 }

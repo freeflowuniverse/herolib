@@ -26,7 +26,8 @@ pub fn (mut lm Locker) lock(l Lock) !Lock {
 			// Resource is already locked
 			if existing_lock.owner == l.owner {
 				// Same owner, refresh the lock
-				refreshed_lock := Lock {...existing_lock,
+				refreshed_lock := Lock{
+					...existing_lock
 					resource:   l.resource
 					owner:      l.owner
 					depth:      l.depth
@@ -46,7 +47,7 @@ pub fn (mut lm Locker) lock(l Lock) !Lock {
 
 	// Generate a new lock token
 	new_lock := Lock{
-		...l,
+		...l
 		token:      rand.uuid_v4()
 		created_at: time.now()
 	}

@@ -23,7 +23,7 @@ pub fn (r StructureRenderer) render(doc MarkdownDocument) string {
 // Render an element as a structure
 fn (r StructureRenderer) render_element(element &MarkdownElement, level int) string {
 	mut result := r.indent.repeat(level) + '${element.typ}'
-	
+
 	if element.content.len > 0 {
 		// Truncate long content
 		mut content := element.content
@@ -34,7 +34,7 @@ fn (r StructureRenderer) render_element(element &MarkdownElement, level int) str
 		content = content.replace('\n', '\\n')
 		result += ': "${content}"'
 	}
-	
+
 	if element.attributes.len > 0 {
 		result += ' {'
 		mut first := true
@@ -47,13 +47,13 @@ fn (r StructureRenderer) render_element(element &MarkdownElement, level int) str
 		}
 		result += '}'
 	}
-	
+
 	result += '\n'
-	
+
 	for child in element.children {
 		result += r.render_element(child, level + 1)
 	}
-	
+
 	return result
 }
 
@@ -73,7 +73,7 @@ pub fn (r PlainTextRenderer) render(doc MarkdownDocument) string {
 // Render an element as plain text
 fn (r PlainTextRenderer) render_element(element &MarkdownElement) string {
 	mut result := ''
-	
+
 	match element.typ {
 		.document {
 			for child in element.children {
@@ -108,7 +108,7 @@ fn (r PlainTextRenderer) render_element(element &MarkdownElement) string {
 		.list {
 			is_ordered := element.attributes['ordered'] == 'true'
 			start_number := element.attributes['start'].int()
-			
+
 			mut i := start_number
 			for child in element.children {
 				if is_ordered {
@@ -150,7 +150,7 @@ fn (r PlainTextRenderer) render_element(element &MarkdownElement) string {
 			result += element.content
 		}
 	}
-	
+
 	return result
 }
 

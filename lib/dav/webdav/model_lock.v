@@ -11,8 +11,8 @@ pub mut:
 	depth      int // 0 for a single resource, 1 for recursive
 	timeout    int // in seconds
 	created_at time.Time
-	lock_type string // typically 'write'
-	scope     string // 'exclusive' or 'shared'
+	lock_type  string // typically 'write'
+	scope      string // 'exclusive' or 'shared'
 }
 
 fn (l Lock) xml() string {
@@ -23,27 +23,25 @@ fn (l Lock) xml() string {
 // and extracts the lock parameters (scope, type, owner)
 fn parse_lock_xml(xml_data string) !Lock {
 	mut lock_info := Lock{
-		scope: 'exclusive' // default values
+		scope:     'exclusive' // default values
 		lock_type: 'write'
-		owner: ''
+		owner:     ''
 	}
-	
+
 	// Parse the XML document
-	doc := xml.XMLDocument.from_string(xml_data) or { 
-		return error('Failed to parse XML: ${err}')
-	}
-	
+	doc := xml.XMLDocument.from_string(xml_data) or { return error('Failed to parse XML: ${err}') }
+
 	// Get the root element (lockinfo)
 	root := doc.root
-	
+
 	// Handle namespace prefixes (D:) in element names
 	// WebDAV uses namespaces, so we need to check for both prefixed and non-prefixed names
-	
+
 	// Extract lockscope
 	for child in root.children {
 		if child is xml.XMLNode {
 			node := child as xml.XMLNode
-			
+
 			// Check for lockscope (with or without namespace prefix)
 			if node.name == 'lockscope' || node.name == 'D:lockscope' {
 				for scope_child in node.children {
@@ -57,7 +55,7 @@ fn parse_lock_xml(xml_data string) !Lock {
 					}
 				}
 			}
-			
+
 			// Check for locktype (with or without namespace prefix)
 			if node.name == 'locktype' || node.name == 'D:locktype' {
 				for type_child in node.children {
@@ -69,7 +67,7 @@ fn parse_lock_xml(xml_data string) !Lock {
 					}
 				}
 			}
-			
+
 			// Check for owner (with or without namespace prefix)
 			if node.name == 'owner' || node.name == 'D:owner' {
 				for owner_child in node.children {
@@ -91,7 +89,7 @@ fn parse_lock_xml(xml_data string) !Lock {
 			}
 		}
 	}
-	
+
 	// If owner is still empty, try to extract it from any text content in the owner node
 	if lock_info.owner.len == 0 {
 		for child in root.children {
@@ -108,15 +106,14 @@ fn parse_lock_xml(xml_data string) !Lock {
 			}
 		}
 	}
-	
+
 	// Use a default owner if none was found
 	if lock_info.owner.len == 0 {
 		lock_info.owner = 'unknown-client'
 	}
-	
+
 	// Debug output
 	// println('Parsed lock info: scope=${lock_info.scope}, type=${lock_info.lock_type}, owner=${lock_info.owner}')
-	
+
 	return lock_info
 }
-

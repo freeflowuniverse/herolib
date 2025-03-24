@@ -7,13 +7,13 @@ import json
 @[params]
 pub struct ZDBRequirements {
 pub mut:
-	name        string @[required]
-	password    string @[required]
-	size        int    @[required]
-	node_id     ?u32
-	description string
-	mode        grid_models.ZdbMode = 'user'
-	public      bool
+	name             string @[required]
+	password         string @[required]
+	size             int    @[required]
+	node_id          ?u32
+	description      string
+	mode             grid_models.ZdbMode = 'user'
+	public           bool
 	use_hetzner_node bool
 }
 

@@ -129,15 +129,6 @@ pub:
 	rootfs_size int
 }
 
-// pub fn (vm VM) json_encode() string {
-// 	mut env_vars := []string{}
-// 	for k, v in vm.env_vars {
-// 		env_vars << '"${k}": "${v}"'
-// 	}
-
-// 	return '{"name":"${vm.name}","flist":"${vm.flist}","entrypoint":"${vm.entrypoint}","env_vars":{${env_vars.join(',')}},"cpu":${vm.cpu},"memory":${vm.memory}, "rootfs_size": ${vm.rootfs_size}}'
-// }
-
 pub fn (vm VM) json_encode() string {
-    return json.encode(vm)
+	return json.encode(vm)
 }

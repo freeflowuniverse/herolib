@@ -10,7 +10,7 @@ pub mut:
 	reset       bool // regenerate all, dangerous !!!
 	interactive bool // if we want to ask
 	path        string
-	playonly bool
+	playonly    bool
 }
 
 // scan over a set of directories call the play where
@@ -38,7 +38,12 @@ pub fn scan(args ScannerArgs) ! {
 		pparent := p.parent()!
 		path_module := pparent.path
 		if os.exists('${path_module}/.heroscript') {
-			do(interactive: args.interactive, path: path_module, reset: args.reset, playonly:args.playonly)!
+			do(
+				interactive: args.interactive
+				path:        path_module
+				reset:       args.reset
+				playonly:    args.playonly
+			)!
 		}
 	}
 }

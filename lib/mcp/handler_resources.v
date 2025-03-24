@@ -10,10 +10,10 @@ import freeflowuniverse.herolib.mcp.logger
 
 pub struct Resource {
 pub:
-	uri string
-	name string
+	uri         string
+	name        string
 	description string
-	mimetype string @[json: 'mimeType']
+	mimetype    string @[json: 'mimeType']
 }
 
 // Resource List Handler
@@ -25,7 +25,7 @@ pub:
 
 pub struct ResourceListResult {
 pub:
-	resources []Resource
+	resources   []Resource
 	next_cursor string @[json: 'nextCursor']
 }
 
@@ -35,13 +35,13 @@ fn (mut s Server) resources_list_handler(data string) !string {
 	// Decode the request with cursor parameter
 	request := jsonrpc.decode_request_generic[ResourceListParams](data)!
 	cursor := request.params.cursor
-	
+
 	// TODO: Implement pagination logic using the cursor
 	// For now, return all resources
-	
+
 	// Create a success response with the result
 	response := jsonrpc.new_response_generic[ResourceListResult](request.id, ResourceListResult{
-		resources: s.backend.resource_list()!,
+		resources:   s.backend.resource_list()!
 		next_cursor: '' // Empty if no more pages
 	})
 	return response.encode()
@@ -61,10 +61,10 @@ pub:
 
 pub struct ResourceContent {
 pub:
-	uri string
+	uri      string
 	mimetype string @[json: 'mimeType']
-	text string
-	blob string // Base64-encoded binary data
+	text     string
+	blob     string // Base64-encoded binary data
 }
 
 // resources_read_handler handles the resources/read request
@@ -72,14 +72,14 @@ pub:
 fn (mut s Server) resources_read_handler(data string) !string {
 	// Decode the request with uri parameter
 	request := jsonrpc.decode_request_generic[ResourceReadParams](data)!
-	
+
 	if !s.backend.resource_exists(request.params.uri)! {
 		return jsonrpc.new_error_response(request.id, resource_not_found(request.params.uri)).encode()
 	}
 
 	// Get the resource contents by URI
 	resource_contents := s.backend.resource_contents_get(request.params.uri)!
-	
+
 	// Create a success response with the result
 	response := jsonrpc.new_response_generic[ResourceReadResult](request.id, ResourceReadResult{
 		contents: resource_contents
@@ -97,9 +97,9 @@ pub:
 pub struct ResourceTemplate {
 pub:
 	uri_template string @[json: 'uriTemplate']
-	name string
-	description string
-	mimetype string @[json: 'mimeType']
+	name         string
+	description  string
+	mimetype     string @[json: 'mimeType']
 }
 
 // resources_templates_list_handler handles the resources/templates/list request
@@ -107,9 +107,10 @@ pub:
 fn (mut s Server) resources_templates_list_handler(data string) !string {
 	// Decode the request
 	request := jsonrpc.decode_request(data)!
-	
+
 	// Create a success response with the result
-	response := jsonrpc.new_response_generic[ResourceTemplatesListResult](request.id, ResourceTemplatesListResult{
+	response := jsonrpc.new_response_generic[ResourceTemplatesListResult](request.id,
+		ResourceTemplatesListResult{
 		resource_templates: s.backend.resource_templates_list()!
 	})
 	return response.encode()
@@ -131,13 +132,13 @@ pub:
 // This request is used to subscribe to changes for a specific resource
 fn (mut s Server) resources_subscribe_handler(data string) !string {
 	request := jsonrpc.decode_request_generic[ResourceSubscribeParams](data)!
-	
+
 	if !s.backend.resource_exists(request.params.uri)! {
 		return jsonrpc.new_error_response(request.id, resource_not_found(request.params.uri)).encode()
 	}
-	
+
 	s.backend.resource_subscribe(request.params.uri)!
-	
+
 	response := jsonrpc.new_response_generic[ResourceSubscribeResult](request.id, ResourceSubscribeResult{
 		subscribed: true
 	})
@@ -152,7 +153,7 @@ pub fn (mut s Server) send_resources_list_changed_notification() ! {
 	if !s.client_config.capabilities.roots.list_changed {
 		return
 	}
-	
+
 	// Create a notification
 	notification := jsonrpc.new_blank_notification('notifications/resources/list_changed')
 	s.send(json.encode(notification))
@@ -169,13 +170,16 @@ pub:
 // send_resource_updated_notification sends a notification when a subscribed resource is updated
 pub fn (mut s Server) send_resource_updated_notification(uri string) ! {
 	// Check if the client is subscribed to this resource
-	if !s.backend.resource_subscribed(uri)! {return}
-	
+	if !s.backend.resource_subscribed(uri)! {
+		return
+	}
+
 	// Create a notification
-	notification := jsonrpc.new_notification[ResourceUpdatedParams]('notifications/resources/updated', ResourceUpdatedParams{
+	notification := jsonrpc.new_notification[ResourceUpdatedParams]('notifications/resources/updated',
+		ResourceUpdatedParams{
 		uri: uri
 	})
-	
+
 	s.send(json.encode(notification))
 	// Send the notification to all connected clients
 	// In a real implementation, this would use a WebSocket or other transport

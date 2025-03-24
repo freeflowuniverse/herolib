@@ -6,30 +6,30 @@ import freeflowuniverse.herolib.data.encoder
 // Agent represents self service provider that can execute jobs
 pub struct Agent {
 pub mut:
-	id u32
+	id          u32
 	pubkey      string // pubkey using ed25519
 	address     string // where we can find the agent
 	port        u16    // default 9999
 	description string // optional
 	status      AgentStatus
 	services    []AgentService
-	signature   string         // signature as done by private key of $address+$port+$description+$status
+	signature   string // signature as done by private key of $address+$port+$description+$status
 }
 
 @[params]
 pub struct ServiceParams {
 pub mut:
-	actor string
+	actor       string
 	description string
 }
 
 // new_service creates self new AgentService for this agent
 pub fn (mut self Agent) new_service(args ServiceParams) &AgentService {
 	mut service := AgentService{
-		actor: args.actor
+		actor:       args.actor
 		description: args.description
-		status: .ok
-		public: true
+		status:      .ok
+		public:      true
 	}
 	self.services << service
 	return &self.services[self.services.len - 1]
@@ -38,18 +38,17 @@ pub fn (mut self Agent) new_service(args ServiceParams) &AgentService {
 @[params]
 pub struct ActionParams {
 pub mut:
- 	action string
+	action      string
 	description string
 }
-
 
 // new_service_action creates self new AgentServiceAction for the specified service
 pub fn (mut service AgentService) new_action(args ActionParams) &AgentServiceAction {
 	mut service_action := AgentServiceAction{
-		action: args.action
+		action:      args.action
 		description: args.description
-		status: .ok
-		public: true
+		status:      .ok
+		public:      true
 	}
 	service.actions << service_action
 	return &service.actions[service.actions.len - 1]
@@ -71,7 +70,7 @@ pub mut:
 	actions     []AgentServiceAction // available actions for this service
 	description string               // optional description
 	status      AgentServiceState    // current state of the service
-	public         bool              // if everyone can use then true, if restricted means only certain people can use
+	public      bool                 // if everyone can use then true, if restricted means only certain people can use
 }
 
 // AgentServiceAction represents an action that can be performed by self service
@@ -102,30 +101,30 @@ pub enum AgentServiceState {
 }
 
 pub fn (self Agent) index_keys() map[string]string {
-	return {"pubkey": self.pubkey}
+	return {
+		'pubkey': self.pubkey
+	}
 }
-
-
 
 // dumps serializes the Agent struct to binary format using the encoder
 pub fn (self Agent) dumps() ![]u8 {
 	mut e := encoder.new()
-	
+
 	// Add unique encoding ID to identify this type of data
 	e.add_u16(100)
-	
+
 	// Encode Agent fields
 	e.add_string(self.pubkey)
 	e.add_string(self.address)
 	e.add_u16(self.port)
 	e.add_string(self.description)
-	
+
 	// Encode AgentStatus
 	e.add_string(self.status.guid)
 	e.add_ourtime(self.status.timestamp_first)
 	e.add_ourtime(self.status.timestamp_last)
 	e.add_u8(u8(self.status.status))
-	
+
 	// Encode services array
 	e.add_u16(u16(self.services.len))
 	for service in self.services {
@@ -134,7 +133,7 @@ pub fn (self Agent) dumps() ![]u8 {
 		e.add_string(service.description)
 		e.add_u8(u8(service.status))
 		e.add_u8(u8(service.public))
-		
+
 		// Encode actions array
 		e.add_u16(u16(service.actions.len))
 		for action in service.actions {
@@ -143,39 +142,39 @@ pub fn (self Agent) dumps() ![]u8 {
 			e.add_string(action.description)
 			e.add_u8(u8(action.status))
 			e.add_u8(u8(action.public))
-			
+
 			// Encode params map
 			e.add_map_string(action.params)
-			
+
 			// Encode params_example map
 			e.add_map_string(action.params_example)
 		}
 	}
-	
+
 	// Encode signature
 	e.add_string(self.signature)
-	
+
 	return e.data
 }
 
 // loads deserializes binary data into an Agent struct
 pub fn agent_loads(data []u8) !Agent {
 	mut d := encoder.decoder_new(data)
-	
+
 	// Check encoding ID to verify this is the correct type of data
 	encoding_id := d.get_u16()!
 	if encoding_id != 100 {
 		return error('Wrong file type: expected encoding ID 100, got ${encoding_id}, for agent')
 	}
 
-	mut self:=Agent{}
-	
+	mut self := Agent{}
+
 	// Decode Agent fields
 	self.pubkey = d.get_string()!
 	self.address = d.get_string()!
 	self.port = d.get_u16()!
 	self.description = d.get_string()!
-	
+
 	// Decode AgentStatus
 	self.status.guid = d.get_string()!
 	self.status.timestamp_first = d.get_ourtime()!
@@ -188,13 +187,13 @@ pub fn agent_loads(data []u8) !Agent {
 		3 { AgentState.halted }
 		else { return error('Invalid AgentState value: ${status_val}') }
 	}
-	
+
 	// Decode services array
 	services_len := d.get_u16()!
 	self.services = []AgentService{len: int(services_len)}
 	for i in 0 .. services_len {
 		mut service := AgentService{}
-		
+
 		// Decode AgentService fields
 		service.actor = d.get_string()!
 		service.description = d.get_string()!
@@ -207,13 +206,13 @@ pub fn agent_loads(data []u8) !Agent {
 			else { return error('Invalid AgentServiceState value: ${service_status_val}') }
 		}
 		service.public = d.get_u8()! == 1
-		
+
 		// Decode actions array
 		actions_len := d.get_u16()!
 		service.actions = []AgentServiceAction{len: int(actions_len)}
 		for j in 0 .. actions_len {
 			mut action := AgentServiceAction{}
-			
+
 			// Decode AgentServiceAction fields
 			action.action = d.get_string()!
 			action.description = d.get_string()!
@@ -226,19 +225,19 @@ pub fn agent_loads(data []u8) !Agent {
 				else { return error('Invalid AgentServiceState value: ${action_status_val}') }
 			}
 			action.public = d.get_u8()! == 1
-			
+
 			// Decode params map
 			action.params = d.get_map_string()!
-			
+
 			// Decode params_example map
 			action.params_example = d.get_map_string()!
-			
+
 			service.actions[j] = action
 		}
-		
+
 		self.services[i] = service
 	}
-	
+
 	// Decode signature
 	self.signature = d.get_string()!
 
@@ -248,7 +247,7 @@ pub fn agent_loads(data []u8) !Agent {
 // loads deserializes binary data into the Agent struct
 pub fn (mut self Agent) loads(data []u8) ! {
 	loaded := agent_loads(data)!
-	
+
 	// Copy all fields from loaded to self
 	self.id = loaded.id
 	self.pubkey = loaded.pubkey

@@ -1,8 +1,8 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { CodeItem, CustomCode, Import, VFile }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
+import freeflowuniverse.herolib.baobab.specification { ActorMethod, ActorSpecification }
 
 pub fn generate_command_file(spec ActorSpecification) !VFile {
 	mut items := []CodeItem{}
@@ -64,7 +64,7 @@ pub fn generate_method_cmd_function(actor_name string, method ActorMethod) strin
 
 	actor_name_snake := texttools.snake_case(actor_name)
 	method_name_snake := texttools.snake_case(method.name)
-	
+
 	method_call := if method.result.name == '' {
 		'${actor_name_snake}.${method_name_snake}()!'
 	} else {

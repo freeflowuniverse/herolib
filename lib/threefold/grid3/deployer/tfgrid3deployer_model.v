@@ -1,6 +1,6 @@
 module deployer
 
-import freeflowuniverse.herolib.data.paramsparser
+// import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
 import os
 
@@ -9,7 +9,6 @@ const singleton = false
 const default = true
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-
 
 pub enum Network {
 	dev
@@ -27,33 +26,36 @@ pub mut:
 	network  Network
 }
 
-
 // your checking & initialization code if needed
 fn obj_init(mycfg_ TFGridDeployer) !TFGridDeployer {
 	mut mycfg := mycfg_
 	ssh_key := os.getenv_opt('SSH_KEY') or { '' }
-	if ssh_key.len>0{
+	if ssh_key.len > 0 {
 		mycfg.ssh_key = ssh_key
 	}
 	mnemonic := os.getenv_opt('TFGRID_MNEMONIC') or { '' }
-	if mnemonic.len>0{
+	if mnemonic.len > 0 {
 		mycfg.mnemonic = mnemonic
-	}	
-	network := os.getenv_opt('TFGRID_NETWORK') or { 'main' } // 
-	if network.len>0{
+	}
+	network := os.getenv_opt('TFGRID_NETWORK') or { 'main' } //
+	if network.len > 0 {
 		match network {
-			"main"{
+			'main' {
 				mycfg.network = .main
-			} "dev" {
+			}
+			'dev' {
 				mycfg.network = .dev
-			} "test" {
+			}
+			'test' {
 				mycfg.network = .test
-			} "qa" {
+			}
+			'qa' {
 				mycfg.network = .qa
-			}else{
+			}
+			else {
 				return error("can't find network with type; ${network}")
-			}		
-		}	
+			}
+		}
 	}
 	if mycfg.ssh_key.len == 0 {
 		return error('ssh_key cannot be empty')

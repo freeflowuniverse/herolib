@@ -1,7 +1,7 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code { VFile, CodeItem, Param, CustomCode, Function, Result, Struct, parse_import }
-import freeflowuniverse.herolib.schemas.openrpc {OpenRPC}
+import freeflowuniverse.herolib.core.code { CodeItem, CustomCode, Function, Param, Struct, VFile, parse_import }
+import freeflowuniverse.herolib.schemas.openrpc { OpenRPC }
 import freeflowuniverse.herolib.core.texttools
 import rand
 
@@ -16,8 +16,8 @@ pub fn generate_handler_file(o OpenRPC, receiver Struct, method_map map[string]F
 	]
 
 	mut file := VFile{
-		name: 'handler'
-		mod: name
+		name:    'handler'
+		mod:     name
 		imports: imports
 		// TODO
 		// items: jsonrpc.generate_handler(
@@ -59,11 +59,11 @@ pub fn generate_handler_test_file(o OpenRPC, receiver Struct, method_map map[str
 			continue
 		}
 		method_handle_test := Function{
-			name: 'test_handle_${method.name}'
+			name:   'test_handle_${method.name}'
 			result: Param{
 				is_result: true
 			}
-			body: "mut handler := ${receiver.name}Handler {${handler_name}.get(name: actor_name)!}
+			body:   "mut handler := ${receiver.name}Handler {${handler_name}.get(name: actor_name)!}
 		request := new_jsonrpcrequest[${method.params[0].typ.symbol()}]('${method.name}', ${get_mock_value(method.params[0].typ.symbol())!})
 		response_json := handler.handle(request.to_json())!"
 		}
@@ -83,10 +83,10 @@ pub fn generate_handler_test_file(o OpenRPC, receiver Struct, method_map map[str
 	imports := parse_import('freeflowuniverse.herolib.schemas.jsonrpc {new_jsonrpcrequest, jsonrpcresponse_decode, jsonrpcerror_decode}')
 
 	mut file := VFile{
-		name: 'handler_test'
-		mod: name
+		name:    'handler_test'
+		mod:     name
 		imports: [imports]
-		items: items
+		items:   items
 	}
 
 	for key, object in object_map {

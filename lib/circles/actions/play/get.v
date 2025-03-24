@@ -6,11 +6,11 @@ import json
 // get processes a job retrieval action
 pub fn (mut p Player) get(params paramsparser.Params) ! {
 	mut job_result := ''
-	
+
 	if params.exists('id') {
 		id := u32(params.get_int('id')!)
 		job := p.job_db.get(id)!
-		
+
 		// Return result based on format
 		match p.return_format {
 			.heroscript {
@@ -23,7 +23,7 @@ pub fn (mut p Player) get(params paramsparser.Params) ! {
 	} else if params.exists('guid') {
 		guid := params.get('guid')!
 		job := p.job_db.get_by_guid(guid)!
-		
+
 		// Return result based on format
 		match p.return_format {
 			.heroscript {
@@ -36,6 +36,6 @@ pub fn (mut p Player) get(params paramsparser.Params) ! {
 	} else {
 		return error('Either id or guid must be provided for job.get')
 	}
-	
+
 	println(job_result)
 }

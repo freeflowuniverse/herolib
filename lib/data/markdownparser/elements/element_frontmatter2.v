@@ -14,18 +14,18 @@ pub fn (mut self Frontmatter2) process() !int {
 	if self.processed {
 		return 0
 	}
-	for line in self.content.split_into_lines(){
-		if line.trim_space()==""{
+	for line in self.content.split_into_lines() {
+		if line.trim_space() == '' {
 			continue
 		}
-		if line.contains(":"){
-			splitted:=line.split(":")
-			if splitted.len !=2{
-				return error("syntax error in frontmatter 2 in \n${self.content}")
+		if line.contains(':') {
+			splitted := line.split(':')
+			if splitted.len != 2 {
+				return error('syntax error in frontmatter 2 in \n${self.content}')
 			}
-			pre:=splitted[0].trim_space()
-			post:=splitted[1].trim_space().trim(" '\"").trim_space()
-			self.args[pre]=post
+			pre := splitted[0].trim_space()
+			post := splitted[1].trim_space().trim(' \'"').trim_space()
+			self.args[pre] = post
 		}
 	}
 	// Clear content after parsing
@@ -36,12 +36,12 @@ pub fn (mut self Frontmatter2) process() !int {
 
 pub fn (self Frontmatter2) markdown() !string {
 	mut out := '---\n'
-	for key, value in self.args{
-		if value.contains(" "){
+	for key, value in self.args {
+		if value.contains(' ') {
 			out += '${key} : \'${value}\'\n'
-		}else{
+		} else {
 			out += '${key} : ${value}\n'
-		}		
+		}
 	}
 	out += '---\n'
 	return out

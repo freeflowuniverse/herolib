@@ -1,25 +1,25 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Folder, IFolder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { CustomCode, IFile, IFolder, Module, VFile }
 import freeflowuniverse.herolib.schemas.openapi
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification, ActorInterface}
+import freeflowuniverse.herolib.baobab.specification { ActorInterface, ActorSpecification }
 import json
 
 pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	mut files := []IFile{}
 	mut folders := []IFolder{}
-	
+
 	files = [
 		generate_actor_file(spec)!,
 		generate_actor_test_file(spec)!,
 		generate_specs_file(spec.name, params.interfaces)!,
 		generate_handle_file(spec)!,
-		generate_methods_file(spec)!
-		generate_methods_interface_file(spec)!
-		generate_methods_example_file(spec)!
-		generate_client_file(spec)!
-		generate_model_file(spec)!
+		generate_methods_file(spec)!,
+		generate_methods_interface_file(spec)!,
+		generate_methods_example_file(spec)!,
+		generate_client_file(spec)!,
+		generate_model_file(spec)!,
 	]
 
 	// generate code files for supported interfaces
@@ -57,15 +57,15 @@ pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 			}
 		}
 	}
-	
+
 	// create module with code files and docs folder
 	name_fixed := texttools.snake_case(spec.name)
 	return code.new_module(
-		name: '${name_fixed}'
+		name:        '${name_fixed}'
 		description: spec.description
-		files: files
-		folders: folders
-		in_src: true
+		files:       files
+		folders:     folders
+		in_src:      true
 	)
 }
 
@@ -75,8 +75,8 @@ fn generate_actor_file(spec ActorSpecification) !VFile {
 	name_snake := texttools.snake_case(spec.name)
 	name_pascal := texttools.pascal_case(spec.name)
 	actor_code := $tmpl('./templates/actor.v.template')
-	return VFile {
-		name: 'actor'
+	return VFile{
+		name:  'actor'
 		items: [CustomCode{actor_code}]
 	}
 }
@@ -86,8 +86,8 @@ fn generate_actor_test_file(spec ActorSpecification) !VFile {
 	actor_name_snake := texttools.snake_case(spec.name)
 	actor_name_pascal := texttools.pascal_case(spec.name)
 	actor_test_code := $tmpl('./templates/actor_test.v.template')
-	return VFile {
-		name: 'actor_test'
+	return VFile{
+		name:  'actor_test'
 		items: [CustomCode{actor_test_code}]
 	}
 }
@@ -99,8 +99,8 @@ fn generate_specs_file(name string, interfaces []ActorInterface) !VFile {
 	actor_name_snake := texttools.snake_case(name)
 	actor_name_pascal := texttools.pascal_case(name)
 	actor_code := $tmpl('./templates/specifications.v.template')
-	return VFile {
-		name: 'specifications'
+	return VFile{
+		name:  'specifications'
 		items: [CustomCode{actor_code}]
 	}
 }

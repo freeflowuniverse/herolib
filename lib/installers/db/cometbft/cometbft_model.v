@@ -12,7 +12,7 @@ const default = true
 @[heap]
 pub struct CometBFT {
 pub mut:
-	name       string = 'default'
+	name string = 'default'
 	// homedir    string
 	// configpath string
 	// username   string

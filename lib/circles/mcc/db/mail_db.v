@@ -1,7 +1,7 @@
 module db
 
 import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
-import freeflowuniverse.herolib.circles.mcc.models { Email, email_loads }
+import freeflowuniverse.herolib.circles.mcc.models { Email }
 
 @[heap]
 pub struct MailDB {
@@ -54,7 +54,7 @@ pub fn (mut m MailDB) get_by_uid(uid u32) !Email {
 pub fn (mut m MailDB) get_by_mailbox(mailbox string) ![]Email {
 	// Get all emails
 	all_emails := m.getall()!
-	
+
 	// Filter emails by mailbox
 	mut result := []Email{}
 	for email in all_emails {
@@ -62,7 +62,7 @@ pub fn (mut m MailDB) get_by_mailbox(mailbox string) ![]Email {
 			result << email
 		}
 	}
-	
+
 	return result
 }
 
@@ -73,7 +73,7 @@ pub fn (mut m MailDB) delete_by_uid(uid u32) ! {
 		// Email not found, nothing to delete
 		return
 	}
-	
+
 	// Delete the email by ID
 	m.delete(email.id)!
 }
@@ -82,7 +82,7 @@ pub fn (mut m MailDB) delete_by_uid(uid u32) ! {
 pub fn (mut m MailDB) delete_by_mailbox(mailbox string) ! {
 	// Get all emails in the mailbox
 	emails := m.get_by_mailbox(mailbox)!
-	
+
 	// Delete each email
 	for email in emails {
 		m.delete(email.id)!
@@ -93,10 +93,10 @@ pub fn (mut m MailDB) delete_by_mailbox(mailbox string) ! {
 pub fn (mut m MailDB) update_flags(uid u32, flags []string) !Email {
 	// Get the email by UID
 	mut email := m.get_by_uid(uid)!
-	
+
 	// Update the flags
 	email.flags = flags
-	
+
 	// Save the updated email
 	return m.set(email)!
 }
@@ -104,15 +104,15 @@ pub fn (mut m MailDB) update_flags(uid u32, flags []string) !Email {
 // search_by_subject searches for emails with a specific subject substring
 pub fn (mut m MailDB) search_by_subject(subject string) ![]Email {
 	mut matching_emails := []Email{}
-	
+
 	// Get all email IDs
 	email_ids := m.list()!
-	
+
 	// Filter emails that match the subject
 	for id in email_ids {
 		// Get the email by ID
 		email := m.get(id) or { continue }
-		
+
 		// Check if the email has an envelope with a matching subject
 		if envelope := email.envelope {
 			if envelope.subject.to_lower().contains(subject.to_lower()) {
@@ -120,22 +120,22 @@ pub fn (mut m MailDB) search_by_subject(subject string) ![]Email {
 			}
 		}
 	}
-	
+
 	return matching_emails
 }
 
 // search_by_address searches for emails with a specific email address in from, to, cc, or bcc fields
 pub fn (mut m MailDB) search_by_address(address string) ![]Email {
 	mut matching_emails := []Email{}
-	
+
 	// Get all email IDs
 	email_ids := m.list()!
-	
+
 	// Filter emails that match the address
 	for id in email_ids {
 		// Get the email by ID
 		email := m.get(id) or { continue }
-		
+
 		// Check if the email has an envelope with a matching address
 		if envelope := email.envelope {
 			// Check in from addresses
@@ -145,7 +145,7 @@ pub fn (mut m MailDB) search_by_address(address string) ![]Email {
 					continue
 				}
 			}
-			
+
 			// Check in to addresses
 			for addr in envelope.to {
 				if addr.to_lower().contains(address.to_lower()) {
@@ -153,7 +153,7 @@ pub fn (mut m MailDB) search_by_address(address string) ![]Email {
 					continue
 				}
 			}
-			
+
 			// Check in cc addresses
 			for addr in envelope.cc {
 				if addr.to_lower().contains(address.to_lower()) {
@@ -161,7 +161,7 @@ pub fn (mut m MailDB) search_by_address(address string) ![]Email {
 					continue
 				}
 			}
-			
+
 			// Check in bcc addresses
 			for addr in envelope.bcc {
 				if addr.to_lower().contains(address.to_lower()) {
@@ -171,6 +171,6 @@ pub fn (mut m MailDB) search_by_address(address string) ![]Email {
 			}
 		}
 	}
-	
+
 	return matching_emails
 }

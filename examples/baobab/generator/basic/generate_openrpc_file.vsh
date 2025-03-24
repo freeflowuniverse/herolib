@@ -14,6 +14,6 @@ actor_spec := specification.from_openrpc(openrpc_spec_)!
 openrpc_spec := actor_spec.to_openrpc()
 
 openrpc_file := generator.generate_openrpc_file(openrpc_spec)!
-openrpc_file.write(os.join_path(example_dir,'docs'), 
+openrpc_file.write(os.join_path(example_dir, 'docs'),
 	overwrite: true
 )!

@@ -50,7 +50,7 @@ pub fn (f File) encode() []u8 {
 
 	// Encode parent_id
 	e.add_u32(f.parent_id)
-	
+
 	// Encode blocksize and block ids
 	// if file has no data, it also should have zero block size
 	e.add_u16(u16(f.chunk_ids.len))

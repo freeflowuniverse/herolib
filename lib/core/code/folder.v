@@ -3,23 +3,23 @@ module code
 import freeflowuniverse.herolib.core.pathlib
 
 pub interface IFolder {
-	name string
-	files []IFile
+	name    string
+	files   []IFile
 	modules []Module
 	write(string, WriteOptions) !
 }
 
 pub struct Folder {
 pub:
-	name string
-	files []IFile
+	name    string
+	files   []IFile
 	folders []IFolder
 	modules []Module
 }
 
 pub fn (f Folder) write(path string, options WriteOptions) ! {
 	mut dir := pathlib.get_dir(
-		path: '${path}/${f.name}'
+		path:  '${path}/${f.name}'
 		empty: options.overwrite
 	)!
 

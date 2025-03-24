@@ -56,15 +56,15 @@ fn test_property_xml() {
 fn test_property_array_xml() {
 	// Create an array of properties
 	mut properties := []Property{}
-	
+
 	// Add different property types to the array
 	properties << DisplayName('test-file.txt')
 	properties << GetContentType('text/plain')
 	properties << ResourceType(false)
-	
+
 	// Test the xml() function for the array of properties
 	xml_output := properties.xml()
-	
+
 	// Verify the XML output contains the expected structure
 	assert xml_output.contains('<D:propstat>')
 	assert xml_output.contains('<D:prop>')
@@ -77,17 +77,17 @@ fn test_property_array_xml() {
 fn test_format_iso8601() {
 	// Create a test time
 	test_time := time.Time{
-		year: 2024
-		month: 1
-		day: 1
-		hour: 12
+		year:   2024
+		month:  1
+		day:    1
+		hour:   12
 		minute: 30
 		second: 45
 	}
-	
+
 	// Format the time using the format_iso8601 function
 	formatted_time := format_iso8601(test_time)
-	
+
 	// Verify the formatted time matches the expected ISO8601 format
 	assert formatted_time == '2024-01-01T12:30:45Z'
 }

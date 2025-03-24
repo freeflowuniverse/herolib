@@ -1,10 +1,8 @@
 module openapi
 
 import json
-import x.json2 {Any}
+import x.json2 { Any }
 import freeflowuniverse.herolib.schemas.jsonschema
-
-
 
 pub fn json_decode(data string) !OpenAPI {
 	// Decode the raw JSON into a map to allow field-specific processing
@@ -33,7 +31,7 @@ pub fn json_decode(data string) !OpenAPI {
 
 pub fn json_decode_components(components_ Components, components_map map[string]Any) !Components {
 	mut components := components_
-	
+
 	if schemas_any := components_map['schemas'] {
 		components.schemas = jsonschema.decode_schemaref_map(schemas_any.as_map())!
 	}
@@ -42,11 +40,9 @@ pub fn json_decode_components(components_ Components, components_map map[string]
 
 pub fn json_decode_path(path_ PathItem, path_map map[string]Any) !PathItem {
 	mut path := path_
-	
+
 	for key in path_map.keys() {
-		operation_any := path_map[key] or {
-			panic('This should never happen')
-		}
+		operation_any := path_map[key] or { panic('This should never happen') }
 		operation_map := operation_any.as_map()
 		match key {
 			'get' {
@@ -87,20 +83,20 @@ pub fn json_decode_operation(operation_ Operation, operation_map map[string]Any)
 		request_body_map := request_body_any.as_map()
 		if content_any := request_body_map['content'] {
 			mut request_body := json.decode(RequestBody, request_body_any.str())!
-			// mut request_body := operation.request_body as RequestBody 
+			// mut request_body := operation.request_body as RequestBody
 			mut content := request_body.content.clone()
 			content_map := content_any.as_map()
 			request_body.content = json_decode_content(content, content_map)!
 			operation.request_body = request_body
 		}
 	}
-	
+
 	if responses_any := operation_map['responses'] {
 		responses_map := responses_any.as_map()
 		for key, response_any in responses_map {
 			response_map := response_any.as_map()
 			if content_any := response_map['content'] {
-				mut response := operation.responses[key] 
+				mut response := operation.responses[key]
 				mut content := response.content.clone()
 				content_map := content_any.as_map()
 				response.content = json_decode_content(content, content_map)!
@@ -170,7 +166,6 @@ fn json_decode_content(content_ map[string]MediaType, content_map map[string]Any
 // 			obj.$(field.name) = arr
 // 		}
 
-
 // 		println('field ${field.name} ${typeof(field.typ)}')
 // 		field_map := data_map[field.name].as_map()
 // 		// Check if the field is of type Schema or SchemaRef
@@ -210,7 +205,7 @@ pub fn (o OpenAPI) encode_json() string {
 			joint << split[i]
 			break
 		}
-		if split[i+1].trim_space().starts_with('"_type"') {
+		if split[i + 1].trim_space().starts_with('"_type"') {
 			if !split[i].trim_space().starts_with('"_type"') {
 				joint << split[i].trim_string_right(',')
 			}
@@ -220,6 +215,6 @@ pub fn (o OpenAPI) encode_json() string {
 		}
 		joint << split[i]
 	}
-	
+
 	return joint.join_lines()
 }

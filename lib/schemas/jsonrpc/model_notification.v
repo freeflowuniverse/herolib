@@ -4,25 +4,25 @@ module jsonrpc
 // It contains all the required fields according to the JSON-RPC 2.0 specification.
 // See: https://www.jsonrpc.org/specification#notification
 pub struct Notification {
-	pub mut:
+pub mut:
 	// The JSON-RPC protocol version, must be exactly "2.0"
-	jsonrpc string = "2.0" @[required]
-	
+	jsonrpc string = '2.0' @[required]
+
 	// The name of the method to be invoked on the server
-	method  string @[required] 
+	method string @[required]
 }
 
 // Notification represents a JSON-RPC 2.0 notification object.
 // It contains all the required fields according to the JSON-RPC 2.0 specification.
 // See: https://www.jsonrpc.org/specification#notification
 pub struct NotificationGeneric[T] {
-	pub mut:
+pub mut:
 	// The JSON-RPC protocol version, must be exactly "2.0"
-	jsonrpc string = "2.0" @[required]
-	
+	jsonrpc string = '2.0' @[required]
+
 	// The name of the method to be invoked on the server
-	method  string @[required] 
-	params  ?T
+	method string @[required]
+	params ?T
 }
 
 // new_notification creates a new JSON-RPC notification with the specified method and parameters.
@@ -36,15 +36,15 @@ pub struct NotificationGeneric[T] {
 //   - A fully initialized Notification object
 pub fn new_notification[T](method string, params T) NotificationGeneric[T] {
 	return NotificationGeneric[T]{
-		jsonrpc: jsonrpc.jsonrpc_version
-		method: method
-		params: params
+		jsonrpc: jsonrpc_version
+		method:  method
+		params:  params
 	}
 }
 
 pub fn new_blank_notification(method string) Notification {
 	return Notification{
-		jsonrpc: jsonrpc.jsonrpc_version
-		method: method
+		jsonrpc: jsonrpc_version
+		method:  method
 	}
 }

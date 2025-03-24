@@ -1,24 +1,24 @@
 module generator
 
 import json
-import freeflowuniverse.herolib.core.code { VFile, File, Folder, Function, Module, Struct }
-import freeflowuniverse.herolib.schemas.openapi { Components, OpenAPI, Operation }
+import freeflowuniverse.herolib.core.code { File, Folder }
+import freeflowuniverse.herolib.schemas.openapi { OpenAPI, Operation }
 import freeflowuniverse.herolib.schemas.openapi.codegen
-import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schema_to_type}
+import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen { schema_to_type }
 import net.http
 
 pub fn generate_openapi_file(specification OpenAPI) !File {
 	openapi_json := specification.encode_json()
 	return File{
-		name: 'openapi'
+		name:      'openapi'
 		extension: 'json'
-		content: openapi_json
+		content:   openapi_json
 	}
 }
 
 pub fn generate_openapi_ts_client(specification OpenAPI) !Folder {
 	return codegen.ts_client_folder(specification,
-		body_generator: body_generator
+		body_generator:     body_generator
 		custom_client_code: '    private restClient: HeroRestClient;
 
     constructor(heroKeysClient: any, debug: boolean = true) {
@@ -28,22 +28,29 @@ pub fn generate_openapi_ts_client(specification OpenAPI) !Folder {
 	)!
 }
 
-fn body_generator(op openapi.Operation, path_ string, method http.Method) string {
-	path := path_.replace('{','\${')
+fn body_generator(op Operation, path_ string, method http.Method) string {
+	path := path_.replace('{', '\${')
 	return match method {
 		.post {
 			if schema := op.payload_schema() {
 				symbol := schema_to_type(schema).typescript()
 				"return this.restClient.post<${symbol}>('${path}', data);"
-			} else {''}
+			} else {
+				''
+			}
 		}
 		.get {
 			if schema := op.response_schema() {
 				// if op.params.len
 				symbol := schema_to_type(schema).typescript()
 				"return this.restClient.get<${symbol}>('${path}', data);"
-			} else {''}
-		} else {''}
+			} else {
+				''
+			}
+		}
+		else {
+			''
+		}
 	}
 	// return if operation_is_base_object_method(op) {
 	// 	bo_method := operation_to_base_object_method(op)
@@ -57,7 +64,6 @@ fn body_generator(op openapi.Operation, path_ string, method http.Method) string
 	// 	}
 	// } else {''}
 }
-
 
 // pub fn operation_is_base_object_method(op openapi.Operation, base_objs []string) BaseObjectMethod {
 // 	// name := texttools.pascal_case(op.operation_id)
@@ -81,29 +87,25 @@ fn body_generator(op openapi.Operation, path_ string, method http.Method) string
 // 			}
 // 		}
 // 	}
-	
-	
-	
-	
-	// return if operation_is_base_object_method(op) {
-	// 	bo_method := operation_to_base_object_method(op)
-	// 	match bo_method. {
-	// 		.new { ts_client_new_body(op, path) }
-	// 		.get { ts_client_get_body(op, path) }
-	// 		.set { ts_client_set_body(op, path) }
-	// 		.delete { ts_client_delete_body(op, path) }
-	// 		.list { ts_client_list_body(op, path) }
-	// 		else {''}
-	// 	}
-	// } else {''}
-// }
 
+// return if operation_is_base_object_method(op) {
+// 	bo_method := operation_to_base_object_method(op)
+// 	match bo_method. {
+// 		.new { ts_client_new_body(op, path) }
+// 		.get { ts_client_get_body(op, path) }
+// 		.set { ts_client_set_body(op, path) }
+// 		.delete { ts_client_delete_body(op, path) }
+// 		.list { ts_client_list_body(op, path) }
+// 		else {''}
+// 	}
+// } else {''}
+// }
 
 fn get_endpoint(path string) string {
 	return if path == '' {
 		''
 	} else {
-		"/${path.trim('/')}"
+		'/${path.trim('/')}'
 	}
 }
 

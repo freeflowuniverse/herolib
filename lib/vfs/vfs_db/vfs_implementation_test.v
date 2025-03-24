@@ -10,11 +10,11 @@ fn setup_vfs() !(&DatabaseVFS, string) {
 	os.mkdir_all(test_data_dir)!
 
 	mut db_data := ourdb.new(
-		path:             os.join_path(test_data_dir, 'data')
+		path: os.join_path(test_data_dir, 'data')
 	)!
-	
+
 	mut db_metadata := ourdb.new(
-		path:             os.join_path(test_data_dir, 'metadata')
+		path: os.join_path(test_data_dir, 'metadata')
 	)!
 
 	mut vfs := new(mut db_data, mut db_metadata)!
@@ -208,18 +208,18 @@ fn test_exists_function() ! {
 
 	// Test root exists
 	assert vfs.exists('/') == true
-	
+
 	// Test non-existent path
 	assert vfs.exists('/nonexistent') == false
-	
+
 	// Create and test file exists
 	vfs.file_create('/test_file.txt')!
 	assert vfs.exists('/test_file.txt') == true
-	
+
 	// Create and test directory exists
 	vfs.dir_create('/test_dir')!
 	assert vfs.exists('/test_dir') == true
-	
+
 	// Test with and without leading slash
 	assert vfs.exists('test_dir') == true
 }
@@ -234,13 +234,13 @@ fn test_get_function() ! {
 	root := vfs.get('/')!
 	assert root.get_metadata().name == ''
 	assert root.get_metadata().file_type == .directory
-	
+
 	// Test getting file
 	vfs.file_create('/test_file.txt')!
 	file := vfs.get('/test_file.txt')!
 	assert file.get_metadata().name == 'test_file.txt'
 	assert file.get_metadata().file_type == .file
-	
+
 	// Test getting directory
 	vfs.dir_create('/test_dir')!
 	dir := vfs.get('/test_dir')!

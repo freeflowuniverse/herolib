@@ -5,13 +5,13 @@ import freeflowuniverse.herolib.core.code
 
 fn test_struct_to_schema() {
 	struct_ := code.Struct{
-		name: 'test_name'
+		name:        'test_name'
 		description: 'a codemodel struct to test struct to schema serialization'
-		fields: [
+		fields:      [
 			code.StructField{
-				name: 'test_field'
+				name:        'test_field'
 				description: 'a field of the test struct to test fields serialization into schema'
-				typ: code.String{}
+				typ:         code.String{}
 			},
 		]
 	}

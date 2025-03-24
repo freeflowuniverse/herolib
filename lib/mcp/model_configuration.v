@@ -22,8 +22,8 @@ pub:
 // ClientCapabilities represents the client capabilities
 pub struct ClientCapabilities {
 pub:
-	roots    RootsCapability // Ability to provide filesystem roots
-	sampling SamplingCapability // Support for LLM sampling requests
+	roots        RootsCapability        // Ability to provide filesystem roots
+	sampling     SamplingCapability     // Support for LLM sampling requests
 	experimental ExperimentalCapability // Describes support for non-standard experimental features
 }
 
@@ -50,17 +50,17 @@ pub:
 pub struct ServerConfiguration {
 pub:
 	protocol_version string = '2024-11-05' @[json: 'protocolVersion']
-	capabilities    ServerCapabilities
+	capabilities     ServerCapabilities
 	server_info      ServerInfo @[json: 'serverInfo']
 }
 
 // ServerCapabilities represents the server capabilities
 pub struct ServerCapabilities {
 pub:
-	logging    LoggingCapability
-	prompts    PromptsCapability
-	resources  ResourcesCapability
-	tools      ToolsCapability
+	logging   LoggingCapability
+	prompts   PromptsCapability
+	resources ResourcesCapability
+	tools     ToolsCapability
 }
 
 // LoggingCapability represents the logging capability
@@ -77,7 +77,7 @@ pub:
 pub struct ResourcesCapability {
 pub:
 	subscribe    bool = true @[json: 'subscribe']
-	list_changed  bool = true @[json: 'listChanged']
+	list_changed bool = true @[json: 'listChanged']
 }
 
 // ToolsCapability represents the tools capability

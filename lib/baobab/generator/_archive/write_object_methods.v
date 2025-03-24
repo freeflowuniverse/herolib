@@ -1,12 +1,12 @@
 module generator
 
-import freeflowuniverse.herolib.baobab.specification {BaseObject}
-import freeflowuniverse.herolib.core.code { type_from_symbol, VFile, CodeItem, Function, Import, Param, Param, Struct, StructField, Type }
+import freeflowuniverse.herolib.baobab.specification
+import freeflowuniverse.herolib.core.code { Param, Param, type_from_symbol }
 import freeflowuniverse.herolib.core.texttools
 
 const id_param = Param{
 	name: 'id'
-	typ: type_from_symbol('u32')
+	typ:  type_from_symbol('u32')
 }
 
 // pub fn generate_object_code(actor Struct, object BaseObject) VFile {
@@ -211,8 +211,8 @@ const id_param = Param{
 // 		only_mutable: false
 // 	)
 // 	body := 'return ${object_type}List{items:actor.backend.list[${object_type}]()!}'
-	
-// 	result_struct := generate_list_result_struct(actor, object) 
+
+// 	result_struct := generate_list_result_struct(actor, object)
 // 	mut result := Param{}
 // 	result.typ.symbol = result_struct.name
 // 	result.is_result = true

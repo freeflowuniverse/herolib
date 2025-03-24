@@ -9,7 +9,7 @@ import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute("griddriver --version")
+	res := os.execute('griddriver --version')
 	if res.exit_code != 0 {
 		return false
 	}

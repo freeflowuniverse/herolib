@@ -30,7 +30,9 @@ mut:
 // Returns:
 //   - A pointer to a new Client instance
 pub fn new_client(client Client) &Client {
-	return &Client{...client}
+	return &Client{
+		...client
+	}
 }
 
 // SendParams defines configuration options for sending JSON-RPC requests.
@@ -40,9 +42,9 @@ pub struct SendParams {
 pub:
 	// Maximum time in seconds to wait for a response (default: 60)
 	timeout int = 60
-	
+
 	// Number of times to retry the request if it fails
-	retry   int
+	retry int
 }
 
 // send sends a JSON-RPC request with parameters of type T and expects a response with result of type D.
@@ -61,16 +63,14 @@ pub:
 pub fn (mut c Client) send[T, D](request RequestGeneric[T], params SendParams) !D {
 	// Send the encoded request through the transport layer
 	response_json := c.transport.send(request.encode(), params)!
-	
+
 	// Decode the response JSON into a strongly-typed response object
 	response := decode_response_generic[D](response_json) or {
 		return error('Unable to decode response.\n- Response: ${response_json}\n- Error: ${err}')
 	}
 
 	// Validate the response according to the JSON-RPC specification
-	response.validate() or {
-		return error('Received invalid response: ${err}')
-	}
+	response.validate() or { return error('Received invalid response: ${err}') }
 
 	// Ensure the response ID matches the request ID to prevent response/request mismatch
 	if response.id != request.id {

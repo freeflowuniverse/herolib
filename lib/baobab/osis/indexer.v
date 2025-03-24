@@ -12,7 +12,7 @@ pub struct Indexer {
 @[params]
 pub struct IndexerConfig {
 	db_path string
-	reset bool
+	reset   bool
 }
 
 pub fn new_indexer(config IndexerConfig) !Indexer {
@@ -81,7 +81,7 @@ fn (mut backend Indexer) create_root_object_table(object RootObject) ! {
 }
 
 // deletes an indexer table belonging to a root object
-fn (mut backend Indexer) delete_table(object RootObject)! {
+fn (mut backend Indexer) delete_table(object RootObject) ! {
 	panic('implement')
 }
 
@@ -105,7 +105,7 @@ fn get_table[T]() string {
 
 // returns the lists of the indices of a root objects db table, and corresponding values
 pub fn get_indices[T](object T) map[string]string {
-	mut indices := map[string]string
+	mut indices := map[string]string{}
 	$for field in T.fields {
 		if field.attrs.contains('index') {
 			value := object.$(field.name)

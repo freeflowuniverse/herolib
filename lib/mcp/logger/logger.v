@@ -20,7 +20,7 @@ pub fn log(level LogLevel, message string) {
 		.error { 'ERROR' }
 		.fatal { 'FATAL' }
 	}
-	eprintln('[$level_str] $message')
+	eprintln('[${level_str}] ${message}')
 }
 
 // debug logs a debug message to stderr

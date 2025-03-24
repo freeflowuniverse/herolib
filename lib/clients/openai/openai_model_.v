@@ -23,10 +23,10 @@ pub fn heroscript_default() !string {
 
 pub struct OpenAI {
 pub mut:
-	name    string = 'default'
-	api_key string @[secret]
+	name       string = 'default'
+	api_key    string @[secret]
 	server_url string
-	conn ?&httpconnection.HTTPConnection
+	conn       ?&httpconnection.HTTPConnection
 }
 
 // fn cfg_play(p paramsparser.Params) ! {

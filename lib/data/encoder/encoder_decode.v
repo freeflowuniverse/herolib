@@ -19,7 +19,7 @@ pub fn decoder_new(data []u8) Decoder {
 
 pub fn (mut d Decoder) get_string() !string {
 	n := d.get_u16()!
-	//THIS IS ALWAYS TRYE BECAUSE u16 is max 64KB
+	// THIS IS ALWAYS TRYE BECAUSE u16 is max 64KB
 	// if n > 64 * 1024 { // 64KB limit
 	// 	return error('string length ${n} exceeds 64KB limit')
 	// }
@@ -128,7 +128,7 @@ pub fn (mut d Decoder) get_i64() !i64 {
 }
 
 pub fn (mut d Decoder) get_time() !time.Time {
-	secs_:=d.get_u32()!
+	secs_ := d.get_u32()!
 	secs := i64(secs_)
 	return time.unix(secs)
 }

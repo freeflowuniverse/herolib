@@ -9,17 +9,16 @@ pub mut:
 	reset       bool // regenerate all, dangerous !!!
 	interactive bool // if we want to ask
 	path        string
-	playonly bool
+	playonly    bool
 	model       ?GenModel
 	cat         ?Cat
 }
 
 pub struct PlayArgs {
 pub mut:
-	name string
-	modulepath        string
+	name       string
+	modulepath string
 }
-
 
 // the default to start with
 //
@@ -29,8 +28,8 @@ pub mut:
 // model 				?GenModel
 // cat 				?Cat
 //
-// will return the module path where we need to execute a play command as well as the name of 
-pub fn do(args_ GenerateArgs) !  PlayArgs{
+// will return the module path where we need to execute a play command as well as the name of
+pub fn do(args_ GenerateArgs) !PlayArgs {
 	mut args := args_
 
 	console.print_header('Generate code for path: ${args.path} (reset:${args.reset}, interactive:${args.interactive})')
@@ -74,15 +73,13 @@ pub fn do(args_ GenerateArgs) !  PlayArgs{
 
 	console.print_debug(args)
 
-	//only generate if playonly is false and there is a classname
-	if !args.playonly && model.classname.len>0{
+	// only generate if playonly is false and there is a classname
+	if !args.playonly && model.classname.len > 0 {
 		generate(args)!
 	}
 
-	
 	return PlayArgs{
-		name: model.play_name
-		modulepath: model.module_path		
+		name:       model.play_name
+		modulepath: model.module_path
 	}
-
 }

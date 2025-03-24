@@ -1,10 +1,10 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Result, Object, Param, Folder, IFile, VFile, CodeItem, File, Function, Import, Module, Struct, CustomCode }
+import freeflowuniverse.herolib.core.code { CodeItem, CustomCode, Function, Import, Object, Param, Result, VFile }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.schemas.openrpc {Example, ContentDescriptor}
-import freeflowuniverse.herolib.schemas.jsonschema.codegen {schemaref_to_type}
-import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
+import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, Example }
+import freeflowuniverse.herolib.schemas.jsonschema.codegen { schemaref_to_type }
+import freeflowuniverse.herolib.baobab.specification { ActorMethod, ActorSpecification }
 
 fn generate_handle_file(spec ActorSpecification) !VFile {
 	mut items := []CodeItem{}
@@ -12,14 +12,21 @@ fn generate_handle_file(spec ActorSpecification) !VFile {
 	for method in spec.methods {
 		items << generate_method_handle(spec.name, method)!
 	}
-	return VFile {
-		name: 'act'
+	return VFile{
+		name:    'act'
 		imports: [
-			Import{mod:'freeflowuniverse.herolib.baobab.stage' types:['Action']}
-			Import{mod:'freeflowuniverse.herolib.core.texttools'}
-			Import{mod:'x.json2 as json'}
+			Import{
+				mod:   'freeflowuniverse.herolib.baobab.stage'
+				types: ['Action']
+			},
+			Import{
+				mod: 'freeflowuniverse.herolib.core.texttools'
+			},
+			Import{
+				mod: 'x.json2 as json'
+			},
 		]
-		items: items
+		items:   items
 	}
 }
 
@@ -74,13 +81,22 @@ pub fn generate_method_handle(actor_name string, method ActorMethod) !Function {
 	call_stmt := generate_call_stmt(actor_name, method)!
 	body += '${call_stmt}\n'
 	body += '${generate_return_stmt(method)!}\n'
-	return Function {
-		name: 'handle_${name_fixed}'
+	return Function{
+		name:        'handle_${name_fixed}'
 		description: '// Handler for ${name_fixed}\n'
-		receiver: Param{name: 'actor', mutable: true, typ: Object{'${actor_name_pascal}Actor'}}
-		params: [Param{name: 'action', typ: Object{'Action'}}]
-		result: Param{typ: Result{Object{'Action'}}}
-		body: body
+		receiver:    Param{
+			name:    'actor'
+			mutable: true
+			typ:     Object{'${actor_name_pascal}Actor'}
+		}
+		params:      [Param{
+			name: 'action'
+			typ:  Object{'Action'}
+		}]
+		result:      Param{
+			typ: Result{Object{'Action'}}
+		}
+		body:        body
 	}
 }
 
@@ -95,28 +111,41 @@ pub fn generate_example_method_handle(actor_name string, method ActorMethod) !Fu
 		if method.example.result is Example {
 			'return Action{...action, result: json.encode(\'${method.example.result.value}\')}'
 		} else {
-			"return action"
+			'return action'
 		}
-	} else { "return action" }
-	return Function {
-		name: 'handle_${name_fixed}_example'
+	} else {
+		'return action'
+	}
+	return Function{
+		name:        'handle_${name_fixed}_example'
 		description: '// Handler for ${name_fixed}\n'
-		receiver: Param{name: 'actor', mutable: true, typ: Object{'${actor_name_pascal}Actor'}}
-		params: [Param{name: 'action', typ: Object{'Action'}}]
-		result: Param{typ: Result{Object{'Action'}}}
-		body: body
+		receiver:    Param{
+			name:    'actor'
+			mutable: true
+			typ:     Object{'${actor_name_pascal}Actor'}
+		}
+		params:      [Param{
+			name: 'action'
+			typ:  Object{'Action'}
+		}]
+		result:      Param{
+			typ: Result{Object{'Action'}}
+		}
+		body:        body
 	}
 }
 
 fn generate_call_stmt(name string, method ActorMethod) !string {
 	mut call_stmt := if schemaref_to_type(method.result.schema).vgen().trim_space() != '' {
 		'${texttools.snake_case(method.result.name)} := '
-	} else {''}
+	} else {
+		''
+	}
 	method_name := texttools.snake_case(method.name)
 	snake_name := texttools.snake_case(name)
 
 	param_names := method.parameters.map(texttools.snake_case(it.name))
-	call_stmt += 'actor.${snake_name}.${method_name}(${param_names.join(", ")})!'
+	call_stmt += 'actor.${snake_name}.${method_name}(${param_names.join(', ')})!'
 	return call_stmt
 }
 
@@ -124,7 +153,7 @@ fn generate_return_stmt(method ActorMethod) !string {
 	if schemaref_to_type(method.result.schema).vgen().trim_space() != '' {
 		return 'return Action{...action, result: json.encode(${texttools.snake_case(method.result.name)})}'
 	}
-	return "return action"
+	return 'return action'
 }
 
 // Helper function to generate a case block for the main router
@@ -138,12 +167,13 @@ fn generate_decode_stmt(name string, param ContentDescriptor) !string {
 	param_type := schemaref_to_type(param.schema)
 	if param_type is Object {
 		return 'json.decode[${schemaref_to_type(param.schema).vgen()}](${name})!'
-	}
-	else if param_type is code.Array {
+	} else if param_type is code.Array {
 		return 'json.decode[${schemaref_to_type(param.schema).vgen()}](${name})'
 	}
 	param_symbol := param_type.vgen()
 	return if param_symbol == 'string' {
 		'${name}.str()'
-	} else {'${name}.${param_type.vgen()}()'}
+	} else {
+		'${name}.${param_type.vgen()}()'
+	}
 }

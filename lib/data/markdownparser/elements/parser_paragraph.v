@@ -19,7 +19,7 @@ fn (mut paragraph Paragraph) paragraph_parse() ! {
 		mut llast := paragraph.children.last()
 		mut char_ := parser.char_current()
 
-		//console.print_debug("[[[${char_}]]]")
+		// console.print_debug("[[[${char_}]]]")
 
 		// char == '' means end of file
 		if mut llast is Def {

@@ -5,39 +5,39 @@ import freeflowuniverse.herolib.data.ourtime
 fn test_job_serialization() {
 	// Create a test job
 	mut job := Job{
-		id: 1
-		guid: 'test-job-1'
-		agents: ['agent1', 'agent2']
-		source: 'source1'
-		circle: 'test-circle'
-		context: 'test-context'
-		actor: 'vm_manager'
-		action: 'start'
-		params: {
-			'id': '10'
+		id:                 1
+		guid:               'test-job-1'
+		agents:             ['agent1', 'agent2']
+		source:             'source1'
+		circle:             'test-circle'
+		context:            'test-context'
+		actor:              'vm_manager'
+		action:             'start'
+		params:             {
+			'id':   '10'
 			'name': 'test-vm'
 		}
-		timeout_schedule: 120
-		timeout: 7200
-		log: true
-		ignore_error: false
+		timeout_schedule:   120
+		timeout:            7200
+		log:                true
+		ignore_error:       false
 		ignore_error_codes: [u16(404), u16(500)]
-		debug: true
-		retry: 3
+		debug:              true
+		retry:              3
 	}
 
 	// Set up job status
 	job.status = JobStatus{
-		guid: job.guid
+		guid:    job.guid
 		created: ourtime.now()
-		start: ourtime.now()
-		end: ourtime.OurTime{}
-		status: .created
+		start:   ourtime.now()
+		end:     ourtime.OurTime{}
+		status:  .created
 	}
 
 	// Add a dependency
 	job.dependencies << JobDependency{
-		guid: 'dependency-job-1'
+		guid:   'dependency-job-1'
 		agents: ['agent1']
 	}
 
@@ -130,16 +130,16 @@ fn test_job_status_enum() {
 fn test_job_dependency() {
 	// Create a test dependency
 	mut dependency := JobDependency{
-		guid: 'dependency-job-1'
+		guid:   'dependency-job-1'
 		agents: ['agent1', 'agent2', 'agent3']
 	}
 
 	// Create a job with this dependency
 	mut job := Job{
-		id: 2
-		guid: 'test-job-2'
-		actor: 'network_manager'
-		action: 'create'
+		id:           2
+		guid:         'test-job-2'
+		actor:        'network_manager'
+		action:       'create'
 		dependencies: [dependency]
 	}
 
@@ -153,7 +153,7 @@ fn test_job_dependency() {
 
 	// Add another dependency
 	job.dependencies << JobDependency{
-		guid: 'dependency-job-2'
+		guid:   'dependency-job-2'
 		agents: ['agent4']
 	}
 
@@ -169,9 +169,9 @@ fn test_job_dependency() {
 fn test_job_with_empty_values() {
 	// Create a job with minimal values
 	mut job := Job{
-		id: 3
-		guid: 'minimal-job'
-		actor: 'minimal_actor'
+		id:     3
+		guid:   'minimal-job'
+		actor:  'minimal_actor'
 		action: 'test'
 	}
 

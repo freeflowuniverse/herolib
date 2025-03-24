@@ -10,13 +10,13 @@ interface Backend {
 	resource_subscribed(uri string) !bool
 	resource_contents_get(uri string) ![]ResourceContent
 	resource_templates_list() ![]ResourceTemplate
-	
+
 	// Prompt methods
 	prompt_exists(name string) !bool
 	prompt_get(name string) !Prompt
 	prompt_list() ![]Prompt
 	prompt_messages_get(name string, arguments map[string]string) ![]PromptMessage
-	
+
 	// Tool methods
 	tool_exists(name string) !bool
 	tool_get(name string) !Tool

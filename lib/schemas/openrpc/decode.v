@@ -12,10 +12,10 @@ pub fn decode(data string) !OpenRPC {
 		}
 	}
 
-	methods_any := data_map['methods'] or {return object}
+	methods_any := data_map['methods'] or { return object }
 	for i, method in methods_any.arr() {
 		method_map := method.as_map()
-		
+
 		if result_any := method_map['result'] {
 			object.methods[i].result = decode_content_descriptor_ref(result_any.as_map()) or {
 				return error('Failed to decode result\n${err}')
@@ -50,7 +50,7 @@ pub fn decode(data string) !OpenRPC {
 
 fn decode_components(data_map map[string]Any) !Components {
 	mut components := Components{}
-	mut components_map := map[string]Any
+	mut components_map := map[string]Any{}
 	if components_any := data_map['components'] {
 		components_map = components_any.as_map()
 	}

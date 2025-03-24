@@ -4,12 +4,12 @@ module markdownparser2
 @[heap]
 pub struct MarkdownElement {
 pub:
-	typ ElementType
-	content string
+	typ         ElementType
+	content     string
 	line_number int
-	column int
+	column      int
 pub mut:
-	children []&MarkdownElement
+	children   []&MarkdownElement
 	attributes map[string]string
 }
 
@@ -42,19 +42,19 @@ pub enum ElementType {
 // MarkdownDocument represents a parsed markdown document
 pub struct MarkdownDocument {
 pub mut:
-	root &MarkdownElement
+	root      &MarkdownElement
 	footnotes map[string]&MarkdownElement
 }
 
 // Creates a new markdown document
 pub fn new_document() MarkdownDocument {
 	root := &MarkdownElement{
-		typ: .document
-		content: ''
+		typ:      .document
+		content:  ''
 		children: []
 	}
 	return MarkdownDocument{
-		root: root
+		root:      root
 		footnotes: map[string]&MarkdownElement{}
 	}
 }
@@ -62,11 +62,11 @@ pub fn new_document() MarkdownDocument {
 // Parses markdown text and returns a MarkdownDocument
 pub fn parse(text string) MarkdownDocument {
 	mut parser := Parser{
-		text: text
-		pos: 0
-		line: 1
+		text:   text
+		pos:    0
+		line:   1
 		column: 1
-		doc: new_document()
+		doc:    new_document()
 	}
 	return parser.parse()
 }

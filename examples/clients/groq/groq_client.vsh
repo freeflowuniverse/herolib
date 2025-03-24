@@ -15,9 +15,9 @@ fn main() {
 	}
 
 	// Get the configured client
-	mut client := openai.OpenAI {
-		name: 'groq'
-		api_key: key
+	mut client := openai.OpenAI{
+		name:       'groq'
+		api_key:    key
 		server_url: 'https://api.groq.com/openai/v1'
 	}
 
@@ -29,9 +29,9 @@ fn main() {
 	res := client.chat_completion(model, openai.Messages{
 		messages: [
 			openai.Message{
-				role: .user
+				role:    .user
 				content: 'What are the key differences between Groq and other AI inference providers?'
-			}
+			},
 		]
 	})!
 

@@ -6,7 +6,7 @@ pub struct Handler {
 pub:
 	specification OpenRPC @[required] // The OpenRPC specification
 pub mut:
-    handler IHandler
+	handler IHandler
 }
 
 pub interface IHandler {
@@ -17,15 +17,13 @@ mut:
 @[params]
 pub struct HandleParams {
 	timeout int = 60 // Timeout in seconds
-	retry   int  // Number of retries
+	retry   int // Number of retries
 }
 
 // Handle a JSON-RPC request and return a response
 pub fn (mut h Handler) handle(req jsonrpc.Request, params HandleParams) !jsonrpc.Response {
 	// Validate the incoming request
-	req.validate() or {
-		return jsonrpc.new_error_response(req.id, jsonrpc.invalid_request)
-	}
+	req.validate() or { return jsonrpc.new_error_response(req.id, jsonrpc.invalid_request) }
 
 	// Check if the method exists
 	if req.method == 'rpc.discover' {

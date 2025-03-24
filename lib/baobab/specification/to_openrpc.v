@@ -1,8 +1,8 @@
 module specification
 
-import freeflowuniverse.herolib.schemas.openrpc {OpenRPC, Components}
-import freeflowuniverse.herolib.schemas.jsonschema {SchemaRef}
-import freeflowuniverse.herolib.schemas.jsonschema.codegen { struct_to_schema }
+import freeflowuniverse.herolib.schemas.openrpc { Components, OpenRPC }
+import freeflowuniverse.herolib.schemas.jsonschema { SchemaRef }
+import freeflowuniverse.herolib.schemas.jsonschema.codegen
 
 // pub fn from_openrpc(spec openrpc.OpenRPC) !ActorSpecification {
 // 	// Extract Actor metadata from OpenRPC info
@@ -39,7 +39,6 @@ import freeflowuniverse.herolib.schemas.jsonschema.codegen { struct_to_schema }
 // 	}
 // }
 
-
 pub fn (specification ActorSpecification) to_openrpc() OpenRPC {
 	mut schemas := map[string]SchemaRef{}
 	for obj in specification.objects {
@@ -49,11 +48,11 @@ pub fn (specification ActorSpecification) to_openrpc() OpenRPC {
 		// }
 	}
 	return OpenRPC{
-		info: openrpc.Info{
-			title: specification.name.title()
+		info:       openrpc.Info{
+			title:   specification.name.title()
 			version: '1.0.0'
 		}
-		methods: specification.methods.map(method_to_openrpc_method(it))
+		methods:    specification.methods.map(method_to_openrpc_method(it))
 		components: Components{
 			schemas: schemas
 		}
@@ -61,12 +60,12 @@ pub fn (specification ActorSpecification) to_openrpc() OpenRPC {
 }
 
 pub fn method_to_openrpc_method(method ActorMethod) openrpc.Method {
-	return openrpc.Method {
-		name: method.name
-		summary: method.summary
+	return openrpc.Method{
+		name:        method.name
+		summary:     method.summary
 		description: method.description
-		params: method.parameters.map(openrpc.ContentDescriptorRef(it))
-		result: openrpc.ContentDescriptorRef(method.result)
-		errors: method.errors.map(openrpc.ErrorRef(it))
+		params:      method.parameters.map(openrpc.ContentDescriptorRef(it))
+		result:      openrpc.ContentDescriptorRef(method.result)
+		errors:      method.errors.map(openrpc.ErrorRef(it))
 	}
 }

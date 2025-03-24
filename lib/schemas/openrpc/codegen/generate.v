@@ -1,7 +1,7 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code { VFile, File, Function, Struct , Module}
-import freeflowuniverse.herolib.schemas.openrpc {OpenRPC}
+import freeflowuniverse.herolib.core.code { Function, Module, Struct }
+import freeflowuniverse.herolib.schemas.openrpc { OpenRPC }
 
 // pub struct OpenRPCCode {
 // pub mut:
@@ -13,7 +13,6 @@ import freeflowuniverse.herolib.schemas.openrpc {OpenRPC}
 // 	server       VFile
 // 	server_test  VFile
 // }
-
 
 pub fn generate_module(o OpenRPC, receiver Struct, methods_map map[string]Function, objects_map map[string]Struct) !Module {
 	// openrpc_json := o.encode()!
@@ -33,13 +32,13 @@ pub fn generate_module(o OpenRPC, receiver Struct, methods_map map[string]Functi
 	interface_test_file := generate_interface_test_file(o)!
 
 	return Module{
-	files: [
-		client_file
-		client_test_file
-		handler_file
-		handler_test_file
-		interface_file
-		interface_test_file
-	]
+		files: [
+			client_file,
+			client_test_file,
+			handler_file,
+			handler_test_file,
+			interface_file,
+			interface_test_file,
+		]
 	}
 }

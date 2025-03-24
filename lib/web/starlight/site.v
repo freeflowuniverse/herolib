@@ -18,12 +18,11 @@ pub mut:
 	path_src   pathlib.Path
 	path_build pathlib.Path
 	// path_publish pathlib.Path
-	args   SiteGetArgs
-	errors []SiteError
-	config Config
+	args    SiteGetArgs
+	errors  []SiteError
+	config  Config
 	factory &StarlightFactory @[skip; str: skip] // Reference to the parent
 }
-
 
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
@@ -47,7 +46,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	)!
 }
 
-pub fn (mut s DocSite) build_publish()! {
+pub fn (mut s DocSite) build_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
@@ -58,7 +57,7 @@ pub fn (mut s DocSite) build_publish()! {
 	)!
 }
 
-pub fn (mut s DocSite) dev()! {
+pub fn (mut s DocSite) dev() ! {
 	s.clean()!
 	s.generate()!
 
@@ -102,7 +101,6 @@ pub fn (mut s DocSite) dev()! {
 		docs_path := '${s.path_src.path}/src'
 		watch_docs(docs_path, s.path_src.path, s.path_build.path)!
 	}
-
 }
 
 @[params]
@@ -124,21 +122,20 @@ pub fn (mut site DocSite) error(args ErrorArgs) {
 	console.print_stderr(args.msg)
 }
 
-fn check_item(item string)!{
-	item2:=item.trim_space().trim("/").trim_space().all_after_last("/") 
-	if ["internal","infodev","info","dev","friends","dd","web"].contains(item2){
-		return error("destination path is wrong, cannot be: ${item}")
+fn check_item(item string) ! {
+	item2 := item.trim_space().trim('/').trim_space().all_after_last('/')
+	if ['internal', 'infodev', 'info', 'dev', 'friends', 'dd', 'web'].contains(item2) {
+		return error('destination path is wrong, cannot be: ${item}')
 	}
-
 }
 
 fn (mut site DocSite) check() ! {
-	for item in site.config.main.build_dest{
+	for item in site.config.main.build_dest {
 		check_item(item)!
 	}
-	for item in site.config.main.build_dest_dev{
+	for item in site.config.main.build_dest_dev {
 		check_item(item)!
-	}	
+	}
 }
 
 pub fn (mut site DocSite) generate() ! {
@@ -165,22 +162,20 @@ pub fn (mut site DocSite) generate() ! {
 fn (mut site DocSite) template_install() ! {
 	mut gs := gittools.new()!
 
-	site.factory.template_install(template_update:false, install:false, delete:false)!
+	site.factory.template_install(template_update: false, install: false, delete: false)!
 
 	cfg := site.config
 
-	mut myhome:="\$\{HOME\}" //for usage in bash
+	mut myhome := '\$\{HOME\}' // for usage in bash
 
-	profile_include := osal.profile_path_source()!.replace(os.home_dir(),myhome)
+	profile_include := osal.profile_path_source()!.replace(os.home_dir(), myhome)
 
-	mydir:=site.path_build.path.replace(os.home_dir(),myhome)
+	mydir := site.path_build.path.replace(os.home_dir(), myhome)
 
 	for item in ['src', 'static'] {
-		mut aa := site.path_src.dir_get(item) or {continue}
-		aa.copy(dest: '${site.factory.path_build.path}/${item}', delete:false)!
-		
+		mut aa := site.path_src.dir_get(item) or { continue }
+		aa.copy(dest: '${site.factory.path_build.path}/${item}', delete: false)!
 	}
-	
 
 	develop := $tmpl('templates/develop.sh')
 	build := $tmpl('templates/build.sh')
@@ -210,5 +205,4 @@ fn (mut site DocSite) template_install() ! {
 	mut build2_ := site.path_src.file_get_new('build.sh')!
 	build2_.template_write(build, true)!
 	build2_.chmod(0o700)!
-
 }

@@ -21,7 +21,7 @@ pub mut:
 	ignore_error       bool  // means if error will just exit and not raise, there will be no error reporting
 	ignore_error_codes []u16 // of we want to ignore certain error codes
 	debug              bool  // if debug will get more context
-	retry              u8   // default there is no debug
+	retry              u8    // default there is no debug
 	status             JobStatus
 	dependencies       []JobDependency // will not execute until other jobs are done
 }
@@ -55,9 +55,9 @@ pub enum Status {
 
 pub fn (j Job) index_keys() map[string]string {
 	return {
-		'guid': j.guid
-		'actor': j.actor
-		'circle': j.circle
+		'guid':    j.guid
+		'actor':   j.actor
+		'circle':  j.circle
 		'context': j.context
 	}
 }
@@ -69,63 +69,63 @@ pub fn (j Job) dumps() ![]u8 {
 
 	// Add unique encoding ID to identify this type of data
 	e.add_u16(300)
-	
+
 	// Encode Job fields
 	e.add_u32(j.id)
 	e.add_string(j.guid)
-	
+
 	// Encode agents array
 	e.add_u16(u16(j.agents.len))
 	for agent in j.agents {
 		e.add_string(agent)
 	}
-	
+
 	e.add_string(j.source)
 	e.add_string(j.circle)
 	e.add_string(j.context)
 	e.add_string(j.actor)
 	e.add_string(j.action)
-	
+
 	// Encode params map
 	e.add_u16(u16(j.params.len))
 	for key, value in j.params {
 		e.add_string(key)
 		e.add_string(value)
 	}
-	
+
 	e.add_u16(j.timeout_schedule)
 	e.add_u16(j.timeout)
 	e.add_bool(j.log)
 	e.add_bool(j.ignore_error)
-	
+
 	// Encode ignore_error_codes array
 	e.add_u16(u16(j.ignore_error_codes.len))
 	for code in j.ignore_error_codes {
 		e.add_u16(code)
 	}
-	
+
 	e.add_bool(j.debug)
 	e.add_u8(j.retry)
-	
+
 	// Encode JobStatus
 	e.add_string(j.status.guid)
 	e.add_u32(u32(j.status.created.unix()))
 	e.add_u32(u32(j.status.start.unix()))
 	e.add_u32(u32(j.status.end.unix()))
 	e.add_u8(u8(j.status.status))
-	
+
 	// Encode dependencies array
 	e.add_u16(u16(j.dependencies.len))
 	for dependency in j.dependencies {
 		e.add_string(dependency.guid)
-		
+
 		// Encode dependency agents array
 		e.add_u16(u16(dependency.agents.len))
 		for agent in dependency.agents {
 			e.add_string(agent)
 		}
 	}
-	
+
 	return e.data
 }
 
@@ -139,24 +139,24 @@ pub fn job_loads(data []u8) !Job {
 	if encoding_id != 300 {
 		return error('Wrong file type: expected encoding ID 300, got ${encoding_id}, for job')
 	}
-	
+
 	// Decode Job fields
 	job.id = d.get_u32()!
 	job.guid = d.get_string()!
-	
+
 	// Decode agents array
 	agents_len := d.get_u16()!
 	job.agents = []string{len: int(agents_len)}
 	for i in 0 .. agents_len {
 		job.agents[i] = d.get_string()!
 	}
-	
+
 	job.source = d.get_string()!
 	job.circle = d.get_string()!
 	job.context = d.get_string()!
 	job.actor = d.get_string()!
 	job.action = d.get_string()!
-	
+
 	// Decode params map
 	params_len := d.get_u16()!
 	job.params = map[string]string{}
@@ -165,22 +165,22 @@ pub fn job_loads(data []u8) !Job {
 		value := d.get_string()!
 		job.params[key] = value
 	}
-	
+
 	job.timeout_schedule = d.get_u16()!
 	job.timeout = d.get_u16()!
 	job.log = d.get_bool()!
 	job.ignore_error = d.get_bool()!
-	
+
 	// Decode ignore_error_codes array
 	error_codes_len := d.get_u16()!
 	job.ignore_error_codes = []u16{len: int(error_codes_len)}
 	for i in 0 .. error_codes_len {
 		job.ignore_error_codes[i] = d.get_u16()!
 	}
-	
+
 	job.debug = d.get_bool()!
 	job.retry = d.get_u8()!
-	
+
 	// Decode JobStatus
 	job.status.guid = d.get_string()!
 	job.status.created.unixt = u64(d.get_u32()!)
@@ -196,23 +196,23 @@ pub fn job_loads(data []u8) !Job {
 		5 { Status.ok }
 		else { return error('Invalid Status value: ${status_val}') }
 	}
-	
+
 	// Decode dependencies array
 	dependencies_len := d.get_u16()!
 	job.dependencies = []JobDependency{len: int(dependencies_len)}
 	for i in 0 .. dependencies_len {
 		mut dependency := JobDependency{}
 		dependency.guid = d.get_string()!
-		
+
 		// Decode dependency agents array
 		dep_agents_len := d.get_u16()!
 		dependency.agents = []string{len: int(dep_agents_len)}
 		for j in 0 .. dep_agents_len {
 			dependency.agents[j] = d.get_string()!
 		}
-		
+
 		job.dependencies[i] = dependency
 	}
-	
+
 	return job
 }

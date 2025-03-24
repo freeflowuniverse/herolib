@@ -1,8 +1,8 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code { VFile, CodeItem, CustomCode, Function, Struct, parse_function }
+import freeflowuniverse.herolib.core.code { CodeItem, CustomCode, Function, Struct, VFile, parse_function }
 // import freeflowuniverse.herolib.schemas.jsonrpc.codegen {generate_client_struct}
-import freeflowuniverse.herolib.schemas.openrpc {OpenRPC}
+import freeflowuniverse.herolib.schemas.openrpc { OpenRPC }
 import freeflowuniverse.herolib.core.texttools
 
 // generate_structs geenrates struct codes for schemas defined in an openrpc document
@@ -21,7 +21,7 @@ pub fn generate_client_file(o OpenRPC, object_map map[string]Struct) !VFile {
 	// code << methods.map(CodeItem(it))
 	mut file := VFile{
 		name: 'client'
-		mod: name
+		mod:  name
 		// imports: imports
 		items: items
 	}
@@ -54,14 +54,14 @@ pub fn generate_client_test_file(o OpenRPC, methods_map map[string]Function, obj
 		items << func
 	}
 	mut file := VFile{
-		name: 'client_test'
-		mod: name
+		name:    'client_test'
+		mod:     name
 		imports: [
 			code.parse_import('freeflowuniverse.herolib.schemas.jsonrpc'),
 			code.parse_import('freeflowuniverse.herolib.schemas.rpcwebsocket'),
 			code.parse_import('log'),
 		]
-		items: items
+		items:   items
 	}
 
 	for key, object in object_map {

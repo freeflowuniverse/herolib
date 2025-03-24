@@ -2,8 +2,7 @@ module db
 
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
-import freeflowuniverse.herolib.circles.core.models { Agent, AgentService, AgentServiceAction, AgentState }
-
+import freeflowuniverse.herolib.circles.core.models { Agent, AgentState }
 
 @[heap]
 pub struct AgentDB {
@@ -30,6 +29,7 @@ pub fn (mut m AgentDB) set(agent Agent) !Agent {
 pub fn (mut m AgentDB) get(id u32) !Agent {
 	return m.db.get(id)!
 }
+
 // list returns all agent IDs
 pub fn (mut m AgentDB) list() ![]u32 {
 	return m.db.list()!
@@ -58,7 +58,7 @@ pub fn (mut m AgentDB) delete_by_pubkey(pubkey string) ! {
 		// Agent not found, nothing to delete
 		return
 	}
-	
+
 	// Delete the agent by ID
 	m.delete(agent.id)!
 }
@@ -67,11 +67,11 @@ pub fn (mut m AgentDB) delete_by_pubkey(pubkey string) ! {
 pub fn (mut m AgentDB) update_status(pubkey string, status AgentState) !Agent {
 	// Get the agent by pubkey
 	mut agent := m.get_by_pubkey(pubkey)!
-	
+
 	// Update the status
 	agent.status.status = status
 	agent.status.timestamp_last = ourtime.now()
-	
+
 	// Save the updated agent
 	return m.set(agent)!
 }
@@ -80,29 +80,29 @@ pub fn (mut m AgentDB) update_status(pubkey string, status AgentState) !Agent {
 pub fn (mut m AgentDB) get_all_agent_pubkeys() ![]string {
 	// Get all agent IDs
 	agent_ids := m.list()!
-	
+
 	// Get pubkeys for all agents
 	mut pubkeys := []string{}
 	for id in agent_ids {
 		agent := m.get(id) or { continue }
 		pubkeys << agent.pubkey
 	}
-	
+
 	return pubkeys
 }
 
 // get_by_service returns all agents that provide a specific service
 pub fn (mut m AgentDB) get_by_service(actor string, action string) ![]Agent {
 	mut matching_agents := []Agent{}
-	
+
 	// Get all agent IDs
 	agent_ids := m.list()!
-	
+
 	// Filter agents that provide the specified service
 	for id in agent_ids {
 		// Get the agent by ID
 		agent := m.get(id) or { continue }
-		
+
 		// Check if agent provides the specified service
 		for service in agent.services {
 			if service.actor == actor {
@@ -116,6 +116,6 @@ pub fn (mut m AgentDB) get_by_service(actor string, action string) ![]Agent {
 			}
 		}
 	}
-	
+
 	return matching_agents
 }

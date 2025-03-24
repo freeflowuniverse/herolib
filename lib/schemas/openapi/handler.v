@@ -1,33 +1,33 @@
 module openapi
 
-import net.http {CommonHeader}
-import x.json2 {Any}
+import net.http
+import x.json2 { Any }
 import freeflowuniverse.herolib.schemas.jsonrpc
 
 pub struct Request {
 pub:
-	path   string            // The requested path
-	method string            // HTTP method (e.g., GET, POST)
-	key string
-	body   string            // Request body
-	operation Operation
-	arguments map[string]Any
+	path       string // The requested path
+	method     string // HTTP method (e.g., GET, POST)
+	key        string
+	body       string // Request body
+	operation  Operation
+	arguments  map[string]Any
 	parameters map[string]string
-	header http.Header @[omitempty; str: skip; json: '-']// Request headers
+	header     http.Header @[json: '-'; omitempty; str: skip] // Request headers
 }
 
 pub struct Response {
 pub mut:
-	status http.Status            // HTTP status
-	body        string         // Response body
-	header	http.Header @[omitempty; str: skip; json:'-']// Response headers
+	status http.Status // HTTP status
+	body   string      // Response body
+	header http.Header @[json: '-'; omitempty; str: skip] // Response headers
 }
 
 pub struct Handler {
 pub:
 	specification OpenAPI @[required] // The OpenRPC specification
 pub mut:
-    handler IHandler
+	handler IHandler
 }
 
 pub interface IHandler {
@@ -38,7 +38,7 @@ mut:
 @[params]
 pub struct HandleParams {
 	timeout int = 60 // Timeout in seconds
-	retry   int  // Number of retries
+	retry   int // Number of retries
 }
 
 // Handle a JSON-RPC request and return a response

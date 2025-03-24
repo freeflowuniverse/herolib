@@ -4,8 +4,7 @@ import freeflowuniverse.herolib.core.pathlib
 import json
 import os
 
-
-//THE FOLLOWING STRUCTS CAN BE SERIALIZED IN 
+// THE FOLLOWING STRUCTS CAN BE SERIALIZED IN
 // main.json
 // Main
 // {
@@ -89,13 +88,12 @@ import os
 // Combined config structure
 pub struct Config {
 pub mut:
-	footer Footer
-	main   Main
-	navbar Navbar
+	footer             Footer
+	main               Main
+	navbar             Navbar
 	build_destinations []BuildDest
-	import_sources []ImportSource
-	ssh_connections []SSHConnection
-
+	import_sources     []ImportSource
+	ssh_connections    []SSHConnection
 }
 
 // THE SUBELEMENTS
@@ -113,11 +111,9 @@ pub mut:
 	metadata       MainMetadata
 	build_dest     []string @[json: 'buildDest']
 	build_dest_dev []string @[json: 'buildDestDev']
-	copyright string = "someone"
-	to_import []MyImport  @[json: 'import']
+	copyright      string = 'someone'
+	to_import      []MyImport @[json: 'import']
 }
-
-
 
 // Footer config structures
 pub struct FooterItem {
@@ -147,15 +143,13 @@ pub mut:
 	title       string = 'Docusaurus'
 }
 
-
 pub struct MyImport {
 pub mut:
-	url  string
-	dest string
+	url     string
+	dest    string
 	visible bool
 	replace map[string]string
 }
-
 
 // Navbar config structures
 pub struct NavbarItem {
@@ -171,33 +165,29 @@ pub mut:
 	items []NavbarItem
 }
 
-
 pub struct SSHConnection {
 pub mut:
-	name string = 'main'
-	login string = 'root' //e.g. 'root'
-	host string // e.g. info.ourworld.tf
-	port int = 21 //default is std ssh port
-	key string
-	key_path string //location of the key (private ssh key to be able to connect over ssh)
+	name     string = 'main'
+	login    string = 'root' // e.g. 'root'
+	host     string // e.g. info.ourworld.tf
+	port     int = 21 // default is std ssh port
+	key      string
+	key_path string // location of the key (private ssh key to be able to connect over ssh)
 }
 
 pub struct BuildDest {
 pub mut:
 	ssh_name string = 'main'
-	path string //can be on the ssh root or direct path e.g. /root/hero/www/info
+	path     string // can be on the ssh root or direct path e.g. /root/hero/www/info
 }
-
-
 
 pub struct ImportSource {
 pub mut:
-	url string //http git url can be to specific path
-	path string
-	dest string //location in the docs folder of the place where we will build docusaurus
-	replace map[string]string  //will replace ${NAME} in the imported content
+	url     string // http git url can be to specific path
+	path    string
+	dest    string            // location in the docs folder of the place where we will build docusaurus
+	replace map[string]string // will replace ${NAME} in the imported content
 }
-
 
 // Export config as JSON files (main.json, navbar.json, footer.json)
 pub fn (config Config) export_json(path string) ! {
@@ -205,13 +195,13 @@ pub fn (config Config) export_json(path string) ! {
 	os.mkdir_all(path)!
 
 	// Export main.json
-	os.write_file("${path}/main.json", json.encode_pretty(config.main))!
+	os.write_file('${path}/main.json', json.encode_pretty(config.main))!
 
 	// Export navbar.json
-	os.write_file("${path}/navbar.json", json.encode_pretty(config.navbar))!
+	os.write_file('${path}/navbar.json', json.encode_pretty(config.navbar))!
 
 	// Export footer.json
-	os.write_file("${path}/footer.json", json.encode_pretty(config.footer))!
+	os.write_file('${path}/footer.json', json.encode_pretty(config.footer))!
 }
 
 pub fn (c Config) write(path string) ! {

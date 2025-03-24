@@ -19,8 +19,8 @@ pub mut:
 	startupmanager bool = true
 	build          bool = true
 	hasconfig      bool = true
-	cat            Cat // dont' set default
-	play_name 	   string // e.g. docusaurus is what we look for
+	cat            Cat    // dont' set default
+	play_name      string // e.g. docusaurus is what we look for
 	module_path    string // e.g.freeflowuniverse.herolib.web.docusaurus
 }
 
@@ -111,28 +111,26 @@ pub fn gen_model_get(path string, create bool) !GenModel {
 
 	model.play_name = model.name
 
-	pathsub:=path.replace('${os.home_dir()}/code/github/','')
-	model.module_path = pathsub.replace("/",".").replace(".lib.",".")
+	pathsub := path.replace('${os.home_dir()}/code/github/', '')
+	model.module_path = pathsub.replace('/', '.').replace('.lib.', '.')
 
-	// !!hero_code.play 
+	// !!hero_code.play
 	//     name:'docusaurus'	
 
 	mut play_actions := plbook.find(filter: 'hero_code.play')!
-	if play_actions.len>1{
-		return error("should have max 1 hero_code.play action in ${config_path.path}")
+	if play_actions.len > 1 {
+		return error('should have max 1 hero_code.play action in ${config_path.path}')
 	}
-	if play_actions.len==1{
+	if play_actions.len == 1 {
 		mut p := play_actions[0].params
-		model.play_name = p.get_default('name',model.name)!		
+		model.play_name = p.get_default('name', model.name)!
 	}
 
-	if model.module_path.contains("docusaurus"){
+	if model.module_path.contains('docusaurus') {
 		println(model)
-		println("4567ujhjk")
+		println('4567ujhjk')
 		exit(0)
 	}
 
-
 	return model
-
 }

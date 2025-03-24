@@ -8,5 +8,5 @@ import freeflowuniverse.herolib.core
 
 core.interactive_set()! // make sure the sudo works so we can do things even if it requires those rights
 
-mut i1:=golang.get()!
+mut i1 := golang.get()!
 i1.install()!

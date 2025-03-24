@@ -31,14 +31,14 @@ fn (t TestRPCTransportClient) send(request_json string, params SendParams) !stri
 		new_response(request.id, request.params)
 	} else if request.method == 'test_error' {
 		error := RPCError{
-			code: 1
+			code:    1
 			message: 'intentional jsonrpc error response'
 		}
 		new_error_response(request.id, error)
 	} else {
 		new_error_response(request.id, method_not_found)
 	}
-	
+
 	return response.encode()
 }
 
@@ -81,7 +81,7 @@ fn test_send_json_rpc() {
 		assert err.code() == 1
 		assert err.msg() == 'intentional jsonrpc error response'
 	}
-	
+
 	// Test case 3: Method not found error
 	request2 := new_request_generic[string]('nonexistent_method', '')
 	if response2 := client.send[string, string](request2) {

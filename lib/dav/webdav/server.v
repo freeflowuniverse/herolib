@@ -15,10 +15,16 @@ import strings
 pub fn (server &Server) index(mut ctx Context) veb.Result {
 	ctx.set_header(.content_length, '0')
 	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Allow', 'OPTIONS, HEAD, GET, PROPFIND, DELETE, COPY, MOVE, PROPPATCH, LOCK, UNLOCK') or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
+	ctx.set_custom_header('Allow', 'OPTIONS, HEAD, GET, PROPFIND, DELETE, COPY, MOVE, PROPPATCH, LOCK, UNLOCK') or {
+		return ctx.server_error(err.msg())
+	}
 	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Server', 'WsgiDAV-compatible WebDAV Server') or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Server', 'WsgiDAV-compatible WebDAV Server') or {
+		return ctx.server_error(err.msg())
+	}
 	return ctx.ok('')
 }
 
@@ -26,17 +32,23 @@ pub fn (server &Server) index(mut ctx Context) veb.Result {
 pub fn (server &Server) options(mut ctx Context, path string) veb.Result {
 	ctx.set_header(.content_length, '0')
 	ctx.set_custom_header('DAV', '1,2') or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Allow', 'OPTIONS, HEAD, GET, PROPFIND, DELETE, COPY, MOVE, PROPPATCH, LOCK, UNLOCK') or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
+	ctx.set_custom_header('Allow', 'OPTIONS, HEAD, GET, PROPFIND, DELETE, COPY, MOVE, PROPPATCH, LOCK, UNLOCK') or {
+		return ctx.server_error(err.msg())
+	}
 	ctx.set_custom_header('MS-Author-Via', 'DAV') or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Server', 'WsgiDAV-compatible WebDAV Server') or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Server', 'WsgiDAV-compatible WebDAV Server') or {
+		return ctx.server_error(err.msg())
+	}
 	return ctx.ok('')
 }
 
 @['/:path...'; lock]
 pub fn (mut server Server) lock(mut ctx Context, path string) veb.Result {
 	resource := ctx.req.url
-	
+
 	// Parse lock information from XML body instead of headers
 	lock_info := parse_lock_xml(ctx.req.data) or {
 		console.print_stderr('Failed to parse lock XML: ${err}')
@@ -48,7 +60,7 @@ pub fn (mut server Server) lock(mut ctx Context, path string) veb.Result {
 	// Parse timeout header which can be in format "Second-600"
 	timeout_str := ctx.get_custom_header('Timeout') or { 'Second-3600' }
 	mut timeout := 3600 // Default 1 hour
-	
+
 	if timeout_str.to_lower().starts_with('second-') {
 		timeout_val := timeout_str.all_after('Second-')
 		if timeout_val.int() > 0 {
@@ -56,13 +68,13 @@ pub fn (mut server Server) lock(mut ctx Context, path string) veb.Result {
 		}
 	}
 
-	new_lock := Lock {
-		...lock_info,
+	new_lock := Lock{
+		...lock_info
 		resource: ctx.req.url
-		depth: ctx.get_custom_header('Depth') or { '0' }.int()
-		timeout: timeout
+		depth:    ctx.get_custom_header('Depth') or { '0' }.int()
+		timeout:  timeout
 	}
-	
+
 	// Try to acquire the lock
 	lock_result := server.lock_manager.lock(new_lock) or {
 		// If we get here, the resource is locked by a different owner
@@ -72,10 +84,14 @@ pub fn (mut server Server) lock(mut ctx Context, path string) veb.Result {
 
 	// Set WsgiDAV-like headers
 	ctx.res.set_status(.ok)
-	ctx.set_custom_header('Lock-Token', 'opaquelocktoken:${lock_result.token}') or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Lock-Token', 'opaquelocktoken:${lock_result.token}') or {
+		return ctx.server_error(err.msg())
+	}
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
 	ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
-	
+
 	// Create a proper WebDAV lock response
 	return ctx.send_response_to_client('application/xml', lock_result.xml())
 }
@@ -86,7 +102,7 @@ pub fn (mut server Server) unlock(mut ctx Context, path string) veb.Result {
 	token_ := ctx.get_custom_header('Lock-Token') or { return ctx.server_error(err.msg()) }
 	// Handle the opaquelocktoken: prefix that WsgiDAV uses
 	token := token_.trim_string_left('<').trim_string_right('>')
-	                .trim_string_left('opaquelocktoken:')
+		.trim_string_left('opaquelocktoken:')
 	if token.len == 0 {
 		console.print_stderr('Unlock failed: `Lock-Token` header required.')
 		ctx.res.set_status(.bad_request)
@@ -95,8 +111,12 @@ pub fn (mut server Server) unlock(mut ctx Context, path string) veb.Result {
 
 	if server.lock_manager.unlock_with_token(resource, token) {
 		// Add WsgiDAV-like headers
-		ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
-		ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
+		ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+			return ctx.server_error(err.msg())
+		}
+		ctx.set_custom_header('Server', 'veb WebDAV Server') or {
+			return ctx.server_error(err.msg())
+		}
 		ctx.res.set_status(.no_content)
 		return ctx.text('')
 	}
@@ -109,20 +129,26 @@ pub fn (mut server Server) unlock(mut ctx Context, path string) veb.Result {
 @['/:path...'; get]
 pub fn (mut server Server) get_file(mut ctx Context, path string) veb.Result {
 	log.info('[WebDAV] Getting file ${path}')
-	file_data := server.vfs.file_read(path) or { 
+	file_data := server.vfs.file_read(path) or {
 		log.error('[WebDAV] ${err.msg()}')
-		return ctx.server_error(err.msg()) 
+		return ctx.server_error(err.msg())
 	}
 	ext := path.all_after_last('.')
 	content_type := veb.mime_types['.${ext}'] or { 'text/plain; charset=utf-8' }
-	
+
 	// Add WsgiDAV-like headers
 	ctx.set_header(.content_length, file_data.len.str())
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
-	ctx.set_header(.accept_ranges, 'bytes') 
-	ctx.set_custom_header('ETag', '"${path}-${time.now().unix()}"') or { return ctx.server_error(err.msg()) }
-	ctx.set_custom_header('Last-Modified', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
-	
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
+	ctx.set_header(.accept_ranges, 'bytes')
+	ctx.set_custom_header('ETag', '"${path}-${time.now().unix()}"') or {
+		return ctx.server_error(err.msg())
+	}
+	ctx.set_custom_header('Last-Modified', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
+
 	return ctx.send_response_to_client(content_type, file_data.bytestr())
 }
 
@@ -158,15 +184,15 @@ pub fn (mut server Server) exists(mut ctx Context, path string) veb.Result {
 
 @['/:path...'; delete]
 pub fn (mut server Server) delete(mut ctx Context, path string) veb.Result {
-	server.vfs.delete(path) or {
+	server.vfs.delete(path) or { return ctx.server_error(err.msg()) }
+
+	// Add WsgiDAV-like headers
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
 		return ctx.server_error(err.msg())
 	}
-	
-	// Add WsgiDAV-like headers
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
 	ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
-	
-	server.vfs.print() or {panic(err)}
+
+	server.vfs.print() or { panic(err) }
 	// Return success response
 	return ctx.no_content()
 }
@@ -195,9 +221,11 @@ pub fn (mut server Server) copy(mut ctx Context, path string) veb.Result {
 	}
 
 	// Add WsgiDAV-like headers
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
 	ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
-	
+
 	// Return 201 Created if the destination was created, 204 No Content if it was overwritten
 	if destination_exists {
 		return ctx.no_content()
@@ -232,9 +260,11 @@ pub fn (mut server Server) move(mut ctx Context, path string) veb.Result {
 	}
 
 	// Add WsgiDAV-like headers
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
 	ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
-	
+
 	// Return 204 No Content for successful move operations (WsgiDAV behavior)
 	ctx.res.set_status(.no_content)
 	return ctx.text('')
@@ -256,7 +286,9 @@ pub fn (mut server Server) mkcol(mut ctx Context, path string) veb.Result {
 	// Add WsgiDAV-like headers
 	ctx.set_header(.content_type, 'text/html; charset=utf-8')
 	ctx.set_header(.content_length, '0')
-	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
+	ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+		return ctx.server_error(err.msg())
+	}
 	ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
 
 	ctx.res.set_status(.created)
@@ -335,7 +367,7 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 		if is_chunked {
 			// For chunked encoding, we need to read until we get a zero-length chunk
 			log.info('[WebDAV] Reading chunked data for ${path}')
-			
+
 			// Write initial data to the file
 			if all_data.len > 0 {
 				server.vfs.file_write(path, all_data) or {
@@ -368,11 +400,10 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 					break
 				}
 
-
 				// Process the chunk using the chunked module
 				chunk := buffer[..n].clone()
 				chunk_str := chunk.bytestr()
-				
+
 				// Try to decode the chunk if it looks like a valid chunked format
 				if chunk_str.contains('\r\n') {
 					log.debug('[WebDAV] Attempting to decode chunked data')
@@ -391,7 +422,7 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 							return veb.no_result()
 						}
 					}
-					
+
 					// If decoding succeeds, write the decoded data
 					if decoded.len > 0 {
 						log.debug('[WebDAV] Successfully decoded chunked data: ${decoded.len} bytes')
@@ -449,7 +480,7 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 			for remaining > 0 {
 				// Adjust buffer size for the last chunk if needed
 				read_size := if remaining < buffer.len { remaining } else { buffer.len }
-				
+
 				// Read a chunk from the connection
 				n := ctx.conn.read(mut buffer[..read_size]) or {
 					if err.code() == net.err_timed_out_code {
@@ -511,13 +542,17 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 			return ctx.server_error('Failed to write file: ${err.msg()}')
 		}
 		log.info('[WebDAV] Created empty file at ${path}')
-		
+
 		// Add WsgiDAV-like headers
 		ctx.set_header(.content_type, 'text/html; charset=utf-8')
 		ctx.set_header(.content_length, '0')
-		ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or { return ctx.server_error(err.msg()) }
-		ctx.set_custom_header('Server', 'veb WebDAV Server') or { return ctx.server_error(err.msg()) }
-		
+		ctx.set_custom_header('Date', texttools.format_rfc1123(time.utc())) or {
+			return ctx.server_error(err.msg())
+		}
+		ctx.set_custom_header('Server', 'veb WebDAV Server') or {
+			return ctx.server_error(err.msg())
+		}
+
 		// Set appropriate status code based on whether this was a create or update
 		if is_update {
 			return ctx.no_content()

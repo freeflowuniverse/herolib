@@ -14,15 +14,14 @@ actor_spec := specification.from_openapi(openapi_spec)!
 
 println(actor_spec)
 
-actor_module := generator.generate_actor_module(
-	actor_spec,
+actor_module := generator.generate_actor_module(actor_spec,
 	interfaces: [.openapi, .http]
 )!
 
-actor_module.write(example_dir, 
-	format: false
+actor_module.write(example_dir,
+	format:    false
 	overwrite: true
-	compile: false
+	compile:   false
 )!
 
 // os.execvp('bash', ['${example_dir}/meeting_scheduler_actor/scripts/run.sh'])!

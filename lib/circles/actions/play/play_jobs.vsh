@@ -1,6 +1,6 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.circles.actions.play { Player, ReturnFormat }
+import freeflowuniverse.herolib.circles.actions.play { ReturnFormat }
 import os
 import flag
 
@@ -40,7 +40,7 @@ fn main() {
 	// Load heroscript from file or text
 	mut input := ''
 	mut is_text := false
-	
+
 	if input_file != '' {
 		input = input_file
 		is_text = false

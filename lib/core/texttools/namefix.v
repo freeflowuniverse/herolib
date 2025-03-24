@@ -84,12 +84,11 @@ pub fn name_fix_no_underscore(name string) string {
 	return x
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 // remove underscores and extension
 pub fn name_fix_no_underscore_no_ext(name_ string) string {
 	return name_fix_keepext(name_).all_before_last('.').replace('_', '')
-=======
+}
+
 pub fn name_fix_snake_to_pascal(name string) string {
 	x := name.replace('_', ' ')
 	p := x.title().replace(' ', '')
@@ -120,19 +119,6 @@ pub fn name_fix_pascal_to_snake(name string) string {
 
 pub fn name_fix_dot_notation_to_snake_case(name string) string {
 	return name.replace('.', '_')
-}
-
-// normalize a file path while preserving path structure
-pub fn path_fix(path_ string) string {
-	if path_.len == 0 {
-		return ''
-	}
-	return "${path_.trim('/')}"
->>>>>>> development_ourdb_new
-=======
-// remove underscores and extension
-pub fn name_fix_no_underscore_no_ext(name_ string) string {
-	return name_fix_keepext(name_).all_before_last('.').replace('_', '')
 }
 
 // Normalizes a path component (directory or file name without extension)
@@ -250,7 +236,6 @@ pub fn path_fix(path_ string) string {
 	}
 
 	return result
->>>>>>> development_actions007
 }
 
 // normalize a file path while preserving path structure

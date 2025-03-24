@@ -4,60 +4,62 @@ import freeflowuniverse.herolib.core.texttools
 
 pub struct Function {
 pub:
-	name     string  @[omitempty]
-	receiver Param   @[omitempty]
-	is_pub   bool    @[omitempty]
-	mod      string  @[omitempty]
+	name     string @[omitempty]
+	receiver Param  @[omitempty]
+	is_pub   bool   @[omitempty]
+	mod      string @[omitempty]
 pub mut:
-	summary string   @[omitempty]
-	description string   @[omitempty]
-	params      []Param  @[omitempty]
-	body        string   @[omitempty]
+	summary     string  @[omitempty]
+	description string  @[omitempty]
+	params      []Param @[omitempty]
+	body        string  @[omitempty]
 	result      Param   @[omitempty]
-	has_return  bool     @[omitempty]
+	has_return  bool    @[omitempty]
 }
-
 
 // vgen_function generates a function statement for a function
 pub fn (function Function) vgen(options WriteOptions) string {
 	mut params_ := function.params.clone()
 	optionals := function.params.filter(it.is_optional)
 	options_struct := Struct{
-		name: '${texttools.pascal_case(function.name)}Options'
-		attrs: [Attribute{
+		name:   '${texttools.pascal_case(function.name)}Options'
+		attrs:  [Attribute{
 			name: 'params'
 		}]
 		fields: optionals.map(StructField{
-			name: it.name
+			name:        it.name
 			description: it.description
-			typ: it.typ
+			typ:         it.typ
 		})
 	}
 	if optionals.len > 0 {
 		params_ << Param{
 			name: 'options'
-			typ: type_from_symbol(options_struct.name)
+			typ:  type_from_symbol(options_struct.name)
 		}
 	}
 
 	params := params_.filter(!it.is_optional).map(it.vgen()).join(', ')
 
 	receiver_ := Param{
-		...function.receiver,
+		...function.receiver
 		typ: if function.receiver.typ is Result {
 			function.receiver.typ.typ
-		} else {function.receiver.typ}
-
+		} else {
+			function.receiver.typ
+		}
 	}
 	receiver := if receiver_.vgen().trim_space() != '' {
 		'(${receiver_.vgen()})'
-	} else {''}
+	} else {
+		''
+	}
 
 	name := texttools.name_fix(function.name)
 	result := function.result.typ.vgen()
 
 	mut function_str := $tmpl('templates/function/function.v.template')
-	
+
 	// if options.format {
 	// 	result := os.execute_opt('echo "${function_str.replace('$', '\\$')}" | v fmt') or {
 	// 		panic('${function_str}\n${err}')
@@ -115,10 +117,10 @@ pub fn parse_function(code_ string) !Function {
 
 	body := if code.contains('{') { code.all_after('{').all_before_last('}') } else { '' }
 	return Function{
-		name: name
+		name:     name
 		receiver: receiver
-		params: params
-		result: result
-		body: body
+		params:   params
+		result:   result
+		body:     body
 	}
 }

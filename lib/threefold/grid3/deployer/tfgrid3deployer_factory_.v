@@ -5,7 +5,6 @@ import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.threefold.griddriver
 
-
 __global (
 	tfgrid3deployer_global  map[string]&TFGridDeployer
 	tfgrid3deployer_default string
@@ -28,8 +27,7 @@ fn args_get(args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&TFGridDeployer {
-
-	mut installer:=griddriver.get()!
+	mut installer := griddriver.get()!
 	installer.install()!
 
 	mut context := base.context()!

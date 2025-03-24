@@ -10,18 +10,18 @@ import rand
 pub struct Request {
 pub mut:
 	// The JSON-RPC protocol version, must be exactly "2.0"
-	jsonrpc string @[required] 
-	
+	jsonrpc string @[required]
+
 	// The name of the method to be invoked on the server
-	method  string @[required] 
-	
+	method string @[required]
+
 	// The parameters to the method, encoded as a JSON string
 	// This can be omitted if the method doesn't require parameters
-	params  string 
-	
+	params string
+
 	// An identifier established by the client that must be included in the response
 	// This is used to correlate requests with their corresponding responses
-	id      int @[required] 
+	id int @[required]
 }
 
 // new_request creates a new JSON-RPC request with the specified method and parameters.
@@ -35,10 +35,10 @@ pub mut:
 //   - A fully initialized Request object
 pub fn new_request(method string, params string) Request {
 	return Request{
-		jsonrpc: jsonrpc.jsonrpc_version
-		method: method
-		params: params
-		id: rand.i32() // Automatically generate a unique ID using UUID v4
+		jsonrpc: jsonrpc_version
+		method:  method
+		params:  params
+		id:      rand.i32() // Automatically generate a unique ID using UUID v4
 	}
 }
 
@@ -83,15 +83,15 @@ pub struct RequestGeneric[T] {
 pub mut:
 	// The JSON-RPC protocol version, must be exactly "2.0"
 	jsonrpc string @[required]
-	
+
 	// The name of the method to be invoked on the server
-	method  string @[required]
-	
+	method string @[required]
+
 	// The parameters to the method, with a specific type T
-	params  T      
-	
+	params T
+
 	// An identifier established by the client
-	id      int @[required]
+	id int @[required]
 }
 
 // new_request_generic creates a new generic JSON-RPC request with strongly-typed parameters.
@@ -105,10 +105,10 @@ pub mut:
 //   - A fully initialized RequestGeneric object with parameters of type T
 pub fn new_request_generic[T](method string, params T) RequestGeneric[T] {
 	return RequestGeneric[T]{
-		jsonrpc: jsonrpc.jsonrpc_version
-		method: method
-		params: params
-		id: rand.i32()
+		jsonrpc: jsonrpc_version
+		method:  method
+		params:  params
+		id:      rand.i32()
 	}
 }
 

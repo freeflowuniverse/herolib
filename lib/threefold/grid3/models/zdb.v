@@ -24,8 +24,7 @@ pub const device_types = DeviceTypes{}
 
 pub struct Zdb {
 pub mut:
-	// size in bytes
-	size     u64
+	size     u64 // size in bytes
 	mode     ZdbMode
 	password string
 	public   bool

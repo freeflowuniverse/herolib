@@ -50,7 +50,9 @@ pub:
 pub fn (mut q RedisRpc) call(args RPCArgs) !string {
 	timeout := if args.timeout == 0 {
 		u64(60000)
-	} else {args.timeout}
+	} else {
+		args.timeout
+	}
 	retqueue := rand.uuid_v4()
 	now := time.now().unix()
 	message := Message{
@@ -92,7 +94,7 @@ pub fn (mut q RedisRpc) result(timeout u64, retqueue string) !string {
 pub struct ProcessParams {
 pub:
 	interval time.Duration = time.millisecond * 10
-	timeout u64
+	timeout  u64
 }
 
 // to be used by processor, to get request and execute, this is the server side of a RPC mechanism

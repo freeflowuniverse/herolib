@@ -22,8 +22,8 @@ fn installed() !bool {
 			return false
 		}
 		return true
-	}else{
-		println("error in executing tailwindcss")
+	} else {
+		println('error in executing tailwindcss')
 		println(res)
 	}
 	return false
