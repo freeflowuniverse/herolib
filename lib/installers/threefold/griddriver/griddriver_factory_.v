@@ -2,7 +2,7 @@ module griddriver
 
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.sysadmin.startupmanager
+import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 
 __global (
@@ -89,11 +89,6 @@ pub fn (mut self GridDriverInstaller) install(args InstallArgs) ! {
 	if args.reset || (!installed()!) {
 		install()!
 	}
-}
-
-pub fn (mut self GridDriverInstaller) build() ! {
-	switch(self.name)
-	build()!
 }
 
 pub fn (mut self GridDriverInstaller) destroy() ! {

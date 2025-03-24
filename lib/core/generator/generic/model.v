@@ -20,6 +20,9 @@ pub mut:
 	path                string
 	force               bool
 	hasconfig           bool = true
+	playonly            bool
+	play_name           string // e.g. docusaurus is what we look for
+	module_path         string // e.g.freeflowuniverse.herolib.web.docusaurus	
 }
 
 pub enum Cat {
@@ -80,5 +83,4 @@ fn args_get(path string) !GeneratorArgs {
 		}
 	}
 	return error("can't find hero_code.generate_client or hero_code.generate_installer in ${path}")
-	// return GeneratorArgs{}
 }

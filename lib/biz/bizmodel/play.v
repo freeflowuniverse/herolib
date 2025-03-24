@@ -2,7 +2,7 @@ module bizmodel
 
 import arrays
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.playbook { PlayBook, Action }
+import freeflowuniverse.herolib.core.playbook { Action, PlayBook }
 import freeflowuniverse.herolib.ui.console
 // import freeflowuniverse.herolib.core.texttools
 // import freeflowuniverse.herolib.ui.console
@@ -16,12 +16,10 @@ const action_priorities = {
 
 pub fn play(mut plbook PlayBook) ! {
 	// group actions by which bizmodel they belong to
-	actions_by_biz := arrays.group_by[string, &Action](
-		plbook.actions_find(actor: 'bizmodel')!, 
+	actions_by_biz := arrays.group_by[string, &Action](plbook.actions_find(actor: 'bizmodel')!,
 		fn (a &Action) string {
-			return a.params.get('bizname') or {'default'}
-		}
-	)
+		return a.params.get('bizname') or { 'default' }
+	})
 
 	// play actions for each biz in playbook
 	for biz, actions in actions_by_biz {
@@ -32,8 +30,9 @@ pub fn play(mut plbook PlayBook) ! {
 
 pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 	mut actions := plbook.actions_find(actor: 'bizmodel')!
-	
+
 	for action in actions.filter(it.name in action_priorities[0]) {
+		console.print_debug(action)
 		m.act(*action)!
 	}
 

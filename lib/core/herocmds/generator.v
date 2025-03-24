@@ -39,6 +39,13 @@ pub fn cmd_generator(mut cmdroot Command) {
 	cmd_run.add_flag(Flag{
 		flag:        .bool
 		required:    false
+		name:        'playonly'
+		description: 'generate the play script.'
+	})
+
+	cmd_run.add_flag(Flag{
+		flag:        .bool
+		required:    false
 		name:        'scan'
 		abbrev:      's'
 		description: 'force scanning operation.'
@@ -59,8 +66,13 @@ fn cmd_generator_execute(cmd Command) ! {
 	mut force := cmd.flags.get_bool('force') or { false }
 	mut reset := cmd.flags.get_bool('reset') or { false }
 	mut scan := cmd.flags.get_bool('scan') or { false }
+	mut playonly := cmd.flags.get_bool('playonly') or { false }
 	mut installer := cmd.flags.get_bool('installer') or { false }
 	mut path := cmd.flags.get_string('path') or { '' }
+
+	if playonly {
+		force = true
+	}
 
 	if path == '' {
 		path = os.getwd()
@@ -74,7 +86,7 @@ fn cmd_generator_execute(cmd Command) ! {
 	}
 
 	if scan {
-		generic.scan(path: path, reset: reset, force: force, cat: cat)!
+		generic.scan(path: path, reset: reset, force: force, cat: cat, playonly: playonly)!
 	} else {
 		generic.generate(path: path, reset: reset, force: force, cat: cat)!
 	}

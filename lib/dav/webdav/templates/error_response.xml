@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<d:multistatus xmlns:d="DAV:">
+  <d:response>
+    <d:href>@{ctx.req.url}</d:href>
+    <d:status>HTTP/1.1 @{err.status.int()} @{message}</d:status>
+    <d:error><d:@{err.tag}/></d:error>
+  </d:response>
+</d:multistatus>

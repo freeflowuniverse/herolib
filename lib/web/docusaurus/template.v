@@ -6,10 +6,10 @@ import freeflowuniverse.herolib.installers.web.bun
 import os
 
 @[params]
-struct TemplateInstallArgs{
+struct TemplateInstallArgs {
 	template_update bool = true
-	install bool
-	delete bool = true
+	install         bool
+	delete          bool = true
 }
 
 fn (mut self DocusaurusFactory) template_install(args TemplateInstallArgs) ! {
@@ -40,7 +40,7 @@ fn (mut self DocusaurusFactory) template_install(args TemplateInstallArgs) ! {
 		}
 	}
 
-	if args.install{
+	if args.install {
 		// install bun
 		mut installer := bun.get()!
 		installer.install()!
@@ -55,4 +55,6 @@ fn (mut self DocusaurusFactory) template_install(args TemplateInstallArgs) ! {
 		)!
 	}
 
+	mut aa := template_path.dir_get('docs') or { return }
+	aa.delete()!
 }

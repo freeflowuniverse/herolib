@@ -46,6 +46,5 @@ pub fn (mut site DocSite) clean(args ErrorArgs) ! {
 		tsconfig.json
 		'
 
-	//TODO: need better way how to deal with this
-
+	// TODO: need better way how to deal with this
 }

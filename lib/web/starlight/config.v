@@ -26,16 +26,16 @@ pub mut:
 
 pub struct Main {
 pub mut:
-	name           string
-	title          string = 'A Test Site'
+	name  string
+	title string = 'A Test Site'
 	// tagline        string
-	url            string = 'http://localhost/testsite'
+	url string = 'http://localhost/testsite'
 	// url_home       string
 	// base_url       string = '/' @[json: 'baseUrl']
 	// image          string = 'img/tf_graph.png' @[required]
 	build_dest     []string @[json: 'buildDest']
 	build_dest_dev []string @[json: 'buildDestDev']
-	content []ContentItem
+	content        []ContentItem
 }
 
 // Navbar config structures
@@ -60,12 +60,12 @@ pub mut:
 	navbar Navbar
 }
 
-//pulled from e.g. git and linked to a destination in the astro build location
+// pulled from e.g. git and linked to a destination in the astro build location
 pub struct ContentItem {
 pub mut:
-	url string
-	dest string
-	replacer map[string]string //items we want to replace
+	url      string
+	dest     string
+	replacer map[string]string // items we want to replace
 }
 
 // load_config loads all configuration from the specified directory

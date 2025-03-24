@@ -1,7 +1,6 @@
 module encoder
 
 import time
-import freeflowuniverse.herolib.ui.console
 
 // example see https://github.com/vlang/v/blob/master/examples/compiletime/reflection.v
 
@@ -14,6 +13,8 @@ pub fn encode[T](obj T) ![]u8 {
 		$if field.typ is string {
 			// $(string_expr) produces an identifier
 			d.add_string(obj.$(field.name).str())
+		} $else $if field.typ is bool {
+			d.add_bool(bool(obj.$(field.name)))
 		} $else $if field.typ is int {
 			d.add_int(int(obj.$(field.name)))
 		} $else $if field.typ is u8 {
@@ -71,6 +72,8 @@ pub fn decode[T](data []u8) !T {
 		$if field.typ is string {
 			// $(string_expr) produces an identifier
 			result.$(field.name) = d.get_string()!
+		} $else $if field.typ is bool {
+			result.$(field.name) = d.get_bool()!
 		} $else $if field.typ is int {
 			result.$(field.name) = d.get_int()!
 		} $else $if field.typ is u8 {

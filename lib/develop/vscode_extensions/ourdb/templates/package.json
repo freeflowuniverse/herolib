@@ -1,0 +1,68 @@
+{
+  "name": "ourdb-viewer",
+  "displayName": "OurDB Viewer",
+  "description": "View OurDB files line by line",
+  "version": "0.0.1",
+  "publisher": "local-herolib",
+  "private": true,
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:ourdb",
+    "onFileSystem:ourdb",
+    "workspaceContains:**/*.ourdb",
+    "onCommand:ourdb.openFile"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [{
+      "id": "ourdb",
+      "extensions": [".ourdb"],
+      "aliases": ["OurDB"],
+      "mimetypes": ["application/x-ourdb"]
+    }],
+    "commands": [
+      {
+        "command": "ourdb.refresh",
+        "title": "OurDB: Refresh View"
+      },
+      {
+        "command": "ourdb.openFile",
+        "title": "OurDB: Open File"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceExtname == .ourdb",
+          "command": "ourdb.openFile",
+          "group": "navigation"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "ourdb.viewer",
+        "displayName": "OurDB Viewer",
+        "selector": [
+          { "filenamePattern": "*.ourdb" }
+        ],
+        "priority": "default"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^14.x.x",
+    "eslint": "^7.32.0",
+    "typescript": "^4.4.3"
+  }
+}

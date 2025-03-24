@@ -7,7 +7,7 @@ import os
 const testpath3 = os.dir(@FILE) + '/../..'
 
 // if we return True then it means the dir or file is processed
-fn filter_1(mut path pathlib.Path, mut params paramsparser.Params) !bool {
+fn filter_1(mut path pathlib.Path) !bool {
 	if path.is_dir() {
 		if path.path.ends_with('.dSYM') {
 			return false

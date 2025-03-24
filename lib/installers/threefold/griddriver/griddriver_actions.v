@@ -1,15 +1,15 @@
 module griddriver
 
+import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.develop.gittools
 import os
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('/bin/bash -c "griddriver --version"')
+	res := os.execute('griddriver --version')
 	if res.exit_code != 0 {
 		return false
 	}
@@ -26,7 +26,6 @@ fn installed() !bool {
 	return true
 }
 
-// get the Upload List of the files
 fn ulist_get() !ulist.UList {
 	// optionally build a UList which is all paths which are result of building, is then used e.g. in upload
 	return ulist.UList{}
@@ -36,45 +35,36 @@ fn ulist_get() !ulist.UList {
 fn upload() ! {}
 
 fn install() ! {
-	console.print_header('install griddriver')
-	build()!
-	console.print_header('install griddriver OK')
-}
-
-fn build() ! {
-	console.print_header('build griddriver')
-	mut installer := golang.get()!
-	installer.install()!
-
-	mut gs := gittools.get()!
-	url := 'https://github.com/threefoldtech/web3gw/tree/development_integration/griddriver'
-
-	mut repo := gs.get_repo(
-		url:   url
-		reset: true
-		pull:  true
-	)!
-
-	mut path := repo.path()
-	path = '${path}/griddriver'
-
-	cmd := '/bin/bash -c "cd ${path} && . ${path}/build.sh"'
-	res := os.execute(cmd)
-	if res.exit_code != 0 {
-		return error('failed to build: ${res.output}')
+	console.print_header('installing griddriver')
+	mut url := ''
+	if core.is_linux_arm()! {
+		url = 'https://github.com/threefoldtech/griddriver/releases/download/v${version}/griddriver_${version}_linux_arm64'
+	} else if core.is_linux_intel()! {
+		url = 'https://github.com/threefoldtech/griddriver/releases/download/v${version}/griddriver_${version}_linux_amd64'
+	} else if core.is_osx_arm()! {
+		url = 'https://github.com/threefoldtech/griddriver/releases/download/v${version}/griddriver_${version}_darwin_arm64'
+	} else if core.is_osx_intel()! {
+		url = 'https://github.com/threefoldtech/griddriver/releases/download/v${version}/griddriver_${version}_darwin_amd64'
+	} else {
+		return error('unsported platform')
 	}
 
-	console.print_header('build griddriver OK')
+	mut dest := osal.download(
+		url:        url
+		minsize_kb: 1000
+	)!
+
+	osal.cmd_add(
+		cmdname: 'griddriver'
+		source:  dest.path
+	)!
+	console.print_header('install griddriver OK')
 }
 
 fn destroy() ! {
 	console.print_header('uninstall griddriver')
-	mut res := os.execute('sudo rm -rf /usr/local/bin/griddriver')
-	if res.exit_code != 0 {
-		return error('failed to uninstall griddriver: ${res.output}')
-	}
-
-	res = os.execute('sudo rm -rf ~/code/github/threefoldtech/web3gw')
+	binpath := osal.bin_path()!
+	mut res := os.execute('sudo rm -rf ${binpath}/griddriver')
 	if res.exit_code != 0 {
 		return error('failed to uninstall griddriver: ${res.output}')
 	}

@@ -7,7 +7,7 @@ To get started
 ```vlang
 
 
-import freeflowuniverse.herolib.lib.installers.infra.coredns as coredns_installer
+import freeflowuniverse.herolib.installers.infra.coredns as coredns_installer
 
 heroscript:="
 !!coredns.configure name:'test'

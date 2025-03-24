@@ -1,0 +1,5 @@
+// @{tool_name} MCP Tool
+
+const @{tool_name}_tool = @{tool.str()}
+
+@{handler}

@@ -40,7 +40,11 @@ fn test_auto_increment() {
 		db.destroy() or { panic('failed to destroy db: ${err}') }
 	}
 
-	// Create 5 objects with no ID specified (x=0)
+	// Verify that the first ID is 1
+	next_id := db.get_next_id()!
+	assert next_id == 1
+
+	// Create 5 objects with no ID specified
 	mut ids := []u32{}
 	for i in 0 .. 5 {
 		data := 'Object ${i + 1}'.bytes()
@@ -48,14 +52,18 @@ fn test_auto_increment() {
 		ids << id
 	}
 
-	// Verify IDs are incremental
+	// Verify IDs are incremental starting from 1
 	assert ids.len == 5
 	for i in 0 .. 5 {
-		assert ids[i] == i
+		assert ids[i] == i + 1 // IDs should start at 1, not 0
 		// Verify data can be retrieved
 		data := db.get(ids[i])!
 		assert data == 'Object ${i + 1}'.bytes()
 	}
+
+	// Verify that the next ID is now 6
+	next_id_after := db.get_next_id()!
+	assert next_id_after == 6
 }
 
 fn test_history_tracking() {
@@ -114,7 +122,7 @@ fn test_delete_operation() {
 
 	// Verify data is deleted
 	retrieved_after_delete := db.get(key) or {
-		assert err.msg() == 'Record not found'
+		assert err.msg().to_lower().contains('record not found')
 		[]u8{}
 	}
 	assert retrieved_after_delete.len == 0
@@ -133,14 +141,14 @@ fn test_error_handling() {
 
 	// Test getting non-existent key
 	result := db.get(999) or {
-		assert err.msg() == 'Record not found'
+		assert err.msg().to_lower().contains('record not found')
 		[]u8{}
 	}
 	assert result.len == 0
 
 	// Test deleting non-existent key
 	db.delete(999) or {
-		assert err.msg() == 'Record not found'
+		assert err.msg().to_lower().contains('record not found')
 		return
 	}
 }

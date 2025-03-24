@@ -36,27 +36,27 @@ fn deserialize_node(data []u8) !Node {
 	mut d := encoder.decoder_new(data)
 
 	// Read and verify version
-	version_byte := d.get_u8()
+	version_byte := d.get_u8()!
 	if version_byte != version {
 		return error('Invalid version byte: expected ${version}, got ${version_byte}')
 	}
 
 	// Read key segment
-	key_segment := d.get_string()
+	key_segment := d.get_string()!
 
 	// Read value as []u8
-	value_len := d.get_u16()
+	value_len := d.get_u16()!
 	mut value := []u8{len: int(value_len)}
 	for i in 0 .. int(value_len) {
-		value[i] = d.get_u8()
+		value[i] = d.get_u8()!
 	}
 
 	// Read children
-	children_len := d.get_u16()
+	children_len := d.get_u16()!
 	mut children := []NodeRef{cap: int(children_len)}
 	for _ in 0 .. children_len {
-		key_part := d.get_string()
-		node_id := d.get_u32()
+		key_part := d.get_string()!
+		node_id := d.get_u32()!
 		children << NodeRef{
 			key_part: key_part
 			node_id:  node_id
@@ -64,7 +64,7 @@ fn deserialize_node(data []u8) !Node {
 	}
 
 	// Read leaf flag
-	is_leaf := d.get_u8() == 1
+	is_leaf := d.get_u8()! == 1
 
 	return Node{
 		key_segment: key_segment

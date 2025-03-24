@@ -83,7 +83,8 @@ pub fn (mut repo GitRepo) need_pull() !bool {
 			// Therefore we need to pull
 			return true
 		}
-		return error('Failed to check merge-base: ${err}')
+		return true
+		// return error('Failed to check merge-base: ${err}')
 	}
 	// If we get here, the remote commit is in our history
 	// Therefore we don't need to pull

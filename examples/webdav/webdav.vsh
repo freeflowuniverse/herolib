@@ -1,30 +1,69 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.webdav
-import freeflowuniverse.herolib.core.pathlib
-import time
-import net.http
-import encoding.base64
+import freeflowuniverse.herolib.vfs.webdav
+import cli { Command, Flag }
+import os
 
-file_name := 'newfile.txt'
-root_dir := '/tmp/webdav'
+fn main() {
+	mut cmd := Command{
+		name:        'webdav'
+		description: 'Vlang Webdav Server'
+	}
 
-username := 'omda'
-password := 'password'
-hashed_password := base64.encode_str('${username}:${password}')
+	mut app := Command{
+		name:        'webdav'
+		description: 'Vlang Webdav Server'
+		execute:     fn (cmd Command) ! {
+			port := cmd.flags.get_int('port')!
+			directory := cmd.flags.get_string('directory')!
+			user := cmd.flags.get_string('user')!
+			password := cmd.flags.get_string('password')!
 
-mut app := webdav.new_app(root_dir: root_dir, username: username, password: password) or {
-	eprintln('failed to create new server: ${err}')
-	exit(1)
+			mut server := webdav.new_app(
+				root_dir:    directory
+				server_port: port
+				user_db:     {
+					user: password
+				}
+			)!
+
+			server.run()
+			return
+		}
+	}
+
+	app.add_flag(Flag{
+		flag:          .int
+		name:          'port'
+		abbrev:        'p'
+		description:   'server port'
+		default_value: ['8000']
+	})
+
+	app.add_flag(Flag{
+		flag:        .string
+		required:    true
+		name:        'directory'
+		abbrev:      'd'
+		description: 'server directory'
+	})
+
+	app.add_flag(Flag{
+		flag:        .string
+		required:    true
+		name:        'user'
+		abbrev:      'u'
+		description: 'username'
+	})
+
+	app.add_flag(Flag{
+		flag:        .string
+		required:    true
+		name:        'password'
+		abbrev:      'pw'
+		description: 'user password'
+	})
+
+	app.setup()
+	app.parse(os.args)
 }
-
-app.run(spawn_: true)
-
-time.sleep(1 * time.second)
-mut p := pathlib.get_file(path: '${root_dir}/${file_name}', create: true)!
-p.write('my new file')!
-
-mut req := http.new_request(.get, 'http://localhost:${app.server_port}/${file_name}',
-	'')
-req.add_custom_header('Authorization', 'Basic ${hashed_password}')!
-req.do()!

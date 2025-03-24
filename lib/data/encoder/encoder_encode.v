@@ -57,6 +57,14 @@ pub fn (mut b Encoder) add_bytes(data []u8) {
 	b.data << data
 }
 
+pub fn (mut b Encoder) add_bool(data bool) {
+	if data {
+		b.add_u8(1)
+	} else {
+		b.add_u8(0)
+	}
+}
+
 pub fn (mut b Encoder) add_u8(data u8) {
 	b.data << data
 }
@@ -86,11 +94,11 @@ pub fn (mut b Encoder) add_i64(data i64) {
 }
 
 pub fn (mut b Encoder) add_time(data time.Time) {
-	b.add_u64(u64(data.unix_nano())) // add as epoch time
+	b.add_u32(u32(data.unix())) // add as epoch time
 }
 
 pub fn (mut b Encoder) add_ourtime(data ourtime.OurTime) {
-	b.add_i64(data.unixt)
+	b.add_u32(u32(data.unixt))
 }
 
 pub fn (mut b Encoder) add_list_string(data []string) {

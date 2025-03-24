@@ -7,11 +7,11 @@ import freeflowuniverse.herolib.core.pathlib
 
 pub struct Report {
 pub:
-	name string
-	title string
+	name        string
+	title       string
 	description string
-	path string
-	sections []ReportSection
+	path        string
+	sections    []ReportSection
 }
 
 pub enum ReportSection {
@@ -21,11 +21,11 @@ pub enum ReportSection {
 }
 
 pub fn (b BizModel) new_report(report Report) !Report {
-	name := if report.name != '' {report.name} else { texttools.snake_case(report.title) }
+	name := if report.name != '' { report.name } else { texttools.snake_case(report.title) }
 	path := pathlib.get_dir(
-		path: os.join_path(os.home_dir(), '/hero/var/bizmodel/reports/${name}')
+		path:   os.join_path(os.home_dir(), '/hero/var/bizmodel/reports/${name}')
 		create: true
-		empty: true
+		empty:  true
 	)!
 
 	b.write_introduction(path.path)!
@@ -33,8 +33,8 @@ pub fn (b BizModel) new_report(report Report) !Report {
 	b.write_revenue_model(path.path)!
 	b.write_cost_structure(path.path)!
 
-	return Report {
-		...report,
+	return Report{
+		...report
 		name: name
 		path: path.path
 	}
@@ -50,9 +50,9 @@ pub fn (b BizModel) new_report(report Report) !Report {
 
 pub struct Export {
 pub:
-	path string
+	path      string
 	overwrite bool
-	format ExportFormat
+	format    ExportFormat
 }
 
 pub enum ExportFormat {
@@ -67,34 +67,36 @@ pub fn (r Report) export(export Export) ! {
 			dir.copy(dest: '${export.path}/docs', delete: true)!
 			mut factory := docusaurus.new()!
 			mut site := factory.get(
-				name: r.name
-				path: export.path
+				name:         r.name
+				path:         export.path
 				publish_path: export.path
-				init: true
-				config: docusaurus.Config {
-					navbar: docusaurus.Navbar {
-  						title: "Business Model",
-  						items: [
+				init:         true
+				config:       docusaurus.Config{
+					navbar: docusaurus.Navbar{
+						title: 'Business Model'
+						items: [
 							docusaurus.NavbarItem{
-							"href": "https://threefold.info/kristof/",
-							"label": "ThreeFold Technology",
-							"position": "right"
+								href:     'https://threefold.info/kristof/'
+								label:    'ThreeFold Technology'
+								position: 'right'
 							},
 							docusaurus.NavbarItem{
-							"href": "https://threefold.io",
-							"label": "Operational Plan",
-							"position": "left"
-							}
+								href:     'https://threefold.io'
+								label:    'Operational Plan'
+								position: 'left'
+							},
 						]
 					}
-					main: docusaurus.Main {
+					main:   docusaurus.Main{
 						url_home: 'docs/introduction'
 					}
-				} //TODO: is this needed
+				} // TODO: is this needed
 			)!
 			site.generate()!
 		}
-		.mdbook {panic('MDBook export not fully implemented')}
+		.mdbook {
+			panic('MDBook export not fully implemented')
+		}
 	}
 }
 
@@ -108,20 +110,27 @@ pub fn (model BizModel) write_operational_plan(path string) ! {
 	mut dir := pathlib.get_dir(path: '${path}/operational_plan')!
 	mut ops_page := pathlib.get_file(path: '${dir.path}/operational_plan.md')!
 	ops_page.write('# Operational Plan')!
-	
+
 	mut hr_dir := pathlib.get_dir(path: '${dir.path}/human_resources')!
 	mut hr_page := pathlib.get_file(path: '${hr_dir.path}/human_resources.md')!
 	hr_page.template_write($tmpl('./templates/human_resources.md'), true)!
 
 	for key, employee in model.employees {
-		mut employee_page := pathlib.get_file(path: '${hr_dir.path}/${texttools.snake_case(employee.name)}.md')!
-		employee_cost_chart := model.sheet.line_chart(rowname:'hr_cost_${employee.name}', unit: .million)!.mdx()
+		mut employee_page := pathlib.get_file(
+			path: '${hr_dir.path}/${texttools.snake_case(employee.name)}.md'
+		)!
+		employee_cost_chart := model.sheet.line_chart(
+			rowname: 'hr_cost_${employee.name}'
+			unit:    .million
+		)!.mdx()
 		employee_page.template_write($tmpl('./templates/employee.md'), true)!
 	}
 
 	mut depts_dir := pathlib.get_dir(path: '${dir.path}/departments')!
 	for key, department in model.departments {
-		mut dept_page := pathlib.get_file(path: '${depts_dir.path}/${texttools.snake_case(department.name)}.md')!
+		mut dept_page := pathlib.get_file(
+			path: '${depts_dir.path}/${texttools.snake_case(department.name)}.md'
+		)!
 		// dept_cost_chart := model.sheet.line_chart(rowname:'hr_cost_${employee.name}', unit: .million)!.mdx()
 		// println(employee_cost_chart)
 		dept_page.template_write($tmpl('./templates/department.md'), true)!
@@ -132,14 +141,16 @@ pub fn (model BizModel) write_revenue_model(path string) ! {
 	mut dir := pathlib.get_dir(path: '${path}/revenue_model')!
 	mut rm_page := pathlib.get_file(path: '${dir.path}/revenue_model.md')!
 	rm_page.write('# Revenue Model')!
-	
+
 	mut products_dir := pathlib.get_dir(path: '${dir.path}/products')!
 	mut products_page := pathlib.get_file(path: '${products_dir.path}/products.md')!
 	products_page.template_write('# Products', true)!
 
 	name1 := 'example'
 	for key, product in model.products {
-		mut product_page := pathlib.get_file(path: '${products_dir.path}/${texttools.snake_case(product.name)}.md')!
+		mut product_page := pathlib.get_file(
+			path: '${products_dir.path}/${texttools.snake_case(product.name)}.md'
+		)!
 		product_page.template_write($tmpl('./templates/product.md'), true)!
 	}
 }

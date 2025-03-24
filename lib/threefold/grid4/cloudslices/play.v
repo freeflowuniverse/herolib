@@ -16,18 +16,18 @@ pub fn play(mut plbook PlayBook) !map[string]&Node {
 
 			nodesdict[name] = &node
 
-			node.cpu_brand = action.params.get_default('cpu_brand', '')!
-			node.cpu_version = action.params.get_default('cpu_version', '')!
+			node.info.cpu_brand = action.params.get_default('cpu_brand', '')!
+			node.info.cpu_version = action.params.get_default('cpu_version', '')!
 			// node.deliverytime = action.params.get_default('deliverytime', '')!
-			node.description = action.params.get_default('description', '')!
-			node.hdd = action.params.get_default('hdd', '')!
-			node.image = action.params.get_default('image', '')!
+			// node.info.description = action.params.get_default('description', '')!
+			node.info.hdd = action.params.get_default('hdd', '')!
+			// node.info.image = action.params.get_default('image', '')!
 			node.inca_reward = action.params.get_int('inca_reward')!
-			node.mem = action.params.get_default('mem', '')!
-			node.passmark = action.params.get_int_default('passmark', 0)!
+			node.info.mem = action.params.get_default('mem', '')!
+			// node.passmark = action.params.get_int_default('passmark', 0)!
 			node.cost = action.params.get_float('cost')! // This is required
-			node.ssd = action.params.get_default('ssd', '')!
-			node.url = action.params.get_default('url', '')!
+			node.info.ssd = action.params.get_default('ssd', '')!
+			node.info.url = action.params.get_default('url', '')!
 			node.vendor = action.params.get_default('vendor', '')!
 
 			// get the grants

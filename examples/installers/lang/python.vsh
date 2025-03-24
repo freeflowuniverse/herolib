@@ -3,5 +3,6 @@
 import freeflowuniverse.herolib.installers.lang.python as python_module
 
 mut python_installer := python_module.get()!
-// python_installer.install()!
-python_installer.destroy()!
+python_installer.install()!
+
+// python_installer.destroy()!

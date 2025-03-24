@@ -37,6 +37,17 @@ fn test_bytes() {
 	assert d.get_list_u8()! == sb
 }
 
+fn test_bool() {
+	mut e := new()
+	e.add_bool(true)
+	e.add_bool(false)
+	assert e.data == [u8(1), 0]
+
+	mut d := decoder_new(e.data)
+	assert d.get_bool()! == true
+	assert d.get_bool()! == false
+}
+
 fn test_u8() {
 	mut e := new()
 	e.add_u8(min_u8)
@@ -88,7 +99,8 @@ fn test_time() {
 	e.add_time(t)
 
 	mut d := decoder_new(e.data)
-	assert d.get_time()! == t
+	// Compare unix timestamps instead of full time objects
+	assert d.get_time()!.unix() == t.unix()
 }
 
 fn test_list_string() {
@@ -198,7 +210,13 @@ fn encode_decode_struct[T](input StructType[T]) bool {
 		console.print_debug('Failed to decode, error: ${err}')
 		return false
 	}
-	return input == output
+
+	$if T is time.Time {
+		// Special handling for time.Time comparison
+		return input.val.unix() == output.val.unix()
+	} $else {
+		return input == output
+	}
 }
 
 fn test_struct() {
@@ -230,6 +248,11 @@ fn test_struct() {
 	// time.Time
 	// assert encode_decode_struct[time.Time](get_empty_struct_input[time.Time]()) // get error here
 	assert encode_decode_struct[time.Time](get_struct_input[time.Time](time.now()))
+
+	// bool
+	assert encode_decode_struct(get_empty_struct_input[bool]())
+	assert encode_decode_struct(get_struct_input(true))
+	assert encode_decode_struct(get_struct_input(false))
 
 	// string array
 	assert encode_decode_struct(get_empty_struct_input[[]string]())

@@ -8,13 +8,13 @@ const mbyte_ = 1000000
 @[heap]
 pub struct OurDB {
 mut:
-	lookup &LookupTable
+	lookup &LookupTable @[skip; str: skip]
 pub:
 	path             string // is the directory in which we will have the lookup db as well as all the backend
 	incremental_mode bool
 	file_size        u32 = 500 * (1 << 20) // 500MB
 pub mut:
-	file              os.File
+	file              os.File @[skip; str: skip]
 	file_nr           u16 // the file which is open
 	last_used_file_nr u16
 }
@@ -40,10 +40,8 @@ pub fn new(args OurDBConfig) !OurDB {
 		keysize = 2
 	} else if args.record_nr_max < 16777216 {
 		keysize = 3
-	} else if args.record_nr_max < 4294967296 {
-		keysize = 4
 	} else {
-		return error('max supported records is 4294967296 in OurDB')
+		keysize = 4
 	}
 
 	if f64(args.record_size_max * args.record_nr_max) / 2 > mbyte_ * 10 {

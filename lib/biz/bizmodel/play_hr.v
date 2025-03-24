@@ -139,7 +139,7 @@ fn (mut m BizModel) department_define_action(action Action) !Action {
 	if name != '' {
 		m.departments[name] = &department
 	}
-	
+
 	return action
 }
 

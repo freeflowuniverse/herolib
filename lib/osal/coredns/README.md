@@ -3,7 +3,7 @@
 This module provides functionality for managing DNS records in Redis for use with CoreDNS. It supports various DNS record types and provides a simple interface for adding and managing DNS records.
 
 ```v
-import freeflowuniverse.herolib.lib.osal.coredns
+import freeflowuniverse.herolib.osal.coredns
 
 // Create a new DNS record set
 mut rs := coredns.new_dns_record_set()
