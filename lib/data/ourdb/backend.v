@@ -75,7 +75,6 @@ pub fn (mut db OurDB) set_(x u32, old_location Location, data []u8) ! {
 		file_nr:  file_nr
 		position: u32(db.file.tell()!)
 	}
-	// println('Writing data at position: ${new_location.position}, file_nr: ${file_nr}')
 
 	// Calculate CRC of data
 	crc := calculate_crc(data)
@@ -101,6 +100,7 @@ pub fn (mut db OurDB) set_(x u32, old_location Location, data []u8) ! {
 	}
 
 	// Write header
+	// stored_crc := u32(header[2]) | (u32(header[3]) << 8) | (u32(header[4]) << 16) | (u32(header[5]) << 24)
 	db.file.write(header)!
 
 	// Write actual data
@@ -119,16 +119,12 @@ fn (mut db OurDB) get_(location Location) ![]u8 {
 	db.db_file_select(location.file_nr)!
 
 	if location.position == 0 {
-		return error('Record not found')
+		return error('Record not found, location: ${location}')
 	}
 
-	// Seek to position
-	db.file.seek(i64(location.position), .start)!
-
 	// Read header
-	mut header := []u8{len: header_size}
-	header_read_bytes := db.file.read(mut header)!
-	if header_read_bytes != header_size {
+	header := db.file.read_bytes_at(header_size, location.position)
+	if header.len != header_size {
 		return error('failed to read header')
 	}
 
@@ -139,12 +135,15 @@ fn (mut db OurDB) get_(location Location) ![]u8 {
 	stored_crc := u32(header[2]) | (u32(header[3]) << 8) | (u32(header[4]) << 16) | (u32(header[5]) << 24)
 
 	// Read data
+	// seek data beginning
+	db.file.seek(i64(location.position+12), .start)!
 	mut data := []u8{len: int(size)}
-	data_read_bytes := db.file.read(mut data)!
+	data_read_bytes := db.file.read(mut data) or { 
+		return error('Failed to read file, ${size} ${err}')
+	}
 	if data_read_bytes != int(size) {
 		return error('failed to read data bytes')
 	}
-	// println('Reading data from position: ${location.position}, file_nr: ${location.file_nr}, size: ${size}, data: ${data}')
 
 	// Verify CRC
 	calculated_crc := calculate_crc(data)
@@ -180,11 +179,8 @@ fn (mut db OurDB) delete_(x u32, location Location) ! {
 		return error('Record not found')
 	}
 
-	// Seek to position
-	db.file.seek(i64(location.position), .start)!
-
 	// Read size first
-	size_bytes := db.file.read_bytes(2)
+	size_bytes := db.file.read_bytes_at(2, location.position)
 	size := u16(size_bytes[0]) | (u16(size_bytes[1]) << 8)
 
 	// Write zeros for the entire record (header + data)

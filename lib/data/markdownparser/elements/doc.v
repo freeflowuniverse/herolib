@@ -79,3 +79,13 @@ pub fn (self Doc) pug() !string {
 	return ":markdown-it(linkify langPrefix='highlight-')\n${texttools.indent(self.markdown()!,
 		'  ')}"
 }
+
+
+pub fn (self Doc) frontmatter2() !&Frontmatter2 {
+	for item in self.children_recursive(){
+		if item is Frontmatter2{
+			return item
+		}
+	}
+	return error("can't find frontmatter in ${self}")
+}

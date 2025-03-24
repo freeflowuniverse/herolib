@@ -1,4 +1,13 @@
-
+# Additional ignore files and directories
+Thumbs.db
+# Logs
+logs/
+*.log
+*.out
+# Compiled Python files
+*.pyc
+*.pyo
+__pycache__/
 *dSYM/
 .vmodules/
 .vscode
@@ -34,3 +43,4 @@ compile_results.log
 tmp
 compile_summary.log
 .summary_lock
+.aider*

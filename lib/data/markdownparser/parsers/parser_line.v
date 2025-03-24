@@ -18,31 +18,12 @@ mut:
 	lines  []string
 	errors []ParserError
 	endlf  bool // if there is a linefeed or \n at end
+	frontmatter bool
 }
 
 fn parser_line_new(mut doc elements.Doc) !Parser {
 	mut parser := Parser{
 		doc: doc
-	}
-
-	// Parse frontmatter if present
-	if doc.content.starts_with('+++') {
-		mut frontmatter_content := ''
-		mut lines := doc.content.split_into_lines()
-		lines = lines[1..].clone() // Skip the opening '+++' with explicit clone
-
-		for line in lines {
-			if line.trim_space() == '+++' {
-				// End of frontmatter
-				doc.content = lines.join('\n') // Update content to exclude frontmatter
-				break
-			}
-			frontmatter_content += '${line}\n'
-		}
-
-		// Create and process the Frontmatter element
-		mut frontmatter := doc.frontmatter_new(mut &doc, frontmatter_content)
-		frontmatter.process() or { return error('Failed to parse frontmatter: ${err.msg()}') }
 	}
 
 	doc.paragraph_new(mut parser.doc, '')

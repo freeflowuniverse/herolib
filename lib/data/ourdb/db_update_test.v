@@ -29,12 +29,12 @@ fn test_db_update() {
 	retrieved := db.get(id)!
 	assert retrieved == test_data
 
-	assert id == 0
+	assert id == 1
 
 	// Test overwrite
 	new_data := 'Updated data'.bytes()
-	id2 := db.set(id: 0, data: new_data)!
-	assert id2 == 0
+	id2 := db.set(id: 1, data: new_data)!
+	assert id2 == 1
 
 	// Verify lookup table has the correct location
 	location := db.lookup.get(id2)!

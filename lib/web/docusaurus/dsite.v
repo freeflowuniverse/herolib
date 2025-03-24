@@ -4,9 +4,10 @@ import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.base
+//import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.data.markdownparser
 import freeflowuniverse.herolib.develop.gittools
-import json
+//import json
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 
@@ -146,13 +147,6 @@ pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site source on ${site.path_src.path}')
 	site.check()!
 	site.template_install()!
-	// osal.exec(
-	// 	cmd: '	
-	// 		cd ${site.path_build.path}
-	// 		#Docusaurus build --dest-dir ${site.path_publish.path}
-	// 		'
-	// 	retry: 0
-	// )!
 
 	// Now copy all directories that exist in src to build
 	for item in ['src', 'static', 'cfg'] {
@@ -167,6 +161,49 @@ pub fn (mut site DocSite) generate() ! {
 			aa.copy(dest: '${site.path_build.path}/${item}', delete: true)!
 		}
 	}
+
+	mut gs := gittools.new()!
+
+	for item in site.config.main.to_import  {
+		mypath:=gs.get_path(
+			pull:false,
+			reset:false,
+			url:item.url
+		)!
+		mut mypatho:=pathlib.get(mypath)
+		site.process_md(mut mypatho,item)!
+	}
+}
+
+fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport)!{
+
+	if path.is_dir(){
+		mut pathlist_images:=path.list(regex: [r'.*\.png$',r'.*\.jpg$',r'.*\.svg$',r'.*\.jpeg$'],recursive:true)!
+		for mut mypatho_img in pathlist_images.paths{
+			//now copy the image to the dest
+			dest:='${site.path_build.path}/docs/${args.dest}/img/${texttools.name_fix(mypatho_img.name())}'
+			//println("image copy: ${dest}")
+			mypatho_img.copy(dest:dest,rsync:false)!
+		}
+
+		mut pathlist:=path.list(regex: [r'.*\.md$'],recursive:true)!
+		for mut mypatho2 in pathlist.paths{
+			site.process_md(mut mypatho2,args)!
+		}
+		return
+	}
+	mydest:='${site.path_build.path}/docs/${args.dest}/${texttools.name_fix(path.name())}'
+	mut mydesto:=pathlib.get_file(path:mydest,create:true)!
+
+	mut mymd:=markdownparser.new(path:path.path)!
+	mut myfm:=mymd.frontmatter2()!
+	if ! args.visible{
+		myfm.args["draft"]= 'true'
+	}
+	println(myfm)
+	println(mymd.markdown()!)
+	mydesto.write(mymd.markdown()!)!
+	exit(0)
 }
 
 fn (mut site DocSite) template_install() ! {
@@ -217,7 +254,7 @@ fn (mut site DocSite) template_install() ! {
 	
 	build_templ := $tmpl('templates/build_src.sh')
 	mut build2_ := site.path_src.file_get_new('build.sh')!
-	build2_.template_write(build, true)!
+	build2_.template_write(build_templ, true)!
 	build2_.chmod(0o700)!
 
 }

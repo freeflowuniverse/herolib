@@ -69,7 +69,7 @@ fn get_incremental_info(config LookupConfig) ?u32 {
 	if config.lookuppath.len > 0 {
 		if !os.exists(os.join_path(config.lookuppath, incremental_file_name)) {
 			// Create a separate file for storing the incremental value
-			os.write_file(os.join_path(config.lookuppath, incremental_file_name), '0') or {
+			os.write_file(os.join_path(config.lookuppath, incremental_file_name), '1') or {
 				panic('failed to write .inc file: ${err}')
 			}
 		}
@@ -82,7 +82,7 @@ fn get_incremental_info(config LookupConfig) ?u32 {
 		return incremental
 	}
 
-	return 0
+	return 1
 }
 
 // Method to get value from a specific position
@@ -115,6 +115,49 @@ fn (lut LookupTable) get(x u32) !Location {
 
 	start := u32(x * entry_size)
 	return lut.location_new(lut.data[start..start + entry_size])!
+}
+
+// find_last_entry scans the lookup table to find the highest ID with a non-zero entry
+fn (mut lut LookupTable) find_last_entry() !u32 {
+	mut last_id := u32(0)
+	entry_size := lut.keysize
+
+	if lut.lookuppath.len > 0 {
+		// For disk-based lookup, read the file in chunks
+		mut file := os.open(lut.get_data_file_path()!)!
+		defer { file.close() }
+
+		file_size := os.file_size(lut.get_data_file_path()!)
+		mut buffer := []u8{len: int(entry_size)}
+		mut pos := u32(0)
+
+		for {
+			if i64(pos) * i64(entry_size) >= file_size {
+				break
+			}
+
+			bytes_read := file.read(mut buffer)!
+			if bytes_read == 0 || bytes_read < entry_size {
+				break
+			}
+
+			location := lut.location_new(buffer)!
+			if location.position != 0 || location.file_nr != 0 {
+				last_id = pos
+			}
+			pos++
+		}
+	} else {
+		// For memory-based lookup
+		for i := u32(0); i < u32(lut.data.len / entry_size); i++ {
+			location := lut.get(i) or { continue }
+			if location.position != 0 || location.file_nr != 0 {
+				last_id = i
+			}
+		}
+	}
+
+	return last_id
 }
 
 fn (mut lut LookupTable) get_next_id() !u32 {
@@ -183,7 +226,6 @@ fn (mut lut LookupTable) set(x u32, location Location) ! {
 
 		return
 	}
-
 	if id * u32(entry_size) >= u32(lut.data.len) {
 		return error('Index out of bounds')
 	}

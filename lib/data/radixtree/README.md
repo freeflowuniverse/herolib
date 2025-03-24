@@ -40,16 +40,26 @@ The radix tree uses OurDB as its persistent storage backend:
 
 ### Key Operations
 
-#### Insertion
+#### Set (formerly Insertion)
 1. Traverse the tree following matching prefixes
 2. Split nodes when partial matches are found
 3. Create new nodes for unmatched segments
 4. Update node values and references in OurDB
 
-#### Search
+#### Get (formerly Search)
 1. Start from the root node
 2. Follow child nodes whose key segments match the search key
 3. Return the value if an exact match is found at a leaf node
+
+#### List (formerly Search by Prefix)
+1. Start from the root node
+2. Find all keys that start with the given prefix
+3. Return a list of matching keys
+
+#### GetAll
+1. Find all keys that start with the given prefix using List
+2. Retrieve the value for each matching key
+3. Return a list of values for all matching keys
 
 #### Deletion
 1. Locate the node containing the key
@@ -65,13 +75,19 @@ import freeflowuniverse.herolib.data.radixtree
 // Create a new radix tree
 mut tree := radixtree.new('/path/to/storage')!
 
-// Insert key-value pairs
-tree.insert('hello', 'world'.bytes())!
-tree.insert('help', 'me'.bytes())!
+// Set key-value pairs
+tree.set('hello', 'world'.bytes())!
+tree.set('help', 'me'.bytes())!
 
-// Search for values
-value := tree.search('hello')! // Returns 'world' as bytes
+// Get values by key
+value := tree.get('hello')! // Returns 'world' as bytes
 println(value.bytestr()) // Prints: world
+
+// List keys by prefix
+keys := tree.list('hel')! // Returns ['hello', 'help']
+
+// Get all values by prefix
+values := tree.getall('hel')! // Returns ['world'.bytes(), 'me'.bytes()]
 
 // Delete keys
 tree.delete('help')!

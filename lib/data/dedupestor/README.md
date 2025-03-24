@@ -16,30 +16,29 @@ DedupeStore is a content-addressable key-value store with built-in deduplication
 ```v
 import freeflowuniverse.herolib.data.dedupestor
 
-fn main() ! {
-    // Create a new dedupestore
-    mut ds := dedupestor.new(
-        path: 'path/to/store'
-        reset: false // Set to true to reset existing data
-    )!
+// Create a new dedupestore
+mut ds := dedupestor.new(
+    path: 'path/to/store'
+    reset: false // Set to true to reset existing data
+)!
 
-    // Store some data
-    data := 'Hello, World!'.bytes()
-    hash := ds.store(data)!
-    println('Stored data with hash: ${hash}')
+// Store some data
+data := 'Hello, World!'.bytes()
+hash := ds.store(data)!
+println('Stored data with hash: ${hash}')
 
-    // Retrieve data using hash
-    retrieved := ds.get(hash)!
-    println('Retrieved data: ${retrieved.bytestr()}')
+// Retrieve data using hash
+retrieved := ds.get(hash)!
+println('Retrieved data: ${retrieved.bytestr()}')
 
-    // Check if data exists
-    exists := ds.exists(hash)
-    println('Data exists: ${exists}')
+// Check if data exists
+exists := ds.exists(hash)
+println('Data exists: ${exists}')
 
-    // Attempting to store the same data again returns the same hash
-    same_hash := ds.store(data)!
-    assert hash == same_hash // True, data was deduplicated
-}
+// Attempting to store the same data again returns the same hash
+same_hash := ds.store(data)!
+assert hash == same_hash // True, data was deduplicated
+
 ```
 
 ## Implementation Details
@@ -66,20 +65,29 @@ When retrieving data:
 - Maximum value size: 1MB
 - Attempting to store larger values will result in an error
 
-## Error Handling
-
-The store methods return results that should be handled with V's error handling:
+## the reference field
+In the dedupestor system, the Reference struct is defined with two fields:
 
 ```v
-// Handle potential errors
-if hash := ds.store(large_data) {
-    // Success
-    println('Stored with hash: ${hash}')
-} else {
-    // Error occurred
-    println('Error: ${err}')
+pub struct Reference {
+pub:
+	owner u16
+	id u32
 }
 ```
+
+The purpose of the id field in this context is to serve as an identifier within a specific owner's domain. Here's what each field represents:
+
+owner (u16): Identifies which entity or system component "owns" or is referencing the data. This could represent different applications, users, or subsystems that are using the dedupestor.
+id (u32): A unique identifier within that owner's domain. This allows each owner to have their own independent numbering system for referencing stored data.
+Together, the {owner: 1, id: 100} combination creates a unique reference that:
+
+Tracks which entities are referencing a particular piece of data
+Allows the system to know when data can be safely deleted (when no references remain)
+Provides a way for different components to maintain their own ID systems without conflicts
+The dedupestor uses these references to implement a reference counting mechanism. When data is stored, a reference is attached to it. When all references to a piece of data are removed (via the delete method), the actual data can be safely deleted from storage.
+
+This design allows for efficient deduplication - if the same data is stored multiple times with different references, it's only physically stored once, but the system keeps track of all the references to it.
 
 ## Testing
 
