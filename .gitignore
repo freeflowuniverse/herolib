@@ -39,3 +39,5 @@ data.ms/
 test_basic
 cli/hero
 .aider*
+storage/
+.qdrant-initialized
