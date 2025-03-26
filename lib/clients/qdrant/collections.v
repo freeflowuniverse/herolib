@@ -224,3 +224,87 @@ pub fn (mut self QDrantClient) is_collection_exists(params CollectionExistencePa
 
 	return json.decode(QDrantResponse[CollectionExistenceResponse], response.data)!
 }
+
+// Parameters for creating an index
+@[params]
+pub struct CreateIndexParams {
+pub mut:
+	collection_name string      @[json: 'collection_name'; required] // Name of the collection
+	field_name      string      @[json: 'field_name'; required]      // Name of the field to create index for
+	field_schema    FieldSchema @[json: 'field_schema'; required]    // Schema of the field
+	wait            ?bool       @[json: 'wait']                      // Whether to wait until the changes have been applied
+}
+
+// Field schema for index
+pub struct FieldSchema {
+pub mut:
+	field_type string @[json: 'type'; required] // Type of the field (keyword, integer, float, geo)
+}
+
+// Response structure for index operations
+pub struct IndexOperationResponse {
+pub mut:
+	status       string @[json: 'status']
+	operation_id int    @[json: 'operation_id']
+}
+
+// Create an index for a field in a collection
+pub fn (mut self QDrantClient) create_index(params CreateIndexParams) !QDrantResponse[IndexOperationResponse] {
+	mut http_conn := self.httpclient()!
+
+	mut data := {
+		'field_name':   params.field_name
+		'field_schema': json.encode(params.field_schema)
+	}
+
+	if params.wait != none {
+		data['wait'] = params.wait.str()
+	}
+
+	req := httpconnection.Request{
+		method: .put
+		prefix: '/collections/${params.collection_name}/index'
+		data:   json.encode(data)
+	}
+
+	mut response := http_conn.send(req)!
+	if response.code >= 400 {
+		error_ := json.decode(QDrantErrorResponse, response.data)!
+		return error('Error creating index: ' + error_.status.error)
+	}
+
+	return json.decode(QDrantResponse[IndexOperationResponse], response.data)!
+}
+
+// Parameters for deleting an index
+@[params]
+pub struct DeleteIndexParams {
+pub mut:
+	collection_name string @[json: 'collection_name'; required] // Name of the collection
+	field_name      string @[json: 'field_name'; required]      // Name of the field to delete index for
+	wait            ?bool  @[json: 'wait']                      // Whether to wait until the changes have been applied
+}
+
+// Delete an index for a field in a collection
+pub fn (mut self QDrantClient) delete_index(params DeleteIndexParams) !QDrantResponse[IndexOperationResponse] {
+	mut http_conn := self.httpclient()!
+
+	mut url := '/collections/${params.collection_name}/index/${params.field_name}'
+
+	if params.wait != none {
+		url += '?wait=${params.wait}'
+	}
+
+	req := httpconnection.Request{
+		method: .delete
+		prefix: url
+	}
+
+	mut response := http_conn.send(req)!
+	if response.code >= 400 {
+		error_ := json.decode(QDrantErrorResponse, response.data)!
+		return error('Error deleting index: ' + error_.status.error)
+	}
+
+	return json.decode(QDrantResponse[IndexOperationResponse], response.data)!
+}
