@@ -8,4 +8,3 @@ server.start() or {
 	logger.fatal('Error starting server: $err')
 	exit(1)
 }
-
