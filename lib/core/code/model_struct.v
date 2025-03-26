@@ -3,6 +3,7 @@ module code
 import log
 import os
 import freeflowuniverse.herolib.core.texttools
+import strings
 
 pub struct Struct {
 pub mut:
@@ -49,6 +50,108 @@ pub fn (struct_ Struct) vgen() string {
 		return result.output
 	}
 	return struct_str
+}
+
+// parse_struct parses a struct definition string and returns a Struct object
+// The input string should include the struct definition including any preceding comments
+pub fn parse_struct(code_ string) !Struct {
+	// Extract comments and actual struct code
+	mut lines := code_.split_into_lines()
+	mut comment_lines := []string{}
+	mut struct_lines := []string{}
+	mut in_struct := false
+	mut struct_name := ''
+	mut is_pub := false
+
+	for line in lines {
+		trimmed := line.trim_space()
+		if !in_struct && trimmed.starts_with('//') {
+			comment_lines << trimmed.trim_string_left('//').trim_space()
+		} else if !in_struct && (trimmed.starts_with('struct ') || trimmed.starts_with('pub struct ')) {
+			in_struct = true
+			struct_lines << line
+			
+			// Extract struct name
+			is_pub = trimmed.starts_with('pub ')
+			mut name_part := if is_pub {
+				trimmed.trim_string_left('pub struct ').trim_space()
+			} else {
+				trimmed.trim_string_left('struct ').trim_space()
+			}
+			
+			// Handle generics in struct name
+			if name_part.contains('<') {
+				struct_name = name_part.all_before('<').trim_space()
+			} else if name_part.contains('{') {
+				struct_name = name_part.all_before('{').trim_space()
+			} else {
+				struct_name = name_part
+			}
+		} else if in_struct {
+			struct_lines << line
+			
+			// Check if we've reached the end of the struct
+			if trimmed.starts_with('}') {
+				break
+			}
+		}
+	}
+	
+	if struct_name == '' {
+		return error('Invalid struct format: could not extract struct name')
+	}
+	
+	// Process the struct fields
+	mut fields := []StructField{}
+	mut current_section := ''
+	
+	for i := 1; i < struct_lines.len - 1; i++ { // Skip the first and last lines (struct declaration and closing brace)
+		line := struct_lines[i].trim_space()
+		
+		// Skip empty lines and comments
+		if line == '' || line.starts_with('//') {
+			continue
+		}
+		
+		// Check for section markers (pub:, mut:, pub mut:)
+		if line.ends_with(':') {
+			current_section = line
+			continue
+		}
+		
+		// Parse field
+		parts := line.split_any(' \t')
+		if parts.len < 2 {
+			continue // Skip invalid lines
+		}
+		
+		field_name := parts[0]
+		field_type_str := parts[1..].join(' ')
+		
+		// Parse the type string into a Type object
+		field_type := parse_type(field_type_str)
+		
+		// Determine field visibility based on section
+		is_pub_field := current_section.contains('pub')
+		is_mut_field := current_section.contains('mut')
+		
+		fields << StructField{
+			name: field_name
+			typ: field_type
+			is_pub: is_pub_field
+			is_mut: is_mut_field
+		}
+	}
+	
+	// Process the comments into a description
+	description := comment_lines.join('\n')
+	
+	return Struct{
+		name: struct_name
+		description: description
+		is_pub: is_pub
+		fields: fields
+	}
 }
 
 

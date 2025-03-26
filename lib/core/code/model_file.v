@@ -6,6 +6,7 @@ import os
 
 pub interface IFile {
 	write(string, WriteOptions) !
+	write_str(WriteOptions) !string
 	name string
 }
 
@@ -22,6 +23,10 @@ pub fn (f File) write(path string, params WriteOptions) ! {
 	if f.extension == 'ts' {
 		return f.typescript(path, params)
 	}
+}
+
+pub fn (f File) write_str(params WriteOptions) !string {
+	return f.content
 }
 
 pub fn (f File) typescript(path string, params WriteOptions) ! {
@@ -97,6 +102,31 @@ pub fn (code VFile) write(path string, options WriteOptions) ! {
 	if options.format {
 		os.execute('v fmt -w ${file.path}')
 	}
+}
+
+pub fn (code VFile) write_str(options WriteOptions) !string {
+	imports_str := code.imports.map(it.vgen()).join_lines()
+
+	code_str := if code.content != '' {
+		code.content
+	} else {
+		vgen(code.items)
+	}
+
+	consts_str := if code.consts.len > 1 {
+		stmts := code.consts.map('${it.name} = ${it.value}')
+		'\nconst(\n${stmts.join('\n')}\n)\n'
+	} else if code.consts.len == 1 {
+		'\nconst ${code.consts[0].name} = ${code.consts[0].value}\n'
+	} else {
+		''
+	}
+
+	mod_stmt := if code.mod == '' {''} else {
+		'module ${code.mod}'
+	}
+
+	return '${mod_stmt}\n${imports_str}\n${consts_str}${code_str}'
 }
 
 pub fn (file VFile) get_function(name string) ?Function {
