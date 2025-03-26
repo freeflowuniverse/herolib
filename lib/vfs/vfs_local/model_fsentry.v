@@ -1,6 +1,5 @@
 module vfs_local
 
-import os
 import freeflowuniverse.herolib.vfs
 
 // LocalFSEntry implements FSEntry for local filesystem

@@ -1,15 +1,16 @@
 module vfs_mail
 
 import freeflowuniverse.herolib.vfs
-import freeflowuniverse.herolib.circles.models
-import freeflowuniverse.herolib.circles.models.mcc.mail
-import freeflowuniverse.herolib.circles.dbs.core
+// import freeflowuniverse.herolib.circles.mcc.models
+import freeflowuniverse.herolib.circles.mcc.models as mail
+import freeflowuniverse.herolib.circles.mcc.db as core
+import freeflowuniverse.herolib.circles.base
 import json
 import time
 
 fn test_mail_vfs() {
 	// Create a session state
-	mut session_state := models.new_session(name: 'test')!
+	mut session_state := base.new_session(name: 'test')!
 
 	// Create a mail database
 	mut mail_db := core.new_maildb(session_state)!
