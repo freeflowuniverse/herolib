@@ -17,7 +17,7 @@ pub fn (mut fs DatabaseVFS) directory_mkdir(mut dir Directory, name_ string) !&D
 	}
 
 	new_dir := fs.new_directory(
-		name: name, 
+		name:      name
 		parent_id: dir.metadata.id
 	)!
 	dir.children << new_dir.metadata.id
@@ -39,7 +39,7 @@ pub:
 pub fn (mut fs DatabaseVFS) new_directory(dir NewDirectory) !&Directory {
 	d := Directory{
 		parent_id: dir.parent_id
-		metadata: vfs.new_metadata(
+		metadata:  vfs.new_metadata(
 			id:        fs.get_next_id()
 			name:      dir.name
 			mode:      dir.mode
@@ -59,21 +59,21 @@ pub fn (mut fs DatabaseVFS) new_directory(dir NewDirectory) !&Directory {
 pub fn (mut fs DatabaseVFS) copy_directory(dir Directory) !&Directory {
 	// Ensure we get a new ID that's different from the original
 	mut new_id := fs.get_next_id()
-	
+
 	// Make sure the new ID is different from the original
 	if new_id == dir.metadata.id {
 		new_id = fs.get_next_id() // Get another ID if they happen to be the same
 	}
-	
+
 	new_dir := Directory{
-		metadata: Metadata{
+		metadata:  Metadata{
 			...dir.metadata
-			id: new_id
-			created_at: time.now().unix()
+			id:          new_id
+			created_at:  time.now().unix()
 			modified_at: time.now().unix()
 			accessed_at: time.now().unix()
 		}
-		children: []u32{}
+		children:  []u32{}
 		parent_id: dir.parent_id
 	}
 	fs.save_entry(new_dir)!
@@ -83,7 +83,7 @@ pub fn (mut fs DatabaseVFS) copy_directory(dir Directory) !&Directory {
 // touch creates a new empty file with default permissions
 pub fn (mut fs DatabaseVFS) directory_touch(mut dir Directory, name_ string) !&File {
 	name := name_.trim('/')
-	
+
 	// Check if file already exists
 	for child_id in dir.children {
 		if entry := fs.load_entry(child_id) {
@@ -92,27 +92,27 @@ pub fn (mut fs DatabaseVFS) directory_touch(mut dir Directory, name_ string) !&F
 			}
 		}
 	}
-	
+
 	// Create new file with correct parent_id
 	mut file_id := fs.save_file(File{
 		parent_id: dir.metadata.id
-		metadata: vfs.Metadata {
-			id: fs.get_next_id()
-			name: name
-			file_type: .file
-			created_at: time.now().unix()
+		metadata:  Metadata{
+			id:          fs.get_next_id()
+			name:        name
+			file_type:   .file
+			created_at:  time.now().unix()
 			modified_at: time.now().unix()
 			accessed_at: time.now().unix()
-			mode: 0o644
-			owner: 'user'
-			group: 'user'
+			mode:        0o644
+			owner:       'user'
+			group:       'user'
 		}
 	}, [])!
-	
+
 	// Update children list
 	dir.children << file_id
 	fs.save_entry(dir)!
-	
+
 	// Load and return the file
 	mut entry := fs.load_entry(file_id)!
 	if mut entry is File {
@@ -123,9 +123,7 @@ pub fn (mut fs DatabaseVFS) directory_touch(mut dir Directory, name_ string) !&F
 
 // rm removes a file or directory by name
 pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
-	entry := fs.directory_get_entry(dir, name) or {
-		return error('${name} not found')
-	}
+	entry := fs.directory_get_entry(dir, name) or { return error('${name} not found') }
 	if entry is Directory {
 		if entry.children.len > 0 {
 			return error('Directory not empty')
@@ -133,14 +131,14 @@ pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
 	}
 
 	// get entry from db_metadata
-	metadata_bytes := fs.db_metadata.get(
-		fs.id_table[entry.metadata.id] or { return error('Failed to delete entry') }
-	) or { return error('Failed to delete entry: ${err}') }
-	
+	metadata_bytes := fs.db_metadata.get(fs.id_table[entry.metadata.id] or {
+		return error('Failed to delete entry')
+	}) or { return error('Failed to delete entry: ${err}') }
+
 	// Handle file data deletion if it's a file
 	if entry is File {
 		mut file := decode_file_metadata(metadata_bytes)!
-		
+
 		// delete file chunks in data_db
 		for id in file.chunk_ids {
 			log.debug('[DatabaseVFS] Deleting chunk ${id}')
@@ -149,19 +147,17 @@ pub fn (mut fs DatabaseVFS) directory_rm(mut dir Directory, name string) ! {
 				return error('Failed to delete chunk ${id}: ${err}')
 			}
 		}
-		
+
 		log.debug('[DatabaseVFS] Deleting file metadata ${file.metadata.id}')
 	}
-	
-	fs.db_metadata.delete(
-		fs.id_table[entry.metadata.id] or { return error('Failed to delete entry') }
-	) or { return error('Failed to delete entry: ${err}') }
+
+	fs.db_metadata.delete(fs.id_table[entry.metadata.id] or {
+		return error('Failed to delete entry')
+	}) or { return error('Failed to delete entry: ${err}') }
 
 	// Update children list - make sure we don't remove the wrong child
 	dir.children = dir.children.filter(it != entry.metadata.id).clone()
-	fs.save_entry(dir) or {
-		return error('Failed to save updated directory.\n${err}')
-	}
+	fs.save_entry(dir) or { return error('Failed to save updated directory.\n${err}') }
 }
 
 pub struct MoveDirArgs {
@@ -212,7 +208,7 @@ pub fn (mut fs DatabaseVFS) directory_move(dir_ Directory, args_ MoveDirArgs) !&
 
 					fs.save_entry(file_entry)!
 					fs.save_entry(args.dst_parent_dir)!
-					
+
 					// Return the destination directory
 					return args.dst_parent_dir
 				} else {
@@ -236,7 +232,7 @@ pub fn (mut fs DatabaseVFS) directory_move(dir_ Directory, args_ MoveDirArgs) !&
 
 					fs.save_entry(dir_entry)!
 					fs.save_entry(args.dst_parent_dir)!
-					
+
 					return &dir_entry
 				}
 			}
@@ -291,21 +287,22 @@ pub fn (mut fs DatabaseVFS) directory_copy(mut dir Directory, args_ CopyDirArgs)
 				found = true
 				if entry is File {
 					mut file_entry := entry as File
-					
+
 					mut file_data := []u8{}
 					// log.debug('[DatabaseVFS] Got database chunk ids ${chunk_ids}')
 					for id in file_entry.chunk_ids {
 						// there were chunk ids stored with file so file has data
 						if chunk_bytes := fs.db_data.get(id) {
-						file_data << chunk_bytes
-					} else {
-						return error('Failed to fetch file data: ${err}')
-					}
+							file_data << chunk_bytes
+						} else {
+							return error('Failed to fetch file data: ${err}')
+						}
 					}
 
 					mut new_file := File{
-						metadata: Metadata{...file_entry.metadata, 
-							id: fs.get_next_id()
+						metadata:  Metadata{
+							...file_entry.metadata
+							id:   fs.get_next_id()
 							name: args.dst_entry_name
 						}
 						parent_id: args.dst_parent_dir.metadata.id
@@ -316,16 +313,17 @@ pub fn (mut fs DatabaseVFS) directory_copy(mut dir Directory, args_ CopyDirArgs)
 					return args.dst_parent_dir
 				} else if entry is Symlink {
 					mut symlink_entry := entry as Symlink
-					mut new_symlink := Symlink{...symlink_entry,
+					mut new_symlink := Symlink{
+						...symlink_entry
 						parent_id: args.dst_parent_dir.metadata.id
 					}
 					args.dst_parent_dir.children << new_symlink.metadata.id
 					fs.save_entry(args.dst_parent_dir)!
 					return args.dst_parent_dir
-				} 
+				}
 
 				mut src_dir := entry as Directory
-				
+
 				// Make sure we have the latest version of the source directory
 				if updated_src_dir := fs.load_entry(src_dir.metadata.id) {
 					if updated_src_dir is Directory {
@@ -335,12 +333,12 @@ pub fn (mut fs DatabaseVFS) directory_copy(mut dir Directory, args_ CopyDirArgs)
 
 				// Create a new directory with copied metadata
 				mut new_dir := fs.copy_directory(Directory{
-					metadata: Metadata{
+					metadata:  Metadata{
 						...src_dir.metadata
 						name: args.dst_entry_name
 					}
 					parent_id: args.dst_parent_dir.metadata.id
-					children: []u32{}
+					children:  []u32{}
 				})!
 
 				// Recursively copy children
@@ -350,24 +348,24 @@ pub fn (mut fs DatabaseVFS) directory_copy(mut dir Directory, args_ CopyDirArgs)
 				fs.save_entry(new_dir)!
 				args.dst_parent_dir.children << new_dir.metadata.id
 				fs.save_entry(args.dst_parent_dir)!
-				
+
 				// Make sure to save the source directory too
 				fs.save_entry(src_dir)!
-				
+
 				// Reload the source directory to ensure we have the latest version
 				if updated_src_dir := fs.load_entry(src_dir.metadata.id) {
 					if updated_src_dir is Directory {
 						src_dir = updated_src_dir
 					}
 				}
-				
+
 				// Reload the parent directory to ensure we have the latest version
 				if updated_parent_dir := fs.load_entry(dir.metadata.id) {
 					if updated_parent_dir is Directory {
 						dir = updated_parent_dir
 					}
 				}
-				
+
 				return new_dir
 			}
 		}
@@ -387,11 +385,11 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 				Directory {
 					mut entry_ := entry as Directory
 					mut new_subdir := fs.copy_directory(Directory{
-						metadata: Metadata{
+						metadata:  Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
 						}
-						children: []u32{}
+						children:  []u32{}
 						parent_id: dst_dir.metadata.id
 					})!
 
@@ -402,7 +400,7 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 				File {
 					mut entry_ := entry as File
 					mut new_file := fs.copy_file(File{
-						metadata: vfs.Metadata{
+						metadata:  Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
 						}
@@ -415,11 +413,11 @@ fn (mut fs DatabaseVFS) copy_children_recursive(mut src_dir Directory, mut dst_d
 				Symlink {
 					mut entry_ := entry as Symlink
 					mut new_symlink := Symlink{
-						metadata: Metadata{
+						metadata:  Metadata{
 							...entry_.metadata
 							id: fs.get_next_id()
 						}
-						target: entry_.target
+						target:    entry_.target
 						parent_id: dst_dir.metadata.id
 					}
 					fs.save_entry(new_symlink)!
@@ -439,7 +437,7 @@ pub fn (mut fs DatabaseVFS) directory_rename(dir Directory, src_name string, dst
 		if mut entry := fs.load_entry(child_id) {
 			if entry.metadata.name == src_name {
 				found = true
-				
+
 				// Handle different entry types
 				if mut entry is Directory {
 					// Handle directory rename
@@ -474,7 +472,7 @@ pub fn (mut fs DatabaseVFS) directory_rename(dir Directory, src_name string, dst
 // get_children returns all immediate children as FSEntry objects
 pub fn (mut fs DatabaseVFS) directory_children(mut dir Directory, recursive bool) ![]FSEntry {
 	mut entries := []FSEntry{}
-	
+
 	for child_id in dir.children {
 		if entry := fs.load_entry(child_id) {
 			entries << entry

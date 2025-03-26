@@ -30,7 +30,9 @@ pub type ProcedureHandler = fn (payload string) !string
 // Returns:
 //   - A pointer to a new Handler instance or an error if creation fails
 pub fn new_handler(handler Handler) !&Handler {
-	return &Handler{...handler}
+	return &Handler{
+		...handler
+	}
 }
 
 // register_procedure registers a new procedure handler for the specified method.
@@ -69,7 +71,6 @@ pub fn (handler Handler) handle(message string) !string {
 	log.error('debugzo1')
 	method := decode_request_method(message)!
 	// log.info('Handling remote procedure call to method: ${method}')
-	log.error('debugzo2')
 	// Look up the procedure handler for the requested method
 	procedure_func := handler.procedures[method] or {
 		// log.error('No procedure handler for method ${method} found')

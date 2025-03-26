@@ -3,11 +3,11 @@ module bizmodel
 import os
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.playbook { PlayBook, Action }
+import freeflowuniverse.herolib.core.playbook { Action }
 import freeflowuniverse.herolib.ui.console
 // import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.data.paramsparser {Params}
-import freeflowuniverse.herolib.biz.spreadsheet {RowGetArgs, UnitType, PeriodType}
+import freeflowuniverse.herolib.data.paramsparser { Params }
+import freeflowuniverse.herolib.biz.spreadsheet { PeriodType, RowGetArgs, UnitType }
 
 pub fn (mut m BizModel) act(action Action) !Action {
 	return match texttools.snake_case(action.name) {
@@ -58,23 +58,28 @@ fn (mut m BizModel) export_sheet_action(action Action) !Action {
 }
 
 fn (mut m BizModel) export_graph_title_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_title_chart(row_args_from_params(action.params)!)!, action)
+	return m.export_action(m.sheet.wiki_title_chart(row_args_from_params(action.params)!)!,
+		action)
 }
 
 fn (mut m BizModel) export_graph_line_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_line_chart(row_args_from_params(action.params)!)!, action)
+	return m.export_action(m.sheet.wiki_line_chart(row_args_from_params(action.params)!)!,
+		action)
 }
 
 fn (mut m BizModel) export_graph_bar_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_bar_chart(row_args_from_params(action.params)!)!, action)
+	return m.export_action(m.sheet.wiki_bar_chart(row_args_from_params(action.params)!)!,
+		action)
 }
 
 pub fn (mut m BizModel) export_graph_pie_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_pie_chart(row_args_from_params(action.params)!)!, action)
+	return m.export_action(m.sheet.wiki_pie_chart(row_args_from_params(action.params)!)!,
+		action)
 }
 
 pub fn (mut m BizModel) export_overview_action(action Action) !Action {
-	return m.export_action(m.sheet.wiki_row_overview(row_args_from_params(action.params)!)!, action)
+	return m.export_action(m.sheet.wiki_row_overview(row_args_from_params(action.params)!)!,
+		action)
 }
 
 fn (mut m BizModel) new_report_action(action Action) !Action {
@@ -133,8 +138,12 @@ pub fn row_args_from_params(p Params) !RowGetArgs {
 // creates the name for a file being exported given the params of the export action
 fn (m BizModel) export_action(content string, action Action) !Action {
 	// determine name of file being exported
-	name := if action.params.exists('name') { action.params.get('name')! } else {
-		if action.params.exists('title') { action.params.get('title')! } else {
+	name := if action.params.exists('name') {
+		action.params.get('name')!
+	} else {
+		if action.params.exists('title') {
+			action.params.get('title')!
+		} else {
 			// if no name or title, name is ex: revenue_total_graph_bar_row
 			rowname := action.params.get_default('rowname', '')!
 			'${rowname}_${action.name}'
@@ -143,11 +152,11 @@ fn (m BizModel) export_action(content string, action Action) !Action {
 
 	// by default exports to working dir of bizmodel
 	destination := action.params.get_default('destination', m.workdir)!
-	
+
 	mut path := pathlib.get_file(
-		path: os.join_path(destination, name)
+		path:      os.join_path(destination, name)
 		increment: true
-		empty: action.params.get_default_false('overwrite')
+		empty:     action.params.get_default_false('overwrite')
 	)!
 
 	path.write(content)!

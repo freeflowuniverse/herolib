@@ -70,8 +70,8 @@ fn cmd_generator_execute(cmd Command) ! {
 	mut installer := cmd.flags.get_bool('installer') or { false }
 	mut path := cmd.flags.get_string('path') or { '' }
 
-	if playonly{
-		force=true
+	if playonly {
+		force = true
 	}
 
 	if path == '' {
@@ -86,7 +86,7 @@ fn cmd_generator_execute(cmd Command) ! {
 	}
 
 	if scan {
-		generic.scan(path: path, reset: reset, force: force, cat: cat, playonly:playonly)!
+		generic.scan(path: path, reset: reset, force: force, cat: cat, playonly: playonly)!
 	} else {
 		generic.generate(path: path, reset: reset, force: force, cat: cat)!
 	}

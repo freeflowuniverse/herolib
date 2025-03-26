@@ -5,17 +5,17 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 	start_pos := p.pos // Unused but kept for consistency
 	start_line := p.line
 	start_column := p.column
-	
+
 	// Skip the > character
 	p.pos++
 	p.column++
-	
+
 	// Skip whitespace after >
 	p.skip_whitespace()
-	
+
 	mut content := ''
 	mut lines := []string{}
-	
+
 	// Read the first line
 	for p.pos < p.text.len && p.text[p.pos] != `\n` {
 		content += p.text[p.pos].ascii_str()
@@ -23,14 +23,14 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 		p.column++
 	}
 	lines << content
-	
+
 	// Skip the newline
 	if p.pos < p.text.len && p.text[p.pos] == `\n` {
 		p.pos++
 		p.line++
 		p.column = 1
 	}
-	
+
 	// Read additional lines of the blockquote
 	for p.pos < p.text.len {
 		// Check if the line starts with >
@@ -38,7 +38,7 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 			p.pos++
 			p.column++
 			p.skip_whitespace()
-			
+
 			mut line := ''
 			for p.pos < p.text.len && p.text[p.pos] != `\n` {
 				line += p.text[p.pos].ascii_str()
@@ -46,7 +46,7 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 				p.column++
 			}
 			lines << line
-			
+
 			// Skip the newline
 			if p.pos < p.text.len && p.text[p.pos] == `\n` {
 				p.pos++
@@ -58,7 +58,7 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 			p.pos++
 			p.line++
 			p.column = 1
-			
+
 			// Check if the next line is part of the blockquote
 			if p.pos < p.text.len && p.text[p.pos] == `>` {
 				lines << ''
@@ -70,29 +70,29 @@ fn (mut p Parser) parse_blockquote() ?&MarkdownElement {
 			break
 		}
 	}
-	
+
 	// Join the lines with newlines
 	content = lines.join('\n')
-	
+
 	// Create the blockquote element
 	mut blockquote := &MarkdownElement{
-		typ: .blockquote
-		content: content
+		typ:         .blockquote
+		content:     content
 		line_number: start_line
-		column: start_column
+		column:      start_column
 	}
-	
+
 	// Parse nested blocks within the blockquote
 	mut nested_parser := Parser{
-		text: content
-		pos: 0
-		line: 1
+		text:   content
+		pos:    0
+		line:   1
 		column: 1
-		doc: new_document()
+		doc:    new_document()
 	}
-	
+
 	nested_doc := nested_parser.parse()
 	blockquote.children = nested_doc.root.children
-	
+
 	return blockquote
 }

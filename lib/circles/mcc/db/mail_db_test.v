@@ -10,7 +10,7 @@ fn test_mail_db() {
 	test_dir := os.join_path(os.temp_dir(), 'hero_mail_test_${rand.intn(9000) or { 0 } + 1000}')
 	os.mkdir_all(test_dir) or { panic(err) }
 	defer { os.rmdir_all(test_dir) or {} }
-	
+
 	mut runner := actionprocessor.new(path: test_dir)!
 
 	// Create multiple emails for testing
@@ -24,8 +24,8 @@ fn test_mail_db() {
 	email1.size = 1024
 	email1.envelope = models.Envelope{
 		subject: 'Test Email 1'
-		from: ['sender1@example.com']
-		to: ['recipient1@example.com']
+		from:    ['sender1@example.com']
+		to:      ['recipient1@example.com']
 	}
 
 	mut email2 := runner.mails.new()
@@ -38,8 +38,8 @@ fn test_mail_db() {
 	email2.size = 2048
 	email2.envelope = models.Envelope{
 		subject: 'Test Email 2'
-		from: ['sender2@example.com']
-		to: ['recipient2@example.com']
+		from:    ['sender2@example.com']
+		to:      ['recipient2@example.com']
 	}
 
 	mut email3 := runner.mails.new()
@@ -52,42 +52,42 @@ fn test_mail_db() {
 	email3.size = 3072
 	email3.envelope = models.Envelope{
 		subject: 'Test Email 3'
-		from: ['user@example.com']
-		to: ['recipient3@example.com']
+		from:    ['user@example.com']
+		to:      ['recipient3@example.com']
 	}
 
 	// Add the emails
 	println('Adding email 1')
 	email1 = runner.mails.set(email1)!
-	
+
 	// Let the DBHandler assign IDs automatically
 	println('Adding email 2')
 	email2 = runner.mails.set(email2)!
-	
+
 	println('Adding email 3')
 	email3 = runner.mails.set(email3)!
 
 	// Test list functionality
 	println('Testing list functionality')
-	
+
 	// Debug: Print the email IDs in the list
 	email_ids := runner.mails.list()!
 	println('Email IDs in list: ${email_ids}')
-	
+
 	// Get all emails
 	all_emails := runner.mails.getall()!
 	println('Retrieved ${all_emails.len} emails')
 	for i, email in all_emails {
 		println('Email ${i}: id=${email.id}, uid=${email.uid}, mailbox=${email.mailbox}')
 	}
-	
+
 	assert all_emails.len == 3, 'Expected 3 emails, got ${all_emails.len}'
-	
+
 	// Verify all emails are in the list
 	mut found1 := false
 	mut found2 := false
 	mut found3 := false
-	
+
 	for email in all_emails {
 		if email.uid == 1001 {
 			found1 = true
@@ -97,7 +97,7 @@ fn test_mail_db() {
 			found3 = true
 		}
 	}
-	
+
 	assert found1, 'Email 1 not found in list'
 	assert found2, 'Email 2 not found in list'
 	assert found3, 'Email 3 not found in list'
@@ -110,7 +110,7 @@ fn test_mail_db() {
 	assert retrieved_email1.message == email1.message
 	assert retrieved_email1.flags.len == 1
 	assert retrieved_email1.flags[0] == '\\Seen'
-	
+
 	if envelope := retrieved_email1.envelope {
 		assert envelope.subject == 'Test Email 1'
 		assert envelope.from.len == 1
@@ -121,28 +121,28 @@ fn test_mail_db() {
 
 	// Test get_by_mailbox
 	println('Testing get_by_mailbox')
-	
+
 	// Debug: Print all emails and their mailboxes
 	all_emails_debug := runner.mails.getall()!
 	println('All emails (debug):')
 	for i, email in all_emails_debug {
 		println('Email ${i}: id=${email.id}, uid=${email.uid}, mailbox="${email.mailbox}"')
 	}
-	
+
 	// Debug: Print index keys for each email
 	for i, email in all_emails_debug {
 		keys := email.index_keys()
 		println('Email ${i} index keys: ${keys}')
 	}
-	
+
 	inbox_emails := runner.mails.get_by_mailbox('INBOX')!
 	println('Found ${inbox_emails.len} emails in INBOX')
 	for i, email in inbox_emails {
 		println('INBOX Email ${i}: id=${email.id}, uid=${email.uid}')
 	}
-	
+
 	assert inbox_emails.len == 2, 'Expected 2 emails in INBOX, got ${inbox_emails.len}'
-	
+
 	sent_emails := runner.mails.get_by_mailbox('Sent')!
 	assert sent_emails.len == 1, 'Expected 1 email in Sent, got ${sent_emails.len}'
 	assert sent_emails[0].uid == 1003
@@ -158,7 +158,7 @@ fn test_mail_db() {
 	println('Testing search_by_subject')
 	subject_emails := runner.mails.search_by_subject('Test Email')!
 	assert subject_emails.len == 3, 'Expected 3 emails with subject containing "Test Email", got ${subject_emails.len}'
-	
+
 	subject_emails2 := runner.mails.search_by_subject('Email 2')!
 	assert subject_emails2.len == 1, 'Expected 1 email with subject containing "Email 2", got ${subject_emails2.len}'
 	assert subject_emails2[0].uid == 1002
@@ -173,16 +173,16 @@ fn test_mail_db() {
 	println('Testing delete functionality')
 	// Delete email 2
 	runner.mails.delete_by_uid(1002)!
-	
+
 	// Verify deletion with list
 	emails_after_delete := runner.mails.getall()!
 	assert emails_after_delete.len == 2, 'Expected 2 emails after deletion, got ${emails_after_delete.len}'
-	
+
 	// Verify the remaining emails
 	mut found_after_delete1 := false
 	mut found_after_delete2 := false
 	mut found_after_delete3 := false
-	
+
 	for email in emails_after_delete {
 		if email.uid == 1001 {
 			found_after_delete1 = true
@@ -192,7 +192,7 @@ fn test_mail_db() {
 			found_after_delete3 = true
 		}
 	}
-	
+
 	assert found_after_delete1, 'Email 1 not found after deletion'
 	assert !found_after_delete2, 'Email 2 found after deletion (should be deleted)'
 	assert found_after_delete3, 'Email 3 not found after deletion'
@@ -200,7 +200,7 @@ fn test_mail_db() {
 	// Test delete_by_mailbox
 	println('Testing delete_by_mailbox')
 	runner.mails.delete_by_mailbox('Sent')!
-	
+
 	// Verify only INBOX emails remain
 	emails_after_mailbox_delete := runner.mails.getall()!
 	assert emails_after_mailbox_delete.len == 1, 'Expected 1 email after mailbox deletion, got ${emails_after_mailbox_delete.len}'
@@ -210,7 +210,7 @@ fn test_mail_db() {
 	// Delete the last email
 	println('Deleting last email')
 	runner.mails.delete_by_uid(1001)!
-	
+
 	// Verify no emails remain
 	emails_after_all_deleted := runner.mails.getall() or {
 		// This is expected to fail with 'No emails found' error

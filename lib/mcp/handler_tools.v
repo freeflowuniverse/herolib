@@ -12,8 +12,8 @@ import freeflowuniverse.herolib.mcp.logger
 
 pub struct Tool {
 pub:
-	name        string
-	description string
+	name         string
+	description  string
 	input_schema ToolInputSchema @[json: 'inputSchema']
 }
 
@@ -26,25 +26,25 @@ pub:
 
 pub struct ToolProperty {
 pub:
-	typ        string @[json: 'type']
-	items      ToolItems
-	enum       []string
+	typ   string @[json: 'type']
+	items ToolItems
+	enum  []string
 }
 
 pub struct ToolItems {
 pub:
-	typ        string @[json: 'type']
-	enum       []string
+	typ  string @[json: 'type']
+	enum []string
 }
 
 pub struct ToolContent {
 pub:
 	typ        string @[json: 'type']
 	text       string
-	number	int
-	boolean	bool
+	number     int
+	boolean    bool
 	properties map[string]ToolContent
-	items []ToolContent
+	items      []ToolContent
 }
 
 // Tool List Handler
@@ -66,13 +66,13 @@ fn (mut s Server) tools_list_handler(data string) !string {
 	// Decode the request with cursor parameter
 	request := jsonrpc.decode_request_generic[ToolListParams](data)!
 	cursor := request.params.cursor
-	
+
 	// TODO: Implement pagination logic using the cursor
 	// For now, return all tools
-	
+
 	// Create a success response with the result
 	response := jsonrpc.new_response_generic[ToolListResult](request.id, ToolListResult{
-		tools: s.backend.tool_list()!,
+		tools:       s.backend.tool_list()!
 		next_cursor: '' // Empty if no more pages
 	})
 	return response.encode()
@@ -84,7 +84,7 @@ pub struct ToolCallParams {
 pub:
 	name      string
 	arguments map[string]json2.Any
-	meta map[string]json2.Any @[json: '_meta']
+	meta      map[string]json2.Any @[json: '_meta']
 }
 
 pub struct ToolCallResult {
@@ -109,7 +109,7 @@ fn (mut s Server) tools_call_handler(data string) !string {
 	arguments := params_map['arguments'].as_map()
 	// Get the tool by name
 	tool := s.backend.tool_get(tool_name)!
-	
+
 	// Validate arguments against the input schema
 	// TODO: Implement proper JSON Schema validation
 	for req in tool.input_schema.required {
@@ -117,12 +117,13 @@ fn (mut s Server) tools_call_handler(data string) !string {
 			return jsonrpc.new_error_response(request_map['id'].int(), missing_required_argument(req)).encode()
 		}
 	}
-	
+
 	// Call the tool with the provided arguments
 	result := s.backend.tool_call(tool_name, arguments)!
-	
+
 	// Create a success response with the result
-	response := jsonrpc.new_response_generic[ToolCallResult](request_map['id'].int(), result)
+	response := jsonrpc.new_response_generic[ToolCallResult](request_map['id'].int(),
+		result)
 	return response.encode()
 }
 
@@ -134,7 +135,7 @@ pub fn (mut s Server) send_tools_list_changed_notification() ! {
 	if !s.client_config.capabilities.roots.list_changed {
 		return
 	}
-	
+
 	// Create a notification
 	notification := jsonrpc.new_blank_notification('notifications/tools/list_changed')
 	s.send(json.encode(notification))

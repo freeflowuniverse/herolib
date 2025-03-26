@@ -18,7 +18,7 @@ pub:
 pub struct ClientConfig {
 	ActorConfig
 pub:
-	redis_url   string = 'localhost:6379' // url to redis server running
+	redis_url string = 'localhost:6379' // url to redis server running
 }
 
 pub fn new_client(config ActorConfig) !Client {
@@ -40,7 +40,7 @@ pub fn (mut p Client) call_to_action(action Action, params Params) !Action {
 		wait:    true
 	})!
 
-	return Action {
+	return Action{
 		...action
 		result: response_data
 	}

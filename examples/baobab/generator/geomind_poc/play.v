@@ -3,7 +3,7 @@ module geomind_poc
 import freeflowuniverse.crystallib.core.playbook { PlayBook }
 
 // play_commerce processes heroscript actions for the commerce system
-pub fn play_commerce(mut plbook playbook.PlayBook) ! {
+pub fn play_commerce(mut plbook PlayBook) ! {
 	commerce_actions := plbook.find(filter: 'commerce.')!
 	mut c := Commerce{}
 
@@ -12,20 +12,20 @@ pub fn play_commerce(mut plbook playbook.PlayBook) ! {
 			'merchant' {
 				mut p := action.params
 				merchant := c.create_merchant(
-					name: p.get('name')!,
-					description: p.get_default('description', '')!,
-					contact: p.get('contact')!
+					name:        p.get('name')!
+					description: p.get_default('description', '')!
+					contact:     p.get('contact')!
 				)!
 				println('Created merchant: ${merchant.name}')
 			}
 			'component' {
 				mut p := action.params
 				component := c.create_product_component_template(
-					name: p.get('name')!,
-					description: p.get_default('description', '')!,
-					specs: p.get_map(),
-					price: p.get_float('price')!,
-					currency: p.get('currency')!
+					name:        p.get('name')!
+					description: p.get_default('description', '')!
+					specs:       p.get_map()
+					price:       p.get_float('price')!
+					currency:    p.get('currency')!
 				)!
 				println('Created component: ${component.name}')
 			}
@@ -39,30 +39,30 @@ pub fn play_commerce(mut plbook playbook.PlayBook) ! {
 					// In a real implementation, you would fetch the component from storage
 					// For this example, we create a dummy component
 					component := ProductComponentTemplate{
-						id: id
-						name: 'Component'
+						id:          id
+						name:        'Component'
 						description: ''
-						specs: map[string]string{}
-						price: 0
-						currency: 'USD'
+						specs:       map[string]string{}
+						price:       0
+						currency:    'USD'
 					}
 					components << component
 				}
-				
+
 				template := c.create_product_template(
-					name: p.get('name')!,
-					description: p.get_default('description', '')!,
-					components: components,
-					merchant_id: p.get('merchant_id')!,
-					category: p.get_default('category', 'General')!
+					name:        p.get('name')!
+					description: p.get_default('description', '')!
+					components:  components
+					merchant_id: p.get('merchant_id')!
+					category:    p.get_default('category', 'General')!
 				)!
 				println('Created template: ${template.name}')
 			}
 			'product' {
 				mut p := action.params
 				product := c.create_product(
-					template_id: p.get('template_id')!,
-					merchant_id: p.get('merchant_id')!,
+					template_id:    p.get('template_id')!
+					merchant_id:    p.get('merchant_id')!
 					stock_quantity: p.get_int('stock_quantity')!
 				)!
 				println('Created product: ${product.name} with stock: ${product.stock_quantity}')
@@ -80,23 +80,23 @@ pub fn play_commerce(mut plbook playbook.PlayBook) ! {
 					}
 					item := OrderItem{
 						product_id: parts[0]
-						quantity: parts[1].int()
-						price: parts[2].f64()
-						currency: parts[3]
+						quantity:   parts[1].int()
+						price:      parts[2].f64()
+						currency:   parts[3]
 					}
 					items << item
 				}
-				
+
 				order := c.create_order(
-					customer_id: p.get('customer_id')!,
-					items: items
+					customer_id: p.get('customer_id')!
+					items:       items
 				)!
 				println('Created order: ${order.id} with ${order.items.len} items')
 			}
 			'update_order' {
 				mut p := action.params
 				order := c.update_order_status(
-					order_id: p.get('order_id')!,
+					order_id:   p.get('order_id')!
 					new_status: p.get('status')!
 				)!
 				println('Updated order ${order.id} status to: ${order.status}')

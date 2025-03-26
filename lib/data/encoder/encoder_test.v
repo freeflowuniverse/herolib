@@ -210,7 +210,7 @@ fn encode_decode_struct[T](input StructType[T]) bool {
 		console.print_debug('Failed to decode, error: ${err}')
 		return false
 	}
-	
+
 	$if T is time.Time {
 		// Special handling for time.Time comparison
 		return input.val.unix() == output.val.unix()
@@ -248,7 +248,7 @@ fn test_struct() {
 	// time.Time
 	// assert encode_decode_struct[time.Time](get_empty_struct_input[time.Time]()) // get error here
 	assert encode_decode_struct[time.Time](get_struct_input[time.Time](time.now()))
-	
+
 	// bool
 	assert encode_decode_struct(get_empty_struct_input[bool]())
 	assert encode_decode_struct(get_struct_input(true))

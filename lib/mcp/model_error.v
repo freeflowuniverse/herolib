@@ -7,29 +7,29 @@ import freeflowuniverse.herolib.schemas.jsonrpc
 // Error code: -32002
 pub fn resource_not_found(uri string) jsonrpc.RPCError {
 	return jsonrpc.RPCError{
-		code: -32002
+		code:    -32002
 		message: 'Resource not found'
-		data: 'The requested resource ${uri} was not found.'
+		data:    'The requested resource ${uri} was not found.'
 	}
 }
 
 fn prompt_not_found(name string) jsonrpc.RPCError {
 	return jsonrpc.RPCError{
-		code: -32602, // Invalid params
-		message: 'Prompt not found: $name'
+		code:    -32602 // Invalid params
+		message: 'Prompt not found: ${name}'
 	}
 }
 
 fn missing_required_argument(arg_name string) jsonrpc.RPCError {
 	return jsonrpc.RPCError{
-		code: -32602, // Invalid params
-		message: 'Missing required argument: $arg_name'
+		code:    -32602 // Invalid params
+		message: 'Missing required argument: ${arg_name}'
 	}
 }
 
 fn tool_not_found(name string) jsonrpc.RPCError {
 	return jsonrpc.RPCError{
-		code: -32602, // Invalid params
-		message: 'Tool not found: $name'
+		code:    -32602 // Invalid params
+		message: 'Tool not found: ${name}'
 	}
 }

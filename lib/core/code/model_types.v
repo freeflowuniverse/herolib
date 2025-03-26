@@ -1,56 +1,65 @@
 module code
 
 struct Float {
-    bytes int
+	bytes int
 }
 
 // Integer types
 pub const type_i8 = Integer{
-    bytes: 8
+	bytes: 8
 }
 
 pub const type_u8 = Integer{
-    bytes: 8
-    signed: false
+	bytes:  8
+	signed: false
 }
 
 pub const type_i16 = Integer{
-    bytes: 16
+	bytes: 16
 }
 
 pub const type_u16 = Integer{
-    bytes: 16
-    signed: false
+	bytes:  16
+	signed: false
 }
 
 pub const type_i32 = Integer{
-    bytes: 32
+	bytes: 32
 }
 
 pub const type_u32 = Integer{
-    bytes: 32
-    signed: false
+	bytes:  32
+	signed: false
 }
 
 pub const type_i64 = Integer{
-    bytes: 64
+	bytes: 64
 }
 
 pub const type_u64 = Integer{
-    bytes: 64
-    signed: false
+	bytes:  64
+	signed: false
 }
 
 // Floating-point types
 pub const type_f32 = Float{
-    bytes: 32
+	bytes: 32
 }
 
 pub const type_f64 = Float{
-    bytes: 64
+	bytes: 64
 }
 
-pub type Type = Void | Map | Array | Object | Result | Integer | Alias | String | Boolean | Function
+pub type Type = Void
+	| Map
+	| Array
+	| Object
+	| Result
+	| Integer
+	| Alias
+	| String
+	| Boolean
+	| Function
 
 pub struct Alias {
 pub:
@@ -59,12 +68,12 @@ pub:
 	typ         Type
 }
 
-pub struct Boolean{}
+pub struct Boolean {}
 
-pub struct Void{}
+pub struct Void {}
 
 pub struct Integer {
-	bytes u8
+	bytes  u8
 	signed bool = true
 }
 
@@ -169,16 +178,16 @@ pub:
 
 pub fn (t Type) typescript() string {
 	return match t {
-		Map {'Record<string, ${t.typ.typescript()}>'}
+		Map { 'Record<string, ${t.typ.typescript()}>' }
 		Array { '${t.typ.typescript()}[]' }
 		Object { t.name }
-		Result { '${t.typ.typescript()}'}
-		Boolean { 'boolean'}
+		Result { '${t.typ.typescript()}' }
+		Boolean { 'boolean' }
 		Integer { 'number' }
-		Alias {t.name}
-		String {'string'}
-		Function {'func'}
-		Void {''}
+		Alias { t.name }
+		String { 'string' }
+		Function { 'func' }
+		Void { '' }
 	}
 }
 
@@ -189,16 +198,40 @@ pub fn (t Type) vgen() string {
 
 pub fn (t Type) empty_value() string {
 	return match t {
-		Map {'{}'}
-		Array { '[]${t.typ.symbol()}{}' }
-		Object { if t.name != '' {'${t.name}{}'} else {''} }
-		Result { t.typ.empty_value() }
-		Boolean { 'false' }
-		Integer { '0' }
-		Alias {''}
-		String {"''"}
-		Function {''}
-		Void {''}
+		Map {
+			'{}'
+		}
+		Array {
+			'[]${t.typ.symbol()}{}'
+		}
+		Object {
+			if t.name != '' {
+				'${t.name}{}'
+			} else {
+				''
+			}
+		}
+		Result {
+			t.typ.empty_value()
+		}
+		Boolean {
+			'false'
+		}
+		Integer {
+			'0'
+		}
+		Alias {
+			''
+		}
+		String {
+			"''"
+		}
+		Function {
+			''
+		}
+		Void {
+			''
+		}
 	}
 }
 

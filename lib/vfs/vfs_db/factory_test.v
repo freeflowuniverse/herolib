@@ -13,18 +13,18 @@ fn test_new() {
 
 	// Create separate databases for data and metadata
 	mut db_data := ourdb.new(
-		path: os.join_path(test_data_dir, 'data')
+		path:             os.join_path(test_data_dir, 'data')
 		incremental_mode: false
 	)!
-	
+
 	mut db_metadata := ourdb.new(
-		path: os.join_path(test_data_dir, 'metadata')
+		path:             os.join_path(test_data_dir, 'metadata')
 		incremental_mode: false
 	)!
 
 	// Test the factory function
 	mut vfs := new(mut db_data, mut db_metadata)!
-	
+
 	// Verify the VFS was created correctly
 	assert vfs.root_id == 1
 	assert vfs.block_size == 1024 * 4

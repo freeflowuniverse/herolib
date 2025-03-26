@@ -1,7 +1,7 @@
 module specification
 
-import freeflowuniverse.herolib.schemas.openrpc { OpenRPC, Method, ContentDescriptor, ErrorSpec }
-import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema, SchemaRef }
+import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec, Method, OpenRPC }
+import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema }
 import freeflowuniverse.herolib.core.texttools
 
 // Helper function: Convert OpenRPC Method to ActorMethod
@@ -12,7 +12,7 @@ fn openrpc_method_to_actor_method(method Method) ActorMethod {
 	// Process parameters
 	for param in method.params {
 		if param is ContentDescriptor {
-			parameters << param 
+			parameters << param
 		} else {
 			panic('Method param should be inflated')
 		}
@@ -32,12 +32,12 @@ fn openrpc_method_to_actor_method(method Method) ActorMethod {
 	}
 
 	return ActorMethod{
-		name: method.name
+		name:        method.name
 		description: method.description
-		summary: method.summary
-		parameters: parameters
-		result: method.result as ContentDescriptor
-		errors: errors
+		summary:     method.summary
+		parameters:  parameters
+		result:      method.result as ContentDescriptor
+		errors:      errors
 	}
 }
 
@@ -86,9 +86,10 @@ pub fn from_openrpc(spec OpenRPC) !ActorSpecification {
 		if schema is Schema {
 			if schema.typ == 'object' {
 				objects << BaseObject{
-					schema: Schema {...schema, 
+					schema: Schema{
+						...schema
 						title: texttools.pascal_case(key)
-						id: texttools.snake_case(key)
+						id:    texttools.snake_case(key)
 					}
 				}
 			}
@@ -96,10 +97,10 @@ pub fn from_openrpc(spec OpenRPC) !ActorSpecification {
 	}
 
 	return ActorSpecification{
-		name: spec.info.title
+		name:        spec.info.title
 		description: spec.info.description
-		interfaces: [.openrpc]
-		methods: methods
-		objects: objects
+		interfaces:  [.openrpc]
+		methods:     methods
+		objects:     objects
 	}
 }

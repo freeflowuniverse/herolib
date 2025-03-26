@@ -19,8 +19,10 @@ pub fn new(params Params) !OpenRPC {
 	}
 
 	text := if params.path != '' {
-		os.read_file(params.path)!	
-	} else { params.text }
+		os.read_file(params.path)!
+	} else {
+		params.text
+	}
 
-	return decode(text)!	
+	return decode(text)!
 }

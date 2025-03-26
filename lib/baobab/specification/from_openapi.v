@@ -1,19 +1,19 @@
 module specification
 
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.code { Struct, Function }
+import freeflowuniverse.herolib.core.code { Struct }
 import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef }
-import freeflowuniverse.herolib.schemas.openapi { Operation, Parameter, OpenAPI, Components, Info, PathItem, ServerSpec, MediaType }
-import freeflowuniverse.herolib.schemas.openrpc { ExamplePairing, Example, ExampleRef, ContentDescriptor, ErrorSpec }
+import freeflowuniverse.herolib.schemas.openapi { MediaType, OpenAPI, Parameter }
+import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec, Example, ExamplePairing, ExampleRef }
 
 // Helper function: Convert OpenAPI parameter to ContentDescriptor
 fn openapi_param_to_content_descriptor(param Parameter) ContentDescriptor {
 	return ContentDescriptor{
-		name: param.name,
-		summary: param.description,
-		description: param.description,
-		required: param.required,
-		schema: param.schema
+		name:        param.name
+		summary:     param.description
+		description: param.description
+		required:    param.required
+		schema:      param.schema
 	}
 }
 
@@ -22,9 +22,9 @@ fn openapi_param_to_example(param Parameter) ?Example {
 	if param.schema is Schema {
 		if param.schema.example.str() != '' {
 			return Example{
-				name: 'Example ${param.name}',
-				description: 'Example ${param.description}',
-				value: param.schema.example
+				name:        'Example ${param.name}'
+				description: 'Example ${param.description}'
+				value:       param.schema.example
 			}
 		}
 	}
@@ -32,21 +32,25 @@ fn openapi_param_to_example(param Parameter) ?Example {
 }
 
 // Helper function: Convert OpenAPI operation to ActorMethod
-fn openapi_operation_to_actor_method(info openapi.OperationInfo) ActorMethod {
+fn openapi_operation_to_actor_method(info OperationInfo) ActorMethod {
 	mut parameters := []ContentDescriptor{}
-	mut example_parameters:= []Example{}
-	
+	mut example_parameters := []Example{}
+
 	for param in info.operation.parameters {
 		parameters << openapi_param_to_content_descriptor(param)
-		example_parameters << openapi_param_to_example(param) or {
-			continue
-		}
+		example_parameters << openapi_param_to_example(param) or { continue }
 	}
 
 	if schema_ := info.operation.payload_schema() {
 		// TODO: document assumption
-		schema := Schema{...schema_, title: texttools.pascal_case(info.operation.operation_id)}
-		parameters << ContentDescriptor {name: 'data', schema: SchemaRef(schema)}
+		schema := Schema{
+			...schema_
+			title: texttools.pascal_case(info.operation.operation_id)
+		}
+		parameters << ContentDescriptor{
+			name:   'data'
+			schema: SchemaRef(schema)
+		}
 	}
 
 	mut success_responses := map[string]MediaType{}
@@ -57,54 +61,60 @@ fn openapi_operation_to_actor_method(info openapi.OperationInfo) ActorMethod {
 		}
 	}
 
-	if success_responses.len > 1  || success_responses.len == 0 {
+	if success_responses.len > 1 || success_responses.len == 0 {
 		panic('Actor specification must specify one successful response.')
 	}
 	response_success := success_responses.values()[0]
 
 	mut result := ContentDescriptor{
-		name: "result",
-		description: "The response of the operation.",
-		required: true,
-		schema: response_success.schema
+		name:        'result'
+		description: 'The response of the operation.'
+		required:    true
+		schema:      response_success.schema
 	}
 
 	example_result := if response_success.example.str() != '' {
 		Example{
-			name: 'Example response',
+			name:  'Example response'
 			value: response_success.example
 		}
-	} else {Example{}}
+	} else {
+		Example{}
+	}
 
 	pairing := if example_result != Example{} || example_parameters.len > 0 {
 		ExamplePairing{
 			params: example_parameters.map(ExampleRef(it))
 			result: ExampleRef(example_result)
-		} 
-	} else {ExamplePairing{}}
+		}
+	} else {
+		ExamplePairing{}
+	}
 
 	mut errors := []ErrorSpec{}
 	for status, response in info.operation.responses {
 		if status.int() >= 400 {
 			error_schema := if response.content.len > 0 {
 				response.content.values()[0].schema
-			} else {Schema{}}
+			} else {
+				Schema{}
+			}
 			errors << ErrorSpec{
-				code: status.int(),
-				message: response.description,
-				data: error_schema, // Extend if error schema is defined
+				code:    status.int()
+				message: response.description
+				data:    error_schema // Extend if error schema is defined
 			}
 		}
 	}
 
 	return ActorMethod{
-		name: info.operation.operation_id,
-		description: info.operation.description,
-		summary: info.operation.summary,
-		parameters: parameters,
-		example: pairing
-		result: result,
-		errors: errors,
+		name:        info.operation.operation_id
+		description: info.operation.description
+		summary:     info.operation.summary
+		parameters:  parameters
+		example:     pairing
+		result:      result
+		errors:      errors
 	}
 }
 
@@ -112,7 +122,7 @@ fn openapi_operation_to_actor_method(info openapi.OperationInfo) ActorMethod {
 fn openapi_schema_to_struct(name string, schema SchemaRef) Struct {
 	// Assuming schema properties can be mapped to Struct fields
 	return Struct{
-		name: name,
+		name: name
 	}
 }
 
@@ -122,7 +132,7 @@ pub fn from_openapi(spec_raw OpenAPI) !ActorSpecification {
 	mut objects := []BaseObject{}
 
 	// get all operations for path as list of tuple [](path_string, http.Method, openapi.Operation)
-	
+
 	// Extract methods from OpenAPI paths
 	// for path, item in spec.paths {
 	// 	if item.get.operation_id != '' {
@@ -153,16 +163,18 @@ pub fn from_openapi(spec_raw OpenAPI) !ActorSpecification {
 
 	// Extract objects from OpenAPI components.schemas
 	for name, schema in spec.components.schemas {
-		objects << BaseObject{schema: schema as Schema}
+		objects << BaseObject{
+			schema: schema as Schema
+		}
 	}
 
 	return ActorSpecification{
-		openapi: spec_raw
-		name: spec.info.title,
-		description: spec.info.description,
-		structure: Struct{}, // Assuming no top-level structure for this use case
-		interfaces: [.openapi], // Default to OpenAPI for input
-		methods: spec.get_operations().map(openapi_operation_to_actor_method(it)),
-		objects: objects,
+		openapi:     spec_raw
+		name:        spec.info.title
+		description: spec.info.description
+		structure:   Struct{} // Assuming no top-level structure for this use case
+		interfaces:  [.openapi] // Default to OpenAPI for input
+		methods:     spec.get_operations().map(openapi_operation_to_actor_method(it))
+		objects:     objects
 	}
 }

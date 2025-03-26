@@ -1,7 +1,7 @@
 module play
 
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.circles.base { Databases, SessionState, new_session }
+import freeflowuniverse.herolib.circles.base { SessionState, new_session }
 import freeflowuniverse.herolib.circles.actions.db { JobDB, new_jobdb }
 import os
 
@@ -15,10 +15,10 @@ pub enum ReturnFormat {
 @[heap]
 pub struct Player {
 pub mut:
-	actor string        // The name of the actor as used in heroscript
+	actor         string       // The name of the actor as used in heroscript
 	return_format ReturnFormat // Format for returning results
 	session_state SessionState // Session state for database operations
-	job_db JobDB        // Job database handler
+	job_db        JobDB        // Job database handler
 }
 
 // new_player creates a new Player instance
@@ -33,10 +33,10 @@ pub fn new_player(actor string, return_format ReturnFormat) !Player {
 	mut job_db := new_jobdb(session_state)!
 
 	return Player{
-		actor: actor
+		actor:         actor
 		return_format: return_format
 		session_state: session_state
-		job_db: job_db
+		job_db:        job_db
 	}
 }
 
@@ -51,7 +51,7 @@ pub fn (mut p Player) play(input string, is_text bool) ! {
 	// Find all actions for this actor
 	filter := '${p.actor}.'
 	actions := plbook.find(filter: filter)!
-	
+
 	if actions.len == 0 {
 		println('No actions found for actor: ${p.actor}')
 		return
@@ -60,7 +60,7 @@ pub fn (mut p Player) play(input string, is_text bool) ! {
 	// Process each action
 	for action in actions {
 		action_name := action.name.split('.')[1]
-		
+
 		// Call the appropriate method based on the action name
 		match action_name {
 			'create' { p.create(action.params)! }

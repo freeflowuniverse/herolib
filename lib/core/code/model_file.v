@@ -8,6 +8,7 @@ pub interface IFile {
 	write(string, WriteOptions) !
 	write_str(WriteOptions) !string
 	name string
+	write(string, WriteOptions) !
 }
 
 pub struct File {
@@ -35,7 +36,6 @@ pub fn (f File) typescript(path string, params WriteOptions) ! {
 	}
 }
 
-
 pub struct VFile {
 pub mut:
 	name    string
@@ -49,7 +49,7 @@ pub mut:
 pub fn new_file(config VFile) VFile {
 	return VFile{
 		...config
-		mod: texttools.name_fix(config.mod)
+		mod:   texttools.name_fix(config.mod)
 		items: config.items
 	}
 }
@@ -90,11 +90,13 @@ pub fn (code VFile) write(path string, options WriteOptions) ! {
 	}
 
 	mut file := pathlib.get_file(
-		path: filepath.path
+		path:   filepath.path
 		create: true
 	)!
 
-	mod_stmt := if code.mod == '' {''} else {
+	mod_stmt := if code.mod == '' {
+		''
+	} else {
 		'module ${code.mod}'
 	}
 

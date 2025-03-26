@@ -1,26 +1,26 @@
 module openapi
 
 import os
-import x.json2 {Any}
-import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
+import x.json2 { Any }
+import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema, SchemaRef }
 
 const spec_path = '${os.dir(@FILE)}/testdata/openapi.json'
-const spec_json = os.read_file(spec_path) or {panic(err)}
+const spec_json = os.read_file(spec_path) or { panic(err) }
 
-const spec = openapi.OpenAPI{
-	openapi: '3.0.3'
-	info: openapi.Info{
-		title: 'Pet Store API'
+const spec = OpenAPI{
+	openapi:    '3.0.3'
+	info:       Info{
+		title:       'Pet Store API'
 		description: 'A sample API for a pet store'
 		version:     '1.0.0'
 	}
-	servers: [
+	servers:    [
 		ServerSpec{
-			url: 'https://api.petstore.example.com/v1'
+			url:         'https://api.petstore.example.com/v1'
 			description: 'Production server'
 		},
 		ServerSpec{
-			url: 'https://staging.petstore.example.com/v1'
+			url:         'https://staging.petstore.example.com/v1'
 			description: 'Staging server'
 		},
 	]
@@ -30,7 +30,7 @@ const spec = openapi.OpenAPI{
 				summary:      'List all pets'
 				operation_id: 'listPets'
 				parameters:   [
-					openapi.Parameter{
+					Parameter{
 						name:        'limit'
 						in_:         'query'
 						description: 'Maximum number of pets to return'
@@ -41,14 +41,14 @@ const spec = openapi.OpenAPI{
 						}
 					},
 				]
-				responses: {
+				responses:    {
 					'200': ResponseSpec{
 						description: 'A paginated list of pets'
 						content:     {
-							'application/json': openapi.MediaType{
-								schema: Reference{
+							'application/json': MediaType{
+								schema:  Reference{
 									ref: '#/components/schemas/Pets'
-								},
+								}
 								example: Any('[{"id":"1","name":"Alice","email":"alice@example.com"},{"id":"2","name":"Bob","email":"bob@example.com"}]')
 							}
 						}
@@ -61,21 +61,21 @@ const spec = openapi.OpenAPI{
 			post: Operation{
 				summary:      'Create a new pet'
 				operation_id: 'createPet'
-				request_body: openapi.RequestBody{
+				request_body: RequestBody{
 					required: true
 					content:  {
-						'application/json': openapi.MediaType{
+						'application/json': MediaType{
 							schema: Reference{
 								ref: '#/components/schemas/NewPet'
 							}
 						}
 					}
 				}
-				responses: {
+				responses:    {
 					'201': ResponseSpec{
 						description: 'Pet created'
 						content:     {
-							'application/json': openapi.MediaType{
+							'application/json': MediaType{
 								schema: Reference{
 									ref: '#/components/schemas/Pet'
 								}
@@ -93,7 +93,7 @@ const spec = openapi.OpenAPI{
 				summary:      'Get a pet by ID'
 				operation_id: 'getPet'
 				parameters:   [
-					openapi.Parameter{
+					Parameter{
 						name:        'petId'
 						in_:         'path'
 						description: 'ID of the pet to retrieve'
@@ -104,11 +104,11 @@ const spec = openapi.OpenAPI{
 						}
 					},
 				]
-				responses: {
+				responses:    {
 					'200': ResponseSpec{
 						description: 'A pet'
 						content:     {
-							'application/json': openapi.MediaType{
+							'application/json': MediaType{
 								schema: Reference{
 									ref: '#/components/schemas/Pet'
 								}
@@ -124,7 +124,7 @@ const spec = openapi.OpenAPI{
 				summary:      'Delete a pet by ID'
 				operation_id: 'deletePet'
 				parameters:   [
-					openapi.Parameter{
+					Parameter{
 						name:        'petId'
 						in_:         'path'
 						description: 'ID of the pet to delete'
@@ -135,7 +135,7 @@ const spec = openapi.OpenAPI{
 						}
 					},
 				]
-				responses: {
+				responses:    {
 					'204': ResponseSpec{
 						description: 'Pet deleted'
 					}
@@ -149,11 +149,11 @@ const spec = openapi.OpenAPI{
 			get: Operation{
 				summary:      'List all orders'
 				operation_id: 'listOrders'
-				responses: {
+				responses:    {
 					'200': ResponseSpec{
 						description: 'A list of orders'
 						content:     {
-							'application/json': openapi.MediaType{
+							'application/json': MediaType{
 								schema: Schema{
 									typ:   'array'
 									items: SchemaRef(Reference{
@@ -171,7 +171,7 @@ const spec = openapi.OpenAPI{
 				summary:      'Get an order by ID'
 				operation_id: 'getOrder'
 				parameters:   [
-					openapi.Parameter{
+					Parameter{
 						name:        'orderId'
 						in_:         'path'
 						description: 'ID of the order to retrieve'
@@ -182,11 +182,11 @@ const spec = openapi.OpenAPI{
 						}
 					},
 				]
-				responses: {
+				responses:    {
 					'200': ResponseSpec{
 						description: 'An order'
 						content:     {
-							'application/json': openapi.MediaType{
+							'application/json': MediaType{
 								schema: Reference{
 									ref: '#/components/schemas/Order'
 								}
@@ -202,7 +202,7 @@ const spec = openapi.OpenAPI{
 				summary:      'Delete an order by ID'
 				operation_id: 'deleteOrder'
 				parameters:   [
-					openapi.Parameter{
+					Parameter{
 						name:        'orderId'
 						in_:         'path'
 						description: 'ID of the order to delete'
@@ -213,7 +213,7 @@ const spec = openapi.OpenAPI{
 						}
 					},
 				]
-				responses: {
+				responses:    {
 					'204': ResponseSpec{
 						description: 'Order deleted'
 					}
@@ -227,21 +227,21 @@ const spec = openapi.OpenAPI{
 			post: Operation{
 				summary:      'Create a user'
 				operation_id: 'createUser'
-				request_body: openapi.RequestBody{
+				request_body: RequestBody{
 					required: true
 					content:  {
-						'application/json': openapi.MediaType{
+						'application/json': MediaType{
 							schema: Reference{
 								ref: '#/components/schemas/NewUser'
 							}
 						}
 					}
 				}
-				responses: {
+				responses:    {
 					'201': ResponseSpec{
 						description: 'User created'
 						content:     {
-							'application/json': openapi.MediaType{
+							'application/json': MediaType{
 								schema: Reference{
 									ref: '#/components/schemas/User'
 								}

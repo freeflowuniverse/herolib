@@ -375,11 +375,29 @@ check_and_start_redis() {
             fi
         fi
     elif [[ "${OSNAME}" == "darwin"* ]]; then
-        if brew services list | grep -q "^redis.*started"; then
-            echo "redis is already running."
+        # Check if we're in GitHub Actions
+        if is_github_actions; then
+            echo "Running in GitHub Actions on macOS. Starting redis directly..."
+            if pgrep redis-server > /dev/null; then
+                echo "redis is already running."
+            else
+                echo "redis is not running. Starting it in the background..."
+                redis-server --daemonize yes
+                if pgrep redis-server > /dev/null; then
+                    echo "redis started successfully."
+                else
+                    echo "Failed to start redis. Please check logs for details."
+                    exit 1
+                fi
+            fi
         else
-            echo "redis is not running. Starting it..."
-            brew services start redis
+            # For regular macOS environments, use brew services
+            if brew services list | grep -q "^redis.*started"; then
+                echo "redis is already running."
+            else
+                echo "redis is not running. Starting it..."
+                brew services start redis
+            fi
         fi
     elif [[ "${OSNAME}" == "alpine"* ]]; then
         if rc-service "redis" status | grep -q "running"; then

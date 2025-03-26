@@ -1,7 +1,7 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { VFile, CustomCode, Function, Import, Struct }
-import freeflowuniverse.herolib.baobab.specification {BaseObject}
+import freeflowuniverse.herolib.core.code
+import freeflowuniverse.herolib.baobab.specification
 import rand
 import freeflowuniverse.herolib.core.texttools
 

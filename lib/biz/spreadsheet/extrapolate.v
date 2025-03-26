@@ -102,7 +102,7 @@ pub fn (mut r Row) smartfill(smartstr string) ! {
 			}
 			if x >= r.sheet.nrcol {
 				// If the index is at or beyond the array bounds, use the last available index
-				r.cells[r.sheet.nrcol-1].set(splitted[1])!
+				r.cells[r.sheet.nrcol - 1].set(splitted[1])!
 			} else {
 				r.cells[x].set(splitted[1])!
 			}

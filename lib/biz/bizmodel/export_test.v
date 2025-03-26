@@ -10,5 +10,7 @@ pub fn test_export_report() ! {
 	model := getset(bizmodel_name)!
 	model.export_report(Report{
 		title: 'My Business Model'
-	}, path: export_path)!
+	},
+		path: export_path
+	)!
 }

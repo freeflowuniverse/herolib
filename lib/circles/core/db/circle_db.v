@@ -57,7 +57,7 @@ pub fn (mut m CircleDB) delete_by_name(name string) ! {
 		// Circle not found, nothing to delete
 		return
 	}
-	
+
 	// Delete the circle by ID
 	m.delete(circle.id)!
 }
@@ -66,14 +66,14 @@ pub fn (mut m CircleDB) delete_by_name(name string) ! {
 pub fn (mut m CircleDB) get_all_circle_names() ![]string {
 	// Get all circle IDs
 	circle_ids := m.list()!
-	
+
 	// Get names for all circles
 	mut names := []string{}
 	for id in circle_ids {
 		circle := m.get(id) or { continue }
 		names << circle.name
 	}
-	
+
 	return names
 }
 
@@ -81,17 +81,17 @@ pub fn (mut m CircleDB) get_all_circle_names() ![]string {
 pub fn (mut m CircleDB) add_member(circle_name string, member Member) !Circle {
 	// Get the circle by name
 	mut circle := m.get_by_name(circle_name)!
-	
+
 	// Check if member with same name already exists
 	for existing_member in circle.members {
 		if existing_member.name == member.name {
 			return error('Member with name ${member.name} already exists in circle ${circle_name}')
 		}
 	}
-	
+
 	// Add the member
 	circle.members << member
-	
+
 	// Save the updated circle
 	return m.set(circle)!
 }
@@ -100,11 +100,11 @@ pub fn (mut m CircleDB) add_member(circle_name string, member Member) !Circle {
 pub fn (mut m CircleDB) remove_member(circle_name string, member_name string) !Circle {
 	// Get the circle by name
 	mut circle := m.get_by_name(circle_name)!
-	
+
 	// Find and remove the member
 	mut found := false
 	mut new_members := []Member{}
-	
+
 	for member in circle.members {
 		if member.name == member_name {
 			found = true
@@ -112,14 +112,14 @@ pub fn (mut m CircleDB) remove_member(circle_name string, member_name string) !C
 		}
 		new_members << member
 	}
-	
+
 	if !found {
 		return error('Member with name ${member_name} not found in circle ${circle_name}')
 	}
-	
+
 	// Update the circle members
 	circle.members = new_members
-	
+
 	// Save the updated circle
 	return m.set(circle)!
 }
@@ -128,10 +128,10 @@ pub fn (mut m CircleDB) remove_member(circle_name string, member_name string) !C
 pub fn (mut m CircleDB) update_member_role(circle_name string, member_name string, new_role Role) !Circle {
 	// Get the circle by name
 	mut circle := m.get_by_name(circle_name)!
-	
+
 	// Find and update the member
 	mut found := false
-	
+
 	for i, mut member in circle.members {
 		if member.name == member_name {
 			circle.members[i].role = new_role
@@ -139,11 +139,11 @@ pub fn (mut m CircleDB) update_member_role(circle_name string, member_name strin
 			break
 		}
 	}
-	
+
 	if !found {
 		return error('Member with name ${member_name} not found in circle ${circle_name}')
 	}
-	
+
 	// Save the updated circle
 	return m.set(circle)!
 }

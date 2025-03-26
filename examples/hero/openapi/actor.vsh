@@ -70,74 +70,86 @@ fn (mut actor Actor) listen() ! {
 
 // Handle method invocations
 fn (mut actor Actor) handle_method(cmd string, data string) !string {
-    param_anys := json2.raw_decode(data)!.arr()
-    match cmd {
-        'listPets' {
-            pets := if param_anys.len == 0 {
-                actor.data_store.list_pets()
-            } else {
-                params := json.decode(ListPetParams, param_anys[0].str())!
-                actor.data_store.list_pets(params)
-            }
-            return json.encode(pets)
-        }
-        'createPet' {
-            response := if param_anys.len == 0 {
-                return error('at least data expected')
-            } else if param_anys.len == 1 {
-                payload := json.decode(NewPet, param_anys[0].str())!
-                actor.data_store.create_pet(payload)
-            } else {
-                return error('expected 1 param, found too many')
-            }
-            // data := json.decode(NewPet, data) or { return error('Invalid pet data: $err') }
-            // created_pet := actor.data_store.create_pet(pet)
-            return json.encode(response)
-        }
-        'getPet' {
-            response := if param_anys.len == 0 {
-                return error('at least data expected')
-            } else if param_anys.len == 1 {
-                payload := param_anys[0].int()
-                actor.data_store.get_pet(payload)!
-            } else {
-                return error('expected 1 param, found too many')
-            }
-            
-            return json.encode(response)
-        }
-        'deletePet' {
-            params := json.decode(map[string]int, data) or { return error('Invalid params: $err') }
-            actor.data_store.delete_pet(params['petId']) or { return error('Pet not found: $err') }
-            return json.encode({'message': 'Pet deleted'})
-        }
-        'listOrders' {
-            orders := actor.data_store.list_orders()
-            return json.encode(orders)
-        }
-        'getOrder' {
-            params := json.decode(map[string]int, data) or { return error('Invalid params: $err') }
-            order := actor.data_store.get_order(params['orderId']) or {
-                return error('Order not found: $err')
-            }
-            return json.encode(order)
-        }
-        'deleteOrder' {
-            params := json.decode(map[string]int, data) or { return error('Invalid params: $err') }
-            actor.data_store.delete_order(params['orderId']) or {
-                return error('Order not found: $err')
-            }
-            return json.encode({'message': 'Order deleted'})
-        }
-        'createUser' {
-            user := json.decode(NewUser, data) or { return error('Invalid user data: $err') }
-            created_user := actor.data_store.create_user(user)
-            return json.encode(created_user)
-        }
-        else {
-            return error('Unknown method: $cmd')
-        }
-    }
+	param_anys := json2.raw_decode(data)!.arr()
+	match cmd {
+		'listPets' {
+			pets := if param_anys.len == 0 {
+				actor.data_store.list_pets()
+			} else {
+				params := json.decode(ListPetParams, param_anys[0].str())!
+				actor.data_store.list_pets(params)
+			}
+			return json.encode(pets)
+		}
+		'createPet' {
+			response := if param_anys.len == 0 {
+				return error('at least data expected')
+			} else if param_anys.len == 1 {
+				payload := json.decode(NewPet, param_anys[0].str())!
+				actor.data_store.create_pet(payload)
+			} else {
+				return error('expected 1 param, found too many')
+			}
+			// data := json.decode(NewPet, data) or { return error('Invalid pet data: $err') }
+			// created_pet := actor.data_store.create_pet(pet)
+			return json.encode(response)
+		}
+		'getPet' {
+			response := if param_anys.len == 0 {
+				return error('at least data expected')
+			} else if param_anys.len == 1 {
+				payload := param_anys[0].int()
+				actor.data_store.get_pet(payload)!
+			} else {
+				return error('expected 1 param, found too many')
+			}
+
+			return json.encode(response)
+		}
+		'deletePet' {
+			params := json.decode(map[string]int, data) or {
+				return error('Invalid params: ${err}')
+			}
+			actor.data_store.delete_pet(params['petId']) or {
+				return error('Pet not found: ${err}')
+			}
+			return json.encode({
+				'message': 'Pet deleted'
+			})
+		}
+		'listOrders' {
+			orders := actor.data_store.list_orders()
+			return json.encode(orders)
+		}
+		'getOrder' {
+			params := json.decode(map[string]int, data) or {
+				return error('Invalid params: ${err}')
+			}
+			order := actor.data_store.get_order(params['orderId']) or {
+				return error('Order not found: ${err}')
+			}
+			return json.encode(order)
+		}
+		'deleteOrder' {
+			params := json.decode(map[string]int, data) or {
+				return error('Invalid params: ${err}')
+			}
+			actor.data_store.delete_order(params['orderId']) or {
+				return error('Order not found: ${err}')
+			}
+			return json.encode({
+				'message': 'Order deleted'
+			})
+		}
+		'createUser' {
+			user := json.decode(NewUser, data) or { return error('Invalid user data: ${err}') }
+			created_user := actor.data_store.create_user(user)
+			return json.encode(created_user)
+		}
+		else {
+			return error('Unknown method: ${cmd}')
+		}
+	}
 }
 
 @[params]

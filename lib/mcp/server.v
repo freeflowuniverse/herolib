@@ -13,8 +13,8 @@ pub struct Server {
 	ServerConfiguration
 pub mut:
 	client_config ClientConfiguration
-	handler jsonrpc.Handler
-	backend Backend
+	handler       jsonrpc.Handler
+	backend       Backend
 }
 
 // start starts the MCP server
@@ -27,20 +27,20 @@ pub fn (mut s Server) start() ! {
 			time.sleep(10000) // prevent cpu spinning
 			continue
 		}
-		
+
 		// Handle the message using the JSON-RPC handler
 		response := s.handler.handle(message) or {
-			log.error('Error handling message: $err')
-			
+			log.error('Error handling message: ${err}')
+
 			// Try to extract the request ID
 			id := jsonrpc.decode_request_id(message) or { 0 }
-			
+
 			// Create an internal error response
 			error_response := jsonrpc.new_error(id, jsonrpc.internal_error).encode()
 			print(error_response)
 			continue
 		}
-		
+
 		// Send the response
 		s.send(response)
 	}

@@ -1,6 +1,5 @@
-#!/usr/bin/env -S v -gc none  -d use_openssl -enable-globals -cg run
+#!/usr/bin/env -S v -gc none  -cc tcc -d use_openssl -enable-globals -cg run
 
-//#!/usr/bin/env -S v -gc none  -cc tcc -d use_openssl -enable-globals -cg run
 import freeflowuniverse.herolib.threefold.grid3.gridproxy
 import freeflowuniverse.herolib.threefold.grid3.deployer
 import freeflowuniverse.herolib.installers.threefold.griddriver
@@ -26,7 +25,7 @@ deployment.add_machine(
 	public_ip4: false
 	size:       10 // 10 gig
 	mycelium:   deployer.Mycelium{}
-	nodes:     [vm_node]
+	nodes:      [vm_node]
 )
 deployment.deploy()!
 

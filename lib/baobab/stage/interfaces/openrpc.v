@@ -1,15 +1,15 @@
 module interfaces
 
-import freeflowuniverse.herolib.baobab.stage {Client}
+import freeflowuniverse.herolib.baobab.stage { Client }
 import freeflowuniverse.herolib.schemas.jsonrpc
 
 // handler for test echoes JSONRPC Request as JSONRPC Response
 fn handler(request jsonrpc.Request) !jsonrpc.Response {
-    return jsonrpc.Response {
-        jsonrpc: request.jsonrpc
-        id: request.id
-        result: request.params
-    }
+	return jsonrpc.Response{
+		jsonrpc: request.jsonrpc
+		id:      request.id
+		result:  request.params
+	}
 }
 
 pub struct OpenRPCInterface {

@@ -1,6 +1,6 @@
 module openrpc
 
-import x.json2 as json {Any}
+import x.json2 as json { Any }
 import freeflowuniverse.herolib.schemas.jsonschema { Reference, SchemaRef }
 
 // This is the root object of the OpenRPC document.
@@ -122,7 +122,7 @@ pub:
 	name           string @[omitempty]                      // Cannonical name of the example.
 	summary        string @[omitempty]                      // Short description for the example.
 	description    string @[omitempty]                      // A verbose explanation of the example.
-	value          Any @[omitempty; json: '-']                      // Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON, use a string value to contain the example, escaping where necessary.
+	value          Any    @[json: '-'; omitempty]           // Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON, use a string value to contain the example, escaping where necessary.
 	external_value string @[json: externalValue; omitempty] // A URL that points to the literal example. This provides the capability to reference examples that cannot easily be included in JSON documents. The value field and externalValue field are mutually exclusive.
 }
 
@@ -156,8 +156,8 @@ pub type ErrorRef = ErrorSpec | Reference
 // Defines an application level error.
 pub struct ErrorSpec {
 pub:
-	code    int    // A Number that indicates the error type that occurred. This MUST be an integer. The error codes from and including -32768 to -32000 are reserved for pre-defined errors. These pre-defined errors SHOULD be assumed to be returned from any JSON-RPC api.
-	message string // A String providing a short description of the error. The message SHOULD be limited to a concise single sentence.
+	code    int       // A Number that indicates the error type that occurred. This MUST be an integer. The error codes from and including -32768 to -32000 are reserved for pre-defined errors. These pre-defined errors SHOULD be assumed to be returned from any JSON-RPC api.
+	message string    // A String providing a short description of the error. The message SHOULD be limited to a concise single sentence.
 	data    SchemaRef // A Primitive or Structured value that contains additional information about the error. This may be omitted. The value of this member is defined by the Server (e.g. detailed error information, nested errors etc.).
 }
 

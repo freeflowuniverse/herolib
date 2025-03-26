@@ -11,9 +11,9 @@ mut model := bizmodel.generate(bizmodel_name, playbook_path)!
 
 // Export to CSV
 model.export_csv(
-	path: export_path
+	path:          export_path
 	include_empty: false
-	separator: '|'
+	separator:     '|'
 )!
 
 // // Verify files were created

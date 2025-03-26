@@ -1,9 +1,9 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code { VFile, CodeItem, CustomCode, Function, Struct, parse_function }
-import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schemaref_to_type, schema_to_struct}
-import freeflowuniverse.herolib.schemas.jsonschema {Schema}
-import freeflowuniverse.herolib.schemas.openrpc {Method, ContentDescriptor}
+import freeflowuniverse.herolib.core.code { Function, Struct }
+import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen { schema_to_struct, schemaref_to_type }
+import freeflowuniverse.herolib.schemas.jsonschema { Schema }
+import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, Method }
 import freeflowuniverse.herolib.core.texttools
 
 // converts OpenRPC Method to Code Function
@@ -21,7 +21,7 @@ pub fn method_to_function(method Method) !Function {
 	}
 
 	return Function{
-		name: texttools.snake_case(method.name)
+		name:   texttools.snake_case(method.name)
 		params: params
 		result: result
 	}
@@ -42,7 +42,7 @@ pub fn content_descriptor_to_struct(cd ContentDescriptor) Struct {
 pub fn content_descriptor_to_parameter(cd ContentDescriptor) !code.Param {
 	return code.Param{
 		name: cd.name
-		typ: schemaref_to_type(cd.schema)
+		typ:  schemaref_to_type(cd.schema)
 	}
 }
 

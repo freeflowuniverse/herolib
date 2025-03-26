@@ -45,7 +45,7 @@ pub fn get(args StartupManagerArgs) !StartupManager {
 	if args.cat == .unknown {
 		if zinit.check() {
 			sm.cat = .zinit
-		}else { 
+		} else {
 			sm.cat = .screen
 		}
 	}
@@ -313,7 +313,7 @@ pub fn (mut sm StartupManager) exists(name string) !bool {
 	if sm.cat == .unknown {
 		if zinit.check() {
 			sm.cat = .zinit
-		}else { 
+		} else {
 			sm.cat = .screen
 		}
 	}

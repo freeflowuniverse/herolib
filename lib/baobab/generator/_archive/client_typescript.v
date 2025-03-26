@@ -1,10 +1,10 @@
 module generator
 
-import freeflowuniverse.herolib.core.code {Folder, File}
+import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.schemas.jsonschema.codegen { schema_to_struct }
-import freeflowuniverse.herolib.schemas.openrpc.codegen as openrpc_codegen { content_descriptor_to_parameter }
-import freeflowuniverse.herolib.baobab.specification {ActorSpecification, ActorMethod, BaseObject} 
+import freeflowuniverse.herolib.schemas.jsonschema.codegen
+import freeflowuniverse.herolib.schemas.openrpc.codegen as openrpc_codegen
+import freeflowuniverse.herolib.baobab.specification
 import net.http
 
 // pub enum BaseObjectMethodType {
@@ -50,7 +50,7 @@ import net.http
 //     name_snake := texttools.snake_case(object)
 //     name_pascal := texttools.pascal_case(object)
 //     root := get_endpoint_root(params.endpoint)
- 
+
 //     return "async list${name_pascal}(): Promise<${name_pascal}[]> {\n        return this.restClient.get<${name_pascal}[]>(`/${root}/${name_snake}`);\n    }"
 // }
 
@@ -58,7 +58,7 @@ fn get_endpoint_root(root string) string {
 	return if root == '' {
 		''
 	} else {
-		"/${root.trim('/')}"
+		'/${root.trim('/')}'
 	}
 }
 
@@ -112,7 +112,7 @@ fn get_endpoint_root(root string) string {
 // 		.map(content_descriptor_to_parameter(it) or {panic(err)})
 // 		.map(it.typescript())
 // 		.join(', ')
-	
+
 // 	return_type := content_descriptor_to_parameter(method.result) or {panic(err)}.typ.typescript()
 // 	return 'async ${name}(${params}): Promise<${return_type}> {}'
 // }

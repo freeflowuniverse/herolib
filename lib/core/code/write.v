@@ -11,10 +11,9 @@ pub:
 	overwrite bool
 	document  bool
 	prefix    string
-	compile bool // whether to compile the written code
-	test bool // whether to test the written code
+	compile   bool // whether to compile the written code
+	test      bool // whether to test the written code
 }
-
 
 interface ICodeItem {
 	vgen() string
@@ -52,7 +51,6 @@ pub fn (import_ Import) vgen() string {
 	} // comma separated string list of  types
 	return 'import ${import_.mod} ${types_str}'
 }
-
 
 pub fn vgen_generics(generics map[string]string) string {
 	if generics.keys().len == 0 {

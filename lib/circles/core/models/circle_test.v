@@ -3,31 +3,31 @@ module models
 fn test_circle_dumps_loads() {
 	// Create a test circle with some sample data
 	mut circle := Circle{
-		id: 123
-		name: 'Test Circle'
+		id:          123
+		name:        'Test Circle'
 		description: 'A test circle for binary encoding'
 	}
 
 	// Add a member
 	mut member1 := Member{
-		pubkeys: ['user1-pubkey']
-		name: 'User One'
+		pubkeys:     ['user1-pubkey']
+		name:        'User One'
 		description: 'First test user'
-		role: .admin
-		emails: ['user1@example.com', 'user.one@example.org']
+		role:        .admin
+		emails:      ['user1@example.com', 'user.one@example.org']
 	}
-	
+
 	circle.members << member1
 
 	// Add another member
 	mut member2 := Member{
-		pubkeys: ['user2-pubkey']
-		name: 'User Two'
+		pubkeys:     ['user2-pubkey']
+		name:        'User Two'
 		description: 'Second test user'
-		role: .member
-		emails: ['user2@example.com']
+		role:        .member
+		emails:      ['user2@example.com']
 	}
-	
+
 	circle.members << member2
 
 	// Test binary encoding
@@ -46,10 +46,10 @@ fn test_circle_dumps_loads() {
 	assert decoded_circle.id == circle.id
 	assert decoded_circle.name == circle.name
 	assert decoded_circle.description == circle.description
-	
+
 	// Verify members
 	assert decoded_circle.members.len == circle.members.len
-	
+
 	// Verify first member
 	assert decoded_circle.members[0].pubkeys.len == circle.members[0].pubkeys.len
 	assert decoded_circle.members[0].pubkeys[0] == circle.members[0].pubkeys[0]
@@ -59,7 +59,7 @@ fn test_circle_dumps_loads() {
 	assert decoded_circle.members[0].emails.len == circle.members[0].emails.len
 	assert decoded_circle.members[0].emails[0] == circle.members[0].emails[0]
 	assert decoded_circle.members[0].emails[1] == circle.members[0].emails[1]
-	
+
 	// Verify second member
 	assert decoded_circle.members[1].pubkeys.len == circle.members[1].pubkeys.len
 	assert decoded_circle.members[1].pubkeys[0] == circle.members[1].pubkeys[0]
@@ -75,62 +75,62 @@ fn test_circle_dumps_loads() {
 fn test_circle_complex_structure() {
 	// Create a more complex circle with multiple members of different roles
 	mut circle := Circle{
-		id: 456
-		name: 'Complex Test Circle'
+		id:          456
+		name:        'Complex Test Circle'
 		description: 'A complex test circle with multiple members'
 	}
 
 	// Add admin member
 	circle.members << Member{
-		pubkeys: ['admin-pubkey']
-		name: 'Admin User'
+		pubkeys:     ['admin-pubkey']
+		name:        'Admin User'
 		description: 'Circle administrator'
-		role: .admin
-		emails: ['admin@example.com']
+		role:        .admin
+		emails:      ['admin@example.com']
 	}
 
 	// Add stakeholder member
 	circle.members << Member{
-		pubkeys: ['stakeholder-pubkey']
-		name: 'Stakeholder User'
+		pubkeys:     ['stakeholder-pubkey']
+		name:        'Stakeholder User'
 		description: 'Circle stakeholder'
-		role: .stakeholder
-		emails: ['stakeholder@example.com', 'stakeholder@company.com']
+		role:        .stakeholder
+		emails:      ['stakeholder@example.com', 'stakeholder@company.com']
 	}
 
 	// Add regular members
 	circle.members << Member{
-		pubkeys: ['member1-pubkey']
-		name: 'Regular Member 1'
+		pubkeys:     ['member1-pubkey']
+		name:        'Regular Member 1'
 		description: 'First regular member'
-		role: .member
-		emails: ['member1@example.com']
+		role:        .member
+		emails:      ['member1@example.com']
 	}
 
 	circle.members << Member{
-		pubkeys: ['member2-pubkey']
-		name: 'Regular Member 2'
+		pubkeys:     ['member2-pubkey']
+		name:        'Regular Member 2'
 		description: 'Second regular member'
-		role: .member
-		emails: ['member2@example.com']
+		role:        .member
+		emails:      ['member2@example.com']
 	}
 
 	// Add contributor
 	circle.members << Member{
-		pubkeys: ['contributor-pubkey']
-		name: 'Contributor'
+		pubkeys:     ['contributor-pubkey']
+		name:        'Contributor'
 		description: 'Circle contributor'
-		role: .contributor
-		emails: ['contributor@example.com']
+		role:        .contributor
+		emails:      ['contributor@example.com']
 	}
 
 	// Add guest
 	circle.members << Member{
-		pubkeys: ['guest-pubkey']
-		name: 'Guest User'
+		pubkeys:     ['guest-pubkey']
+		name:        'Guest User'
 		description: 'Circle guest'
-		role: .guest
-		emails: ['guest@example.com']
+		role:        .guest
+		emails:      ['guest@example.com']
 	}
 
 	// Test binary encoding
@@ -153,11 +153,11 @@ fn test_circle_complex_structure() {
 
 	// Verify each member type is correctly encoded/decoded
 	mut role_counts := {
-		Role.admin: 0
+		Role.admin:       0
 		Role.stakeholder: 0
-		Role.member: 0
+		Role.member:      0
 		Role.contributor: 0
-		Role.guest: 0
+		Role.guest:       0
 	}
 
 	for member in decoded_circle.members {
@@ -179,7 +179,7 @@ fn test_circle_complex_structure() {
 		assert decoded_member.description == member.description
 		assert decoded_member.role == member.role
 		assert decoded_member.emails.len == member.emails.len
-		
+
 		for j, email in member.emails {
 			assert decoded_member.emails[j] == email
 		}
@@ -191,10 +191,10 @@ fn test_circle_complex_structure() {
 fn test_circle_empty_members() {
 	// Test a circle with no members
 	circle := Circle{
-		id: 789
-		name: 'Empty Circle'
+		id:          789
+		name:        'Empty Circle'
 		description: 'A circle with no members'
-		members: []
+		members:     []
 	}
 
 	// Test binary encoding

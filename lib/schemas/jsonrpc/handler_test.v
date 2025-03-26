@@ -56,17 +56,17 @@ fn method_error(text string) !string {
 fn method_echo_handler(data string) !string {
 	// Decode the request with string parameters
 	request := decode_request_generic[string](data)!
-	
+
 	// Call the echo method and handle any errors
 	result := method_echo(request.params) or {
 		// If an error occurs, create an error response
 		response := new_error_response(request.id,
-			code: err.code()
+			code:    err.code()
 			message: err.msg()
 		)
 		return response.encode()
 	}
-	
+
 	// Create a success response with the result
 	response := new_response_generic(request.id, result)
 	return response.encode()
@@ -83,17 +83,17 @@ fn method_echo_handler(data string) !string {
 fn method_echo_struct_handler(data string) !string {
 	// Decode the request with TestStruct parameters
 	request := decode_request_generic[TestStruct](data)!
-	
+
 	// Call the echo struct method and handle any errors
 	result := method_echo_struct(request.params) or {
 		// If an error occurs, create an error response
 		response := new_error_response(request.id,
-			code: err.code()
+			code:    err.code()
 			message: err.msg()
 		)
 		return response.encode()
 	}
-	
+
 	// Create a success response with the struct result
 	response := new_response_generic[TestStruct](request.id, result)
 	return response.encode()
@@ -110,17 +110,17 @@ fn method_echo_struct_handler(data string) !string {
 fn method_error_handler(data string) !string {
 	// Decode the request with string parameters
 	request := decode_request_generic[string](data)!
-	
+
 	// Call the error method, which always returns an error
 	result := method_error(request.params) or {
 		// Create an error response with the error details
 		response := new_error_response(request.id,
-			code: err.code()
+			code:    err.code()
 			message: err.msg()
 		)
 		return response.encode()
 	}
-	
+
 	// This code should never be reached since method_error always returns an error
 	response := new_response_generic(request.id, result)
 	return response.encode()
@@ -141,9 +141,9 @@ fn test_handle() {
 	// Create a new handler with three test procedures
 	handler := new_handler(Handler{
 		procedures: {
-			'method_echo': method_echo_handler
+			'method_echo':        method_echo_handler
 			'method_echo_struct': method_echo_struct_handler
-			'method_error': method_error_handler
+			'method_error':       method_error_handler
 		}
 	})!
 

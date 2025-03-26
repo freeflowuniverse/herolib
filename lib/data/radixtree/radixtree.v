@@ -43,9 +43,9 @@ pub fn new(args NewArgs) !RadixTree {
 	)!
 
 	mut root_id := u32(1) // First ID in ourdb is now 1 instead of 0
-	//console.print_debug('Debug: Initializing root node')
+	// console.print_debug('Debug: Initializing root node')
 	if db.get_next_id()! == 1 {
-		//console.print_debug('Debug: Creating new root node')
+		// console.print_debug('Debug: Creating new root node')
 		root := Node{
 			key_segment: ''
 			value:       []u8{}
@@ -53,14 +53,14 @@ pub fn new(args NewArgs) !RadixTree {
 			is_leaf:     false
 		}
 		root_id = db.set(data: serialize_node(root))!
-		//console.print_debug('Debug: Created root node with ID ${root_id}')
+		// console.print_debug('Debug: Created root node with ID ${root_id}')
 		assert root_id == 1 // First ID is now 1
 	} else {
-		//console.print_debug('Debug: Using existing root node')
+		// console.print_debug('Debug: Using existing root node')
 		root_data := db.get(1)! // Get root node with ID 1
-		// root_node := 
+		// root_node :=
 		deserialize_node(root_data)!
-		//console.print_debug('Debug: Root node has ${root_node.children.len} children')
+		// console.print_debug('Debug: Root node has ${root_node.children.len} children')
 	}
 
 	return RadixTree{
@@ -104,56 +104,56 @@ pub fn (mut rt RadixTree) set(key string, value []u8) ! {
 				children:    []NodeRef{}
 				is_leaf:     true
 			}
-			//console.print_debug('Debug: Creating new leaf node with key_part "${key_part}"')
+			// console.print_debug('Debug: Creating new leaf node with key_part "${key_part}"')
 			new_id := rt.db.set(data: serialize_node(new_node))!
-			//console.print_debug('Debug: Created node ID ${new_id}')
+			// console.print_debug('Debug: Created node ID ${new_id}')
 
 			// Create new child reference and update parent node
-			//console.print_debug('Debug: Updating parent node ${current_id} to add child reference')
+			// console.print_debug('Debug: Updating parent node ${current_id} to add child reference')
 
 			// Get fresh copy of parent node
 			mut parent_node := deserialize_node(rt.db.get(current_id)!)!
-			//console.print_debug('Debug: Parent node initially has ${parent_node.children.len} children')
+			// console.print_debug('Debug: Parent node initially has ${parent_node.children.len} children')
 
 			// Add new child reference
 			parent_node.children << NodeRef{
 				key_part: key_part
 				node_id:  new_id
 			}
-			//console.print_debug('Debug: Added child reference, now has ${parent_node.children.len} children')
+			// console.print_debug('Debug: Added child reference, now has ${parent_node.children.len} children')
 
 			// Update parent node in DB
-			//console.print_debug('Debug: Serializing parent node with ${parent_node.children.len} children')
+			// console.print_debug('Debug: Serializing parent node with ${parent_node.children.len} children')
 			parent_data := serialize_node(parent_node)
-			//console.print_debug('Debug: Parent data size: ${parent_data.len} bytes')
+			// console.print_debug('Debug: Parent data size: ${parent_data.len} bytes')
 
 			// First verify we can deserialize the data correctly
-			//console.print_debug('Debug: Verifying serialization...')
+			// console.print_debug('Debug: Verifying serialization...')
 			if _ := deserialize_node(parent_data) {
-				//console.print_debug('Debug: Serialization test successful - node has ${test_node.children.len} children')
+				// console.print_debug('Debug: Serialization test successful - node has ${test_node.children.len} children')
 			} else {
-				//console.print_debug('Debug: ERROR - Failed to deserialize test data')
+				// console.print_debug('Debug: ERROR - Failed to deserialize test data')
 				return error('Serialization verification failed')
 			}
 
 			// Set with explicit ID to update existing node
-			//console.print_debug('Debug: Writing to DB...')
+			// console.print_debug('Debug: Writing to DB...')
 			rt.db.set(id: current_id, data: parent_data)!
 
 			// Verify by reading back and comparing
-			//console.print_debug('Debug: Reading back for verification...')
+			// console.print_debug('Debug: Reading back for verification...')
 			verify_data := rt.db.get(current_id)!
 			verify_node := deserialize_node(verify_data)!
-			//console.print_debug('Debug: Verification - node has ${verify_node.children.len} children')
+			// console.print_debug('Debug: Verification - node has ${verify_node.children.len} children')
 
 			if verify_node.children.len == 0 {
-				//console.print_debug('Debug: ERROR - Node update verification failed!')
-				//console.print_debug('Debug: Original node children: ${node.children.len}')
-				//console.print_debug('Debug: Parent node children: ${parent_node.children.len}')
-				//console.print_debug('Debug: Verified node children: ${verify_node.children.len}')
-				//console.print_debug('Debug: Original data size: ${parent_data.len}')
-				//console.print_debug('Debug: Verified data size: ${verify_data.len}')
-				//console.print_debug('Debug: Data equal: ${verify_data == parent_data}')
+				// console.print_debug('Debug: ERROR - Node update verification failed!')
+				// console.print_debug('Debug: Original node children: ${node.children.len}')
+				// console.print_debug('Debug: Parent node children: ${parent_node.children.len}')
+				// console.print_debug('Debug: Verified node children: ${verify_node.children.len}')
+				// console.print_debug('Debug: Original data size: ${parent_data.len}')
+				// console.print_debug('Debug: Verified data size: ${verify_data.len}')
+				// console.print_debug('Debug: Data equal: ${verify_data == parent_data}')
 				return error('Node update failed - children array is empty')
 			}
 			return
@@ -339,7 +339,7 @@ pub fn (mut rt RadixTree) delete(key string) ! {
 			}
 		}
 		rt.db.set(id: path[path.len - 2].node_id, data: serialize_node(parent_node))!
-		
+
 		// Delete the node from the database
 		rt.db.delete(path.last().node_id)!
 	} else {
@@ -368,7 +368,7 @@ pub fn (mut rt RadixTree) list(prefix string) ![]string {
 // Helper function to find all keys with a given prefix
 fn (mut rt RadixTree) find_keys_with_prefix(node_id u32, current_path string, prefix string, mut result []string) ! {
 	node := deserialize_node(rt.db.get(node_id)!)!
-	
+
 	// If the current path already matches or exceeds the prefix length
 	if current_path.len >= prefix.len {
 		// Check if the current path starts with the prefix
@@ -377,7 +377,7 @@ fn (mut rt RadixTree) find_keys_with_prefix(node_id u32, current_path string, pr
 			if node.is_leaf {
 				result << current_path
 			}
-			
+
 			// Collect all keys from this subtree
 			for child in node.children {
 				child_path := current_path + child.key_part
@@ -386,20 +386,21 @@ fn (mut rt RadixTree) find_keys_with_prefix(node_id u32, current_path string, pr
 		}
 		return
 	}
-	
+
 	// Current path is shorter than the prefix, continue searching
 	for child in node.children {
 		child_path := current_path + child.key_part
-		
+
 		// Check if this child's path could potentially match the prefix
 		if prefix.starts_with(current_path) {
 			// The prefix starts with the current path, so we need to check if
 			// the child's key_part matches the next part of the prefix
 			prefix_remainder := prefix[current_path.len..]
-			
+
 			// If the prefix remainder starts with the child's key_part or vice versa
-			if prefix_remainder.starts_with(child.key_part) || 
-			   (child.key_part.starts_with(prefix_remainder) && child.key_part.len >= prefix_remainder.len) {
+			if prefix_remainder.starts_with(child.key_part)
+				|| (child.key_part.starts_with(prefix_remainder)
+				&& child.key_part.len >= prefix_remainder.len) {
 				rt.find_keys_with_prefix(child.node_id, child_path, prefix, mut result)!
 			}
 		}
@@ -409,12 +410,12 @@ fn (mut rt RadixTree) find_keys_with_prefix(node_id u32, current_path string, pr
 // Helper function to recursively collect all keys under a node
 fn (mut rt RadixTree) collect_all_keys(node_id u32, current_path string, mut result []string) ! {
 	node := deserialize_node(rt.db.get(node_id)!)!
-	
+
 	// If this node is a leaf, add its path to the result
 	if node.is_leaf {
 		result << current_path
 	}
-	
+
 	// Recursively collect keys from all children
 	for child in node.children {
 		child_path := current_path + child.key_part
@@ -427,7 +428,7 @@ fn (mut rt RadixTree) collect_all_keys(node_id u32, current_path string, mut res
 pub fn (mut rt RadixTree) getall(prefix string) ![][]u8 {
 	// Get all matching keys
 	keys := rt.list(prefix)!
-	
+
 	// Get values for each key
 	mut values := [][]u8{}
 	for key in keys {
@@ -435,7 +436,7 @@ pub fn (mut rt RadixTree) getall(prefix string) ![][]u8 {
 			values << value
 		}
 	}
-	
+
 	return values
 }
 

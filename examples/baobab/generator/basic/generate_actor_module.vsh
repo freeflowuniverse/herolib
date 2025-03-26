@@ -12,12 +12,11 @@ const openrpc_spec_path = os.join_path(example_dir, 'openrpc.json')
 openrpc_spec := openrpc.new(path: openrpc_spec_path)!
 actor_spec := specification.from_openrpc(openrpc_spec)!
 
-actor_module := generator.generate_actor_module(
-	actor_spec,
+actor_module := generator.generate_actor_module(actor_spec,
 	interfaces: [.openrpc]
 )!
 
-actor_module.write(example_dir, 
-	format: true
+actor_module.write(example_dir,
+	format:    true
 	overwrite: true
 )!

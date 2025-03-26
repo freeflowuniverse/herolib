@@ -32,7 +32,7 @@ pub:
 
 pub struct PromptContent {
 pub:
-	typ    string @[json: 'type']
+	typ      string @[json: 'type']
 	text     string
 	data     string
 	mimetype string @[json: 'mimeType']
@@ -58,13 +58,13 @@ fn (mut s Server) prompts_list_handler(data string) !string {
 	// Decode the request with cursor parameter
 	request := jsonrpc.decode_request_generic[PromptListParams](data)!
 	cursor := request.params.cursor
-	
+
 	// TODO: Implement pagination logic using the cursor
 	// For now, return all prompts
-	
+
 	// Create a success response with the result
 	response := jsonrpc.new_response_generic[PromptListResult](request.id, PromptListResult{
-		prompts: s.backend.prompt_list()!,
+		prompts:     s.backend.prompt_list()!
 		next_cursor: '' // Empty if no more pages
 	})
 	return response.encode()
@@ -89,28 +89,28 @@ pub:
 fn (mut s Server) prompts_get_handler(data string) !string {
 	// Decode the request with name and arguments parameters
 	request := jsonrpc.decode_request_generic[PromptGetParams](data)!
-	
+
 	if !s.backend.prompt_exists(request.params.name)! {
 		return jsonrpc.new_error_response(request.id, prompt_not_found(request.params.name)).encode()
 	}
 
 	// Get the prompt by name
 	prompt := s.backend.prompt_get(request.params.name)!
-	
+
 	// Validate required arguments
 	for arg in prompt.arguments {
-		if arg.required && (request.params.arguments[arg.name] == '') {
+		if arg.required && request.params.arguments[arg.name] == '' {
 			return jsonrpc.new_error_response(request.id, missing_required_argument(arg.name)).encode()
 		}
 	}
-	
+
 	// Get the prompt messages with arguments applied
 	messages := s.backend.prompt_messages_get(request.params.name, request.params.arguments)!
-	
+
 	// Create a success response with the result
 	response := jsonrpc.new_response_generic[PromptGetResult](request.id, PromptGetResult{
-		description: prompt.description,
-		messages: messages
+		description: prompt.description
+		messages:    messages
 	})
 	return response.encode()
 }
@@ -123,7 +123,7 @@ pub fn (mut s Server) send_prompts_list_changed_notification() ! {
 	if !s.client_config.capabilities.roots.list_changed {
 		return
 	}
-	
+
 	// Create a notification
 	notification := jsonrpc.new_blank_notification('notifications/prompts/list_changed')
 	s.send(json.encode(notification))

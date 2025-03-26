@@ -1,21 +1,21 @@
 module specification
 
-import freeflowuniverse.herolib.core.code { Struct, Function }
+import freeflowuniverse.herolib.core.code { Struct }
 import freeflowuniverse.herolib.schemas.openapi
-import freeflowuniverse.herolib.schemas.openrpc {ExamplePairing, ContentDescriptor, ErrorSpec}
-import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference}
+import freeflowuniverse.herolib.schemas.openrpc { ContentDescriptor, ErrorSpec, ExamplePairing }
+import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema }
 
 pub struct ActorSpecification {
 pub mut:
-	version string = '1.0.0'
-	openapi ?openapi.OpenAPI
-	openrpc ?openrpc.OpenRPC
-	name        string      @[omitempty]
-	description string      @[omitempty]
-	structure   Struct      @[omitempty]
-	interfaces []ActorInterface @[omitempty]
-	methods     []ActorMethod @[omitempty]
-	objects     []BaseObject @[omitempty]
+	version     string = '1.0.0'
+	openapi     ?openapi.OpenAPI
+	openrpc     ?openrpc.OpenRPC
+	name        string           @[omitempty]
+	description string           @[omitempty]
+	structure   Struct           @[omitempty]
+	interfaces  []ActorInterface @[omitempty]
+	methods     []ActorMethod    @[omitempty]
+	objects     []BaseObject     @[omitempty]
 }
 
 pub enum ActorInterface {
@@ -28,24 +28,24 @@ pub enum ActorInterface {
 
 pub struct ActorMethod {
 pub:
-	name        string   @[omitempty]
-	description string   @[omitempty]
-	summary 	string
-	example		ExamplePairing
-	parameters 	[]ContentDescriptor
-	result 		ContentDescriptor
-	errors 		[]ErrorSpec
-	category  MethodCategory
+	name        string @[omitempty]
+	description string @[omitempty]
+	summary     string
+	example     ExamplePairing
+	parameters  []ContentDescriptor
+	result      ContentDescriptor
+	errors      []ErrorSpec
+	category    MethodCategory
 }
 
 pub struct BaseObject {
 pub mut:
-	schema Schema
-	new_method ?ActorMethod
-	get_method ?ActorMethod
-	set_method ?ActorMethod
+	schema        Schema
+	new_method    ?ActorMethod
+	get_method    ?ActorMethod
+	set_method    ?ActorMethod
 	delete_method ?ActorMethod
-	list_method ?ActorMethod
+	list_method   ?ActorMethod
 	filter_method ?ActorMethod
 	other_methods []ActorMethod
 }
@@ -66,7 +66,7 @@ fn (m ActorMethod) belongs_to_object(obj BaseObject) bool {
 		.filter(it.schema is Schema)
 		.map(it.schema as Schema)
 		.any(it.id == obj.schema.id)
-	
+
 	base_obj_is_result := if m.result.schema is Schema {
 		m.result.schema.id == obj.schema.id
 	} else {
@@ -77,7 +77,7 @@ fn (m ActorMethod) belongs_to_object(obj BaseObject) bool {
 	return base_obj_is_param || base_obj_is_result
 }
 
-pub fn (s ActorSpecification) validate() ActorSpecification {	
+pub fn (s ActorSpecification) validate() ActorSpecification {
 	mut validated_objects := []BaseObject{}
 	for obj_ in s.objects {
 		mut obj := obj_
@@ -101,13 +101,13 @@ pub fn (s ActorSpecification) validate() ActorSpecification {
 		if m := methods.filter(it.is_list_method())[0] {
 			obj.list_method = m
 		}
-		validated_objects << BaseObject {
+		validated_objects << BaseObject{
 			...obj
 			other_methods: methods.filter(!it.is_crudlf_method())
 		}
 	}
-	return ActorSpecification {
-		...s,
+	return ActorSpecification{
+		...s
 		objects: validated_objects
 	}
 }
@@ -129,14 +129,14 @@ pub fn (s ActorSpecification) method_type(method ActorMethod) MethodCategory {
 	}
 }
 
-// a base object method is a method that is a 
+// a base object method is a method that is a
 // CRUD+list+filter method of a base object
 fn (s ActorSpecification) is_base_object_method(method ActorMethod) bool {
 	base_obj_is_param := method.parameters
 		.filter(it.schema is Schema)
 		.map(it.schema as Schema)
 		.any(it.id in s.objects.map(it.schema.id))
-	
+
 	base_obj_is_result := if method.result.schema is Schema {
 		method.result.schema.id in s.objects.map(it.name())
 	} else {
@@ -150,35 +150,38 @@ fn (s ActorSpecification) is_base_object_method(method ActorMethod) bool {
 fn (m ActorMethod) is_new_method() bool {
 	return m.name.starts_with('new')
 }
+
 fn (m ActorMethod) is_get_method() bool {
 	return m.name.starts_with('get')
 }
+
 fn (m ActorMethod) is_set_method() bool {
 	return m.name.starts_with('set')
 }
+
 fn (m ActorMethod) is_delete_method() bool {
 	return m.name.starts_with('delete')
 }
+
 fn (m ActorMethod) is_list_method() bool {
 	return m.name.starts_with('list')
 }
+
 fn (m ActorMethod) is_filter_method() bool {
 	return m.name.starts_with('filter')
 }
 
 fn (m ActorMethod) is_crudlf_method() bool {
-	return m.is_new_method() || 
-		m.is_get_method() || 
-		m.is_set_method() || 
-		m.is_delete_method() || 
-		m.is_list_method() ||
-		m.is_filter_method()
+	return m.is_new_method() || m.is_get_method() || m.is_set_method() || m.is_delete_method()
+		|| m.is_list_method() || m.is_filter_method()
 }
 
 pub fn (o BaseObject) name() string {
 	return if o.schema.id.trim_space() != '' {
 		o.schema.id.trim_space()
-	} else {o.schema.title.trim_space()}
+	} else {
+		o.schema.title.trim_space()
+	}
 }
 
 fn (s ActorSpecification) is_base_object_new_method(method ActorMethod) bool {

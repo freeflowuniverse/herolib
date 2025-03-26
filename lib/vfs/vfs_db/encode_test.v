@@ -50,7 +50,7 @@ fn test_file_encoder_decoder() ! {
 
 	current_time := time.utc().unix()
 	file := File{
-		metadata:  vfs.Metadata{
+		metadata: vfs.Metadata{
 			id:          u32(current_time)
 			name:        'test.txt'
 			file_type:   .file

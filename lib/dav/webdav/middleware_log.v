@@ -12,4 +12,3 @@ fn middleware_log_response(mut ctx Context) bool {
 	log.debug('[WebDAV] Response: ${ctx.req.url} ${ctx.res.status()}\n')
 	return true
 }
- 

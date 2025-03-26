@@ -11,9 +11,9 @@ import veb
 // Property represents a WebDAV property
 pub interface Property {
 	xml() xml.XMLNodeContents
-// 	xml_name() string
-// 	to_xml_node() xml.XMLNode
-// }
+	// 	xml_name() string
+	// 	to_xml_node() xml.XMLNode
+	// }
 }
 
 type DisplayName = string
@@ -39,79 +39,79 @@ type LockDiscovery = string
 
 fn (p []Property) xml() xml.XMLNode {
 	return xml.XMLNode{
-		name: 'D:propstat'
+		name:     'D:propstat'
 		children: [
 			xml.XMLNode{
-				name: 'D:prop'
+				name:     'D:prop'
 				children: p.map(it.xml())
 			},
 			xml.XMLNode{
-				name: 'D:status'
+				name:     'D:status'
 				children: [xml.XMLNodeContents('HTTP/1.1 200 OK')]
-			}
+			},
 		]
 	}
 }
 
 fn (p DisplayName) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:displayname'
+		name:     'D:displayname'
 		children: [xml.XMLNodeContents(p)]
 	}
 }
 
 fn (p GetETag) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:getetag'
+		name:     'D:getetag'
 		children: [xml.XMLNodeContents(p)]
 	}
 }
 
 fn (p GetLastModified) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:getlastmodified'
+		name:     'D:getlastmodified'
 		children: [xml.XMLNodeContents(p)]
 	}
 }
 
 fn (p GetContentType) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:getcontenttype'
+		name:     'D:getcontenttype'
 		children: [xml.XMLNodeContents(p)]
 	}
 }
 
 fn (p GetContentLength) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:getcontentlength'
+		name:     'D:getcontentlength'
 		children: [xml.XMLNodeContents(p)]
 	}
 }
 
 fn (p QuotaAvailableBytes) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:quota-available-bytes'
+		name:     'D:quota-available-bytes'
 		children: [xml.XMLNodeContents(p.str())]
 	}
 }
 
 fn (p QuotaUsedBytes) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:quota-used-bytes'
+		name:     'D:quota-used-bytes'
 		children: [xml.XMLNodeContents(p.str())]
 	}
 }
 
 fn (p Quota) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:quota'
+		name:     'D:quota'
 		children: [xml.XMLNodeContents(p.str())]
 	}
 }
 
 fn (p QuotaUsed) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:quotaused'
+		name:     'D:quotaused'
 		children: [xml.XMLNodeContents(p.str())]
 	}
 }
@@ -123,15 +123,15 @@ fn (p ResourceType) xml() xml.XMLNodeContents {
 		children << xml.XMLNode{
 			name: 'D:collection'
 		}
-		
+
 		return xml.XMLNode{
-			name: 'D:resourcetype'
+			name:     'D:resourcetype'
 			children: children
 		}
 	} else {
 		// If it's not a collection, return an empty resourcetype element
 		return xml.XMLNode{
-			name: 'D:resourcetype'
+			name:     'D:resourcetype'
 			children: []xml.XMLNodeContents{}
 		}
 	}
@@ -139,7 +139,7 @@ fn (p ResourceType) xml() xml.XMLNodeContents {
 
 fn (p CreationDate) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:creationdate'
+		name:     'D:creationdate'
 		children: [xml.XMLNodeContents(p)]
 	}
 }
@@ -147,81 +147,81 @@ fn (p CreationDate) xml() xml.XMLNodeContents {
 fn (p SupportedLock) xml() xml.XMLNodeContents {
 	// Create children for the supportedlock node
 	mut children := []xml.XMLNodeContents{}
-	
+
 	// First lockentry - exclusive
 	mut lockscope1_children := []xml.XMLNodeContents{}
 	lockscope1_children << xml.XMLNode{
 		name: 'D:exclusive'
 	}
-	
+
 	lockscope1 := xml.XMLNode{
-		name: 'D:lockscope'
+		name:     'D:lockscope'
 		children: lockscope1_children
 	}
-	
+
 	mut locktype1_children := []xml.XMLNodeContents{}
 	locktype1_children << xml.XMLNode{
 		name: 'D:write'
 	}
-	
+
 	locktype1 := xml.XMLNode{
-		name: 'D:locktype'
+		name:     'D:locktype'
 		children: locktype1_children
 	}
-	
+
 	mut lockentry1_children := []xml.XMLNodeContents{}
 	lockentry1_children << lockscope1
 	lockentry1_children << locktype1
-	
+
 	lockentry1 := xml.XMLNode{
-		name: 'D:lockentry'
+		name:     'D:lockentry'
 		children: lockentry1_children
 	}
-	
+
 	// Second lockentry - shared
 	mut lockscope2_children := []xml.XMLNodeContents{}
 	lockscope2_children << xml.XMLNode{
 		name: 'D:shared'
 	}
-	
+
 	lockscope2 := xml.XMLNode{
-		name: 'D:lockscope'
+		name:     'D:lockscope'
 		children: lockscope2_children
 	}
-	
+
 	mut locktype2_children := []xml.XMLNodeContents{}
 	locktype2_children << xml.XMLNode{
 		name: 'D:write'
 	}
-	
+
 	locktype2 := xml.XMLNode{
-		name: 'D:locktype'
+		name:     'D:locktype'
 		children: locktype2_children
 	}
-	
+
 	mut lockentry2_children := []xml.XMLNodeContents{}
 	lockentry2_children << lockscope2
 	lockentry2_children << locktype2
-	
+
 	lockentry2 := xml.XMLNode{
-		name: 'D:lockentry'
+		name:     'D:lockentry'
 		children: lockentry2_children
 	}
-	
+
 	// Add both lockentries to children
 	children << lockentry1
 	children << lockentry2
-	
+
 	// Return the supportedlock node
 	return xml.XMLNode{
-		name: 'D:supportedlock'
+		name:     'D:supportedlock'
 		children: children
 	}
 }
 
 fn (p LockDiscovery) xml() xml.XMLNodeContents {
 	return xml.XMLNode{
-		name: 'D:lockdiscovery'
+		name:     'D:lockdiscovery'
 		children: [xml.XMLNodeContents(p)]
 	}
 }

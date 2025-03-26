@@ -5,8 +5,6 @@ import freeflowuniverse.herolib.mcp
 @[heap]
 pub struct Baobab {}
 
-
-
 pub fn result_to_mcp_tool_contents[T](result T) []mcp.ToolContent {
 	return [result_to_mcp_tool_content(result)]
 }
@@ -14,17 +12,17 @@ pub fn result_to_mcp_tool_contents[T](result T) []mcp.ToolContent {
 pub fn result_to_mcp_tool_content[T](result T) mcp.ToolContent {
 	return $if T is string {
 		mcp.ToolContent{
-			typ: 'text'
+			typ:  'text'
 			text: result.str()
 		}
 	} $else $if T is int {
 		mcp.ToolContent{
-			typ: 'number'
+			typ:    'number'
 			number: result.int()
 		}
 	} $else $if T is bool {
 		mcp.ToolContent{
-			typ: 'boolean'
+			typ:     'boolean'
 			boolean: result.bool()
 		}
 	} $else $if result is $array {
@@ -33,7 +31,7 @@ pub fn result_to_mcp_tool_content[T](result T) mcp.ToolContent {
 			items << result_to_mcp_tool_content(item)
 		}
 		return mcp.ToolContent{
-			typ: 'array'
+			typ:   'array'
 			items: items
 		}
 	} $else $if T is $struct {
@@ -42,7 +40,7 @@ pub fn result_to_mcp_tool_content[T](result T) mcp.ToolContent {
 			properties[field.name] = result_to_mcp_tool_content(result.$(field.name))
 		}
 		return mcp.ToolContent{
-			typ: 'object'
+			typ:        'object'
 			properties: properties
 		}
 	} $else {

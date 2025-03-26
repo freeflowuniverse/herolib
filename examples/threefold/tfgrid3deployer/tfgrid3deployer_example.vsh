@@ -13,8 +13,8 @@ fn main() {
 	// mut deployment := tfgrid3deployer.get_deployment(deployment_name)!
 	deployment.add_machine(
 		name:       'my_vm1'
-		cpu:        1
-		memory:     2
+		cpu:        2
+		memory:     4
 		planetary:  false
 		public_ip4: false
 		nodes:      [167]
@@ -32,10 +32,10 @@ fn main() {
 	deployment.add_webname(name: 'mywebname2', backend: 'http://37.27.132.47:8000')
 	deployment.deploy()!
 
-	deployment.remove_machine('my_vm1')!
-	deployment.remove_webname('mywebname2')!
-	deployment.remove_zdb('my_zdb')!
-	deployment.deploy()!
+	// deployment.remove_machine('my_vm1')!
+	// deployment.remove_webname('mywebname2')!
+	// deployment.remove_zdb('my_zdb')!
+	// deployment.deploy()!
 
-	tfgrid3deployer.delete_deployment(deployment_name)!
+	// tfgrid3deployer.delete_deployment(deployment_name)!
 }

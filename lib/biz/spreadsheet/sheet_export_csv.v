@@ -6,9 +6,9 @@ import freeflowuniverse.herolib.core.pathlib
 @[params]
 pub struct ExportCSVArgs {
 pub mut:
-	path string
-	include_empty bool = false // whether to include empty cells or not
-	separator string = '|'     // separator character for CSV
+	path          string
+	include_empty bool   = false // whether to include empty cells or not
+	separator     string = '|'   // separator character for CSV
 }
 
 // format_csv_value formats a value for CSV export, handling special characters
@@ -45,12 +45,12 @@ fn format_number_csv(val f64, include_empty bool) string {
 pub fn (mut s Sheet) export_csv(args ExportCSVArgs) !string {
 	mut result := []string{}
 	mut separator := args.separator
-	
+
 	// Add headers
 	mut header_row := ['Name', 'Description', 'AggregateType', 'Tags', 'Subgroup']
 	header_row << s.header()!
 	result << header_row.map(format_csv_value(it, separator)).join(separator)
-	
+
 	// Add rows
 	for _, row in s.rows {
 		mut row_data := [
@@ -58,9 +58,9 @@ pub fn (mut s Sheet) export_csv(args ExportCSVArgs) !string {
 			format_csv_value(row.description, separator),
 			format_csv_value(row.aggregatetype.str(), separator),
 			format_csv_value(row.tags, separator),
-			format_csv_value(row.subgroup, separator)
+			format_csv_value(row.subgroup, separator),
 		]
-		
+
 		for cell in row.cells {
 			if cell.empty && !args.include_empty {
 				row_data << ''
@@ -71,11 +71,15 @@ pub fn (mut s Sheet) export_csv(args ExportCSVArgs) !string {
 		}
 		result << row_data.join(separator)
 	}
-	
+
 	if args.path.len > 0 {
-		mut p := pathlib.get_file(path: args.path.replace('~', os.home_dir()), create: true, delete: true)!
+		mut p := pathlib.get_file(
+			path:   args.path.replace('~', os.home_dir())
+			create: true
+			delete: true
+		)!
 		p.write(result.join('\n'))!
 	}
-	
+
 	return result.join('\n')
 }

@@ -1,62 +1,80 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Array, Folder, IFile, VFile, CodeItem, File, Function, Param, Import, Module, Struct, CustomCode, Result }
+import freeflowuniverse.herolib.core.code { Array, CodeItem, Function, Import, Param, Result, Struct, VFile }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.schemas.openrpc {ContentDescriptor}
-import freeflowuniverse.herolib.schemas.openrpc.codegen {content_descriptor_to_parameter, content_descriptor_to_struct}
-import freeflowuniverse.herolib.schemas.jsonschema {Schema}
-import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen {schema_to_struct}
-import freeflowuniverse.herolib.baobab.specification {ActorMethod, ActorSpecification}
-	
+import freeflowuniverse.herolib.schemas.openrpc
+import freeflowuniverse.herolib.schemas.openrpc.codegen { content_descriptor_to_parameter, content_descriptor_to_struct }
+import freeflowuniverse.herolib.schemas.jsonschema { Schema }
+import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen
+import freeflowuniverse.herolib.baobab.specification { ActorMethod, ActorSpecification }
+
 const crud_prefixes = ['new', 'get', 'set', 'delete', 'list']
 
 pub fn generate_methods_file(spec ActorSpecification) !VFile {
 	name_snake := texttools.snake_case(spec.name)
 	actor_name_pascal := texttools.pascal_case(spec.name)
-	
+
 	receiver := generate_methods_receiver(spec.name)
-	receiver_param := Param {
+	receiver_param := Param{
 		mutable: true
-		name: name_snake[0].ascii_str() // receiver is first letter of domain
-		typ: code.Result{code.Object{receiver.name}}
+		name:    name_snake[0].ascii_str() // receiver is first letter of domain
+		typ:     Result{code.Object{receiver.name}}
 	}
 
 	mut items := [CodeItem(receiver), CodeItem(generate_core_factory(receiver_param))]
 	for method in spec.methods {
-		items << generate_method_code(receiver_param, ActorMethod{...method, category: spec.method_type(method)})!
+		items << generate_method_code(receiver_param, ActorMethod{
+			...method
+			category: spec.method_type(method)
+		})!
 	}
-	
-	return VFile {
-		name: 'methods'
-		imports: [Import{mod: 'freeflowuniverse.herolib.baobab.osis', types: ['OSIS']}]
-		items: items
+
+	return VFile{
+		name:    'methods'
+		imports: [
+			Import{
+				mod:   'freeflowuniverse.herolib.baobab.osis'
+				types: ['OSIS']
+			},
+		]
+		items:   items
 	}
 }
 
-fn generate_methods_receiver(name string) code.Struct {
-	return code.Struct {
+fn generate_methods_receiver(name string) Struct {
+	return Struct{
 		is_pub: true
-		name: '${texttools.pascal_case(name)}'
-		fields: [code.StructField{is_mut: true, name: 'osis', typ:code.Object{'OSIS'}}]
+		name:   '${texttools.pascal_case(name)}'
+		fields: [
+			code.StructField{
+				is_mut: true
+				name:   'osis'
+				typ:    code.Object{'OSIS'}
+			},
+		]
 	}
 }
 
-fn generate_core_factory(receiver code.Param) code.Function {
-	return code.Function {
+fn generate_core_factory(receiver Param) Function {
+	return Function{
 		is_pub: true
-		name: 'new_${receiver.typ.symbol()}'
-		body: "return ${receiver.typ.symbol().trim_left('!?')}{osis: osis.new()!}"
+		name:   'new_${receiver.typ.symbol()}'
+		body:   'return ${receiver.typ.symbol().trim_left('!?')}{osis: osis.new()!}'
 		result: receiver
 	}
 }
 
 // returns bodyless method prototype
-pub fn generate_method_code(receiver code.Param, method ActorMethod) ![]CodeItem {
+pub fn generate_method_code(receiver Param, method ActorMethod) ![]CodeItem {
 	result_param := content_descriptor_to_parameter(method.result)!
-	
+
 	mut method_code := []CodeItem{}
 	// TODO: document assumption
-	obj_params := method.parameters.filter(if it.schema is Schema {it.schema.typ == 'object'} else {false}).map(content_descriptor_to_struct(it))
+	obj_params := method.parameters.filter(if it.schema is Schema {
+		it.schema.typ == 'object'
+	} else {
+		false
+	}).map(content_descriptor_to_struct(it))
 	if obj_param := obj_params[0] {
 		method_code << obj_param
 	}
@@ -69,7 +87,7 @@ pub fn generate_method_code(receiver code.Param, method ActorMethod) ![]CodeItem
 		.base_object_set { base_object_set_body(receiver, method)! }
 		.base_object_delete { base_object_delete_body(receiver, method)! }
 		.base_object_list { base_object_list_body(receiver, method)! }
-		else {"panic('implement')"}
+		else { "panic('implement')" }
 	}
 
 	fn_prototype := generate_method_prototype(receiver, method)!
@@ -81,15 +99,18 @@ pub fn generate_method_code(receiver code.Param, method ActorMethod) ![]CodeItem
 }
 
 // returns bodyless method prototype
-pub fn generate_method_prototype(receiver code.Param, method ActorMethod) !Function {
+pub fn generate_method_prototype(receiver Param, method ActorMethod) !Function {
 	result_param := content_descriptor_to_parameter(method.result)!
 	return Function{
-		name: texttools.snake_case(method.name)
-		receiver: receiver
-		result: Param {...result_param, typ: Result{result_param.typ}}
-		summary: method.summary
+		name:        texttools.snake_case(method.name)
+		receiver:    receiver
+		result:      Param{
+			...result_param
+			typ: Result{result_param.typ}
+		}
+		summary:     method.summary
 		description: method.description
-		params: method.parameters.map(content_descriptor_to_parameter(it)!)
+		params:      method.parameters.map(content_descriptor_to_parameter(it)!)
 	}
 }
 

@@ -52,7 +52,7 @@ pub fn get_dir(args_ GetArgs) !Path {
 		p2.check()
 		if args.delete {
 			p2.delete()!
-		}		
+		}
 		p2.absolute()
 		if p2.exist == .no {
 			if args.create {
@@ -67,7 +67,6 @@ pub fn get_dir(args_ GetArgs) !Path {
 		if args.empty {
 			p2.empty()!
 		}
-
 	}
 	return p2
 }

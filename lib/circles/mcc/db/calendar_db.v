@@ -1,7 +1,7 @@
 module db
 
 import freeflowuniverse.herolib.circles.base { DBHandler, SessionState, new_dbhandler }
-import freeflowuniverse.herolib.circles.mcc.models { CalendarEvent, calendar_event_loads }
+import freeflowuniverse.herolib.circles.mcc.models { CalendarEvent }
 
 @[heap]
 pub struct CalendarDB {
@@ -54,19 +54,19 @@ pub fn (mut c CalendarDB) get_by_caldav_uid(caldav_uid string) !CalendarEvent {
 pub fn (mut c CalendarDB) get_events_by_date(date string) ![]CalendarEvent {
 	// Get all events
 	all_events := c.getall()!
-	
+
 	// Filter events by date
 	mut result := []CalendarEvent{}
 	for event in all_events {
 		// Check if the event occurs on the specified date
 		event_start_date := event.start_time.day()
 		event_end_date := event.end_time.day()
-		
+
 		if event_start_date <= date && date <= event_end_date {
 			result << event
 		}
 	}
-	
+
 	return result
 }
 
@@ -74,7 +74,7 @@ pub fn (mut c CalendarDB) get_events_by_date(date string) ![]CalendarEvent {
 pub fn (mut c CalendarDB) get_events_by_organizer(organizer string) ![]CalendarEvent {
 	// Get all events
 	all_events := c.getall()!
-	
+
 	// Filter events by organizer
 	mut result := []CalendarEvent{}
 	for event in all_events {
@@ -82,7 +82,7 @@ pub fn (mut c CalendarDB) get_events_by_organizer(organizer string) ![]CalendarE
 			result << event
 		}
 	}
-	
+
 	return result
 }
 
@@ -90,7 +90,7 @@ pub fn (mut c CalendarDB) get_events_by_organizer(organizer string) ![]CalendarE
 pub fn (mut c CalendarDB) get_events_by_attendee(attendee string) ![]CalendarEvent {
 	// Get all events
 	all_events := c.getall()!
-	
+
 	// Filter events by attendee
 	mut result := []CalendarEvent{}
 	for event in all_events {
@@ -101,7 +101,7 @@ pub fn (mut c CalendarDB) get_events_by_attendee(attendee string) ![]CalendarEve
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -109,7 +109,7 @@ pub fn (mut c CalendarDB) get_events_by_attendee(attendee string) ![]CalendarEve
 pub fn (mut c CalendarDB) search_events_by_title(title string) ![]CalendarEvent {
 	// Get all events
 	all_events := c.getall()!
-	
+
 	// Filter events by title
 	mut result := []CalendarEvent{}
 	for event in all_events {
@@ -117,7 +117,7 @@ pub fn (mut c CalendarDB) search_events_by_title(title string) ![]CalendarEvent 
 			result << event
 		}
 	}
-	
+
 	return result
 }
 
@@ -125,10 +125,10 @@ pub fn (mut c CalendarDB) search_events_by_title(title string) ![]CalendarEvent 
 pub fn (mut c CalendarDB) update_status(id u32, status string) !CalendarEvent {
 	// Get the event by ID
 	mut event := c.get(id)!
-	
+
 	// Update the status
 	event.status = status
-	
+
 	// Save the updated event
 	return c.set(event)!
 }
@@ -140,7 +140,7 @@ pub fn (mut c CalendarDB) delete_by_caldav_uid(caldav_uid string) ! {
 		// Event not found, nothing to delete
 		return
 	}
-	
+
 	// Delete the event by ID
 	c.delete(event.id)!
 }

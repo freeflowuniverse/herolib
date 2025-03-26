@@ -57,7 +57,7 @@ pub fn (mut m NameDB) delete_by_domain(domain string) ! {
 		// Name not found, nothing to delete
 		return
 	}
-	
+
 	// Delete the name by ID
 	m.delete(name.id)!
 }
@@ -66,14 +66,14 @@ pub fn (mut m NameDB) delete_by_domain(domain string) ! {
 pub fn (mut m NameDB) get_all_domains() ![]string {
 	// Get all name IDs
 	name_ids := m.list()!
-	
+
 	// Get domains for all names
 	mut domains := []string{}
 	for id in name_ids {
 		name := m.get(id) or { continue }
 		domains << name.domain
 	}
-	
+
 	return domains
 }
 
@@ -81,17 +81,17 @@ pub fn (mut m NameDB) get_all_domains() ![]string {
 pub fn (mut m NameDB) add_record(domain string, record Record) !Name {
 	// Get the name by domain
 	mut name := m.get_by_domain(domain)!
-	
+
 	// Check if record with same name and type already exists
 	for existing_record in name.records {
 		if existing_record.name == record.name && existing_record.category == record.category {
 			return error('Record with name ${record.name} and type ${record.category} already exists in domain ${domain}')
 		}
 	}
-	
+
 	// Add the record
 	name.records << record
-	
+
 	// Save the updated name
 	return m.set(name)!
 }
@@ -100,11 +100,11 @@ pub fn (mut m NameDB) add_record(domain string, record Record) !Name {
 pub fn (mut m NameDB) remove_record(domain string, record_name string, record_type RecordType) !Name {
 	// Get the name by domain
 	mut name := m.get_by_domain(domain)!
-	
+
 	// Find and remove the record
 	mut found := false
 	mut new_records := []Record{}
-	
+
 	for record in name.records {
 		if record.name == record_name && record.category == record_type {
 			found = true
@@ -112,14 +112,14 @@ pub fn (mut m NameDB) remove_record(domain string, record_name string, record_ty
 		}
 		new_records << record
 	}
-	
+
 	if !found {
 		return error('Record with name ${record_name} and type ${record_type} not found in domain ${domain}')
 	}
-	
+
 	// Update the name records
 	name.records = new_records
-	
+
 	// Save the updated name
 	return m.set(name)!
 }
@@ -128,10 +128,10 @@ pub fn (mut m NameDB) remove_record(domain string, record_name string, record_ty
 pub fn (mut m NameDB) update_record_text(domain string, record_name string, record_type RecordType, new_text string) !Name {
 	// Get the name by domain
 	mut name := m.get_by_domain(domain)!
-	
+
 	// Find and update the record
 	mut found := false
-	
+
 	for i, mut record in name.records {
 		if record.name == record_name && record.category == record_type {
 			name.records[i].text = new_text
@@ -139,11 +139,11 @@ pub fn (mut m NameDB) update_record_text(domain string, record_name string, reco
 			break
 		}
 	}
-	
+
 	if !found {
 		return error('Record with name ${record_name} and type ${record_type} not found in domain ${domain}')
 	}
-	
+
 	// Save the updated name
 	return m.set(name)!
 }
@@ -152,15 +152,15 @@ pub fn (mut m NameDB) update_record_text(domain string, record_name string, reco
 pub fn (mut m NameDB) add_admin(domain string, pubkey string) !Name {
 	// Get the name by domain
 	mut name := m.get_by_domain(domain)!
-	
+
 	// Check if admin already exists
 	if pubkey in name.admins {
 		return error('Admin with pubkey ${pubkey} already exists in domain ${domain}')
 	}
-	
+
 	// Add the admin
 	name.admins << pubkey
-	
+
 	// Save the updated name
 	return m.set(name)!
 }
@@ -169,11 +169,11 @@ pub fn (mut m NameDB) add_admin(domain string, pubkey string) !Name {
 pub fn (mut m NameDB) remove_admin(domain string, pubkey string) !Name {
 	// Get the name by domain
 	mut name := m.get_by_domain(domain)!
-	
+
 	// Find and remove the admin
 	mut found := false
 	mut new_admins := []string{}
-	
+
 	for admin in name.admins {
 		if admin == pubkey {
 			found = true
@@ -181,14 +181,14 @@ pub fn (mut m NameDB) remove_admin(domain string, pubkey string) !Name {
 		}
 		new_admins << admin
 	}
-	
+
 	if !found {
 		return error('Admin with pubkey ${pubkey} not found in domain ${domain}')
 	}
-	
+
 	// Update the name admins
 	name.admins = new_admins
-	
+
 	// Save the updated name
 	return m.set(name)!
 }

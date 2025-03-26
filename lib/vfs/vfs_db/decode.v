@@ -37,7 +37,6 @@ pub fn decode_directory(data []u8) !Directory {
 	}
 }
 
-
 // decode_file decodes a binary format back to File (without the actual file data)
 // returns file without data and the sequence of keys of chunks of data in data db
 pub fn decode_file_metadata(data []u8) !File {
@@ -60,9 +59,7 @@ pub fn decode_file_metadata(data []u8) !File {
 
 	mut chunk_ids := []u32{}
 	if metadata.size == 0 {
-		blocksize := d.get_u16() or {
-			return error('Failed to get block size ${err}')
-		}
+		blocksize := d.get_u16() or { return error('Failed to get block size ${err}') }
 		if blocksize != 0 {
 			return error('File data is empty, expected zero block size')
 		}
@@ -73,9 +70,7 @@ pub fn decode_file_metadata(data []u8) !File {
 		// blocksize is max 2 bytes, so max 4gb entry size
 		blocksize := d.get_u16()!
 		for i in 0 .. blocksize {
-			chunk_ids << d.get_u32() or {
-				return error('Failed to get block id ${err}')
-			}
+			chunk_ids << d.get_u32() or { return error('Failed to get block id ${err}') }
 		}
 	}
 
@@ -85,7 +80,6 @@ pub fn decode_file_metadata(data []u8) !File {
 		chunk_ids: chunk_ids
 	}
 }
-
 
 // decode_symlink decodes a binary format back to Symlink
 pub fn decode_symlink(data []u8) !Symlink {

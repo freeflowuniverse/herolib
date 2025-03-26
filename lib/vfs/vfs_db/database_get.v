@@ -11,12 +11,12 @@ import log
 @[heap]
 pub struct DatabaseVFS {
 pub mut:
-	root_id          u32    // ID of root directory
-	block_size       u32    // Size of data blocks in bytes
+	root_id          u32 // ID of root directory
+	block_size       u32 // Size of data blocks in bytes
 	db_data          &Database @[str: skip] // Database instance for file data storage
 	db_metadata      &Database @[str: skip] // Database instance for metadata storage
 	last_inserted_id u32
-	id_table map[u32]u32
+	id_table         map[u32]u32
 }
 
 pub interface Database {
@@ -36,7 +36,7 @@ pub fn (mut fs DatabaseVFS) get_next_id() u32 {
 // loads without data
 fn (mut fs DatabaseVFS) load_entry(vfs_id u32) !FSEntry {
 	if db_id := fs.id_table[vfs_id] {
-		if metadata := fs.db_metadata.get(db_id) {	
+		if metadata := fs.db_metadata.get(db_id) {
 			match decode_entry_type(metadata)! {
 				.directory {
 					mut dir := decode_directory(metadata) or {
@@ -45,7 +45,9 @@ fn (mut fs DatabaseVFS) load_entry(vfs_id u32) !FSEntry {
 					return dir
 				}
 				.file {
-					return decode_file_metadata(metadata) or { return error('Failed to decode file: ${err}') }
+					return decode_file_metadata(metadata) or {
+						return error('Failed to decode file: ${err}')
+					}
 				}
 				.symlink {
 					mut symlink := decode_symlink(metadata) or {
@@ -80,7 +82,6 @@ fn (mut fs DatabaseVFS) load_entry(vfs_id u32) !FSEntry {
 // 	return file_data
 // }
 
-
 fn (mut self DatabaseVFS) get_entry(path string) !FSEntry {
 	if path == '/' || path == '' || path == '.' {
 		return FSEntry(self.root_get_as_dir()!)
@@ -88,7 +89,7 @@ fn (mut self DatabaseVFS) get_entry(path string) !FSEntry {
 	parts := path.trim_string_left('/').split('/')
 	mut parent_dir := *self.root_get_as_dir()!
 	for i, part in parts {
-		entry := self.directory_get_entry(parent_dir, part) or { 
+		entry := self.directory_get_entry(parent_dir, part) or {
 			return error('Failed to get entry ${err}')
 		}
 		if i == parts.len - 1 {
@@ -103,7 +104,7 @@ fn (mut self DatabaseVFS) get_entry(path string) !FSEntry {
 	}
 	// mut current := *self.root_get_as_dir()!
 	// return self.directory_get_entry(mut current, path) or {
-		return error('Path not found: ${path}')
+	return error('Path not found: ${path}')
 	// }
 }
 
@@ -132,7 +133,6 @@ fn (mut self DatabaseVFS) get_directory(path string) !&Directory {
 	return error('Not a directory: ${path}')
 }
 
-
 pub fn (mut self DatabaseVFS) get_path(entry_ &vfs.FSEntry) !string {
 	// entry := self.load_entry(entry_.metadata.)
 	// entry.parent_id == 0 {
@@ -144,20 +144,19 @@ pub fn (mut self DatabaseVFS) get_path(entry_ &vfs.FSEntry) !string {
 	return ''
 }
 
-
 // Implementation of VFSImplementation interface
 pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 	// Try to load root directory from DB if it exists
 
 	if db_id := fs.id_table[fs.root_id] {
 		if data := fs.db_metadata.get(db_id) {
-		mut loaded_root := decode_directory(data) or {
-			panic('Failed to decode root directory: ${err}')
+			mut loaded_root := decode_directory(data) or {
+				panic('Failed to decode root directory: ${err}')
+			}
+			return &loaded_root
 		}
-		return &loaded_root
-		}
-	} 
-	
+	}
+
 	// Create and save new root directory
 	mut myroot := Directory{
 		metadata:  vfs.Metadata{
@@ -173,7 +172,7 @@ pub fn (mut fs DatabaseVFS) root_get_as_dir() !&Directory {
 		}
 		parent_id: 0
 	}
-	fs.save_entry(myroot) or {return error('failed to set root ${err}')}
+	fs.save_entry(myroot) or { return error('failed to set root ${err}') }
 	fs.root_id = myroot.metadata.id
 	return &myroot
 }

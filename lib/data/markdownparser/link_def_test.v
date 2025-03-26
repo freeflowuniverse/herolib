@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.data.markdownparser.elements
 
 fn test_empty() {
 	mut mydoc := new(content: '')!
-	assert mydoc.children.len == 1
+	assert mydoc.children.len == 0
 }
 
 fn test_empty2() {

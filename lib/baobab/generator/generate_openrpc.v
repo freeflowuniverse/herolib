@@ -1,8 +1,8 @@
 module generator
 
 import json
-import freeflowuniverse.herolib.core.code { VFile, File, Function, Module, Struct }
-import freeflowuniverse.herolib.schemas.openrpc { Components, OpenRPC }
+import freeflowuniverse.herolib.core.code { File, Function, Struct, VFile }
+import freeflowuniverse.herolib.schemas.openrpc { OpenRPC }
 import freeflowuniverse.herolib.schemas.openrpc.codegen { generate_client_file, generate_client_test_file }
 
 pub fn generate_openrpc_file(spec OpenRPC) !File {
@@ -19,8 +19,8 @@ pub fn generate_openrpc_client_file(spec OpenRPC) !VFile {
 	// 	objects_map[object.structure.name] = object.structure
 	// }
 	client_file := generate_client_file(spec, objects_map)!
-	return VFile {
-		...client_file,
+	return VFile{
+		...client_file
 		name: 'client_openrpc'
 	}
 }
@@ -35,8 +35,8 @@ pub fn generate_openrpc_client_test_file(spec OpenRPC) !VFile {
 	// 	methods_map[method.func.name] = method.func
 	// }
 	file := generate_client_test_file(spec, methods_map, objects_map)!
-	return VFile {
-		...file,
+	return VFile{
+		...file
 		name: 'client_openrpc_test'
 	}
 }

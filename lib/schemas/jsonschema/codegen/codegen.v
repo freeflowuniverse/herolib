@@ -1,13 +1,13 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code { Alias, Attribute, CodeItem, Struct, StructField, Type, type_from_symbol, Object, Array}
-import freeflowuniverse.herolib.schemas.jsonschema { Schema, SchemaRef, Reference }
+import freeflowuniverse.herolib.core.code { Alias, Array, Attribute, CodeItem, Object, Struct, StructField, Type, type_from_symbol }
+import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema, SchemaRef }
 
 const vtypes = {
 	'integer': 'int'
-	'number': 'int'
+	'number':  'int'
 	'string':  'string'
-	'u32':  'u32'
+	'u32':     'u32'
 	'boolean': 'bool'
 }
 
@@ -70,23 +70,27 @@ pub fn schema_to_type(schema Schema) Type {
 			if schema.properties.len == 0 {
 				if additional_props := schema.additional_properties {
 					code.Map{code.String{}}
-				} else  {Object{schema.title}}
+				} else {
+					Object{schema.title}
+				}
+			} else {
+				Object{schema.title}
 			}
-			else {Object{schema.title}}
-		} 
+		}
 		'array' {
-		// todo: handle multiple item schemas
+			// todo: handle multiple item schemas
 			if items := schema.items {
 				if items is []SchemaRef {
 					panic('items of type []SchemaRef not implemented')
 				}
-				Array {
+				Array{
 					typ: schemaref_to_type(items as SchemaRef)
 				}
 			} else {
 				panic('items should not be none for arrays')
 			}
-		} else {
+		}
+		else {
 			if schema.typ == 'integer' && schema.format != '' {
 				match schema.format {
 					'int8' { code.type_i8 }
@@ -99,8 +103,7 @@ pub fn schema_to_type(schema Schema) Type {
 					'uint64' { code.type_u64 }
 					else { code.Integer{} } // Default to 'int' if the format doesn't match any known type
 				}
-			}
-			else if schema.typ in vtypes.keys() {
+			} else if schema.typ in vtypes.keys() {
 				type_from_symbol(vtypes[schema.typ])
 			} else if schema.title != '' {
 				type_from_symbol(schema.title)
@@ -118,26 +121,26 @@ pub fn schema_to_code(schema Schema) CodeItem {
 	if schema.typ in vtypes {
 		return Alias{
 			name: schema.title
-			typ: type_from_symbol(vtypes[schema.typ])
+			typ:  type_from_symbol(vtypes[schema.typ])
 		}
 	}
 	if schema.typ == 'array' {
 		if items := schema.items {
-		if items is SchemaRef {
-			if items is Schema {
-				items_schema := items as Schema
-				return Alias{
-					name: schema.title
-					typ: type_from_symbol('[]${items_schema.typ}')
-				}
-			} else if items is Reference {
-				items_ref := items as Reference
-				return Alias{
-					name: schema.title
-					typ: type_from_symbol('[]${ref_to_symbol(items_ref)}')
+			if items is SchemaRef {
+				if items is Schema {
+					items_schema := items as Schema
+					return Alias{
+						name: schema.title
+						typ:  type_from_symbol('[]${items_schema.typ}')
+					}
+				} else if items is Reference {
+					items_ref := items as Reference
+					return Alias{
+						name: schema.title
+						typ:  type_from_symbol('[]${ref_to_symbol(items_ref)}')
+					}
 				}
 			}
-		}
 		} else {
 			panic('items of type []SchemaRef not implemented')
 		}
@@ -159,10 +162,10 @@ pub fn schema_to_struct(schema Schema) Struct {
 	}
 
 	return Struct{
-		name: schema.title
+		name:        schema.title
 		description: schema.description
-		fields: fields
-		is_pub: true
+		fields:      fields
+		is_pub:      true
 	}
 }
 
@@ -170,11 +173,11 @@ pub fn ref_to_field(schema_ref SchemaRef, name string) StructField {
 	if schema_ref is Reference {
 		return StructField{
 			name: name
-			typ: type_from_symbol(ref_to_symbol(schema_ref))
+			typ:  type_from_symbol(ref_to_symbol(schema_ref))
 		}
 	} else if schema_ref is Schema {
 		mut field := StructField{
-			name: name
+			name:        name
 			description: schema_ref.description
 		}
 		if schema_ref.typ == 'object' || schema_ref.typ == 'array' {

@@ -16,59 +16,43 @@ os.mkdir_all(example_data_dir)!
 
 // Create separate databases for data and metadata
 mut db_data := ourdb.new(
-	path: os.join_path(example_data_dir, 'data')
+	path:             os.join_path(example_data_dir, 'data')
 	incremental_mode: false
 )!
 
 mut db_metadata := ourdb.new(
-	path: os.join_path(example_data_dir, 'metadata')
+	path:             os.join_path(example_data_dir, 'metadata')
 	incremental_mode: false
 )!
 
 // Create VFS with separate databases for data and metadata
-mut vfs := vfs_db.new(mut db_data, mut db_metadata) or {
-	panic('Failed to create VFS: ${err}')
-}
+mut vfs := vfs_db.new(mut db_data, mut db_metadata) or { panic('Failed to create VFS: ${err}') }
 
 println('\n---------BEGIN DIRECTORY OPERATIONS EXAMPLE')
 
 // Create directories with subdirectories
 println('\n---------CREATING DIRECTORIES')
-vfs.dir_create('/dir1') or {
-	panic('Failed to create directory: ${err}')
-}
+vfs.dir_create('/dir1') or { panic('Failed to create directory: ${err}') }
 println('Created directory: /dir1')
 
-vfs.dir_create('/dir1/subdir1') or {
-	panic('Failed to create directory: ${err}')
-}
+vfs.dir_create('/dir1/subdir1') or { panic('Failed to create directory: ${err}') }
 println('Created directory: /dir1/subdir1')
 
-vfs.dir_create('/dir1/subdir2') or {
-	panic('Failed to create directory: ${err}')
-}
+vfs.dir_create('/dir1/subdir2') or { panic('Failed to create directory: ${err}') }
 println('Created directory: /dir1/subdir2')
 
-vfs.dir_create('/dir2') or {
-	panic('Failed to create directory: ${err}')
-}
+vfs.dir_create('/dir2') or { panic('Failed to create directory: ${err}') }
 println('Created directory: /dir2')
 
-vfs.dir_create('/dir2/subdir1') or {
-	panic('Failed to create directory: ${err}')
-}
+vfs.dir_create('/dir2/subdir1') or { panic('Failed to create directory: ${err}') }
 println('Created directory: /dir2/subdir1')
 
-vfs.dir_create('/dir2/subdir1/subsubdir1') or {
-	panic('Failed to create directory: ${err}')
-}
+vfs.dir_create('/dir2/subdir1/subsubdir1') or { panic('Failed to create directory: ${err}') }
 println('Created directory: /dir2/subdir1/subsubdir1')
 
 // List directories
 println('\n---------LISTING ROOT DIRECTORY')
-root_entries := vfs.dir_list('/') or {
-	panic('Failed to list directory: ${err}')
-}
+root_entries := vfs.dir_list('/') or { panic('Failed to list directory: ${err}') }
 println('Root directory contains:')
 for entry in root_entries {
 	entry_type := if entry.get_metadata().file_type == .directory { 'directory' } else { 'file' }
@@ -76,9 +60,7 @@ for entry in root_entries {
 }
 
 println('\n---------LISTING /dir1 DIRECTORY')
-dir1_entries := vfs.dir_list('/dir1') or {
-	panic('Failed to list directory: ${err}')
-}
+dir1_entries := vfs.dir_list('/dir1') or { panic('Failed to list directory: ${err}') }
 println('/dir1 directory contains:')
 for entry in dir1_entries {
 	entry_type := if entry.get_metadata().file_type == .directory { 'directory' } else { 'file' }
@@ -87,9 +69,7 @@ for entry in dir1_entries {
 
 // Write a file in a subdirectory
 println('\n---------WRITING FILE IN SUBDIRECTORY')
-vfs.file_create('/dir1/subdir1/test_file.txt') or {
-	panic('Failed to create file: ${err}')
-}
+vfs.file_create('/dir1/subdir1/test_file.txt') or { panic('Failed to create file: ${err}') }
 println('Created file: /dir1/subdir1/test_file.txt')
 
 test_content := 'This is a test file in a subdirectory'
@@ -104,13 +84,15 @@ file_content := vfs.file_read('/dir1/subdir1/test_file.txt') or {
 	panic('Failed to read file: ${err}')
 }
 println('File content: ${file_content.bytestr()}')
-println('Content verification: ${if file_content.bytestr() == test_content { 'SUCCESS' } else { 'FAILED' }}')
+println('Content verification: ${if file_content.bytestr() == test_content {
+	'SUCCESS'
+} else {
+	'FAILED'
+}}')
 
 // List the subdirectory to see the file
 println('\n---------LISTING /dir1/subdir1 DIRECTORY')
-subdir1_entries := vfs.dir_list('/dir1/subdir1') or {
-	panic('Failed to list directory: ${err}')
-}
+subdir1_entries := vfs.dir_list('/dir1/subdir1') or { panic('Failed to list directory: ${err}') }
 println('/dir1/subdir1 directory contains:')
 for entry in subdir1_entries {
 	entry_type := if entry.get_metadata().file_type == .directory { 'directory' } else { 'file' }
@@ -119,9 +101,7 @@ for entry in subdir1_entries {
 
 // Delete the file
 println('\n---------DELETING FILE')
-vfs.file_delete('/dir1/subdir1/test_file.txt') or {
-	panic('Failed to delete file: ${err}')
-}
+vfs.file_delete('/dir1/subdir1/test_file.txt') or { panic('Failed to delete file: ${err}') }
 println('Deleted file: /dir1/subdir1/test_file.txt')
 
 // List the subdirectory again to verify the file is gone
@@ -158,7 +138,11 @@ deep_file_content := vfs.file_read('/dir2/subdir1/subsubdir1/deep_file.txt') or 
 	panic('Failed to read file: ${err}')
 }
 println('File content: ${deep_file_content.bytestr()}')
-println('Content verification: ${if deep_file_content.bytestr() == deep_content { 'SUCCESS' } else { 'FAILED' }}')
+println('Content verification: ${if deep_file_content.bytestr() == deep_content {
+	'SUCCESS'
+} else {
+	'FAILED'
+}}')
 
 // Clean up by deleting directories (optional)
 println('\n---------CLEANING UP')

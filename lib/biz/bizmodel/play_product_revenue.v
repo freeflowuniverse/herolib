@@ -173,7 +173,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		aggregatetype: .avg
 	)!
 
-
 	mut nr_sold := m.sheet.row_new(
 		name:          '${name}_nr_sold'
 		growth:        action.params.get_default('nr_sold', '0')!
@@ -254,9 +253,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		name:   '${name}_cogs_monthly_from_perc'
 	)!
 
-
-
-
 	// mut cogs_from_perc:=cogs_perc.action(action:.multiply,rows:[revenue],name:"cogs_from_perc")!
 
 	// DEAL WITH MAINTENANCE
@@ -322,7 +318,8 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 
 	revenue_total = revenue_total.action(
 		action: .add
-		rows:   [revenue, revenue_items, revenue_growth, revenue_item_total, revenue_monthly_total, revenue_setup_total, maintenance_month]
+		rows:   [revenue, revenue_items, revenue_growth, revenue_item_total, revenue_monthly_total,
+			revenue_setup_total, maintenance_month]
 	)!
 
 	if revenue_total.max() > 0 {

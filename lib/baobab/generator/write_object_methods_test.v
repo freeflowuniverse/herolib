@@ -17,11 +17,11 @@ import os
 pub fn test_generate_get_method() {
 	generator := ActorGenerator{'test'}
 	actor_struct := code.Struct{
-		name: 'TestActor'
+		name:   'TestActor'
 		fields: [
 			code.StructField{
 				name: 'test_struct_map'
-				typ: code.Type{
+				typ:  code.Type{
 					symbol: 'map[string]&TestStruct'
 				}
 			},

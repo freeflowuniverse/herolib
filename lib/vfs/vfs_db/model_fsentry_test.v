@@ -5,25 +5,25 @@ import freeflowuniverse.herolib.vfs as vfs_mod
 fn test_fsentry_directory() {
 	// Create a directory entry
 	dir := Directory{
-		metadata: vfs_mod.Metadata{
-			id: 1
-			name: 'test_dir'
-			file_type: .directory
-			size: 0
-			mode: 0o755
-			owner: 'user'
-			group: 'user'
-			created_at: 0
+		metadata:  vfs_mod.Metadata{
+			id:          1
+			name:        'test_dir'
+			file_type:   .directory
+			size:        0
+			mode:        0o755
+			owner:       'user'
+			group:       'user'
+			created_at:  0
 			modified_at: 0
 			accessed_at: 0
 		}
-		children: []
+		children:  []
 		parent_id: 0
 	}
-	
+
 	// Convert to FSEntry
 	entry := FSEntry(dir)
-	
+
 	// Test methods
 	assert entry.get_metadata().id == 1
 	assert entry.get_metadata().name == 'test_dir'
@@ -36,25 +36,25 @@ fn test_fsentry_directory() {
 fn test_fsentry_file() {
 	// Create a file entry
 	file := File{
-		metadata: vfs_mod.Metadata{
-			id: 2
-			name: 'test_file.txt'
-			file_type: .file
-			size: 13
-			mode: 0o644
-			owner: 'user'
-			group: 'user'
-			created_at: 0
+		metadata:  vfs_mod.Metadata{
+			id:          2
+			name:        'test_file.txt'
+			file_type:   .file
+			size:        13
+			mode:        0o644
+			owner:       'user'
+			group:       'user'
+			created_at:  0
 			modified_at: 0
 			accessed_at: 0
 		}
 		parent_id: 0
 		chunk_ids: []
 	}
-	
+
 	// Convert to FSEntry
 	entry := FSEntry(file)
-	
+
 	// Test methods
 	assert entry.get_metadata().id == 2
 	assert entry.get_metadata().name == 'test_file.txt'
@@ -67,25 +67,25 @@ fn test_fsentry_file() {
 fn test_fsentry_symlink() {
 	// Create a symlink entry
 	symlink := Symlink{
-		metadata: vfs_mod.Metadata{
-			id: 3
-			name: 'test_link'
-			file_type: .symlink
-			size: 0
-			mode: 0o777
-			owner: 'user'
-			group: 'user'
-			created_at: 0
+		metadata:  vfs_mod.Metadata{
+			id:          3
+			name:        'test_link'
+			file_type:   .symlink
+			size:        0
+			mode:        0o777
+			owner:       'user'
+			group:       'user'
+			created_at:  0
 			modified_at: 0
 			accessed_at: 0
 		}
-		target: '/path/to/target'
+		target:    '/path/to/target'
 		parent_id: 0
 	}
-	
+
 	// Convert to FSEntry
 	entry := FSEntry(symlink)
-	
+
 	// Test methods
 	assert entry.get_metadata().id == 3
 	assert entry.get_metadata().name == 'test_link'
@@ -98,56 +98,56 @@ fn test_fsentry_symlink() {
 fn test_fsentry_match() {
 	// Create entries of different types
 	dir := Directory{
-		metadata: vfs_mod.Metadata{
-			id: 1
-			name: 'test_dir'
-			file_type: .directory
-			size: 0
-			mode: 0o755
-			owner: 'user'
-			group: 'user'
-			created_at: 0
+		metadata:  vfs_mod.Metadata{
+			id:          1
+			name:        'test_dir'
+			file_type:   .directory
+			size:        0
+			mode:        0o755
+			owner:       'user'
+			group:       'user'
+			created_at:  0
 			modified_at: 0
 			accessed_at: 0
 		}
-		children: []
+		children:  []
 		parent_id: 0
 	}
-	
+
 	file := File{
-		metadata: vfs_mod.Metadata{
-			id: 2
-			name: 'test_file.txt'
-			file_type: .file
-			size: 13
-			mode: 0o644
-			owner: 'user'
-			group: 'user'
-			created_at: 0
+		metadata:  vfs_mod.Metadata{
+			id:          2
+			name:        'test_file.txt'
+			file_type:   .file
+			size:        13
+			mode:        0o644
+			owner:       'user'
+			group:       'user'
+			created_at:  0
 			modified_at: 0
 			accessed_at: 0
 		}
 		chunk_ids: []
 		parent_id: 0
 	}
-	
+
 	symlink := Symlink{
-		metadata: vfs_mod.Metadata{
-			id: 3
-			name: 'test_link'
-			file_type: .symlink
-			size: 0
-			mode: 0o777
-			owner: 'user'
-			group: 'user'
-			created_at: 0
+		metadata:  vfs_mod.Metadata{
+			id:          3
+			name:        'test_link'
+			file_type:   .symlink
+			size:        0
+			mode:        0o777
+			owner:       'user'
+			group:       'user'
+			created_at:  0
 			modified_at: 0
 			accessed_at: 0
 		}
-		target: '/path/to/target'
+		target:    '/path/to/target'
 		parent_id: 0
 	}
-	
+
 	// Test match with directory
 	dir_entry := FSEntry(dir)
 	match dir_entry {
@@ -159,7 +159,7 @@ fn test_fsentry_match() {
 			assert false, 'Expected Directory type'
 		}
 	}
-	
+
 	// Test match with file
 	file_entry := FSEntry(file)
 	match file_entry {
@@ -171,7 +171,7 @@ fn test_fsentry_match() {
 			assert false, 'Expected File type'
 		}
 	}
-	
+
 	// Test match with symlink
 	symlink_entry := FSEntry(symlink)
 	match symlink_entry {

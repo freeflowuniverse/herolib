@@ -139,7 +139,6 @@ pub fn (w Workload) json_encode() string {
 type WorkloadData = GatewayFQDNProxy
 	| GatewayNameProxy
 	| PublicIP
-	// | QuantumSafeFS
 	| ZLogs
 	| Zdb
 	| Zmachine

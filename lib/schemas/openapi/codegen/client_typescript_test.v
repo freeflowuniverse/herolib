@@ -1,38 +1,38 @@
 module codegen
 
-import freeflowuniverse.herolib.core.code {Folder, File}
+import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.schemas.jsonschema {Schema, Reference, SchemaRef}
-import freeflowuniverse.herolib.schemas.jsonschema.codegen { schema_to_struct }
-import freeflowuniverse.herolib.schemas.openrpc.codegen as openrpc_codegen { content_descriptor_to_parameter }
-import freeflowuniverse.herolib.schemas.openapi { OpenAPI, ResponseSpec, Operation }
-import freeflowuniverse.herolib.baobab.specification {ActorSpecification, ActorMethod, BaseObject} 
+import freeflowuniverse.herolib.schemas.jsonschema { Reference, Schema, SchemaRef }
+import freeflowuniverse.herolib.schemas.jsonschema.codegen
+import freeflowuniverse.herolib.schemas.openrpc.codegen as openrpc_codegen
+import freeflowuniverse.herolib.schemas.openapi { Operation, ResponseSpec }
+import freeflowuniverse.herolib.baobab.specification
 import net.http
 
-const test_operation = openapi.Operation{
-	summary: 'List all pets'
+const test_operation = Operation{
+	summary:      'List all pets'
 	operation_id: 'listPets'
-	parameters: [
+	parameters:   [
 		openapi.Parameter{
-			name: 'limit'
-			in_: 'query'
+			name:        'limit'
+			in_:         'query'
 			description: 'Maximum number of pets to return'
-			required: false
-			schema: Schema{
-				typ: 'integer'
+			required:    false
+			schema:      Schema{
+				typ:    'integer'
 				format: 'int32'
 			}
-		}
+		},
 	]
-	responses: {
+	responses:    {
 		'200': ResponseSpec{
 			description: 'A paginated list of pets'
-			content: {
+			content:     {
 				'application/json': openapi.MediaType{
 					schema: Schema{
-						typ: "array",
+						typ:   'array'
 						items: SchemaRef(Reference{
-							ref: "#/components/schemas/Pet"
+							ref: '#/components/schemas/Pet'
 						})
 					}
 				}

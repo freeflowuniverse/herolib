@@ -95,30 +95,30 @@ fn upload() ! {
 fn install() ! {
 	console.print_header('install cometbft')
 	mut url := ''
-	if core.is_linux_arm() {		
-	    url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_linux_arm64.tar.gz'
+	if core.is_linux_arm() {
+		url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_linux_arm64.tar.gz'
 	} else if core.is_linux_intel() {
-	    url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_linux_amd64.tar.gz'
-	} else if core.is_osx_arm() {		
-	    url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_darwin_arm64.tar.gz'
+		url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_linux_amd64.tar.gz'
+	} else if core.is_osx_arm() {
+		url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_darwin_arm64.tar.gz'
 	} else if osal.is_osx_intel() {
-	    url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_darwin_amd64.tar.gz'
+		url = 'https://github.com/cometbft/cometbft/releases/download/v${version}/cometbft_${version}_darwin_amd64.tar.gz'
 	} else {
-	    return error('unsported platform')
+		return error('unsported platform')
 	}
 
 	mut dest := osal.download(
-	    url: url
-	    minsize_kb: 9000
-	    expand_dir: '/tmp/cometbft'
+		url:        url
+		minsize_kb: 9000
+		expand_dir: '/tmp/cometbft'
 	)!
 
-	//dest.moveup_single_subdir()!
+	// dest.moveup_single_subdir()!
 
 	mut binpath := dest.file_get('cometbft')!
 	osal.cmd_add(
-	    cmdname: 'cometbft'
-	    source: binpath.path
+		cmdname: 'cometbft'
+		source:  binpath.path
 	)!
 }
 

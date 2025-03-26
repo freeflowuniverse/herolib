@@ -129,6 +129,7 @@ pub fn (mut d Deployment) add_signature(twin u32, signature string) {
 		signature_type: 'sr25519'
 	}
 }
+
 // pub fn (d Deployment) json_encode() string {
 //     return json.encode(d)
 // }

@@ -77,8 +77,8 @@ pub fn parse_doc(mut doc elements.Doc) ! {
 			continue
 		}
 
-		if mut llast is elements.Frontmatter || mut llast is elements.Frontmatter2{
-			if trimmed_line == '---'  || trimmed_line == '+++' {
+		if mut llast is elements.Frontmatter || mut llast is elements.Frontmatter2 {
+			if trimmed_line == '---' || trimmed_line == '+++' {
 				parser.next_start_lf()!
 				parser.frontmatter = true
 				continue
@@ -87,7 +87,6 @@ pub fn parse_doc(mut doc elements.Doc) ! {
 			parser.next()
 			continue
 		}
-
 
 		if mut llast is elements.Paragraph {
 			if elements.line_is_list(line) {
@@ -111,18 +110,17 @@ pub fn parse_doc(mut doc elements.Doc) ! {
 				continue
 			}
 
-			if line.starts_with('+++') && parser.frontmatter == false{
+			if line.starts_with('+++') && parser.frontmatter == false {
 				mut e := doc.frontmatter_new(mut &doc, '')
 				parser.next()
 				continue
 			}
 
-			if line.starts_with('---') && parser.frontmatter == false{
+			if line.starts_with('---') && parser.frontmatter == false {
 				mut e := doc.frontmatter2_new(mut &doc, '')
 				parser.next()
 				continue
 			}
-
 
 			// process headers (# is 35)
 			if line.len > 0 && line[0] == 35 {

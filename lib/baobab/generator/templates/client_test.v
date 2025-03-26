@@ -9,7 +9,7 @@ fn mock_response() ! {
 	mut redis := redisclient.new('localhost:6379')!
 	mut rpc_q := redis.rpc_get('actor_pet_store')
 	for {
-		rpc_q.process(fn(method string, data string)!string{
+		rpc_q.process(fn (method string, data string) !string {
 			return json.encode(method)
 		})!
 		time.sleep(time.millisecond * 100) // Prevent CPU spinning

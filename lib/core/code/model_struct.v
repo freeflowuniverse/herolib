@@ -34,7 +34,9 @@ pub fn (struct_ Struct) vgen() string {
 
 	comments := if struct_.description.trim_space() != '' {
 		'// ${struct_.description.trim_space()}'
-	} else {''}
+	} else {
+		''
+	}
 
 	priv_fields := struct_.fields.filter(!it.is_mut && !it.is_pub).map(it.vgen())
 	pub_fields := struct_.fields.filter(!it.is_mut && it.is_pub).map(it.vgen())
@@ -160,10 +162,10 @@ pub mut:
 	name        string
 	description string
 	is_pub      bool
-	embeds      []Interface          @[str: skip]
+	embeds      []Interface @[str: skip]
 	attrs       []Attribute
 	fields      []StructField
-	methods      []Function
+	methods     []Function
 }
 
 pub fn (iface Interface) vgen() string {
@@ -207,8 +209,8 @@ pub mut:
 	is_pub      bool
 	is_mut      bool
 	is_ref      bool
-	anon_struct Struct      @[str: skip] // sometimes fields may hold anonymous structs
-	structure   Struct      @[str: skip]
+	anon_struct Struct @[str: skip] // sometimes fields may hold anonymous structs
+	structure   Struct @[str: skip]
 }
 
 pub fn (field StructField) vgen() string {

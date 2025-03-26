@@ -1,4 +1,4 @@
-module texttools 
+module texttools
 
 pub fn snake_case(s string) string {
 	return separate_words(s).join('_')

@@ -18,10 +18,9 @@ for project in 'projectinca, legal, why'.split(',').map(it.trim_space()) {
 	)!
 }
 
-
 tree.export(
-	destination:    '/tmp/mdexport'
-	reset:          true
-	//keep_structure: true
+	destination: '/tmp/mdexport'
+	reset:       true
+	// keep_structure: true
 	exclude_errors: false
 )!

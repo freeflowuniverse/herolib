@@ -80,10 +80,9 @@ pub fn (self Doc) pug() !string {
 		'  ')}"
 }
 
-
 pub fn (self Doc) frontmatter2() !&Frontmatter2 {
-	for item in self.children_recursive(){
-		if item is Frontmatter2{
+	for item in self.children_recursive() {
+		if item is Frontmatter2 {
 			return item
 		}
 	}

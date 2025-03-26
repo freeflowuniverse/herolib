@@ -12,7 +12,7 @@ fn (mut s Server) initialize_handler(data string) !string {
 	// Decode the request with ClientConfiguration parameters
 	request := jsonrpc.decode_request_generic[ClientConfiguration](data)!
 	s.client_config = request.params
-	
+
 	// Create a success response with the result
 	response := jsonrpc.new_response_generic[ServerConfiguration](request.id, s.ServerConfiguration)
 	return response.encode()

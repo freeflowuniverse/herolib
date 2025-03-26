@@ -1,7 +1,6 @@
 module markdownrenderer
 
 import markdown
-
 import strings
 
 // Helper functions to extract information from C structs
@@ -75,7 +74,7 @@ fn get_wikilink_target(detail voidptr) ?string {
 pub struct StructureRenderer {
 mut:
 	writer strings.Builder = strings.new_builder(200)
-	indent int            // Track indentation level for nested elements
+	indent int // Track indentation level for nested elements
 }
 
 pub fn (mut sr StructureRenderer) str() string {
@@ -85,10 +84,10 @@ pub fn (mut sr StructureRenderer) str() string {
 fn (mut sr StructureRenderer) enter_block(typ markdown.MD_BLOCKTYPE, detail voidptr) ? {
 	// Add indentation based on current level
 	sr.writer.write_string(strings.repeat(` `, sr.indent * 2))
-	
+
 	// Output the block type
 	sr.writer.write_string('BLOCK[${typ}]: ')
-	
+
 	// Add specific details based on block type
 	match typ {
 		.md_block_h {
@@ -112,7 +111,7 @@ fn (mut sr StructureRenderer) enter_block(typ markdown.MD_BLOCKTYPE, detail void
 		}
 		else {}
 	}
-	
+
 	sr.writer.write_u8(`\n`)
 	sr.indent++
 }
@@ -124,10 +123,10 @@ fn (mut sr StructureRenderer) leave_block(typ markdown.MD_BLOCKTYPE, _ voidptr) 
 fn (mut sr StructureRenderer) enter_span(typ markdown.MD_SPANTYPE, detail voidptr) ? {
 	// Add indentation based on current level
 	sr.writer.write_string(strings.repeat(` `, sr.indent * 2))
-	
+
 	// Output the span type
 	sr.writer.write_string('SPAN[${typ}]: ')
-	
+
 	// Add specific details based on span type
 	match typ {
 		.md_span_a {
@@ -155,7 +154,7 @@ fn (mut sr StructureRenderer) enter_span(typ markdown.MD_SPANTYPE, detail voidpt
 		}
 		else {}
 	}
-	
+
 	sr.writer.write_u8(`\n`)
 	sr.indent++
 }
@@ -168,17 +167,17 @@ fn (mut sr StructureRenderer) text(typ markdown.MD_TEXTTYPE, text string) ? {
 	if text.trim_space() == '' {
 		return
 	}
-	
+
 	// Add indentation based on current level
 	sr.writer.write_string(strings.repeat(` `, sr.indent * 2))
-	
+
 	// Output the text type
 	sr.writer.write_string('TEXT[${typ}]: ')
-	
+
 	// Add the text content (truncate if too long)
 	content := if text.len > 50 { text[..50] + '...' } else { text }
 	sr.writer.write_string(content.replace('\n', '\\n'))
-	
+
 	sr.writer.write_u8(`\n`)
 }
 

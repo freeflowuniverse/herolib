@@ -27,7 +27,7 @@ fn walk_v_files(dir string) []string {
 // Function to extract imports from a .v file
 fn extract_imports(file_path string) []string {
 	content := os.read_file(file_path) or {
-		println('Failed to read file: $file_path')
+		println('Failed to read file: ${file_path}')
 		return []
 	}
 	mut imports := []string{}
@@ -59,7 +59,10 @@ fn find_module_dir(module_name string) string {
 // Function to build a tree of imports, including .vmodules
 fn build_import_tree(file_path string, mut visited map[string]bool) ImportNode {
 	if file_path in visited {
-		return ImportNode{name: os.base(file_path), children: []}
+		return ImportNode{
+			name:     os.base(file_path)
+			children: []
+		}
 	}
 	visited[file_path] = true
 
@@ -76,13 +79,22 @@ fn build_import_tree(file_path string, mut visited map[string]bool) ImportNode {
 				child_node := build_import_tree(module_file, mut visited)
 				module_children << child_node
 			}
-			children << ImportNode{name: import_path, children: module_children}
+			children << ImportNode{
+				name:     import_path
+				children: module_children
+			}
 		} else {
-			children << ImportNode{name: import_path, children: []}
+			children << ImportNode{
+				name:     import_path
+				children: []
+			}
 		}
 	}
 
-	return ImportNode{name: os.base(file_path), children: children}
+	return ImportNode{
+		name:     os.base(file_path)
+		children: children
+	}
 }
 
 // Function to print the tree of imports

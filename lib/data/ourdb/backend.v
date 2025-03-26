@@ -136,9 +136,9 @@ fn (mut db OurDB) get_(location Location) ![]u8 {
 
 	// Read data
 	// seek data beginning
-	db.file.seek(i64(location.position+12), .start)!
+	db.file.seek(i64(location.position + 12), .start)!
 	mut data := []u8{len: int(size)}
-	data_read_bytes := db.file.read(mut data) or { 
+	data_read_bytes := db.file.read(mut data) or {
 		return error('Failed to read file, ${size} ${err}')
 	}
 	if data_read_bytes != int(size) {

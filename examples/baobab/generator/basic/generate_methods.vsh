@@ -13,7 +13,7 @@ openrpc_spec := openrpc.new(path: openrpc_spec_path)!
 actor_spec := specification.from_openrpc(openrpc_spec)!
 
 methods_file := generator.generate_methods_file(actor_spec)!
-methods_file.write(example_dir, 
-	format: true
+methods_file.write(example_dir,
+	format:    true
 	overwrite: true
 )!
