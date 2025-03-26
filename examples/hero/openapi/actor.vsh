@@ -70,7 +70,6 @@ fn (mut actor Actor) listen() ! {
 
 // Handle method invocations
 fn (mut actor Actor) handle_method(cmd string, data string) !string {
-	println('debugzo received rpc ${cmd}:${data}')
 	param_anys := json2.raw_decode(data)!.arr()
 	match cmd {
 		'listPets' {

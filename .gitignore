@@ -41,3 +41,9 @@ cli/hero
 .aider*
 storage/
 .qdrant-initialized
+.compile_cache
+compile_results.log
+tmp
+compile_summary.log
+.summary_lock
+.aider*

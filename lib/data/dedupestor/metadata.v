@@ -12,7 +12,7 @@ pub mut:
 pub struct Reference {
 pub:
 	owner u16
-	id u32
+	id    u32
 }
 
 // to_bytes converts Metadata to bytes for storage
@@ -28,7 +28,7 @@ pub fn (m Metadata) to_bytes() []u8 {
 pub fn bytes_to_metadata(b []u8) Metadata {
 	if b.len < 4 {
 		return Metadata{
-			id: 0
+			id:         0
 			references: []Reference{}
 		}
 	}
@@ -40,13 +40,13 @@ pub fn bytes_to_metadata(b []u8) Metadata {
 	mut i := 4
 	for i < b.len {
 		if i + 6 <= b.len {
-			refs << bytes_to_reference(b[i..i+6])
+			refs << bytes_to_reference(b[i..i + 6])
 		}
 		i += 6
 	}
 
 	return Metadata{
-		id: id
+		id:         id
 		references: refs
 	}
 }
@@ -59,7 +59,7 @@ pub fn (mut m Metadata) add_reference(ref Reference) !Metadata {
 			return m
 		}
 	}
-	
+
 	m.references << ref
 	return m
 }
@@ -94,7 +94,7 @@ pub fn bytes_to_reference(b []u8) Reference {
 	id := u32(b[2]) | (u32(b[3]) << 8) | (u32(b[4]) << 16) | (u32(b[5]) << 24)
 	return Reference{
 		owner: owner
-		id: id
+		id:    id
 	}
 }
 

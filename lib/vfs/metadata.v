@@ -7,7 +7,6 @@ pub struct Metadata {
 pub mut:
 	id          u32    @[required] // unique identifier used as key in DB
 	name        string @[required] // name of file or directory
-	path        string @[required] // path of file or directory
 	file_type   FileType
 	size        u64
 	created_at  i64 // unix epoch timestamp

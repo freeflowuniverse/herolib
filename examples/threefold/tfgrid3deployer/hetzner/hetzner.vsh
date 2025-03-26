@@ -11,18 +11,18 @@ griddriver.install()!
 
 v := tfgrid3deployer.get()!
 println('cred: ${v}')
-deployment_name := 'herzner_dep'
+deployment_name := 'hetzner_dep'
 mut deployment := tfgrid3deployer.new_deployment(deployment_name)!
 
 // TODO: find a way to filter hetzner nodes
 deployment.add_machine(
 	name:       'hetzner_vm'
-	cpu:        1
-	memory:     2
+	cpu:        2
+	memory:     5
 	planetary:  false
-	public_ip4: true
+	public_ip4: false
 	size:       10 // 10 gig
-	mycelium:   tfgrid3deployer.Mycelium{}
+	// mycelium:   tfgrid3deployer.Mycelium{}
 )
 deployment.deploy()!
 

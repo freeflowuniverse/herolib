@@ -23,20 +23,20 @@ pub fn heroscript_default() !string {
 
 pub struct OpenAI {
 pub mut:
-	name    string = 'default'
-	api_key string @[secret]
-
-	conn ?&httpconnection.HTTPConnection
+	name       string = 'default'
+	api_key    string @[secret]
+	server_url string
+	conn       ?&httpconnection.HTTPConnection
 }
 
-fn cfg_play(p paramsparser.Params) ! {
-	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
-	mut mycfg := OpenAI{
-		name:    p.get_default('name', 'default')!
-		api_key: p.get('api_key')!
-	}
-	set(mycfg)!
-}
+// fn cfg_play(p paramsparser.Params) ! {
+// 	// THIS IS EXAMPLE CODE AND NEEDS TO BE CHANGED IN LINE WITH struct above
+// 	mut mycfg := OpenAI{
+// 		name:    p.get_default('name', 'default')!
+// 		api_key: p.get('api_key')!
+// 	}
+// 	set(mycfg)!
+// }
 
 fn obj_init(obj_ OpenAI) !OpenAI {
 	// never call get here, only thing we can do here is work on object itself
@@ -45,10 +45,15 @@ fn obj_init(obj_ OpenAI) !OpenAI {
 }
 
 pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
+	server_url := if client.server_url != '' {
+		client.server_url
+	} else {
+		'https://api.openai.com/v1'
+	}
 	mut c := client.conn or {
 		mut c2 := httpconnection.new(
 			name:  'openaiconnection_${client.name}'
-			url:   'https://api.openai.com/v1'
+			url:   server_url
 			cache: false
 			retry: 20
 		)!

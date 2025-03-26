@@ -36,7 +36,7 @@ pub fn new(args_ StarlightArgs) !&StarlightFactory {
 		// path_publish: pathlib.get_dir(path: args_.publish_path, create: true)!
 	}
 
-	ds.template_install(install:true,template_update:args.update,delete:true)!
+	ds.template_install(install: true, template_update: args.update, delete: true)!
 
 	return ds
 }

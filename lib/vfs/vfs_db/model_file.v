@@ -7,7 +7,7 @@ pub struct File {
 pub mut:
 	metadata  vfs.Metadata // vfs.Metadata from models_common.v
 	parent_id u32          // ID of parent directory
-	chunk_ids []u32    // a list of data addresses for chunks of 64 kb in data_db
+	chunk_ids []u32        // a list of data addresses for chunks of 64 kb in data_db
 }
 
 // Rename the file
@@ -17,10 +17,6 @@ fn (mut f File) rename(name string) {
 
 fn (f &File) get_metadata() vfs.Metadata {
 	return f.metadata
-}
-
-fn (f &File) get_path() string {
-	return f.metadata.path
 }
 
 // is_dir returns true if the entry is a directory

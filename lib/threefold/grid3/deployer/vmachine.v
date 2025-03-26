@@ -48,28 +48,11 @@ pub mut:
 
 // Helper function to encode a VMachine
 fn (self VMachine) encode() ![]u8 {
-	// mut b := encoder.new()
-	// b.add_string(self.name)
-	// b.add_string(self.tfchain_id)
-	// b.add_int(self.contract_id)
-	// b.add_int(self.cpu)
-	// b.add_int(self.memory)
-	// b.add_string(self.description)
-	// for now we just use json, will do bytes when needed
 	return json.encode(self).bytes()
 }
 
 // Helper function to decode a VMachine
 fn decode_vmachine(data []u8) !VMachine {
-	// mut d encoder.Decode
-	// return VMachine{
-	// 	name:                d.get_string()
-	// 	tfchain_id:          d.get_string()
-	// 	contract_id: d.get_int()
-	// 	cpu:                 d.get_int()
-	// 	memory:              d.get_int()
-	// 	description:         d.get_string()
-	// }
 	data_string := data.bytestr()
 	return json.decode(VMachine, data_string)
 }
@@ -149,21 +132,21 @@ pub fn (self VMachine) healthcheck() !bool {
 	return true
 }
 
-// NetworkInfo struct to represent network details
-pub struct RecoverArgs {
-pub mut:
-	reinstall bool // reinstall if needed and run heroscript
-}
+// // NetworkInfo struct to represent network details
+// pub struct RecoverArgs {
+// pub mut:
+// 	reinstall bool // reinstall if needed and run heroscript
+// }
 
-fn (self VMachine) recover(args RecoverArgs) ! {
-}
+// fn (self VMachine) recover(args RecoverArgs) ! {
+// }
 
-// NetworkInfo struct to represent network details
-pub struct DeployArgs {
-pub mut:
-	reset bool // careful will delete existing machine if true
-}
+// // NetworkInfo struct to represent network details
+// pub struct DeployArgs {
+// pub mut:
+// 	reset bool // careful will delete existing machine if true
+// }
 
-fn (self VMachine) deploy(args DeployArgs) ! {
-	// check the machine is there, if yes and reset used then delete the machine before deploying a new one
-}
+// fn (self VMachine) deploy(args DeployArgs) ! {
+// 	// check the machine is there, if yes and reset used then delete the machine before deploying a new one
+// }

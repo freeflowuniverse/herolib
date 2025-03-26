@@ -13,11 +13,11 @@ mut:
 
 struct Parser {
 mut:
-	doc    &elements.Doc
-	linenr int
-	lines  []string
-	errors []ParserError
-	endlf  bool // if there is a linefeed or \n at end
+	doc         &elements.Doc
+	linenr      int
+	lines       []string
+	errors      []ParserError
+	endlf       bool // if there is a linefeed or \n at end
 	frontmatter bool
 }
 

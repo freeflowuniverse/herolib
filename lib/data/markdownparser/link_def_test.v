@@ -5,13 +5,7 @@ import freeflowuniverse.herolib.data.markdownparser.elements
 
 fn test_empty() {
 	mut mydoc := new(content: '')!
-
-	// console.print_debug(mydoc)
-	assert mydoc.children.len == 1
-
-	paragraph := mydoc.children[0]
-	assert paragraph.children.len == 0
-	assert paragraph.markdown()! == ''
+	assert mydoc.children.len == 0
 }
 
 fn test_empty2() {

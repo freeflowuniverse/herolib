@@ -1,27 +1,23 @@
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-// import freeflowuniverse.herolib.vfs.webdav
-import freeflowuniverse.herolib.vfs.vfs_nested
-import freeflowuniverse.herolib.vfs.vfs_core
-import freeflowuniverse.herolib.vfs.vfs_ourdb
+import freeflowuniverse.herolib.dav.webdav
+import freeflowuniverse.herolib.vfs.vfs_db
+import freeflowuniverse.herolib.data.ourdb
+import os
+import log
 
-mut high_level_vfs := vfsnested.new()
+const database_path = os.join_path(os.dir(@FILE), 'database')
 
-// lower level VFS Implementations that use OurDB
-mut vfs1 := vfsourdb.new('/tmp/test_webdav_ourdbvfs/vfs1', '/tmp/test_webdav_ourdbvfs/vfs1')!
-mut vfs2 := vfsourdb.new('/tmp/test_webdav_ourdbvfs/vfs2', '/tmp/test_webdav_ourdbvfs/vfs2')!
-mut vfs3 := vfsourdb.new('/tmp/test_webdav_ourdbvfs/vfs3', '/tmp/test_webdav_ourdbvfs/vfs3')!
+mut metadata_db := ourdb.new(path: os.join_path(database_path, 'metadata'))!
+mut data_db := ourdb.new(path: os.join_path(database_path, 'data'))!
+mut vfs := vfs_db.new(mut metadata_db, mut data_db)!
+mut server := webdav.new_server(
+	vfs:     vfs
+	user_db: {
+		'admin': '123'
+	}
+)!
 
-// Nest OurDB VFS instances at different paths
-high_level_vfs.add_vfs('/data', vfs1) or { panic(err) }
-high_level_vfs.add_vfs('/config', vfs2) or { panic(err) }
-high_level_vfs.add_vfs('/data/backup', vfs3) or { panic(err) } // Nested under /data
+log.set_level(.debug)
 
-// // Create WebDAV Server that uses high level VFS
-// mut webdav_server := webdav.new_app(
-// 	vfs:     high_level_vfs
-// 	user_db: {
-// 		'omda': '123'
-// 	}
-// )!
-// webdav_server.run()
+server.run()

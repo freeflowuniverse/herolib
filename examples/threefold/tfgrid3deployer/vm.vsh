@@ -16,7 +16,7 @@ fn deploy_vm() ! {
 		memory:     2
 		planetary:  false
 		public_ip4: true
-		nodes:     [node_id]
+		nodes:      [node_id]
 	)
 	deployment.deploy()!
 	println(deployment)
@@ -27,13 +27,13 @@ fn delete_vm() ! {
 }
 
 fn main() {
-  if os.args.len < 2 {
-   println('Please provide a command: "deploy" or "delete"')
-   return
-  }
-  match os.args[1] {
-   'deploy' { deploy_vm()! }
-   'delete' { delete_vm()! }
-   else { println('Invalid command. Use "deploy" or "delete"') }
-  }
+	if os.args.len < 2 {
+		println('Please provide a command: "deploy" or "delete"')
+		return
+	}
+	match os.args[1] {
+		'deploy' { deploy_vm()! }
+		'delete' { delete_vm()! }
+		else { println('Invalid command. Use "deploy" or "delete"') }
+	}
 }

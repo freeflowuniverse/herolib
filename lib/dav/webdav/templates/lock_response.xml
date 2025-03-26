@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <D:prop xmlns:D="DAV:">
-  <D:lockdiscovery xmlns:D="DAV:">
+  <D:lockdiscovery>
     <D:activelock>
       <D:locktype><D:@{l.lock_type}/></D:locktype>
       <D:lockscope><D:@{l.scope}/></D:lockscope>
@@ -10,7 +10,7 @@
       </D:owner>
       <D:timeout>Second-@{l.timeout}</D:timeout>
       <D:locktoken>
-        <D:href>@{l.token}</D:href>
+        <D:href>opaquelocktoken:@{l.token}</D:href>
       </D:locktoken>
       <D:lockroot>
         <D:href>@{l.resource}</D:href>

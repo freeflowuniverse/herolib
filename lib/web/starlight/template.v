@@ -7,10 +7,10 @@ import freeflowuniverse.herolib.installers.web.tailwind
 import os
 
 @[params]
-struct TemplateInstallArgs{
+struct TemplateInstallArgs {
 	template_update bool = true
-	install bool
-	delete bool = true
+	install         bool
+	delete          bool = true
 }
 
 fn (mut self StarlightFactory) template_install(args TemplateInstallArgs) ! {
@@ -23,11 +23,11 @@ fn (mut self StarlightFactory) template_install(args TemplateInstallArgs) ! {
 	mut template_path := r.patho()!
 
 	for item in ['public', 'src'] {
-		mut aa := template_path.dir_get(item) or {continue} //skip if not exist
+		mut aa := template_path.dir_get(item) or { continue } // skip if not exist
 		aa.copy(dest: '${self.path_build.path}/${item}', delete: args.delete)!
 	}
 
-	for item in ['package.json',  'tsconfig.json', 'astro.config.mjs'] {
+	for item in ['package.json', 'tsconfig.json', 'astro.config.mjs'] {
 		src_path := os.join_path(template_path.path, item)
 		dest_path := os.join_path(self.path_build.path, item)
 		os.cp(src_path, dest_path) or {
@@ -35,15 +35,13 @@ fn (mut self StarlightFactory) template_install(args TemplateInstallArgs) ! {
 		}
 	}
 
-	if args.install{
+	if args.install {
 		// install bun
 		mut installer := bun.get()!
 		installer.install()!
 
 		mut installer2 := tailwind.get()!
 		installer2.install()!
-
-		
 
 		osal.exec(
 			cmd: '
@@ -54,5 +52,4 @@ fn (mut self StarlightFactory) template_install(args TemplateInstallArgs) ! {
 			'
 		)!
 	}
-
 }

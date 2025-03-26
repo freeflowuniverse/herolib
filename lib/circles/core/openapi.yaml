@@ -1,0 +1,817 @@
+openapi: 3.1.0
+info:
+  title: Herolib Circles Core API
+  description: API for managing Circles, Agents, and Names in the Herolib framework
+  version: 1.0.0
+  
+servers:
+  - url: https://api.example.com/v1
+    description: Main API server
+
+components:
+  schemas:
+    # Agent related schemas
+    AgentState:
+      type: string
+      enum:
+        - ok
+        - down
+        - error
+        - halted
+      description: Represents the possible states of an agent
+    
+    AgentServiceState:
+      type: string
+      enum:
+        - ok
+        - down
+        - error
+        - halted
+      description: Represents the possible states of an agent service or action
+    
+    AgentStatus:
+      type: object
+      properties:
+        guid:
+          type: string
+          description: Unique id for the job
+        timestamp_first:
+          type: string
+          format: date-time
+          description: When agent came online
+        timestamp_last:
+          type: string
+          format: date-time
+          description: Last time agent let us know that it is working
+        status:
+          $ref: '#/components/schemas/AgentState'
+      required:
+        - guid
+        - timestamp_first
+        - timestamp_last
+        - status
+    
+    AgentServiceAction:
+      type: object
+      properties:
+        action:
+          type: string
+          description: Which action
+        description:
+          type: string
+          description: Optional description
+        params:
+          type: object
+          additionalProperties:
+            type: string
+          description: Parameters for the action
+        params_example:
+          type: object
+          additionalProperties:
+            type: string
+          description: Example parameters
+        status:
+          $ref: '#/components/schemas/AgentServiceState'
+        public:
+          type: boolean
+          description: If everyone can use then true, if restricted means only certain people can use
+      required:
+        - action
+        - status
+        - public
+    
+    AgentService:
+      type: object
+      properties:
+        actor:
+          type: string
+          description: Name of the actor providing the service
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentServiceAction'
+          description: Available actions for this service
+        description:
+          type: string
+          description: Optional description
+        status:
+          $ref: '#/components/schemas/AgentServiceState'
+        public:
+          type: boolean
+          description: If everyone can use then true, if restricted means only certain people can use
+      required:
+        - actor
+        - actions
+        - status
+        - public
+    
+    Agent:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint32
+          description: Unique identifier
+        pubkey:
+          type: string
+          description: Public key using ed25519
+        address:
+          type: string
+          description: Where we can find the agent
+        port:
+          type: integer
+          format: uint16
+          description: Default 9999
+        description:
+          type: string
+          description: Optional description
+        status:
+          $ref: '#/components/schemas/AgentStatus'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentService'
+        signature:
+          type: string
+          description: Signature as done by private key of $address+$port+$description+$status
+      required:
+        - id
+        - pubkey
+        - address
+        - port
+        - status
+        - services
+        - signature
+    
+    ServiceParams:
+      type: object
+      properties:
+        actor:
+          type: string
+        description:
+          type: string
+    
+    ActionParams:
+      type: object
+      properties:
+        action:
+          type: string
+        description:
+          type: string
+    
+    # Circle related schemas
+    Role:
+      type: string
+      enum:
+        - admin
+        - stakeholder
+        - member
+        - contributor
+        - guest
+      description: Represents the role of a member in a circle
+    
+    Member:
+      type: object
+      properties:
+        pubkeys:
+          type: array
+          items:
+            type: string
+          description: Public keys of the member
+        emails:
+          type: array
+          items:
+            type: string
+          description: List of emails
+        name:
+          type: string
+          description: Name of the member
+        description:
+          type: string
+          description: Optional description
+        role:
+          $ref: '#/components/schemas/Role'
+      required:
+        - pubkeys
+        - emails
+        - name
+        - role
+    
+    Circle:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint32
+          description: Unique id
+        name:
+          type: string
+          description: Name of the circle
+        description:
+          type: string
+          description: Optional description
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+          description: Members of the circle
+      required:
+        - id
+        - name
+        - members
+    
+    # Name related schemas
+    RecordType:
+      type: string
+      enum:
+        - a
+        - aaaa
+        - cname
+        - mx
+        - ns
+        - ptr
+        - soa
+        - srv
+        - txt
+      description: Record types for a DNS record
+    
+    Record:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the record
+        text:
+          type: string
+        category:
+          $ref: '#/components/schemas/RecordType'
+        addr:
+          type: array
+          items:
+            type: string
+          description: Multiple IP addresses for this record
+      required:
+        - name
+        - category
+    
+    Name:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint32
+          description: Unique id
+        domain:
+          type: string
+          description: Domain name
+        description:
+          type: string
+          description: Optional description
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Record'
+          description: DNS records
+        admins:
+          type: array
+          items:
+            type: string
+          description: Public keys of admins who can change it
+      required:
+        - id
+        - domain
+        - records
+
+paths:
+  # Agent endpoints
+  /agents:
+    get:
+      summary: List all agents
+      description: Returns all agent IDs
+      operationId: listAgents
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: uint32
+    post:
+      summary: Create a new agent
+      description: Creates a new agent
+      operationId: createAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agent'
+      responses:
+        '201':
+          description: Agent created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+  
+  /agents/all:
+    get:
+      summary: Get all agents
+      description: Returns all agents
+      operationId: getAllAgents
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agent'
+  
+  /agents/{id}:
+    get:
+      summary: Get agent by ID
+      description: Returns a single agent
+      operationId: getAgentById
+      parameters:
+        - name: id
+          in: path
+          description: ID of agent to return
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          description: Agent not found
+    put:
+      summary: Update an agent
+      description: Updates an existing agent
+      operationId: updateAgent
+      parameters:
+        - name: id
+          in: path
+          description: ID of agent to update
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agent'
+      responses:
+        '200':
+          description: Agent updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          description: Agent not found
+    delete:
+      summary: Delete an agent
+      description: Deletes an agent
+      operationId: deleteAgent
+      parameters:
+        - name: id
+          in: path
+          description: ID of agent to delete
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      responses:
+        '204':
+          description: Agent deleted successfully
+        '404':
+          description: Agent not found
+  
+  /agents/pubkey/{pubkey}:
+    get:
+      summary: Get agent by public key
+      description: Returns a single agent by its public key
+      operationId: getAgentByPubkey
+      parameters:
+        - name: pubkey
+          in: path
+          description: Public key of agent to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          description: Agent not found
+    delete:
+      summary: Delete an agent by public key
+      description: Deletes an agent by its public key
+      operationId: deleteAgentByPubkey
+      parameters:
+        - name: pubkey
+          in: path
+          description: Public key of agent to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Agent deleted successfully
+        '404':
+          description: Agent not found
+  
+  /agents/pubkey/{pubkey}/status:
+    put:
+      summary: Update agent status
+      description: Updates just the status of an agent
+      operationId: updateAgentStatus
+      parameters:
+        - name: pubkey
+          in: path
+          description: Public key of agent to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentState'
+      responses:
+        '200':
+          description: Agent status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          description: Agent not found
+  
+  /agents/pubkeys:
+    get:
+      summary: Get all agent public keys
+      description: Returns all agent public keys
+      operationId: getAllAgentPubkeys
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  
+  /agents/service:
+    get:
+      summary: Get agents by service
+      description: Returns all agents that provide a specific service
+      operationId: getAgentsByService
+      parameters:
+        - name: actor
+          in: query
+          description: Actor name
+          required: true
+          schema:
+            type: string
+        - name: action
+          in: query
+          description: Action name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agent'
+  
+  # Circle endpoints
+  /circles:
+    get:
+      summary: List all circles
+      description: Returns all circle IDs
+      operationId: listCircles
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: uint32
+    post:
+      summary: Create a new circle
+      description: Creates a new circle
+      operationId: createCircle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Circle'
+      responses:
+        '201':
+          description: Circle created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Circle'
+  
+  /circles/all:
+    get:
+      summary: Get all circles
+      description: Returns all circles
+      operationId: getAllCircles
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Circle'
+  
+  /circles/{id}:
+    get:
+      summary: Get circle by ID
+      description: Returns a single circle
+      operationId: getCircleById
+      parameters:
+        - name: id
+          in: path
+          description: ID of circle to return
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Circle'
+        '404':
+          description: Circle not found
+    put:
+      summary: Update a circle
+      description: Updates an existing circle
+      operationId: updateCircle
+      parameters:
+        - name: id
+          in: path
+          description: ID of circle to update
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Circle'
+      responses:
+        '200':
+          description: Circle updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Circle'
+        '404':
+          description: Circle not found
+    delete:
+      summary: Delete a circle
+      description: Deletes a circle
+      operationId: deleteCircle
+      parameters:
+        - name: id
+          in: path
+          description: ID of circle to delete
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      responses:
+        '204':
+          description: Circle deleted successfully
+        '404':
+          description: Circle not found
+  
+  /circles/name/{name}:
+    get:
+      summary: Get circle by name
+      description: Returns a single circle by its name
+      operationId: getCircleByName
+      parameters:
+        - name: name
+          in: path
+          description: Name of circle to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Circle'
+        '404':
+          description: Circle not found
+    delete:
+      summary: Delete a circle by name
+      description: Deletes a circle by its name
+      operationId: deleteCircleByName
+      parameters:
+        - name: name
+          in: path
+          description: Name of circle to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Circle deleted successfully
+        '404':
+          description: Circle not found
+  
+  # Name endpoints
+  /names:
+    get:
+      summary: List all names
+      description: Returns all name IDs
+      operationId: listNames
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: uint32
+    post:
+      summary: Create a new name
+      description: Creates a new name
+      operationId: createName
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Name'
+      responses:
+        '201':
+          description: Name created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Name'
+  
+  /names/all:
+    get:
+      summary: Get all names
+      description: Returns all names
+      operationId: getAllNames
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Name'
+  
+  /names/{id}:
+    get:
+      summary: Get name by ID
+      description: Returns a single name
+      operationId: getNameById
+      parameters:
+        - name: id
+          in: path
+          description: ID of name to return
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Name'
+        '404':
+          description: Name not found
+    put:
+      summary: Update a name
+      description: Updates an existing name
+      operationId: updateName
+      parameters:
+        - name: id
+          in: path
+          description: ID of name to update
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Name'
+      responses:
+        '200':
+          description: Name updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Name'
+        '404':
+          description: Name not found
+    delete:
+      summary: Delete a name
+      description: Deletes a name
+      operationId: deleteName
+      parameters:
+        - name: id
+          in: path
+          description: ID of name to delete
+          required: true
+          schema:
+            type: integer
+            format: uint32
+      responses:
+        '204':
+          description: Name deleted successfully
+        '404':
+          description: Name not found
+  
+  /names/domain/{domain}:
+    get:
+      summary: Get name by domain
+      description: Returns a single name by its domain
+      operationId: getNameByDomain
+      parameters:
+        - name: domain
+          in: path
+          description: Domain of name to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Name'
+        '404':
+          description: Name not found
+    delete:
+      summary: Delete a name by domain
+      description: Deletes a name by its domain
+      operationId: deleteNameByDomain
+      parameters:
+        - name: domain
+          in: path
+          description: Domain of name to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Name deleted successfully
+        '404':
+          description: Name not found

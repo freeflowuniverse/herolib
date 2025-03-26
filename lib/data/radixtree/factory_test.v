@@ -23,7 +23,8 @@ fn test_basic_operations() ! {
 	// Test delete
 	rt.delete('test')!
 	mut ok := false
-	if _ := rt.get('test') {ok = true
+	if _ := rt.get('test') {
+		ok = true
 	} else {
 		ok = false
 	}
@@ -101,7 +102,7 @@ fn test_update_metadata() ! {
 
 	// Set initial entry
 	rt.set(prefix, initial_metadata)!
-	
+
 	// Verify initial value
 	value := rt.get(prefix)!
 	assert value.bytestr() == 'metadata_initial'

@@ -128,7 +128,6 @@ pub fn (mut base DocBase) frontmatter2_new(mut docparent ?&Doc, content string) 
 	return &fm
 }
 
-
 pub fn (mut base DocBase) link_new(mut docparent ?&Doc, content string) &Link {
 	mut a := Link{
 		content:   content

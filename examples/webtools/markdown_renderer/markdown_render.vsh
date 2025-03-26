@@ -7,8 +7,8 @@ import os
 import markdown
 import freeflowuniverse.herolib.data.markdownparser2
 
-path2:="${os.home_dir()}/code/github/freeflowuniverse/herolib/examples/webtools/mdbook_markdown/content/links.md"
-path1:="${os.home_dir()}/code/github/freeflowuniverse/herolib/examples/webtools/mdbook_markdown/content/test.md"
+path2 := '${os.home_dir()}/code/github/freeflowuniverse/herolib/examples/webtools/mdbook_markdown/content/links.md'
+path1 := '${os.home_dir()}/code/github/freeflowuniverse/herolib/examples/webtools/mdbook_markdown/content/test.md'
 
 text := os.read_file(path1)!
 

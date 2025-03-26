@@ -16,26 +16,24 @@ os.mkdir_all(metadata_dir)!
 
 // Create separate databases for data and metadata
 mut db_data := ourdb.new(
-	path: data_dir
+	path:             data_dir
 	incremental_mode: false
 )!
 
 mut db_metadata := ourdb.new(
-	path: metadata_dir
+	path:             metadata_dir
 	incremental_mode: false
 )!
 
 // Create VFS with separate databases for data and metadata
-mut vfs := vfs_db.new_with_separate_dbs(
-	mut db_data, 
-	mut db_metadata, 
-	data_dir: data_dir,
+mut vfs := vfs_db.new_with_separate_dbs(mut db_data, mut db_metadata,
+	data_dir:     data_dir
 	metadata_dir: metadata_dir
 )!
 
 // Create a root directory if it doesn't exist
 if !vfs.exists('/') {
-    vfs.dir_create('/')!
+	vfs.dir_create('/')!
 }
 
 // Create some files and directories
@@ -55,13 +53,13 @@ println('Nested file content: ${vfs.file_read('/test_dir/nested_file.txt')!.byte
 println('Root directory contents:')
 root_entries := vfs.dir_list('/')!
 for entry in root_entries {
-    println('- ${entry.get_metadata().name} (${entry.get_metadata().file_type})')
+	println('- ${entry.get_metadata().name} (${entry.get_metadata().file_type})')
 }
 
 println('Test directory contents:')
 test_dir_entries := vfs.dir_list('/test_dir')!
 for entry in test_dir_entries {
-    println('- ${entry.get_metadata().name} (${entry.get_metadata().file_type})')
+	println('- ${entry.get_metadata().name} (${entry.get_metadata().file_type})')
 }
 
 // Create a duplicate file with the same content

@@ -17,18 +17,18 @@ import os
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	res << zinit.ZProcessNewArgs{
-	    name: 'qdrant'
-	    cmd: 'qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
+		name: 'qdrant'
+		cmd:  'qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
 	}
 	return res
 }
 
 fn running() !bool {
-	println("running")
+	println('running')
 	mut installer := get()!
-	url:='curl http://localhost:6333'
+	url := 'curl http://localhost:6333'
 	mut conn := httpconnection.new(name: 'qdrant', url: url)!
-	r := conn.get(prefix: 'healthz', debug: false) or {return false}
+	r := conn.get(prefix: 'healthz', debug: false) or { return false }
 	println(r)
 	return false
 }
@@ -51,15 +51,15 @@ fn stop_post() ! {
 fn installed() !bool {
 	res := os.execute('${osal.profile_path_source_and()!} qdrant -V')
 	if res.exit_code != 0 {
-		println("Error to call qdrant: ${res}")
-	    return false
+		println('Error to call qdrant: ${res}')
+		return false
 	}
-	r := res.output.split_into_lines().filter(it.contains("qdrant"))
+	r := res.output.split_into_lines().filter(it.contains('qdrant'))
 	if r.len != 1 {
-	    return error("couldn't parse qdrant version.\n${res.output}")
+		return error("couldn't parse qdrant version.\n${res.output}")
 	}
-	if texttools.version(version) == texttools.version(r[0].all_after("qdrant")) {
-	    return true
+	if texttools.version(version) == texttools.version(r[0].all_after('qdrant')) {
+		return true
 	}
 	return false
 }
@@ -81,26 +81,26 @@ fn install() ! {
 	console.print_header('install qdrant')
 	mut url := ''
 	if core.is_linux_arm()! {
-	    url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-aarch64-unknown-linux-musl.tar.gz'
+		url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-aarch64-unknown-linux-musl.tar.gz'
 	} else if core.is_linux_intel()! {
-	    url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-x86_64-unknown-linux-musl.tar.gz'
+		url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-x86_64-unknown-linux-musl.tar.gz'
 	} else if core.is_osx_arm()! {
-	    url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-aarch64-apple-darwin.tar.gz'
+		url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-aarch64-apple-darwin.tar.gz'
 	} else if core.is_osx_intel()! {
-	    url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-x86_64-apple-darwin.tar.gz'
+		url = 'https://github.com/qdrant/qdrant/releases/download/v${version}/qdrant-x86_64-apple-darwin.tar.gz'
 	} else {
-	    return error('unsported platform')
+		return error('unsported platform')
 	}
 	mut dest := osal.download(
-	    url: url
-	    minsize_kb: 18000
-	    expand_dir: '/tmp/qdrant'
+		url:        url
+		minsize_kb: 18000
+		expand_dir: '/tmp/qdrant'
 	)!
 
 	mut binpath := dest.file_get('qdrant')!
 	osal.cmd_add(
-	    cmdname: 'qdrant'
-	    source: binpath.path
+		cmdname: 'qdrant'
+		source:  binpath.path
 	)!
 }
 
@@ -134,16 +134,15 @@ fn build() ! {
 }
 
 fn destroy() ! {
-
-	osal.process_kill_recursive(name:'qdrant')!
+	osal.process_kill_recursive(name: 'qdrant')!
 	osal.cmd_delete('qdrant')!
 
 	osal.package_remove('
 	   qdrant
 	')!
 
-	osal.rm("
+	osal.rm('
 	   qdrant
 	   ${os.home_dir()}/hero/var/qdrant
-	")!
+	')!
 }

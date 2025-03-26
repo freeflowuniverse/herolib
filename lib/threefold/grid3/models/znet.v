@@ -109,21 +109,21 @@ pub fn (z Znet) to_workload(args WorkloadArgs) Workload {
 
 pub fn rand_port(takenPorts []u16) !u16 {
 	// Define the port range
-	const min_port = u16(2000)
-	const max_port = u16(8000)
-	const port_range = u32(max_port - min_port)
-	
+	min_port := u16(2000)
+	max_port := u16(8000)
+	port_range := u32(max_port - min_port)
+
 	// Set a maximum number of attempts to avoid infinite loop
-	const max_attempts = 100
-	
+	max_attempts := 100
+
 	// Check if there are too many taken ports
 	if takenPorts.len >= int(port_range) {
 		return error('All ports in range ${min_port}-${max_port} are taken')
 	}
-	
+
 	mut attempts := 0
 	mut port := u16(rand.u32n(port_range)! + min_port)
-	
+
 	for takenPorts.any(it == port) {
 		attempts++
 		if attempts >= max_attempts {
@@ -131,6 +131,6 @@ pub fn rand_port(takenPorts []u16) !u16 {
 		}
 		port = u16(rand.u32n(port_range)! + min_port)
 	}
-	
+
 	return port
 }

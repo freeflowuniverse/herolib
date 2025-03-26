@@ -91,4 +91,3 @@ println('\nFootnotes:')
 for id, footnote in nav.footnotes() {
 	println('  [^${id}]: ${footnote.content}')
 }
-

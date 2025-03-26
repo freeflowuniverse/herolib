@@ -19,7 +19,7 @@ fn decode_struct[T](_ T, data string) !T {
 	mut typ := T{}
 
 	$if T is $struct {
-		obj_name := texttools.name_fix_pascal_to_snake(T.name.all_after_last('.'))
+		obj_name := texttools.snake_case(T.name.all_after_last('.'))
 		action_name := 'define.${obj_name}'
 		actions_split := data.split('!!')
 		actions := actions_split.filter(it.starts_with(action_name))
