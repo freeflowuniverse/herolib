@@ -4,32 +4,26 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.texttools
-// import freeflowuniverse.herolib.core.pathlib
-// import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
-// import freeflowuniverse.herolib.installers.lang.golang
-// import freeflowuniverse.herolib.installers.lang.rust
-// import freeflowuniverse.herolib.installers.lang.python
-import freeflowuniverse.herolib.core.httpconnection
 import os
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	res << zinit.ZProcessNewArgs{
-		name: 'qdrant'
-		cmd:  'qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
+		name:        'qdrant'
+		cmd:         'qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
+		startuptype: .screen
 	}
 	return res
 }
 
 fn running() !bool {
-	println('running')
-	mut installer := get()!
-	url := 'curl http://localhost:6333'
-	mut conn := httpconnection.new(name: 'qdrant', url: url)!
-	r := conn.get(prefix: 'healthz', debug: false) or { return false }
-	println(r)
+	res := os.execute('curl -s http://localhost:6336/healthz')
+	if res.exit_code == 0 && res.output.contains('healthz check passed') {
+		return true
+	}
+
 	return false
 }
 
@@ -49,15 +43,24 @@ fn stop_post() ! {
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	res := os.execute('${osal.profile_path_source_and()!} qdrant -V')
+	// Check if qdrant is in the hero bin directory
+	qdrant_path := '${os.home_dir()}/hero/bin/qdrant'
+	if !os.exists(qdrant_path) {
+		return false
+	}
+
+	// Check the version directly without sourcing profile
+	res := os.execute('${qdrant_path} -V')
 	if res.exit_code != 0 {
 		println('Error to call qdrant: ${res}')
 		return false
 	}
+
 	r := res.output.split_into_lines().filter(it.contains('qdrant'))
 	if r.len != 1 {
 		return error("couldn't parse qdrant version.\n${res.output}")
 	}
+
 	if texttools.version(version) == texttools.version(r[0].all_after('qdrant')) {
 		return true
 	}
@@ -104,34 +107,7 @@ fn install() ! {
 	)!
 }
 
-fn build() ! {
-	// url := 'https://github.com/threefoldtech/qdrant'
-
-	// make sure we install base on the node
-	// if osal.platform() != .ubuntu {
-	//     return error('only support ubuntu for now')
-	// }
-	// golang.install()!
-
-	// console.print_header('build qdrant')
-
-	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
-
-	// cmd := '
-	// cd ${gitpath}
-	// source ~/.cargo/env
-	// exit 1 #todo
-	// '
-	// osal.execute_stdout(cmd)!
-	//
-	// //now copy to the default bin path
-	// mut binpath := dest.file_get('...')!
-	// adds it to path
-	// osal.cmd_add(
-	//     cmdname: 'griddriver2'
-	//     source: binpath.path
-	// )!
-}
+fn build() ! {}
 
 fn destroy() ! {
 	osal.process_kill_recursive(name: 'qdrant')!
