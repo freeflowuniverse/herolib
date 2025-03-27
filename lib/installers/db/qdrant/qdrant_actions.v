@@ -12,18 +12,20 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	res << zinit.ZProcessNewArgs{
 		name:        'qdrant'
-		cmd:         'qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
-		startuptype: .screen
+		cmd:         'sleep 5 && qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
+		startuptype: .zinit
 	}
 	return res
 }
 
 fn running() !bool {
+	console.print_header('checking qdrant is running')
 	res := os.execute('curl -s http://localhost:6336/healthz')
 	if res.exit_code == 0 && res.output.contains('healthz check passed') {
+		console.print_debug('qdrant is running')
 		return true
 	}
-
+	console.print_debug('qdrant is not running')
 	return false
 }
 
@@ -43,16 +45,10 @@ fn stop_post() ! {
 
 // checks if a certain version or above is installed
 fn installed() !bool {
-	// Check if qdrant is in the hero bin directory
-	qdrant_path := '${os.home_dir()}/hero/bin/qdrant'
-	if !os.exists(qdrant_path) {
-		return false
-	}
-
+	console.print_header('checking qdrant installation')
 	// Check the version directly without sourcing profile
-	res := os.execute('${qdrant_path} -V')
+	res := os.execute('qdrant -V')
 	if res.exit_code != 0 {
-		println('Error to call qdrant: ${res}')
 		return false
 	}
 
@@ -62,6 +58,7 @@ fn installed() !bool {
 	}
 
 	if texttools.version(version) == texttools.version(r[0].all_after('qdrant')) {
+		console.print_debug('qdrant version is ${r[0].all_after('qdrant')}')
 		return true
 	}
 	return false
@@ -110,15 +107,19 @@ fn install() ! {
 fn build() ! {}
 
 fn destroy() ! {
-	osal.process_kill_recursive(name: 'qdrant')!
-	osal.cmd_delete('qdrant')!
+	console.print_header('removing qdrant')
+	osal.rm('${os.home_dir()}/hero/var/qdrant')!
+	osal.rm('${os.home_dir()}/hero/bin/qdrant')!
+	osal.rm('/usr/local/bin/qdrant')!
 
-	osal.package_remove('
-	   qdrant
-	')!
-
-	osal.rm('
-	   qdrant
-	   ${os.home_dir()}/hero/var/qdrant
-	')!
+	mut zinit_factory := zinit.new()!
+	if zinit_factory.exists('qdrant') {
+		zinit_factory.stop('qdrant') or {
+			return error('Could not stop qdrant service due to: ${err}')
+		}
+		zinit_factory.delete('qdrant') or {
+			return error('Could not delete qdrant service due to: ${err}')
+		}
+	}
+	console.print_header('qdrant removed')
 }
