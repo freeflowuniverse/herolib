@@ -1,4 +1,4 @@
-module developer
+module vcode
 
 import freeflowuniverse.herolib.mcp
 
@@ -9,10 +9,10 @@ ARGS:
 file_path string - path to the V file
 function_name string - name of the function to extract
 RETURNS: string - the function block including comments, or empty string if not found'
-	input_schema: mcp.ToolInputSchema{
+	input_schema: jsonschema.Schema{
 		typ:        'object'
 		properties: {
-			'file_path':     mcp.ToolProperty{
+			'file_path':     jsonschema.Schema{
 				typ:   'string'
 				items: mcp.ToolItems{
 					typ:  ''
@@ -20,7 +20,7 @@ RETURNS: string - the function block including comments, or empty string if not 
 				}
 				enum:  []
 			}
-			'function_name': mcp.ToolProperty{
+			'function_name': jsonschema.Schema{
 				typ:   'string'
 				items: mcp.ToolItems{
 					typ:  ''

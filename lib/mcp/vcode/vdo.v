@@ -1,4 +1,4 @@
-module main
+module vcode
 
 import freeflowuniverse.herolib.mcp.logger
 import freeflowuniverse.herolib.mcp
