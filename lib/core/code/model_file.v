@@ -1,5 +1,6 @@
 module code
 
+import log
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import os
@@ -8,7 +9,6 @@ pub interface IFile {
 	write(string, WriteOptions) !
 	write_str(WriteOptions) !string
 	name string
-	write(string, WriteOptions) !
 }
 
 pub struct File {
@@ -132,6 +132,7 @@ pub fn (code VFile) write_str(options WriteOptions) !string {
 }
 
 pub fn (file VFile) get_function(name string) ?Function {
+	log.error('Looking for function ${name} in file ${file.name}')
 	functions := file.items.filter(it is Function).map(it as Function)
 	target_lst := functions.filter(it.name == name)
 
@@ -160,4 +161,121 @@ pub fn (file VFile) functions() []Function {
 
 pub fn (file VFile) structs() []Struct {
 	return file.items.filter(it is Struct).map(it as Struct)
+}
+
+// parse_vfile parses V code into a VFile struct
+// It extracts the module name, imports, constants, structs, and functions
+pub fn parse_vfile(code string) !VFile {
+	mut vfile := VFile{
+		content: code
+	}
+	
+	lines := code.split_into_lines()
+	
+	// Extract module name
+	for line in lines {
+		trimmed := line.trim_space()
+		if trimmed.starts_with('module ') {
+			vfile.mod = trimmed.trim_string_left('module ').trim_space()
+			break
+		}
+	}
+	
+	// Extract imports
+	for line in lines {
+		trimmed := line.trim_space()
+		if trimmed.starts_with('import ') {
+			import_obj := parse_import(trimmed)
+			vfile.imports << import_obj
+		}
+	}
+	
+	// Extract constants
+	vfile.consts = parse_consts(code) or { []Const{} }
+	
+	// Split code into chunks for parsing structs and functions
+	mut chunks := []string{}
+	mut current_chunk := ''
+	mut brace_count := 0
+	mut in_struct_or_fn := false
+	mut comment_block := []string{}
+	
+	for line in lines {
+		trimmed := line.trim_space()
+		
+		// Collect comments
+		if trimmed.starts_with('//') && !in_struct_or_fn {
+			comment_block << line
+			continue
+		}
+		
+		// Check for struct or function start
+		if (trimmed.starts_with('struct ') || trimmed.starts_with('pub struct ') || 
+			trimmed.starts_with('fn ') || trimmed.starts_with('pub fn ')) && !in_struct_or_fn {
+			in_struct_or_fn = true
+			current_chunk = comment_block.join('\n')
+			if current_chunk != '' {
+				current_chunk += '\n'
+			}
+			current_chunk += line
+			comment_block = []string{}
+			
+			if line.contains('{') {
+				brace_count += line.count('{')
+			}
+			if line.contains('}') {
+				brace_count -= line.count('}')
+			}
+			
+			if brace_count == 0 {
+				// Single line definition
+				chunks << current_chunk
+				current_chunk = ''
+				in_struct_or_fn = false
+			}
+			continue
+		}
+		
+		// Add line to current chunk if we're inside a struct or function
+		if in_struct_or_fn {
+			current_chunk += '\n' + line
+			
+			if line.contains('{') {
+				brace_count += line.count('{')
+			}
+			if line.contains('}') {
+				brace_count -= line.count('}')
+			}
+			
+			// Check if we've reached the end of the struct or function
+			if brace_count == 0 {
+				chunks << current_chunk
+				current_chunk = ''
+				in_struct_or_fn = false
+			}
+		}
+	}
+	
+	// Parse each chunk and add to items
+	for chunk in chunks {
+		trimmed := chunk.trim_space()
+		
+		if trimmed.contains('struct ') || trimmed.contains('pub struct ') {
+			// Parse struct
+			struct_obj := parse_struct(chunk) or {
+				// Skip invalid structs
+				continue
+			}
+			vfile.items << struct_obj
+		} else if trimmed.contains('fn ') || trimmed.contains('pub fn ') {
+			// Parse function
+			fn_obj := parse_function(chunk) or {
+				// Skip invalid functions
+				continue
+			}
+			vfile.items << fn_obj
+		}
+	}
+	
+	return vfile
 }
