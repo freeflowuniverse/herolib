@@ -13,15 +13,15 @@ import log
 const crud_prefixes = ['new', 'get', 'set', 'delete', 'list']
 
 pub struct Source {
-	openapi_path string
-	openrpc_path string
+	openapi_path ?string
+	openrpc_path ?string
 }
 
 pub fn generate_methods_file_str(source Source) !string {
-	actor_spec := if source.openapi_path != "" { 
-		specification.from_openapi(openapi.new(path: source.openapi_path)!)!
-	} else if source.openrpc_path != "" {
-		specification.from_openrpc(openrpc.new(path: source.openrpc_path)!)!
+	actor_spec := if path := source.openapi_path { 
+		specification.from_openapi(openapi.new(path: path)!)!
+	} else if path := source.openrpc_path {
+		specification.from_openrpc(openrpc.new(path: path)!)!
 	}
 	else { panic('No openapi or openrpc path provided') }
 	return generate_methods_file(actor_spec)!.write_str()!
