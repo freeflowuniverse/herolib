@@ -1,0 +1,1019 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HeroLib Circles Mail API",
+    "description": "API for Mail functionality of HeroLib Circles MCC module.\nThis API provides endpoints for managing emails.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "FreeFlow Universe",
+      "url": "https://freeflowuniverse.org"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production server"
+    },
+    {
+      "url": "https://dev-api.example.com/v1",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/emails": {
+      "get": {
+        "summary": "List all emails",
+        "description": "Returns a list of all emails in the system",
+        "operationId": "listEmails",
+        "parameters": [
+          {
+            "name": "mailbox",
+            "in": "query",
+            "description": "Filter emails by mailbox",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of emails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Email"
+                  }
+                },
+                "examples": {
+                  "listEmails": {
+                    "value": [
+                      {
+                        "id": 1,
+                        "uid": 101,
+                        "seq_num": 1,
+                        "mailbox": "INBOX",
+                        "message": "Hello, this is a test email.",
+                        "attachments": [],
+                        "flags": [
+                          "\\Seen"
+                        ],
+                        "internal_date": 1647356400,
+                        "size": 256,
+                        "envelope": {
+                          "date": 1647356400,
+                          "subject": "Test Email",
+                          "from": [
+                            "sender@example.com"
+                          ],
+                          "sender": [
+                            "sender@example.com"
+                          ],
+                          "reply_to": [
+                            "sender@example.com"
+                          ],
+                          "to": [
+                            "recipient@example.com"
+                          ],
+                          "cc": [],
+                          "bcc": [],
+                          "in_reply_to": "",
+                          "message_id": "<abc123@example.com>"
+                        }
+                      },
+                      {
+                        "id": 2,
+                        "uid": 102,
+                        "seq_num": 2,
+                        "mailbox": "INBOX",
+                        "message": "This is another test email with an attachment.",
+                        "attachments": [
+                          {
+                            "filename": "document.pdf",
+                            "content_type": "application/pdf",
+                            "data": "base64encodeddata"
+                          }
+                        ],
+                        "flags": [],
+                        "internal_date": 1647442800,
+                        "size": 1024,
+                        "envelope": {
+                          "date": 1647442800,
+                          "subject": "Email with Attachment",
+                          "from": [
+                            "sender2@example.com"
+                          ],
+                          "sender": [
+                            "sender2@example.com"
+                          ],
+                          "reply_to": [
+                            "sender2@example.com"
+                          ],
+                          "to": [
+                            "recipient@example.com"
+                          ],
+                          "cc": [
+                            "cc@example.com"
+                          ],
+                          "bcc": [],
+                          "in_reply_to": "",
+                          "message_id": "<def456@example.com>"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new email",
+        "description": "Creates a new email in the system",
+        "operationId": "createEmail",
+        "requestBody": {
+          "description": "Email to create",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailCreate"
+              },
+              "examples": {
+                "createEmail": {
+                  "value": {
+                    "mailbox": "INBOX",
+                    "message": "Hello, this is a new email.",
+                    "attachments": [],
+                    "flags": [],
+                    "envelope": {
+                      "subject": "New Email",
+                      "from": [
+                        "sender@example.com"
+                      ],
+                      "to": [
+                        "recipient@example.com"
+                      ],
+                      "cc": [],
+                      "bcc": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Email"
+                },
+                "examples": {
+                  "createdEmail": {
+                    "value": {
+                      "id": 3,
+                      "uid": 103,
+                      "seq_num": 3,
+                      "mailbox": "INBOX",
+                      "message": "Hello, this is a new email.",
+                      "attachments": [],
+                      "flags": [],
+                      "internal_date": 1647529200,
+                      "size": 128,
+                      "envelope": {
+                        "date": 1647529200,
+                        "subject": "New Email",
+                        "from": ["sender@example.com"],
+                        "sender": ["sender@example.com"],
+                        "reply_to": ["sender@example.com"],
+                        "to": ["recipient@example.com"],
+                        "cc": [],
+                        "bcc": [],
+                        "in_reply_to": "",
+                        "message_id": "<ghi789@example.com>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email data"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/emails/{id}": {
+      "get": {
+        "summary": "Get email by ID",
+        "description": "Returns a single email by ID",
+        "operationId": "getEmailById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Email ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Email"
+                },
+                "examples": {
+                  "emailById": {
+                    "value": {
+                      "id": 1,
+                      "uid": 101,
+                      "seq_num": 1,
+                      "mailbox": "INBOX",
+                      "message": "Hello, this is a test email.",
+                      "attachments": [],
+                      "flags": ["\\Seen"],
+                      "internal_date": 1647356400,
+                      "size": 256,
+                      "envelope": {
+                        "date": 1647356400,
+                        "subject": "Test Email",
+                        "from": ["sender@example.com"],
+                        "sender": ["sender@example.com"],
+                        "reply_to": ["sender@example.com"],
+                        "to": ["recipient@example.com"],
+                        "cc": [],
+                        "bcc": [],
+                        "in_reply_to": "",
+                        "message_id": "<abc123@example.com>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update email",
+        "description": "Updates an existing email",
+        "operationId": "updateEmail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Email ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated email data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailUpdate"
+              },
+              "examples": {
+                "updateEmail": {
+                  "value": {
+                    "mailbox": "INBOX",
+                    "message": "This is an updated email message.",
+                    "attachments": [],
+                    "flags": ["\\Seen", "\\Flagged"],
+                    "envelope": {
+                      "subject": "Updated Email Subject",
+                      "from": ["sender@example.com"],
+                      "to": ["recipient@example.com"],
+                      "cc": ["cc@example.com"],
+                      "bcc": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Email"
+                },
+                "examples": {
+                  "updatedEmail": {
+                    "value": {
+                      "id": 1,
+                      "uid": 101,
+                      "seq_num": 1,
+                      "mailbox": "INBOX",
+                      "message": "This is an updated email message.",
+                      "attachments": [],
+                      "flags": ["\\Seen", "\\Flagged"],
+                      "internal_date": 1647356400,
+                      "size": 300,
+                      "envelope": {
+                        "date": 1647356400,
+                        "subject": "Updated Email Subject",
+                        "from": ["sender@example.com"],
+                        "sender": ["sender@example.com"],
+                        "reply_to": ["sender@example.com"],
+                        "to": ["recipient@example.com"],
+                        "cc": ["cc@example.com"],
+                        "bcc": [],
+                        "in_reply_to": "",
+                        "message_id": "<abc123@example.com>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email data"
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete email",
+        "description": "Deletes an email",
+        "operationId": "deleteEmail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Email ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Email deleted"
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/emails/search": {
+      "get": {
+        "summary": "Search emails",
+        "description": "Search for emails by various criteria",
+        "operationId": "searchEmails",
+        "parameters": [
+          {
+            "name": "subject",
+            "in": "query",
+            "description": "Search in email subject",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Search by sender email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Search by recipient email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "description": "Search in email content",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "description": "Start date (unix timestamp)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "description": "End date (unix timestamp)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "has_attachments",
+            "in": "query",
+            "description": "Filter emails with attachments",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Email"
+                  }
+                },
+                "examples": {
+                  "searchResults": {
+                    "value": [
+                      {
+                        "id": 1,
+                        "uid": 101,
+                        "seq_num": 1,
+                        "mailbox": "INBOX",
+                        "message": "Hello, this is a test email with search terms.",
+                        "attachments": [],
+                        "flags": ["\\Seen"],
+                        "internal_date": 1647356400,
+                        "size": 256,
+                        "envelope": {
+                          "date": 1647356400,
+                          "subject": "Test Email Search",
+                          "from": ["sender@example.com"],
+                          "sender": ["sender@example.com"],
+                          "reply_to": ["sender@example.com"],
+                          "to": ["recipient@example.com"],
+                          "cc": [],
+                          "bcc": [],
+                          "in_reply_to": "",
+                          "message_id": "<abc123@example.com>"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/emails/mailbox/{mailbox}": {
+      "get": {
+        "summary": "Get emails by mailbox",
+        "description": "Returns all emails in a specific mailbox",
+        "operationId": "getEmailsByMailbox",
+        "parameters": [
+          {
+            "name": "mailbox",
+            "in": "path",
+            "description": "Mailbox name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of emails in the mailbox",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Email"
+                  }
+                },
+                "examples": {
+                  "mailboxEmails": {
+                    "value": [
+                      {
+                        "id": 1,
+                        "uid": 101,
+                        "seq_num": 1,
+                        "mailbox": "INBOX",
+                        "message": "Hello, this is a test email in INBOX.",
+                        "attachments": [],
+                        "flags": ["\\Seen"],
+                        "internal_date": 1647356400,
+                        "size": 256,
+                        "envelope": {
+                          "date": 1647356400,
+                          "subject": "Test Email INBOX",
+                          "from": ["sender@example.com"],
+                          "sender": ["sender@example.com"],
+                          "reply_to": ["sender@example.com"],
+                          "to": ["recipient@example.com"],
+                          "cc": [],
+                          "bcc": [],
+                          "in_reply_to": "",
+                          "message_id": "<abc123@example.com>"
+                        }
+                      },
+                      {
+                        "id": 2,
+                        "uid": 102,
+                        "seq_num": 2,
+                        "mailbox": "INBOX",
+                        "message": "This is another test email in INBOX.",
+                        "attachments": [],
+                        "flags": [],
+                        "internal_date": 1647442800,
+                        "size": 200,
+                        "envelope": {
+                          "date": 1647442800,
+                          "subject": "Another Test Email INBOX",
+                          "from": ["sender2@example.com"],
+                          "sender": ["sender2@example.com"],
+                          "reply_to": ["sender2@example.com"],
+                          "to": ["recipient@example.com"],
+                          "cc": [],
+                          "bcc": [],
+                          "in_reply_to": "",
+                          "message_id": "<def456@example.com>"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mailbox not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/emails/flags/{uid}": {
+      "put": {
+        "summary": "Update email flags",
+        "description": "Update the flags of an email by its UID",
+        "operationId": "updateEmailFlags",
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "path",
+            "description": "Email UID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Flags to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "\\Seen",
+                      "\\Flagged"
+                    ]
+                  }
+                },
+                "required": [
+                  "flags"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Flags updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Email"
+                },
+                "examples": {
+                  "updatedFlags": {
+                    "value": {
+                      "id": 1,
+                      "uid": 101,
+                      "seq_num": 1,
+                      "mailbox": "INBOX",
+                      "message": "Hello, this is a test email.",
+                      "attachments": [],
+                      "flags": ["\\Seen", "\\Flagged"],
+                      "internal_date": 1647356400,
+                      "size": 256,
+                      "envelope": {
+                        "date": 1647356400,
+                        "subject": "Test Email",
+                        "from": ["sender@example.com"],
+                        "sender": ["sender@example.com"],
+                        "reply_to": ["sender@example.com"],
+                        "to": ["recipient@example.com"],
+                        "cc": [],
+                        "bcc": [],
+                        "in_reply_to": "",
+                        "message_id": "<abc123@example.com>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid flags"
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Email": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "Database ID (assigned by DBHandler)",
+            "example": 1
+          },
+          "uid": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "Unique identifier of the message (in the circle)",
+            "example": 101
+          },
+          "seq_num": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "IMAP sequence number (in the mailbox)",
+            "example": 1
+          },
+          "mailbox": {
+            "type": "string",
+            "description": "The mailbox this email belongs to",
+            "example": "INBOX"
+          },
+          "message": {
+            "type": "string",
+            "description": "The email body content",
+            "example": "Hello, this is a test email."
+          },
+          "attachments": {
+            "type": "array",
+            "description": "Any file attachments",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "flags": {
+            "type": "array",
+            "description": "IMAP flags like \\Seen, \\Deleted, etc.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "\\Seen"
+            ]
+          },
+          "internal_date": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp when the email was received",
+            "example": 1647356400
+          },
+          "size": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "Size of the message in bytes",
+            "example": 256
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/Envelope"
+          }
+        },
+        "required": [
+          "id",
+          "uid",
+          "mailbox",
+          "message"
+        ]
+      },
+      "EmailCreate": {
+        "type": "object",
+        "properties": {
+          "mailbox": {
+            "type": "string",
+            "description": "The mailbox this email belongs to",
+            "example": "INBOX"
+          },
+          "message": {
+            "type": "string",
+            "description": "The email body content",
+            "example": "Hello, this is a new email."
+          },
+          "attachments": {
+            "type": "array",
+            "description": "Any file attachments",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "flags": {
+            "type": "array",
+            "description": "IMAP flags like \\Seen, \\Deleted, etc.",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeCreate"
+          }
+        },
+        "required": [
+          "mailbox",
+          "message"
+        ]
+      },
+      "EmailUpdate": {
+        "type": "object",
+        "properties": {
+          "mailbox": {
+            "type": "string",
+            "description": "The mailbox this email belongs to"
+          },
+          "message": {
+            "type": "string",
+            "description": "The email body content"
+          },
+          "attachments": {
+            "type": "array",
+            "description": "Any file attachments",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          },
+          "flags": {
+            "type": "array",
+            "description": "IMAP flags like \\Seen, \\Deleted, etc.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "\\Seen",
+              "\\Flagged"
+            ]
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EnvelopeCreate"
+          }
+        }
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "Name of the attached file",
+            "example": "document.pdf"
+          },
+          "content_type": {
+            "type": "string",
+            "description": "MIME type of the attachment",
+            "example": "application/pdf"
+          },
+          "data": {
+            "type": "string",
+            "description": "Base64 encoded binary data",
+            "example": "base64encodeddata"
+          }
+        },
+        "required": [
+          "filename",
+          "content_type",
+          "data"
+        ]
+      },
+      "Envelope": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of the email date",
+            "example": 1647356400
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject",
+            "example": "Test Email"
+          },
+          "from": {
+            "type": "array",
+            "description": "From addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "sender@example.com"
+            ]
+          },
+          "sender": {
+            "type": "array",
+            "description": "Sender addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "sender@example.com"
+            ]
+          },
+          "reply_to": {
+            "type": "array",
+            "description": "Reply-To addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "sender@example.com"
+            ]
+          },
+          "to": {
+            "type": "array",
+            "description": "To addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "recipient@example.com"
+            ]
+          },
+          "cc": {
+            "type": "array",
+            "description": "CC addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "bcc": {
+            "type": "array",
+            "description": "BCC addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "in_reply_to": {
+            "type": "string",
+            "description": "Message ID this email is replying to",
+            "example": ""
+          },
+          "message_id": {
+            "type": "string",
+            "description": "Unique message ID",
+            "example": "<abc123@example.com>"
+          }
+        },
+        "required": [
+          "subject",
+          "from",
+          "to"
+        ]
+      },
+      "EnvelopeCreate": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "Email subject",
+            "example": "New Email"
+          },
+          "from": {
+            "type": "array",
+            "description": "From addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "sender@example.com"
+            ]
+          },
+          "to": {
+            "type": "array",
+            "description": "To addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "recipient@example.com"
+            ]
+          },
+          "cc": {
+            "type": "array",
+            "description": "CC addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "bcc": {
+            "type": "array",
+            "description": "BCC addresses",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          }
+        },
+        "required": [
+          "subject",
+          "from",
+          "to"
+        ]
+      }
+    }
+  }
+}
