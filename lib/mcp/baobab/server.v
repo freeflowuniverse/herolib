@@ -16,11 +16,15 @@ pub fn new_mcp_server(v &Baobab) !&mcp.Server {
 			'generate_module_from_openapi': generate_module_from_openapi_tool
 			'generate_methods_file': generate_methods_file_tool
 			'generate_methods_interface_file': generate_methods_interface_file_tool
+			'generate_model_file': generate_model_file_tool
+			'generate_methods_example_file': generate_methods_example_file_tool
 		}
 		tool_handlers: {
 			'generate_module_from_openapi': v.generate_module_from_openapi_tool_handler
 			'generate_methods_file': v.generate_methods_file_tool_handler
 			'generate_methods_interface_file': v.generate_methods_interface_file_tool_handler
+			'generate_model_file': v.generate_model_file_tool_handler
+			'generate_methods_example_file': v.generate_methods_example_file_tool_handler
 		}
 	}, mcp.ServerParams{
 		config: mcp.ServerConfiguration{

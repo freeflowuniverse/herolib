@@ -1,6 +1,9 @@
 module vcode
 
 import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.core.code
+import freeflowuniverse.herolib.schemas.jsonschema
+import x.json2 {Any}
 
 const get_function_from_file_tool = mcp.Tool{
 	name:         'get_function_from_file'
@@ -12,23 +15,25 @@ RETURNS: string - the function block including comments, or empty string if not 
 	input_schema: jsonschema.Schema{
 		typ:        'object'
 		properties: {
-			'file_path':     jsonschema.Schema{
+			'file_path':     jsonschema.SchemaRef(jsonschema.Schema{
 				typ:   'string'
-				items: mcp.ToolItems{
-					typ:  ''
-					enum: []
-				}
-				enum:  []
-			}
-			'function_name': jsonschema.Schema{
+			})
+			'function_name': jsonschema.SchemaRef(jsonschema.Schema{
 				typ:   'string'
-				items: mcp.ToolItems{
-					typ:  ''
-					enum: []
-				}
-				enum:  []
-			}
+			})
 		}
 		required:   ['file_path', 'function_name']
+	}
+}
+
+pub fn (d &VCode) get_function_from_file_tool_handler(arguments map[string]Any) !mcp.ToolCallResult {
+	file_path := arguments['file_path'].str()
+	function_name := arguments['function_name'].str()
+	result := code.get_function_from_file(file_path, function_name) or {
+		return mcp.error_tool_call_result(err)
+	}
+	return mcp.ToolCallResult{
+		is_error: false
+		content:  mcp.result_to_mcp_tool_contents[string](result.vgen())
 	}
 }

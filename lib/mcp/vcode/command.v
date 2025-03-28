@@ -2,7 +2,7 @@ module vcode
 
 import cli
 
-const command := cli.Command{
+pub const command := cli.Command{
 	sort_flags:  true
 	name:        'vcode'
 	execute:     cmd_vcode

@@ -7,6 +7,17 @@ import freeflowuniverse.herolib.schemas.jsonschema
 import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen
 import freeflowuniverse.herolib.schemas.openrpc.codegen { content_descriptor_to_parameter }
 import freeflowuniverse.herolib.baobab.specification { ActorMethod, ActorSpecification }
+import freeflowuniverse.herolib.schemas.openapi
+
+pub fn generate_methods_example_file_str(source Source) !string {
+	actor_spec := if path := source.openapi_path { 
+		specification.from_openapi(openapi.new(path: path)!)!
+	} else if path := source.openrpc_path {
+		specification.from_openrpc(openrpc.new(path: path)!)!
+	}
+	else { panic('No openapi or openrpc path provided') }
+	return generate_methods_example_file(actor_spec)!.write_str()!
+}
 
 pub fn generate_methods_example_file(spec ActorSpecification) !VFile {
 	name_snake := texttools.snake_case(spec.name)

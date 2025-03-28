@@ -15,9 +15,11 @@ pub fn new_mcp_server(v &VCode) !&mcp.Server {
 	mut server := mcp.new_server(mcp.MemoryBackend{
 		tools:         {
 			'get_function_from_file': get_function_from_file_tool
+			'write_vfile': write_vfile_tool
 		}
 		tool_handlers: {
 			'get_function_from_file': v.get_function_from_file_tool_handler
+			'write_vfile': v.write_vfile_tool_handler
 		}
 	}, mcp.ServerParams{
 		config: mcp.ServerConfiguration{

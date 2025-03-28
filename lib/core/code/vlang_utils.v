@@ -65,88 +65,17 @@ fn find_closing_brace(content string, start_i int) ?int {
 //   function_name string - name of the function to extract
 // RETURNS:
 //   string - the function block including comments, or error if not found
-// pub fn get_function_from_file(file_path string, function_name string) !string {
-// 	log.error('Looking for function ${function_name} in file ${file_path}')
-// 	content := os.read_file(file_path) or {
-// 		return error('Failed to read file: ${file_path}: ${err}')
-// 	}
-
-// 	vfile := parse_vfile(content) or {
-// 		return error('Failed to parse V file: ${file_path}: ${err}')
-// 	}
-
-// 	for fn in vfile.functions() {
-// 		if fn.name == function_name {
-// 			return fn.code
-// 		}
-// 	}
-
-// 	return error('Function ${function_name} not found in ${file_path}')
-// }
-
-// 	lines := content.split_into_lines()
-// 	mut result := []string{}
-// 	mut in_function := false
-// 	mut brace_count := 0
-// 	mut comment_block := []string{}
-
-// 	for i, line in lines {
-// 		trimmed := line.trim_space()
-
-// 		// Collect comments that might be above the function
-// 		if trimmed.starts_with('//') {
-// 			if !in_function {
-// 				comment_block << line
-// 			} else if brace_count > 0 {
-// 				result << line
-// 			}
-// 			continue
-// 		}
-
-// 		// Check if we found the function
-// 		if !in_function && (trimmed.starts_with('fn ${function_name}(')
-// 			|| trimmed.starts_with('pub fn ${function_name}(')) {
-// 			in_function = true
-// 			// Add collected comments
-// 			result << comment_block
-// 			comment_block = []
-// 			result << line
-// 			if line.contains('{') {
-// 				brace_count++
-// 			}
-// 			continue
-// 		}
-
-// 		// If we're inside the function, keep track of braces
-// if in_function {
-// result << line
-
-// for c in line {
-// if c == `{` {
-// brace_count++
-// } else if c == `}` {
-// brace_count--
-// }
-// }
-
-// // If brace_count is 0, we've reached the end of the function
-// 			if brace_count == 0 && trimmed.contains('}') {
-// 				return result.join('\n')
-// 			}
-// 		} else {
-// 			// Reset comment block if we pass a blank line
-// 			if trimmed == '' {
-// 				comment_block = []
-// 			}
-// 		}
-// 	}
-
-// 	if !in_function {
-// 		return error('Function "${function_name}" not found in ${file_path}')
-// 	}
-
-// 	return result.join('\n')
-// }
+pub fn get_function_from_file(file_path string, function_name string) !Function {
+	content := os.read_file(file_path) or { return error('Failed to read file ${file_path}: ${err}') }
+	
+	vfile := parse_vfile(content) or { return error('Failed to parse file ${file_path}: ${err}') }
+	
+	if fn_obj := vfile.get_function(function_name) {
+		return fn_obj
+}
+	
+return error('function ${function_name} not found in file ${file_path}')
+}
 
 // get_function_from_module searches for a function in all V files within a module
 // ARGS:

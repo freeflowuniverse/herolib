@@ -98,14 +98,17 @@ pub fn generate_method_code(receiver Param, method ActorMethod) ![]CodeItem {
 
 	// check if method is a Base Object CRUD Method and
 	// if so generate the method's body
-	body := match method.category {
-		.base_object_new { base_object_new_body(receiver, method)! }
-		.base_object_get { base_object_get_body(receiver, method)! }
-		.base_object_set { base_object_set_body(receiver, method)! }
-		.base_object_delete { base_object_delete_body(receiver, method)! }
-		.base_object_list { base_object_list_body(receiver, method)! }
-		else { "panic('implement')" }
-	}
+	// TODO: smart generation of method body using AI
+	// body := match method.category {
+	// 	.base_object_new { base_object_new_body(receiver, method)! }
+	// 	.base_object_get { base_object_get_body(receiver, method)! }
+	// 	.base_object_set { base_object_set_body(receiver, method)! }
+	// 	.base_object_delete { base_object_delete_body(receiver, method)! }
+	// 	.base_object_list { base_object_list_body(receiver, method)! }
+	// 	else { "panic('implement')" }
+	// }
+
+	body := "panic('implement')"
 
 	fn_prototype := generate_method_prototype(receiver, method)!
 	method_code << Function{
