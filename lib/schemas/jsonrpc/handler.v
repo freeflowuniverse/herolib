@@ -68,14 +68,16 @@ pub fn (handler Handler) handler(client &websocket.Client, message string) strin
 //   - The JSON-RPC response as a string, or an error if processing fails
 pub fn (handler Handler) handle(message string) !string {
 	// Extract the method name from the request
+	log.error('debugzo1')
 	method := decode_request_method(message)!
 	// log.info('Handling remote procedure call to method: ${method}')
-
 	// Look up the procedure handler for the requested method
 	procedure_func := handler.procedures[method] or {
 		// log.error('No procedure handler for method ${method} found')
 		return method_not_found
 	}
+
+	log.error('debugzo3')
 
 	// Execute the procedure handler with the request payload
 	response := procedure_func(message) or { panic(err) }

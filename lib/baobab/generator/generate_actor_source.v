@@ -6,6 +6,19 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.baobab.specification { ActorInterface, ActorSpecification }
 import json
 
+pub fn generate_module_from_openapi(openapi_path string) !string {
+	// the actor specification obtained from the OpenRPC Specification
+	openapi_spec := openapi.new(path: openapi_path)!
+	actor_spec := specification.from_openapi(openapi_spec)!
+
+	actor_module := generator.generate_actor_module(
+		actor_spec,
+		interfaces: [.openapi, .http]
+	)!
+
+	return actor_module.write_str()!
+}
+
 pub fn generate_actor_module(spec ActorSpecification, params Params) !Module {
 	mut files := []IFile{}
 	mut folders := []IFolder{}
