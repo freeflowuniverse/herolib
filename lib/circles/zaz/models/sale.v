@@ -54,8 +54,8 @@ pub fn (sale Sale) dumps() ![]u8 {
 	enc.add_string(sale.buyer_email)
 	
 	// Store Currency as serialized data
-	total_amount_bytes := sale.total_amount.dumps()!
-	enc.add_bytes(total_amount_bytes)
+	total_amount_bytes := sale.total_amount.to_bytes()!
+	enc.add_bytes(total_amount_bytes.data)
 	
 	enc.add_u8(u8(sale.status))
 	enc.add_string(sale.sale_date.str())
@@ -72,11 +72,11 @@ pub fn (sale Sale) dumps() ![]u8 {
 		enc.add_int(item.quantity)
 		
 		// Store Currency as serialized data
-		unit_price_bytes := item.unit_price.dumps()!
-		enc.add_bytes(unit_price_bytes)
+		unit_price_bytes := item.unit_price.to_bytes()!
+		enc.add_bytes(unit_price_bytes.data)
 		
-		subtotal_bytes := item.subtotal.dumps()!
-		enc.add_bytes(subtotal_bytes)
+		subtotal_bytes := item.subtotal.to_bytes()!
+		enc.add_bytes(subtotal_bytes.data)
 		
 		enc.add_string(item.active_till.str())
 	}
@@ -103,9 +103,10 @@ pub fn sale_loads(data []u8) !Sale {
 	
 	// Decode Currency from bytes
 	total_amount_bytes := d.get_bytes()!
-	sale.total_amount = currency.loads(total_amount_bytes)!
+	currency_bytes := currency.CurrencyBytes{data: total_amount_bytes}
+	sale.total_amount = currency.from_bytes(currency_bytes)!
 	
-	sale.status = SaleStatus(d.get_u8()!)
+	sale.status = unsafe { SaleStatus(d.get_u8()!) }
 	
 	sale_date_str := d.get_string()!
 	sale.sale_date = ourtime.new(sale_date_str)!
@@ -129,10 +130,12 @@ pub fn sale_loads(data []u8) !Sale {
 		
 		// Decode Currency from bytes
 		unit_price_bytes := d.get_bytes()!
-		item.unit_price = currency.loads(unit_price_bytes)!
+		unit_price_currency_bytes := currency.CurrencyBytes{data: unit_price_bytes}
+		item.unit_price = currency.from_bytes(unit_price_currency_bytes)!
 		
 		subtotal_bytes := d.get_bytes()!
-		item.subtotal = currency.loads(subtotal_bytes)!
+		subtotal_currency_bytes := currency.CurrencyBytes{data: subtotal_bytes}
+		item.subtotal = currency.from_bytes(subtotal_currency_bytes)!
 		
 		active_till_str := d.get_string()!
 		item.active_till = ourtime.new(active_till_str)!

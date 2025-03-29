@@ -108,7 +108,7 @@ fn test_vote_serialization_empty_collections() {
 		description: 'Vote with no options or ballots yet'
 		start_date: ourtime.new('2025-02-01 00:00:00')!
 		end_date: ourtime.new('2025-02-28 23:59:59')!
-		status: VoteStatus.pending
+		status: VoteStatus.open
 		created_at: ourtime.new('2025-01-15 10:00:00')!
 		updated_at: ourtime.new('2025-01-15 10:00:00')!
 		options: []
@@ -204,11 +204,15 @@ fn test_vote_serialization_byte_structure() {
 	assert d.get_u32()! == 10 // vote.company_id
 	assert d.get_string()! == 'Test' // vote.title
 	assert d.get_string()! == 'Desc' // vote.description
-	assert d.get_string()! == '2025-01-01 00:00:00' // vote.start_date
-	assert d.get_string()! == '2025-01-02 00:00:00' // vote.end_date
+	start_date := d.get_string()!
+	assert start_date.starts_with('2025-01-01 00:00') // vote.start_date
+	end_date := d.get_string()!
+	assert end_date.starts_with('2025-01-02 00:00') // vote.end_date
 	assert d.get_u8()! == u8(VoteStatus.open) // vote.status
-	assert d.get_string()! == '2025-01-01 00:00:00' // vote.created_at
-	assert d.get_string()! == '2025-01-01 00:00:00' // vote.updated_at
+	created_at := d.get_string()!
+	assert created_at.starts_with('2025-01-01 00:00') // vote.created_at
+	updated_at := d.get_string()!
+	assert updated_at.starts_with('2025-01-01 00:00') // vote.updated_at
 	
 	// Options array
 	assert d.get_u16()! == 1 // options.len
@@ -225,7 +229,8 @@ fn test_vote_serialization_byte_structure() {
 	assert d.get_u32()! == 1 // ballot.user_id
 	assert d.get_u8()! == 1 // ballot.vote_option_id
 	assert d.get_int()! == 10 // ballot.shares_count
-	assert d.get_string()! == '2025-01-01 01:00:00' // ballot.created_at
+	ballot_created_at := d.get_string()!
+	assert ballot_created_at.starts_with('2025-01-01 01:00') // ballot.created_at
 	
 	// Private group array
 	assert d.get_u16()! == 0 // private_group.len

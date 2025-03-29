@@ -72,7 +72,7 @@ pub fn (company Company) dumps() ![]u8 {
 	enc.add_u32(shareholder.company_id)
 	enc.add_u32(shareholder.user_id)
 		enc.add_string(shareholder.name)
-		enc.add_int(shareholder.shares)
+		enc.add_string(shareholder.shares.str()) // Store shares as string to preserve precision
 		enc.add_string(shareholder.percentage.str()) // Store as string to preserve precision
 		enc.add_u8(u8(shareholder.type_))
 		enc.add_string(shareholder.since.str())
@@ -107,10 +107,10 @@ pub fn company_loads(data []u8) !Company {
 	company.phone = d.get_string()!
 	company.website = d.get_string()!
 	company.address = d.get_string()!
-	company.business_type = BusinessType(d.get_u8()!)
+	company.business_type = unsafe { BusinessType(d.get_u8()!) }
 	company.industry = d.get_string()!
 	company.description = d.get_string()!
-	company.status = CompanyStatus(d.get_u8()!)
+	company.status = unsafe { CompanyStatus(d.get_u8()!) }
 	
 	created_at_str := d.get_string()!
 	company.created_at = ourtime.new(created_at_str)!
@@ -127,12 +127,13 @@ pub fn company_loads(data []u8) !Company {
 		shareholder.company_id = d.get_u32()!
 		shareholder.user_id = d.get_u32()!
 		shareholder.name = d.get_string()!
-		shareholder.shares = d.get_int()!
+		shares_str := d.get_string()!
+		shareholder.shares = shares_str.f64()
 		// Decode the percentage from string instead of f64
 		percentage_str := d.get_string()!
 		shareholder.percentage = percentage_str.f64()
 		
-		shareholder.type_ = ShareholderType(d.get_u8()!)
+		shareholder.type_ = unsafe { ShareholderType(d.get_u8()!) }
 		
 		since_str := d.get_string()!
 		shareholder.since = ourtime.new(since_str)!

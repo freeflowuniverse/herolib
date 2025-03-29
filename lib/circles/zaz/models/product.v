@@ -60,8 +60,8 @@ pub fn (product Product) dumps() ![]u8 {
 	enc.add_string(product.description)
 	
 	// Store Currency as serialized data
-	price_bytes := product.price.dumps()!
-	enc.add_bytes(price_bytes)
+	currency_bytes := product.price.to_bytes()!
+	enc.add_bytes(currency_bytes.data)
 	
 	enc.add_u8(u8(product.type_))
 	enc.add_string(name_fix(product.category))
@@ -104,11 +104,12 @@ pub fn product_loads(data []u8) !Product {
 	
 	// Decode Currency from bytes
 	price_bytes := d.get_bytes()!
-	product.price = currency.loads(price_bytes)!
+	currency_bytes := currency.CurrencyBytes{data: price_bytes}
+	product.price = currency.from_bytes(currency_bytes)!
 	
-	product.type_ = ProductType(d.get_u8()!)
+	product.type_ = unsafe { ProductType(d.get_u8()!) }
 	product.category = d.get_string()!
-	product.status = ProductStatus(d.get_u8()!)
+	product.status = unsafe { ProductStatus(d.get_u8()!) }
 	
 	created_at_str := d.get_string()!
 	product.created_at = ourtime.new(created_at_str)!

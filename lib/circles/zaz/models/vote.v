@@ -119,7 +119,7 @@ pub fn vote_loads(data []u8) !Vote {
 	end_date_str := d.get_string()!
 	vote.end_date = ourtime.new(end_date_str)!
 	
-	vote.status = VoteStatus(d.get_u8()!)
+	vote.status = unsafe { VoteStatus(d.get_u8()!) }
 	
 	created_at_str := d.get_string()!
 	vote.created_at = ourtime.new(created_at_str)!

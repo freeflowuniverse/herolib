@@ -3,7 +3,6 @@ module encoder
 import time
 import encoding.binary as bin
 import freeflowuniverse.herolib.data.ourtime
-import freeflowuniverse.herolib.data.currency
 import freeflowuniverse.herolib.data.gid
 
 const kb = 1024
@@ -108,13 +107,6 @@ pub fn (mut b Encoder) add_f64(data f64) {
 	// Convert f64 to bits first, then store as u64
 	bits := unsafe { *(&u64(&data)) }
 	b.add_u64(bits)
-}
-
-// adds currency.Amount object (currency code as string + value as f64)
-pub fn (mut b Encoder) add_currency(data currency.Amount) {
-	// Add currency code as string
-	b.add_string(data.currency.name)	
-	b.add_f64(data.val)
 }
 
 // adds gid as a string

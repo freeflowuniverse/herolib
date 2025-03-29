@@ -111,7 +111,7 @@ pub fn meeting_loads(data []u8) !Meeting {
 	
 	meeting.location = d.get_string()!
 	meeting.description = d.get_string()!
-	meeting.status = MeetingStatus(d.get_u8()!)
+	meeting.status = unsafe { MeetingStatus(d.get_u8()!) }
 	meeting.minutes = d.get_string()!
 	
 	created_at_str := d.get_string()!
@@ -129,8 +129,8 @@ pub fn meeting_loads(data []u8) !Meeting {
 		attendee.meeting_id = d.get_u32()!
 		attendee.user_id = d.get_u32()!
 		attendee.name = d.get_string()!
-		attendee.role = AttendeeRole(d.get_u8()!)
-		attendee.status = AttendeeStatus(d.get_u8()!)
+		attendee.role = unsafe { AttendeeRole(d.get_u8()!) }
+		attendee.status = unsafe { AttendeeStatus(d.get_u8()!) }
 		
 		attendee_created_at_str := d.get_string()!
 		attendee.created_at = ourtime.new(attendee_created_at_str)!

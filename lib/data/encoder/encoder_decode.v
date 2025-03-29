@@ -2,7 +2,6 @@ module encoder
 
 import encoding.binary as bin
 import freeflowuniverse.herolib.data.ourtime
-import freeflowuniverse.herolib.data.currency
 import time
 import freeflowuniverse.herolib.data.gid
 
@@ -244,13 +243,4 @@ pub fn (mut d Decoder) get_map_bytes() !map[string][]u8 {
 pub fn (mut d Decoder) get_gid() !gid.GID {
     gid_str := d.get_string()!
     return gid.new(gid_str)
-}
-
-pub fn (mut d Decoder) get_currency() !currency.Amount {
-	n := d.get_string()!
-	v := d.get_f64()!
-	return currency.Amount{
-		currency: currency.get(n)!
-		val: v
-	}
 }
