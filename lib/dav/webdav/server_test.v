@@ -487,9 +487,11 @@ fn test_server_propfind() ! {
 	assert ctx.res.header.get(.content_type)! == 'application/xml'
 	assert ctx.res.body.contains('<D:multistatus')
 	assert ctx.res.body.contains('<D:response>')
-	assert ctx.res.body.contains('<D:href>${root_dir}</D:href>')
+	
+	// Now that we know the correct format, check for it - directories have both leading and trailing slashes
+	assert ctx.res.body.contains('<D:href>/${root_dir}/</D:href>')
 	// Should only include the requested resource
-	assert !ctx.res.body.contains('<D:href>${file_in_root}</D:href>')
+	assert !ctx.res.body.contains('<D:href>/${file_in_root}</D:href>') && !ctx.res.body.contains('<D:href>/${file_in_root}')
 
 	// Test PROPFIND with depth=1 (resource and immediate children)
 	mut ctx2 := Context{
@@ -511,11 +513,11 @@ fn test_server_propfind() ! {
 	assert ctx2.res.status() == http.Status.multi_status
 	assert ctx2.res.body.contains('<D:multistatus')
 	// Should include the resource and immediate children
-	assert ctx2.res.body.contains('<D:href>${root_dir}</D:href>')
-	assert ctx2.res.body.contains('<D:href>${file_in_root}</D:href>')
-	assert ctx2.res.body.contains('<D:href>${subdir}</D:href>')
+	assert ctx2.res.body.contains('<D:href>/${root_dir}/</D:href>')
+	assert ctx2.res.body.contains('<D:href>/${file_in_root}</D:href>')
+	assert ctx2.res.body.contains('<D:href>/${subdir}/</D:href>')
 	// But not grandchildren
-	assert !ctx2.res.body.contains('<D:href>${file_in_subdir}</D:href>')
+	assert !ctx2.res.body.contains('<D:href>/${file_in_subdir}</D:href>')
 
 	// Test PROPFIND with depth=infinity (all descendants)
 	mut ctx3 := Context{
@@ -536,10 +538,10 @@ fn test_server_propfind() ! {
 	// Check response
 	assert ctx3.res.status() == http.Status.multi_status
 	// Should include all descendants
-	assert ctx3.res.body.contains('<D:href>${root_dir}</D:href>')
-	assert ctx3.res.body.contains('<D:href>${file_in_root}</D:href>')
-	assert ctx3.res.body.contains('<D:href>${subdir}</D:href>')
-	assert ctx3.res.body.contains('<D:href>${file_in_subdir}</D:href>')
+	assert ctx3.res.body.contains('<D:href>/${root_dir}/</D:href>')
+	assert ctx3.res.body.contains('<D:href>/${file_in_root}</D:href>')
+	assert ctx3.res.body.contains('<D:href>/${subdir}/</D:href>')
+	assert ctx3.res.body.contains('<D:href>/${file_in_subdir}</D:href>')
 
 	// Test PROPFIND for non-existent resource
 	mut ctx4 := Context{

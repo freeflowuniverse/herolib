@@ -1,17 +1,13 @@
 module webdav
 
 import encoding.xml
-import log
-import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.vfs
-import os
 import time
-import veb
 
 // Property represents a WebDAV property
 pub interface Property {
 	xml() xml.XMLNodeContents
 	xml_name() string
+	xml_str() string
 }
 
 type DisplayName = string
@@ -55,20 +51,8 @@ fn (p []Property) xml_str() string {
 	// Simple string representation for testing
 	mut result := '<D:propstat><D:prop>'
 	for prop in p {
-		if prop is DisplayName {
-			result += '<D:displayname>${prop}</D:displayname>'
-		} else if prop is GetContentType {
-			result += '<D:getcontenttype>${prop}</D:getcontenttype>'
-		} else if prop is ResourceType {
-			// We need to handle ResourceType (bool) specifically
-			res_type := ResourceType(prop)
-			if res_type {
-				result += '<D:resourcetype><D:collection/></D:resourcetype>'
-			} else {
-				result += '<D:resourcetype/>'
-			}
-		}
-		// Add other property types as needed
+		// Call each property's xml_str() method
+		result += prop.xml_str()
 	}
 	result += '</D:prop><D:status>HTTP/1.1 200 OK</D:status></D:propstat>'
 	return result

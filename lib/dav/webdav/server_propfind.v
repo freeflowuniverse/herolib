@@ -90,13 +90,13 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		}
 		// main entry response
 		responses << PropfindResponse{
-			href: if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path }
+			href: ensure_leading_slash(if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path })
 			// not_found: entry.get_unfound_properties(req)
 			found_props: properties
 		}
 	} else {
 	responses << PropfindResponse{
-		href: if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path }
+		href: ensure_leading_slash(if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path })
 		// not_found: entry.get_unfound_properties(req)
 		found_props: server.get_properties(entry)
 	}
@@ -122,6 +122,14 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		}, child_path)!
 	}
 	return responses
+}
+
+// Helper function to ensure a path has a leading slash
+fn ensure_leading_slash(path string) string {
+	if path.starts_with('/') {
+		return path
+	}
+	return '/' + path
 }
 
 // returns the properties of a filesystem entry
