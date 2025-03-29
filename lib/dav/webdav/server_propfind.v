@@ -95,11 +95,11 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 			found_props: properties
 		}
 	} else {
-		responses << PropfindResponse{
-			href: if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path }
-			// not_found: entry.get_unfound_properties(req)
-			found_props: server.get_properties(entry)
-		}
+	responses << PropfindResponse{
+		href: if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path }
+		// not_found: entry.get_unfound_properties(req)
+		found_props: server.get_properties(entry)
+	}
 	}
 
 	if !entry.is_dir() || req.depth == .zero {
@@ -111,10 +111,15 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		return responses
 	}
 	for e in entries {
+		child_path := if path.ends_with('/') { 
+			path + e.get_metadata().name 
+		} else { 
+			path + '/' + e.get_metadata().name 
+		}
 		responses << server.get_responses(e, PropfindRequest{
 			...req
 			depth: if req.depth == .one { .zero } else { .infinity }
-		}, '${path.trim_string_right('/')}/${e.get_metadata().name}')!
+		}, child_path)!
 	}
 	return responses
 }
