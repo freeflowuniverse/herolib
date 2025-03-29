@@ -325,6 +325,14 @@ fn (p SupportedLock) xml_str() string {
 }
 
 fn (p LockDiscovery) xml() xml.XMLNodeContents {
+	// If p is empty, return an empty lockdiscovery element
+	if p == '' {
+		return xml.XMLNode{
+			name: 'D:lockdiscovery'
+		}
+	}
+
+	// Otherwise, return the lockdiscovery with the lock information
 	return xml.XMLNode{
 		name:     'D:lockdiscovery'
 		children: [xml.XMLNodeContents(p)]

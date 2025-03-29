@@ -70,6 +70,34 @@ fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Prop
 		'quota-used-bytes' { Property(QuotaUsedBytes(16184098816)) }
 		'quotaused' { Property(QuotaUsed(16184098816)) }
 		'quota' { Property(Quota(16184098816)) }
+		'displayname' {
+			// RFC 4918, Section 15.2: displayname is a human-readable name for UI display
+			// For now, we use the filename as the displayname, but this could be enhanced
+			// to support custom displaynames stored in metadata or configuration
+			Property(DisplayName(entry.get_metadata().name))
+		}
+		'getcontenttype' {
+			// RFC 4918, Section 15.5: getcontenttype contains the Content-Type header value
+			// For collections (directories), return httpd/unix-directory
+			// For files, determine the MIME type based on file extension
+			mut content_type := ''
+			if entry.is_dir() {
+				content_type = 'httpd/unix-directory'
+			} else {
+				content_type = get_file_content_type(entry.get_metadata().name)
+			}
+			Property(GetContentType(content_type))
+		}
+		'lockdiscovery' {
+			// RFC 4918, Section 15.8: lockdiscovery provides information about locks
+			// Always show as unlocked for now to ensure compatibility
+			Property(LockDiscovery(''))
+		}
+		's:lastmodified_server' {
+			// This appears to be a custom property requested by some WebDAV clients
+			// Return the last modified time of the resource
+			Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time())))
+		}
 		else { panic('implement ${name}') }
 	}
 }
