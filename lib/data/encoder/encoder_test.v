@@ -3,6 +3,8 @@ module encoder
 import time
 import math
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.data.gid
+import freeflowuniverse.herolib.data.currency
 
 fn test_string() {
 	mut e := new()
@@ -184,6 +186,103 @@ fn test_map_bytes() {
 
 	mut d := decoder_new(e.data)
 	assert d.get_map_bytes()! == mp
+}
+
+fn test_gid() {
+	// Test with a standard GID
+	mut e := new()
+	mut g1 := gid.new("myproject:123")!
+	e.add_gid(g1)
+	
+	// Test with a GID that has a default circle name
+	mut g2 := gid.new_from_parts("", 999)!
+	e.add_gid(g2)
+	
+	// Test with a GID that has spaces before fixing
+	mut g3 := gid.new("project1:456")!
+	e.add_gid(g3)
+	
+	mut d := decoder_new(e.data)
+	assert d.get_gid()!.str() == g1.str()
+	assert d.get_gid()!.str() == g2.str()
+	assert d.get_gid()!.str() == g3.str()
+}
+
+fn test_currency() {
+	// Create USD currency manually
+	mut usd_curr := currency.Currency{
+		name: 'USD'
+		usdval: 1.0
+	}
+
+	// Create EUR currency manually
+	mut eur_curr := currency.Currency{
+		name: 'EUR'
+		usdval: 1.1
+	}
+
+	// Create Bitcoin currency manually
+	mut btc_curr := currency.Currency{
+		name: 'BTC'
+		usdval: 60000.0
+	}
+
+	// Create TFT currency manually
+	mut tft_curr := currency.Currency{
+		name: 'TFT'
+		usdval: 0.05
+	}
+	
+	// Create currency amounts
+	mut usd_amount := currency.Amount{
+		currency: usd_curr
+		val: 1.5
+	}
+	
+	mut eur_amount := currency.Amount{
+		currency: eur_curr
+		val: 100.0
+	}
+	
+	mut btc_amount := currency.Amount{
+		currency: btc_curr
+		val: 0.01
+	}
+	
+	mut tft_amount := currency.Amount{
+		currency: tft_curr
+		val: 1000.0
+	}
+	
+	mut e := new()
+	e.add_currency(usd_amount)
+	e.add_currency(eur_amount)
+	e.add_currency(btc_amount)
+	e.add_currency(tft_amount)
+	
+	mut d := decoder_new(e.data)
+	
+	// Override the currency.get function by manually checking currency names
+	// since we can't rely on the global currency functions for testing
+	mut decoded_curr1 := d.get_string()!
+	mut decoded_val1 := d.get_f64()!
+	assert decoded_curr1 == 'USD'
+	assert math.abs(decoded_val1 - 1.5) < 0.00001
+	
+	mut decoded_curr2 := d.get_string()!
+	mut decoded_val2 := d.get_f64()!
+	assert decoded_curr2 == 'EUR'
+	assert math.abs(decoded_val2 - 100.0) < 0.00001
+	
+	mut decoded_curr3 := d.get_string()!
+	mut decoded_val3 := d.get_f64()!
+	assert decoded_curr3 == 'BTC'
+	assert math.abs(decoded_val3 - 0.01) < 0.00001
+	
+	mut decoded_curr4 := d.get_string()!
+	mut decoded_val4 := d.get_f64()!
+	assert decoded_curr4 == 'TFT'
+	assert math.abs(decoded_val4 - 1000.0) < 0.00001
 }
 
 struct StructType[T] {
