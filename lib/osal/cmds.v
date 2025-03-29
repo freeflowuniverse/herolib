@@ -64,6 +64,17 @@ pub fn cmd_add(args_ CmdAddArgs) ! {
 
 	// lets make sure this path is in profile
 	profile_path_add_remove(paths2add: dest)!
+
+	// Create a symlink in /usr/local/bin if possible (for immediate use without sourcing profile)
+	if core.is_linux()! {
+		usr_local_bin := '/usr/local/bin/${args.cmdname}'
+		if os.exists(usr_local_bin) {
+			os.rm(usr_local_bin) or {}
+		}
+
+		// Try to create symlink, but don't fail if it doesn't work (might need sudo)
+		os.execute('ln -sf ${destpath} ${usr_local_bin}')
+	}
 }
 
 pub fn profile_path_add_hero() !string {
@@ -74,12 +85,9 @@ pub fn profile_path_add_hero() !string {
 
 pub fn bin_path() !string {
 	mut dest := ''
-	if core.is_osx()! {
-		dest = '${os.home_dir()}/hero/bin'
-		dir_ensure(dest)!
-	} else {
-		dest = '/usr/local/bin'
-	}
+	// Use ~/hero/bin for all platforms to avoid permission issues
+	dest = '${os.home_dir()}/hero/bin'
+	dir_ensure(dest)!
 	return dest
 }
 

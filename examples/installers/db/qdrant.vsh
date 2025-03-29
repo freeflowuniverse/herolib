@@ -6,3 +6,4 @@ mut db := qdrant_installer.get()!
 
 db.install()!
 db.start()!
+db.destroy()!
