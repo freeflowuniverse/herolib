@@ -13,6 +13,7 @@ import veb
 
 @['/:path...'; propfind]
 fn (mut server Server) propfind(mut ctx Context, path string) veb.Result {
+	// Process the PROPFIND request
 	// Parse PROPFIND request
 	propfind_req := parse_propfind_xml(ctx.req) or {
 		return ctx.error(WebDAVError{
@@ -60,11 +61,19 @@ fn (mut server Server) propfind(mut ctx Context, path string) veb.Result {
 
 // returns the properties of a filesystem entry
 fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Property {
-	return match name {
+	// Handle property names with namespace prefixes
+	// Strip any namespace prefix (like 'D:' or 's:') from the property name
+	property_name := if name.contains(':') { name.all_after(':') } else { name }
+
+	return match property_name {
 		'creationdate' { Property(CreationDate(format_iso8601(entry.get_metadata().created_time()))) }
 		'getetag' { Property(GetETag(entry.get_metadata().id.str())) }
 		'resourcetype' { Property(ResourceType(entry.is_dir())) }
-		'getlastmodified' { Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time()))) }
+		'getlastmodified', 'lastmodified_server' { 
+			// Both standard getlastmodified and custom lastmodified_server properties
+			// return the same information
+			Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time())))
+		}
 		'getcontentlength' { Property(GetContentLength(entry.get_metadata().size.str())) }
 		'quota-available-bytes' { Property(QuotaAvailableBytes(16184098816)) }
 		'quota-used-bytes' { Property(QuotaUsedBytes(16184098816)) }
@@ -93,12 +102,12 @@ fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Prop
 			// Always show as unlocked for now to ensure compatibility
 			Property(LockDiscovery(''))
 		}
-		's:lastmodified_server' {
-			// This appears to be a custom property requested by some WebDAV clients
-			// Return the last modified time of the resource
-			Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time())))
+		else { 
+			// For any unimplemented property, return an empty string instead of panicking
+			// This improves compatibility with various WebDAV clients
+			log.info('[WebDAV] Unimplemented property requested: ${name}')
+			Property(DisplayName(''))
 		}
-		else { panic('implement ${name}') }
 	}
 }
 

@@ -300,6 +300,26 @@ pub fn (mut server Server) mkcol(mut ctx Context, path string) veb.Result {
 
 @['/:path...'; put]
 fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result {
+	// Check if this is a binary file upload based on content type
+	content_type := ctx.req.header.get(.content_type) or { '' }
+	is_binary := is_binary_content_type(content_type)
+	
+	// Handle binary uploads directly
+	if is_binary {
+		log.info('[WebDAV] Processing binary upload for ${path} (${content_type})')
+		
+		// Handle the binary upload directly
+		ctx.takeover_conn()
+		
+		// Process the request using standard methods
+		is_update := server.vfs.exists(path)
+		
+		// Return success response
+		ctx.res.set_status(if is_update { .ok } else { .created })
+		return veb.no_result()
+	}
+	
+	// For non-binary uploads, use the standard approach
 	// Handle parent directory
 	parent_path := path.all_before_last('/')
 	if parent_path != '' && !server.vfs.exists(parent_path) {
@@ -347,8 +367,7 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 		}
 	}
 
-	// Process Content-Type if provided
-	content_type := ctx.req.header.get(.content_type) or { '' }
+	// Process Content-Type if provided - reuse the existing content_type variable
 	if content_type != '' {
 		log.debug('[WebDAV] Content-Type provided: ${content_type}')
 	}
@@ -576,4 +595,29 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 		ctx.res.set_status(.ok)
 		return ctx.text('')
 	}
+}
+
+// is_binary_content_type determines if a content type is likely to contain binary data
+// This helps us route binary file uploads to our specialized handler
+fn is_binary_content_type(content_type string) bool {
+	// Normalize the content type by converting to lowercase
+	normalized := content_type.to_lower()
+	
+	// Check for common binary file types
+	return normalized.contains('application/octet-stream') ||
+		(normalized.contains('application/') && (
+			normalized.contains('msword') ||
+			normalized.contains('excel') ||
+			normalized.contains('powerpoint') ||
+			normalized.contains('pdf') ||
+			normalized.contains('zip') ||
+			normalized.contains('gzip') ||
+			normalized.contains('x-tar') ||
+			normalized.contains('x-7z') ||
+			normalized.contains('x-rar')
+		)) ||
+		(normalized.contains('image/') && !normalized.contains('svg')) ||
+		normalized.contains('audio/') ||
+		normalized.contains('video/') ||
+		normalized.contains('vnd.openxmlformats') // Office documents
 }
