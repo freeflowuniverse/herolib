@@ -46,6 +46,8 @@ struct ChatMessagesRaw {
 mut:
 	model    string
 	messages []MessageRaw
+	temperature f64 = 0.5
+	max_completion_tokens int = 32000
 }
 
 @[params]
@@ -53,7 +55,8 @@ pub struct CompletionArgs{
 pub mut:
 	model string
 	msgs Messages
-
+	temperature f64 = 0.5
+	max_completion_tokens int = 32000
 }
 
 // creates a new chat completion given a list of messages
@@ -65,6 +68,8 @@ pub fn (mut f OpenAI) chat_completion(args_ CompletionArgs) !ChatCompletion {
 	}
 	mut m := ChatMessagesRaw{
 		model: args.model
+		temperature: args.temperature
+		max_completion_tokens: args.max_completion_tokens
 	}
 	for msg in args.msgs.messages {
 		mr := MessageRaw{

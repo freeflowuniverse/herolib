@@ -8,6 +8,13 @@ import os
 
 fn test1(mut client openai.OpenAI)!{
 
+
+	instruction:='
+	You are a template language converter. You convert Pug templates to Jet templates.
+
+	The target template language, Jet, is defined as follows:
+	'
+
 	// Create a chat completion request
 	res := client.chat_completion(msgs:openai.Messages{
 		messages: [
