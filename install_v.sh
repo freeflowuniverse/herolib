@@ -446,9 +446,12 @@ v-install() {
 
 v-analyzer() {
 
+    set -ex
+
     # Install v-analyzer if requested
     if [ "$INSTALL_ANALYZER" = true ]; then
         echo "Installing v-analyzer..."
+        cd /tmp
         v download -RD https://raw.githubusercontent.com/vlang/v-analyzer/main/install.vsh
 
         # Check if v-analyzer bin directory exists
@@ -517,10 +520,7 @@ if [ "$RESET" = true ] || ! command_exists v; then
 
     v-install
 
-    # Only install v-analyzer if not in GitHub Actions environment
-    if ! is_github_actions; then
-        v-analyzer
-    fi
+
 
 fi
 
@@ -534,6 +534,10 @@ fi
 
 
 if [ "$INSTALL_ANALYZER" = true ]; then
+    # Only install v-analyzer if not in GitHub Actions environment
+    if ! is_github_actions; then
+        v-analyzer
+    fi
     echo "Run 'source ~/.bashrc' or 'source ~/.zshrc' to update PATH for v-analyzer"
 fi
 

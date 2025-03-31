@@ -39,7 +39,7 @@ fn args_get (args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&${args.classname}  {
     mut context:=base.context()!
     mut args := args_get(args_)
-    mut obj := ${args.classname}{}
+    mut obj := ${args.classname}{name:args.name}
 	if !(args.name in ${args.name}_global) {
         if ! exists(args)!{            
             set(obj)!

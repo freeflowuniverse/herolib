@@ -1,8 +1,12 @@
 #!/usr/bin/env -S v -n -w -gc none -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.clients.qdrant
+import freeflowuniverse.herolib.installers.db.qdrant as qdrant_installer
 import freeflowuniverse.herolib.core.httpconnection
 import rand
+
+mut i:=qdrant_installer.get()!
+i.install()!
 
 // 1. Get the qdrant client
 mut qdrant_client := qdrant.get()!

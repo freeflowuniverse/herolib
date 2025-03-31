@@ -48,13 +48,25 @@ mut:
 	messages []MessageRaw
 }
 
+@[params]
+pub struct CompletionArgs{
+pub mut:
+	model string
+	msgs Messages
+
+}
+
 // creates a new chat completion given a list of messages
 // each message consists of message content and the role of the author
-pub fn (mut f OpenAI) chat_completion(model_type string, msgs Messages) !ChatCompletion {
-	mut m := ChatMessagesRaw{
-		model: model_type
+pub fn (mut f OpenAI) chat_completion(args_ CompletionArgs) !ChatCompletion {
+	mut args:=args_
+	if args.model==""{
+		args.model = f.model_default
 	}
-	for msg in msgs.messages {
+	mut m := ChatMessagesRaw{
+		model: args.model
+	}
+	for msg in args.msgs.messages {
 		mr := MessageRaw{
 			role:    roletype_str(msg.role)
 			content: msg.content
@@ -62,10 +74,10 @@ pub fn (mut f OpenAI) chat_completion(model_type string, msgs Messages) !ChatCom
 		m.messages << mr
 	}
 	data := json.encode(m)
-	println('data: ${data}')
+	// println('data: ${data}')
 	mut conn := f.connection()!
 	r := conn.post_json_str(prefix: 'chat/completions', data: data)!
-	println('res: ${r}')
+	// println('res: ${r}')
 
 	res := json.decode(ChatCompletion, r)!
 	return res

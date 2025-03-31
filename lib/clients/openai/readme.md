@@ -6,7 +6,7 @@ To get started
 
 
 
-import freeflowuniverse.herolib.clients. openai
+import freeflowuniverse.herolib.clients.openai
 
 mut client:= openai.get()!
 
@@ -20,8 +20,5 @@ client...
 ## example heroscript
 
 ```hero
-!!openai.configure
-    secret: '...'
-    host: 'localhost'
-    port: 8888
+!!openai.configure key
 ```

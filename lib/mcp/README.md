@@ -43,22 +43,3 @@ config := mcp.ServerConfiguration{
 mut server := mcp.new_server(handlers, config)!
 server.start()!
 ```
-
-## Development Tools
-
-The module includes several development tools accessible through the `v_do` directory:
-
-- **test**: Run tests for V files
-- **run**: Execute V files
-- **compile**: Compile V files
-- **vet**: Perform static analysis on V files
-
-## Dependencies
-
-- `freeflowuniverse.herolib.schemas.jsonrpc`: For JSON-RPC communication
-- `x.json2`: For JSON serialization/deserialization
-- Standard V libraries: `time`, `os`, `log`
-
-## License
-
-This module is part of the HeroLib project. See the project's license for more information.

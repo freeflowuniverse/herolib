@@ -56,6 +56,15 @@ pub fn env_get(key string) !string {
 	return os.environ()[key]!
 }
 
+pub fn env_exists(key string) !bool {
+	k:=os.environ()
+	if key in k{
+		return true
+	}
+	return false
+}
+
+
 // Returns the requested environment variable if it exists or returns the provided default value if it does not
 pub fn env_get_default(key string, def string) string {
 	return os.environ()[key] or { return def }
