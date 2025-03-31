@@ -1,13 +1,12 @@
 # qdrant
 
-
+Is a powerfull db for embedding for AI Agents.
 
 To get started
 
 ```vlang
 
-
-import freeflowuniverse.herolib.installers.something.qdrant as qdrant_installer
+import freeflowuniverse.herolib.installers.db.qdrant_installer
 
 heroscript:="
 !!qdrant.configure name:'test'
@@ -27,18 +26,3 @@ qdrant_installer.play(heroscript=heroscript)!
 
 
 ```
-
-## example heroscript
-
-```hero
-!!qdrant.configure
-    homedir: '/home/user/qdrant'
-    username: 'admin'
-    password: 'secretpassword'
-    title: 'Some Title'
-    host: 'localhost'
-    port: 8888
-
-```
-
-

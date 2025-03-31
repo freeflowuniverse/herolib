@@ -1,6 +1,6 @@
 
 !!hero_code.generate_installer
-    name:'qdrant'
+    name:'qdrant_installer'
     classname:'QDrant'
     singleton:0
     templates:1

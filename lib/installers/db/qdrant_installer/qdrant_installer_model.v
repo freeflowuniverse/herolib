@@ -1,8 +1,8 @@
-module qdrant
+module qdrant_installer
 
-import os
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.pathlib
+import os
 
 pub const version = '1.13.4'
 const singleton = false
@@ -35,7 +35,6 @@ fn configure() ! {
 	mut mycode := $tmpl('templates/config.yaml')
 	mut path := pathlib.get_file(path: '${os.home_dir()}/hero/var/qdrant/config.yaml', create: true)!
 	path.write(mycode)!
-	// console.print_debug(mycode)
 }
 
 /////////////NORMALLY NO NEED TO TOUCH

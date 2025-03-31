@@ -14,7 +14,6 @@ heroscript:="
     masterkey: '1234'
     port: 7701
 
-!!meilisearch.start name:'test' reset:1 
 "
 
 meilisearchinstaller.play(heroscript=heroscript)!

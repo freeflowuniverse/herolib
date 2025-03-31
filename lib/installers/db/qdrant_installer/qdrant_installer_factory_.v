@@ -1,4 +1,4 @@
-module qdrant
+module qdrant_installer
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
@@ -8,8 +8,8 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-	qdrant_global  map[string]&QDrant
-	qdrant_default string
+	qdrant_installer_global  map[string]&QDrant
+	qdrant_installer_default string
 )
 
 /////////FACTORY
@@ -32,19 +32,19 @@ pub fn get(args_ ArgsGet) !&QDrant {
 	mut context := base.context()!
 	mut args := args_get(args_)
 	mut obj := QDrant{}
-	if args.name !in qdrant_global {
+	if args.name !in qdrant_installer_global {
 		if !exists(args)! {
 			set(obj)!
 		} else {
-			heroscript := context.hero_config_get('qdrant', args.name)!
+			heroscript := context.hero_config_get('qdrant_installer', args.name)!
 			mut obj_ := heroscript_loads(heroscript)!
 			set_in_mem(obj_)!
 		}
 	}
-	return qdrant_global[args.name] or {
-		println(qdrant_global)
+	return qdrant_installer_global[args.name] or {
+		println(qdrant_installer_global)
 		// bug if we get here because should be in globals
-		panic('could not get config for qdrant with name, is bug:${args.name}')
+		panic('could not get config for qdrant_installer with name, is bug:${args.name}')
 	}
 }
 
@@ -53,30 +53,30 @@ pub fn set(o QDrant) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('qdrant', o.name, heroscript)!
+	context.hero_config_set('qdrant_installer', o.name, heroscript)!
 }
 
 // does the config exists?
 pub fn exists(args_ ArgsGet) !bool {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	return context.hero_config_exists('qdrant', args.name)
+	return context.hero_config_exists('qdrant_installer', args.name)
 }
 
 pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_delete('qdrant', args.name)!
-	if args.name in qdrant_global {
-		// del qdrant_global[args.name]
+	context.hero_config_delete('qdrant_installer', args.name)!
+	if args.name in qdrant_installer_global {
+		// del qdrant_installer_global[args.name]
 	}
 }
 
 // only sets in mem, does not set as config
 fn set_in_mem(o QDrant) ! {
 	mut o2 := obj_init(o)!
-	qdrant_global[o.name] = &o2
-	qdrant_default = o.name
+	qdrant_installer_global[o.name] = &o2
+	qdrant_installer_default = o.name
 }
 
 @[params]
@@ -92,7 +92,7 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
-	mut install_actions := plbook.find(filter: 'qdrant.configure')!
+	mut install_actions := plbook.find(filter: 'qdrant_installer.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
@@ -101,37 +101,37 @@ pub fn play(args_ PlayArgs) ! {
 		}
 	}
 
-	mut other_actions := plbook.find(filter: 'qdrant.')!
+	mut other_actions := plbook.find(filter: 'qdrant_installer.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
 			mut p := other_action.params
 			reset := p.get_default_false('reset')
 			if other_action.name == 'destroy' || reset {
-				console.print_debug('install action qdrant.destroy')
+				console.print_debug('install action qdrant_installer.destroy')
 				destroy()!
 			}
 			if other_action.name == 'install' {
-				console.print_debug('install action qdrant.install')
+				console.print_debug('install action qdrant_installer.install')
 				install()!
 			}
 		}
 		if other_action.name in ['start', 'stop', 'restart'] {
 			mut p := other_action.params
 			name := p.get('name')!
-			mut qdrant_obj := get(name: name)!
-			console.print_debug('action object:\n${qdrant_obj}')
+			mut qdrant_installer_obj := get(name: name)!
+			console.print_debug('action object:\n${qdrant_installer_obj}')
 			if other_action.name == 'start' {
-				console.print_debug('install action qdrant.${other_action.name}')
-				qdrant_obj.start()!
+				console.print_debug('install action qdrant_installer.${other_action.name}')
+				qdrant_installer_obj.start()!
 			}
 
 			if other_action.name == 'stop' {
-				console.print_debug('install action qdrant.${other_action.name}')
-				qdrant_obj.stop()!
+				console.print_debug('install action qdrant_installer.${other_action.name}')
+				qdrant_installer_obj.stop()!
 			}
 			if other_action.name == 'restart' {
-				console.print_debug('install action qdrant.${other_action.name}')
-				qdrant_obj.restart()!
+				console.print_debug('install action qdrant_installer.${other_action.name}')
+				qdrant_installer_obj.restart()!
 			}
 		}
 	}
@@ -175,7 +175,7 @@ pub fn (mut self QDrant) start() ! {
 		return
 	}
 
-	console.print_header('qdrant start')
+	console.print_header('qdrant_installer start')
 
 	if !installed()! {
 		install()!
@@ -188,7 +188,7 @@ pub fn (mut self QDrant) start() ! {
 	for zprocess in startupcmd()! {
 		mut sm := startupmanager_get(zprocess.startuptype)!
 
-		console.print_debug('starting qdrant with ${zprocess.startuptype}...')
+		console.print_debug('starting qdrant_installer with ${zprocess.startuptype}...')
 
 		sm.new(zprocess)!
 
@@ -203,7 +203,7 @@ pub fn (mut self QDrant) start() ! {
 		}
 		time.sleep(100 * time.millisecond)
 	}
-	return error('qdrant did not install properly.')
+	return error('qdrant_installer did not install properly.')
 }
 
 pub fn (mut self QDrant) install_start(args InstallArgs) ! {
@@ -266,9 +266,9 @@ pub fn (mut self QDrant) destroy() ! {
 	destroy()!
 }
 
-// switch instance to be used for qdrant
+// switch instance to be used for qdrant_installer
 pub fn switch(name string) {
-	qdrant_default = name
+	qdrant_installer_default = name
 }
 
 // helpers
