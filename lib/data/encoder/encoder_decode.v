@@ -3,6 +3,7 @@ module encoder
 import encoding.binary as bin
 import freeflowuniverse.herolib.data.ourtime
 import time
+import freeflowuniverse.herolib.data.gid
 
 pub struct Decoder {
 pub mut:
@@ -127,6 +128,14 @@ pub fn (mut d Decoder) get_i64() !i64 {
 	return u64(bin.little_endian_u64(bytes))
 }
 
+pub fn (mut d Decoder) get_f64() !f64 {
+	// Get the u64 bits first and then convert back to f64
+	bits := d.get_u64()!
+	// Use unsafe to convert bits to f64
+	f := unsafe { *(&f64(&bits)) }
+	return f
+}
+
 pub fn (mut d Decoder) get_time() !time.Time {
 	secs_ := d.get_u32()!
 	secs := i64(secs_)
@@ -137,6 +146,14 @@ pub fn (mut d Decoder) get_ourtime() !ourtime.OurTime {
 	return ourtime.OurTime{
 		unixt: d.get_u32()!
 	}
+}
+
+pub fn (mut d Decoder) get_percentage() !u8 {
+	val := d.get_u8()!
+	if val > 100 {
+		return error('percentage value ${val} exceeds 100')
+	}
+	return val
 }
 
 pub fn (mut d Decoder) get_list_string() ![]string {
@@ -220,4 +237,10 @@ pub fn (mut d Decoder) get_map_bytes() !map[string][]u8 {
 		v[key] = val
 	}
 	return v
+}
+
+// Gets GID from encoded string
+pub fn (mut d Decoder) get_gid() !gid.GID {
+    gid_str := d.get_string()!
+    return gid.new(gid_str)
 }

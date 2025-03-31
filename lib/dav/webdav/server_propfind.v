@@ -13,6 +13,7 @@ import veb
 
 @['/:path...'; propfind]
 fn (mut server Server) propfind(mut ctx Context, path string) veb.Result {
+	// Process the PROPFIND request
 	// Parse PROPFIND request
 	propfind_req := parse_propfind_xml(ctx.req) or {
 		return ctx.error(WebDAVError{
@@ -60,17 +61,53 @@ fn (mut server Server) propfind(mut ctx Context, path string) veb.Result {
 
 // returns the properties of a filesystem entry
 fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Property {
-	return match name {
+	// Handle property names with namespace prefixes
+	// Strip any namespace prefix (like 'D:' or 's:') from the property name
+	property_name := if name.contains(':') { name.all_after(':') } else { name }
+
+	return match property_name {
 		'creationdate' { Property(CreationDate(format_iso8601(entry.get_metadata().created_time()))) }
 		'getetag' { Property(GetETag(entry.get_metadata().id.str())) }
 		'resourcetype' { Property(ResourceType(entry.is_dir())) }
-		'getlastmodified' { Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time()))) }
+		'getlastmodified', 'lastmodified_server' { 
+			// Both standard getlastmodified and custom lastmodified_server properties
+			// return the same information
+			Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time())))
+		}
 		'getcontentlength' { Property(GetContentLength(entry.get_metadata().size.str())) }
 		'quota-available-bytes' { Property(QuotaAvailableBytes(16184098816)) }
 		'quota-used-bytes' { Property(QuotaUsedBytes(16184098816)) }
 		'quotaused' { Property(QuotaUsed(16184098816)) }
 		'quota' { Property(Quota(16184098816)) }
-		else { panic('implement ${name}') }
+		'displayname' {
+			// RFC 4918, Section 15.2: displayname is a human-readable name for UI display
+			// For now, we use the filename as the displayname, but this could be enhanced
+			// to support custom displaynames stored in metadata or configuration
+			Property(DisplayName(entry.get_metadata().name))
+		}
+		'getcontenttype' {
+			// RFC 4918, Section 15.5: getcontenttype contains the Content-Type header value
+			// For collections (directories), return httpd/unix-directory
+			// For files, determine the MIME type based on file extension
+			mut content_type := ''
+			if entry.is_dir() {
+				content_type = 'httpd/unix-directory'
+			} else {
+				content_type = get_file_content_type(entry.get_metadata().name)
+			}
+			Property(GetContentType(content_type))
+		}
+		'lockdiscovery' {
+			// RFC 4918, Section 15.8: lockdiscovery provides information about locks
+			// Always show as unlocked for now to ensure compatibility
+			Property(LockDiscovery(''))
+		}
+		else { 
+			// For any unimplemented property, return an empty string instead of panicking
+			// This improves compatibility with various WebDAV clients
+			log.info('[WebDAV] Unimplemented property requested: ${name}')
+			Property(DisplayName(''))
+		}
 	}
 }
 
@@ -90,16 +127,16 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		}
 		// main entry response
 		responses << PropfindResponse{
-			href: if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path }
+			href: ensure_leading_slash(if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path })
 			// not_found: entry.get_unfound_properties(req)
 			found_props: properties
 		}
 	} else {
-		responses << PropfindResponse{
-			href: if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path }
-			// not_found: entry.get_unfound_properties(req)
-			found_props: server.get_properties(entry)
-		}
+	responses << PropfindResponse{
+		href: ensure_leading_slash(if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path })
+		// not_found: entry.get_unfound_properties(req)
+		found_props: server.get_properties(entry)
+	}
 	}
 
 	if !entry.is_dir() || req.depth == .zero {
@@ -111,12 +148,25 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		return responses
 	}
 	for e in entries {
+		child_path := if path.ends_with('/') { 
+			path + e.get_metadata().name 
+		} else { 
+			path + '/' + e.get_metadata().name 
+		}
 		responses << server.get_responses(e, PropfindRequest{
 			...req
 			depth: if req.depth == .one { .zero } else { .infinity }
-		}, '${path.trim_string_right('/')}/${e.get_metadata().name}')!
+		}, child_path)!
 	}
 	return responses
+}
+
+// Helper function to ensure a path has a leading slash
+fn ensure_leading_slash(path string) string {
+	if path.starts_with('/') {
+		return path
+	}
+	return '/' + path
 }
 
 // returns the properties of a filesystem entry

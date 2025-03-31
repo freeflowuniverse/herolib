@@ -3,6 +3,7 @@ module encoder
 import time
 import encoding.binary as bin
 import freeflowuniverse.herolib.data.ourtime
+import freeflowuniverse.herolib.data.gid
 
 const kb = 1024
 
@@ -99,6 +100,25 @@ pub fn (mut b Encoder) add_time(data time.Time) {
 
 pub fn (mut b Encoder) add_ourtime(data ourtime.OurTime) {
 	b.add_u32(u32(data.unixt))
+}
+
+// adds a float64 value
+pub fn (mut b Encoder) add_f64(data f64) {
+	// Convert f64 to bits first, then store as u64
+	bits := unsafe { *(&u64(&data)) }
+	b.add_u64(bits)
+}
+
+// adds gid as a string
+pub fn (mut b Encoder) add_gid(data gid.GID) {
+	b.add_string(data.str())
+}
+
+pub fn (mut b Encoder) add_percentage(data u8) {
+	if data > 100 {
+		panic('percentage cannot be greater than 100')
+	}
+	b.add_u8(data)
 }
 
 pub fn (mut b Encoder) add_list_string(data []string) {

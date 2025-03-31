@@ -5,10 +5,12 @@ import freeflowuniverse.herolib.circles.mcc.db as mcc_db
 import freeflowuniverse.herolib.circles.actions.db as actions_db
 import freeflowuniverse.herolib.circles.base { SessionState }
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.redisclient
 
 __global (
 	circle_global  map[string]&CircleCoordinator
 	circle_default string
+	action_queues map[string]&ActionQueue
 )
 
 // HeroRunner is the main factory for managing jobs, agents, services, circles and names
@@ -22,6 +24,7 @@ pub mut:
 	mails         &mcc_db.MailDB
 	calendar      &mcc_db.CalendarDB
 	jobs          &actions_db.JobDB
+	action_queues map[string]&ActionQueue
 	session_state SessionState
 }
 
@@ -85,10 +88,88 @@ pub fn new(args_ CircleCoordinatorArgs) !&CircleCoordinator {
 		mails:         &mail_db
 		calendar:      &calendar_db
 		jobs:          &job_db
+		action_queues: map[string]&ActionQueue{}
 		session_state: session_state
 	}
 
 	circle_global[args.name] = cm
 
 	return cm
+}
+
+// ActionQueueArgs defines the parameters for creating a new ActionQueue
+@[params]
+pub struct ActionQueueArgs {
+pub mut:
+	name string = 'default' // Name of the queue
+	redis_addr string // Redis server address, defaults to 'localhost:6379'
+}
+
+// new_action_queue creates a new ActionQueue
+pub fn new_action_queue(args ActionQueueArgs) !&ActionQueue {
+	// Normalize the queue name
+	queue_name := texttools.name_fix(args.name)
+	
+	// Check if queue already exists in global map
+	if queue_name in action_queues {
+		mut q := action_queues[queue_name] or { panic('bug') }
+		return q
+	}
+	
+	// Set default Redis address if not provided
+	mut redis_addr := args.redis_addr
+	if redis_addr == '' {
+		redis_addr = 'localhost:6379'
+	}
+	
+	// Create Redis client
+	mut redis := redisclient.new(redis_addr)!
+	
+	// Create Redis queue
+	queue_key := 'actionqueue:${queue_name}'
+	mut redis_queue := redis.queue_get(queue_key)
+	
+	// Create ActionQueue
+	mut action_queue := &ActionQueue{
+		name: queue_name
+		queue: &redis_queue
+		redis: redis
+	}
+	
+	// Store in global map
+	action_queues[queue_name] = action_queue
+	
+	return action_queue
+}
+
+// get_action_queue retrieves an existing ActionQueue or creates a new one
+pub fn get_action_queue(name string) !&ActionQueue {
+	queue_name := texttools.name_fix(name)
+	
+	if queue_name in action_queues {
+		mut q := action_queues[queue_name] or { panic('bug') }
+		return q
+	}
+	
+	return new_action_queue(ActionQueueArgs{
+		name: queue_name
+	})!
+}
+
+// get_or_create_action_queue retrieves an existing ActionQueue for a CircleCoordinator or creates a new one
+pub fn (mut cc CircleCoordinator) get_or_create_action_queue(name string) !&ActionQueue {
+	queue_name := texttools.name_fix(name)
+	
+	if queue_name in cc.action_queues {
+		mut q := cc.action_queues[queue_name] or { panic('bug') }
+		return q
+	}
+	
+	mut action_queue := new_action_queue(ActionQueueArgs{
+		name: queue_name
+	})!
+	
+	cc.action_queues[queue_name] = action_queue
+	
+	return action_queue
 }

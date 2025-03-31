@@ -60,6 +60,22 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Function to run commands with sudo if needed
+function run_sudo() {
+    # Check if we're already root
+    if [ "$(id -u)" -eq 0 ]; then
+        # We are root, run the command directly
+        "$@"
+    # Check if sudo is installed
+    elif command_exists sudo; then
+        # Use sudo to run the command
+        sudo "$@"
+    else
+        # No sudo available, try to run directly
+        "$@"
+    fi
+}
+
 export DIR_BASE="$HOME"
 export DIR_BUILD="/tmp"
 export DIR_CODE="$DIR_BASE/code"
@@ -93,7 +109,7 @@ function package_install {
     local command_name="$1"
     if [[ "${OSNAME}" == "ubuntu" ]]; then
         if is_github_actions; then
-            sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
+            run_sudo apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
         else
             apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" install $1 -q -y --allow-downgrades --allow-remove-essential 
         fi
@@ -167,8 +183,8 @@ function os_update {
         fi    
         export TERM=xterm
         export DEBIAN_FRONTEND=noninteractive
-        sudo dpkg --configure -a        
-        sudo apt update -y
+        run_sudo dpkg --configure -a        
+        run_sudo apt update -y
         if is_github_actions; then
             echo "** IN GITHUB ACTIONS, DON'T DO UPDATE"
         else            
@@ -242,8 +258,11 @@ function hero_lib_get {
 }
 
 function install_secp256k1 {
+
     echo "Installing secp256k1..."
     if [[ "${OSNAME}" == "darwin"* ]]; then
+        # Attempt installation only if not already found
+        echo "Attempting secp256k1 installation via Homebrew..."
         brew install secp256k1
     elif [[ "${OSNAME}" == "ubuntu" ]]; then
         # Install build dependencies
@@ -260,7 +279,7 @@ function install_secp256k1 {
         ./configure
         make -j 5
         if is_github_actions; then
-            sudo make install
+            run_sudo make install
         else
             make install
         fi
@@ -281,16 +300,16 @@ remove_all() {
     # Set reset to true to use existing reset functionality
     RESET=true
     # Call reset functionality
-    sudo rm -rf ~/code/v
-    sudo rm -rf ~/_code/v
-    sudo rm -rf ~/.config/v-analyzer
+    run_sudo rm -rf ~/code/v
+    run_sudo rm -rf ~/_code/v
+    run_sudo rm -rf ~/.config/v-analyzer
     if command_exists v; then
         echo "Removing V from system..."
-        sudo rm -f $(which v)
+        run_sudo rm -f $(which v)
     fi
     if command_exists v-analyzer; then
         echo "Removing v-analyzer from system..."
-        sudo rm -f $(which v-analyzer)
+        run_sudo rm -f $(which v-analyzer)
     fi
 
     # Remove v-analyzer path from rc files
@@ -317,8 +336,6 @@ remove_all() {
 # Function to check if a service is running and start it if needed
 check_and_start_redis() {
 
-
-    
     # Normal service management for non-container environments
     if [[ "${OSNAME}" == "ubuntu" ]] || [[ "${OSNAME}" == "debian" ]]; then
 
@@ -326,12 +343,12 @@ check_and_start_redis() {
         if is_github_actions; then
 
                 # Import Redis GPG key
-            curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+            curl -fsSL https://packages.redis.io/gpg | run_sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
             # Add Redis repository
-            echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+            echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | run_sudo tee /etc/apt/sources.list.d/redis.list
             # Install Redis
-            sudo apt-get update
-            sudo apt-get install -y redis
+            run_sudo apt-get update
+            run_sudo apt-get install -y redis
                 
             # Start Redis
             redis-server --daemonize yes
@@ -366,7 +383,7 @@ check_and_start_redis() {
             echo "redis is already running."
         else
             echo "redis is not running. Starting it..."
-            sudo systemctl start "redis"
+            run_sudo systemctl start "redis"
             if systemctl is-active --quiet "redis"; then
                 echo "redis started successfully."
             else
@@ -411,7 +428,7 @@ check_and_start_redis() {
             echo "redis is already running."
         else
             echo "redis is not running. Starting it..."
-            sudo systemctl start "redis"
+            run_sudo systemctl start "redis"
         fi
     else
         echo "Service management for redis is not implemented for platform: $OSNAME"
@@ -421,16 +438,47 @@ check_and_start_redis() {
 
 v-install() {
 
+    # Check if v is already installed and in PATH
+    if command_exists v; then
+        echo "V is already installed and in PATH."
+        # Optionally, verify the installation location or version if needed
+        # For now, just exit the function assuming it's okay
+        return 0
+    fi
+
+
     # Only clone and install if directory doesn't exist
-    if [ ! -d ~/code/v ]; then
-        echo "Installing V..."
+    # Note: The original check was for ~/code/v, but the installation happens in ~/_code/v.
+    if [ ! -d ~/_code/v ]; then
+        echo "Cloning V..."
         mkdir -p ~/_code
         cd ~/_code
-        git clone --depth=1 https://github.com/vlang/v
-        cd v
-        make
-        sudo ./v symlink
+        if ! git clone --depth=1 https://github.com/vlang/v; then
+            echo "❌ Failed to clone V. Cleaning up..."
+            rm -rf "$V_DIR"
+            exit 1
+        fi
     fi
+
+
+    # Only clone and install if directory doesn't exist
+    # Note: The original check was for ~/code/v, but the installation happens in ~/_code/v.
+    # Adjusting the check to the actual installation directory.
+    echo "Building V..."
+    cd ~/_code/v
+    make
+    # Verify the build produced the executable
+    if [ ! -x ~/_code/v/v ]; then
+        echo "Error: V build failed, executable ~/_code/v/v not found or not executable."
+        exit 1
+    fi
+    # Check if the built executable can report its version
+    if ! ~/_code/v/v -version > /dev/null 2>&1; then
+            echo "Error: Built V executable (~/_code/v/v) failed to report version."
+            exit 1
+    fi
+    echo "V built successfully. Creating symlink..."
+    run_sudo ./v symlink
 
     # Verify v is in path
     if ! command_exists v; then

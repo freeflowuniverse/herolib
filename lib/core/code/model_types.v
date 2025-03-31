@@ -91,46 +91,66 @@ pub fn type_from_symbol(symbol_ string) Type {
 	return Object{symbol}
 }
 
+pub fn (t Array) symbol() string {
+	return '[]${t.typ.symbol()}'
+}
+
+pub fn (t Object) symbol() string {
+	return t.name
+}
+
+pub fn (t Result) symbol() string {
+	return '!${t.typ.symbol()}'
+}
+
+pub fn (t Integer) symbol() string {
+	mut str := ''
+	if !t.signed {
+		str += 'u'
+	}
+	if t.bytes != 0 {
+		return '${str}${t.bytes}'
+	} else {
+		return '${str}int'
+	}
+}
+
+pub fn (t Alias) symbol() string {
+	return t.name
+}
+
+pub fn (t String) symbol() string {
+	return 'string'
+}
+
+pub fn (t Boolean) symbol() string {
+	return 'bool'
+}
+
+pub fn (t Map) symbol() string {
+	return 'map[string]${t.typ.symbol()}'
+}
+
+pub fn (t Function) symbol() string {
+	return 'fn ()'
+}
+
+pub fn (t Void) symbol() string {
+	return ''
+}
+
 pub fn (t Type) symbol() string {
 	return match t {
-		Array {
-			'[]${t.typ.symbol()}'
-		}
-		Object {
-			t.name
-		}
-		Result {
-			'!${t.typ.symbol()}'
-		}
-		Integer {
-			mut str := ''
-			if !t.signed {
-				str += 'u'
-			}
-			if t.bytes != 0 {
-				'${str}${t.bytes}'
-			} else {
-				'${str}int'
-			}
-		}
-		Alias {
-			t.name
-		}
-		String {
-			'string'
-		}
-		Boolean {
-			'bool'
-		}
-		Map {
-			'map[string]${t.typ.symbol()}'
-		}
-		Function {
-			'fn ()'
-		}
-		Void {
-			''
-		}
+		Array { t.symbol() }
+		Object { t.symbol() }
+		Result { t.symbol() }
+		Integer { t.symbol() }
+		Alias { t.symbol() }
+		String { t.symbol() }
+		Boolean { t.symbol() }
+		Map { t.symbol() }
+		Function { t.symbol() }
+		Void { t.symbol() }
 	}
 }
 
@@ -213,4 +233,75 @@ pub fn (t Type) empty_value() string {
 			''
 		}
 	}
+}
+
+// parse_type parses a type string into a Type struct
+pub fn parse_type(type_str string) Type {
+	println('Parsing type string: "${type_str}"')
+	mut type_str_trimmed := type_str.trim_space()
+	
+	// Handle struct definitions by extracting just the struct name
+	if type_str_trimmed.contains('struct ') {
+		lines := type_str_trimmed.split_into_lines()
+		for line in lines {
+			if line.contains('struct ') {
+				mut struct_name := ''
+				if line.contains('pub struct ') {
+					struct_name = line.all_after('pub struct ').all_before('{')
+				} else {
+					struct_name = line.all_after('struct ').all_before('{')
+				}
+				struct_name = struct_name.trim_space()
+				println('Extracted struct name: "${struct_name}"')
+				return Object{struct_name}
+			}
+		}
+	}
+	
+	// Check for simple types first
+	if type_str_trimmed == 'string' {
+		return String{}
+	} else if type_str_trimmed == 'bool' || type_str_trimmed == 'boolean' {
+		return Boolean{}
+	} else if type_str_trimmed == 'int' {
+		return Integer{}
+	} else if type_str_trimmed == 'u8' {
+		return Integer{bytes: 8, signed: false}
+	} else if type_str_trimmed == 'u16' {
+		return Integer{bytes: 16, signed: false}
+	} else if type_str_trimmed == 'u32' {
+		return Integer{bytes: 32, signed: false}
+	} else if type_str_trimmed == 'u64' {
+		return Integer{bytes: 64, signed: false}
+	} else if type_str_trimmed == 'i8' {
+		return Integer{bytes: 8}
+	} else if type_str_trimmed == 'i16' {
+		return Integer{bytes: 16}
+	} else if type_str_trimmed == 'i32' {
+		return Integer{bytes: 32}
+	} else if type_str_trimmed == 'i64' {
+		return Integer{bytes: 64}
+	}
+	
+	// Check for array types
+	if type_str_trimmed.starts_with('[]') {
+		elem_type := type_str_trimmed.all_after('[]')
+		return Array{parse_type(elem_type)}
+	}
+	
+	// Check for map types
+	if type_str_trimmed.starts_with('map[') && type_str_trimmed.contains(']') {
+		value_type := type_str_trimmed.all_after(']')
+		return Map{parse_type(value_type)}
+	}
+	
+	// Check for result types
+	if type_str_trimmed.starts_with('!') {
+		result_type := type_str_trimmed.all_after('!')
+		return Result{parse_type(result_type)}
+	}
+	
+	// If no other type matches, treat as an object/struct type
+	println('Treating as object type: "${type_str_trimmed}"')
+	return Object{type_str_trimmed}
 }

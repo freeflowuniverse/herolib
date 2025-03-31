@@ -81,7 +81,26 @@ pub fn new_function(code string) !Function {
 }
 
 pub fn parse_function(code_ string) !Function {
-	mut code := code_.trim_space()
+	// Extract comments and actual function code
+	mut lines := code_.split_into_lines()
+	mut comment_lines := []string{}
+	mut function_lines := []string{}
+	mut in_function := false
+
+	for line in lines {
+		trimmed := line.trim_space()
+		if !in_function && trimmed.starts_with('//') {
+			comment_lines << trimmed.trim_string_left('//').trim_space()
+		} else if !in_function && (trimmed.starts_with('pub fn') || trimmed.starts_with('fn')) {
+			in_function = true
+			function_lines << line
+		} else if in_function {
+			function_lines << line
+		}
+	}
+
+	// Process the function code
+	mut code := function_lines.join('\n').trim_space()
 	is_pub := code.starts_with('pub ')
 	if is_pub {
 		code = code.trim_string_left('pub ').trim_space()
@@ -111,16 +130,33 @@ pub fn parse_function(code_ string) !Function {
 	} else {
 		[]Param{}
 	}
+	// Extract the result type, handling the ! for result types
+	mut result_type := code.all_after(')').all_before('{').replace(' ', '')
+	mut has_return := false
+	
+	// Check if the result type contains !
+	if result_type.contains('!') {
+		has_return = true
+		result_type = result_type.replace('!', '')
+	}
+	
 	result := new_param(
-		v: code.all_after(')').all_before('{').replace(' ', '')
+		v: result_type
 	)!
 
 	body := if code.contains('{') { code.all_after('{').all_before_last('}') } else { '' }
+	
+	// Process the comments into a description
+	description := comment_lines.join('\n')
+	
 	return Function{
 		name:     name
 		receiver: receiver
-		params:   params
-		result:   result
-		body:     body
+		params: params
+		result: result
+		body: body
+		description: description
+		is_pub: is_pub
+		has_return: has_return
 	}
 }

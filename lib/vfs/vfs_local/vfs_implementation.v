@@ -276,3 +276,59 @@ pub fn (mut myvfs LocalVFS) destroy() ! {
 	}
 	myvfs.init()!
 }
+
+// File concatenate operation - appends data to a file
+pub fn (myvfs LocalVFS) file_concatenate(path string, data []u8) ! {
+	abs_path := myvfs.abs_path(path)
+	if !os.exists(abs_path) {
+		return error('File does not exist: ${path}')
+	}
+	if os.is_dir(abs_path) {
+		return error('Cannot concatenate to directory: ${path}')
+	}
+	
+	// Read existing content
+	existing_content := os.read_bytes(abs_path) or {
+		return error('Failed to read file ${path}: ${err}')
+	}
+	
+	// Create a new buffer with the combined content
+	mut new_content := []u8{cap: existing_content.len + data.len}
+	new_content << existing_content
+	new_content << data
+	
+	// Write back to file
+	os.write_file(abs_path, new_content.bytestr()) or {
+		return error('Failed to write concatenated data to file ${path}: ${err}')
+	}
+}
+
+// Get path of an FSEntry
+pub fn (myvfs LocalVFS) get_path(entry &vfs.FSEntry) !string {
+	// Check if the entry is a LocalFSEntry
+	local_entry := entry as LocalFSEntry
+	return local_entry.path
+}
+
+// Print information about the VFS
+pub fn (myvfs LocalVFS) print() ! {
+	println('LocalVFS:')
+	println('  Root path: ${myvfs.root_path}')
+	
+	// Print root directory contents
+	root_entries := myvfs.dir_list('') or {
+		println('  Error listing root directory: ${err}')
+		return
+	}
+	
+	println('  Root entries: ${root_entries.len}')
+	for entry in root_entries {
+		metadata := entry.get_metadata()
+		entry_type := match metadata.file_type {
+			.file { 'FILE' }
+			.directory { 'DIR' }
+			.symlink { 'LINK' }
+		}
+		println('    ${entry_type} ${metadata.name}')
+	}
+}

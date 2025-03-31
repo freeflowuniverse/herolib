@@ -78,3 +78,13 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 	mut mod_file := pathlib.get_file(path: '${module_dir.path}/v.mod')!
 	mod_file.write($tmpl('templates/v.mod.template'))!
 }
+
+pub fn (mod Module) write_str() !string {
+	mut out := ''
+	for file in mod.files {
+		console.print_debug("mod file write ${file.name}")
+		out += file.write_str()!
+	}
+
+	return out
+}
