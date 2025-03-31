@@ -54,6 +54,16 @@ fn extract_template(raw_content string) string {
 pub fn convert_pug_file(myfile string)! {
 	println(myfile)
 
+	// Create new file path by replacing .pug extension with .jet
+	jet_file := myfile.replace('.pug', '.jet')
+	
+	// Check if jet file already exists, if so skip processing
+	mut jet_path_exist := pathlib.get_file(path: jet_file, create: false)!
+	if jet_path_exist.exists() {
+		println('Jet file already exists: ${jet_file}. Skipping conversion.')
+		return
+	}
+
 	mut content_path := pathlib.get_file(path: myfile, create: false)!
 	content := content_path.read()!
 
@@ -72,8 +82,6 @@ pub fn convert_pug_file(myfile string)! {
 	only output the resulting template, no explanation, no steps, just the jet template
 	'
 
-	// Create new file path by replacing .pug extension with .jet
-	jet_file := myfile.replace('.pug', '.jet')
 	
 	// We'll retry up to 5 times if validation fails
 	max_attempts := 5
@@ -102,23 +110,23 @@ pub fn convert_pug_file(myfile string)! {
 			// Retries - focus on fixing the previous errors
 			println('Attempt ${attempts}: Retrying with error feedback')
 			user_prompt = '
-			The previous Jet template conversion had the following error:
-			ERROR: ${error_message}
-			
-			Here was the template that had errors:
-			```
-			${template}
-			```
+The previous Jet template conversion had the following error:
+ERROR: ${error_message}
 
-			The original pug input was  was
-			```
-			${content}
-			```
-			
-			Please fix the template and try again. Learn from feedback and check which jet template was created.
-			Return only the corrected Jet template.
-			Dont send back more information than the fix, make sure its in jet format.
-			
+Here was the template that had errors:
+```
+${template}
+```
+
+The original pug input was  was
+```
+${content}
+```
+
+Please fix the template and try again. Learn from feedback and check which jet template was created.
+Return only the corrected Jet template.
+Dont send back more information than the fixed template, make sure its in jet format.
+
 			'
 			
 			// Print what we're sending for the retry
@@ -154,7 +162,7 @@ pub fn convert_pug_file(myfile string)! {
 		// Extract the template from the AI response
 		template = extract_template(res.choices[0].message.content)
 		
-		println('Extracted template:')
+		println('Extracted template for ${myfile}:')
 		println('--------------------------------')
 		println(template)
 		println('--------------------------------')
@@ -189,7 +197,5 @@ pub fn convert_pug_file(myfile string)! {
 		jet_file2:=jet_file.replace(".jet","_error.jet")
 		mut jet_path2 := pathlib.get_file(path: jet_file2, create: true)!
 		jet_path2.write(template)!					
-		exit(0)
 	}
 }
-
