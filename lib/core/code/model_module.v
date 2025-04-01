@@ -43,35 +43,28 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 	}
 
 	for file in mod.files {
-		console.print_debug('mod file write ${file.name}')
 		file.write(module_dir.path, options)!
 	}
 
 	for folder in mod.folders {
-		console.print_debug('mod folder write ${folder.name}')
 		folder.write('${path}/${mod.name}', options)!
 	}
 
 	for mod_ in mod.modules {
-		console.print_debug('mod write ${mod_.name}')
 		mod_.write('${path}/${mod.name}', options)!
 	}
 
 	if options.format {
-		console.print_debug('format ${module_dir.path}')
 		os.execute('v fmt -w ${module_dir.path}')
 	}
 	if options.compile {
-		console.print_debug('compile shared ${module_dir.path}')
 		os.execute_opt('${pre} -shared ${module_dir.path}') or { log.fatal(err.msg()) }
 	}
 	if options.test {
-		console.print_debug('test ${module_dir.path}')
 		os.execute_opt('${pre} test ${module_dir.path}') or { log.fatal(err.msg()) }
 	}
 	if options.document {
 		docs_path := '${path}/${mod.name}/docs'
-		console.print_debug('document ${module_dir.path}')
 		os.execute('v doc -f html -o ${docs_path} ${module_dir.path}')
 	}
 
@@ -82,7 +75,6 @@ pub fn (mod Module) write(path string, options WriteOptions) ! {
 pub fn (mod Module) write_str() !string {
 	mut out := ''
 	for file in mod.files {
-		console.print_debug("mod file write ${file.name}")
 		out += file.write_str()!
 	}
 

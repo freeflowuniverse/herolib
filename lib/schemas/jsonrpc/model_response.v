@@ -98,7 +98,13 @@ pub fn decode_response(data string) !Response {
 // Returns:
 //   - A JSON string representation of the Response
 pub fn (resp Response) encode() string {
-	return json2.encode(resp)
+	// Payload is already json string
+	if resp.error_ != none {
+		return '{"jsonrpc":"2.0","id":${resp.id},"error":${resp.error_.str()}}'
+	} else if resp.result != none {
+		return '{"jsonrpc":"2.0","id":${resp.id},"result":${resp.result}}'
+	}
+	return '{"jsonrpc":"2.0","id":${resp.id}}'
 }
 
 // validate checks that the Response object follows the JSON-RPC 2.0 specification.

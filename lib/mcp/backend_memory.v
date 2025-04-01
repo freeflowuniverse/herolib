@@ -19,6 +19,7 @@ pub mut:
 	tool_handlers map[string]ToolHandler
 }
 
+pub type ToolHandler = fn (arguments map[string]json2.Any) !ToolCallResult
 fn (b &MemoryBackend) resource_exists(uri string) !bool {
 	return uri in b.resources
 }
@@ -130,7 +131,7 @@ fn (b &MemoryBackend) tool_call(name string, arguments map[string]json2.Any) !To
 			content:  [
 				ToolContent{
 					typ:  'text'
-					text: 'Error: ${err.msg}'
+					text: 'Error: ${err.msg()}'
 				},
 			]
 		}

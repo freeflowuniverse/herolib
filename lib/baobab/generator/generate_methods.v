@@ -2,13 +2,30 @@ module generator
 
 import freeflowuniverse.herolib.core.code { Array, CodeItem, Function, Import, Param, Result, Struct, VFile }
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.schemas.openapi
 import freeflowuniverse.herolib.schemas.openrpc
 import freeflowuniverse.herolib.schemas.openrpc.codegen { content_descriptor_to_parameter, content_descriptor_to_struct }
 import freeflowuniverse.herolib.schemas.jsonschema { Schema }
 import freeflowuniverse.herolib.schemas.jsonschema.codegen as jsonschema_codegen
 import freeflowuniverse.herolib.baobab.specification { ActorMethod, ActorSpecification }
+import log
 
 const crud_prefixes = ['new', 'get', 'set', 'delete', 'list']
+
+pub struct Source {
+	openapi_path ?string
+	openrpc_path ?string
+}
+
+pub fn generate_methods_file_str(source Source) !string {
+	actor_spec := if path := source.openapi_path { 
+		specification.from_openapi(openapi.new(path: path)!)!
+	} else if path := source.openrpc_path {
+		specification.from_openrpc(openrpc.new(path: path)!)!
+	}
+	else { panic('No openapi or openrpc path provided') }
+	return generate_methods_file(actor_spec)!.write_str()!
+}
 
 pub fn generate_methods_file(spec ActorSpecification) !VFile {
 	name_snake := texttools.snake_case(spec.name)
@@ -81,14 +98,17 @@ pub fn generate_method_code(receiver Param, method ActorMethod) ![]CodeItem {
 
 	// check if method is a Base Object CRUD Method and
 	// if so generate the method's body
-	body := match method.category {
-		.base_object_new { base_object_new_body(receiver, method)! }
-		.base_object_get { base_object_get_body(receiver, method)! }
-		.base_object_set { base_object_set_body(receiver, method)! }
-		.base_object_delete { base_object_delete_body(receiver, method)! }
-		.base_object_list { base_object_list_body(receiver, method)! }
-		else { "panic('implement')" }
-	}
+	// TODO: smart generation of method body using AI
+	// body := match method.category {
+	// 	.base_object_new { base_object_new_body(receiver, method)! }
+	// 	.base_object_get { base_object_get_body(receiver, method)! }
+	// 	.base_object_set { base_object_set_body(receiver, method)! }
+	// 	.base_object_delete { base_object_delete_body(receiver, method)! }
+	// 	.base_object_list { base_object_list_body(receiver, method)! }
+	// 	else { "panic('implement')" }
+	// }
+
+	body := "panic('implement')"
 
 	fn_prototype := generate_method_prototype(receiver, method)!
 	method_code << Function{
@@ -136,7 +156,9 @@ fn base_object_delete_body(receiver Param, method ActorMethod) !string {
 }
 
 fn base_object_list_body(receiver Param, method ActorMethod) !string {
-	result := content_descriptor_to_parameter(method.result)!
-	base_object_type := (result.typ as Array).typ
-	return 'return ${receiver.name}.osis.list[${base_object_type.symbol()}]()!'
+	// result := content_descriptor_to_parameter(method.result)!
+	// log.error('result typ: ${result.typ}')
+	// base_object_type := (result.typ as Array).typ
+	// return 'return ${receiver.name}.osis.list[${base_object_type.symbol()}]()!'
+	return 'return'
 }
