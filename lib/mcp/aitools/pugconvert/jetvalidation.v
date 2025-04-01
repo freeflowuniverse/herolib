@@ -1,4 +1,4 @@
-module aitools
+module pugconvert
 
 import freeflowuniverse.herolib.core.httpconnection
 import json

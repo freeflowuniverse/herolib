@@ -1,4 +1,4 @@
-module aitools
+module pugconvert
 
 import freeflowuniverse.herolib.clients.openai
 import freeflowuniverse.herolib.core.texttools

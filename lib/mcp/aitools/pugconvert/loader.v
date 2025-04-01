@@ -1,4 +1,4 @@
-module aitools
+module pugconvert
 
 import v.embed_file
 import os
