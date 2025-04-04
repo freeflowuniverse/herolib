@@ -14,10 +14,4 @@ fn main() {
 		eprintln('Failed to start MCP server: ${err}')
 		return
 	}
-	
-	// Wait for server to complete
-	server.wait() or {
-		eprintln('Error while running MCP server: ${err}')
-		return
-	}
 }

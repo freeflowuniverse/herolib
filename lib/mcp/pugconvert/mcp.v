@@ -10,10 +10,10 @@ pub fn new_mcp_server() !&mcp.Server {
 	// Initialize the server with the empty handlers map
 	mut server := mcp.new_server(mcp.MemoryBackend{
 		tools:         {
-			'generate_module_from_openapi': specs
+			'pugconvert': specs
 		}
 		tool_handlers: {
-			'generate_module_from_openapi': generate_module_from_openapi_tool_handler
+			'pugconvert': handler
 		}
 	}, mcp.ServerParams{
 		config: mcp.ServerConfiguration{

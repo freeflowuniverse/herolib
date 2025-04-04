@@ -8,6 +8,13 @@ The MCP module serves as a core library for building MCP-compliant servers in V.
 
 The module implements all the required MCP protocol methods (resources/list, tools/list, prompts/list, etc.) and manages the underlying JSON-RPC communication, allowing developers to focus solely on implementing their specific tools and handlers. The module itself is not a standalone server but rather a framework that can be used to build different MCP server implementations. The subdirectories within this module (such as `baobab` and `developer`) contain specific implementations of MCP servers that utilize this core framework.
 
+## to test
+
+```
+curl -fsSL https://bun.sh/install | bash
+  source /root/.bashrc
+```
+
 ## Key Components
 
 - **Server**: The main MCP server struct that handles JSON-RPC requests and responses
