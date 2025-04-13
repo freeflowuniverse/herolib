@@ -1,6 +1,6 @@
 module baobab
 
-import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.ai.mcp
 import freeflowuniverse.herolib.schemas.jsonschema
 import freeflowuniverse.herolib.core.code
 import x.json2 as json { Any }

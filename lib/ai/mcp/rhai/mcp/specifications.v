@@ -1,6 +1,6 @@
 module mcp
 
-import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.ai.mcp
 import x.json2 as json { Any }
 import freeflowuniverse.herolib.schemas.jsonschema
 import log

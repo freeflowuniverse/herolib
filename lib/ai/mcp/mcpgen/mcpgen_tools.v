@@ -1,6 +1,6 @@
 module mcpgen
 
-import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.ai.mcp
 import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.schemas.jsonschema
 import x.json2 as json { Any }

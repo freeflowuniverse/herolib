@@ -254,7 +254,7 @@ fn get_openrouter_client()! &openai.OpenAI {
 ## 4. Usage Example
 
 ```v
-import freeflowuniverse.herolib.mcp.aitools.escalayer
+import freeflowuniverse.herolib.ai.mcp.aitools.escalayer
 
 fn main() {
     // Create a new task

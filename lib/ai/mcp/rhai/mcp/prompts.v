@@ -1,8 +1,8 @@
 module mcp
 
-import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.ai.mcp
 import freeflowuniverse.herolib.core.code
-import freeflowuniverse.herolib.mcp.rhai.logic
+import freeflowuniverse.herolib.ai.mcp.rhai.logic
 import freeflowuniverse.herolib.schemas.jsonschema
 import freeflowuniverse.herolib.lang.rust
 import x.json2 as json { Any }

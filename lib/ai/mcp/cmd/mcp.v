@@ -3,10 +3,10 @@ module main
 import os
 import cli { Command, Flag }
 import freeflowuniverse.herolib.osal
-// import freeflowuniverse.herolib.mcp.vcode
-// import freeflowuniverse.herolib.mcp.mcpgen
-// import freeflowuniverse.herolib.mcp.baobab
-import freeflowuniverse.herolib.mcp.rhai.mcp as rhai_mcp
+// import freeflowuniverse.herolib.ai.mcp.vcode
+// import freeflowuniverse.herolib.ai.mcp.mcpgen
+// import freeflowuniverse.herolib.ai.mcp.baobab
+import freeflowuniverse.herolib.ai.mcp.rhai.mcp as rhai_mcp
 
 fn main() {
 	do() or { panic(err) }

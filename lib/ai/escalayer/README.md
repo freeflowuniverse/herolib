@@ -25,7 +25,7 @@ The module is organized into the following components:
 ### Basic Example
 
 ```v
-import freeflowuniverse.herolib.mcp.aitools.escalayer
+import freeflowuniverse.herolib.ai.mcp.aitools.escalayer
 
 fn main() {
     // Create a new task

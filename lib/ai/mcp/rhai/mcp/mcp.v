@@ -1,6 +1,6 @@
 module mcp
 
-import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.ai.mcp
 import freeflowuniverse.herolib.schemas.jsonrpc
 import log
 

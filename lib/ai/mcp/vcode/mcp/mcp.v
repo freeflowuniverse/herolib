@@ -1,7 +1,7 @@
 module pugconvert
 
-import freeflowuniverse.herolib.mcp
-import freeflowuniverse.herolib.mcp.logger
+import freeflowuniverse.herolib.ai.mcp
+import freeflowuniverse.herolib.ai.mcp.logger
 import freeflowuniverse.herolib.schemas.jsonrpc
 
 pub fn new_mcp_server() !&mcp.Server {

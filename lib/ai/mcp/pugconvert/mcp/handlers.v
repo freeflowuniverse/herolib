@@ -1,8 +1,8 @@
 module mcp
 
-import freeflowuniverse.herolib.mcp
+import freeflowuniverse.herolib.ai.mcp
 import x.json2 as json { Any }
-import freeflowuniverse.herolib.mcp.aitools.pugconvert
+import freeflowuniverse.herolib.ai.mcp.aitools.pugconvert
 import freeflowuniverse.herolib.core.pathlib
 import os
 
