@@ -120,4 +120,4 @@ This module was designed based on the following requirements:
 
 For a detailed architecture overview, see [escalayer_architecture.md](./escalayer_architecture.md).
 
-For a complete example, see [example.v](./example.v).
+For a complete example, see [example.v](../servers/rhai).

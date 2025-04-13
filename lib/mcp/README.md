@@ -66,22 +66,3 @@ mut server := mcp.new_server(backend, mcp.ServerParams{
 // Start the server
 server.start()!
 ```
-
-## Sub-modules
-
-The MCP directory contains several sub-modules that implement specific MCP servers:
-
-- **baobab**: An MCP server implementation for Baobab-specific tools and functionality
-- **developer**: An MCP server implementation focused on developer tools
-
-Each sub-module leverages the core MCP implementation but provides its own specific tools, handlers, and configurations. Thanks to the boilerplate functionality provided by the core module, these implementations only need to define their specific tools and handlers without worrying about the underlying protocol details.
-
-## Dependencies
-
-- `freeflowuniverse.herolib.schemas.jsonrpc`: For JSON-RPC communication
-- `x.json2`: For JSON serialization/deserialization
-- Standard V libraries: `time`, `os`, `log`
-
-## License
-
-This module is part of the HeroLib project. See the project's license for more information.

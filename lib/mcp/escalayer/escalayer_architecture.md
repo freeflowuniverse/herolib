@@ -105,7 +105,7 @@ pub fn default_base_model() ModelConfig {
         name: 'gpt-3.5-turbo'
         provider: 'openai'
         temperature: 0.7
-        max_tokens: 2000
+        max_tokens: 20000
     }
 }
 
@@ -114,7 +114,7 @@ pub fn default_retry_model() ModelConfig {
         name: 'gpt-4'
         provider: 'openai'
         temperature: 0.7
-        max_tokens: 4000
+        max_tokens: 40000
     }
 }
 ```
@@ -134,9 +134,7 @@ pub mut:
 }
 
 // UnitTaskParams defines the parameters for creating a new unit task
-@[params]
-pub struct UnitTaskParams {
-pub:
+struct UnitTaskParams {
     name string
     prompt_function fn(string) string
     callback_function fn(string)! string
@@ -147,36 +145,11 @@ pub:
 
 // Add a new unit task to the task
 pub fn (mut t Task) new_unit_task(params UnitTaskParams) &UnitTask {
-    mut unit_task := UnitTask{
-        name: params.name
-        prompt_function: params.prompt_function
-        callback_function: params.callback_function
-        base_model: if params.base_model != none { params.base_model? } else { default_base_model() }
-        retry_model: if params.retry_model != none { params.retry_model? } else { default_retry_model() }
-        retry_count: if params.retry_count != none { params.retry_count? } else { 3 }
-    }
-    
-    t.unit_tasks << unit_task
-    return &t.unit_tasks[t.unit_tasks.len - 1]
 }
 
 // Initiate the task execution
 pub fn (mut t Task) initiate(input string)! string {
-    mut current_input := input
-    
-    for i, mut unit_task in t.unit_tasks {
-        println('Executing unit task ${i+1}/${t.unit_tasks.len}: ${unit_task.name}')
-        
-        // Execute the unit task with the current input
-        result := unit_task.execute(current_input)!
-        
-        // Update the current input for the next unit task
-        current_input = result
-        t.current_result = result
-    }
-    
-    return t.current_result
-}
+
 ```
 
 ### 3.3 unit_task.v
@@ -199,53 +172,6 @@ pub mut:
 
 // Execute the unit task
 pub fn (mut ut UnitTask) execute(input string)! string {
-    // Generate the prompt using the prompt function
-    prompt := ut.prompt_function(input)
-    
-    // Try with the base model first
-    mut current_model := ut.base_model
-    mut attempts := 0
-    mut max_attempts := ut.retry_count + 1 // +1 for the initial attempt
-    mut last_error := ''
-    
-    for attempts < max_attempts {
-        attempts++
-        
-        // If we've exhausted retries with the base model, switch to the retry model
-        if attempts > ut.retry_count {
-            println('Escalating to more powerful model: ${ut.retry_model.name}')
-            current_model = ut.retry_model
-            max_attempts = attempts + ut.retry_count // Reset max attempts for the retry model
-        }
-        
-        println('Attempt ${attempts} with model ${current_model.name}')
-        
-        // Prepare the prompt with error feedback if this is a retry
-        mut current_prompt := prompt
-        if last_error != '' {
-            current_prompt = 'Previous attempt failed with error: ${last_error}\n\n${prompt}'
-        }
-        
-        // Call the AI model
-        response := call_ai_model(current_prompt, current_model) or {
-            println('AI call failed: ${err}')
-            last_error = err.str()
-            continue // Try again
-        }
-        
-        // Process the response with the callback function
-        result := ut.callback_function(response) or {
-            // If callback returns an error, retry with the error message
-            println('Callback returned error: ${err}')
-            last_error = err.str()
-            continue // Try again
-        }
-        
-        // If we get here, the callback was successful
-        return result
-    }
-    
-    return error('Failed to execute unit task after ${attempts} attempts. Last error: ${last_error}')
 }
 ```
 
@@ -414,35 +340,3 @@ fn process_tests(response string)! string {
     return response
 }
 ```
-
-## 5. Key Features and Benefits
-
-1. **V-Idiomatic Design**: Uses V's `@[params]` structures for configuration and the V result type (`fn ()!`) for error handling.
-
-2. **Sequential Task Execution**: Tasks are executed in sequence, with each unit task building on the results of the previous one.
-
-3. **Automatic Model Escalation**: If a unit task fails with a cheaper model, the system automatically retries with a more powerful model.
-
-4. **Flexible Configuration**: Each unit task can be configured with different models, retry counts, and other parameters.
-
-5. **Error Handling**: Comprehensive error handling with detailed error messages and retry mechanisms using V's built-in error handling.
-
-6. **Callback Processing**: Custom callback functions allow for validation and processing of AI responses.
-
-7. **OpenRouter Integration**: Uses OpenRouter to access a wide range of AI models from different providers.
-
-## 6. Future Enhancements
-
-1. **Parallel Execution**: Add support for executing unit tasks in parallel when they don't depend on each other.
-
-2. **Caching**: Implement caching of AI responses to avoid redundant API calls.
-
-3. **Cost Tracking**: Add functionality to track and report on API usage costs.
-
-4. **Timeout Handling**: Add support for timeouts and graceful handling of long-running tasks.
-
-5. **Streaming Responses**: Support for streaming AI responses for long-form content generation.
-
-6. **Prompt Templates**: Add support for reusable prompt templates.
-
-7. **Logging and Monitoring**: Enhanced logging and monitoring capabilities.
