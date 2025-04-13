@@ -1,4 +1,4 @@
-module pugconvert
+module mcp
 
 import freeflowuniverse.herolib.mcp
 import x.json2 as json { Any }
