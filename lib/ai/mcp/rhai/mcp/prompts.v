@@ -30,8 +30,9 @@ pub fn rhai_wrapper_prompt_handler(arguments []string) ![]mcp.PromptMessage {
     // Extract the module name from the directory path (last component)
     name := rust.extract_module_name_from_path(source_path)
     
+source_pkg_info := rust.detect_source_package(source_path)!
 
-result := logic.rhai_wrapper_generation_prompt(name, source_code)!
+result := logic.rhai_wrapper_generation_prompt(name, source_code, source_pkg_info)!
 return [mcp.PromptMessage{
     role: 'assistant'
     content: mcp.PromptContent{

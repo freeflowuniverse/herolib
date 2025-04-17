@@ -25,9 +25,9 @@ IMPORTANT NOTES:
    - rhai = "1.21.0"
    - serde = { version = "1.0", features = ["derive"] }
    - serde_json = "1.0"
-   - sal = { path = "../../../" }
+   - @{source_pkg_info.name} = { path = "@{source_pkg_info.path}" }
 
-3. For the wrapper: `use sal::@{name};` this way you can access the module functions and objects with @{name}::
+3. For the wrapper: `use @{source_pkg_info.name}::@{source_pkg_info.module};` this way you can access the module functions and objects with @{source_pkg_info.module}::
 
 4. The generic_wrapper.rs file will be hardcoded into the package, you can use code from there.
 
@@ -95,7 +95,5 @@ IMPORTANT NOTES:
 @{engine}
 
 MOST IMPORTANT:
-import package being wrapped as `use sal::<n>`
+import package being wrapped as `use @{source_pkg_info.name}::@{source_pkg_info.module}`
 your engine create function is called `create_rhai_engine`
-
-```

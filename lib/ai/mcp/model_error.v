@@ -33,3 +33,10 @@ fn tool_not_found(name string) jsonrpc.RPCError {
 		message: 'Tool not found: ${name}'
 	}
 }
+
+fn sampling_error(message string) jsonrpc.RPCError {
+	return jsonrpc.RPCError{
+		code:    -32603 // Internal error
+		message: 'Sampling error: ${message}'
+	}
+}

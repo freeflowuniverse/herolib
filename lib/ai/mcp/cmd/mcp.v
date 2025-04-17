@@ -7,6 +7,7 @@ import freeflowuniverse.herolib.osal
 // import freeflowuniverse.herolib.ai.mcp.mcpgen
 // import freeflowuniverse.herolib.ai.mcp.baobab
 import freeflowuniverse.herolib.ai.mcp.rhai.mcp as rhai_mcp
+import freeflowuniverse.herolib.ai.mcp.rust
 
 fn main() {
 	do() or { panic(err) }
@@ -69,6 +70,7 @@ mcp
 
 
 	cmd_mcp.add_command(rhai_mcp.command)
+	cmd_mcp.add_command(rust.command)
 	// cmd_mcp.add_command(baobab.command)
 	// cmd_mcp.add_command(vcode.command)
 	cmd_mcp.add_command(cmd_inspector)

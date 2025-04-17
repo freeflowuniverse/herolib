@@ -11,6 +11,22 @@ pub mut:
     max_tokens int
 }
 
+// Create model configs
+const claude_3_sonnet = escalayer.ModelConfig{
+    name: 'anthropic/claude-3.7-sonnet'
+    provider: 'anthropic'
+    temperature: 0.7
+    max_tokens: 25000
+}
+
+const gpt4 = escalayer.ModelConfig{
+    name: 'gpt-4'
+    provider: 'openai'
+    temperature: 0.7
+    max_tokens: 25000
+}
+    
+
 // Call an AI model using OpenRouter
 fn call_ai_model(prompt string, model ModelConfig)! string {
     // Get OpenAI client (configured for OpenRouter)

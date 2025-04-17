@@ -7,4 +7,4 @@ edition = "2021"
 rhai = "1.21.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-sal = { path = "../../../" }
+@{source_pkg_info.name} = { path = "@{source_pkg_info.path}" }

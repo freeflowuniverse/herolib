@@ -18,11 +18,16 @@ pub mut:
 	// Tool related fields
 	tools         map[string]Tool
 	tool_handlers map[string]ToolHandler
+
+	// Sampling related fields
+	sampling_handler SamplingHandler
 }
 
 pub type ToolHandler = fn (arguments map[string]json2.Any) !ToolCallResult
 
 pub type PromptHandler = fn (arguments []string) ![]PromptMessage
+
+pub type SamplingHandler = fn (params map[string]json2.Any) !SamplingCreateMessageResult
 
 fn (b &MemoryBackend) resource_exists(uri string) !bool {
 	return uri in b.resources
@@ -150,4 +155,31 @@ fn (b &MemoryBackend) tool_call(name string, arguments map[string]json2.Any) !To
 			]
 		}
 	}
+}
+
+// Sampling related methods
+
+fn (b &MemoryBackend) sampling_create_message(params map[string]json2.Any) !SamplingCreateMessageResult {
+	// Check if a sampling handler is registered
+	if isnil(b.sampling_handler) {
+		// Return a default implementation that just echoes back a message
+		// indicating that no sampling handler is registered
+		return SamplingCreateMessageResult{
+			model: 'default'
+			stop_reason: 'endTurn'
+			role: 'assistant'
+			content: MessageContent{
+				typ: 'text'
+				text: 'Sampling is not configured on this server. Please register a sampling handler.'
+			}
+		}
+	}
+
+	// Call the sampling handler with the provided parameters
+	return b.sampling_handler(params)!
+}
+
+// register_sampling_handler registers a handler for sampling requests
+pub fn (mut b MemoryBackend) register_sampling_handler(handler SamplingHandler) {
+	b.sampling_handler = handler
 }

@@ -41,7 +41,10 @@ pub fn new_server(backend Backend, params ServerParams) !&Server {
 
 			// Tool handlers
 			'tools/list': server.tools_list_handler,
-			'tools/call': server.tools_call_handler
+			'tools/call': server.tools_call_handler,
+
+			// Sampling handlers
+			'sampling/createMessage': server.sampling_create_message_handler
 		}
 	})!
 

@@ -23,6 +23,9 @@ interface Backend {
 	tool_get(name string) !Tool
 	tool_list() ![]Tool
 	tool_call(name string, arguments map[string]json2.Any) !ToolCallResult
+	
+	// Sampling methods
+	sampling_create_message(params map[string]json2.Any) !SamplingCreateMessageResult
 mut:
 	resource_subscribe(uri string) !
 	resource_unsubscribe(uri string) !

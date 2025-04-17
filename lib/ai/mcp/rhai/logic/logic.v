@@ -6,11 +6,15 @@ import freeflowuniverse.herolib.ai.utils
 import os
 
 pub fn generate_rhai_wrapper(name string, source_path string) !string {
-    prompt := rhai_wrapper_generation_prompt(name, source_path) or {panic(err)}
+    // Detect source package and module information
+    source_pkg_info := rust.detect_source_package(source_path)!
+    source_code := rust.read_source_code(source_path)!
+    prompt := rhai_wrapper_generation_prompt(name, source_code, source_pkg_info)!
     return run_wrapper_generation_task(prompt, RhaiGen{
         name: name
         dir: source_path
-    }) or {panic(err)}
+        source_pkg_info: source_pkg_info
+    })!
 }
 
 // Runs the task to generate Rhai wrappers
@@ -56,11 +60,11 @@ pub fn run_wrapper_generation_task(prompt_content string, gen RhaiGen) !string {
 }
 
 // Define a Rhai wrapper generator function for Container functions
-pub fn rhai_wrapper_generation_prompt(name string, source_code string) !string {
+pub fn rhai_wrapper_generation_prompt(name string, source_code string, source_pkg_info rust.SourcePackageInfo) !string {
     current_dir := os.dir(@FILE)
-    example_rhai := os.read_file('${current_dir}/prompts/example_script.md') or {panic(err)}
-    wrapper_md := os.read_file('${current_dir}/prompts/wrapper.md') or {panic(err)}
-    errors_md := os.read_file('${current_dir}/prompts/errors.md') or {panic(err)}
+    example_rhai := os.read_file('${current_dir}/prompts/example_script.md')!
+    wrapper_md := os.read_file('${current_dir}/prompts/wrapper.md')!
+    errors_md := os.read_file('${current_dir}/prompts/errors.md')!
 	
 	// Load all required template and guide files
     guides := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhaiwrapping_classicai.md')!
@@ -120,6 +124,12 @@ pub fn write_rhai_wrapper_module(wrapper WrapperModule, name string, path string
         os.write_file('${project_dir}/src/lib.rs', wrapper.lib_rs) or {
             return error('Failed to write lib.rs: ${err}')
         }
+    } else {
+        // Use default lib.rs template if none provided
+        lib_rs_content := $tmpl('./templates/lib.rs')
+        os.write_file('${project_dir}/src/lib.rs', lib_rs_content) or {
+            return error('Failed to write lib.rs: ${err}')
+        }
     }
 
     // Write the wrapper.rs file
@@ -139,6 +149,12 @@ pub fn write_rhai_wrapper_module(wrapper WrapperModule, name string, path string
     // Write the example.rs file
     if wrapper.example_rs != '' {
         os.write_file('${examples_dir}/example.rs', wrapper.example_rs) or {
+            return error('Failed to write example.rs: ${err}')
+        }
+    } else {
+        // Use default example.rs template if none provided
+        example_rs_content := $tmpl('./templates/example.rs')
+        os.write_file('${examples_dir}/example.rs', example_rs_content) or {
             return error('Failed to write example.rs: ${err}')
         }
     }
@@ -199,39 +215,26 @@ fn extract_module_name(code string) string {
 struct RhaiGen {
     name string
     dir string
+    source_pkg_info rust.SourcePackageInfo
 }
 
 // Process the AI response and compile the generated code
-fn (gen RhaiGen) process_rhai_wrappers(response string)! string {
-    // Extract code blocks from the response
-    code_blocks := extract_code_blocks(response) or {
-        return err
-    }
-    
-    name := gen.name
-    
-    // Create a WrapperModule struct with the extracted content
-    wrapper := WrapperModule{
-        lib_rs: $tmpl('./templates/lib.rs')
-        wrapper_rs: code_blocks.wrapper_rs
-        example_rs: $tmpl('./templates/example.rs')
-        engine_rs: code_blocks.engine_rs
+pub fn (gen RhaiGen) process_rhai_wrappers(input string) !string {
+    blocks := extract_code_blocks(input)!
+    source_pkg_info := gen.source_pkg_info
+    // Create the module structure
+    mod := WrapperModule{
+        lib_rs: blocks.lib_rs
+        engine_rs: blocks.engine_rs
+        example_rhai: blocks.example_rhai
         generic_wrapper_rs: $tmpl('./templates/generic_wrapper.rs')
-        cargo_toml: $tmpl('./templates/cargo.toml')
-        example_rhai: code_blocks.example_rhai
+        wrapper_rs: blocks.wrapper_rs
     }
     
-    // Create the wrapper module
-    project_dir := write_rhai_wrapper_module(wrapper, gen.name, gen.dir) or {
-        return error('Failed to create wrapper module: ${err}')
-    }
+    // Write the module files
+    project_dir := write_rhai_wrapper_module(mod, gen.name, gen.dir)!
     
-    // Build and run the project
-    build_output, run_output := rust.run_example(project_dir, 'example') or {
-        return err
-    }
-    
-    return format_success_message(project_dir, build_output, run_output)
+    return project_dir
 }
 
 // CodeBlocks struct to hold extracted code blocks
@@ -239,6 +242,7 @@ struct CodeBlocks {
     wrapper_rs string
     engine_rs string
     example_rhai string
+    lib_rs string
 }
 
 // Extract code blocks from the AI response
@@ -266,10 +270,17 @@ fn extract_code_blocks(response string)! CodeBlocks {
         }
     }
     
+    // Extract lib.rs content
+    lib_rs_content := utils.extract_code_block(response, 'lib.rs', 'rust')
+    if lib_rs_content == '' {
+        return error('Failed to extract lib.rs content from response. Please ensure your code is properly formatted inside a code block that starts with ```rust\n// lib.rs and ends with ```')
+    }
+    
     return CodeBlocks{
         wrapper_rs: wrapper_rs_content
         engine_rs: engine_rs_content
         example_rhai: example_rhai_content
+        lib_rs: lib_rs_content
     }
 }
 
