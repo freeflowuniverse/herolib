@@ -1,6 +1,12 @@
 # Generate Single Rhai Wrapper Function
 
-You are tasked with creating a **single** Rhai wrapper function for the provided Rust function or method signature.
+You are an expert Rust and Rhai developer tasked with creating a Rhai wrapper function for a given Rust function signature.
+
+## Task
+
+Generate a single `pub fn` Rhai wrapper function based on the provided Rust function signature and associated struct definitions.
+
+**CRITICAL INSTRUCTION:** The generated Rhai wrapper function **MUST** call the original Rust function provided in the input. **DO NOT** reimplement the logic of the original function within the wrapper. The wrapper's sole purpose is to handle type conversions and error mapping between Rhai and Rust.
 
 ## Input Rust Function
 
@@ -33,12 +39,12 @@ Below are the struct declarations for types used in the function
     *   The return type **must** be `Result<T, Box<EvalAltResult>>`, where `T` is the Rhai-compatible equivalent of the original Rust function's return type. If the original function returns `Result<U, E>`, `T` should be the Rhai-compatible version of `U`, and the error `E` should be mapped into `Box<EvalAltResult>`. If the original returns `()`, use `Result<(), Box<EvalAltResult>>`. If it returns a simple type `U`, use `Result<U, Box<EvalAltResult>>`.
 
 3.  **Implement the Wrapper Body:**
-    *   **Call the Original Function/Method:** Call the Rust function or method using the input parameters. Perform necessary type conversions if Rhai types (like `Array`, `Map`) were used in the wrapper signature.
-    *   **Handle Struct Methods:** If it's a method, call it on the `receiver` parameter (e.g., `receiver.method(...)`).
-    *   **Error Handling:**
-        *   Use `.map_err(|e| Box::new(EvalAltResult::ErrorRuntime(format!("Error description: {}", e).into(), rhai::Position::NONE)))` to convert any potential errors from the original function call into a `Box<EvalAltResult>`. Provide a descriptive error message.
-        *   If the original function doesn't return `Result`, wrap the successful result using `Ok(...)`.
-    *   **Return Value Conversion:** If the original function's success type needs conversion for Rhai (e.g., a complex struct to a `Map`, a `PathBuf` to `String`), perform the conversion before returning `Ok(...)`. Convert `PathBuf` or path references using `.to_string_lossy().to_string()` or `.to_string()` as appropriate.
+    *   **Call the original function.** This is the most important step.
+    *   Handle parameter type conversions if necessary (e.g., `i64` from Rhai to `i32` for Rust).
+    *   If the original function returns `Result<T, E>`, map the `Ok(T)` value and handle the `Err(E)` by converting it to `Box<EvalAltResult::ErrorRuntime(...)`.
+    *   If the original function returns `T`, wrap the result in `Ok(T)`.
+    *   If the original function returns `PathBuf`, convert it to `String` using `.to_string_lossy().to_string()` before wrapping in `Ok()`.
+    *   If the original function returns `()`, return `Ok(())`.
 
 4.  **Best Practices:**
     *   Use `rhai::{Engine, EvalAltResult, Dynamic, Map, Array}` imports as needed.
@@ -530,5 +536,3 @@ pub fn container_build(container: Container) -> Result<Container, Box<EvalAltRes
         }
     }
 }
-```
-

@@ -1003,6 +1003,91 @@ pub fn get_struct_from_content(content string, struct_name string) !string {
     return struct_declaration.trim_space()
 }
 
+// Struct to hold parsed struct information
+pub struct StructInfo {
+pub:
+	struct_name string
+	fields      map[string]string // field_name: field_type
+}
+
+// Helper function to parse a Rust struct definition from a string
+pub fn parse_rust_struct(definition string) !StructInfo {
+	mut struct_name := ''
+	mut fields := map[string]string{}
+	mut in_struct := false
+	mut brace_level := 0
+	lines := definition.split('\n')
+
+	for line in lines {
+		trimmed_line := line.trim_space()
+
+		if trimmed_line.starts_with('pub struct') || trimmed_line.starts_with('struct') {
+			parts := trimmed_line.split(' ')
+			for i, part in parts {
+				if part == 'struct' && i + 1 < parts.len {
+					struct_name = parts[i + 1].split('{')[0].trim_space()
+					break
+				}
+			}
+			in_struct = true
+			if trimmed_line.contains('{') {
+				brace_level++
+			}
+			continue
+		}
+
+		if in_struct {
+			if trimmed_line.contains('{') {
+				brace_level++
+			}
+			if trimmed_line.contains('}') {
+				brace_level--
+				if brace_level == 0 {
+					in_struct = false
+					break // End of struct definition
+				}
+			}
+
+			// Inside the struct definition, parse fields (skip comments and attributes)
+			if brace_level > 0 && !trimmed_line.starts_with('//') && !trimmed_line.starts_with('#[') && trimmed_line.contains(':') {
+				parts := trimmed_line.split(':')
+				if parts.len >= 2 {
+					// Extract field name (handle potential 'pub ')
+					field_name_part := parts[0].trim_space()
+					mut field_name := '' // Explicitly declare with type
+					if field_name_part.starts_with('pub ') {
+						field_name = field_name_part['pub '.len..].trim_space()
+					} else {
+						field_name = field_name_part
+					}
+
+					// Extract field type (remove trailing comma)
+					mut field_type := parts[1..].join(':').trim_space()
+					if field_type.ends_with(',') {
+						field_type = field_type[..field_type.len - 1]
+					}
+
+					// Skip attributes or comments if they somehow got here (e.g. line ending comments)
+					if field_name.starts_with('[') || field_name.starts_with('/') || field_name == '' {
+						continue
+					}
+
+					fields[field_name] = field_type
+				}
+			}
+		}
+	}
+
+	if struct_name == '' {
+		return error('Could not find struct name in definition')
+	}
+	if fields.len == 0 {
+		return error('Could not parse any fields from the struct definition')
+	}
+
+	return StructInfo{struct_name, fields}
+}
+
 // Find the project root directory (the one containing Cargo.toml)
 fn find_project_root(path string) string {
 	mut current_path := path

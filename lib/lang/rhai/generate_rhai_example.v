@@ -9,23 +9,17 @@ pub:
 	structs []string
 }
 
-// generate_rhai_function_wrapper generates a Rhai wrapper function for a given Rust function.
-//
-// Args:
-//     rust_function (string): The Rust function signature string.
-//     struct_declarations ([]string): Optional struct declarations used by the function.
-//
-// Returns:
-//     !string: The generated Rhai wrapper function code or an error.
-pub fn generate_rhai_function_wrapper(rust_function string, struct_declarations []string) !string {
+
+// given a list of rhai functions and structs, generate a Rhai example script
+pub fn generate_rhai_example(functions []string, structs []string) !string {
 	mut task := escalayer.new_task(
         name: 'generate_rhai_function_wrapper'
         description: 'Create a single Rhai wrapper for a Rust function'
     )
 
 	mut gen := WrapperGenerator {
-		function: rust_function
-		structs: struct_declarations
+		function: functions
+		structs: structs
 	}
 
     // Define a single unit task that handles everything
