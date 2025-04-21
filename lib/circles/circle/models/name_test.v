@@ -1,8 +1,6 @@
 module models
 
-import freeflowuniverse.herolib.data.ourdb
-import freeflowuniverse.herolib.data.radixtree
-import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.data.encoder
 
 fn test_name_dumps_loads() {
 	// Create a test name with some sample data
@@ -231,4 +229,138 @@ fn test_name_empty_records() {
 	assert decoded_name.admins[0] == name.admins[0]
 
 	println('Empty records name binary encoding/decoding test passed successfully')
+}
+
+// Tests the index_keys method of the Name struct
+fn test_name_index_keys() {
+	// Create a test name
+	name := Name{
+		id: 123
+		domain: 'example.com'
+		description: 'Test domain'
+	}
+	
+	// Get index keys
+	keys := name.index_keys()
+	
+	// Verify the keys
+	assert keys['domain'] == 'example.com'
+	assert keys.len == 1 // Should only have 'domain' key
+	
+	println('Name index_keys test passed successfully')
+}
+
+// Tests error handling for wrong encoding ID
+fn test_name_wrong_encoding_id() {
+	// Create invalid data with wrong encoding ID
+	mut e := encoder.new()
+	e.add_u16(999) // Wrong ID (should be 300)
+	
+	// Attempt to deserialize and expect error
+	result := name_loads(e.data) or {
+		assert err.str() == 'Wrong file type: expected encoding ID 300, got 999, for name'
+		println('Error handling test (wrong encoding ID) passed successfully')
+		return
+	}
+	
+	assert false, 'Should have returned an error for wrong encoding ID'
+}
+
+// Tests error handling for incomplete data
+fn test_name_incomplete_data() {
+	// Create incomplete data (missing fields)
+	mut e := encoder.new()
+	e.add_u16(300) // Correct ID
+	e.add_u32(123) // ID
+	// Missing other fields
+	
+	// Attempt to deserialize and expect error
+	result := name_loads(e.data) or {
+		assert err.str().contains('failed to read')
+		println('Error handling test (incomplete data) passed successfully')
+		return
+	}
+	
+	assert false, 'Should have returned an error for incomplete data'
+}
+
+// Tests serialization/deserialization of a name with very long strings
+fn test_name_long_strings() {
+	// Create a name with very long strings
+	mut name := Name{
+		id: 456
+		domain: 'a'.repeat(1000) // 1000 character domain
+		description: 'b'.repeat(5000) // 5000 character description
+	}
+	
+	// Add a record with long strings
+	name.records << Record{
+		name: 'c'.repeat(1000)
+		text: 'd'.repeat(5000)
+		category: .txt
+		addr: ['e'.repeat(1000)]
+	}
+	
+	// Test serialization
+	binary_data := name.dumps() or {
+		assert false, 'Failed to encode name with long strings: ${err}'
+		return
+	}
+	
+	// Test deserialization
+	decoded_name := name_loads(binary_data) or {
+		assert false, 'Failed to decode name with long strings: ${err}'
+		return
+	}
+	
+	// Verify the decoded data
+	assert decoded_name.domain == name.domain
+	assert decoded_name.description == name.description
+	assert decoded_name.records[0].name == name.records[0].name
+	assert decoded_name.records[0].text == name.records[0].text
+	assert decoded_name.records[0].addr[0] == name.records[0].addr[0]
+	
+	println('Long strings test passed successfully')
+}
+
+// Tests serialization/deserialization of a name with many records
+fn test_name_record_limits() {
+	// Create a name with a large number of records
+	mut name := Name{
+		id: 789
+		domain: 'many-records.example.com'
+		description: 'A domain with many records'
+	}
+	
+	// Add 100 records
+	for i in 0..100 {
+		name.records << Record{
+			name: 'record-${i}'
+			text: 'Text for record ${i}'
+			category: unsafe { RecordType(i % 9) } // Cycle through record types
+			addr: ['192.168.1.${i}']
+		}
+	}
+	
+	// Test serialization
+	binary_data := name.dumps() or {
+		assert false, 'Failed to encode name with many records: ${err}'
+		return
+	}
+	
+	// Test deserialization
+	decoded_name := name_loads(binary_data) or {
+		assert false, 'Failed to decode name with many records: ${err}'
+		return
+	}
+	
+	// Verify the decoded data
+	assert decoded_name.records.len == name.records.len
+	
+	// Verify a sample of records
+	assert decoded_name.records[0].name == name.records[0].name
+	assert decoded_name.records[50].name == name.records[50].name
+	assert decoded_name.records[99].name == name.records[99].name
+	
+	println('Record limits test passed successfully')
 }

@@ -42,11 +42,7 @@ pub fn (mut m DBHandler[T]) get(id u32) !T {
 	}
 
 	// THIS IS SUPER ANNOYING AND NOT NICE
-	$if T is core_models.Agent {
-		mut o := core_models.agent_loads(item_data)!
-		o.id = id
-		return o
-	} $else $if T is core_models.Circle {
+	$if T is core_models.Circle {
 		mut o := core_models.circle_loads(item_data)!
 		o.id = id
 		return o

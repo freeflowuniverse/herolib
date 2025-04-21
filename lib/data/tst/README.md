@@ -1,5 +1,7 @@
 # Ternary Search Tree (TST) Implementation Plan
 
+> STILL BROKEN, CAN'T FIND YET
+
 ## Overview
 
 A Ternary Search Tree (TST) is a specialized tree structure where each node has three children:

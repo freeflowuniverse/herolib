@@ -58,27 +58,6 @@ pub fn (contact Contact) search_by_email(query string) bool {
 	return contact.email.to_lower().contains(query.to_lower())
 }
 
-// update updates the contact's information
-pub fn (mut contact Contact) update(first_name string, last_name string, email string, group string) {
-	if first_name != '' {
-		contact.first_name = first_name
-	}
-	
-	if last_name != '' {
-		contact.last_name = last_name
-	}
-	
-	if email != '' {
-		contact.email = email
-	}
-	
-	if group != '' {
-		contact.group = group
-	}
-	
-	contact.modified_at = i64(ourtime.now().unix)
-}
-
 // update_groups updates the contact's groups
 pub fn (mut contact Contact) update_groups(groups []u32) {
 	contact.groups = groups.clone()

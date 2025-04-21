@@ -61,6 +61,7 @@ pub fn new(args NewArgs) !TST {
 		root_data := db.get(1)! // Get root node with ID 1
 		root := deserialize_node(root_data)!
 		println('Root node retrieved: character=${root.character}, is_end=${root.is_end_of_string}, left=${root.left_id}, middle=${root.middle_id}, right=${root.right_id}')
+		root_id = 1 // Ensure we're using ID 1 for the root
 	}
 
 	return TST{
@@ -71,8 +72,10 @@ pub fn new(args NewArgs) !TST {
 
 // Sets a key-value pair in the tree
 pub fn (mut self TST) set(key string, value []u8) ! {
-	println('Setting key: "${key}"')
-	if key.len == 0 {
+	normalized_key := namefix(key)
+	println('Setting key: "${key}" (normalized: "${normalized_key}")')
+	
+	if normalized_key.len == 0 {
 		return error('Empty key not allowed')
 	}
 
@@ -91,30 +94,79 @@ pub fn (mut self TST) set(key string, value []u8) ! {
 		println('Root node created with ID: ${self.root_id}')
 	}
 
-	self.insert_recursive(self.root_id, key, 0, value)!
-	println('Key "${key}" inserted successfully')
+	// Insert the key-value pair
+	mut last_node_id := self.insert_recursive(self.root_id, normalized_key, 0, value)!
+	println('Key "${normalized_key}" inserted to node ${last_node_id}')
+	
+	// Make sure the last node is marked as end of string with the value
+	if last_node_id != 0 {
+		node_data := self.db.get(last_node_id)!
+		mut node := deserialize_node(node_data)!
+		
+		// Ensure this node is marked as the end of a string
+		if !node.is_end_of_string {
+			println('Setting node ${last_node_id} as end of string')
+			node.is_end_of_string = true
+			node.value = value
+			self.db.set(id: last_node_id, data: serialize_node(node))!
+		}
+	}
+	
+	println('Key "${normalized_key}" inserted successfully')
 }
 
 // Recursive helper function for insertion
 fn (mut self TST) insert_recursive(node_id u32, key string, pos int, value []u8) !u32 {
+	// Check for position out of bounds
+	if pos >= key.len {
+		println('Position ${pos} is out of bounds for key "${key}"')
+		return error('Position out of bounds')
+	}
+
 	// If we've reached the end of the tree, create a new node
 	if node_id == 0 {
 		println('Creating new node for character: ${key[pos]} (${key[pos].ascii_str()}) at position ${pos}')
+		
+		// Create a node for this character
 		new_node := Node{
 			character:       key[pos]
 			is_end_of_string: pos == key.len - 1
-			value:           if pos == key.len - 1 { value } else { []u8{} }
+			value:           if pos == key.len - 1 { value.clone() } else { []u8{} }
 			left_id:         0
 			middle_id:       0
 			right_id:        0
 		}
 		new_id := self.db.set(data: serialize_node(new_node))!
 		println('New node created with ID: ${new_id}, character: ${key[pos]} (${key[pos].ascii_str()}), is_end: ${pos == key.len - 1}')
+		
+		// If this is the last character in the key, we're done
+		if pos == key.len - 1 {
+			return new_id
+		}
+		
+		// Otherwise, create the next node in the sequence and link to it
+		next_id := self.insert_recursive(0, key, pos + 1, value)!
+		
+		// Update the middle link
+		node_data := self.db.get(new_id)!
+		mut updated_node := deserialize_node(node_data)!
+		updated_node.middle_id = next_id
+		self.db.set(id: new_id, data: serialize_node(updated_node))!
+		
 		return new_id
 	}
 
-	// Get the current node
-	mut node := deserialize_node(self.db.get(node_id)!)!
+	// Get the current node with error handling
+	node_data := self.db.get(node_id) or {
+		println('Failed to get node data for ID ${node_id}')
+		return error('Node retrieval error: ${err}')
+	}
+	
+	mut node := deserialize_node(node_data) or {
+		println('Failed to deserialize node with ID ${node_id}')
+		return error('Node deserialization error: ${err}')
+	}
+	
 	println('Node ${node_id}: character=${node.character} (${node.character.ascii_str()}), is_end=${node.is_end_of_string}, left=${node.left_id}, middle=${node.middle_id}, right=${node.right_id}')
 	
 	// Compare the current character with the node's character
@@ -149,8 +201,10 @@ fn (mut self TST) insert_recursive(node_id u32, key string, pos int, value []u8)
 
 // Gets a value by key from the tree
 pub fn (mut self TST) get(key string) ![]u8 {
-	println('Getting key: "${key}"')
-	if key.len == 0 {
+	normalized_key := namefix(key)
+	println('Getting key: "${key}" (normalized: "${normalized_key}")')
+	
+	if normalized_key.len == 0 {
 		return error('Empty key not allowed')
 	}
 
@@ -158,51 +212,92 @@ pub fn (mut self TST) get(key string) ![]u8 {
 		return error('Tree is empty')
 	}
 
-	return self.search_recursive(self.root_id, key, 0)!
+	return self.search_recursive(self.root_id, normalized_key, 0)!
 }
 
-// Recursive helper function for search
+// Very simple recursive search with explicit structure to make the compiler happy
 fn (mut self TST) search_recursive(node_id u32, key string, pos int) ![]u8 {
+	// Base cases
 	if node_id == 0 {
 		println('Node ID is 0, key not found')
 		return error('Key not found')
 	}
-
-	node := deserialize_node(self.db.get(node_id)!)!
-	println('Searching node ${node_id}: character=${node.character} (${node.character.ascii_str()}), is_end=${node.is_end_of_string}, left=${node.left_id}, middle=${node.middle_id}, right=${node.right_id}, pos=${pos}')
 	
+	if pos >= key.len {
+		println('Position ${pos} out of bounds for key "${key}"')
+		return error('Key not found - position out of bounds')
+	}
+	
+	// Get the node
+	node_data := self.db.get(node_id) or {
+		println('Failed to get node ${node_id}')
+		return error('Node not found in database')
+	}
+	
+	node := deserialize_node(node_data) or {
+		println('Failed to deserialize node ${node_id}')
+		return error('Failed to deserialize node')
+	}
+	
+	println('Searching node ${node_id}: char=${node.character}, pos=${pos}, key_char=${key[pos]}')
+	
+	mut result := []u8{}
+	
+	// Left branch
 	if key[pos] < node.character {
-		println('Going left: ${key[pos]} (${key[pos].ascii_str()}) < ${node.character} (${node.character.ascii_str()})')
-		// Go left
-		return self.search_recursive(node.left_id, key, pos)!
-	} else if key[pos] > node.character {
-		println('Going right: ${key[pos]} (${key[pos].ascii_str()}) > ${node.character} (${node.character.ascii_str()})')
-		// Go right
-		return self.search_recursive(node.right_id, key, pos)!
-	} else {
-		// Equal
-		println('Character matches: ${key[pos]} (${key[pos].ascii_str()}) == ${node.character} (${node.character.ascii_str()})')
-		if pos == key.len - 1 {
-			// We've reached the end of the key
-			if node.is_end_of_string {
-				println('End of key reached and is_end_of_string=true, returning value')
-				return node.value
-			} else {
-				println('End of key reached but is_end_of_string=false, key not found')
-				return error('Key not found')
+		println('Going left')
+		result = self.search_recursive(node.left_id, key, pos) or {
+			return error(err.str())
+		}
+		return result
+	}
+	
+	// Right branch
+	if key[pos] > node.character {
+		println('Going right')
+		result = self.search_recursive(node.right_id, key, pos) or {
+			return error(err.str())
+		}
+		return result
+	}
+	
+	// Character matches
+	println('Character match')
+	
+	// At end of key
+	if pos == key.len - 1 {
+		if node.is_end_of_string {
+			println('Found key')
+			// Copy the value
+			for i in 0 .. node.value.len {
+				result << node.value[i]
 			}
+			return result
 		} else {
-			// Move to the next character in the key
-			println('Moving to next character: ${key[pos+1]} (${key[pos+1].ascii_str()})')
-			return self.search_recursive(node.middle_id, key, pos + 1)!
+			println('Character match but not end of string')
+			return error('Key not found - not marked as end of string')
 		}
 	}
+	
+	// Not at end of key, go to middle
+	if node.middle_id == 0 {
+		println('No middle child')
+		return error('Key not found - no middle child')
+	}
+	
+	println('Going to middle child')
+	result = self.search_recursive(node.middle_id, key, pos + 1) or {
+		return error(err.str())
+	}
+	return result
 }
 
 // Deletes a key from the tree
 pub fn (mut self TST) delete(key string) ! {
-	println('Deleting key: "${key}"')
-	if key.len == 0 {
+	normalized_key := namefix(key)
+	println('Deleting key: "${key}" (normalized: "${normalized_key}")')
+	
+	if normalized_key.len == 0 {
 		return error('Empty key not allowed')
 	}
 
@@ -210,8 +305,8 @@ pub fn (mut self TST) delete(key string) ! {
 		return error('Tree is empty')
 	}
 
-	self.delete_recursive(self.root_id, key, 0)!
-	println('Key "${key}" deleted successfully')
+	self.delete_recursive(self.root_id, normalized_key, 0)!
+	println('Key "${normalized_key}" deleted successfully')
 }
 
 // Recursive helper function for deletion
@@ -220,14 +315,35 @@ fn (mut self TST) delete_recursive(node_id u32, key string, pos int) !bool {
 		println('Node ID is 0, key not found')
 		return error('Key not found')
 	}
+	
+	// Check for position out of bounds
+	if pos >= key.len {
+		println('Position ${pos} is out of bounds for key "${key}"')
+		return error('Key not found - position out of bounds')
+	}
 
-	mut node := deserialize_node(self.db.get(node_id)!)!
+	// Get the current node with error handling
+	node_data := self.db.get(node_id) or {
+		println('Failed to get node data for ID ${node_id}')
+		return error('Node retrieval error: ${err}')
+	}
+	
+	mut node := deserialize_node(node_data) or {
+		println('Failed to deserialize node with ID ${node_id}')
+		return error('Node deserialization error: ${err}')
+	}
+	
 	println('Deleting from node ${node_id}: character=${node.character} (${node.character.ascii_str()}), is_end=${node.is_end_of_string}, left=${node.left_id}, middle=${node.middle_id}, right=${node.right_id}, pos=${pos}')
 	mut deleted := false
 
 	if key[pos] < node.character {
 		println('Going left: ${key[pos]} (${key[pos].ascii_str()}) < ${node.character} (${node.character.ascii_str()})')
 		// Go left
+		if node.left_id == 0 {
+			println('Left child is null, key not found')
+			return error('Key not found')
+		}
+		
 		deleted = self.delete_recursive(node.left_id, key, pos)!
 		if deleted && node.left_id != 0 {
 			// Check if the left child has been deleted
@@ -244,6 +360,11 @@ fn (mut self TST) delete_recursive(node_id u32, key string, pos int) !bool {
 	} else if key[pos] > node.character {
 		println('Going right: ${key[pos]} (${key[pos].ascii_str()}) > ${node.character} (${node.character.ascii_str()})')
 		// Go right
+		if node.right_id == 0 {
+			println('Right child is null, key not found')
+			return error('Key not found')
+		}
+		
 		deleted = self.delete_recursive(node.right_id, key, pos)!
 		if deleted && node.right_id != 0 {
 			// Check if the right child has been deleted
@@ -285,6 +406,11 @@ fn (mut self TST) delete_recursive(node_id u32, key string, pos int) !bool {
 		} else {
 			// Move to the next character in the key
 			println('Moving to next character: ${key[pos+1]} (${key[pos+1].ascii_str()})')
+			if node.middle_id == 0 {
+				println('Middle child is null, key not found')
+				return error('Key not found')
+			}
+			
 			deleted = self.delete_recursive(node.middle_id, key, pos + 1)!
 			if deleted && node.middle_id != 0 {
 				// Check if the middle child has been deleted
@@ -309,171 +435,4 @@ fn (mut self TST) delete_recursive(node_id u32, key string, pos int) !bool {
 	}
 
 	return deleted
-}
-
-// Lists all keys with a given prefix
-pub fn (mut self TST) list(prefix string) ![]string {
-	println('Listing keys with prefix: "${prefix}"')
-	mut result := []string{}
-
-	// Handle empty prefix case - will return all keys
-	if prefix.len == 0 {
-		println('Empty prefix, collecting all keys')
-		self.collect_all_keys(self.root_id, '', mut result)!
-		println('Found ${result.len} keys: ${result}')
-		return result
-	}
-
-	// Find the node corresponding to the prefix
-	println('Finding node for prefix: "${prefix}"')
-	
-	// Start from the root and traverse to the node corresponding to the last character of the prefix
-	mut node_id := self.root_id
-	mut pos := 0
-	mut current_path := ''
-	
-	// Traverse the tree to find the node corresponding to the prefix
-	for pos < prefix.len && node_id != 0 {
-		node := deserialize_node(self.db.get(node_id)!)!
-		println('Examining node ${node_id}: character=${node.character} (${node.character.ascii_str()}), is_end=${node.is_end_of_string}, left=${node.left_id}, middle=${node.middle_id}, right=${node.right_id}, pos=${pos}, current_path="${current_path}"')
-		
-		if prefix[pos] < node.character {
-			println('Going left: ${prefix[pos]} (${prefix[pos].ascii_str()}) < ${node.character} (${node.character.ascii_str()})')
-			node_id = node.left_id
-		} else if prefix[pos] > node.character {
-			println('Going right: ${prefix[pos]} (${prefix[pos].ascii_str()}) > ${node.character} (${node.character.ascii_str()})')
-			node_id = node.right_id
-		} else {
-			// Character matches
-			println('Character matches: ${prefix[pos]} (${prefix[pos].ascii_str()}) == ${node.character} (${node.character.ascii_str()})')
-			
-			// Update the current path
-			if node.character != 0 { // Skip the root node character
-				current_path += node.character.ascii_str()
-				println('Updated path: "${current_path}"')
-			}
-			
-			if pos == prefix.len - 1 {
-				// We've reached the end of the prefix
-				println('Reached end of prefix')
-				
-				// If this node is the end of a string, add it to the result
-				if node.is_end_of_string {
-					println('Node is end of string, adding key: "${current_path}"')
-					result << current_path
-				}
-				
-				// Collect all keys from the middle child
-				if node.middle_id != 0 {
-					println('Collecting from middle child with path: "${current_path}"')
-					self.collect_keys_with_prefix(node.middle_id, current_path, prefix, mut result)!
-				}
-				
-				break
-			} else {
-				// Move to the next character in the prefix
-				println('Moving to next character in prefix: ${prefix[pos+1]} (${prefix[pos+1].ascii_str()})')
-				node_id = node.middle_id
-				pos++
-			}
-		}
-	}
-	
-	if node_id == 0 || pos < prefix.len - 1 {
-		// Prefix not found or we didn't reach the end of the prefix
-		println('Prefix not found or didn\'t reach end of prefix, returning empty result')
-		return []string{}
-	}
-	
-	println('Found ${result.len} keys with prefix "${prefix}": ${result}')
-	return result
-}
-
-// Helper function to collect all keys with a given prefix
-fn (mut self TST) collect_keys_with_prefix(node_id u32, current_path string, prefix string, mut result []string) ! {
-	if node_id == 0 {
-		return
-	}
-
-	node := deserialize_node(self.db.get(node_id)!)!
-	println('Collecting keys with prefix from node ${node_id}: character=${node.character} (${node.character.ascii_str()}), is_end=${node.is_end_of_string}, left=${node.left_id}, middle=${node.middle_id}, right=${node.right_id}, current_path="${current_path}"')
-	
-	// Construct the path for this node
-	path := current_path + node.character.ascii_str()
-	println('Path for node: "${path}"')
-	
-	// If this node is the end of a string, add it to the result
-	if node.is_end_of_string {
-		println('Node is end of string, adding key: "${path}"')
-		result << path
-	}
-
-	// Recursively collect keys from the middle child (keys that extend this prefix)
-	if node.middle_id != 0 {
-		println('Collecting from middle child with path: "${path}"')
-		self.collect_keys_with_prefix(node.middle_id, path, prefix, mut result)!
-	}
-	
-	// Also collect keys from left and right children
-	// This is necessary because multiple keys might share the same prefix
-	if node.left_id != 0 {
-		println('Collecting from left child with path: "${current_path}"')
-		self.collect_keys_with_prefix(node.left_id, current_path, prefix, mut result)!
-	}
-	if node.right_id != 0 {
-		println('Collecting from right child with path: "${current_path}"')
-		self.collect_keys_with_prefix(node.right_id, current_path, prefix, mut result)!
-	}
-}
-
-// Helper function to recursively collect all keys under a node
-fn (mut self TST) collect_all_keys(node_id u32, current_path string, mut result []string) ! {
-	if node_id == 0 {
-		return
-	}
-
-	node := deserialize_node(self.db.get(node_id)!)!
-	println('Collecting all from node ${node_id}: character=${node.character} (${node.character.ascii_str()}), is_end=${node.is_end_of_string}, left=${node.left_id}, middle=${node.middle_id}, right=${node.right_id}, current_path="${current_path}"')
-	
-	// Construct the path for this node
-	path := current_path + node.character.ascii_str()
-	println('Path for node: "${path}"')
-	
-	// If this node is the end of a string, add it to the result
-	if node.is_end_of_string {
-		println('Node is end of string, adding key: "${path}"')
-		result << path
-	}
-
-	// Recursively collect keys from all children
-	if node.left_id != 0 {
-		println('Collecting all from left child with path: "${current_path}"')
-		self.collect_all_keys(node.left_id, current_path, mut result)!
-	}
-	if node.middle_id != 0 {
-		println('Collecting all from middle child with path: "${path}"')
-		self.collect_all_keys(node.middle_id, path, mut result)!
-	}
-	if node.right_id != 0 {
-		println('Collecting all from right child with path: "${current_path}"')
-		self.collect_all_keys(node.right_id, current_path, mut result)!
-	}
-}
-
-// Gets all values for keys with a given prefix
-pub fn (mut self TST) getall(prefix string) ![][]u8 {
-	println('Getting all values with prefix: "${prefix}"')
-	// Get all matching keys
-	keys := self.list(prefix)!
-
-	// Get values for each key
-	mut values := [][]u8{}
-	for key in keys {
-		if value := self.get(key) {
-			values << value
-		}
-	}
-
-	println('Found ${values.len} values with prefix "${prefix}"')
-	return values
 }
