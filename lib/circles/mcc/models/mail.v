@@ -1,27 +1,32 @@
 module models
 
-// import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.encoder
-// import strings
-// import strconv
+import time
 
 // Email represents an email message with all its metadata and content
 pub struct Email {
 pub mut:
 	// Database ID
 	id u32 // Database ID (assigned by DBHandler)
-	// Content fields
-	uid         u32          // Unique identifier of the message (in the circle)
-	seq_num     u32          // IMAP sequence number (in the mailbox)
-	mailbox     string       // The mailbox this email belongs to
+	message_id  string       // Unique identifier for the email
+	folder      string       // The folder this email belongs to (inbox, sent, drafts, etc.)
 	message     string       // The email body content
 	attachments []Attachment // Any file attachments
-
-	// IMAP specific fields
-	flags         []string  // IMAP flags like \Seen, \Deleted, etc.
-	internal_date i64       // Unix timestamp when the email was received
-	size          u32       // Size of the message in bytes
-	envelope      ?Envelope // IMAP envelope information (contains From, To, Subject, etc.)
+	
+	date        i64          // Unix timestamp when the email was sent/received
+	size        u32          // Size of the message in bytes
+	read        bool         // Whether the email has been read
+	flagged     bool         // Whether the email has been flagged/starred
+	
+	// Header information
+	subject     string
+	from        []string
+	sender      []string
+	reply_to    []string
+	to          []string
+	cc          []string
+	bcc         []string
+	in_reply_to string
 }
 
 // Attachment represents an email attachment
@@ -32,24 +37,9 @@ pub mut:
 	data         string // Base64 encoded binary data
 }
 
-// Envelope represents an IMAP envelope structure
-pub struct Envelope {
-pub mut:
-	date        i64
-	subject     string
-	from        []string
-	sender      []string
-	reply_to    []string
-	to          []string
-	cc          []string
-	bcc         []string
-	in_reply_to string
-	message_id  string
-}
-
 pub fn (e Email) index_keys() map[string]string {
 	return {
-		'uid': e.uid.str()
+		'message_id': e.message_id
 	}
 }
 
@@ -63,9 +53,8 @@ pub fn (e Email) dumps() ![]u8 {
 
 	// Encode Email fields
 	enc.add_u32(e.id)
-	enc.add_u32(e.uid)
-	enc.add_u32(e.seq_num)
-	enc.add_string(e.mailbox)
+	enc.add_string(e.message_id)
+	enc.add_string(e.folder)
 	enc.add_string(e.message)
 
 	// Encode attachments array
@@ -76,62 +65,51 @@ pub fn (e Email) dumps() ![]u8 {
 		enc.add_string(attachment.data)
 	}
 
-	// Encode flags array
-	enc.add_u16(u16(e.flags.len))
-	for flag in e.flags {
-		enc.add_string(flag)
-	}
-
-	enc.add_i64(e.internal_date)
+	enc.add_i64(e.date)
 	enc.add_u32(e.size)
-
-	// Encode envelope (optional)
-	if envelope := e.envelope {
-		enc.add_u8(1) // Has envelope
-		enc.add_i64(envelope.date)
-		enc.add_string(envelope.subject)
-
-		// Encode from addresses
-		enc.add_u16(u16(envelope.from.len))
-		for addr in envelope.from {
-			enc.add_string(addr)
-		}
-
-		// Encode sender addresses
-		enc.add_u16(u16(envelope.sender.len))
-		for addr in envelope.sender {
-			enc.add_string(addr)
-		}
-
-		// Encode reply_to addresses
-		enc.add_u16(u16(envelope.reply_to.len))
-		for addr in envelope.reply_to {
-			enc.add_string(addr)
-		}
-
-		// Encode to addresses
-		enc.add_u16(u16(envelope.to.len))
-		for addr in envelope.to {
-			enc.add_string(addr)
-		}
-
-		// Encode cc addresses
-		enc.add_u16(u16(envelope.cc.len))
-		for addr in envelope.cc {
-			enc.add_string(addr)
-		}
-
-		// Encode bcc addresses
-		enc.add_u16(u16(envelope.bcc.len))
-		for addr in envelope.bcc {
-			enc.add_string(addr)
-		}
-
-		enc.add_string(envelope.in_reply_to)
-		enc.add_string(envelope.message_id)
-	} else {
-		enc.add_u8(0) // No envelope
+	enc.add_u8(if e.read { 1 } else { 0 })
+	enc.add_u8(if e.flagged { 1 } else { 0 })
+	
+	// Encode header information
+	enc.add_string(e.subject)
+	
+	// Encode from addresses
+	enc.add_u16(u16(e.from.len))
+	for addr in e.from {
+		enc.add_string(addr)
 	}
+	
+	// Encode sender addresses
+	enc.add_u16(u16(e.sender.len))
+	for addr in e.sender {
+		enc.add_string(addr)
+	}
+	
+	// Encode reply_to addresses
+	enc.add_u16(u16(e.reply_to.len))
+	for addr in e.reply_to {
+		enc.add_string(addr)
+	}
+	
+	// Encode to addresses
+	enc.add_u16(u16(e.to.len))
+	for addr in e.to {
+		enc.add_string(addr)
+	}
+	
+	// Encode cc addresses
+	enc.add_u16(u16(e.cc.len))
+	for addr in e.cc {
+		enc.add_string(addr)
+	}
+	
+	// Encode bcc addresses
+	enc.add_u16(u16(e.bcc.len))
+	for addr in e.bcc {
+		enc.add_string(addr)
+	}
+	
+	enc.add_string(e.in_reply_to)
 
 	return enc.data
 }
@@ -149,9 +127,8 @@ pub fn email_loads(data []u8) !Email {
 
 	// Decode Email fields
 	email.id = d.get_u32()!
-	email.uid = d.get_u32()!
-	email.seq_num = d.get_u32()!
-	email.mailbox = d.get_string()!
+	email.message_id = d.get_string()!
+	email.folder = d.get_string()!
 	email.message = d.get_string()!
 
 	// Decode attachments array
@@ -165,82 +142,67 @@ pub fn email_loads(data []u8) !Email {
 		email.attachments[i] = attachment
 	}
 
-	// Decode flags array
-	flags_len := d.get_u16()!
-	email.flags = []string{len: int(flags_len)}
-	for i in 0 .. flags_len {
-		email.flags[i] = d.get_string()!
-	}
-
-	email.internal_date = d.get_i64()!
+	email.date = d.get_i64()!
 	email.size = d.get_u32()!
-
-	// Decode envelope (optional)
-	has_envelope := d.get_u8()!
-	if has_envelope == 1 {
-		mut envelope := Envelope{}
-		envelope.date = d.get_i64()!
-		envelope.subject = d.get_string()!
-
-		// Decode from addresses
-		from_len := d.get_u16()!
-		envelope.from = []string{len: int(from_len)}
-		for i in 0 .. from_len {
-			envelope.from[i] = d.get_string()!
-		}
-
-		// Decode sender addresses
-		sender_len := d.get_u16()!
-		envelope.sender = []string{len: int(sender_len)}
-		for i in 0 .. sender_len {
-			envelope.sender[i] = d.get_string()!
-		}
-
-		// Decode reply_to addresses
-		reply_to_len := d.get_u16()!
-		envelope.reply_to = []string{len: int(reply_to_len)}
-		for i in 0 .. reply_to_len {
-			envelope.reply_to[i] = d.get_string()!
-		}
-
-		// Decode to addresses
-		to_len := d.get_u16()!
-		envelope.to = []string{len: int(to_len)}
-		for i in 0 .. to_len {
-			envelope.to[i] = d.get_string()!
-		}
-
-		// Decode cc addresses
-		cc_len := d.get_u16()!
-		envelope.cc = []string{len: int(cc_len)}
-		for i in 0 .. cc_len {
-			envelope.cc[i] = d.get_string()!
-		}
-
-		// Decode bcc addresses
-		bcc_len := d.get_u16()!
-		envelope.bcc = []string{len: int(bcc_len)}
-		for i in 0 .. bcc_len {
-			envelope.bcc[i] = d.get_string()!
-		}
-
-		envelope.in_reply_to = d.get_string()!
-		envelope.message_id = d.get_string()!
-
-		email.envelope = envelope
+	email.read = d.get_u8()! == 1
+	email.flagged = d.get_u8()! == 1
+	
+	// Decode header information
+	email.subject = d.get_string()!
+	
+	// Decode from addresses
+	from_len := d.get_u16()!
+	email.from = []string{len: int(from_len)}
+	for i in 0 .. from_len {
+		email.from[i] = d.get_string()!
 	}
+	
+	// Decode sender addresses
+	sender_len := d.get_u16()!
+	email.sender = []string{len: int(sender_len)}
+	for i in 0 .. sender_len {
+		email.sender[i] = d.get_string()!
+	}
+	
+	// Decode reply_to addresses
+	reply_to_len := d.get_u16()!
+	email.reply_to = []string{len: int(reply_to_len)}
+	for i in 0 .. reply_to_len {
+		email.reply_to[i] = d.get_string()!
+	}
+	
+	// Decode to addresses
+	to_len := d.get_u16()!
+	email.to = []string{len: int(to_len)}
+	for i in 0 .. to_len {
+		email.to[i] = d.get_string()!
+	}
+	
+	// Decode cc addresses
+	cc_len := d.get_u16()!
+	email.cc = []string{len: int(cc_len)}
+	for i in 0 .. cc_len {
+		email.cc[i] = d.get_string()!
+	}
+	
+	// Decode bcc addresses
+	bcc_len := d.get_u16()!
+	email.bcc = []string{len: int(bcc_len)}
+	for i in 0 .. bcc_len {
+		email.bcc[i] = d.get_string()!
+	}
+	
+	email.in_reply_to = d.get_string()!
 
 	return email
 }
 
 // sender returns the first sender address or an empty string if not available
 pub fn (e Email) sender() string {
-	if envelope := e.envelope {
-		if envelope.sender.len > 0 {
-			return envelope.sender[0]
-		} else if envelope.from.len > 0 {
-			return envelope.from[0]
-		}
+	if e.sender.len > 0 {
+		return e.sender[0]
+	} else if e.from.len > 0 {
+		return e.from[0]
 	}
 	return ''
 }
@@ -248,37 +210,15 @@ pub fn (e Email) sender() string {
 // recipients returns all recipient addresses (to, cc, bcc)
 pub fn (e Email) recipients() []string {
 	mut recipients := []string{}
-
-	if envelope := e.envelope {
-		recipients << envelope.to
-		recipients << envelope.cc
-		recipients << envelope.bcc
-	}
-
+	recipients << e.to
+	recipients << e.cc
+	recipients << e.bcc
 	return recipients
 }
 
 // has_attachment returns true if the email has attachments
 pub fn (e Email) has_attachments() bool {
 	return e.attachments.len > 0
-}
-
-// is_read returns true if the email has been marked as read
-pub fn (e Email) is_read() bool {
-	return '\\\\Seen' in e.flags
-}
-
-// is_flagged returns true if the email has been flagged
-pub fn (e Email) is_flagged() bool {
-	return '\\\\Flagged' in e.flags
-}
-
-// date returns the date when the email was sent
-pub fn (e Email) date() i64 {
-	if envelope := e.envelope {
-		return envelope.date
-	}
-	return e.internal_date
 }
 
 // calculate_size calculates the total size of the email in bytes
@@ -290,25 +230,23 @@ pub fn (e Email) calculate_size() u32 {
 		size += u32(attachment.data.len)
 	}
 
-	// Add estimated size of envelope data if available
-	if envelope := e.envelope {
-		size += u32(envelope.subject.len)
-		size += u32(envelope.message_id.len)
-		size += u32(envelope.in_reply_to.len)
+	// Add size of header data
+	size += u32(e.subject.len)
+	size += u32(e.message_id.len)
+	size += u32(e.in_reply_to.len)
 
-		// Add size of address fields
-		for addr in envelope.from {
-			size += u32(addr.len)
-		}
-		for addr in envelope.to {
-			size += u32(addr.len)
-		}
-		for addr in envelope.cc {
-			size += u32(addr.len)
-		}
-		for addr in envelope.bcc {
-			size += u32(addr.len)
-		}
+	// Add size of address fields
+	for addr in e.from {
+		size += u32(addr.len)
+	}
+	for addr in e.to {
+		size += u32(addr.len)
+	}
+	for addr in e.cc {
+		size += u32(addr.len)
+	}
+	for addr in e.bcc {
+		size += u32(addr.len)
 	}
 
 	return size
@@ -322,149 +260,70 @@ fn count_lines(s string) int {
 	return s.count('\n') + 1
 }
 
-// body_structure generates and returns a description of the MIME structure of the email
-// This can be used by IMAP clients to understand the structure of the message
-pub fn (e Email) body_structure() string {
-	// If there are no attachments, return a simple text structure
+// get_mime_type returns the MIME type of the email
+pub fn (e Email) get_mime_type() string {
 	if e.attachments.len == 0 {
-		return '("text" "plain" ("charset" "utf-8") NIL NIL "7bit" ' +
-			'${e.message.len} ${count_lines(e.message)}' + ' NIL NIL NIL)'
+		return 'text/plain'
 	}
-
-	// For emails with attachments, create a multipart/mixed structure
-	mut result := '("multipart" "mixed" NIL NIL NIL "7bit" NIL NIL ('
-
-	// Add the text part
-	result += '("text" "plain" ("charset" "utf-8") NIL NIL "7bit" ' +
-		'${e.message.len} ${count_lines(e.message)}' + ' NIL NIL NIL)'
-
-	// Add each attachment
-	for attachment in e.attachments {
-		// Default to application/octet-stream if content type is empty
-		mut content_type := attachment.content_type
-		if content_type == '' {
-			content_type = 'application/octet-stream'
-		}
-
-		// Split content type into type and subtype
-		parts := content_type.split('/')
-		mut subtype := 'octet-stream'
-		if parts.len == 2 {
-			subtype = parts[1]
-		}
-
-		// Add the attachment part
-		result += ' ("application" "${subtype}" ("name" "${attachment.filename}") NIL NIL "base64" ${attachment.data.len} NIL ("attachment" ("filename" "${attachment.filename}")) NIL)'
-	}
-
-	// Close the structure
-	result += ')'
-
-	return result
+	return 'multipart/mixed'
 }
 
-// Helper methods to access fields from the Envelope
-
-// from returns the From address from the Envelope
-pub fn (e Email) from() string {
-	if envelope := e.envelope {
-		if envelope.from.len > 0 {
-			return envelope.from[0]
-		}
-	}
-	return ''
+// format_date returns the date formatted as a string
+pub fn (e Email) format_date() string {
+	return time.unix(e.date).format_rfc3339()
 }
 
-// to returns the To addresses from the Envelope
-pub fn (e Email) to() []string {
-	if envelope := e.envelope {
-		return envelope.to
-	}
-	return []string{}
-}
-
-// cc returns the Cc addresses from the Envelope
-pub fn (e Email) cc() []string {
-	if envelope := e.envelope {
-		return envelope.cc
-	}
-	return []string{}
-}
-
-// bcc returns the Bcc addresses from the Envelope
-pub fn (e Email) bcc() []string {
-	if envelope := e.envelope {
-		return envelope.bcc
-	}
-	return []string{}
-}
-
-// subject returns the Subject from the Envelope
-pub fn (e Email) subject() string {
-	if envelope := e.envelope {
-		return envelope.subject
-	}
-	return ''
-}
-
-// ensure_envelope ensures that the email has an envelope, creating one if needed
-pub fn (mut e Email) ensure_envelope() {
-	if e.envelope == none {
-		e.envelope = Envelope{
-			from:     []string{}
-			sender:   []string{}
-			reply_to: []string{}
-			to:       []string{}
-			cc:       []string{}
-			bcc:      []string{}
-		}
-	}
-}
-
-// set_from sets the From address in the Envelope
+// set_from sets the From address
 pub fn (mut e Email) set_from(from string) {
-	e.ensure_envelope()
-	mut envelope := e.envelope or { Envelope{} }
-	envelope.from = [from]
-	e.envelope = envelope
+	e.from = [from]
 }
 
-// set_to sets the To addresses in the Envelope
+// set_to sets the To addresses
 pub fn (mut e Email) set_to(to []string) {
-	e.ensure_envelope()
-	mut envelope := e.envelope or { Envelope{} }
-	envelope.to = to.clone()
-	e.envelope = envelope
+	e.to = to.clone()
 }
 
-// set_cc sets the Cc addresses in the Envelope
+// set_cc sets the Cc addresses
 pub fn (mut e Email) set_cc(cc []string) {
-	e.ensure_envelope()
-	mut envelope := e.envelope or { Envelope{} }
-	envelope.cc = cc.clone()
-	e.envelope = envelope
+	e.cc = cc.clone()
 }
 
-// set_bcc sets the Bcc addresses in the Envelope
+// set_bcc sets the Bcc addresses
 pub fn (mut e Email) set_bcc(bcc []string) {
-	e.ensure_envelope()
-	mut envelope := e.envelope or { Envelope{} }
-	envelope.bcc = bcc.clone()
-	e.envelope = envelope
+	e.bcc = bcc.clone()
 }
 
-// set_subject sets the Subject in the Envelope
+// set_subject sets the Subject
 pub fn (mut e Email) set_subject(subject string) {
-	e.ensure_envelope()
-	mut envelope := e.envelope or { Envelope{} }
-	envelope.subject = subject
-	e.envelope = envelope
+	e.subject = subject
 }
 
-// set_date sets the Date in the Envelope
+// set_date sets the Date
 pub fn (mut e Email) set_date(date i64) {
-	e.ensure_envelope()
-	mut envelope := e.envelope or { Envelope{} }
-	envelope.date = date
-	e.envelope = envelope
+	e.date = date
+}
+
+// mark_as_read marks the email as read
+pub fn (mut e Email) mark_as_read() {
+	e.read = true
+}
+
+// mark_as_unread marks the email as unread
+pub fn (mut e Email) mark_as_unread() {
+	e.read = false
+}
+
+// toggle_flag toggles the flagged status of the email
+pub fn (mut e Email) toggle_flag() {
+	e.flagged = !e.flagged
+}
+
+// add_attachment adds an attachment to the email
+pub fn (mut e Email) add_attachment(filename string, content_type string, data string) {
+	e.attachments << Attachment{
+		filename: filename
+		content_type: content_type
+		data: data
+	}
+	e.size = e.calculate_size()
 }

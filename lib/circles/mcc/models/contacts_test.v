@@ -10,6 +10,7 @@ fn test_contact_serialization_deserialization() {
 		last_name: 'Doe'
 		email: 'john.doe@example.com'
 		group: 'Friends'
+		groups: [u32(1), 2, 3]
 	}
 
 	// Serialize the Contact
@@ -32,6 +33,7 @@ fn test_contact_serialization_deserialization() {
 	assert deserialized.last_name == original.last_name, 'last_name mismatch'
 	assert deserialized.email == original.email, 'email mismatch'
 	assert deserialized.group == original.group, 'group mismatch'
+	assert deserialized.groups == original.groups, 'groups mismatch'
 }
 
 fn test_contact_deserialization_with_wrong_encoding_id() {
@@ -41,6 +43,7 @@ fn test_contact_deserialization_with_wrong_encoding_id() {
 		first_name: 'John'
 		last_name: 'Doe'
 		email: 'john.doe@example.com'
+		groups: [u32(1), 2]
 	}
 
 	// Serialize the Contact
@@ -76,6 +79,7 @@ fn test_contact_with_empty_fields() {
 		last_name: ''
 		email: ''
 		group: ''
+		groups: []u32{}
 	}
 
 	// Serialize the Contact
@@ -98,6 +102,7 @@ fn test_contact_with_empty_fields() {
 	assert deserialized.last_name == original.last_name, 'last_name mismatch'
 	assert deserialized.email == original.email, 'email mismatch'
 	assert deserialized.group == original.group, 'group mismatch'
+	assert deserialized.groups == original.groups, 'groups mismatch'
 }
 
 fn test_contact_serialization_size() {
@@ -110,6 +115,7 @@ fn test_contact_serialization_size() {
 		last_name: 'Doe'
 		email: 'john.doe@example.com'
 		group: 'Friends'
+		groups: [u32(1), 2, 3]
 	}
 
 	// Serialize the Contact
@@ -128,4 +134,119 @@ fn test_contact_serialization_size() {
 	                      original.email.len + original.group.len + 4 // some overhead for string lengths
 	
 	assert serialized.len >= expected_min_size, 'Serialized data size is suspiciously small'
+}
+
+fn test_contact_new_constructor() {
+	// Test the new_contact constructor
+	contact := new_contact(42, 'John', 'Doe', 'john.doe@example.com', 'Friends')
+	
+	assert contact.id == 42
+	assert contact.first_name == 'John'
+	assert contact.last_name == 'Doe'
+	assert contact.email == 'john.doe@example.com'
+	assert contact.group == 'Friends'
+	assert contact.groups.len == 0
+	
+	// Check that timestamps were set
+	assert contact.created_at > 0
+	assert contact.modified_at > 0
+	assert contact.created_at == contact.modified_at
+}
+
+fn test_contact_groups_management() {
+	// Test adding and removing groups
+	mut contact := new_contact(42, 'John', 'Doe', 'john.doe@example.com', 'Friends')
+	
+	// Initially empty
+	assert contact.groups.len == 0
+	
+	// Add groups
+	contact.add_group(1)
+	contact.add_group(2)
+	contact.add_group(3)
+	
+	assert contact.groups.len == 3
+	assert u32(1) in contact.groups
+	assert u32(2) in contact.groups
+	assert u32(3) in contact.groups
+	
+	// Adding duplicate should not change anything
+	contact.add_group(1)
+	assert contact.groups.len == 3
+	
+	// Remove a group
+	contact.remove_group(2)
+	assert contact.groups.len == 2
+	assert u32(1) in contact.groups
+	assert u32(2) !in contact.groups
+	assert u32(3) in contact.groups
+	
+	// Update all groups
+	contact.update_groups([u32(5), 6])
+	assert contact.groups.len == 2
+	assert u32(5) in contact.groups
+	assert u32(6) in contact.groups
+	assert u32(1) !in contact.groups
+	assert u32(3) !in contact.groups
+}
+
+fn test_contact_filter_and_search() {
+	// Test filtering and searching
+	mut contact := Contact{
+		id: 42
+		first_name: 'John'
+		last_name: 'Doe'
+		email: 'john.doe@example.com'
+		group: 'Friends'
+		groups: [u32(1), 2, 3]
+	}
+	
+	// Test filter_by_groups
+	assert contact.filter_by_groups([u32(1), 5]) == true
+	assert contact.filter_by_groups([u32(5), 6]) == false
+	
+	// Test search_by_name
+	assert contact.search_by_name('john') == true
+	assert contact.search_by_name('doe') == true
+	assert contact.search_by_name('john doe') == true
+	assert contact.search_by_name('JOHN') == true // Case insensitive
+	assert contact.search_by_name('smith') == false
+	
+	// Test search_by_email
+	assert contact.search_by_email('john') == true
+	assert contact.search_by_email('example') == true
+	assert contact.search_by_email('EXAMPLE') == true // Case insensitive
+	assert contact.search_by_email('gmail') == false
+}
+
+fn test_contact_update() {
+	// Test updating contact information
+	mut contact := new_contact(42, 'John', 'Doe', 'john.doe@example.com', 'Friends')
+	mut original_modified_at := contact.modified_at
+	
+	// Update individual fields
+	contact.update('Jane', '', '', '')
+	assert contact.first_name == 'Jane'
+	assert contact.last_name == 'Doe' // Unchanged
+	assert contact.modified_at > original_modified_at
+	
+	original_modified_at = contact.modified_at
+	
+	// Update multiple fields
+	contact.update('', 'Smith', 'jane.smith@example.com', '')
+	assert contact.first_name == 'Jane' // Unchanged
+	assert contact.last_name == 'Smith'
+	assert contact.email == 'jane.smith@example.com'
+	assert contact.group == 'Friends' // Unchanged
+	assert contact.modified_at > original_modified_at
+}
+
+fn test_contact_full_name() {
+	// Test full_name method
+	contact := Contact{
+		first_name: 'John'
+		last_name: 'Doe'
+	}
+	
+	assert contact.full_name() == 'John Doe'
 }
