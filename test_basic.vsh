@@ -187,6 +187,7 @@ data/radixtree
 data/dedupestor
 core/playcmds
 tst/
+rust/
 '
 
 if in_github_actions() {
