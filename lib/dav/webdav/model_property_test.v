@@ -116,11 +116,11 @@ fn (p CustomProperty) xml_str() string {
 fn test_custom_property() {
 	// Test custom property
 	custom_prop := CustomProperty{
-		name: 'author'
-		value: 'Kristof'
+		name:      'author'
+		value:     'Kristof'
 		namespace: 'C'
 	}
-	
+
 	assert custom_prop.xml_str() == '<C:author>Kristof</C:author>'
 	assert custom_prop.xml_name() == '<author/>'
 }
@@ -131,16 +131,15 @@ fn test_propfind_response() {
 	props << DisplayName('test-file.txt')
 	props << GetLastModified('Mon, 01 Jan 2024 12:00:00 GMT')
 	props << GetContentLength('1024')
-	
+
 	// Build a complete PROPFIND response with multistatus
 	xml_output := '<D:multistatus xmlns:D="DAV:">
 		<D:response>
 			<D:href>/test-file.txt</D:href>
 			${props.xml_str()}
 		</D:response>
-	</D:multistatus>'
-	
-	// Verify the XML structure
+	</D:multistatus>' // Verify the XML structure
+
 	assert xml_output.contains('<D:multistatus')
 	assert xml_output.contains('<D:response>')
 	assert xml_output.contains('<D:href>')
@@ -157,7 +156,7 @@ fn test_propfind_with_missing_properties() {
 		</D:prop>
 		<D:status>HTTP/1.1 404 Not Found</D:status>
 	</D:propstat>'
-	
+
 	// Simple verification of structure
 	assert missing_prop_response.contains('<D:propstat>')
 	assert missing_prop_response.contains('<D:nonexistent-property/>')
@@ -167,12 +166,12 @@ fn test_propfind_with_missing_properties() {
 fn test_supported_lock_detailed() {
 	supported_lock := SupportedLock('')
 	xml_output := supported_lock.xml_str()
-	
+
 	// Test SupportedLock provides a fully formed XML snippet for supportedlock
 	// Note: This test assumes the actual implementation returns a simplified version
 	// as indicated by the xml_str() method which returns '<D:supportedlock>...</D:supportedlock>'
 	assert xml_output.contains('<D:supportedlock>')
-	
+
 	// Detailed testing would need proper parsing of the XML to verify elements
 	// For real implementation, test should check for:
 	// - lockentry elements
@@ -183,11 +182,11 @@ fn test_supported_lock_detailed() {
 fn test_proppatch_request() {
 	// Create property to set
 	author_prop := CustomProperty{
-		name: 'author'
-		value: 'Kristof'
+		name:      'author'
+		value:     'Kristof'
 		namespace: 'C'
 	}
-	
+
 	// Create XML for PROPPATCH request (set)
 	proppatch_set := '<D:propertyupdate xmlns:D="DAV:" xmlns:C="http://example.com/customns">
 		<D:set>
@@ -195,14 +194,13 @@ fn test_proppatch_request() {
 				${author_prop.xml_str()}
 			</D:prop>
 		</D:set>
-	</D:propertyupdate>'
-	
-	// Check structure
+	</D:propertyupdate>' // Check structure
+
 	assert proppatch_set.contains('<D:propertyupdate')
 	assert proppatch_set.contains('<D:set>')
 	assert proppatch_set.contains('<D:prop>')
 	assert proppatch_set.contains('<C:author>Kristof</C:author>')
-	
+
 	// Create XML for PROPPATCH request (remove)
 	proppatch_remove := '<D:propertyupdate xmlns:D="DAV:">
 		<D:remove>
@@ -211,7 +209,7 @@ fn test_proppatch_request() {
 			</D:prop>
 		</D:remove>
 	</D:propertyupdate>'
-	
+
 	// Check structure
 	assert proppatch_remove.contains('<D:propertyupdate')
 	assert proppatch_remove.contains('<D:remove>')
@@ -224,7 +222,7 @@ fn test_prop_name_listing() {
 	mut props := []Property{}
 	props << DisplayName('file.txt')
 	props << GetContentType('text/plain')
-	
+
 	// Generate propname response
 	// Note: In a complete implementation, there would be a function to generate this XML
 	// For testing purposes, we're manually creating the expected structure
@@ -240,7 +238,7 @@ fn test_prop_name_listing() {
 			</D:propstat>
 		</D:response>
 	</D:multistatus>'
-	
+
 	// Verify structure
 	assert propname_response.contains('<D:multistatus')
 	assert propname_response.contains('<D:prop>')
@@ -262,7 +260,7 @@ fn test_namespace_declarations() {
 			</D:propstat>
 		</D:response>
 	</D:multistatus>'
-	
+
 	// Verify key namespace elements
 	assert response_with_ns.contains('xmlns:D="DAV:"')
 	assert response_with_ns.contains('xmlns:C="http://example.com/customns"')
@@ -290,7 +288,7 @@ fn test_depth_header_responses() {
 			</D:propstat>
 		</D:response>
 	</D:multistatus>'
-	
+
 	// Verify structure contains multiple responses
 	assert multi_response.contains('<D:response>')
 	assert multi_response.count('<D:response>') == 2

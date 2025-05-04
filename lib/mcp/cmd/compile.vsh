@@ -13,20 +13,20 @@ prod_mode := fp.bool('prod', `p`, false, 'Build production version (optimized)')
 help_requested := fp.bool('help', `h`, false, 'Show help message')
 
 if help_requested {
-    println(fp.usage())
-    exit(0)
+	println(fp.usage())
+	exit(0)
 }
 
 additional_args := fp.finalize() or {
-    eprintln(err)
-    println(fp.usage())
-    exit(1)
+	eprintln(err)
+	println(fp.usage())
+	exit(1)
 }
 
 if additional_args.len > 0 {
-    eprintln('Unexpected arguments: ${additional_args.join(' ')}')
-    println(fp.usage())
-    exit(1)
+	eprintln('Unexpected arguments: ${additional_args.join(' ')}')
+	println(fp.usage())
+	exit(1)
 }
 
 // Change to the mcp directory
@@ -36,20 +36,20 @@ os.chdir(mcp_dir) or { panic('Failed to change directory to ${mcp_dir}: ${err}')
 // Set MCPPATH based on OS
 mut mcppath := '/usr/local/bin/mcp'
 if os.user_os() == 'macos' {
-    mcppath = os.join_path(os.home_dir(), 'hero/bin/mcp')
+	mcppath = os.join_path(os.home_dir(), 'hero/bin/mcp')
 }
 
 // Set compilation command based on OS and mode
 compile_cmd := if prod_mode {
-    'v -enable-globals -w -n -prod mcp.v'
+	'v -enable-globals -w -n -prod mcp.v'
 } else {
-    'v -w -cg -gc none -cc tcc -d use_openssl -enable-globals mcp.v'
+	'v -w -cg -gc none -cc tcc -d use_openssl -enable-globals mcp.v'
 }
 
 println('Building MCP in ${if prod_mode { 'production' } else { 'debug' }} mode...')
 
 if os.system(compile_cmd) != 0 {
-    panic('Failed to compile mcp.v with command: ${compile_cmd}')
+	panic('Failed to compile mcp.v with command: ${compile_cmd}')
 }
 
 // Make executable

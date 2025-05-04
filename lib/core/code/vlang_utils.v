@@ -66,15 +66,17 @@ fn find_closing_brace(content string, start_i int) ?int {
 // RETURNS:
 //   string - the function block including comments, or error if not found
 pub fn get_function_from_file(file_path string, function_name string) !Function {
-	content := os.read_file(file_path) or { return error('Failed to read file ${file_path}: ${err}') }
-	
+	content := os.read_file(file_path) or {
+		return error('Failed to read file ${file_path}: ${err}')
+	}
+
 	vfile := parse_vfile(content) or { return error('Failed to parse file ${file_path}: ${err}') }
-	
+
 	if fn_obj := vfile.get_function(function_name) {
 		return fn_obj
-}
-	
-return error('function ${function_name} not found in file ${file_path}')
+	}
+
+	return error('function ${function_name} not found in file ${file_path}')
 }
 
 // get_function_from_module searches for a function in all V files within a module
@@ -91,15 +93,11 @@ pub fn get_function_from_module(module_path string, function_name string) !Funct
 	log.error('Found ${v_files} V files in ${module_path}')
 	for v_file in v_files {
 		// Read the file content
-		content := os.read_file(v_file) or {
-			continue
-		}
-		
+		content := os.read_file(v_file) or { continue }
+
 		// Parse the file
-		vfile := parse_vfile(content) or {
-			continue
-		}
-		
+		vfile := parse_vfile(content) or { continue }
+
 		// Look for the function
 		if fn_obj := vfile.get_function(function_name) {
 			return fn_obj
@@ -139,7 +137,7 @@ pub fn get_type_from_module(module_path string, type_name string) !string {
 
 		if i == -1 {
 			type_import := content.split_into_lines().filter(it.contains('import')
-&& it.contains(type_name))
+				&& it.contains(type_name))
 			if type_import.len > 0 {
 				log.debug('debugzoooo')
 				mod := type_import[0].trim_space().trim_string_left('import ').all_before(' ')

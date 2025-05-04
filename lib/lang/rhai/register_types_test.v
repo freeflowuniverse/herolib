@@ -28,7 +28,7 @@ fn test_generate_container_registration() {
 	// Generate the code using the extracted struct definition
 	generated_code := generate_rhai_registration(rust_def) or {
 		assert false, 'generate_rhai_registration failed: ${err}'
-		return // Need to return to satisfy compiler
+		return
 	}
 
 	// Compare the generated code with the expected output
@@ -36,7 +36,7 @@ fn test_generate_container_registration() {
 	mut generated_trimmed := generated_code // Create mutable copies
 	mut expected_trimmed := expected_output
 	generated_trimmed.trim_space() // Modify in place
-	expected_trimmed.trim_space()   // Modify in place
+	expected_trimmed.trim_space() // Modify in place
 	assert generated_trimmed == expected_trimmed, 'Generated code does not match expected output.\n--- Generated:\n${generated_trimmed}\n--- Expected:\n${expected_trimmed}'
 
 	// Optional: print the results for verification

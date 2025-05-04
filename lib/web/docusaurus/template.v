@@ -67,7 +67,7 @@ fn (mut self DocusaurusFactory) generate_package_json() ! {
 	} else if self.config.navbar.title != '' {
 		name = self.config.navbar.title.to_lower().replace(' ', '-')
 	}
-	
+
 	// Create the JSON structure manually
 	package_json := '{
 	 "name": "${name}",
@@ -107,10 +107,12 @@ fn (mut self DocusaurusFactory) generate_package_json() ! {
 	 "engines": {
 	   "node": ">=18.0"
 	 }
-}'
-	
-	// Write to file
-	mut package_file := pathlib.get_file(path: os.join_path(self.path_build.path, 'package.json'), create: true)!
+}' // Write to file
+
+	mut package_file := pathlib.get_file(
+		path:   os.join_path(self.path_build.path, 'package.json')
+		create: true
+	)!
 	package_file.write(package_json)!
 }
 
@@ -125,9 +127,12 @@ fn (mut self DocusaurusFactory) generate_tsconfig_json() ! {
 	 },
 	 "include": ["src/**/*", "docusaurus.config.ts"]
 }'
-	
+
 	// Write to file
-	mut tsconfig_file := pathlib.get_file(path: os.join_path(self.path_build.path, 'tsconfig.json'), create: true)!
+	mut tsconfig_file := pathlib.get_file(
+		path:   os.join_path(self.path_build.path, 'tsconfig.json')
+		create: true
+	)!
 	tsconfig_file.write(tsconfig_json)!
 }
 
@@ -153,7 +158,10 @@ const sidebars: SidebarsConfig = {
 
 export default sidebars;
 "
-	mut sidebars_file := pathlib.get_file(path: os.join_path(self.path_build.path, 'sidebars.ts'), create: true)!
+	mut sidebars_file := pathlib.get_file(
+		path:   os.join_path(self.path_build.path, 'sidebars.ts')
+		create: true
+	)!
 	sidebars_file.write(sidebar_content)!
 }
 
@@ -161,11 +169,19 @@ export default sidebars;
 fn (mut self DocusaurusFactory) generate_docusaurus_config_ts() ! {
 	// Use config values with fallbacks
 	title := if self.config.main.title != '' { self.config.main.title } else { 'Docusaurus Site' }
-	tagline := if self.config.main.tagline != '' { self.config.main.tagline } else { 'Documentation Site' }
+	tagline := if self.config.main.tagline != '' {
+		self.config.main.tagline
+	} else {
+		'Documentation Site'
+	}
 	url := if self.config.main.url != '' { self.config.main.url } else { 'https://example.com' }
 	base_url := if self.config.main.base_url != '' { self.config.main.base_url } else { '/' }
-	favicon := if self.config.main.favicon != '' { self.config.main.favicon } else { 'img/favicon.png' }
-	
+	favicon := if self.config.main.favicon != '' {
+		self.config.main.favicon
+	} else {
+		'img/favicon.png'
+	}
+
 	// Format navbar items from config
 	mut navbar_items := []string{}
 	for item in self.config.navbar.items {
@@ -175,19 +191,19 @@ fn (mut self DocusaurusFactory) generate_docusaurus_config_ts() ! {
 			position: '${item.position}'
 		}"
 	}
-	
+
 	navbar_items_str := navbar_items.join(',\n      ')
-	
+
 	// Generate footer links if available
 	mut footer_links := []string{}
 	for link in self.config.footer.links {
 		mut items := []string{}
 		for item in link.items {
-			mut item_str := "{"
+			mut item_str := '{'
 			if item.label != '' {
 				item_str += "label: '${item.label}', "
 			}
-			
+
 			// Ensure only one of 'to', 'href', or 'html' is used
 			// Priority: href > to > html
 			if item.href != '' {
@@ -198,11 +214,11 @@ fn (mut self DocusaurusFactory) generate_docusaurus_config_ts() ! {
 				// Default to linking to docs if nothing specified
 				item_str += "to: '/docs'"
 			}
-			
-			item_str += "}"
+
+			item_str += '}'
 			items << item_str
 		}
-		
+
 		footer_links << "{
 			title: '${link.title}',
 			items: [
@@ -210,16 +226,16 @@ fn (mut self DocusaurusFactory) generate_docusaurus_config_ts() ! {
 			]
 		}"
 	}
-	
+
 	footer_links_str := footer_links.join(',\n      ')
-	
+
 	// Year for copyright
 	year := time.now().year.str()
-	
+
 	copyright := if self.config.main.copyright != '' {
 		self.config.main.copyright
 	} else {
-		"Copyright © ${year} ${title}"
+		'Copyright © ${year} ${title}'
 	}
 
 	// Construct the full config file content
@@ -295,7 +311,10 @@ const config: Config = {
 
 export default config;
 "
-	
-	mut config_file := pathlib.get_file(path: os.join_path(self.path_build.path, 'docusaurus.config.ts'), create: true)!
+
+	mut config_file := pathlib.get_file(
+		path:   os.join_path(self.path_build.path, 'docusaurus.config.ts')
+		create: true
+	)!
 	config_file.write(config_content)!
 }

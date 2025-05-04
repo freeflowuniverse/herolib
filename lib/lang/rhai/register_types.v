@@ -22,7 +22,7 @@ pub fn generate_rhai_registration(rust_struct_definition string) !string {
 	mut sb := strings.new_builder(1024)
 	struct_name_lower := struct_name.to_lower()
 
-	//sb.writeln('/// Register ${struct_name} type with the Rhai engine')
+	// sb.writeln('/// Register ${struct_name} type with the Rhai engine')
 	sb.writeln('fn register_${struct_name_lower}_type(engine: &mut Engine) -> Result<(), Box<EvalAltResult>> {')
 	// Register the type itself
 	sb.writeln('\t// Register ${struct_name} type')

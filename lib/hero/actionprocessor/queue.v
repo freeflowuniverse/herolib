@@ -19,14 +19,14 @@ pub enum ActionJobStatus {
 @[heap]
 pub struct ActionJob {
 pub mut:
-	guid      string
+	guid       string
 	heroscript string
-	created   ourtime.OurTime
-	deadline  ourtime.OurTime
-	status    ActionJobStatus
-	error     string // Error message if job failed
-	async     bool   // Whether the job should be processed asynchronously
-	circleid  string // ID of the circle this job belongs to
+	created    ourtime.OurTime
+	deadline   ourtime.OurTime
+	status     ActionJobStatus
+	error      string // Error message if job failed
+	async      bool   // Whether the job should be processed asynchronously
+	circleid   string // ID of the circle this job belongs to
 }
 
 // ActionQueue is a queue of actions to be processed, which comes from a redis queue
@@ -44,15 +44,15 @@ pub fn new_action_job(heroscript string) ActionJob {
 	// Default deadline is 1 hour from now
 	mut deadline := ourtime.now()
 	deadline.warp('+1h') or { panic('Failed to set deadline: ${err}') }
-	
+
 	return ActionJob{
-		guid: time.now().unix_milli().str(),
-		heroscript: heroscript,
-		created: now,
-		deadline: deadline,
-		status: .pending,
-		async: false,
-		circleid: ''
+		guid:       time.now().unix_milli().str()
+		heroscript: heroscript
+		created:    now
+		deadline:   deadline
+		status:     .pending
+		async:      false
+		circleid:   ''
 	}
 }
 
@@ -78,15 +78,15 @@ pub fn (job ActionJob) to_playbook() !&playbook.PlayBook {
 	if job.heroscript.trim_space() == '' {
 		return error('No heroscript content in job')
 	}
-	
+
 	// Create a new PlayBook with the heroscript content
 	mut pb := playbook.new(text: job.heroscript)!
-	
+
 	// Check if any actions were found
 	if pb.actions.len == 0 {
 		return error('No actions found in heroscript')
 	}
-	
+
 	return &pb
 }
 
@@ -104,7 +104,7 @@ pub fn (mut q ActionQueue) add_job(job ActionJob) ! {
 	if job.error != '' {
 		q.redis.hset(job_key, 'error', job.error)!
 	}
-	
+
 	// Add the job reference to the queue
 	q.queue.add(job.guid)!
 }
@@ -112,32 +112,32 @@ pub fn (mut q ActionQueue) add_job(job ActionJob) ! {
 // get_job retrieves a job from Redis by its GUID
 pub fn (mut q ActionQueue) get_job(guid string) !ActionJob {
 	job_key := 'heroactionjobs:${guid}'
-	
+
 	// Check if the job exists
 	if !q.redis.exists(job_key)! {
 		return error('Job with GUID ${guid} not found')
 	}
-	
+
 	// Retrieve job fields
 	mut job := ActionJob{
-		guid: guid,
-		heroscript: q.redis.hget(job_key, 'heroscript')!,
-		status: ActionJobStatus.pending, // Default value, will be overwritten
-		error: '', // Default empty error message
-		async: false, // Default to synchronous
-		circleid: '' // Default to empty circle ID
+		guid:       guid
+		heroscript: q.redis.hget(job_key, 'heroscript')!
+		status:     ActionJobStatus.pending // Default value, will be overwritten
+		error:      ''       // Default empty error message
+		async:      false    // Default to synchronous
+		circleid:   ''       // Default to empty circle ID
 	}
-	
+
 	// Parse created time
 	created_str := q.redis.hget(job_key, 'created')!
 	created_unix := created_str.i64()
 	job.created = ourtime.new_from_epoch(u64(created_unix))
-	
+
 	// Parse deadline
 	deadline_str := q.redis.hget(job_key, 'deadline')!
 	deadline_unix := deadline_str.i64()
 	job.deadline = ourtime.new_from_epoch(u64(deadline_unix))
-	
+
 	// Parse status
 	status_str := q.redis.hget(job_key, 'status')!
 	match status_str {
@@ -148,29 +148,29 @@ pub fn (mut q ActionQueue) get_job(guid string) !ActionJob {
 		'cancelled' { job.status = .cancelled }
 		else { job.status = .pending } // Default to pending if unknown
 	}
-	
+
 	// Get error message if exists
 	job.error = q.redis.hget(job_key, 'error') or { '' }
-	
+
 	// Get async flag
 	async_str := q.redis.hget(job_key, 'async') or { 'false' }
 	job.async = async_str == 'true'
-	
+
 	// Get circle ID
 	job.circleid = q.redis.hget(job_key, 'circleid') or { '' }
-	
+
 	return job
 }
 
 // update_job_status updates the status of a job in Redis
 pub fn (mut q ActionQueue) update_job_status(guid string, status ActionJobStatus) ! {
 	job_key := 'heroactionjobs:${guid}'
-	
+
 	// Check if the job exists
 	if !q.redis.exists(job_key)! {
 		return error('Job with GUID ${guid} not found')
 	}
-	
+
 	// Update status
 	q.redis.hset(job_key, 'status', status.str())!
 }
@@ -178,12 +178,12 @@ pub fn (mut q ActionQueue) update_job_status(guid string, status ActionJobStatus
 // set_job_failed marks a job as failed with an error message
 pub fn (mut q ActionQueue) set_job_failed(guid string, error_msg string) ! {
 	job_key := 'heroactionjobs:${guid}'
-	
+
 	// Check if the job exists
 	if !q.redis.exists(job_key)! {
 		return error('Job with GUID ${guid} not found')
 	}
-	
+
 	// Update status and error message
 	q.redis.hset(job_key, 'status', ActionJobStatus.failed.str())!
 	q.redis.hset(job_key, 'error', error_msg)!
@@ -202,32 +202,32 @@ pub fn (mut q ActionQueue) find_failed_jobs() ![]ActionJob {
 	// and replaced with a more efficient implementation using SCAN
 	keys := q.redis.keys('heroactionjobs:*')!
 	mut failed_jobs := []ActionJob{}
-	
+
 	for key in keys {
 		// Check if job is failed
 		status := q.redis.hget(key, 'status') or { continue }
 		if status == ActionJobStatus.failed.str() {
 			// Get the job GUID from the key
 			guid := key.all_after('heroactionjobs:')
-			
+
 			// Get the full job
 			job := q.get_job(guid) or { continue }
 			failed_jobs << job
 		}
 	}
-	
+
 	return failed_jobs
 }
 
 // delete_job deletes a job from Redis
 pub fn (mut q ActionQueue) delete_job(guid string) ! {
 	job_key := 'heroactionjobs:${guid}'
-	
+
 	// Check if the job exists
 	if !q.redis.exists(job_key)! {
 		return error('Job with GUID ${guid} not found')
 	}
-	
+
 	// Delete the job
 	q.redis.del(job_key)!
 }

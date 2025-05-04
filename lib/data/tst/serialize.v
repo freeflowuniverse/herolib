@@ -62,11 +62,11 @@ fn deserialize_node(data []u8) !Node {
 	right_id := d.get_u32()!
 
 	return Node{
-		character: character
+		character:        character
 		is_end_of_string: is_end_of_string
-		value: value
-		left_id: left_id
-		middle_id: middle_id
-		right_id: right_id
+		value:            value
+		left_id:          left_id
+		middle_id:        middle_id
+		right_id:         right_id
 	}
 }

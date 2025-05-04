@@ -28,7 +28,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&OpenAI {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := OpenAI{name:args.name}
+	mut obj := OpenAI{
+		name: args.name
+	}
 	if args.name !in openai_global {
 		if !exists(args)! {
 			set(obj)!

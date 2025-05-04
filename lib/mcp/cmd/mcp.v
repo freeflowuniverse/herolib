@@ -44,11 +44,11 @@ mcp
 		description: 'show verbose output'
 	})
 
-	mut cmd_inspector := cli.Command{
+	mut cmd_inspector := Command{
 		sort_flags:  true
 		name:        'inspector'
 		execute:     cmd_inspector_execute
-		description: 'will list existing mdbooks'	
+		description: 'will list existing mdbooks'
 	}
 
 	cmd_inspector.add_flag(Flag{
@@ -67,7 +67,6 @@ mcp
 		description: 'open inspector'
 	})
 
-
 	cmd_mcp.add_command(rhai_mcp.command)
 	// cmd_mcp.add_command(baobab.command)
 	// cmd_mcp.add_command(vcode.command)
@@ -77,7 +76,7 @@ mcp
 	cmd_mcp.parse(os.args)
 }
 
-fn cmd_inspector_execute(cmd cli.Command) ! {
+fn cmd_inspector_execute(cmd Command) ! {
 	open := cmd.flags.get_bool('open') or { false }
 	if open {
 		osal.exec(cmd: 'open http://localhost:5173')!

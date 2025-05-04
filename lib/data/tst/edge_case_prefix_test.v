@@ -4,7 +4,7 @@ import os
 
 // Define a struct for test cases
 struct PrefixEdgeCaseTest {
-	prefix string
+	prefix        string
 	expected_keys []string
 }
 
@@ -17,10 +17,20 @@ fn test_edge_case_prefix_search() {
 
 	// Keys with a common prefix that may cause issues
 	keys := [
-		'test', 'testing', 'tea', 'team', 'technology',
-		'apple', 'application', 'appreciate',
-		'banana', 'bandage', 'band',
-		'car', 'carpet', 'carriage'
+		'test',
+		'testing',
+		'tea',
+		'team',
+		'technology',
+		'apple',
+		'application',
+		'appreciate',
+		'banana',
+		'bandage',
+		'band',
+		'car',
+		'carpet',
+		'carriage',
 	]
 
 	// Insert all keys
@@ -36,59 +46,58 @@ fn test_edge_case_prefix_search() {
 	test_cases := [
 		// prefix, expected_keys
 		PrefixEdgeCaseTest{
-			prefix: 'te'
+			prefix:        'te'
 			expected_keys: ['test', 'testing', 'tea', 'team', 'technology']
 		},
 		PrefixEdgeCaseTest{
-			prefix: 'tes'
+			prefix:        'tes'
 			expected_keys: ['test', 'testing']
 		},
 		PrefixEdgeCaseTest{
-			prefix: 'tea'
+			prefix:        'tea'
 			expected_keys: ['tea', 'team']
 		},
 		PrefixEdgeCaseTest{
-			prefix: 'a'
+			prefix:        'a'
 			expected_keys: ['apple', 'application', 'appreciate']
 		},
 		PrefixEdgeCaseTest{
-			prefix: 'ba'
+			prefix:        'ba'
 			expected_keys: ['banana', 'bandage', 'band']
 		},
 		PrefixEdgeCaseTest{
-			prefix: 'ban'
+			prefix:        'ban'
 			expected_keys: ['banana', 'band']
 		},
 		PrefixEdgeCaseTest{
-			prefix: 'c'
+			prefix:        'c'
 			expected_keys: ['car', 'carpet', 'carriage']
-		}
+		},
 	]
 
 	for test_case in test_cases {
 		prefix := test_case.prefix
 		expected_keys := test_case.expected_keys
-		
+
 		result := tree.list(prefix) or {
 			assert false, 'Failed to list keys with prefix "${prefix}": ${err}'
 			return
 		}
-		
+
 		// Check count matches
-		assert result.len == expected_keys.len, 
-			'For prefix "${prefix}": expected ${expected_keys.len} keys, got ${result.len} (keys: ${result})'
-		
+		assert result.len == expected_keys.len, 'For prefix "${prefix}": expected ${expected_keys.len} keys, got ${result.len} (keys: ${result})'
+
 		// Check all expected keys are present
 		for key in expected_keys {
 			assert key in result, 'Key "${key}" missing from results for prefix "${prefix}"'
 		}
-		
+
 		// Verify each result starts with the prefix
 		for key in result {
 			assert key.starts_with(prefix), 'Key "${key}" does not start with prefix "${prefix}"'
 		}
 	}
-	
+
 	println('All edge case prefix tests passed successfully!')
 }
 
@@ -102,8 +111,13 @@ fn test_tricky_insertion_order() {
 	// Insert keys in a specific order that might trigger the issue
 	// Insert 'team' first, then 'test', etc. to ensure tree layout is challenging
 	tricky_keys := [
-		'team', 'test', 'technology', 'tea',  // 'te' prefix cases
-		'car', 'carriage', 'carpet'           // 'ca' prefix cases
+		'team',
+		'test',
+		'technology',
+		'tea', // 'te' prefix cases
+		'car',
+		'carriage',
+		'carpet', // 'ca' prefix cases
 	]
 
 	// Insert all keys
@@ -114,7 +128,7 @@ fn test_tricky_insertion_order() {
 			return
 		}
 	}
-	
+
 	// Test 'te' prefix
 	te_results := tree.list('te') or {
 		assert false, 'Failed to list keys with prefix "te": ${err}'
@@ -125,7 +139,7 @@ fn test_tricky_insertion_order() {
 	assert 'test' in te_results, 'Expected "test" in results'
 	assert 'technology' in te_results, 'Expected "technology" in results'
 	assert 'tea' in te_results, 'Expected "tea" in results'
-	
+
 	// Test 'ca' prefix
 	ca_results := tree.list('ca') or {
 		assert false, 'Failed to list keys with prefix "ca": ${err}'
@@ -135,6 +149,6 @@ fn test_tricky_insertion_order() {
 	assert 'car' in ca_results, 'Expected "car" in results'
 	assert 'carriage' in ca_results, 'Expected "carriage" in results'
 	assert 'carpet' in ca_results, 'Expected "carpet" in results'
-	
+
 	println('All tricky insertion order tests passed successfully!')
 }

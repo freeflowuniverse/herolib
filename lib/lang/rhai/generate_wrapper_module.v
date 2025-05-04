@@ -1,20 +1,21 @@
 module rhai
 
 import freeflowuniverse.herolib.lang.rust
+import os
 
 // generates rhai wrapper for given source rust code
 pub fn generate_wrapper_module(name string, source string, destination string) !string {
-    source_pkg_info := rust.detect_source_package(source_path)!
-    code := rust.read_source_code(source)!
+	source_pkg_info := rust.detect_source_package(source_path)!
+	code := rust.read_source_code(source)!
 	functions := get_functions(code)
 	structs := get_structs(code)
 
 	rhai_functions := generate_rhai_function_wrappers(functions, structs)
-	
+
 	// engine registration functions templated in engine.rs
 	register_functions_rs := generate_rhai_register_functions(functions)
 	register_types_rs := generate_rhai_register_types(structs)
-	
+
 	pathlib.get_file(os.join_path(destination, 'cargo.toml'))!
 		.write($tmpl('./templates/cargo.toml'))
 

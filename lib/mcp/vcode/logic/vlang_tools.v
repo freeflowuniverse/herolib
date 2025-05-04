@@ -3,7 +3,7 @@ module vcode
 import freeflowuniverse.herolib.mcp
 import freeflowuniverse.herolib.core.code
 import freeflowuniverse.herolib.schemas.jsonschema
-import x.json2 {Any}
+import x.json2 { Any }
 
 const get_function_from_file_tool = mcp.Tool{
 	name:         'get_function_from_file'
@@ -16,10 +16,10 @@ RETURNS: string - the function block including comments, or empty string if not 
 		typ:        'object'
 		properties: {
 			'file_path':     jsonschema.SchemaRef(jsonschema.Schema{
-				typ:   'string'
+				typ: 'string'
 			})
 			'function_name': jsonschema.SchemaRef(jsonschema.Schema{
-				typ:   'string'
+				typ: 'string'
 			})
 		}
 		required:   ['file_path', 'function_name']

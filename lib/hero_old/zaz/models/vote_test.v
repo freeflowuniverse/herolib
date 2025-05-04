@@ -6,51 +6,51 @@ import freeflowuniverse.herolib.data.encoder
 fn test_vote_serialization() {
 	// Create test data for a vote with options and ballots
 	mut vote := Vote{
-		id: 1001
-		company_id: 2001
-		title: 'Annual Board Election'
+		id:          1001
+		company_id:  2001
+		title:       'Annual Board Election'
 		description: 'Vote for the new board members'
-		start_date: ourtime.new('2025-01-01 00:00:00')!
-		end_date: ourtime.new('2025-01-31 23:59:59')!
-		status: VoteStatus.open
-		created_at: ourtime.new('2024-12-15 10:00:00')!
-		updated_at: ourtime.new('2024-12-15 10:00:00')!
-		options: []
-		ballots: []
+		start_date:  ourtime.new('2025-01-01 00:00:00')!
+		end_date:    ourtime.new('2025-01-31 23:59:59')!
+		status:      VoteStatus.open
+		created_at:  ourtime.new('2024-12-15 10:00:00')!
+		updated_at:  ourtime.new('2024-12-15 10:00:00')!
+		options:     []
+		ballots:     []
 	}
 
 	// Add vote options
 	vote.options << VoteOption{
-		id: 101
-		vote_id: 1001
-		text: 'Option A'
-		count: 0
+		id:        101
+		vote_id:   1001
+		text:      'Option A'
+		count:     0
 		min_valid: 10
 	}
 	vote.options << VoteOption{
-		id: 102
-		vote_id: 1001
-		text: 'Option B'
-		count: 0
+		id:        102
+		vote_id:   1001
+		text:      'Option B'
+		count:     0
 		min_valid: 5
 	}
 
 	// Add ballots
 	vote.ballots << Ballot{
-		id: 501
-		vote_id: 1001
-		user_id: 301
+		id:             501
+		vote_id:        1001
+		user_id:        301
 		vote_option_id: 101
-		shares_count: 100
-		created_at: ourtime.new('2025-01-05 14:30:00')!
+		shares_count:   100
+		created_at:     ourtime.new('2025-01-05 14:30:00')!
 	}
 	vote.ballots << Ballot{
-		id: 502
-		vote_id: 1001
-		user_id: 302
+		id:             502
+		vote_id:        1001
+		user_id:        302
 		vote_option_id: 102
-		shares_count: 50
-		created_at: ourtime.new('2025-01-06 09:15:00')!
+		shares_count:   50
+		created_at:     ourtime.new('2025-01-06 09:15:00')!
 	}
 
 	// Test serialization
@@ -102,17 +102,17 @@ fn test_vote_serialization() {
 fn test_vote_serialization_empty_collections() {
 	// Test with empty options and ballots
 	mut vote := Vote{
-		id: 1002
-		company_id: 2001
-		title: 'Simple Vote'
+		id:          1002
+		company_id:  2001
+		title:       'Simple Vote'
 		description: 'Vote with no options or ballots yet'
-		start_date: ourtime.new('2025-02-01 00:00:00')!
-		end_date: ourtime.new('2025-02-28 23:59:59')!
-		status: VoteStatus.open
-		created_at: ourtime.new('2025-01-15 10:00:00')!
-		updated_at: ourtime.new('2025-01-15 10:00:00')!
-		options: []
-		ballots: []
+		start_date:  ourtime.new('2025-02-01 00:00:00')!
+		end_date:    ourtime.new('2025-02-28 23:59:59')!
+		status:      VoteStatus.open
+		created_at:  ourtime.new('2025-01-15 10:00:00')!
+		updated_at:  ourtime.new('2025-01-15 10:00:00')!
+		options:     []
+		ballots:     []
 	}
 
 	// Test serialization
@@ -133,13 +133,13 @@ fn test_vote_serialization_empty_collections() {
 fn test_vote_index_keys() {
 	// Test the index_keys function
 	vote := Vote{
-		id: 1003
+		id:         1003
 		company_id: 2002
-		title: 'Test Vote'
+		title:      'Test Vote'
 	}
 
 	keys := vote.index_keys()
-	
+
 	assert keys['id'] == '1003'
 	assert keys['company_id'] == '2002'
 }
@@ -148,7 +148,7 @@ fn test_vote_serialization_invalid_id() {
 	// Create invalid encoded data with wrong encoding ID
 	mut enc := encoder.new()
 	enc.add_u16(999) // Wrong ID (should be 406)
-	
+
 	// Should return an error when decoding
 	if res := vote_loads(enc.data) {
 		assert false, 'Expected error for wrong encoding ID, but got success'
@@ -160,44 +160,44 @@ fn test_vote_serialization_invalid_id() {
 fn test_vote_serialization_byte_structure() {
 	// Create a simple vote with minimal data for predictable byte structure
 	mut vote := Vote{
-		id: 5
-		company_id: 10
-		title: 'Test'
+		id:          5
+		company_id:  10
+		title:       'Test'
 		description: 'Desc'
-		start_date: ourtime.new('2025-01-01 00:00:00')!
-		end_date: ourtime.new('2025-01-02 00:00:00')!
-		status: VoteStatus.open
-		created_at: ourtime.new('2025-01-01 00:00:00')!
-		updated_at: ourtime.new('2025-01-01 00:00:00')!
-		options: []
-		ballots: []
+		start_date:  ourtime.new('2025-01-01 00:00:00')!
+		end_date:    ourtime.new('2025-01-02 00:00:00')!
+		status:      VoteStatus.open
+		created_at:  ourtime.new('2025-01-01 00:00:00')!
+		updated_at:  ourtime.new('2025-01-01 00:00:00')!
+		options:     []
+		ballots:     []
 	}
 
 	// Add one simple option
 	vote.options << VoteOption{
-		id: 1
-		vote_id: 5
-		text: 'Yes'
-		count: 0
+		id:        1
+		vote_id:   5
+		text:      'Yes'
+		count:     0
 		min_valid: 1
 	}
 
 	// Add one simple ballot
 	vote.ballots << Ballot{
-		id: 1
-		vote_id: 5
-		user_id: 1
+		id:             1
+		vote_id:        5
+		user_id:        1
 		vote_option_id: 1
-		shares_count: 10
-		created_at: ourtime.new('2025-01-01 01:00:00')!
+		shares_count:   10
+		created_at:     ourtime.new('2025-01-01 01:00:00')!
 	}
 
 	// Serialize the vote
 	serialized := vote.dumps()!
-	
+
 	// Create a decoder to check the byte structure
 	mut d := encoder.decoder_new(serialized)
-	
+
 	// Verify the encoding structure byte by byte
 	assert d.get_u16()! == 406 // Encoding ID
 	assert d.get_u32()! == 5 // vote.id
@@ -213,7 +213,7 @@ fn test_vote_serialization_byte_structure() {
 	assert created_at.starts_with('2025-01-01 00:00') // vote.created_at
 	updated_at := d.get_string()!
 	assert updated_at.starts_with('2025-01-01 00:00') // vote.updated_at
-	
+
 	// Options array
 	assert d.get_u16()! == 1 // options.len
 	assert d.get_u8()! == 1 // option.id
@@ -221,7 +221,7 @@ fn test_vote_serialization_byte_structure() {
 	assert d.get_string()! == 'Yes' // option.text
 	assert d.get_int()! == 0 // option.count
 	assert d.get_int()! == 1 // option.min_valid
-	
+
 	// Ballots array
 	assert d.get_u16()! == 1 // ballots.len
 	assert d.get_u32()! == 1 // ballot.id
@@ -231,7 +231,7 @@ fn test_vote_serialization_byte_structure() {
 	assert d.get_int()! == 10 // ballot.shares_count
 	ballot_created_at := d.get_string()!
 	assert ballot_created_at.starts_with('2025-01-01 01:00') // ballot.created_at
-	
+
 	// Private group array
 	assert d.get_u16()! == 0 // private_group.len
 }

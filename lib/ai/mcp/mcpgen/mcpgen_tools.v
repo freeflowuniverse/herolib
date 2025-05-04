@@ -12,42 +12,41 @@ import x.json2 as json { Any }
 // function_pointers: A list of function pointers to generate tools for
 
 const create_mcp_tools_code_tool = mcp.Tool{
-    name: 'create_mcp_tools_code'
-    description: 'create_mcp_tool_code receives the name of a V language function string, and the path to the module in which it exists.
+	name:         'create_mcp_tools_code'
+	description:  'create_mcp_tool_code receives the name of a V language function string, and the path to the module in which it exists.
 returns an MCP Tool code in v for attaching the function to the mcp server
 function_pointers: A list of function pointers to generate tools for'
-    input_schema: jsonschema.Schema{
-        typ: 'object'
-        properties: {
-            'function_pointers': jsonschema.SchemaRef(jsonschema.Schema{
-                typ: 'array'
-                items: jsonschema.Items(jsonschema.SchemaRef(jsonschema.Schema{
-                    typ: 'object'
-                    properties: {
-                        'name': jsonschema.SchemaRef(jsonschema.Schema{
-                            typ: 'string'
-                        })
-                        'module_path': jsonschema.SchemaRef(jsonschema.Schema{
-                            typ: 'string'
-                        })
-                    }
-                    required: ['name', 'module_path']
-                }))
-            })
-        }
-        required: ['function_pointers']
-    }
+	input_schema: jsonschema.Schema{
+		typ:        'object'
+		properties: {
+			'function_pointers': jsonschema.SchemaRef(jsonschema.Schema{
+				typ:   'array'
+				items: jsonschema.Items(jsonschema.SchemaRef(jsonschema.Schema{
+					typ:        'object'
+					properties: {
+						'name':        jsonschema.SchemaRef(jsonschema.Schema{
+							typ: 'string'
+						})
+						'module_path': jsonschema.SchemaRef(jsonschema.Schema{
+							typ: 'string'
+						})
+					}
+					required:   ['name', 'module_path']
+				}))
+			})
+		}
+		required:   ['function_pointers']
+	}
 }
 
 pub fn (d &MCPGen) create_mcp_tools_code_tool_handler(arguments map[string]Any) !mcp.ToolCallResult {
-	function_pointers := json.decode[[]FunctionPointer](arguments["function_pointers"].str())!
-	result := d.create_mcp_tools_code(function_pointers)
-    or {
+	function_pointers := json.decode[[]FunctionPointer](arguments['function_pointers'].str())!
+	result := d.create_mcp_tools_code(function_pointers) or {
 		return mcp.error_tool_call_result(err)
 	}
 	return mcp.ToolCallResult{
 		is_error: false
-		content: mcp.result_to_mcp_tool_contents[string](result)
+		content:  mcp.result_to_mcp_tool_contents[string](result)
 	}
 }
 
@@ -59,10 +58,10 @@ returns an MCP Tool code in v for attaching the function to the mcp server'
 		typ:        'object'
 		properties: {
 			'function_name': jsonschema.SchemaRef(jsonschema.Schema{
-				typ:   'string'
+				typ: 'string'
 			})
 			'module_path':   jsonschema.SchemaRef(jsonschema.Schema{
-				typ:   'string'
+				typ: 'string'
 			})
 		}
 		required:   ['function_name', 'module_path']

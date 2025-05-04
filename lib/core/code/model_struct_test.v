@@ -21,17 +21,17 @@ pub:
 It contains information about test execution'
 	assert result.is_pub == true
 	assert result.fields.len == 3
-	
+
 	assert result.fields[0].name == 'success'
 	assert result.fields[0].typ.symbol() == 'bool'
 	assert result.fields[0].is_pub == true
 	assert result.fields[0].is_mut == false
-	
+
 	assert result.fields[1].name == 'message'
 	assert result.fields[1].typ.symbol() == 'string'
 	assert result.fields[1].is_pub == true
 	assert result.fields[1].is_mut == false
-	
+
 	assert result.fields[2].name == 'code'
 	assert result.fields[2].typ.symbol() == 'int'
 	assert result.fields[2].is_pub == true
@@ -55,17 +55,17 @@ mut:
 	assert result2.description == ''
 	assert result2.is_pub == false
 	assert result2.fields.len == 3
-	
+
 	assert result2.fields[0].name == 'name'
 	assert result2.fields[0].typ.symbol() == 'string'
 	assert result2.fields[0].is_pub == true
 	assert result2.fields[0].is_mut == false
-	
+
 	assert result2.fields[1].name == 'count'
 	assert result2.fields[1].typ.symbol() == 'int'
 	assert result2.fields[1].is_pub == false
 	assert result2.fields[1].is_mut == true
-	
+
 	assert result2.fields[2].name == 'active'
 	assert result2.fields[2].typ.symbol() == 'bool'
 	assert result2.fields[2].is_pub == false

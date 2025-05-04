@@ -1,7 +1,7 @@
 module code
 
 fn test_parse_vfile() {
-	code := '
+	code := "
 module test
 
 import os
@@ -9,7 +9,7 @@ import strings
 import freeflowuniverse.herolib.core.texttools
 
 const (
-	VERSION = \'1.0.0\'
+	VERSION = '1.0.0'
 	DEBUG = true
 )
 
@@ -21,7 +21,7 @@ pub mut:
 
 // greet returns a greeting message
 pub fn (p Person) greet() string {
-	return \'Hello, my name is \${p.name} and I am \${p.age} years old\'
+	return 'Hello, my name is \${p.name} and I am \${p.age} years old'
 }
 
 // create_person creates a new Person instance
@@ -31,7 +31,7 @@ pub fn create_person(name string, age int) Person {
 		age: age
 	}
 }
-'
+"
 
 	vfile := parse_vfile(code) or {
 		assert false, 'Failed to parse VFile: ${err}'
@@ -50,7 +50,7 @@ pub fn create_person(name string, age int) Person {
 	// Test constants
 	assert vfile.consts.len == 2
 	assert vfile.consts[0].name == 'VERSION'
-	assert vfile.consts[0].value == '\'1.0.0\''
+	assert vfile.consts[0].value == "'1.0.0'"
 	assert vfile.consts[1].name == 'DEBUG'
 	assert vfile.consts[1].value == 'true'
 
@@ -68,13 +68,13 @@ pub fn create_person(name string, age int) Person {
 	// Test functions
 	functions := vfile.functions()
 	assert functions.len == 2
-	
+
 	// Test method
 	assert functions[0].name == 'greet'
 	assert functions[0].is_pub == true
 	assert functions[0].receiver.typ.vgen() == 'Person'
 	assert functions[0].result.typ.vgen() == 'string'
-	
+
 	// Test standalone function
 	assert functions[1].name == 'create_person'
 	assert functions[1].is_pub == true

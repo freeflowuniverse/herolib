@@ -22,7 +22,7 @@ pub fn another_function() -> i32 {
 }
 '
 	functions := rust.extract_functions_from_content(content)
-	
+
 	assert functions.len == 3
 	assert functions[0] == 'public_function'
 	assert functions[1] == 'private_function'
@@ -47,7 +47,7 @@ pub struct GenericStruct<T> {
 }
 '
 	structs := rust.extract_structs_from_content(content)
-	
+
 	assert structs.len == 3
 	assert structs[0] == 'PublicStruct'
 	assert structs[1] == 'PrivateStruct'
@@ -69,7 +69,7 @@ fn main() {
 }
 '
 	imports := rust.extract_imports_from_content(content)
-	
+
 	assert imports.len == 3
 	assert imports[0] == 'std::io'
 	assert imports[1] == 'std::fs::File'
@@ -79,7 +79,7 @@ fn main() {
 fn test_get_module_name() {
 	// Test regular file
 	assert rust.get_module_name('/path/to/file.rs') == 'file'
-	
+
 	// Test mod.rs file
 	assert rust.get_module_name('/path/to/module/mod.rs') == 'module'
 }
@@ -88,10 +88,8 @@ fn test_get_module_name() {
 fn setup_test_files() !string {
 	// Create temporary directory
 	tmp_dir := os.join_path(os.temp_dir(), 'rust_test_${os.getpid()}')
-	os.mkdir_all(tmp_dir) or {
-		return error('Failed to create temporary directory: ${err}')
-	}
-	
+	os.mkdir_all(tmp_dir) or { return error('Failed to create temporary directory: ${err}') }
+
 	// Create test file
 	test_file_content := '
 // This is a test file
@@ -110,13 +108,13 @@ fn private_function() {
 	println!("Private function");
 }
 '
-	
+
 	test_file_path := os.join_path(tmp_dir, 'test_file.rs')
 	os.write_file(test_file_path, test_file_content) or {
 		os.rmdir_all(tmp_dir) or {}
 		return error('Failed to write test file: ${err}')
 	}
-	
+
 	// Create mod.rs file
 	mod_file_content := '
 // This is a mod file
@@ -126,33 +124,33 @@ pub fn mod_function() {
 	println!("Mod function");
 }
 '
-	
+
 	mod_file_path := os.join_path(tmp_dir, 'mod.rs')
 	os.write_file(mod_file_path, mod_file_content) or {
 		os.rmdir_all(tmp_dir) or {}
 		return error('Failed to write mod file: ${err}')
 	}
-	
+
 	// Create submodule directory with mod.rs
 	submod_dir := os.join_path(tmp_dir, 'submodule')
 	os.mkdir_all(submod_dir) or {
 		os.rmdir_all(tmp_dir) or {}
 		return error('Failed to create submodule directory: ${err}')
 	}
-	
+
 	submod_file_content := '
 // This is a submodule mod file
 pub fn submod_function() {
 	println!("Submodule function");
 }
 '
-	
+
 	submod_file_path := os.join_path(submod_dir, 'mod.rs')
 	os.write_file(submod_file_path, submod_file_content) or {
 		os.rmdir_all(tmp_dir) or {}
 		return error('Failed to write submodule mod file: ${err}')
 	}
-	
+
 	// Create Cargo.toml
 	cargo_content := '
 [package]
@@ -164,13 +162,13 @@ edition = "2021"
 serde = "1.0"
 tokio = { version = "1.25", features = ["full"] }
 '
-	
+
 	cargo_path := os.join_path(tmp_dir, 'Cargo.toml')
 	os.write_file(cargo_path, cargo_content) or {
 		os.rmdir_all(tmp_dir) or {}
 		return error('Failed to write Cargo.toml: ${err}')
 	}
-	
+
 	return tmp_dir
 }
 
@@ -181,10 +179,10 @@ fn teardown_test_files(tmp_dir string) {
 fn test_list_functions_in_file() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	test_file_path := os.join_path(tmp_dir, 'test_file.rs')
 	functions := rust.list_functions_in_file(test_file_path)!
-	
+
 	assert functions.len == 2
 	assert functions.contains('test_function')
 	assert functions.contains('private_function')
@@ -193,10 +191,10 @@ fn test_list_functions_in_file() ! {
 fn test_list_structs_in_file() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	test_file_path := os.join_path(tmp_dir, 'test_file.rs')
 	structs := rust.list_structs_in_file(test_file_path)!
-	
+
 	assert structs.len == 1
 	assert structs[0] == 'TestStruct'
 }
@@ -204,10 +202,10 @@ fn test_list_structs_in_file() ! {
 fn test_extract_imports() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	test_file_path := os.join_path(tmp_dir, 'test_file.rs')
 	imports := rust.extract_imports(test_file_path)!
-	
+
 	assert imports.len == 2
 	assert imports[0] == 'std::io'
 	assert imports[1] == 'std::fs::File'
@@ -216,9 +214,9 @@ fn test_extract_imports() ! {
 fn test_list_modules_in_directory() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	modules := rust.list_modules_in_directory(tmp_dir)!
-	
+
 	// Should contain the module itself (mod.rs), test_file.rs and submodule directory
 	assert modules.len == 3
 	assert modules.contains(os.base(tmp_dir)) // Directory name (mod.rs)
@@ -229,10 +227,10 @@ fn test_list_modules_in_directory() ! {
 fn test_extract_dependencies() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	cargo_path := os.join_path(tmp_dir, 'Cargo.toml')
 	dependencies := rust.extract_dependencies(cargo_path)!
-	
+
 	assert dependencies.len == 2
 	assert dependencies['serde'] == '1.0'
 	assert dependencies['tokio'] == '{ version = "1.25", features = ["full"] }'
@@ -243,14 +241,14 @@ fn test_extract_impl_methods() {
 		assert false, 'Failed to read test_impl.rs: ${err}'
 		return
 	}
-	
+
 	functions := rust.extract_functions_from_content(test_impl_content)
-	
+
 	assert functions.len == 3
 	assert functions[0] == 'Currency::new'
 	assert functions[1] == 'Currency::to_usd'
 	assert functions[2] == 'Currency::to_currency'
-	
+
 	println('Extracted functions:')
 	for f in functions {
 		println('  "${f}"')
@@ -305,9 +303,9 @@ fn test_get_function_from_content() {
 	}
 	expected3 := 'fn internal_method(&self) {\n        println!("Internal");\n    }'
 	assert decl3.trim_space() == expected3
-	
+
 	// Test function not found
-	_ := rust.get_function_from_content(content, 'non_existent_function') or { 
+	_ := rust.get_function_from_content(content, 'non_existent_function') or {
 		assert err.msg() == 'Function non_existent_function not found in content'
 		return
 	}
@@ -384,7 +382,7 @@ fn test_get_struct_from_content() {
 	assert decl5.trim_space() == expected5
 
 	// Test struct not found
-	_ := rust.get_struct_from_content(content, 'non_existent_struct') or { 
+	_ := rust.get_struct_from_content(content, 'non_existent_struct') or {
 		assert err.msg() == 'Struct non_existent_struct not found in content'
 		return
 	}
@@ -394,10 +392,10 @@ fn test_get_struct_from_content() {
 fn test_get_struct_from_file() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	test_file_path := os.join_path(tmp_dir, 'test_file.rs')
 	structs := rust.list_structs_in_file(test_file_path)!
-	
+
 	assert structs.len == 1
 	assert structs[0] == 'TestStruct'
 }
@@ -405,9 +403,9 @@ fn test_get_struct_from_file() ! {
 fn test_get_struct_from_module() ! {
 	tmp_dir := setup_test_files()!
 	defer { teardown_test_files(tmp_dir) }
-	
+
 	modules := rust.list_modules_in_directory(tmp_dir)!
-	
+
 	// Should contain the module itself (mod.rs), test_file.rs and submodule directory
 	assert modules.len == 3
 	assert modules.contains(os.base(tmp_dir)) // Directory name (mod.rs)

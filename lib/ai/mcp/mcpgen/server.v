@@ -12,16 +12,16 @@ pub fn new_mcp_server(v &MCPGen) !&mcp.Server {
 	// Initialize the server with the empty handlers map
 	mut server := mcp.new_server(mcp.MemoryBackend{
 		tools:         {
-			'create_mcp_tool_code': create_mcp_tool_code_tool
-			'create_mcp_tool_const': create_mcp_tool_const_tool
+			'create_mcp_tool_code':    create_mcp_tool_code_tool
+			'create_mcp_tool_const':   create_mcp_tool_const_tool
 			'create_mcp_tool_handler': create_mcp_tool_handler_tool
-			'create_mcp_tools_code': create_mcp_tools_code_tool
+			'create_mcp_tools_code':   create_mcp_tools_code_tool
 		}
 		tool_handlers: {
-			'create_mcp_tool_code': v.create_mcp_tool_code_tool_handler
-			'create_mcp_tool_const': v.create_mcp_tool_const_tool_handler
+			'create_mcp_tool_code':    v.create_mcp_tool_code_tool_handler
+			'create_mcp_tool_const':   v.create_mcp_tool_const_tool_handler
 			'create_mcp_tool_handler': v.create_mcp_tool_handler_tool_handler
-			'create_mcp_tools_code': v.create_mcp_tools_code_tool_handler
+			'create_mcp_tools_code':   v.create_mcp_tools_code_tool_handler
 		}
 	}, mcp.ServerParams{
 		config: mcp.ServerConfiguration{

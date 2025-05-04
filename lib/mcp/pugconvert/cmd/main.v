@@ -8,7 +8,7 @@ fn main() {
 		eprintln('Failed to create MCP server: ${err}')
 		return
 	}
-	
+
 	// Start the server
 	server.start() or {
 		eprintln('Failed to start MCP server: ${err}')

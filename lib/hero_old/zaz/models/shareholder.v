@@ -64,18 +64,18 @@ pub fn shareholder_loads(data []u8) !Shareholder {
 	shareholder.name = d.get_string()!
 	shares_str := d.get_string()!
 	shareholder.shares = shares_str.f64()
-	
+
 	percentage_str := d.get_string()!
 	shareholder.percentage = percentage_str.f64()
-	
-    shareholder.type_ = unsafe { ShareholderType(d.get_u8()!) }
-	
+
+	shareholder.type_ = unsafe { ShareholderType(d.get_u8()!) }
+
 	since_str := d.get_string()!
 	shareholder.since = ourtime.new(since_str)!
-	
+
 	created_at_str := d.get_string()!
 	shareholder.created_at = ourtime.new(created_at_str)!
-	
+
 	updated_at_str := d.get_string()!
 	shareholder.updated_at = ourtime.new(updated_at_str)!
 

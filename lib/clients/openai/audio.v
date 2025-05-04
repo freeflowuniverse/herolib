@@ -114,7 +114,7 @@ fn (mut f OpenAI) create_audio_request(args AudioArgs, endpoint string) !AudioRe
 @[params]
 pub struct CreateSpeechArgs {
 pub:
-	model           string = "tts_1"
+	model           string = 'tts_1'
 	input           string @[required]
 	voice           Voice       = .alloy
 	response_format AudioFormat = .mp3

@@ -487,11 +487,12 @@ fn test_server_propfind() ! {
 	assert ctx.res.header.get(.content_type)! == 'application/xml'
 	assert ctx.res.body.contains('<D:multistatus')
 	assert ctx.res.body.contains('<D:response>')
-	
+
 	// Now that we know the correct format, check for it - directories have both leading and trailing slashes
 	assert ctx.res.body.contains('<D:href>/${root_dir}/</D:href>')
 	// Should only include the requested resource
-	assert !ctx.res.body.contains('<D:href>/${file_in_root}</D:href>') && !ctx.res.body.contains('<D:href>/${file_in_root}')
+	assert !ctx.res.body.contains('<D:href>/${file_in_root}</D:href>')
+		&& !ctx.res.body.contains('<D:href>/${file_in_root}')
 
 	// Test PROPFIND with depth=1 (resource and immediate children)
 	mut ctx2 := Context{

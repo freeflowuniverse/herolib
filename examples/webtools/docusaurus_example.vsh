@@ -6,5 +6,3 @@ import freeflowuniverse.herolib.web.docusaurus
 mut docs := docusaurus.new(
 	build_path: '/tmp/docusaurus_build'
 )!
-
-

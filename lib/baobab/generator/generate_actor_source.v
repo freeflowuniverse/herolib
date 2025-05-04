@@ -11,8 +11,7 @@ pub fn generate_module_from_openapi(openapi_path string) !string {
 	openapi_spec := openapi.new(path: openapi_path)!
 	actor_spec := specification.from_openapi(openapi_spec)!
 
-	actor_module := generator.generate_actor_module(
-		actor_spec,
+	actor_module := generate_actor_module(actor_spec,
 		interfaces: [.openapi, .http]
 	)!
 

@@ -46,15 +46,14 @@ pub mut:
 // Attendee represents an attendee of a board meeting
 pub struct Attendee {
 pub mut:
-	id               u32
-	meeting_id       u32
-	user_id          u32
-	name             string
-	role             AttendeeRole
-	status           AttendeeStatus
-	created_at       ourtime.OurTime
+	id         u32
+	meeting_id u32
+	user_id    u32
+	name       string
+	role       AttendeeRole
+	status     AttendeeStatus
+	created_at ourtime.OurTime
 }
-
 
 // dumps serializes the Meeting to a byte array
 pub fn (meeting Meeting) dumps() ![]u8 {
@@ -105,18 +104,18 @@ pub fn meeting_loads(data []u8) !Meeting {
 	meeting.id = d.get_u32()!
 	meeting.company_id = d.get_u32()!
 	meeting.title = d.get_string()!
-	
+
 	date_str := d.get_string()!
 	meeting.date = ourtime.new(date_str)!
-	
+
 	meeting.location = d.get_string()!
 	meeting.description = d.get_string()!
 	meeting.status = unsafe { MeetingStatus(d.get_u8()!) }
 	meeting.minutes = d.get_string()!
-	
+
 	created_at_str := d.get_string()!
 	meeting.created_at = ourtime.new(created_at_str)!
-	
+
 	updated_at_str := d.get_string()!
 	meeting.updated_at = ourtime.new(updated_at_str)!
 
@@ -131,10 +130,10 @@ pub fn meeting_loads(data []u8) !Meeting {
 		attendee.name = d.get_string()!
 		attendee.role = unsafe { AttendeeRole(d.get_u8()!) }
 		attendee.status = unsafe { AttendeeStatus(d.get_u8()!) }
-		
+
 		attendee_created_at_str := d.get_string()!
 		attendee.created_at = ourtime.new(attendee_created_at_str)!
-		
+
 		meeting.attendees[i] = attendee
 	}
 

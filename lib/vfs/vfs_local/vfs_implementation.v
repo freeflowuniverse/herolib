@@ -286,17 +286,17 @@ pub fn (myvfs LocalVFS) file_concatenate(path string, data []u8) ! {
 	if os.is_dir(abs_path) {
 		return error('Cannot concatenate to directory: ${path}')
 	}
-	
+
 	// Read existing content
 	existing_content := os.read_bytes(abs_path) or {
 		return error('Failed to read file ${path}: ${err}')
 	}
-	
+
 	// Create a new buffer with the combined content
 	mut new_content := []u8{cap: existing_content.len + data.len}
 	new_content << existing_content
 	new_content << data
-	
+
 	// Write back to file
 	os.write_file(abs_path, new_content.bytestr()) or {
 		return error('Failed to write concatenated data to file ${path}: ${err}')
@@ -314,13 +314,13 @@ pub fn (myvfs LocalVFS) get_path(entry &vfs.FSEntry) !string {
 pub fn (myvfs LocalVFS) print() ! {
 	println('LocalVFS:')
 	println('  Root path: ${myvfs.root_path}')
-	
+
 	// Print root directory contents
 	root_entries := myvfs.dir_list('') or {
 		println('  Error listing root directory: ${err}')
 		return
 	}
-	
+
 	println('  Root entries: ${root_entries.len}')
 	for entry in root_entries {
 		metadata := entry.get_metadata()

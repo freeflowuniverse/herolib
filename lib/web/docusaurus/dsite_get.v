@@ -74,7 +74,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		if args.init {
 			// Create docs directory if it doesn't exist in template or site
 			os.mkdir_all('${args.path}/docs')!
-			
+
 			// Create a default docs/intro.md file
 			intro_content := '---
 title: Introduction

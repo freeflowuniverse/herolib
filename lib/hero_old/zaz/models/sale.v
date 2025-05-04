@@ -2,7 +2,6 @@ module models
 
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.data.encoder
-
 import freeflowuniverse.herolib.data.currency
 
 // SaleStatus represents the status of a sale
@@ -39,7 +38,6 @@ pub mut:
 	active_till ourtime.OurTime // after this product no longer active if e.g. a service
 }
 
-
 // dumps serializes the Sale to a byte array
 pub fn (sale Sale) dumps() ![]u8 {
 	mut enc := encoder.new()
@@ -52,11 +50,11 @@ pub fn (sale Sale) dumps() ![]u8 {
 	enc.add_u32(sale.company_id)
 	enc.add_string(sale.buyer_name)
 	enc.add_string(sale.buyer_email)
-	
+
 	// Store Currency as serialized data
 	total_amount_bytes := sale.total_amount.to_bytes()!
 	enc.add_bytes(total_amount_bytes.data)
-	
+
 	enc.add_u8(u8(sale.status))
 	enc.add_string(sale.sale_date.str())
 	enc.add_string(sale.created_at.str())
@@ -70,14 +68,14 @@ pub fn (sale Sale) dumps() ![]u8 {
 		enc.add_u32(item.product_id)
 		enc.add_string(item.name)
 		enc.add_int(item.quantity)
-		
+
 		// Store Currency as serialized data
 		unit_price_bytes := item.unit_price.to_bytes()!
 		enc.add_bytes(unit_price_bytes.data)
-		
+
 		subtotal_bytes := item.subtotal.to_bytes()!
 		enc.add_bytes(subtotal_bytes.data)
-		
+
 		enc.add_string(item.active_till.str())
 	}
 
@@ -100,20 +98,22 @@ pub fn sale_loads(data []u8) !Sale {
 	sale.company_id = d.get_u32()!
 	sale.buyer_name = d.get_string()!
 	sale.buyer_email = d.get_string()!
-	
+
 	// Decode Currency from bytes
 	total_amount_bytes := d.get_bytes()!
-	currency_bytes := currency.CurrencyBytes{data: total_amount_bytes}
+	currency_bytes := currency.CurrencyBytes{
+		data: total_amount_bytes
+	}
 	sale.total_amount = currency.from_bytes(currency_bytes)!
-	
+
 	sale.status = unsafe { SaleStatus(d.get_u8()!) }
-	
+
 	sale_date_str := d.get_string()!
 	sale.sale_date = ourtime.new(sale_date_str)!
-	
+
 	created_at_str := d.get_string()!
 	sale.created_at = ourtime.new(created_at_str)!
-	
+
 	updated_at_str := d.get_string()!
 	sale.updated_at = ourtime.new(updated_at_str)!
 
@@ -127,19 +127,23 @@ pub fn sale_loads(data []u8) !Sale {
 		item.product_id = d.get_u32()!
 		item.name = d.get_string()!
 		item.quantity = d.get_int()!
-		
+
 		// Decode Currency from bytes
 		unit_price_bytes := d.get_bytes()!
-		unit_price_currency_bytes := currency.CurrencyBytes{data: unit_price_bytes}
+		unit_price_currency_bytes := currency.CurrencyBytes{
+			data: unit_price_bytes
+		}
 		item.unit_price = currency.from_bytes(unit_price_currency_bytes)!
-		
+
 		subtotal_bytes := d.get_bytes()!
-		subtotal_currency_bytes := currency.CurrencyBytes{data: subtotal_bytes}
+		subtotal_currency_bytes := currency.CurrencyBytes{
+			data: subtotal_bytes
+		}
 		item.subtotal = currency.from_bytes(subtotal_currency_bytes)!
-		
+
 		active_till_str := d.get_string()!
 		item.active_till = ourtime.new(active_till_str)!
-		
+
 		sale.items[i] = item
 	}
 

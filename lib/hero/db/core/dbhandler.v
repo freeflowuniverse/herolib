@@ -40,6 +40,7 @@ pub fn (mut m DBHandler[T]) get_data(id u32) ![]u8 {
 	}
 	return item_data
 }
+
 pub fn (mut m DBHandler[T]) exists(id u32) !bool {
 	item_data := m.session_state.dbs.db_data_core.get(id) or { return false }
 	return item_data != []u8{}

@@ -6,9 +6,9 @@ import freeflowuniverse.herolib.core.pathlib
 import os
 
 pub interface IFile {
+	name string
 	write(string, WriteOptions) !
 	write_str(WriteOptions) !string
-	name string
 }
 
 pub struct File {
@@ -124,7 +124,9 @@ pub fn (code VFile) write_str(options WriteOptions) !string {
 		''
 	}
 
-	mod_stmt := if code.mod == '' {''} else {
+	mod_stmt := if code.mod == '' {
+		''
+	} else {
 		'module ${code.mod}'
 	}
 
@@ -169,9 +171,9 @@ pub fn parse_vfile(code string) !VFile {
 	mut vfile := VFile{
 		content: code
 	}
-	
+
 	lines := code.split_into_lines()
-	
+
 	// Extract module name
 	for line in lines {
 		trimmed := line.trim_space()
@@ -180,7 +182,7 @@ pub fn parse_vfile(code string) !VFile {
 			break
 		}
 	}
-	
+
 	// Extract imports
 	for line in lines {
 		trimmed := line.trim_space()
@@ -189,29 +191,29 @@ pub fn parse_vfile(code string) !VFile {
 			vfile.imports << import_obj
 		}
 	}
-	
+
 	// Extract constants
 	vfile.consts = parse_consts(code) or { []Const{} }
-	
+
 	// Split code into chunks for parsing structs and functions
 	mut chunks := []string{}
 	mut current_chunk := ''
 	mut brace_count := 0
 	mut in_struct_or_fn := false
 	mut comment_block := []string{}
-	
+
 	for line in lines {
 		trimmed := line.trim_space()
-		
+
 		// Collect comments
 		if trimmed.starts_with('//') && !in_struct_or_fn {
 			comment_block << line
 			continue
 		}
-		
+
 		// Check for struct or function start
-		if (trimmed.starts_with('struct ') || trimmed.starts_with('pub struct ') || 
-			trimmed.starts_with('fn ') || trimmed.starts_with('pub fn ')) && !in_struct_or_fn {
+		if (trimmed.starts_with('struct ') || trimmed.starts_with('pub struct ')
+			|| trimmed.starts_with('fn ') || trimmed.starts_with('pub fn ')) && !in_struct_or_fn {
 			in_struct_or_fn = true
 			current_chunk = comment_block.join('\n')
 			if current_chunk != '' {
@@ -219,14 +221,14 @@ pub fn parse_vfile(code string) !VFile {
 			}
 			current_chunk += line
 			comment_block = []string{}
-			
+
 			if line.contains('{') {
 				brace_count += line.count('{')
 			}
 			if line.contains('}') {
 				brace_count -= line.count('}')
 			}
-			
+
 			if brace_count == 0 {
 				// Single line definition
 				chunks << current_chunk
@@ -235,18 +237,18 @@ pub fn parse_vfile(code string) !VFile {
 			}
 			continue
 		}
-		
+
 		// Add line to current chunk if we're inside a struct or function
 		if in_struct_or_fn {
 			current_chunk += '\n' + line
-			
+
 			if line.contains('{') {
 				brace_count += line.count('{')
 			}
 			if line.contains('}') {
 				brace_count -= line.count('}')
 			}
-			
+
 			// Check if we've reached the end of the struct or function
 			if brace_count == 0 {
 				chunks << current_chunk
@@ -255,11 +257,11 @@ pub fn parse_vfile(code string) !VFile {
 			}
 		}
 	}
-	
+
 	// Parse each chunk and add to items
 	for chunk in chunks {
 		trimmed := chunk.trim_space()
-		
+
 		if trimmed.contains('struct ') || trimmed.contains('pub struct ') {
 			// Parse struct
 			struct_obj := parse_struct(chunk) or {
@@ -276,6 +278,6 @@ pub fn parse_vfile(code string) !VFile {
 			vfile.items << fn_obj
 		}
 	}
-	
+
 	return vfile
 }

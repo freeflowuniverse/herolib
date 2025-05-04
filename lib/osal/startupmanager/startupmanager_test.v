@@ -106,11 +106,11 @@ pub fn test_process_with_description() ! {
 
 	// Verify screen session
 	screen_factory.scan()!
-	
+
 	if screen_factory.exists(process_desc_name) {
 		// Only test status if screen exists
 		mut screen_instance := screen_factory.get(process_desc_name)!
-		
+
 		// Check status only if screen exists
 		status := screen_instance.status() or { screen.ScreenStatus.unknown }
 		println('Screen status: ${status}')

@@ -30,11 +30,11 @@ pub mut:
 // VoteOption represents an option in a vote
 pub struct VoteOption {
 pub mut:
-	id         u8
-	vote_id    u32
-	text       string
-	count      int
-	min_valid  int // min votes we need to make total vote count
+	id        u8
+	vote_id   u32
+	text      string
+	count     int
+	min_valid int // min votes we need to make total vote count
 }
 
 // the vote as done by the user
@@ -112,18 +112,18 @@ pub fn vote_loads(data []u8) !Vote {
 	vote.company_id = d.get_u32()!
 	vote.title = d.get_string()!
 	vote.description = d.get_string()!
-	
+
 	start_date_str := d.get_string()!
 	vote.start_date = ourtime.new(start_date_str)!
-	
+
 	end_date_str := d.get_string()!
 	vote.end_date = ourtime.new(end_date_str)!
-	
+
 	vote.status = unsafe { VoteStatus(d.get_u8()!) }
-	
+
 	created_at_str := d.get_string()!
 	vote.created_at = ourtime.new(created_at_str)!
-	
+
 	updated_at_str := d.get_string()!
 	vote.updated_at = ourtime.new(updated_at_str)!
 
@@ -150,10 +150,10 @@ pub fn vote_loads(data []u8) !Vote {
 		ballot.user_id = d.get_u32()!
 		ballot.vote_option_id = d.get_u8()!
 		ballot.shares_count = d.get_int()!
-		
+
 		ballot_created_at_str := d.get_string()!
 		ballot.created_at = ourtime.new(ballot_created_at_str)!
-		
+
 		vote.ballots[i] = ballot
 	}
 

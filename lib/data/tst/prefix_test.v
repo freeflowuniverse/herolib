@@ -4,7 +4,7 @@ import os
 
 // Define a struct for test cases
 struct PrefixTestCase {
-	prefix string
+	prefix         string
 	expected_count int
 }
 
@@ -17,13 +17,31 @@ fn test_complex_prefix_search() {
 
 	// Insert a larger set of keys with various prefixes
 	keys := [
-		'a', 'ab', 'abc', 'abcd', 'abcde',
-		'b', 'bc', 'bcd', 'bcde',
-		'c', 'cd', 'cde',
-		'x', 'xy', 'xyz',
-		'test', 'testing', 'tested', 'tests',
-		'team', 'teammate', 'teams',
-		'tech', 'technology', 'technical'
+		'a',
+		'ab',
+		'abc',
+		'abcd',
+		'abcde',
+		'b',
+		'bc',
+		'bcd',
+		'bcde',
+		'c',
+		'cd',
+		'cde',
+		'x',
+		'xy',
+		'xyz',
+		'test',
+		'testing',
+		'tested',
+		'tests',
+		'team',
+		'teammate',
+		'teams',
+		'tech',
+		'technology',
+		'technical',
 	]
 
 	// Insert all keys
@@ -54,8 +72,8 @@ fn test_complex_prefix_search() {
 		PrefixTestCase{'x', 3},
 		PrefixTestCase{'xy', 2},
 		PrefixTestCase{'xyz', 1},
-		PrefixTestCase{'z', 0},  // No matches
-		PrefixTestCase{'', keys.len}  // All keys
+		PrefixTestCase{'z', 0}, // No matches
+		PrefixTestCase{'', keys.len}, // All keys
 	]
 
 	for test_case in test_cases {
@@ -70,7 +88,7 @@ fn test_complex_prefix_search() {
 		}
 
 		assert result.len == expected_count, 'For prefix "${prefix}": expected ${expected_count} keys, got ${result.len}'
-		
+
 		// Verify each result starts with the prefix
 		for key in result {
 			assert key.starts_with(prefix), 'Key "${key}" does not start with prefix "${prefix}"'
@@ -87,13 +105,21 @@ fn test_special_prefix_search() {
 
 	// Insert keys with special characters and longer strings
 	special_keys := [
-		'user:1:profile', 'user:1:settings', 'user:1:posts',
-		'user:2:profile', 'user:2:settings',
-		'config:app:name', 'config:app:version', 'config:app:debug',
-		'config:db:host', 'config:db:port',
-		'data:2023:01:01', 'data:2023:01:02', 'data:2023:02:01',
+		'user:1:profile',
+		'user:1:settings',
+		'user:1:posts',
+		'user:2:profile',
+		'user:2:settings',
+		'config:app:name',
+		'config:app:version',
+		'config:app:debug',
+		'config:db:host',
+		'config:db:port',
+		'data:2023:01:01',
+		'data:2023:01:02',
+		'data:2023:02:01',
 		'very:long:key:with:multiple:segments:and:special:characters:!@#$%^&*()',
-		'another:very:long:key:with:different:segments'
+		'another:very:long:key:with:different:segments',
 	]
 
 	// Insert all keys
@@ -118,7 +144,7 @@ fn test_special_prefix_search() {
 		PrefixTestCase{'data:2023:01:', 2},
 		PrefixTestCase{'very:', 1},
 		PrefixTestCase{'another:', 1},
-		PrefixTestCase{'nonexistent:', 0}
+		PrefixTestCase{'nonexistent:', 0},
 	]
 
 	for test_case in special_test_cases {
@@ -133,7 +159,7 @@ fn test_special_prefix_search() {
 		}
 
 		assert result.len == expected_count, 'For prefix "${prefix}": expected ${expected_count} keys, got ${result.len}'
-		
+
 		// Verify each result starts with the prefix
 		for key in result {
 			assert key.starts_with(prefix), 'Key "${key}" does not start with prefix "${prefix}"'
@@ -151,9 +177,9 @@ fn test_prefix_search_performance() {
 	// Generate a larger dataset (1000 keys)
 	prefixes := ['user', 'config', 'data', 'app', 'service', 'api', 'test', 'dev', 'prod', 'staging']
 	mut large_keys := []string{}
-	
+
 	for prefix in prefixes {
-		for i in 0..100 {
+		for i in 0 .. 100 {
 			large_keys << '${prefix}:${i}:name'
 		}
 	}
@@ -175,7 +201,7 @@ fn test_prefix_search_performance() {
 		}
 
 		assert result.len == 100, 'For prefix "${prefix}:": expected 100 keys, got ${result.len}'
-		
+
 		// Verify each result starts with the prefix
 		for key in result {
 			assert key.starts_with(prefix + ':'), 'Key "${key}" does not start with prefix "${prefix}:"'
@@ -184,7 +210,7 @@ fn test_prefix_search_performance() {
 
 	// Test more specific prefixes
 	for prefix in prefixes {
-		for i in 0..10 {
+		for i in 0 .. 10 {
 			specific_prefix := '${prefix}:${i}'
 			result := tree.list(specific_prefix) or {
 				assert false, 'Failed to list keys with prefix "${specific_prefix}": ${err}'

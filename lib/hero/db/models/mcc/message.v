@@ -8,18 +8,18 @@ pub struct Message {
 	base.Base // Base struct for common fields
 pub mut:
 	// Database ID
-	id u32 // Database ID (assigned by DBHandler)
+	id          u32          // Database ID (assigned by DBHandler)
 	message_id  string       // Unique identifier for the email
 	folder      string       // The folder this email belongs to (inbox, sent, drafts, etc.)
 	message     string       // The email body content
 	attachments []Attachment // Any file attachments
 	send_time   ourtime.OurTime
-	
-	date        i64          // Unix timestamp when the email was sent/received
-	size        u32          // Size of the message in bytes
-	read        bool         // Whether the email has been read
-	flagged     bool         // Whether the email has been flagged/starred
-	
+
+	date    i64  // Unix timestamp when the email was sent/received
+	size    u32  // Size of the message in bytes
+	read    bool // Whether the email has been read
+	flagged bool // Whether the email has been flagged/starred
+
 	// Header information
 	subject     string
 	from        []u32 // List of user IDs (or email addresses) who sent the email user needs to exist in circle where we use this
@@ -36,15 +36,13 @@ pub struct Attachment {
 pub mut:
 	filename     string
 	content_type string
-	hash		 string // Hash of the attachment data
+	hash         string // Hash of the attachment data
 }
 
-
-
 pub fn (self Message) index_keys() map[string]string {
-	return map[string]string{} 
+	return map[string]string{}
 }
 
 pub fn (self Message) ftindex_keys() map[string]string {
-	return map[string]string{} //TODO: add subject and from to this and to and message
+	return map[string]string{} // TODO: add subject and from to this and to and message
 }

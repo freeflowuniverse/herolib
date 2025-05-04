@@ -9,9 +9,9 @@ fn test_chat_completion() {
 
 	println(client.list_models()!)
 
-	raise("sss")
+	raise('sss')
 
-	res := client.chat_completion( Messages{
+	res := client.chat_completion(Messages{
 		messages: [
 			Message{
 				role:    .user

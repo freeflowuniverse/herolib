@@ -66,19 +66,35 @@ fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Prop
 	property_name := if name.contains(':') { name.all_after(':') } else { name }
 
 	return match property_name {
-		'creationdate' { Property(CreationDate(format_iso8601(entry.get_metadata().created_time()))) }
-		'getetag' { Property(GetETag(entry.get_metadata().id.str())) }
-		'resourcetype' { Property(ResourceType(entry.is_dir())) }
-		'getlastmodified', 'lastmodified_server' { 
+		'creationdate' {
+			Property(CreationDate(format_iso8601(entry.get_metadata().created_time())))
+		}
+		'getetag' {
+			Property(GetETag(entry.get_metadata().id.str()))
+		}
+		'resourcetype' {
+			Property(ResourceType(entry.is_dir()))
+		}
+		'getlastmodified', 'lastmodified_server' {
 			// Both standard getlastmodified and custom lastmodified_server properties
 			// return the same information
 			Property(GetLastModified(texttools.format_rfc1123(entry.get_metadata().modified_time())))
 		}
-		'getcontentlength' { Property(GetContentLength(entry.get_metadata().size.str())) }
-		'quota-available-bytes' { Property(QuotaAvailableBytes(16184098816)) }
-		'quota-used-bytes' { Property(QuotaUsedBytes(16184098816)) }
-		'quotaused' { Property(QuotaUsed(16184098816)) }
-		'quota' { Property(Quota(16184098816)) }
+		'getcontentlength' {
+			Property(GetContentLength(entry.get_metadata().size.str()))
+		}
+		'quota-available-bytes' {
+			Property(QuotaAvailableBytes(16184098816))
+		}
+		'quota-used-bytes' {
+			Property(QuotaUsedBytes(16184098816))
+		}
+		'quotaused' {
+			Property(QuotaUsed(16184098816))
+		}
+		'quota' {
+			Property(Quota(16184098816))
+		}
 		'displayname' {
 			// RFC 4918, Section 15.2: displayname is a human-readable name for UI display
 			// For now, we use the filename as the displayname, but this could be enhanced
@@ -102,7 +118,7 @@ fn (mut server Server) get_entry_property(entry &vfs.FSEntry, name string) !Prop
 			// Always show as unlocked for now to ensure compatibility
 			Property(LockDiscovery(''))
 		}
-		else { 
+		else {
 			// For any unimplemented property, return an empty string instead of panicking
 			// This improves compatibility with various WebDAV clients
 			log.info('[WebDAV] Unimplemented property requested: ${name}')
@@ -127,16 +143,24 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		}
 		// main entry response
 		responses << PropfindResponse{
-			href: ensure_leading_slash(if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path })
+			href: ensure_leading_slash(if entry.is_dir() {
+				'${path.trim_string_right('/')}/'
+			} else {
+				path
+			})
 			// not_found: entry.get_unfound_properties(req)
 			found_props: properties
 		}
 	} else {
-	responses << PropfindResponse{
-		href: ensure_leading_slash(if entry.is_dir() { '${path.trim_string_right('/')}/' } else { path })
-		// not_found: entry.get_unfound_properties(req)
-		found_props: server.get_properties(entry)
-	}
+		responses << PropfindResponse{
+			href: ensure_leading_slash(if entry.is_dir() {
+				'${path.trim_string_right('/')}/'
+			} else {
+				path
+			})
+			// not_found: entry.get_unfound_properties(req)
+			found_props: server.get_properties(entry)
+		}
 	}
 
 	if !entry.is_dir() || req.depth == .zero {
@@ -148,10 +172,10 @@ fn (mut server Server) get_responses(entry vfs.FSEntry, req PropfindRequest, pat
 		return responses
 	}
 	for e in entries {
-		child_path := if path.ends_with('/') { 
-			path + e.get_metadata().name 
-		} else { 
-			path + '/' + e.get_metadata().name 
+		child_path := if path.ends_with('/') {
+			path + e.get_metadata().name
+		} else {
+			path + '/' + e.get_metadata().name
 		}
 		responses << server.get_responses(e, PropfindRequest{
 			...req

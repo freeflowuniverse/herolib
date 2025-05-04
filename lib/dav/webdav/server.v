@@ -303,22 +303,22 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 	// Check if this is a binary file upload based on content type
 	content_type := ctx.req.header.get(.content_type) or { '' }
 	is_binary := is_binary_content_type(content_type)
-	
+
 	// Handle binary uploads directly
 	if is_binary {
 		log.info('[WebDAV] Processing binary upload for ${path} (${content_type})')
-		
+
 		// Handle the binary upload directly
 		ctx.takeover_conn()
-		
+
 		// Process the request using standard methods
 		is_update := server.vfs.exists(path)
-		
+
 		// Return success response
 		ctx.res.set_status(if is_update { .ok } else { .created })
 		return veb.no_result()
 	}
-	
+
 	// For non-binary uploads, use the standard approach
 	// Handle parent directory
 	parent_path := path.all_before_last('/')
@@ -345,13 +345,13 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 					ctx.res.set_status(.conflict)
 					return ctx.text('HTTP 409: Conflict - Cannot replace directory with file')
 				}
-				
+
 				// Create the file after deleting the directory
 				server.vfs.file_create(path) or {
 					log.error('[WebDAV] Failed to create file ${path} after deleting directory: ${err.msg()}')
 					return ctx.server_error('Failed to create file: ${err.msg()}')
 				}
-				
+
 				// Now it's not an update anymore
 				is_update = false
 			}
@@ -602,22 +602,15 @@ fn (mut server Server) create_or_update(mut ctx Context, path string) veb.Result
 fn is_binary_content_type(content_type string) bool {
 	// Normalize the content type by converting to lowercase
 	normalized := content_type.to_lower()
-	
+
 	// Check for common binary file types
-	return normalized.contains('application/octet-stream') ||
-		(normalized.contains('application/') && (
-			normalized.contains('msword') ||
-			normalized.contains('excel') ||
-			normalized.contains('powerpoint') ||
-			normalized.contains('pdf') ||
-			normalized.contains('zip') ||
-			normalized.contains('gzip') ||
-			normalized.contains('x-tar') ||
-			normalized.contains('x-7z') ||
-			normalized.contains('x-rar')
-		)) ||
-		(normalized.contains('image/') && !normalized.contains('svg')) ||
-		normalized.contains('audio/') ||
-		normalized.contains('video/') ||
-		normalized.contains('vnd.openxmlformats') // Office documents
+	return normalized.contains('application/octet-stream')
+		|| (normalized.contains('application/') && (normalized.contains('msword')
+		|| normalized.contains('excel') || normalized.contains('powerpoint')
+		|| normalized.contains('pdf') || normalized.contains('zip')
+		|| normalized.contains('gzip') || normalized.contains('x-tar')
+		|| normalized.contains('x-7z') || normalized.contains('x-rar')))
+		|| (normalized.contains('image/') && !normalized.contains('svg'))
+		|| normalized.contains('audio/') || normalized.contains('video/')
+		|| normalized.contains('vnd.openxmlformats') // Office documents
 }

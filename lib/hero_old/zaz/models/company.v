@@ -22,8 +22,8 @@ pub enum BusinessType {
 // Company represents a company registered in the Freezone
 pub struct Company {
 pub mut:
-	id                 u32
-	name               string
+	id                  u32
+	name                string
 	registration_number string
 	incorporation_date  ourtime.OurTime
 	fiscal_year_end     string
@@ -68,9 +68,9 @@ pub fn (company Company) dumps() ![]u8 {
 	enc.add_u16(u16(company.shareholders.len))
 	for shareholder in company.shareholders {
 		// Encode each shareholder's fields
-	enc.add_u32(shareholder.id)
-	enc.add_u32(shareholder.company_id)
-	enc.add_u32(shareholder.user_id)
+		enc.add_u32(shareholder.id)
+		enc.add_u32(shareholder.company_id)
+		enc.add_u32(shareholder.user_id)
 		enc.add_string(shareholder.name)
 		enc.add_string(shareholder.shares.str()) // Store shares as string to preserve precision
 		enc.add_string(shareholder.percentage.str()) // Store as string to preserve precision
@@ -98,10 +98,10 @@ pub fn company_loads(data []u8) !Company {
 	company.id = d.get_u32()!
 	company.name = d.get_string()!
 	company.registration_number = d.get_string()!
-	
+
 	incorporation_date_str := d.get_string()!
 	company.incorporation_date = ourtime.new(incorporation_date_str)!
-	
+
 	company.fiscal_year_end = d.get_string()!
 	company.email = d.get_string()!
 	company.phone = d.get_string()!
@@ -111,10 +111,10 @@ pub fn company_loads(data []u8) !Company {
 	company.industry = d.get_string()!
 	company.description = d.get_string()!
 	company.status = unsafe { CompanyStatus(d.get_u8()!) }
-	
+
 	created_at_str := d.get_string()!
 	company.created_at = ourtime.new(created_at_str)!
-	
+
 	updated_at_str := d.get_string()!
 	company.updated_at = ourtime.new(updated_at_str)!
 
@@ -132,18 +132,18 @@ pub fn company_loads(data []u8) !Company {
 		// Decode the percentage from string instead of f64
 		percentage_str := d.get_string()!
 		shareholder.percentage = percentage_str.f64()
-		
+
 		shareholder.type_ = unsafe { ShareholderType(d.get_u8()!) }
-		
+
 		since_str := d.get_string()!
 		shareholder.since = ourtime.new(since_str)!
-		
+
 		shareholder_created_at_str := d.get_string()!
 		shareholder.created_at = ourtime.new(shareholder_created_at_str)!
-		
+
 		shareholder_updated_at_str := d.get_string()!
 		shareholder.updated_at = ourtime.new(shareholder_updated_at_str)!
-		
+
 		company.shareholders[i] = shareholder
 	}
 

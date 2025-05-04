@@ -67,7 +67,7 @@ fn test_mcp_server_initialize() {
 
 	// Verify the protocol version matches what was requested
 	assert result.protocol_version == '2024-11-05', 'Protocol version should match the request'
-	
+
 	// Verify server info
 	assert result.server_info.name == 'developer', 'Server name should be "developer"'
 }
@@ -113,7 +113,7 @@ fn test_tools_list() {
 	// Verify that the tools array exists and contains the expected tool
 	tools := result_map['tools'].arr()
 	assert tools.len > 0, 'Tools list should not be empty'
-	
+
 	// Find the generate_module_from_openapi tool
 	mut found_tool := false
 	for tool in tools {
@@ -123,6 +123,6 @@ fn test_tools_list() {
 			break
 		}
 	}
-	
+
 	assert found_tool, 'generate_module_from_openapi tool should be registered'
 }

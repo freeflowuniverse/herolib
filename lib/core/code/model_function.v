@@ -133,30 +133,30 @@ pub fn parse_function(code_ string) !Function {
 	// Extract the result type, handling the ! for result types
 	mut result_type := code.all_after(')').all_before('{').replace(' ', '')
 	mut has_return := false
-	
+
 	// Check if the result type contains !
 	if result_type.contains('!') {
 		has_return = true
 		result_type = result_type.replace('!', '')
 	}
-	
+
 	result := new_param(
 		v: result_type
 	)!
 
 	body := if code.contains('{') { code.all_after('{').all_before_last('}') } else { '' }
-	
+
 	// Process the comments into a description
 	description := comment_lines.join('\n')
-	
+
 	return Function{
-		name:     name
-		receiver: receiver
-		params: params
-		result: result
-		body: body
+		name:        name
+		receiver:    receiver
+		params:      params
+		result:      result
+		body:        body
 		description: description
-		is_pub: is_pub
-		has_return: has_return
+		is_pub:      is_pub
+		has_return:  has_return
 	}
 }

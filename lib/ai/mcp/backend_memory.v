@@ -114,15 +114,13 @@ fn (b &MemoryBackend) prompt_messages_get(name string, arguments map[string]stri
 	return messages
 }
 
-
 fn (b &MemoryBackend) prompt_call(name string, arguments []string) ![]PromptMessage {
 	// Get the tool handler
 	handler := b.prompt_handlers[name] or { return error('tool handler not found') }
 
 	// Call the handler with the provided arguments
-	return handler(arguments) or {panic(err)}
+	return handler(arguments) or { panic(err) }
 }
-
 
 // Tool related methods
 
@@ -165,11 +163,11 @@ fn (b &MemoryBackend) sampling_create_message(params map[string]json2.Any) !Samp
 		// Return a default implementation that just echoes back a message
 		// indicating that no sampling handler is registered
 		return SamplingCreateMessageResult{
-			model: 'default'
+			model:       'default'
 			stop_reason: 'endTurn'
-			role: 'assistant'
-			content: MessageContent{
-				typ: 'text'
+			role:        'assistant'
+			content:     MessageContent{
+				typ:  'text'
 				text: 'Sampling is not configured on this server. Please register a sampling handler.'
 			}
 		}

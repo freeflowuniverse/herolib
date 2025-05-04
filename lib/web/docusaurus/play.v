@@ -7,35 +7,35 @@ import os
 @[params]
 pub struct PlayArgs {
 pub mut:
-	heroscript     string // if filled in then playbook will be made out of it
+	heroscript      string // if filled in then playbook will be made out of it
 	heroscript_path string // path to a file containing heroscript
-	plbook         ?PlayBook
-	reset          bool
+	plbook          ?PlayBook
+	reset           bool
 }
 
 // Process the heroscript and return a filled Config object
 pub fn play(args_ PlayArgs) !Config {
 	mut heroscript_text := args_.heroscript
-	
+
 	// If heroscript_path is provided, read the script from the file
 	if args_.heroscript_path != '' && heroscript_text == '' {
 		heroscript_text = os.read_file(args_.heroscript_path) or {
 			return error('Failed to read heroscript from ${args_.heroscript_path}: ${err}')
 		}
 	}
-	
+
 	// If no heroscript is provided, return an empty config
 	if heroscript_text == '' && args_.plbook == none {
-	    return Config{}
+		return Config{}
 	}
-	
+
 	// Create playbook from the heroscript text
 	mut plbook := if pb := args_.plbook {
 		pb
 	} else {
 		playbook.new(text: heroscript_text)!
 	}
-	
+
 	mut config := Config{}
 
 	play_config(mut plbook, mut config)!
@@ -45,7 +45,7 @@ pub fn play(args_ PlayArgs) !Config {
 	play_build_dest(mut plbook, mut config)!
 	play_navbar(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
-	
+
 	return config
 }
 
@@ -55,7 +55,7 @@ fn play_config(mut plbook PlayBook, mut config Config) ! {
 		mut p := action.params
 		// Get optional name parameter or use base_url as fallback
 		name := p.get_default('name', 'docusaurus-site')!
-		
+
 		config.main = Main{
 			name:      name
 			title:     p.get_default('title', 'Documentation Site')!
@@ -65,7 +65,8 @@ fn play_config(mut plbook PlayBook, mut config Config) ! {
 			url_home:  p.get_default('url_home', 'docs/')!
 			base_url:  p.get_default('base_url', '/')!
 			image:     p.get_default('image', 'img/hero.png')!
-			copyright: p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!
+			copyright: p.get_default('copyright', '© ' + time.now().year.str() +
+				' Example Organization')!
 		}
 	}
 }

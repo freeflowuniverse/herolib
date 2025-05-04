@@ -12,7 +12,7 @@ println('Starting Qdrant example script')
 println('Current directory: ${os.getwd()}')
 println('Home directory: ${os.home_dir()}')
 
-mut i:=qdrant_installer.get()!
+mut i := qdrant_installer.get()!
 i.install()!
 
 // 1. Get the qdrant client

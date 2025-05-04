@@ -1,6 +1,6 @@
 module generator
 
-import freeflowuniverse.herolib.core.code { Array, CodeItem, Function, Import, Param, Result, Struct, VFile }
+import freeflowuniverse.herolib.core.code { CodeItem, Function, Import, Param, Result, Struct, VFile }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.schemas.openapi
 import freeflowuniverse.herolib.schemas.openrpc
@@ -18,12 +18,13 @@ pub struct Source {
 }
 
 pub fn generate_methods_file_str(source Source) !string {
-	actor_spec := if path := source.openapi_path { 
+	actor_spec := if path := source.openapi_path {
 		specification.from_openapi(openapi.new(path: path)!)!
 	} else if path := source.openrpc_path {
 		specification.from_openrpc(openrpc.new(path: path)!)!
+	} else {
+		panic('No openapi or openrpc path provided')
 	}
-	else { panic('No openapi or openrpc path provided') }
 	return generate_methods_file(actor_spec)!.write_str()!
 }
 

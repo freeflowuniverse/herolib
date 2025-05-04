@@ -9,10 +9,10 @@ pub fn new_mcp_server() !&mcp.Server {
 
 	// Initialize the server with the empty handlers map
 	mut server := mcp.new_server(mcp.MemoryBackend{
-		tools:         {
+		tools:           {
 			'generate_rhai_wrapper': generate_rhai_wrapper_spec
 		}
-		tool_handlers: {
+		tool_handlers:   {
 			'generate_rhai_wrapper': generate_rhai_wrapper_handler
 		}
 		prompts:         {

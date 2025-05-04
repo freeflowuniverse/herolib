@@ -10,12 +10,11 @@ pub mut:
 }
 
 fn (mut loader FileLoader) load() {
-	loader.embedded_files["jet"]=$embed_file('templates/jet_instructions.md')
+	loader.embedded_files['jet'] = $embed_file('templates/jet_instructions.md')
 }
 
-
 fn (mut loader FileLoader) jet() string {
-	c:=loader.embedded_files["jet"] or { panic("bug embed") }
+	c := loader.embedded_files['jet'] or { panic('bug embed') }
 	return c.to_string()
 }
 

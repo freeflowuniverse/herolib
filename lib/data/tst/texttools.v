@@ -6,9 +6,9 @@ module tst
 // - replaces special characters with standard ones
 pub fn namefix(s string) string {
 	mut result := s.trim_space().to_lower()
-	
+
 	// Replace any problematic characters or sequences if needed
 	// For this implementation, we'll keep it simple
-	
+
 	return result
 }

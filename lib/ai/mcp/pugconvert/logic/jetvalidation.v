@@ -5,9 +5,9 @@ import json
 
 // JetTemplateResponse is the expected response structure from the validation service
 struct JetTemplateResponse {
-	valid   bool   
-	message string 
-	error   string 
+	valid   bool
+	message string
+	error   string
 }
 
 // ValidationResult represents the result of a template validation
@@ -30,7 +30,7 @@ pub fn jetvaliditycheck(jetcontent string) !ValidationResult {
 	template_data := json.encode({
 		'template': jetcontent
 	})
-	
+
 	// Print what we're sending to the AI service
 	// println('Sending to JET validation service:')
 	// println('--------------------------------')
@@ -39,8 +39,8 @@ pub fn jetvaliditycheck(jetcontent string) !ValidationResult {
 
 	// Send the POST request to the validation endpoint
 	req := httpconnection.Request{
-		prefix: 'checkjet',
-		data: template_data,
+		prefix:     'checkjet'
+		data:       template_data
 		dataformat: .json
 	}
 
@@ -49,7 +49,7 @@ pub fn jetvaliditycheck(jetcontent string) !ValidationResult {
 		// Handle connection errors
 		return ValidationResult{
 			is_valid: false
-			error: 'Connection error: ${err}'
+			error:    'Connection error: ${err}'
 		}
 	}
 
@@ -58,12 +58,12 @@ pub fn jetvaliditycheck(jetcontent string) !ValidationResult {
 		// If we can't parse JSON using our struct, the server didn't return the expected format
 		return ValidationResult{
 			is_valid: false
-			error: 'Server returned unexpected format: ${err.msg()}'
+			error:    'Server returned unexpected format: ${err.msg()}'
 		}
 	}
 
 	// Use the structured response data
-	if response.valid == false{
+	if response.valid == false {
 		error_msg := if response.error != '' {
 			response.error
 		} else if response.message != '' {
@@ -74,12 +74,12 @@ pub fn jetvaliditycheck(jetcontent string) !ValidationResult {
 
 		return ValidationResult{
 			is_valid: false
-			error: error_msg
+			error:    error_msg
 		}
 	}
 
 	return ValidationResult{
 		is_valid: true
-		error: ''
+		error:    ''
 	}
 }

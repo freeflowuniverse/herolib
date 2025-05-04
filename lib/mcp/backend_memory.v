@@ -109,15 +109,13 @@ fn (b &MemoryBackend) prompt_messages_get(name string, arguments map[string]stri
 	return messages
 }
 
-
 fn (b &MemoryBackend) prompt_call(name string, arguments []string) ![]PromptMessage {
 	// Get the tool handler
 	handler := b.prompt_handlers[name] or { return error('tool handler not found') }
 
 	// Call the handler with the provided arguments
-	return handler(arguments) or {panic(err)}
+	return handler(arguments) or { panic(err) }
 }
-
 
 // Tool related methods
 

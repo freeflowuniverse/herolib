@@ -182,13 +182,13 @@ fn test_getall() {
 		return
 	}
 	assert hel_values.len == 2, 'Expected 2 values with prefix "hel", got ${hel_values.len}'
-	
+
 	// Convert byte arrays to strings for easier comparison
 	mut hel_strings := []string{}
 	for val in hel_values {
 		hel_strings << val.bytestr()
 	}
-	
+
 	assert 'world' in hel_strings, 'Expected "world" in values with prefix "hel"'
 	assert 'me' in hel_strings, 'Expected "me" in values with prefix "hel"'
 }

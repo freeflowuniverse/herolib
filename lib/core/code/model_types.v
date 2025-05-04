@@ -239,7 +239,7 @@ pub fn (t Type) empty_value() string {
 pub fn parse_type(type_str string) Type {
 	println('Parsing type string: "${type_str}"')
 	mut type_str_trimmed := type_str.trim_space()
-	
+
 	// Handle struct definitions by extracting just the struct name
 	if type_str_trimmed.contains('struct ') {
 		lines := type_str_trimmed.split_into_lines()
@@ -257,7 +257,7 @@ pub fn parse_type(type_str string) Type {
 			}
 		}
 	}
-	
+
 	// Check for simple types first
 	if type_str_trimmed == 'string' {
 		return String{}
@@ -266,41 +266,61 @@ pub fn parse_type(type_str string) Type {
 	} else if type_str_trimmed == 'int' {
 		return Integer{}
 	} else if type_str_trimmed == 'u8' {
-		return Integer{bytes: 8, signed: false}
+		return Integer{
+			bytes:  8
+			signed: false
+		}
 	} else if type_str_trimmed == 'u16' {
-		return Integer{bytes: 16, signed: false}
+		return Integer{
+			bytes:  16
+			signed: false
+		}
 	} else if type_str_trimmed == 'u32' {
-		return Integer{bytes: 32, signed: false}
+		return Integer{
+			bytes:  32
+			signed: false
+		}
 	} else if type_str_trimmed == 'u64' {
-		return Integer{bytes: 64, signed: false}
+		return Integer{
+			bytes:  64
+			signed: false
+		}
 	} else if type_str_trimmed == 'i8' {
-		return Integer{bytes: 8}
+		return Integer{
+			bytes: 8
+		}
 	} else if type_str_trimmed == 'i16' {
-		return Integer{bytes: 16}
+		return Integer{
+			bytes: 16
+		}
 	} else if type_str_trimmed == 'i32' {
-		return Integer{bytes: 32}
+		return Integer{
+			bytes: 32
+		}
 	} else if type_str_trimmed == 'i64' {
-		return Integer{bytes: 64}
+		return Integer{
+			bytes: 64
+		}
 	}
-	
+
 	// Check for array types
 	if type_str_trimmed.starts_with('[]') {
 		elem_type := type_str_trimmed.all_after('[]')
 		return Array{parse_type(elem_type)}
 	}
-	
+
 	// Check for map types
 	if type_str_trimmed.starts_with('map[') && type_str_trimmed.contains(']') {
 		value_type := type_str_trimmed.all_after(']')
 		return Map{parse_type(value_type)}
 	}
-	
+
 	// Check for result types
 	if type_str_trimmed.starts_with('!') {
 		result_type := type_str_trimmed.all_after('!')
 		return Result{parse_type(result_type)}
 	}
-	
+
 	// If no other type matches, treat as an object/struct type
 	println('Treating as object type: "${type_str_trimmed}"')
 	return Object{type_str_trimmed}

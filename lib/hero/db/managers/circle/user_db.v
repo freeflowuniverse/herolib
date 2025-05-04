@@ -1,7 +1,8 @@
 module circle
 
 import freeflowuniverse.herolib.hero.db.core { DBHandler, SessionState, new_dbhandler }
-import freeflowuniverse.herolib.hero.db.models.circle { User, Role }
+import freeflowuniverse.herolib.hero.db.models.circle { Role, User }
+
 type UserObj = User
 
 @[heap]
@@ -55,7 +56,7 @@ pub fn (mut m UserDB) delete(obj UserObj) ! {
 // get_by_name retrieves a user by its name
 pub fn (mut m UserDB) get_by_name(name string) !UserObj {
 	data := m.db.get_data_by_key('name', name)!
-	return loads_user(data)!	
+	return loads_user(data)!
 }
 
 // delete_by_name removes a user by its name

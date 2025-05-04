@@ -90,14 +90,13 @@ fn main() {
 	'
 
 	mut docs := docusaurus.new(
-	    build_path: os.join_path(os.home_dir(), 'hero/var/docusaurus_demo1')
-	    update: true // Update the templates
-	    heroscript: hero_script
+		build_path: os.join_path(os.home_dir(), 'hero/var/docusaurus_demo1')
+		update:     true // Update the templates
+		heroscript: hero_script
 	) or {
-	    eprintln('Error creating docusaurus factory with inline script: ${err}')
-	    exit(1)
+		eprintln('Error creating docusaurus factory with inline script: ${err}')
+		exit(1)
 	}
-	
 
 	// Create a site directory if it doesn't exist
 	site_path := os.join_path(os.home_dir(), 'hero/var/docusaurus_demo_src')
@@ -204,19 +203,19 @@ console.log(result);
 		eprintln('Error generating site: ${err}')
 		exit(1)
 	}
-	
+
 	println('Site generated successfully!')
 
 	// Choose which operation to perform:
-	
-	// Option 1: Run in development mode 
+
+	// Option 1: Run in development mode
 	// This will start a development server in a screen session
 	println('Starting development server...')
 	site.dev() or {
 		eprintln('Error starting development server: ${err}')
 		exit(1)
 	}
-	
+
 	// Option 2: Build for production (uncomment to use)
 	/*
 	println('Building site for production...')

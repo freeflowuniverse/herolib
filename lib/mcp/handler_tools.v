@@ -26,8 +26,8 @@ pub:
 
 pub struct ToolItems {
 pub:
-	typ  string @[json: 'type']
-	enum []string
+	typ        string @[json: 'type']
+	enum       []string
 	properties map[string]ToolProperty
 }
 
@@ -63,7 +63,7 @@ fn (mut s Server) tools_list_handler(data string) !string {
 
 	// TODO: Implement pagination logic using the cursor
 	// For now, return all tools
-encoded := json.encode(ToolListResult{
+	encoded := json.encode(ToolListResult{
 		tools:       s.backend.tool_list()!
 		next_cursor: '' // Empty if no more pages
 	})

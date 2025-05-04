@@ -110,7 +110,8 @@ fn (mut s Server) prompts_get_handler(data string) !string {
 	// messages := s.backend.prompt_messages_get(request.params.name, request.params.arguments)!
 
 	// Create a success response with the result
-	response := jsonrpc.new_response_generic[PromptGetResult](request_map['id'].int(), PromptGetResult{
+	response := jsonrpc.new_response_generic[PromptGetResult](request_map['id'].int(),
+		PromptGetResult{
 		description: prompt.description
 		messages:    messages
 	})

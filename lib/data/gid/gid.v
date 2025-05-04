@@ -31,23 +31,23 @@ pub fn new(txt_ string) !GID {
 	}
 
 	cid_str := parts[1].trim_space()
-	cid := cid_str.u32() //TODO: what if this is no nr?
+	cid := cid_str.u32() // TODO: what if this is no nr?
 
 	return GID{
 		circle: circle
-		cid: cid
+		cid:    cid
 	}
 }
 
 pub fn new_from_parts(circle_ string, cid u32) !GID {
-	mut circle:=circle_
+	mut circle := circle_
 	if circle.trim_space() == '' {
-		circle="default"
+		circle = 'default'
 	}
 
 	return GID{
 		circle: circle
-		cid: cid
+		cid:    cid
 	}
 }
 

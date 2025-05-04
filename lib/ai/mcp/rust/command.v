@@ -2,16 +2,16 @@ module rust
 
 import cli
 
-pub const command := cli.Command{
+pub const command = cli.Command{
 	sort_flags:  true
 	name:        'rust'
 	description: 'Rust language tools command'
-	commands: [
+	commands:    [
 		cli.Command{
 			name:        'start'
 			execute:     cmd_start
 			description: 'start the Rust MCP server'
-		}
+		},
 	]
 }
 

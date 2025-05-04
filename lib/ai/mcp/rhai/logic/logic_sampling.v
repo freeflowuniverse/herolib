@@ -20,7 +20,7 @@ import os
 //         name: 'rhai_wrapper_creator.escalayer'
 //         description: 'Create Rhai wrappers for Rust functions that follow builder pattern and create examples corresponding to the provided example file'
 //     )
-    
+
 //     // Create model configs
 //     sonnet_model := escalayer.ModelConfig{
 //         name: 'anthropic/claude-3.7-sonnet'
@@ -28,19 +28,19 @@ import os
 //         temperature: 0.7
 //         max_tokens: 25000
 //     }
-    
+
 //     gpt4_model := escalayer.ModelConfig{
 //         name: 'gpt-4'
 //         provider: 'openai'
 //         temperature: 0.7
 //         max_tokens: 25000
 //     }
-    
+
 //     // Create a prompt function that returns the prepared content
 //     prompt_function := fn [prompt_content] (input string) string {
 //         return prompt_content
 //     }
-    
+
 //     // Define a single unit task that handles everything
 //     task.new_unit_task(
 //         name: 'create_rhai_wrappers'
@@ -50,7 +50,7 @@ import os
 //         retry_model: gpt4_model
 //         retry_count: 1
 //     )
-    
+
 //     // Initiate the task
 //     return task.initiate('')
 // }
@@ -69,33 +69,33 @@ import os
 
 // // functions is a list of function names that AI should extract and pass in
 // pub fn write_rhai_wrapper_module(wrapper WrapperModule, name string, path string)! string {
-    
+
 // 	// Define project directory paths
 //     project_dir := '${path}/rhai'
-    
+
 //     // Create the project using cargo new --lib
 //     if os.exists(project_dir) {
 //         os.rmdir_all(project_dir) or {
 //             return error('Failed to clean existing project directory: ${err}')
 //         }
 //     }
-    
+
 //     // Run cargo new --lib to create the project
 //     os.chdir(path) or {
 //         return error('Failed to change directory to base directory: ${err}')
 //     }
-    
+
 //     cargo_new_result := os.execute('cargo new --lib rhai')
 //     if cargo_new_result.exit_code != 0 {
 //         return error('Failed to create new library project: ${cargo_new_result.output}')
 //     }
-    
+
 //     // Create examples directory
 //     examples_dir := '${project_dir}/examples'
 //     os.mkdir_all(examples_dir) or {
 //         return error('Failed to create examples directory: ${err}')
 //     }
-    
+
 //     // Write the lib.rs file
 //     if wrapper.lib_rs != '' {
 //         os.write_file('${project_dir}/src/lib.rs', wrapper.lib_rs) or {
@@ -109,47 +109,45 @@ import os
 //             return error('Failed to write wrapper.rs: ${err}')
 //         }
 //     }
-    
+
 //     // Write the generic wrapper.rs file
 //     if wrapper.generic_wrapper_rs != '' {
 //         os.write_file('${project_dir}/src/generic_wrapper.rs', wrapper.generic_wrapper_rs) or {
 //             return error('Failed to write generic wrapper.rs: ${err}')
 //         }
 //     }
-    
+
 //     // Write the example.rs file
 //     if wrapper.example_rs != '' {
 //         os.write_file('${examples_dir}/example.rs', wrapper.example_rs) or {
 //             return error('Failed to write example.rs: ${err}')
 //         }
 //     }
-    
+
 //     // Write the engine.rs file if provided
 //     if wrapper.engine_rs != '' {
 //         os.write_file('${project_dir}/src/engine.rs', wrapper.engine_rs) or {
 //             return error('Failed to write engine.rs: ${err}')
 //         }
 //     }
-    
+
 //     // Write the Cargo.toml file
 //     os.write_file('${project_dir}/Cargo.toml', wrapper.cargo_toml) or {
 //         return error('Failed to write Cargo.toml: ${err}')
 //     }
-    
+
 //     // Write the example.rhai file
 //     os.write_file('${examples_dir}/example.rhai', wrapper.example_rhai) or {
 //         return error('Failed to write example.rhai: ${err}')
 //     }
-    
+
 //     return project_dir
 // }
-
-
 
 // // Extract module name from wrapper code
 // fn extract_module_name(code string) string {
 //     lines := code.split('\n')
-    
+
 //     for line in lines {
 //         // Look for pub mod or mod declarations
 //         if line.contains('pub mod ') || line.contains('mod ') {
@@ -160,7 +158,7 @@ import os
 //             } else {
 //                 parts = line.split('mod ')
 //             }
-            
+
 //             if parts.len > 1 {
 //                 // Extract the module name and remove any trailing characters
 //                 mut name := parts[1].trim_space()
@@ -172,7 +170,7 @@ import os
 //             }
 //         }
 //     }
-    
+
 //     return ''
 // }
 
@@ -188,9 +186,9 @@ import os
 //     code_blocks := extract_code_blocks(response) or {
 //         return err
 //     }
-    
+
 //     name := gen.name
-    
+
 //     // Create a WrapperModule struct with the extracted content
 //     wrapper := WrapperModule{
 //         lib_rs: $tmpl('./templates/lib.rs')
@@ -201,17 +199,17 @@ import os
 //         cargo_toml: $tmpl('./templates/cargo.toml')
 //         example_rhai: code_blocks.example_rhai
 //     }
-    
+
 //     // Create the wrapper module
 //     project_dir := write_rhai_wrapper_module(wrapper, gen.name, gen.dir) or {
 //         return error('Failed to create wrapper module: ${err}')
 //     }
-    
+
 //     // Build and run the project
 //     build_output, run_output := rust.run_example(project_dir, 'example') or {
 //         return err
 //     }
-    
+
 //     return format_success_message(project_dir, build_output, run_output)
 // }
 
@@ -229,14 +227,14 @@ import os
 //     if wrapper_rs_content == '' {
 //         return error('Failed to extract wrapper.rs content from response. Please ensure your code is properly formatted inside a code block that starts with ```rust\n// wrapper.rs and ends with ```')
 //     }
-    
+
 //     // Extract engine.rs content
 //     mut engine_rs_content := utils.extract_code_block(response, 'engine.rs', 'rust')
 //     if engine_rs_content == '' {
 //         // Try to extract from the response without explicit language marker
 //         engine_rs_content = utils.extract_code_block(response, 'engine.rs', '')
 //     }
-    
+
 //     // Extract example.rhai content
 //     mut example_rhai_content := utils.extract_code_block(response, 'example.rhai', 'rhai')
 //     if example_rhai_content == '' {
@@ -246,7 +244,7 @@ import os
 //             return error('Failed to extract example.rhai content from response. Please ensure your code is properly formatted inside a code block that starts with ```rhai\n// example.rhai and ends with ```')
 //         }
 //     }
-    
+
 //     return CodeBlocks{
 //         wrapper_rs: wrapper_rs_content
 //         engine_rs: engine_rs_content

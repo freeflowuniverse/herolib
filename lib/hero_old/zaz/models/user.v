@@ -6,12 +6,12 @@ import freeflowuniverse.herolib.data.encoder
 // User represents a user in the Freezone Manager system
 pub struct User {
 pub mut:
-	id        u32
-	name      string
-	email     string
-	password  string
-	company   string //here its just a best effort
-	role      string
+	id         u32
+	name       string
+	email      string
+	password   string
+	company    string // here its just a best effort
+	role       string
 	created_at ourtime.OurTime
 	updated_at ourtime.OurTime
 }
@@ -54,10 +54,10 @@ pub fn user_loads(data []u8) !User {
 	user.password = d.get_string()!
 	user.company = d.get_string()!
 	user.role = d.get_string()!
-	
+
 	created_at_str := d.get_string()!
 	user.created_at = ourtime.new(created_at_str)!
-	
+
 	updated_at_str := d.get_string()!
 	user.updated_at = ourtime.new(updated_at_str)!
 

@@ -241,6 +241,6 @@ pub fn (mut d Decoder) get_map_bytes() !map[string][]u8 {
 
 // Gets GID from encoded string
 pub fn (mut d Decoder) get_gid() !gid.GID {
-    gid_str := d.get_string()!
-    return gid.new(gid_str)
+	gid_str := d.get_string()!
+	return gid.new(gid_str)
 }
