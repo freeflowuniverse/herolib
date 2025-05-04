@@ -3,7 +3,8 @@ module docusaurus
 import os
 import strings
 
-pub fn (mut site DocSite) clean(args ErrorArgs) ! {
+// clean removes temporary files and build artifacts from the site directory
+pub fn (mut site DocSite) clean(args ...ErrorArgs) ! {
 	toclean := '
 		/node_modules
 

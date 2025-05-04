@@ -14,6 +14,7 @@ pub mut:
 	path_build pathlib.Path
 	// path_publish pathlib.Path
 	args DocusaurusArgs
+	config Config // Stores configuration from HeroScript if provided
 }
 
 @[params]
@@ -23,6 +24,8 @@ pub mut:
 	build_path string
 	production bool
 	update     bool
+	heroscript string
+	heroscript_path string
 }
 
 pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
@@ -32,11 +35,22 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 	}
 	// if args.publish_path == ""{
 	// 	args.publish_path = "${os.home_dir()}/hero/var/docusaurus/publish"
-	// }	
+	// }
+	
+	// Create the factory instance
 	mut ds := &DocusaurusFactory{
 		args:       args_
 		path_build: pathlib.get_dir(path: args.build_path, create: true)!
 		// path_publish: pathlib.get_dir(path: args_.publish_path, create: true)!
+	}
+
+	// Process HeroScript if provided
+	if args.heroscript != '' || args.heroscript_path != '' {
+		// Use the play function to process the HeroScript
+		ds.config = play(
+			heroscript: args.heroscript
+			heroscript_path: args.heroscript_path
+		)!
 	}
 
 	ds.template_install(install: true, template_update: args.update, delete: true)!

@@ -199,10 +199,10 @@ fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport) ! {
 	if !args.visible {
 		myfm.args['draft'] = 'true'
 	}
-	println(myfm)
-	println(mymd.markdown()!)
+	// println(myfm)
+	// println(mymd.markdown()!)
 	mydesto.write(mymd.markdown()!)!
-	exit(0)
+	// Note: exit(0) was removed to prevent unexpected program termination
 }
 
 fn (mut site DocSite) template_install() ! {

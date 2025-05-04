@@ -1,18 +1,41 @@
 module docusaurus
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
+import time
+import os
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-	heroscript string // if filled in then playbook will be made out of it
-	plbook     ?PlayBook
-	reset      bool
+	heroscript     string // if filled in then playbook will be made out of it
+	heroscript_path string // path to a file containing heroscript
+	plbook         ?PlayBook
+	reset          bool
 }
 
 // Process the heroscript and return a filled Config object
-pub fn play(args_ PlayArgs) ! {
-	mut plbook := playbook.new(text: args_.heroscript)!
+pub fn play(args_ PlayArgs) !Config {
+	mut heroscript_text := args_.heroscript
+	
+	// If heroscript_path is provided, read the script from the file
+	if args_.heroscript_path != '' && heroscript_text == '' {
+		heroscript_text = os.read_file(args_.heroscript_path) or {
+			return error('Failed to read heroscript from ${args_.heroscript_path}: ${err}')
+		}
+	}
+	
+	// If no heroscript is provided, return an empty config
+	if heroscript_text == '' && args_.plbook == none {
+	    return Config{}
+	}
+	
+	// Create playbook from the heroscript text
+	mut plbook := if pb := args_.plbook {
+		pb
+	} else {
+		playbook.new(text: heroscript_text)!
+	}
+	
 	mut config := Config{}
 
 	play_config(mut plbook, mut config)!
@@ -22,20 +45,27 @@ pub fn play(args_ PlayArgs) ! {
 	play_build_dest(mut plbook, mut config)!
 	play_navbar(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
+	
+	return config
 }
 
 fn play_config(mut plbook PlayBook, mut config Config) ! {
 	config_actions := plbook.find(filter: 'docusaurus.config')!
 	for action in config_actions {
 		mut p := action.params
+		// Get optional name parameter or use base_url as fallback
+		name := p.get_default('name', 'docusaurus-site')!
+		
 		config.main = Main{
-			title:    p.get_default('title', 'Internet Geek')!
-			tagline:  p.get_default('tagline', 'Internet Geek')!
-			favicon:  p.get_default('favicon', 'img/favicon.png')!
-			url:      p.get_default('url', 'https://friends.threefold.info')!
-			url_home: p.get_default('url_home', 'docs/')!
-			base_url: p.get_default('base_url', '/testsite/')!
-			image:    p.get_default('image', 'img/tf_graph.png')!
+			name:      name
+			title:     p.get_default('title', 'Documentation Site')!
+			tagline:   p.get_default('tagline', 'Your awesome documentation')!
+			favicon:   p.get_default('favicon', 'img/favicon.png')!
+			url:       p.get_default('url', 'https://docs.example.com')!
+			url_home:  p.get_default('url_home', 'docs/')!
+			base_url:  p.get_default('base_url', '/')!
+			image:     p.get_default('image', 'img/hero.png')!
+			copyright: p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!
 		}
 	}
 }
@@ -45,9 +75,9 @@ fn play_config_meta(mut plbook PlayBook, mut config Config) ! {
 	for action in meta_actions {
 		mut p := action.params
 		config.main.metadata = MainMetadata{
-			description: p.get_default('description', 'ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet.')!
-			image:       p.get_default('image', 'https://threefold.info/something/img/tf_graph.png')!
-			title:       p.get_default('title', 'ThreeFold Technology Vision')!
+			description: p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
+			image:       p.get_default('image', 'https://docs.example.com/img/social-card.png')!
+			title:       p.get_default('title', 'Documentation | ' + config.main.title)!
 		}
 	}
 }
@@ -108,15 +138,15 @@ fn play_navbar(mut plbook PlayBook, mut config Config) ! {
 	navbar_actions := plbook.find(filter: 'docusaurus.navbar')!
 	for action in navbar_actions {
 		mut p := action.params
-		config.navbar.title = p.get_default('title', 'Chief Executive Geek')!
+		config.navbar.title = p.get_default('title', config.main.title)!
 	}
 
 	navbar_item_actions := plbook.find(filter: 'docusaurus.navbar_item')!
 	for action in navbar_item_actions {
 		mut p := action.params
 		mut item := NavbarItem{
-			label:    p.get_default('label', 'ThreeFold Technology')!
-			href:     p.get_default('href', 'https://threefold.info/tech')!
+			label:    p.get_default('label', 'Documentation')!
+			href:     p.get_default('href', '/docs')!
 			position: p.get_default('position', 'right')!
 		}
 		config.navbar.items << item
