@@ -6,6 +6,7 @@ import freeflowuniverse.herolib.core.pathlib
 // import freeflowuniverse.herolib.ui.console
 // import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.develop.gittools
+import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct DocusaurusFactory {
@@ -44,12 +45,25 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 		// path_publish: pathlib.get_dir(path: args_.publish_path, create: true)!
 	}
 
-	// Process HeroScript if provided
-	if args.heroscript != '' || args.heroscript_path != '' {
-		// Use the play function to process the HeroScript
+	// Process HeroScript
+	mut heroscript_text := args.heroscript
+	mut heroscript_path := args.heroscript_path
+	
+	// If no heroscript is explicitly provided, check current directory
+	if heroscript_text == '' && heroscript_path == '' {
+		// First check if there's a .heroscript file in the current directory
+		current_dir := os.getwd()
+		cfg_dir := os.join_path(current_dir, 'cfg')		
+		if os.exists(cfg_dir) {
+			heroscript_path = cfg_dir
+		}
+	}
+	
+	// Process any HeroScript that was found
+	if heroscript_text != '' || heroscript_path != '' {
 		ds.config = play(
-			heroscript: args.heroscript
-			heroscript_path: args.heroscript_path
+			heroscript: heroscript_text
+			heroscript_path: heroscript_path
 		)!
 	}
 
