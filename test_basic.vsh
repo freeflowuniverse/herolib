@@ -186,7 +186,7 @@ clients/qdrant
 data/radixtree
 data/dedupestor
 core/playcmds
-
+tst/
 '
 
 if in_github_actions() {
