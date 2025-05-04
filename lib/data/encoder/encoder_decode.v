@@ -4,6 +4,7 @@ import encoding.binary as bin
 import freeflowuniverse.herolib.data.ourtime
 import time
 import freeflowuniverse.herolib.data.gid
+import freeflowuniverse.herolib.data.currency
 
 pub struct Decoder {
 pub mut:
@@ -145,6 +146,18 @@ pub fn (mut d Decoder) get_time() !time.Time {
 pub fn (mut d Decoder) get_ourtime() !ourtime.OurTime {
 	return ourtime.OurTime{
 		unixt: d.get_u32()!
+	}
+}
+
+pub fn (mut d Decoder) get_currency() !currency.Amount {
+	curstring:=d.get_string()!
+	if curstring.len == 0 {
+		return error('currency string is empty')
+	}
+	currencyo := currency.get(curstring)!
+	return currency.Amount{
+		currency: currencyo
+		val: d.get_f64()!
 	}
 }
 
