@@ -3,11 +3,11 @@ module rhai
 import log
 import freeflowuniverse.herolib.ai.escalayer
 
-pub struct WrapperGenerator {
-pub:
-	function string
-	structs  []string
-}
+// pub struct WrapperGenerator {
+// pub:
+// 	function string
+// 	structs  []string
+// }
 
 // generate_rhai_function_wrapper generates a Rhai wrapper function for a given Rust function.
 //
