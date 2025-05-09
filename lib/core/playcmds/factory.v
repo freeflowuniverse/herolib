@@ -22,7 +22,7 @@ pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 	play_core(mut plbook)!
 	play_ssh(mut plbook)!
 	play_git(mut plbook)!
-	play_publisher(mut plbook)!
+	// play_publisher(mut plbook)!
 	// play_zola(mut plbook)!
 	// play_caddy(mut plbook)!
 	// play_juggler(mut plbook)!

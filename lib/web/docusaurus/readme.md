@@ -243,14 +243,3 @@ Sites can be deployed to remote servers via SSH by configuring the deployment de
     path:"/var/www/docs"
 ```
 
-### Content Import
-
-You can import content from Git repositories by configuring import sources in your HeroScript:
-
-```
-!!docusaurus.import_source
-    url:"https://github.com/example/external-docs"
-    dest:"external"
-    replace:"PROJECT_NAME:My Project, VERSION:1.0.0"
-```
-
