@@ -58,6 +58,13 @@ pub fn (mut s DocSite) build_publish() ! {
 	)!
 }
 
+pub fn (mut s DocSite) open() ! {
+	// Print instructions for user
+	console.print_item('open browser: ${s.url}')
+	osal.exec(cmd: 'open https://localhost:3000')!
+}
+
+
 pub fn (mut s DocSite) dev() ! {
 	s.clean()!
 	s.generate()!
@@ -76,8 +83,9 @@ pub fn (mut s DocSite) dev() ! {
 	)!
 
 	// Send commands to the screen session
+	console.print_item('To view the server output:: cd ${s.path_build.path}')
 	scr.cmd_send('cd ${s.path_build.path}')!
-	scr.cmd_send('bash develop.sh')!
+	scr.cmd_send('bun start')!
 
 	// Print instructions for user
 	console.print_header(' Docusaurus Development Server')
@@ -97,6 +105,10 @@ pub fn (mut s DocSite) dev() ! {
 	// mut tf:=spawn watch_docs(docs_path, s.path_src.path, s.path_build.path)
 	// tf.wait()!
 	println('\n')
+
+	if s.args.open {
+		s.open()!
+	}
 
 	if s.args.watch_changes {
 		docs_path := '${s.path_src.path}/docs'
@@ -208,7 +220,7 @@ fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport) ! {
 fn (mut site DocSite) template_install() ! {
 	mut gs := gittools.new()!
 
-	site.factory.template_install(template_update: false, install: false, delete: false)!
+	site.factory.template_install(template_update: false, install: true, delete: false)!
 
 	cfg := site.config
 

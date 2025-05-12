@@ -11,7 +11,7 @@ import time
 @[params]
 struct TemplateInstallArgs {
 	template_update bool = true
-	install         bool
+	install         bool = true
 	delete          bool = true
 }
 

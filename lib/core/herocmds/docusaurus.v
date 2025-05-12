@@ -1,10 +1,11 @@
 module herocmds
 
 import freeflowuniverse.herolib.web.docusaurus
+import freeflowuniverse.herolib.core.pathlib
 import os
 import cli { Command, Flag }
 
-pub fn cmd_docusaurus(mut cmdroot Command) {
+pub fn cmd_docusaurus(mut cmdroot Command) Command {
 	mut cmd_run := Command{
 		name:          'docusaurus'
 		description:   'Generate, build, run docusaurus sites.'
@@ -35,7 +36,16 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 		name:     'path'
 		abbrev:   'p'
 		// default: ''
-		description: 'Path where docusaurus source is.'
+		description: 'Path where docusaurus configuration is.'
+	})
+
+	cmd_run.add_flag(Flag{
+		flag:     .string
+		required: false
+		name:     'buildpath'
+		abbrev:   'b'
+		// default: ''
+		description: 'Path where docusaurus build is.'
 	})
 
 	cmd_run.add_flag(Flag{
@@ -74,6 +84,14 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 	cmd_run.add_flag(Flag{
 		flag:        .bool
 		required:    false
+		name:        'open'
+		abbrev:      'o'
+		description: 'open the site in browser.'
+	})
+
+	cmd_run.add_flag(Flag{
+		flag:        .bool
+		required:    false
 		name:        'update'
 		description: 'update your environment the template and the repo you are working on (git pull).'
 	})
@@ -95,35 +113,89 @@ pub fn cmd_docusaurus(mut cmdroot Command) {
 	})
 
 	cmdroot.add_command(cmd_run)
+	return cmdroot
 }
 
 fn cmd_docusaurus_execute(cmd Command) ! {
 	mut update := cmd.flags.get_bool('update') or { false }
 	mut init := cmd.flags.get_bool('new') or { false }
+	mut open := cmd.flags.get_bool('open') or { false }
 	mut url := cmd.flags.get_string('url') or { '' }
 	mut publish_path := cmd.flags.get_string('publish') or { '' }
 	mut deploykey := cmd.flags.get_string('deploykey') or { '' }
 
-	mut path := cmd.flags.get_string('path') or { '' }
+
+
+	// --- Build Path Logic ---
+	mut build_path := cmd.flags.get_string('buildpath') or { '' }
+	if build_path == '' {
+		// Default build path if not provided (e.g., use CWD or a specific temp dir)
+		// Using CWD for now based on previous edits, adjust if needed
+		build_path = os.getwd()
+	}
+
+	// --- Start: Heroscript Path Logic ---
+	mut provided_path := cmd.flags.get_string('path') or { '' }
+	mut heroscript_source_path := ''
+	build_cfg_dir := os.join_path(build_path, 'cfg')
+	target_heroscript_path := os.join_path(build_cfg_dir, 'config.heroscript')
+
+	if provided_path != '' {
+		if !os.exists(provided_path) || !os.is_file(provided_path) {
+			return error('Provided path "${provided_path}" does not exist or is not a file.')
+		}
+		heroscript_source_path = provided_path
+		// --- Copy Heroscript to Build Location ---
+		os.mkdir_all(build_cfg_dir)!
+		os.cp(heroscript_source_path, target_heroscript_path)!
+	} else {
+		// Path not provided, look in ./cfg/
+		mut cwd := os.getwd()
+		cfg_dir := os.join_path(cwd, 'cfg')
+		if !os.exists(cfg_dir) || !os.is_dir(cfg_dir) {
+			return error('Flag -path not provided and directory "./cfg" not found in the current working directory.')
+		}
+		mut found_files := []string
+		for file in os.ls(cfg_dir) or { []string{} } {
+			if file.ends_with('.heroscript') {
+				found_files << os.join_path(cfg_dir, file)
+			}
+		}
+		if found_files.len == 1 {
+			heroscript_source_path = found_files[0]
+			os.mkdir_all(build_cfg_dir)!
+			os.mv(heroscript_source_path, target_heroscript_path)!
+		} else if found_files.len == 0 {
+			return error('Flag -path not provided and no *.heroscript file found in "./cfg".')
+		} else {
+			return error('Flag -path not provided and multiple *.heroscript files found in "./cfg". Please specify one using -path.')
+		}
+	}
+
+	
+	// --- End: Heroscript Path Logic ---
 
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
-	// if build== false && build== false && build== false {
-	// 	eprintln("specify build, builddev or dev")
-	// 	exit(1)
-	// }
+	mut docs := docusaurus.new(
+		update: update
+		build_path: build_path
+		heroscript: os.read_file(target_heroscript_path)! // Read the copied heroscript
+	)!
 
-	mut docs := docusaurus.new(update: update)!
 	mut site := docs.get(
 		url:          url
-		path:         path
+		path:         build_path
 		update:       update
 		publish_path: publish_path
 		deploykey:    deploykey
 		init:         init
+		open: open
 	)!
+
+	site.generate()!
 
 	if publish_path.len > 0 {
 		site.build()!
@@ -139,5 +211,9 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	if dev {
 		site.dev()!
+	}
+
+	if open {
+		site.open()!
 	}
 }

@@ -18,6 +18,7 @@ pub mut:
 	production    bool
 	watch_changes bool = true
 	update        bool
+	open          bool
 	init          bool // means create new one if needed
 	deploykey     string
 	config        ?Config
