@@ -70,7 +70,6 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 			}
 		}
 	}
-
 	if !os.exists('${args.path}/docs') {
 		if args.init {
 			// Create docs directory if it doesn't exist in template or site

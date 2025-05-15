@@ -35,6 +35,7 @@ fn (mut self DocusaurusFactory) template_install(args TemplateInstallArgs) ! {
 	self.generate_tsconfig_json()!
 	self.generate_sidebars_ts()!
 	self.generate_docusaurus_config_ts()!
+	self.generate_gitignore()!
 
 	if args.install {
 		// install bun
@@ -56,6 +57,15 @@ fn (mut self DocusaurusFactory) template_install(args TemplateInstallArgs) ! {
 		mut aa := template_path.dir_get('docs')!
 		aa.delete()!
 	}
+}
+
+fn (mut self DocusaurusFactory) generate_gitignore() ! {
+	mut gitignore := pathlib.get_file(
+		path:   os.join_path(self.path_build.path, '.gitignore')
+		create: true
+	)!
+	content := $tmpl('templates/.gitignore')
+	gitignore.write(content)!
 }
 
 // Generate package.json based on the configuration

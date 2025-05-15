@@ -1,0 +1,14 @@
+build_dev_publish.sh
+build_publish.sh
+build.sh
+develop.sh
+node_modules
+static
+src
+package.json
+package-lock.json
+cfg/footer.json
+cfg/main.json
+cfg/navbar.json
+cfg/sidebar.json
+cfg/ssh.json
