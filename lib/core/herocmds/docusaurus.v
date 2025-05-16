@@ -131,7 +131,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	if build_path == '' {
 		// Default build path if not provided (e.g., use CWD or a specific temp dir)
 		// Using CWD for now based on previous edits, adjust if needed
-		build_path = os.getwd()
+		build_path = '${os.home_dir()}/hero/var/docusaurus'
 	}
 
 	// --- Start: Heroscript Path Logic ---
@@ -164,7 +164,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		if found_files.len == 1 {
 			heroscript_source_path = found_files[0]
 			os.mkdir_all(build_cfg_dir)!
-			os.mv(heroscript_source_path, target_heroscript_path)!
+			os.cp(heroscript_source_path, target_heroscript_path)!
 		} else if found_files.len == 0 {
 			return error('Flag -path not provided and no *.heroscript file found in "./cfg".')
 		} else {
@@ -174,7 +174,6 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	
 	// --- End: Heroscript Path Logic ---
-
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
@@ -187,12 +186,12 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	mut site := docs.get(
 		url:          url
-		path:         build_path
+		build_path:         build_path
 		update:       update
 		publish_path: publish_path
 		deploykey:    deploykey
 		init:         init
-		open: open
+		open: 		  open
 	)!
 
 	site.generate()!

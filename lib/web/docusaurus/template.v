@@ -297,10 +297,6 @@ const config: Config = {
 	   image: 'img/docusaurus-social-card.jpg',
 	   navbar: {
 	     title: '${self.config.navbar.title}',
-	     logo: {
-	       alt: 'Logo',
-	       src: 'img/logo.svg',
-	     },
 	     items: [
 	       ${navbar_items_str}
 	     ],
