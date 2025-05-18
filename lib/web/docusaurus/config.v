@@ -112,7 +112,6 @@ pub mut:
 	build_dest     []string @[json: 'buildDest']
 	build_dest_dev []string @[json: 'buildDestDev']
 	copyright      string = 'someone'
-	to_import      []MyImport @[json: 'import']
 }
 
 // Footer config structures
@@ -143,13 +142,6 @@ pub mut:
 	title       string = 'Docusaurus'
 }
 
-pub struct MyImport {
-pub mut:
-	url     string
-	dest    string
-	visible bool
-	replace map[string]string
-}
 
 // Navbar config structures
 pub struct NavbarItem {
@@ -187,6 +179,7 @@ pub mut:
 	path    string
 	dest    string            // location in the docs folder of the place where we will build docusaurus
 	replace map[string]string // will replace ${NAME} in the imported content
+	visible bool
 }
 
 // Export config as JSON files (main.json, navbar.json, footer.json)

@@ -173,7 +173,7 @@ pub fn (mut site DocSite) generate() ! {
 
 	mut gs := gittools.new()!
 
-	for item in site.config.main.to_import {
+	for item in site.config.import_sources {
 		mypath := gs.get_path(
 			pull:  false
 			reset: false
@@ -184,7 +184,7 @@ pub fn (mut site DocSite) generate() ! {
 	}
 }
 
-fn (mut site DocSite) process_md(mut path pathlib.Path, args MyImport) ! {
+fn (mut site DocSite) process_md(mut path pathlib.Path, args ImportSource) ! {
 	if path.is_dir() {
 		mut pathlist_images := path.list(
 			regex:     [r'.*\.png$', r'.*\.jpg$', r'.*\.svg$', r'.*\.jpeg$']
