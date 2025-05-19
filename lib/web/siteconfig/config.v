@@ -1,5 +1,4 @@
-module site
-
+module siteconfig
 // Combined config structure
 pub struct SiteConfig {
 pub mut:

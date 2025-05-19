@@ -1,4 +1,4 @@
-module site
+module siteconfig
 import os
 
 fn test_play_collections() ! {

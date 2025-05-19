@@ -44,7 +44,8 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 			mut paths := ol0.paths.clone()
 			mut ol1 := p.list(recursive: true, regex: [r'.*\.hero$'])!
 			paths << ol1.paths
-
+			mut ol2 := p.list(recursive: true, regex: [r'.*\.heroscript$'])!
+			paths << ol2.paths
 			for mut p2 in paths {
 				c2 := p2.read()!
 				plbook.add(text: c2, prio: args.prio, session: args_.session)!

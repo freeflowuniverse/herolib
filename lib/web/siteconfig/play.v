@@ -1,4 +1,4 @@
-module site
+module siteconfig
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.core.texttools
@@ -21,13 +21,12 @@ pub fn play(args_ PlayArgs) ! {
 	mut config:= SiteConfig{}
 	
 	play_config(mut plbook, mut config)!
-	set(config)
-	
 	play_collections(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
 	play_pages(mut plbook, mut config)!
-
+	set(config)
+	siteconfigs_current = config.name
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
@@ -54,6 +53,7 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 
 fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
 	import_actions := plbook.find(filter: 'site.collections')!
+	// println('import_actions: ${import_actions}')
 	for action in import_actions {
 		mut p := action.params
 		mut replace_map := map[string]string{}
@@ -132,6 +132,7 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 
 fn play_pages(mut plbook PlayBook, mut config SiteConfig) ! {
 	page_actions := plbook.find(filter: 'site.page')!
+	// println('page_actions: ${page_actions}')
 	for action in page_actions {
 		mut p := action.params
 		

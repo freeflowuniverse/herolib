@@ -2,7 +2,7 @@ module openai
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.ui.console
+// import freeflowuniverse.herolib.ui.console
 
 __global (
 	openai_global  map[string]&OpenAI
