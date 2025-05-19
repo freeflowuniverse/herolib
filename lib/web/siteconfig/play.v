@@ -10,19 +10,18 @@ import json
 pub struct PlayArgs {
 pub mut:
 	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
+	plbook     ?PlayBook
 	reset      bool
 }
 
 pub fn play(args_ PlayArgs) ! {
-
 	mut context := base.context()!
 	mut redis := context.redis()!
 
 	mut args := args_
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
-	mut config:= SiteConfig{}
+	mut config := SiteConfig{}
 
 	play_config(mut plbook, mut config)!
 	play_collections(mut plbook, mut config)!
@@ -33,7 +32,6 @@ pub fn play(args_ PlayArgs) ! {
 	json_config := json.encode(config)
 	redis.hset('siteconfigs', config.name, json_config)!
 	redis.set('siteconfigs:current', config.name)!
-
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
@@ -54,7 +52,8 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
 		config.favicon = p.get_default('favicon', 'img/favicon.png')!
 		config.image = p.get_default('image', 'img/tf_graph.png')!
-		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!		
+		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() +
+			' Example Organization')!
 	}
 }
 
@@ -96,7 +95,8 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 		mut p := action.params
 		mut item := MenuItem{
 			label:    p.get_default('label', 'Documentation')!
-			href:     p.get_default('href', '/docs')!
+			href:     p.get_default('href', '')!
+			to:       p.get_default('to', '')!
 			position: p.get_default('position', 'right')!
 		}
 		config.menu.items << item
@@ -118,8 +118,8 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 		title := p.get_default('title', 'Docs')!
 		mut item := FooterItem{
 			label: p.get_default('label', 'Introduction')!
-			to:    p.get_default('to', '/docs')!
 			href:  p.get_default('href', '')!
+			to:    p.get_default('to', '')!
 		}
 
 		if title !in links_map {
@@ -142,16 +142,16 @@ fn play_pages(mut plbook PlayBook, mut config SiteConfig) ! {
 	// println('page_actions: ${page_actions}')
 	for action in page_actions {
 		mut p := action.params
-		
+
 		mut page := Page{
-			name: p.get('name')!
-			title: p.get_default('title', '')!
+			name:        p.get('name')!
+			title:       p.get_default('title', '')!
 			description: p.get_default('description', '')!
-			content: p.get_default('content', '')!
-			src: p.get_default('src', '')!
-			draft: p.get_default_false('draft')
-			folder: p.get_default('folder', '')!
-			prio: p.get_int_default('prio', 0)!
+			content:     p.get_default('content', '')!
+			src:         p.get_default('src', '')!
+			draft:       p.get_default_false('draft')
+			folder:      p.get_default('folder', '')!
+			prio:        p.get_int_default('prio', 0)!
 		}
 
 		config.pages << page

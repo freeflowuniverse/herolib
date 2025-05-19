@@ -52,6 +52,7 @@ pub mut:
 pub struct MenuItem {
 pub mut:
 	href     string
+	to 	 string
 	label    string
 	position string
 }

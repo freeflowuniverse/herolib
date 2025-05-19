@@ -2,6 +2,11 @@
 
 The `lib/web/site/` directory contains the Vlang code responsible for generating and managing a documentation website all the config elements are specified in heroscript
 
+The result is in redis on the DB as used in the context on
+
+- hset: siteconfigs:$name as json
+- set: siteconfigs:current is the name of the last one we processed
+
 ## config heroscript
 
 ```yaml
@@ -79,7 +84,7 @@ The `lib/web/site/` directory contains the Vlang code responsible for generating
 !!site.page name:intro 
     description:"ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet."
 
-//next is example where we use all properties, folder is where the page is located, prio is the order of the page, if not used the filled in from order in which we parse this config file
+#next is example where we use all properties, folder is where the page is located, prio is the order of the page, if not used the filled in from order in which we parse this config file
 !!site.page name:mycelium draft:true folder:"/specs/components" prio:4
     content:"the page content itself, only for small pages"
     title:"Mycelium as Title"
@@ -101,7 +106,7 @@ The `lib/web/site/` directory contains the Vlang code responsible for generating
 
 ```v
 import freeflowuniverse.herolib.web.site
-siteconfig := site.new(path:"/tmp/mypath")!
+siteconfig := site.new("/tmp/mypath")!
 
 ```
 
@@ -117,8 +122,184 @@ import freeflowuniverse.herolib.web.site
 // git_branch string
 // git_reset bool
 // session  ?&base.Session      is optional
-mut plbook := playbook.new(path: "....")!
+mut plbook := playbook.new( "....")!
 
 site.play(plbook:plbook)!
 
+```
+
+## example json
+
+```json
+{
+    "name": "depin",
+    "title": "Documentation Site",
+    "description": "ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet.",
+    "tagline": "Geo Aware Internet Platform",
+    "favicon": "img/favicon.png",
+    "image": "img/tf_graph.png",
+    "copyright": "ThreeFold",
+    "footer": {
+        "style": "dark",
+        "links": [
+            {
+                "title": "Docs",
+                "items": [
+                    {
+                        "label": "Introduction",
+                        "to": "intro",
+                        "href": ""
+                    },
+                    {
+                        "label": "Litepaper",
+                        "to": "",
+                        "href": "https://docs.threefold.io/docs/litepaper/"
+                    },
+                    {
+                        "label": "Roadmap",
+                        "to": "",
+                        "href": "https://docs.threefold.io/docs/roadmap"
+                    },
+                    {
+                        "label": "Manual",
+                        "to": "",
+                        "href": "https://manual.grid.tf/"
+                    }
+                ]
+            },
+            {
+                "title": "Features",
+                "items": [
+                    {
+                        "label": "Become a Farmer",
+                        "to": "",
+                        "href": "https://docs.threefold.io/docs/category/become-a-farmer"
+                    },
+                    {
+                        "label": "Components",
+                        "to": "",
+                        "href": "https://docs.threefold.io/docs/category/components"
+                    },
+                    {
+                        "label": "Technology",
+                        "to": "",
+                        "href": "https://threefold.info/tech/"
+                    },
+                    {
+                        "label": "Tokenomics",
+                        "to": "",
+                        "href": "https://docs.threefold.io/docs/tokens/tokenomics"
+                    }
+                ]
+            },
+            {
+                "title": "Web",
+                "items": [
+                    {
+                        "label": "ThreeFold.io",
+                        "to": "",
+                        "href": "https://threefold.io"
+                    },
+                    {
+                        "label": "Dashboard",
+                        "to": "",
+                        "href": "https://dashboard.grid.tf"
+                    },
+                    {
+                        "label": "GitHub",
+                        "to": "",
+                        "href": "https://github.com/threefoldtech/home"
+                    },
+                    {
+                        "label": "Mycelium Network",
+                        "to": "",
+                        "href": "https://mycelium.threefold.io/"
+                    },
+                    {
+                        "label": "AI Box",
+                        "to": "",
+                        "href": "https://www2.aibox.threefold.io/"
+                    }
+                ]
+            }
+        ]
+    },
+    "menu": {
+        "title": "ThreeFold DePIN Tech",
+        "items": [
+            {
+                "href": "https://threefold.io",
+                "to": "",
+                "label": "ThreeFold.io",
+                "position": "right"
+            },
+            {
+                "href": "https://mycelium.threefold.io/",
+                "to": "",
+                "label": "Mycelium Network",
+                "position": "right"
+            },
+            {
+                "href": "https://aibox.threefold.io/",
+                "to": "",
+                "label": "AI Box",
+                "position": "right"
+            }
+        ]
+    },
+    "import_collections": [
+        {
+            "url": "https://github.com/example/external-docs",
+            "path": "",
+            "dest": "",
+            "replace": {
+                "PROJECT_NAME": "My Project",
+                "VERSION": "1.0.0"
+            },
+            "visible": false
+        }
+    ],
+    "pages": [
+        {
+            "name": "intro",
+            "content": "",
+            "title": "",
+            "description": "ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet.",
+            "draft": false,
+            "folder": "",
+            "prio": 0,
+            "src": ""
+        },
+        {
+            "name": "mycelium",
+            "content": "the page content itself, only for small pages",
+            "title": "Mycelium as Title",
+            "description": "...",
+            "draft": true,
+            "folder": "/specs/components",
+            "prio": 4,
+            "src": ""
+        },
+        {
+            "name": "fungistor",
+            "content": "",
+            "title": "fungistor as Title",
+            "description": "....",
+            "draft": false,
+            "folder": "/specs/components",
+            "prio": 1,
+            "src": "mycollection:mycelium.md"
+        },
+        {
+            "name": "fungistor",
+            "content": "",
+            "title": "fungistor as Title",
+            "description": "...",
+            "draft": false,
+            "folder": "/specs/components",
+            "prio": 1,
+            "src": "mycollection:mycelium"
+        }
+    ]
+}
 ```

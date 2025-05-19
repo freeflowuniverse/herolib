@@ -33,7 +33,7 @@
 !!site.footer_item
     title:"Docs"
     label:"Introduction"
-    href:"https://docs.threefold.io/docs/introduction"
+    to:"intro"
 
 !!site.footer_item
     title:"Docs"
