@@ -36,7 +36,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 		}
 		if p.is_file() {
 			c := p.read()!
-			plbook.add(text: c, prio: args.prio, session: args_.session)!
+			plbook.add(text: c, prio: args.prio)!
 			return
 		} else if p.is_dir() {
 			// get .md and .hero files from dir
@@ -48,7 +48,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 			paths << ol2.paths
 			for mut p2 in paths {
 				c2 := p2.read()!
-				plbook.add(text: c2, prio: args.prio, session: args_.session)!
+				plbook.add(text: c2, prio: args.prio)!
 			}
 			return
 		}

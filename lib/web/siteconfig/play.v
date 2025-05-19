@@ -2,8 +2,9 @@ module siteconfig
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.core.base
 import time
-
+import json
 
 @[params]
 pub struct PlayArgs {
@@ -15,18 +16,24 @@ pub mut:
 
 pub fn play(args_ PlayArgs) ! {
 
+	mut context := base.context()!
+	mut redis := context.redis()!
+
 	mut args := args_
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut config:= SiteConfig{}
-	
+
 	play_config(mut plbook, mut config)!
 	play_collections(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
 	play_pages(mut plbook, mut config)!
-	set(config)
-	siteconfigs_current = config.name
+
+	json_config := json.encode(config)
+	redis.hset('siteconfigs', config.name, json_config)!
+	redis.set('siteconfigs:current', config.name)!
+
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {

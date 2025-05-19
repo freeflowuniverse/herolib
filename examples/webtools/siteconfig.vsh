@@ -4,6 +4,6 @@ import freeflowuniverse.herolib.web.siteconfig
 import os
 mypath :='${os.dir(@FILE)}/siteconfigexample'
 
-mut sc:=siteconfig.new(path:mypath)!
+mut sc:=siteconfig.new(mypath)!
 
 println(sc)

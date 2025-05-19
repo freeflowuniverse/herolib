@@ -13,7 +13,7 @@ pub mut:
 	git_reset  bool
 	prio       int = 50
 	priorities map[int]string // filter and give priority, see filtersort method to know how to use
-	session    ?&base.Session
+	// session    ?&base.Session
 }
 
 // get a new playbook, can scan a directory or just add text
@@ -45,7 +45,6 @@ pub fn new(args_ PlayBookNewArgs) !PlayBook {
 			git_branch: args.git_branch
 			git_reset:  args.git_reset
 			prio:       args.prio
-			session:    args.session
 		)!
 	}
 
