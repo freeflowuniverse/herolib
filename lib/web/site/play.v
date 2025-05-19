@@ -1,6 +1,7 @@
 module site
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
+import freeflowuniverse.herolib.core.texttools
 import time
 
 
@@ -17,9 +18,11 @@ pub fn play(args_ PlayArgs) ! {
 	mut args := args_
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
-	mut config := Config{}
-
+	mut config:= SiteConfig{}
+	
 	play_config(mut plbook, mut config)!
+	set(config)
+	
 	play_collections(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
@@ -27,22 +30,29 @@ pub fn play(args_ PlayArgs) ! {
 
 }
 
-fn play_config(mut plbook PlayBook, mut config Config) ! {
+fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 	config_actions := plbook.find(filter: 'site.config')!
+	if config_actions.len == 0 {
+		return error('no config found')
+	}
+	if config_actions.len > 1 {
+		return error('multiple config found, not ok')
+	}
 	for action in config_actions {
 		mut p := action.params
 		// Get optional name parameter or use base_url as fallback
-		config.name = p.get_default('name', 'site')!
+		config.name = p.get('name')!
+		config.name = texttools.name_fix(config.name)
 		config.title = p.get_default('title', 'Documentation Site')!
 		config.description = p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
 		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
 		config.favicon = p.get_default('favicon', 'img/favicon.png')!
 		config.image = p.get_default('image', 'img/tf_graph.png')!
-		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!
+		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!		
 	}
 }
 
-fn play_collections(mut plbook PlayBook, mut config Config) ! {
+fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
 	import_actions := plbook.find(filter: 'site.collections')!
 	for action in import_actions {
 		mut p := action.params
@@ -67,7 +77,7 @@ fn play_collections(mut plbook PlayBook, mut config Config) ! {
 	}
 }
 
-fn play_menu(mut plbook PlayBook, mut config Config) ! {
+fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 	menu_actions := plbook.find(filter: 'site.menu')!
 	for action in menu_actions {
 		mut p := action.params
@@ -86,7 +96,7 @@ fn play_menu(mut plbook PlayBook, mut config Config) ! {
 	}
 }
 
-fn play_footer(mut plbook PlayBook, mut config Config) ! {
+fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 	footer_actions := plbook.find(filter: 'site.footer')!
 	for action in footer_actions {
 		mut p := action.params
@@ -120,7 +130,7 @@ fn play_footer(mut plbook PlayBook, mut config Config) ! {
 	}
 }
 
-fn play_pages(mut plbook PlayBook, mut config Config) ! {
+fn play_pages(mut plbook PlayBook, mut config SiteConfig) ! {
 	page_actions := plbook.find(filter: 'site.page')!
 	for action in page_actions {
 		mut p := action.params

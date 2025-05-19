@@ -1,7 +1,7 @@
 module site
 
 // Combined config structure
-pub struct Config {
+pub struct SiteConfig {
 pub mut:
 	name           string
 	title          string = 'My Documentation Site'
