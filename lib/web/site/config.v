@@ -1,8 +1,4 @@
-module docusaurus
-
-import freeflowuniverse.herolib.core.pathlib
-import json
-import os
+module site
 
 // Combined config structure
 pub struct Config {
@@ -14,11 +10,21 @@ pub mut:
 	favicon        string = 'img/favicon.png'
 	image          string = 'img/tf_graph.png'
 	copyright      string = 'someone'
-	footer             Footer
-	navbar             Navbar
-	import_sources     []ImportSource
+	footer         Footer
+	menu           Menu
+	import_collections     []CollectionsImport
+	pages		 []Page
 }
 
+pub struct Page {
+pub mut:
+	collection string
+	name       string
+	content    string
+	title      string
+	description string
+	draft	   bool
+}
 
 // Footer config structures
 pub struct FooterItem {
@@ -41,21 +47,21 @@ pub mut:
 }
 
 
-// Navbar config structures
-pub struct NavbarItem {
+// menu config structures
+pub struct MenuItem {
 pub mut:
 	href     string
 	label    string
 	position string
 }
 
-pub struct Navbar {
+pub struct Menu {
 pub mut:
 	title string
-	items []NavbarItem
+	items []MenuItem
 }
 
-pub struct ImportSource {
+pub struct CollectionsImport {
 pub mut:
 	url     string // http git url can be to specific path
 	path    string
