@@ -2,7 +2,6 @@ module site
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import time
-import os
 
 
 @[params]
@@ -24,6 +23,7 @@ pub fn play(args_ PlayArgs) ! {
 	play_collections(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
+	play_pages(mut plbook, mut config)!
 
 }
 
@@ -117,5 +117,25 @@ fn play_footer(mut plbook PlayBook, mut config Config) ! {
 			title: title
 			items: items
 		}
+	}
+}
+
+fn play_pages(mut plbook PlayBook, mut config Config) ! {
+	page_actions := plbook.find(filter: 'site.page')!
+	for action in page_actions {
+		mut p := action.params
+		
+		mut page := Page{
+			name: p.get('name')!
+			title: p.get_default('title', '')!
+			description: p.get_default('description', '')!
+			content: p.get_default('content', '')!
+			src: p.get_default('src', '')!
+			draft: p.get_default_false('draft')
+			folder: p.get_default('folder', '')!
+			prio: p.get_int_default('prio', 0)!
+		}
+
+		config.pages << page
 	}
 }

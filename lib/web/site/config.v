@@ -18,12 +18,14 @@ pub mut:
 
 pub struct Page {
 pub mut:
-	collection string
 	name       string
 	content    string
 	title      string
 	description string
 	draft	   bool
+	folder 	  string
+	prio	   int
+	src   string
 }
 
 // Footer config structures
