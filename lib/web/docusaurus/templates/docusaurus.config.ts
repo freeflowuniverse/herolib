@@ -1,22 +1,22 @@
 import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
-import type * as Preset from '@docusaurus/preset-classic';
+import type {Configuration} from '@@docusaurus/types';
+import type * as Preset from '@@docusaurus/preset-classic';
 
-const config: Config = {
-  title: '${title}',
-  tagline: '${tagline}',
-  favicon: '${favicon}',
+const config: Configuration = {
+  title: '@{config.main.title}',
+  tagline: '@{config.main.tagline}',
+  favicon: '@{config.main.favicon}',
 
   // Set the production url of your site here
-  url: '${url}',
+  url: '@{config.main.url}',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '${base_url}',
+  baseUrl: '@{config.main.base_url}',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'freeflowuniverse', // Usually your GitHub org/user name.
-  projectName: '${projectName}', // Usually your repo name.
+  projectName: '@{config.main.name}', // Usually your repo name.
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -44,42 +44,45 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+    colorMode: {
+      defaultMode: 'dark',
+    },
     navbar: {
-      title: '${navbarTitle}',
+      title: '@{config.navbar.title}',
       items: [
-        @for item in navbar_items {
+        @for item in config.navbar.items 
         {
-          label: '${item.label}',
-          href: '${item.href}',
-          position: '${item.position}'
+          label: '@{item.label}',
+          href: '@{item.href}',
+          position: '@{item.position}'
         },
-        }
+        @end
       ],
     },
     footer: {
-      style: '${footerStyle}',
+      style: '@{config.footer.style}',
       links: [
-        @for link_group in footer_links {
+        @for link_group in config.footer.links
         {
-          title: '${link_group.title}',
+          title: '@{link_group.title}',
           items: [
-            @for item in link_group.items {
+            @for item in link_group.items 
             {
-              label: '${item.label}',
-              @if item.href != '' {
-              href: '${item.href}'
-              } @else if item.to != '' {
-              to: '${item.to}'
-              } @else {
-              to: '/docs'
-              }
+              label: '@{item.label}',
+              @if item.href != ''
+                href: '@{item.href}'
+              @else if item.to != ''
+                to: '@{item.to}'
+              @else
+                to: '/docs'
+              @end
             },
-            }
+            @end
           ]
         },
-        }
+        @end
       ],
-      copyright: '${copyright}',
+      copyright: '@{config.main.copyright}',
     },
     prism: {
       theme: prismThemes.github,

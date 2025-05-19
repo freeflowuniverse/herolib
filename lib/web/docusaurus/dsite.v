@@ -21,7 +21,7 @@ pub mut:
 	// path_publish pathlib.Path
 	args    DSiteGetArgs
 	errors  []SiteError
-	config  Config
+	config  Configuration
 	factory &DocusaurusFactory @[skip; str: skip] // Reference to the parent
 }
 
@@ -66,7 +66,6 @@ pub fn (mut s DocSite) open() ! {
 
 
 pub fn (mut s DocSite) dev() ! {
-	s.clean()!
 	s.generate()!
 
 	// Create screen session for docusaurus development server
@@ -151,72 +150,6 @@ fn (mut site DocSite) check() ! {
 	}
 }
 
-pub fn (mut site DocSite) generate() ! {
-	console.print_header(' site generate: ${site.name} on ${site.path_build.path}')
-	console.print_header(' site source on ${site.path_src.path}')
-	site.check()!
-	site.template_install()!
-
-	// Now copy all directories that exist in src to build
-	for item in ['src', 'static', 'cfg'] {
-		if os.exists('${site.path_src.path}/${item}') {
-			mut aa := site.path_src.dir_get(item)!
-			aa.copy(dest: '${site.path_build.path}/${item}')!
-		}
-	}
-	for item in ['docs'] {
-		if os.exists('${site.path_src.path}/${item}') {
-			mut aa := site.path_src.dir_get(item)!
-			aa.copy(dest: '${site.path_build.path}/${item}', delete: true)!
-		}
-	}
-
-	mut gs := gittools.new()!
-
-	for item in site.config.import_sources {
-		mypath := gs.get_path(
-			pull:  false
-			reset: false
-			url:   item.url
-		)!
-		mut mypatho := pathlib.get(mypath)
-		site.process_md(mut mypatho, item)!
-	}
-}
-
-fn (mut site DocSite) process_md(mut path pathlib.Path, args ImportSource) ! {
-	if path.is_dir() {
-		mut pathlist_images := path.list(
-			regex:     [r'.*\.png$', r'.*\.jpg$', r'.*\.svg$', r'.*\.jpeg$']
-			recursive: true
-		)!
-		for mut mypatho_img in pathlist_images.paths {
-			// now copy the image to the dest
-			dest := '${site.path_build.path}/docs/${args.dest}/img/${texttools.name_fix(mypatho_img.name())}'
-			// println("image copy: ${dest}")
-			mypatho_img.copy(dest: dest, rsync: false)!
-		}
-
-		mut pathlist := path.list(regex: [r'.*\.md$'], recursive: true)!
-		for mut mypatho2 in pathlist.paths {
-			site.process_md(mut mypatho2, args)!
-		}
-		return
-	}
-	mydest := '${site.path_build.path}/docs/${args.dest}/${texttools.name_fix(path.name())}'
-	mut mydesto := pathlib.get_file(path: mydest, create: true)!
-
-	mut mymd := markdownparser.new(path: path.path)!
-	mut myfm := mymd.frontmatter2()!
-	if !args.visible {
-		myfm.args['draft'] = 'true'
-	}
-	// println(myfm)
-	// println(mymd.markdown()!)
-	mydesto.write(mymd.markdown()!)!
-	// Note: exit(0) was removed to prevent unexpected program termination
-}
-
 fn (mut site DocSite) template_install() ! {
 	mut gs := gittools.new()!
 
@@ -237,7 +170,7 @@ fn (mut site DocSite) template_install() ! {
 
 	develop := $tmpl('templates/develop.sh')
 	build := $tmpl('templates/build.sh')
-	build_dev_publish := $tmpl('templates/build_dev_publish.sh')
+	// build_dev_publish := $tmpl('templates/build_dev_publish.sh')
 	build_publish := $tmpl('templates/build_publish.sh')
 
 	mut develop_ := site.path_build.file_get_new('develop.sh')!
@@ -252,9 +185,10 @@ fn (mut site DocSite) template_install() ! {
 	build_publish_.template_write(build_publish, true)!
 	build_publish_.chmod(0o700)!
 
-	mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
-	build_dev_publish_.template_write(build_dev_publish, true)!
-	build_dev_publish_.chmod(0o700)!
+	// TODO: implement
+	// mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
+	// build_dev_publish_.template_write(build_dev_publish, true)!
+	// build_dev_publish_.chmod(0o700)!
 
 	develop_templ := $tmpl('templates/develop_src.sh')
 	mut develop2_ := site.path_src.file_get_new('develop.sh')!

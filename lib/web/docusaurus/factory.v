@@ -15,7 +15,7 @@ pub mut:
 	path_build pathlib.Path
 	// path_publish pathlib.Path
 	args   DocusaurusArgs
-	config Config // Stores configuration from HeroScript if provided
+	config Configuration // Stores configuration from HeroScript if provided
 }
 
 @[params]
