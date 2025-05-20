@@ -21,7 +21,7 @@ pub mut:
 	open          bool
 	init          bool // means create new one if needed
 	deploykey     string
-	config        ?Config
+	config        ?Configuration
 }
 
 pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
@@ -54,10 +54,10 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	// First, check if the new site args provides a configuration
 	if cfg := args.config {
 		// Use the provided config
-		cfg.write('${args.path}/cfg')!
+		generate_configuration(args.path, cfg)!
 	} else if f.config.main.title != '' {
 		// Use the factory's config from heroscript if available
-		f.config.write('${args.path}/cfg')!
+		generate_configuration(args.path, f.config)!
 	} else {
 		// Then ensure cfg directory exists in src,
 		if !os.exists('${args.path}/cfg') {
@@ -94,7 +94,7 @@ This is a default page created by the Docusaurus site generator.
 		}
 	}
 
-	mut myconfig := load_config('${args.path}/cfg')!
+	mut myconfig := load_configuration('${args.path}/cfg')!
 
 	if myconfig.main.name.len == 0 {
 		myconfig.main.name = myconfig.main.base_url.trim_space().trim('/').trim_space()

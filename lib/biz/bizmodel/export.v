@@ -71,7 +71,7 @@ pub fn (r Report) export(export Export) ! {
 				path:         export.path
 				publish_path: export.path
 				init:         true
-				config:       docusaurus.Config{
+				config:       docusaurus.Configuration{
 					navbar: docusaurus.Navbar{
 						title: 'Business Model'
 						items: [
