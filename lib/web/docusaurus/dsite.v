@@ -4,10 +4,9 @@ import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
-// import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.data.markdownparser
+import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.develop.gittools
-// import json
+import json
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 
@@ -19,11 +18,12 @@ pub mut:
 	path_src   pathlib.Path
 	path_build pathlib.Path
 	// path_publish pathlib.Path
-	args    DSiteGetArgs
-	errors  []SiteError
-	config  Config
+	args   DSiteGetArgs
+	errors []SiteError
+	config Config
 	factory &DocusaurusFactory @[skip; str: skip] // Reference to the parent
 }
+
 
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
@@ -47,7 +47,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	)!
 }
 
-pub fn (mut s DocSite) build_publish() ! {
+pub fn (mut s DocSite) build_publish()! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
@@ -58,14 +58,7 @@ pub fn (mut s DocSite) build_publish() ! {
 	)!
 }
 
-pub fn (mut s DocSite) open() ! {
-	// Print instructions for user
-	console.print_item('open browser: ${s.url}')
-	osal.exec(cmd: 'open https://localhost:3000')!
-}
-
-
-pub fn (mut s DocSite) dev() ! {
+pub fn (mut s DocSite) dev()! {
 	s.clean()!
 	s.generate()!
 
@@ -83,9 +76,8 @@ pub fn (mut s DocSite) dev() ! {
 	)!
 
 	// Send commands to the screen session
-	console.print_item('To view the server output:: cd ${s.path_build.path}')
 	scr.cmd_send('cd ${s.path_build.path}')!
-	scr.cmd_send('bun start')!
+	scr.cmd_send('bash develop.sh')!
 
 	// Print instructions for user
 	console.print_header(' Docusaurus Development Server')
@@ -106,14 +98,11 @@ pub fn (mut s DocSite) dev() ! {
 	// tf.wait()!
 	println('\n')
 
-	if s.args.open {
-		s.open()!
-	}
-
 	if s.args.watch_changes {
 		docs_path := '${s.path_src.path}/docs'
 		watch_docs(docs_path, s.path_src.path, s.path_build.path)!
 	}
+
 }
 
 @[params]
@@ -135,20 +124,21 @@ pub fn (mut site DocSite) error(args ErrorArgs) {
 	console.print_stderr(args.msg)
 }
 
-fn check_item(item string) ! {
-	item2 := item.trim_space().trim('/').trim_space().all_after_last('/')
-	if ['internal', 'infodev', 'info', 'dev', 'friends', 'dd', 'web'].contains(item2) {
-		return error('destination path is wrong, cannot be: ${item}')
+fn check_item(item string)!{
+	item2:=item.trim_space().trim("/").trim_space().all_after_last("/") 
+	if ["internal","infodev","info","dev","friends","dd","web"].contains(item2){
+		return error("destination path is wrong, cannot be: ${item}")
 	}
+
 }
 
 fn (mut site DocSite) check() ! {
-	for item in site.config.main.build_dest {
+	for item in site.config.main.build_dest{
 		check_item(item)!
 	}
-	for item in site.config.main.build_dest_dev {
+	for item in site.config.main.build_dest_dev{
 		check_item(item)!
-	}
+	}	
 }
 
 pub fn (mut site DocSite) generate() ! {
@@ -156,6 +146,13 @@ pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site source on ${site.path_src.path}')
 	site.check()!
 	site.template_install()!
+	// osal.exec(
+	// 	cmd: '	
+	// 		cd ${site.path_build.path}
+	// 		#Docusaurus build --dest-dir ${site.path_publish.path}
+	// 		'
+	// 	retry: 0
+	// )!
 
 	// Now copy all directories that exist in src to build
 	for item in ['src', 'static', 'cfg'] {
@@ -170,74 +167,31 @@ pub fn (mut site DocSite) generate() ! {
 			aa.copy(dest: '${site.path_build.path}/${item}', delete: true)!
 		}
 	}
-
-	mut gs := gittools.new()!
-
-	for item in site.config.import_sources {
-		mypath := gs.get_path(
-			pull:  false
-			reset: false
-			url:   item.url
-		)!
-		mut mypatho := pathlib.get(mypath)
-		site.process_md(mut mypatho, item)!
-	}
-}
-
-fn (mut site DocSite) process_md(mut path pathlib.Path, args ImportSource) ! {
-	if path.is_dir() {
-		mut pathlist_images := path.list(
-			regex:     [r'.*\.png$', r'.*\.jpg$', r'.*\.svg$', r'.*\.jpeg$']
-			recursive: true
-		)!
-		for mut mypatho_img in pathlist_images.paths {
-			// now copy the image to the dest
-			dest := '${site.path_build.path}/docs/${args.dest}/img/${texttools.name_fix(mypatho_img.name())}'
-			// println("image copy: ${dest}")
-			mypatho_img.copy(dest: dest, rsync: false)!
-		}
-
-		mut pathlist := path.list(regex: [r'.*\.md$'], recursive: true)!
-		for mut mypatho2 in pathlist.paths {
-			site.process_md(mut mypatho2, args)!
-		}
-		return
-	}
-	mydest := '${site.path_build.path}/docs/${args.dest}/${texttools.name_fix(path.name())}'
-	mut mydesto := pathlib.get_file(path: mydest, create: true)!
-
-	mut mymd := markdownparser.new(path: path.path)!
-	mut myfm := mymd.frontmatter2()!
-	if !args.visible {
-		myfm.args['draft'] = 'true'
-	}
-	// println(myfm)
-	// println(mymd.markdown()!)
-	mydesto.write(mymd.markdown()!)!
-	// Note: exit(0) was removed to prevent unexpected program termination
 }
 
 fn (mut site DocSite) template_install() ! {
 	mut gs := gittools.new()!
 
-	site.factory.template_install(template_update: false, install: true, delete: false)!
+	site.factory.template_install(template_update:false, install:false, delete:false)!
 
 	cfg := site.config
 
-	mut myhome := '\$\{HOME\}' // for usage in bash
+	mut myhome:="\$\{HOME\}" //for usage in bash
 
-	profile_include := osal.profile_path_source()!.replace(os.home_dir(), myhome)
+	profile_include := osal.profile_path_source()!.replace(os.home_dir(),myhome)
 
-	mydir := site.path_build.path.replace(os.home_dir(), myhome)
+	mydir:=site.path_build.path.replace(os.home_dir(),myhome)
 
 	for item in ['src', 'static'] {
-		mut aa := site.path_src.dir_get(item) or { continue }
-		aa.copy(dest: '${site.factory.path_build.path}/${item}', delete: false)!
+		mut aa := site.path_src.dir_get(item) or {continue}
+		aa.copy(dest: '${site.factory.path_build.path}/${item}', delete:false)!
+		
 	}
+	
 
 	develop := $tmpl('templates/develop.sh')
 	build := $tmpl('templates/build.sh')
-	// build_dev_publish := $tmpl('templates/build_dev_publish.sh')
+	build_dev_publish := $tmpl('templates/build_dev_publish.sh')
 	build_publish := $tmpl('templates/build_publish.sh')
 
 	mut develop_ := site.path_build.file_get_new('develop.sh')!
@@ -252,17 +206,16 @@ fn (mut site DocSite) template_install() ! {
 	build_publish_.template_write(build_publish, true)!
 	build_publish_.chmod(0o700)!
 
-	// mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
-	// build_dev_publish_.template_write(build_dev_publish, true)!
-	// build_dev_publish_.chmod(0o700)!
+	mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
+	build_dev_publish_.template_write(build_dev_publish, true)!
+	build_dev_publish_.chmod(0o700)!
 
-	develop_templ := $tmpl('templates/develop_src.sh')
 	mut develop2_ := site.path_src.file_get_new('develop.sh')!
-	develop2_.template_write(develop_templ, true)!
+	develop2_.template_write(develop, true)!
 	develop2_.chmod(0o700)!
 
-	build_templ := $tmpl('templates/build_src.sh')
 	mut build2_ := site.path_src.file_get_new('build.sh')!
-	build2_.template_write(build_templ, true)!
+	build2_.template_write(build, true)!
 	build2_.chmod(0o700)!
+
 }
