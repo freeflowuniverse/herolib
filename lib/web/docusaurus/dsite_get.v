@@ -18,9 +18,10 @@ pub mut:
 	production    bool
 	watch_changes bool = true
 	update        bool
+	open          bool
 	init          bool // means create new one if needed
 	deploykey     string
-	config        ?Config
+	config        ?Configuration
 }
 
 pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
@@ -50,9 +51,13 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	)!
 	mut template_path := r.patho()!
 
-	// First, check if the new site args provides a configuration that can be written instead of template cfg dir
+	// First, check if the new site args provides a configuration
 	if cfg := args.config {
-		cfg.write('${args.path}/cfg')!
+		// Use the provided config
+		generate_configuration(args.path, cfg)!
+	} else if f.config.main.title != '' {
+		// Use the factory's config from heroscript if available
+		generate_configuration(args.path, f.config)!
 	} else {
 		// Then ensure cfg directory exists in src,
 		if !os.exists('${args.path}/cfg') {
@@ -65,17 +70,31 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 			}
 		}
 	}
-
 	if !os.exists('${args.path}/docs') {
 		if args.init {
-			mut template_cfg := template_path.dir_get('docs')!
-			template_cfg.copy(dest: '${args.path}/docs')!
+			// Create docs directory if it doesn't exist in template or site
+			os.mkdir_all('${args.path}/docs')!
+
+			// Create a default docs/intro.md file
+			intro_content := '---
+title: Introduction
+slug: /
+sidebar_position: 1
+---
+
+# Introduction
+
+Welcome to the documentation site.
+
+This is a default page created by the Docusaurus site generator.
+'
+			os.write_file('${args.path}/docs/intro.md', intro_content)!
 		} else {
 			return error("Can't find docs dir in chosen docusaurus location: ${args.path}")
 		}
 	}
 
-	mut myconfig := load_config('${args.path}/cfg')!
+	mut myconfig := load_configuration('${args.path}/cfg')!
 
 	if myconfig.main.name.len == 0 {
 		myconfig.main.name = myconfig.main.base_url.trim_space().trim('/').trim_space()

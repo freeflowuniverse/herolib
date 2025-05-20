@@ -2,6 +2,7 @@
 
 The TextTools module provides a comprehensive set of utilities for text manipulation and processing in V. It includes functions for cleaning, parsing, formatting, and transforming text in various ways.
 
+## Features
 
 ### Array Operations
 - `to_array(r string) []string` - Converts a comma or newline separated list to an array of strings
@@ -36,12 +37,6 @@ The TextTools module provides a comprehensive set of utilities for text manipula
 - Handles comments, code blocks, and preserves formatting
 
 ### Name/Path Processing
-
-```v
-import freeflowuniverse.herolib.core.texttools
-texttools.name_fix(sometext)
-```
-
 - `name_fix(name string) string` - Normalizes filenames and paths
 - `name_fix_keepspace(name string) !string` - Like name_fix but preserves spaces
 - `name_fix_no_ext(name_ string) string` - Removes file extension
@@ -126,3 +121,26 @@ ver := texttools.version("v1.4.36")
 // Result: 1004036
 ```
 
+## Error Handling
+
+Many functions in the module return a Result type (indicated by `!` in the function signature). These functions can return errors that should be handled appropriately:
+
+```v
+// Example of error handling
+name := texttools.name_fix_keepspace("some@name") or {
+    println("Error: ${err}")
+    return
+}
+```
+
+## Best Practices
+
+1. Always use appropriate error handling for functions that return Results
+2. Consider using `dedent()` before processing multiline text to ensure consistent formatting
+3. When working with filenames, use the appropriate name_fix variant based on your needs
+4. For command line parsing, be aware of quote handling and escaping rules
+5. When using tokenization, consider the context and whether smart splitting is needed
+
+## Contributing
+
+The TextTools module is part of the heroLib project. Contributions are welcome through pull requests.
