@@ -237,7 +237,7 @@ fn (mut site DocSite) template_install() ! {
 
 	develop := $tmpl('templates/develop.sh')
 	build := $tmpl('templates/build.sh')
-	build_dev_publish := $tmpl('templates/build_dev_publish.sh')
+	// build_dev_publish := $tmpl('templates/build_dev_publish.sh')
 	build_publish := $tmpl('templates/build_publish.sh')
 
 	mut develop_ := site.path_build.file_get_new('develop.sh')!
@@ -252,9 +252,9 @@ fn (mut site DocSite) template_install() ! {
 	build_publish_.template_write(build_publish, true)!
 	build_publish_.chmod(0o700)!
 
-	mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
-	build_dev_publish_.template_write(build_dev_publish, true)!
-	build_dev_publish_.chmod(0o700)!
+	// mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
+	// build_dev_publish_.template_write(build_dev_publish, true)!
+	// build_dev_publish_.chmod(0o700)!
 
 	develop_templ := $tmpl('templates/develop_src.sh')
 	mut develop2_ := site.path_src.file_get_new('develop.sh')!
