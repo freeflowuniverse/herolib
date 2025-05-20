@@ -95,10 +95,10 @@ pub fn (mut s DocSite) dev() ! {
 	console.print_item('  3. To list all screens: screen -ls')
 	console.print_item('The site content is on::')
 	console.print_item('  1. location of documents: ${s.path_src.path}/docs')
-	if osal.cmd_exists('code') {
-		console.print_item('  2. We opened above dir in vscode.')
-		osal.exec(cmd: 'code ${s.path_src.path}/docs')!
-	}
+	// if osal.cmd_exists('code') {
+	// 	console.print_item('  2. We opened above dir in vscode.')
+	// 	osal.exec(cmd: 'code ${s.path_src.path}/docs')!
+	// }
 
 	// Start the watcher in a separate thread
 	// mut tf:=spawn watch_docs(docs_path, s.path_src.path, s.path_build.path)

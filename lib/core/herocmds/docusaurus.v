@@ -138,16 +138,16 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut provided_path := cmd.flags.get_string('path') or { '' }
 	mut heroscript_source_path := ''
 	build_cfg_dir := os.join_path(build_path, 'cfg')
-	target_heroscript_path := os.join_path(build_cfg_dir, 'config.heroscript')
+	// target_heroscript_path := os.join_path(build_cfg_dir, 'config.heroscript')
 
 	if provided_path != '' {
 		if !os.exists(provided_path) || !os.is_file(provided_path) {
 			return error('Provided path "${provided_path}" does not exist or is not a file.')
 		}
-		heroscript_source_path = provided_path
-		// --- Copy Heroscript to Build Location ---
-		os.mkdir_all(build_cfg_dir)!
-		os.cp(heroscript_source_path, target_heroscript_path)!
+		// heroscript_source_path = provided_path
+		// // --- Copy Heroscript to Build Location ---
+		// os.mkdir_all(build_cfg_dir)!
+		// os.cp(heroscript_source_path, target_heroscript_path)!
 	} else {
 		// Path not provided, look in ./cfg/
 		mut cwd := os.getwd()
@@ -155,21 +155,21 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		if !os.exists(cfg_dir) || !os.is_dir(cfg_dir) {
 			return error('Flag -path not provided and directory "./cfg" not found in the current working directory.')
 		}
-		mut found_files := []string
-		for file in os.ls(cfg_dir) or { []string{} } {
-			if file.ends_with('.heroscript') {
-				found_files << os.join_path(cfg_dir, file)
-			}
-		}
-		if found_files.len == 1 {
-			heroscript_source_path = found_files[0]
-			os.mkdir_all(build_cfg_dir)!
-			os.cp(heroscript_source_path, target_heroscript_path)!
-		} else if found_files.len == 0 {
-			return error('Flag -path not provided and no *.heroscript file found in "./cfg".')
-		} else {
-			return error('Flag -path not provided and multiple *.heroscript files found in "./cfg". Please specify one using -path.')
-		}
+		// mut found_files := []string
+		// for file in os.ls(cfg_dir) or { []string{} } {
+		// 	if file.ends_with('.heroscript') {
+		// 		found_files << os.join_path(cfg_dir, file)
+		// 	}
+		// }
+		// if found_files.len == 1 {
+		// 	heroscript_source_path = found_files[0]
+		// 	os.mkdir_all(build_cfg_dir)!
+		// 	os.cp(heroscript_source_path, target_heroscript_path)!
+		// } else if found_files.len == 0 {
+		// 	return error('Flag -path not provided and no *.heroscript file found in "./cfg".')
+		// } else {
+		// 	return error('Flag -path not provided and multiple *.heroscript files found in "./cfg". Please specify one using -path.')
+		// }
 	}
 
 	
@@ -181,7 +181,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut docs := docusaurus.new(
 		update: update
 		build_path: build_path
-		heroscript: os.read_file(target_heroscript_path)! // Read the copied heroscript
+		// heroscript: os.read_file(target_heroscript_path)! // Read the copied heroscript
 	)!
 
 	mut site := docs.get(

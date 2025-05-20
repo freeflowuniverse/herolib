@@ -25,8 +25,8 @@ pub mut:
 	build_path      string
 	production      bool
 	update          bool
-	heroscript      string
-	heroscript_path string
+	// heroscript      string
+	// heroscript_path string
 }
 
 pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
