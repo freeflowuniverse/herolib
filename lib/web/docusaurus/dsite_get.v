@@ -18,9 +18,9 @@ pub mut:
 	production    bool
 	watch_changes bool = true
 	update        bool
-	init 	      bool //means create new one if needed
+	init          bool // means create new one if needed
 	deploykey     string
-	config ?Config
+	config        ?Config
 }
 
 pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
@@ -40,40 +40,39 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		args.path = gs.get_path(url: args.url)!
 	}
 
-	if args.path.trim_space() == "" {
+	if args.path.trim_space() == '' {
 		args.path = os.getwd()
-	}	
+	}
 	args.path = args.path.replace('~', os.home_dir())
 
 	mut r := gs.get_repo(
-		url:  'https://github.com/freeflowuniverse/docusaurus_template.git'
+		url: 'https://github.com/freeflowuniverse/docusaurus_template.git'
 	)!
 	mut template_path := r.patho()!
 
 	// First, check if the new site args provides a configuration that can be written instead of template cfg dir
 	if cfg := args.config {
-		panic("not implemented")
-		// cfg.write('${args.path}/cfg')!
+		cfg.write('${args.path}/cfg')!
 	} else {
 		// Then ensure cfg directory exists in src,
-		if !os.exists('${args.path}/cfg') {	
-			if args.init{
+		if !os.exists('${args.path}/cfg') {
+			if args.init {
 				// else copy config from template
 				mut template_cfg := template_path.dir_get('cfg')!
 				template_cfg.copy(dest: '${args.path}/cfg')!
-			}else{
+			} else {
 				return error("Can't find cfg dir in chosen docusaurus location: ${args.path}")
 			}
 		}
 	}
 
 	if !os.exists('${args.path}/docs') {
-		if args.init{
+		if args.init {
 			mut template_cfg := template_path.dir_get('docs')!
 			template_cfg.copy(dest: '${args.path}/docs')!
-		}else{
+		} else {
 			return error("Can't find docs dir in chosen docusaurus location: ${args.path}")
-		}		
+		}
 	}
 
 	mut myconfig := load_config('${args.path}/cfg')!
@@ -97,8 +96,8 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		path_src:   pathlib.get_dir(path: args.path, create: false)!
 		path_build: f.path_build
 		// path_publish: pathlib.get_dir(path: args.publish_path, create: true)!
-		args:   args
-		config: myconfig
+		args:    args
+		config:  myconfig
 		factory: &f
 	}
 
