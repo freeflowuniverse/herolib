@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none -cg  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.crypt.aes_symmetric { decrypt, encrypt }
 import freeflowuniverse.herolib.ui.console

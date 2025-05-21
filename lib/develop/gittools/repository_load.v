@@ -56,7 +56,6 @@ fn (mut repo GitRepo) load() ! {
 
 // Helper to load remote tags
 fn (mut repo GitRepo) load_branches() ! {
-	println("SDSDSd")
 	tags_result := repo.exec("git for-each-ref --format='%(objectname) %(refname:short)' refs/heads refs/remotes/origin") or {
 		return error('Failed to get branch references: ${err}. Command: git for-each-ref')
 	}

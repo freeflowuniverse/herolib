@@ -10,13 +10,10 @@ mut tree := doctree.new(name: 'test')!
 // git_reset bool
 // git_root  string
 // git_pull  bool
-// load      bool = true // means we scan automatically the added collection
-for project in 'projectinca, legal, why'.split(',').map(it.trim_space()) {
-	tree.scan(
-		git_url:  'https://git.ourworld.tf/tfgrid/info_tfgrid/src/branch/development/collections/${project}'
-		git_pull: false
-	)!
-}
+tree.scan(
+	git_url:  'https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/collections'
+	git_pull: false
+)!
 
 tree.export(
 	destination: '/tmp/mdexport'

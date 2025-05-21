@@ -1,6 +1,7 @@
 module collection
 
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.texttools.regext
 import os
 import freeflowuniverse.herolib.data.doctree.pointer
@@ -15,6 +16,7 @@ pub mut:
 	keep_structure bool // wether the structure of the src collection will be preserved or not
 	exclude_errors bool // wether error reporting should be exported as well
 	replacer       ?regext.ReplaceInstructions
+	redis          bool = true
 }
 
 pub fn (mut c Collection) export(args CollectionExportArgs) ! {
@@ -23,19 +25,24 @@ pub fn (mut c Collection) export(args CollectionExportArgs) ! {
 	mut cfile := pathlib.get_file(path: dir_src.path + '/.collection', create: true)! // will auto save it
 	cfile.write("name:${c.name} src:'${c.path.path}'")!
 
-	c.errors << export_pages(c.path.path, c.pages.values(),
+	mut context := base.context()!
+	mut redis := context.redis()!
+	redis.hset('collections:path', '${c.name}', dir_src.path)!
+
+	c.errors << export_pages(c.name, c.path.path, c.pages.values(),
 		dir_src:        dir_src
 		file_paths:     args.file_paths
 		keep_structure: args.keep_structure
 		replacer:       args.replacer
+		redis: args.redis
 	)!
 
-	c.export_files(dir_src, args.reset)!
-	c.export_images(dir_src, args.reset)!
-	c.export_linked_pages(dir_src)!
+	c.export_files(c.name,dir_src, args.reset)!
+	c.export_images(c.name,dir_src, args.reset)!
+	c.export_linked_pages(c.name,dir_src)!
 
 	if !args.exclude_errors {
-		c.errors_report('${dir_src.path}/errors.md')!
+		c.errors_report(c.name,'${dir_src.path}/errors.md')!
 	}
 }
 
@@ -46,11 +53,16 @@ pub mut:
 	file_paths     map[string]string
 	keep_structure bool // wether the structure of the src collection will be preserved or not
 	replacer       ?regext.ReplaceInstructions
+	redis          bool = true
 }
 
 // creates page file, processes page links, then writes page
-fn export_pages(col_path string, pages []&data.Page, args ExportPagesArgs) ![]CollectionError {
+fn export_pages(col_name string, col_path string, pages []&data.Page, args ExportPagesArgs) ![]CollectionError {
 	mut errors := []CollectionError{}
+
+	mut context := base.context()!
+	mut redis := context.redis()!
+
 	for page in pages {
 		dest := if args.keep_structure {
 			relpath := page.path.path.trim_string_left(col_path)
@@ -86,33 +98,43 @@ fn export_pages(col_path string, pages []&data.Page, args ExportPagesArgs) ![]Co
 		if mut replacer := args.replacer {
 			markdown = replacer.replace(text: markdown)!
 		}
-
 		dest_path.write(markdown)!
+		redis.hset('doctree:${col_name}', page.name, "${page.name}.md")!
+
 	}
 	return errors
 }
 
-fn (c Collection) export_files(dir_src pathlib.Path, reset bool) ! {
+fn (c Collection) export_files(col_name string,dir_src pathlib.Path, reset bool) ! {
+	mut context := base.context()!
+	mut redis := context.redis()!	
 	for _, file in c.files {
 		mut d := '${dir_src.path}/img/${file.name}.${file.ext}'
 		if reset || !os.exists(d) {
 			file.copy(d)!
 		}
+		redis.hset('doctree:${col_name}', file.name, "img/${file.name}.${file.ext}")!
 	}
 }
 
-fn (c Collection) export_images(dir_src pathlib.Path, reset bool) ! {
+fn (c Collection) export_images(col_name string,dir_src pathlib.Path, reset bool) ! {
+	mut context := base.context()!
+	mut redis := context.redis()!	
 	for _, file in c.images {
 		mut d := '${dir_src.path}/img/${file.name}.${file.ext}'
+		redis.hset('doctree:${col_name}', file.name, "img/${file.name}.${file.ext}")!
 		if reset || !os.exists(d) {
 			file.copy(d)!
 		}
 	}
 }
 
-fn (c Collection) export_linked_pages(dir_src pathlib.Path) ! {
+fn (c Collection) export_linked_pages(col_name string,dir_src pathlib.Path) ! {
+	mut context := base.context()!
+	mut redis := context.redis()!	
 	collection_linked_pages := c.get_collection_linked_pages()!
 	mut linked_pages_file := pathlib.get_file(path: dir_src.path + '/.linkedpages', create: true)!
+	redis.hset('doctree:${col_name}', "linkedpages", "${linked_pages_file.name()}.md")!
 	linked_pages_file.write(collection_linked_pages.join_lines())!
 }
 

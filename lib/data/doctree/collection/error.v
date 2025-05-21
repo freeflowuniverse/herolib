@@ -1,6 +1,7 @@
 module collection
 
 import freeflowuniverse.herolib.core.pathlib { Path }
+import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.ui.console
 
 pub enum CollectionErrorCat {
@@ -52,13 +53,16 @@ pub fn (err ObjNotFound) msg() string {
 }
 
 // write errors.md in the collection, this allows us to see what the errors are
-pub fn (collection Collection) errors_report(dest_ string) ! {
+pub fn (collection Collection) errors_report(col_name string,dest_ string) ! {
 	// console.print_debug("====== errors report: ${dest_} : ${collection.errors.len}\n${collection.errors}")
+	mut context := base.context()!
+	mut redis := context.redis()!	
 	mut dest := pathlib.get_file(path: dest_, create: true)!
 	if collection.errors.len == 0 {
 		dest.delete()!
 		return
 	}
-	c := $tmpl('template/errors.md')
+	c := $tmpl('template/errors.md')	
 	dest.write(c)!
+	redis.hset('doctree:${col_name}', "errors", "errors.md")!
 }

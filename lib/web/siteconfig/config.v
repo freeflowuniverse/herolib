@@ -22,9 +22,10 @@ pub mut:
 	title      string
 	description string
 	draft	   bool
-	folder 	  string
+	folder 	   string
 	prio	   int
-	src   string
+	src   	   string
+	collection string
 }
 
 // Footer config structures

@@ -14,6 +14,7 @@ pub mut:
 	exclude_errors bool // wether error reporting should be exported as well
 	toreplace      string
 	concurrent     bool = true
+	redis		  bool = true
 }
 
 // export all collections to chosen directory .
@@ -50,6 +51,7 @@ pub fn (mut tree Tree) export(args TreeExportArgs) ! {
 					reset:          args.reset
 					keep_structure: args.keep_structure
 					exclude_errors: args.exclude_errors
+					redis: args.redis
 					// TODO: replacer: tree.replacer
 				)!
 			}(mut col, dest_path, file_paths, args)
@@ -66,6 +68,7 @@ pub fn (mut tree Tree) export(args TreeExportArgs) ! {
 				keep_structure: args.keep_structure
 				exclude_errors: args.exclude_errors
 				replacer:       tree.replacer
+				redis: args.redis
 			)!
 		}
 	}
