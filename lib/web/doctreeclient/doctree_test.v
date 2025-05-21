@@ -132,6 +132,4 @@ fn test_doctree_client() ! {
 	println('Non-existent page exists: ${exists2} (should be false)')
 	
 	println('\nTest completed successfully!')
-
-	if true{panic("ss")}
 }

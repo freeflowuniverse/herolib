@@ -3,6 +3,9 @@ module doctreeclient
 import freeflowuniverse.herolib.core.pathlib
 import os
 
+// List of recognized image file extensions
+const image_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.bmp', '.tiff', '.ico']
+
 // Error types for DocTreeClient
 pub enum DocTreeError {
 	collection_not_found
@@ -159,9 +162,24 @@ pub fn (mut c DocTreeClient) list_files(collection_name string) ![]string {
 	// Filter out only the file names (those with file extensions, but not images)
 	mut file_names := []string{}
 	for key in all_keys {
-		if key.contains('.') && !key.ends_with('.png') && !key.ends_with('.jpg') && 
-		   !key.ends_with('.jpeg') && !key.ends_with('.gif') && !key.ends_with('.svg') {
-			file_names << key
+		// Get the value (path) for this key
+		value := c.redis.hget('doctree:${collection_name}', key) or { continue }
+		
+		// Check if the value contains a file extension (has a dot)
+		if value.contains('.') {
+			// Check if the value ends with any of the image extensions
+			mut is_image := false
+			for ext in image_extensions {
+				if value.ends_with(ext) {
+					is_image = true
+					break
+				}
+			}
+			
+			// Add to file_names if it's not an image and not a page
+			if !is_image && !value.ends_with('.md') {
+				file_names << key
+			}
 		}
 	}
 	
@@ -178,12 +196,18 @@ pub fn (mut c DocTreeClient) list_images(collection_name string) ![]string {
 	// Get all keys from the collection hash
 	all_keys := c.redis.hkeys('doctree:${collection_name}')!
 	
-	// Filter out only the image names (those with image extensions)
+	// Filter out only the image names (those whose values end with image extensions)
 	mut image_names := []string{}
 	for key in all_keys {
-		if key.ends_with('.png') || key.ends_with('.jpg') || key.ends_with('.jpeg') || 
-		   key.ends_with('.gif') || key.ends_with('.svg') {
-			image_names << key
+		// Get the value (path) for this key
+		value := c.redis.hget('doctree:${collection_name}', key) or { continue }
+		
+		// Check if the value ends with any of the image extensions
+		for ext in image_extensions {
+			if value.ends_with(ext) {
+				image_names << key
+				break
+			}
 		}
 	}
 	
