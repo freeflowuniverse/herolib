@@ -14,7 +14,7 @@ pub enum DocTreeError {
 // get_page_path returns the path for a page in a collection
 pub fn (mut c DocTreeClient) get_page_path(collection_name string, page_name string) !string {
 	// Check if the collection exists
-	collection_path := c.redis.hget('doctree:meta', collection_name) or {
+	collection_path := c.redis.hget('doctree:path', collection_name) or {
 		return error('${DocTreeError.collection_not_found}: Collection "${collection_name}" not found')
 	}
 	
@@ -30,7 +30,7 @@ pub fn (mut c DocTreeClient) get_page_path(collection_name string, page_name str
 // get_file_path returns the path for a file in a collection
 pub fn (mut c DocTreeClient) get_file_path(collection_name string, file_name string) !string {
 	// Check if the collection exists
-	collection_path := c.redis.hget('doctree:meta', collection_name) or {
+	collection_path := c.redis.hget('doctree:path', collection_name) or {
 		return error('${DocTreeError.collection_not_found}: Collection "${collection_name}" not found')
 	}
 	
@@ -46,7 +46,7 @@ pub fn (mut c DocTreeClient) get_file_path(collection_name string, file_name str
 // get_image_path returns the path for an image in a collection
 pub fn (mut c DocTreeClient) get_image_path(collection_name string, image_name string) !string {
 	// Check if the collection exists
-	collection_path := c.redis.hget('doctree:meta', collection_name) or {
+	collection_path := c.redis.hget('doctree:path', collection_name) or {
 		return error('${DocTreeError.collection_not_found}: Collection "${collection_name}" not found')
 	}
 	
@@ -62,7 +62,7 @@ pub fn (mut c DocTreeClient) get_image_path(collection_name string, image_name s
 // page_exists checks if a page exists in a collection
 pub fn (mut c DocTreeClient) page_exists(collection_name string, page_name string) bool {
 	// Check if the collection exists
-	e:=c.redis.hexists('doctree:meta', collection_name) or {
+	e:=c.redis.hexists('doctree:path', collection_name) or {
 		return false
 	}
 	if !e{
@@ -76,7 +76,7 @@ pub fn (mut c DocTreeClient) page_exists(collection_name string, page_name strin
 // file_exists checks if a file exists in a collection
 pub fn (mut c DocTreeClient) file_exists(collection_name string, file_name string) bool {
 	// Check if the collection exists
-	e:=c.redis.hexists('doctree:meta', collection_name) or {
+	e:=c.redis.hexists('doctree:path', collection_name) or {
 		return false
 	}
 	if !e{
@@ -91,7 +91,7 @@ pub fn (mut c DocTreeClient) file_exists(collection_name string, file_name strin
 // image_exists checks if an image exists in a collection
 pub fn (mut c DocTreeClient) image_exists(collection_name string, image_name string) bool {
 	// Check if the collection exists
-	e:=c.redis.hexists('doctree:meta', collection_name) or {
+	e:=c.redis.hexists('doctree:path', collection_name) or {
 		return false
 	}
 	if !e{
@@ -122,13 +122,13 @@ pub fn (mut c DocTreeClient) get_page_content(collection_name string, page_name 
 // list_collections returns a list of all collection names
 pub fn (mut c DocTreeClient) list_collections() ![]string {
 	// Get all collection names from Redis
-	return c.redis.hkeys('doctree:meta')!
+	return c.redis.hkeys('doctree:path')!
 }
 
 // list_pages returns a list of all page names in a collection
 pub fn (mut c DocTreeClient) list_pages(collection_name string) ![]string {
 	// Check if the collection exists
-	if ! (c.redis.hexists('doctree:meta', collection_name) or {false}) {
+	if ! (c.redis.hexists('doctree:path', collection_name) or {false}) {
 		return error('${DocTreeError.collection_not_found}: Collection "${collection_name}" not found')
 	}
 	
@@ -149,7 +149,7 @@ pub fn (mut c DocTreeClient) list_pages(collection_name string) ![]string {
 // list_files returns a list of all file names in a collection
 pub fn (mut c DocTreeClient) list_files(collection_name string) ![]string {
 	// Check if the collection exists
-	if ! (c.redis.hexists('doctree:meta', collection_name) or {false}) {
+	if ! (c.redis.hexists('doctree:path', collection_name) or {false}) {
 		return error('${DocTreeError.collection_not_found}: Collection "${collection_name}" not found')
 	}
 	
@@ -171,7 +171,7 @@ pub fn (mut c DocTreeClient) list_files(collection_name string) ![]string {
 // list_images returns a list of all image names in a collection
 pub fn (mut c DocTreeClient) list_images(collection_name string) ![]string {
 	// Check if the collection exists
-	if ! (c.redis.hexists('doctree:meta', collection_name) or {false}) {
+	if ! (c.redis.hexists('doctree:path', collection_name) or {false}) {
 		return error('${DocTreeError.collection_not_found}: Collection "${collection_name}" not found')
 	}
 	
