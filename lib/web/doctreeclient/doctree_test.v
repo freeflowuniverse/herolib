@@ -25,7 +25,7 @@ fn test_doctree_client() ! {
 	println('Doctree data populated in Redis')
 	
 	// Create a DocTreeClient instance
-	mut client := new('/tmp/mdexport')!
+	mut client := new()!
 	
 	// Test listing collections
 	println('\nListing collections:')
@@ -34,7 +34,7 @@ fn test_doctree_client() ! {
 	
 	if collections.len == 0 {
 		println('No collections found. Test cannot continue.')
-		return
+		panic("No collections found")
 	}
 	
 	// Use the first collection for testing
@@ -62,7 +62,6 @@ fn test_doctree_client() ! {
 		// Test getting page content
 		content := client.get_page_content(collection_name, page_name)!
 		println('Page content length: ${content.len} characters')
-		println('First 100 characters: ${content[..min(100, content.len)]}...')
 	} else {
 		println('No pages found for testing')
 	}
@@ -133,11 +132,6 @@ fn test_doctree_client() ! {
 	println('Non-existent page exists: ${exists2} (should be false)')
 	
 	println('\nTest completed successfully!')
-}
 
-fn main() {
-	test_doctree_client() or {
-		eprintln('Error: ${err}')
-		exit(1)
-	}
+	if true{panic("ss")}
 }

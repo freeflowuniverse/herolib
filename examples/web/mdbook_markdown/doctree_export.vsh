@@ -10,6 +10,7 @@ mut tree := doctree.new(name: 'test')!
 // git_reset bool
 // git_root  string
 // git_pull  bool
+
 tree.scan(
 	git_url:  'https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/collections'
 	git_pull: false
@@ -18,6 +19,6 @@ tree.scan(
 tree.export(
 	destination: '/tmp/mdexport'
 	reset:       true
-	// keep_structure: true
 	exclude_errors: false
 )!
+

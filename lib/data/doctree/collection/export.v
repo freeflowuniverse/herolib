@@ -27,7 +27,7 @@ pub fn (mut c Collection) export(args CollectionExportArgs) ! {
 
 	mut context := base.context()!
 	mut redis := context.redis()!
-	redis.hset('collections:path', '${c.name}', dir_src.path)!
+	redis.hset('doctree:path', '${c.name}', dir_src.path)!
 
 	c.errors << export_pages(c.name, c.path.path, c.pages.values(),
 		dir_src:        dir_src
