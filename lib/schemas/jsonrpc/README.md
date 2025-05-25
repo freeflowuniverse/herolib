@@ -25,21 +25,122 @@ This module provides a robust implementation of the JSON-RPC 2.0 protocol in VLa
 
 ## Usage
 
-### 1. **Client Setup**
+### 1. **Client Setup and Custom Transports**
 
-Create a new JSON-RPC client using a custom transport layer.
+Create a new JSON-RPC client using a custom transport layer. The transport must implement the `IRPCTransportClient` interface, which requires a `send` method:
+
+```v
+pub interface IRPCTransportClient {
+mut:
+	send(request string, params SendParams) !string
+}
+```
+
+#### Example: WebSocket Transport
 
 ```v
 import freeflowuniverse.herolib.schemas.jsonrpc
+import net.websocket
 
-// Implement the IRPCTransportClient interface for your transport (e.g., WebSocket)
+// Implement the IRPCTransportClient interface for WebSocket
 struct WebSocketTransport {
-    // Add your transport-specific implementation here
+mut:
+    ws &websocket.Client
+    connected bool
 }
 
-// Create a new JSON-RPC client
+// Create a new WebSocket transport
+fn new_websocket_transport(url string) !&WebSocketTransport {
+    mut ws := websocket.new_client(url)!
+    ws.connect()!
+    
+    return &WebSocketTransport{
+        ws: ws
+        connected: true
+    }
+}
+
+// Implement the send method required by IRPCTransportClient
+fn (mut t WebSocketTransport) send(request string, params jsonrpc.SendParams) !string {
+    if !t.connected {
+        return error('WebSocket not connected')
+    }
+    
+    // Send the request
+    t.ws.write_string(request)!
+    
+    // Wait for and return the response
+    response := t.ws.read_string()!
+    return response
+}
+
+// Create a new JSON-RPC client with WebSocket transport
+mut transport := new_websocket_transport('ws://localhost:8080')!
 mut client := jsonrpc.new_client(jsonrpc.Client{
-    transport: WebSocketTransport{}
+    transport: transport
+})
+```
+
+#### Example: Unix Domain Socket Transport
+
+```v
+import freeflowuniverse.herolib.schemas.jsonrpc
+import net.unix
+import time
+
+// Implement the IRPCTransportClient interface for Unix domain sockets
+struct UnixSocketTransport {
+mut:
+    socket_path string
+}
+
+// Create a new Unix socket transport
+fn new_unix_socket_transport(socket_path string) &UnixSocketTransport {
+    return &UnixSocketTransport{
+        socket_path: socket_path
+    }
+}
+
+// Implement the send method required by IRPCTransportClient
+fn (mut t UnixSocketTransport) send(request string, params jsonrpc.SendParams) !string {
+    // Create a Unix domain socket client
+    mut socket := unix.connect_stream(t.socket_path)!
+    defer { socket.close() }
+    
+    // Set timeout if specified
+    if params.timeout > 0 {
+        socket.set_read_timeout(params.timeout * time.second)
+        socket.set_write_timeout(params.timeout * time.second)
+    }
+    
+    // Send the request
+    socket.write_string(request)!
+    
+    // Read the response
+    mut response := ''
+    mut buf := []u8{len: 4096}
+    
+    for {
+        bytes_read := socket.read(mut buf)!
+        if bytes_read <= 0 {
+            break
+        }
+        response += buf[..bytes_read].bytestr()
+        
+        // Check if we've received a complete JSON response
+        // This is a simple approach; a more robust implementation would parse the JSON
+        if response.ends_with('}') {
+            break
+        }
+    }
+    
+    return response
+}
+
+// Create a new JSON-RPC client with Unix socket transport
+mut transport := new_unix_socket_transport('/tmp/jsonrpc.sock')
+mut client := jsonrpc.new_client(jsonrpc.Client{
+    transport: transport
 })
 ```
 
