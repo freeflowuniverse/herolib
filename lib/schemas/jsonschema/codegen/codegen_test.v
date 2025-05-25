@@ -27,7 +27,7 @@ struct TestPerson {
 			}
 		}
 	}
-	encoded := schema_to_structs(schema)!
+	encoded := schema_to_structs(schema)
 	assert encoded.len == 1
 	assert encoded[0].trim_space() == struct_str.trim_space()
 }
@@ -60,7 +60,7 @@ struct TestPerson {
 			}
 		}
 	}
-	encoded := schema_to_structs(schema)!
+	encoded := schema_to_structs(schema)
 	assert encoded.len == 1
 	assert encoded[0].trim_space() == struct_str.trim_space()
 }
@@ -97,6 +97,6 @@ fn test_schema_to_structs_recursive() ! {
 			}
 		}
 	}
-	encoded := schema_to_structs(schema)!
+	encoded := schema_to_structs(schema)
 	log.debug(encoded.str())
 }
