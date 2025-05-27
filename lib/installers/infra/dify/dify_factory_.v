@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
-	dify_global  map[string]&dify
+	dify_global  map[string]&DifyInstaller
 	dify_default string
 )
 
@@ -28,10 +28,10 @@ fn args_get(args_ ArgsGet) ArgsGet {
 	return args
 }
 
-pub fn get(args_ ArgsGet) !&dify {
+pub fn get(args_ ArgsGet) !&DifyInstaller {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := dify{
+	mut obj := DifyInstaller{
 		name: args.name
 	}
 	if args.name !in dify_global {
@@ -51,7 +51,7 @@ pub fn get(args_ ArgsGet) !&dify {
 }
 
 // register the config for the future
-pub fn set(o dify) ! {
+pub fn set(o DifyInstaller) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
@@ -75,7 +75,7 @@ pub fn delete(args_ ArgsGet) ! {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o dify) ! {
+fn set_in_mem(o DifyInstaller) ! {
 	mut o2 := obj_init(o)!
 	dify_global[o.name] = &o2
 	dify_default = o.name
@@ -166,12 +166,12 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 }
 
 // load from disk and make sure is properly intialized
-pub fn (mut self dify) reload() ! {
+pub fn (mut self DifyInstaller) reload() ! {
 	switch(self.name)
 	self = obj_init(self)!
 }
 
-pub fn (mut self dify) start() ! {
+pub fn (mut self DifyInstaller) start() ! {
 	switch(self.name)
 	if self.running()! {
 		return
@@ -208,13 +208,13 @@ pub fn (mut self dify) start() ! {
 	return error('dify did not install properly.')
 }
 
-pub fn (mut self dify) install_start(args InstallArgs) ! {
+pub fn (mut self DifyInstaller) install_start(args InstallArgs) ! {
 	switch(self.name)
 	self.install(args)!
 	self.start()!
 }
 
-pub fn (mut self dify) stop() ! {
+pub fn (mut self DifyInstaller) stop() ! {
 	switch(self.name)
 	stop_pre()!
 	for zprocess in startupcmd()! {
@@ -224,13 +224,13 @@ pub fn (mut self dify) stop() ! {
 	stop_post()!
 }
 
-pub fn (mut self dify) restart() ! {
+pub fn (mut self DifyInstaller) restart() ! {
 	switch(self.name)
 	self.stop()!
 	self.start()!
 }
 
-pub fn (mut self dify) running() !bool {
+pub fn (mut self DifyInstaller) running() !bool {
 	switch(self.name)
 
 	// walk over the generic processes, if not running return
@@ -250,14 +250,19 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self dify) install(args InstallArgs) ! {
+pub fn (mut self DifyInstaller) install(args InstallArgs) ! {
 	switch(self.name)
 	if args.reset || (!installed()!) {
 		install()!
 	}
 }
 
-pub fn (mut self dify) destroy() ! {
+pub fn (mut self DifyInstaller) build() ! {
+	switch(self.name)
+	build()!
+}
+
+pub fn (mut self DifyInstaller) destroy() ! {
 	switch(self.name)
 	self.stop() or {}
 	destroy()!
