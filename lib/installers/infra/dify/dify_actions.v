@@ -2,38 +2,51 @@ module dify
 
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.installers.virt.docker as docker_installer
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.osal.systemd
 import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
+import freeflowuniverse.herolib.installers.lang.golang
+import freeflowuniverse.herolib.installers.lang.rust
+import freeflowuniverse.herolib.installers.lang.python
 import os
 
 fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut installer := get()!
-	mut cfg := get()!
 	mut res := []zinit.ZProcessNewArgs{}
-	mut path := cfg.path
-	
-	cmd := "
-	git clone https://github.com/langgenius/dify.git -b 1.4.0 ${path}
-	cp ${path}/docker/.env.example ${path}/docker/.env
-	export COMPOSE_PROJECT_NAME=${cfg.project_name}
-	docker compose -f ${cfg.compose_file} --env-file ${cfg.path}/docker/.env up -d
-    	"
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// res << zinit.ZProcessNewArgs{
+	//     name: 'dify'
+	//     cmd: 'dify server'
+	//     env: {
+	//         'HOME': '/root'
+	//     }
+	// }
+
 	return res
 }
 
 fn running() !bool {
-	cfg := get()!
-	cmd := 'docker compose -f ${cfg.compose_file} ps | grep dify-web'
-	result := os.execute(cmd)
+	mut installer := get()!
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// this checks health of dify
+	// curl http://localhost:3333/api/v1/s --oauth2-bearer 1234 works
+	// url:='http://127.0.0.1:${cfg.port}/api/v1'
+	// mut conn := httpconnection.new(name: 'dify', url: url)!
 
-	if result.exit_code != 0 {
-		return false
-	}
-	return true
+	// if cfg.secret.len > 0 {
+	//     conn.default_header.add(.authorization, 'Bearer ${cfg.secret}')
+	// }
+	// conn.default_header.add(.content_type, 'application/json')
+	// console.print_debug("curl -X 'GET' '${url}'/tags --oauth2-bearer ${cfg.secret}")
+	// r := conn.get_json_dict(prefix: 'tags', debug: false) or {return false}
+	// println(r)
+	// if true{panic("ssss")}
+	// tags := r['Tags'] or { return false }
+	// console.print_debug(tags)
+	// console.print_debug('dify is answering.')
+	return false
 }
 
 fn start_pre() ! {
@@ -50,20 +63,22 @@ fn stop_post() ! {
 
 //////////////////// following actions are not specific to instance of the object
 
+// checks if a certain version or above is installed
 fn installed() !bool {
-	mut cfg := get()!
-	mut docker := docker_installer.get()!
-	docker.install()!
-
-	cmd := 'docker compose -f ${cfg.compose_file} ps | grep dify-web'
-	result := os.execute(cmd)
-
-	if result.exit_code != 0 {
-		return false
-	}
-	return true
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// res := os.execute('${osal.profile_path_source_and()!} dify version')
+	// if res.exit_code != 0 {
+	//     return false
+	// }
+	// r := res.output.split_into_lines().filter(it.trim_space().len > 0)
+	// if r.len != 1 {
+	//     return error("couldn't parse dify version.\n${res.output}")
+	// }
+	// if texttools.version(version) == texttools.version(r[0]) {
+	//     return true
+	// }
+	return false
 }
-
 
 // get the Upload List of the files
 fn ulist_get() !ulist.UList {
@@ -81,34 +96,92 @@ fn upload() ! {
 
 fn install() ! {
 	console.print_header('install dify')
-	mut cfg := get()!
-	mut docker := docker_installer.get()!
-	docker.install()!
-	os.system('sed -i "s/^SECRET_KEY=.*/SECRET_KEY=${cfg.secret_key}/; s/^INIT_PASSWORD=.*/INIT_PASSWORD=${cfg.init_password}/" ${cfg.path}/docker/.env')
-	osal.execute_silent('docker compose pull -f ${cfg.compose_file} pull')!
+	// THIS IS EXAMPLE CODEAND NEEDS TO BE CHANGED
+	// mut url := ''
+	// if core.is_linux_arm()! {
+	//     url = 'https://github.com/dify-dev/dify/releases/download/v${version}/dify_${version}_linux_arm64.tar.gz'
+	// } else if core.is_linux_intel()! {
+	//     url = 'https://github.com/dify-dev/dify/releases/download/v${version}/dify_${version}_linux_amd64.tar.gz'
+	// } else if core.is_osx_arm()! {
+	//     url = 'https://github.com/dify-dev/dify/releases/download/v${version}/dify_${version}_darwin_arm64.tar.gz'
+	// } else if osal.is_osx_intel()! {
+	//     url = 'https://github.com/dify-dev/dify/releases/download/v${version}/dify_${version}_darwin_amd64.tar.gz'
+	// } else {
+	//     return error('unsported platform')
+	// }
+
+	// mut dest := osal.download(
+	//     url: url
+	//     minsize_kb: 9000
+	//     expand_dir: '/tmp/dify'
+	// )!
+
+	// //dest.moveup_single_subdir()!
+
+	// mut binpath := dest.file_get('dify')!
+	// osal.cmd_add(
+	//     cmdname: 'dify'
+	//     source: binpath.path
+	// )!
+}
+
+fn build() ! {
+	// url := 'https://github.com/threefoldtech/dify'
+
+	// make sure we install base on the node
+	// if osal.platform() != .ubuntu {
+	//     return error('only support ubuntu for now')
+	// }
+	// golang.install()!
+
+	// console.print_header('build dify')
+
+	// gitpath := gittools.get_repo(coderoot: '/tmp/builder', url: url, reset: true, pull: true)!
+
+	// cmd := '
+	// cd ${gitpath}
+	// source ~/.cargo/env
+	// exit 1 #todo
+	// '
+	// osal.execute_stdout(cmd)!
+	//
+	// //now copy to the default bin path
+	// mut binpath := dest.file_get('...')!
+	// adds it to path
+	// osal.cmd_add(
+	//     cmdname: 'griddriver2'
+	//     source: binpath.path
+	// )!
 }
 
 fn destroy() ! {
-	mut cfg := get()!
-	cmd := 'docker compose -f ${cfg.compose_file} down'
-	result := os.execute(cmd)
+	// mut systemdfactory := systemd.new()!
+	// systemdfactory.destroy("zinit")!
 
-	if result.exit_code != 0 {
-		return error("dify isn't running: ${result.output}")
-	}
+	// osal.process_kill_recursive(name:'zinit')!
+	// osal.cmd_delete('zinit')!
 
-	// Remove docker
-	mut docker := docker_installer.get()!
-	docker.destroy()!
+	// osal.package_remove('
+	//    podman
+	//    conmon
+	//    buildah
+	//    skopeo
+	//    runc
+	// ')!
 
-	mut zinit_factory := zinit.new()!
-	if zinit_factory.exists('dify') {
-		zinit_factory.stop('dify') or {
-			return error('Could not stop dify service due to: ${err}')
-		}
-		zinit_factory.delete('dify') or {
-			return error('Could not delete dify service due to: ${err}')
-		}
-	}
-	console.print_header('Dify installation removed')
+	// //will remove all paths where go/bin is found
+	// osal.profile_path_add_remove(paths2delete:"go/bin")!
+
+	// osal.rm("
+	//    podman
+	//    conmon
+	//    buildah
+	//    skopeo
+	//    runc
+	//    /var/lib/containers
+	//    /var/lib/podman
+	//    /var/lib/buildah
+	//    /tmp/podman
+	//    /tmp/conmon
+	// ")!
 }

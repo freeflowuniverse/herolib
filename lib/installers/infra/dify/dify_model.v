@@ -7,20 +7,22 @@ import rand
 
 pub const version = '0.0.0'
 const singleton = true
-const default = true
+const default = false
 
+// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
 @[heap]
-pub struct Dify {
+pub struct DifyInstaller {
 pub mut:
-	path	       string = '/opt/dify'
-	init_password  string
-	secret_key     string 
-	project_name   string = 'dify'
-	compose_file   string = '/opt/dify/docker/docker-compose.yaml'
+	name          string = 'default'
+	path          string = '/opt/dify'
+	init_password string
+	secret_key    string
+	project_name  string = 'dify'
+	compose_file  string = '/opt/dify/docker/docker-compose.yaml'
 }
 
 // your checking & initialization code if needed
-fn obj_init(mycfg_ dify) !dify {
+fn obj_init(mycfg_ DifyInstaller) !DifyInstaller {
 	mut mycfg := mycfg_
 	if mycfg.path == '' {
 		mycfg.path = '/opt/dify'
@@ -38,9 +40,9 @@ fn obj_init(mycfg_ dify) !dify {
 		mycfg.project_name = 'dify'
 	}
 
-        if mycfg.compose_file == '' {
-                mycfg.compose_file = '/opt/dify/docker/docker-compose.yaml'
-        }
+	if mycfg.compose_file == '' {
+		mycfg.compose_file = '/opt/dify/docker/docker-compose.yaml'
+	}
 
 	return mycfg
 }
@@ -56,12 +58,11 @@ fn configure() ! {
 
 /////////////NORMALLY NO NEED TO TOUCH
 
-pub fn heroscript_dumps(obj dify) !string {
-	return encoderhero.encode[dify](obj)!
+pub fn heroscript_dumps(obj DifyInstaller) !string {
+	return encoderhero.encode[DifyInstaller](obj)!
 }
 
-pub fn heroscript_loads(heroscript string) !dify {
-	mut obj := encoderhero.decode[dify](heroscript)!
+pub fn heroscript_loads(heroscript string) !DifyInstaller {
+	mut obj := encoderhero.decode[DifyInstaller](heroscript)!
 	return obj
 }
-
