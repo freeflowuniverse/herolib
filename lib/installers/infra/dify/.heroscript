@@ -1,0 +1,13 @@
+
+!!hero_code.generate_installer
+    name:'dify'
+    classname:'dify'
+    singleton:1
+    templates:1
+    default:1
+    title:'dify'
+    supported_platforms:''
+    reset:0
+    startupmanager:1
+	hasconfig:1
+    build:0
