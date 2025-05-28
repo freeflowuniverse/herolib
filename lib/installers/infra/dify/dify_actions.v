@@ -18,11 +18,15 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut res := []zinit.ZProcessNewArgs{}
 	mut cfg := get()!
 	cmd := "
-	git clone https://github.com/langgenius/dify.git -b 1.4.0 ${cfg.path}
-	cp ${cfg.path}/docker/.env.example ${cfg.path}/docker/.env
+	echo 'zinit starting dify'
 	export COMPOSE_PROJECT_NAME=${cfg.project_name}
 	docker compose -f ${cfg.compose_file} --env-file ${cfg.path}/docker/.env -e SECRET_KEY=${cfg.secret_key} -e INIT_PASSWORD=${cfg.init_password} up -d
     	"
+	res << zinit.ZProcessNewArgs{
+	    name:        'dify'
+	    cmd:         cmd
+	    startuptype: .zinit
+	}
 	return res
 }
 
@@ -77,11 +81,17 @@ fn upload() ! {
 }
 
 fn install() ! {
-	console.print_header('install dify')
+	console.print_header('---------------- install function installing dify kjnaskldjfndfjwnf')
 	mut docker := docker_installer.get()!
 	mut cfg := get()!
 	docker.install()!
-	osal.execute_silent('docker compose -f ${cfg.compose_file} pull')!
+	cmd := "
+	[ -d ${cfg.path} ] || git clone https://github.com/langgenius/dify.git -b 1.4.0 ${cfg.path}
+	cp ${cfg.path}/docker/.env.example ${cfg.path}/docker/.env
+	docker compose -f ${cfg.compose_file} pull
+	"
+	osal.execute_stdout(cmd) or { return error('Cannot install dify due to: ${err}') }
+	console.print_header('Docker installed and Dify images are pulled')
 }
 
 fn build() ! {

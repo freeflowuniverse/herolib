@@ -174,12 +174,14 @@ pub fn (mut self DifyInstaller) reload() ! {
 pub fn (mut self DifyInstaller) start() ! {
 	switch(self.name)
 	if self.running()! {
+		console.print_header('dify running function')
 		return
 	}
 
-	console.print_header('dify start')
+	console.print_header('dify start henaaaaa')
 
 	if !installed()! {
+		console.print_header(' not installed then install function')
 		install()!
 	}
 
