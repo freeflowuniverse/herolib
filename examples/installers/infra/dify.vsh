@@ -6,4 +6,4 @@ mut dify := dify_installer.get()!
 
  dify.install()!
  dify.start()!
- dify.destroy()!
+// dify.destroy()!

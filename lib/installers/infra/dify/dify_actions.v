@@ -17,15 +17,24 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut installer := get()!
 	mut res := []zinit.ZProcessNewArgs{}
 	mut cfg := get()!
+        res << zinit.ZProcessNewArgs{
+            name:        'docker'
+            cmd:         'dockerd'
+            startuptype: .systemd
+        }
+
 	cmd := "
-	echo 'zinit starting dify'
-	export COMPOSE_PROJECT_NAME=${cfg.project_name}
-	docker compose -f ${cfg.compose_file} --env-file ${cfg.path}/docker/.env -e SECRET_KEY=${cfg.secret_key} -e INIT_PASSWORD=${cfg.init_password} up -d
-    	"
+        echo 'zinit starting dify'
+        export COMPOSE_PROJECT_NAME=${cfg.project_name}
+        export SECRET_KEY=${cfg.secret_key}
+        export INIT_PASSWORD=${cfg.init_password}
+        cd ${cfg.path}/docker/
+        docker compose --env-file ${cfg.path}/docker/.env up
+	"
 	res << zinit.ZProcessNewArgs{
 	    name:        'dify'
 	    cmd:         cmd
-	    startuptype: .zinit
+	    startuptype: .systemd
 	}
 	return res
 }
@@ -33,7 +42,10 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 fn running() !bool {
 	mut installer := get()!
 	cfg := get()!
-	cmd := "docker compose -f ${cfg.compose_file} ps | grep dify-web"
+	cmd := "
+	sleep 120
+	docker ps | grep dify-web
+	"
 	res := os.execute(cmd)
 	return res.exit_code == 0
 }
@@ -57,8 +69,9 @@ fn installed() !bool {
 	mut cfg := get()!
 	mut docker := docker_installer.get()!
 	docker.install()!
+	os.execute("systemctl start docker")
 
-	cmd := "docker compose -f ${cfg.compose_file} ps | grep dify-web"
+	cmd := "docker ps | grep dify-web"
 	result := os.execute(cmd)
 	if result.exit_code != 0 {
 		return false
@@ -81,17 +94,27 @@ fn upload() ! {
 }
 
 fn install() ! {
-	console.print_header('---------------- install function installing dify kjnaskldjfndfjwnf')
 	mut docker := docker_installer.get()!
 	mut cfg := get()!
 	docker.install()!
 	cmd := "
 	[ -d ${cfg.path} ] || git clone https://github.com/langgenius/dify.git -b 1.4.0 ${cfg.path}
 	cp ${cfg.path}/docker/.env.example ${cfg.path}/docker/.env
-	docker compose -f ${cfg.compose_file} pull
+
+    # Ensure all Docker containers inherit higher open files limits
+    sudo bash -c 'cat > /etc/docker/daemon.json <<EOF
+{
+  \"default-ulimits\": {
+    \"nofile\": {
+      \"Name\": \"nofile\",
+      \"Soft\": 150000,
+      \"Hard\": 150000
+    }
+  }
+}
+EOF'
 	"
 	osal.execute_stdout(cmd) or { return error('Cannot install dify due to: ${err}') }
-	console.print_header('Docker installed and Dify images are pulled')
 }
 
 fn build() ! {
@@ -125,7 +148,7 @@ fn build() ! {
 
 fn destroy() ! {
 	mut cfg := get()!
-	cmd := "docker compose -f ${cfg.compose_file} down"
+	cmd := "systemctl stop dify"
 	result := os.execute(cmd)
 	if result.exit_code != 0 {
 		return error("dify isn't running: ${result.output}")
@@ -134,14 +157,5 @@ fn destroy() ! {
 	mut docker := docker_installer.get()!
 	docker.destroy()!
 
-	mut zinit_factory := zinit.new()!
-	if zinit_factory.exists('dify') {
-		zinit_factory.stop('dify') or {
-			return error('Could not stop dify service due to: ${err}')
-		}
-		zinit_factory.delete('dify') or {
-			return error('Could not delete dify service due to: ${err}')
-		}
-	}
 	console.print_header('Dify installation removed')
 }
