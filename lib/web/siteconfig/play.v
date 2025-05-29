@@ -14,6 +14,30 @@ pub mut:
 	reset      bool
 }
 
+fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
+	build_dest_actions := plbook.find(filter: 'site.build_dest')!
+	for action in build_dest_actions {
+		mut p := action.params
+		mut dest := BuildDest{
+			path:     p.get('path')!
+			ssh_name: p.get_default('ssh_name', '')!
+		}
+		config.build_dest << dest
+	}
+}
+
+fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
+	build_dest_dev_actions := plbook.find(filter: 'site.build_dest_dev')!
+	for action in build_dest_dev_actions {
+		mut p := action.params
+		mut dest_dev := BuildDest{
+			path:     p.get('path')!
+			ssh_name: p.get_default('ssh_name', '')!
+		}
+		config.build_dest_dev << dest_dev
+	}
+}
+
 pub fn play(args_ PlayArgs) ! {
 	mut context := base.context()!
 	mut redis := context.redis()!
@@ -28,6 +52,8 @@ pub fn play(args_ PlayArgs) ! {
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
 	play_pages(mut plbook, mut config)!
+	play_build_dest(mut plbook, mut config)!
+	play_build_dest_dev(mut plbook, mut config)!
 
 	json_config := json.encode(config)
 	redis.hset('siteconfigs', config.name, json_config)!
@@ -35,6 +61,44 @@ pub fn play(args_ PlayArgs) ! {
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
+	// Process !!site.config
+	config_actions := plbook.find(filter: 'site.config')!
+	if config_actions.len == 0 {
+		return error('no site.config directive found')
+	}
+	if config_actions.len > 1 {
+		return error('multiple site.config directives found, only one is allowed')
+	}
+	for action in config_actions { // Should be only one
+		mut p := action.params
+		config.name = p.get('name')!
+		config.name = texttools.name_fix(config.name)
+		config.title = p.get_default('title', 'Documentation Site')!
+		config.description = p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
+		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
+		config.favicon = p.get_default('favicon', 'img/favicon.png')!
+		config.image = p.get_default('image', 'img/tf_graph.png')!
+		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!
+		config.url = p.get_default('url', '')!
+		config.base_url = p.get_default('base_url', '/')!
+		config.url_home = p.get_default('url_home', '')!
+	}
+
+	// Process !!site.config_meta for specific metadata overrides
+	meta_actions := plbook.find(filter: 'site.config_meta')!
+	for action in meta_actions { // Should ideally be one
+		mut p_meta := action.params
+		// If 'title' is present in site.config_meta, it overrides. Otherwise, meta_title remains empty or uses site.config.title logic in docusaurus model.
+		config.meta_title = p_meta.get_default('title', config.title)! 
+		// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
+		config.meta_image = p_meta.get_default('image', config.image)!
+		// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to SiteConfig
+		// For now, config.description (from site.config) is used as the primary source or fallback.
+	}
+}
+
+// Remove the old play_config content as it's now part of the new one above
+/*
 	config_actions := plbook.find(filter: 'site.config')!
 	if config_actions.len == 0 {
 		return error('no config found')
@@ -52,10 +116,7 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
 		config.favicon = p.get_default('favicon', 'img/favicon.png')!
 		config.image = p.get_default('image', 'img/tf_graph.png')!
-		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() +
-			' Example Organization')!
-	}
-}
+*/
 
 fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
 	import_actions := plbook.find(filter: 'site.collections')!
@@ -84,13 +145,30 @@ fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
 }
 
 fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
-	menu_actions := plbook.find(filter: 'site.menu')!
-	for action in menu_actions {
-		mut p := action.params
-		config.menu.title = p.get_default('title', config.title)!
+	navbar_actions := plbook.find(filter: 'site.navbar')!
+	if navbar_actions.len > 0 {
+		for action in navbar_actions { // Should ideally be one, but loop for safety
+			mut p := action.params
+			config.menu.title = p.get_default('title', config.title)! // Use existing config.title as ultimate fallback
+			config.menu.logo_alt = p.get_default('logo_alt', '')!
+			config.menu.logo_src = p.get_default('logo_src', '')!
+			config.menu.logo_src_dark = p.get_default('logo_src_dark', '')!
+		}
+	} else {
+		// Fallback to site.menu for title if site.navbar is not found
+		menu_actions := plbook.find(filter: 'site.menu')!
+		for action in menu_actions {
+			mut p := action.params
+			config.menu.title = p.get_default('title', config.title)!
+		}
 	}
 
-	menu_item_actions := plbook.find(filter: 'site.menu_item')!
+	mut menu_item_actions := plbook.find(filter: 'site.navbar_item')!
+	if menu_item_actions.len == 0 {
+		// Fallback to site.menu_item if site.navbar_item is not found
+		menu_item_actions = plbook.find(filter: 'site.menu_item')!
+	}
+
 	for action in menu_item_actions {
 		mut p := action.params
 		mut item := MenuItem{

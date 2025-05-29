@@ -46,12 +46,6 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	}
 	args.path = args.path.replace('~', os.home_dir())
 
-	mut r := gs.get_repo(
-		url: 'https://github.com/freeflowuniverse/docusaurus_template.git'
-		reset: args.update
-	)!
-	mut template_path := r.patho()!
-
 	// First, check if the new site args provides a configuration
 	if cfg := args.config {
 		// Use the provided config

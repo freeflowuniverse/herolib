@@ -112,7 +112,7 @@ pub fn load_configuration(cfg_path string) !Configuration {
 		println('Found primary HeroScript file: ${hero_script_main_file_path}. Attempting to load configuration.')
 		
 		// Use siteconfig.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
-		site_cfg_ref := siteconfig.new(cfg_path) or {
+		site_cfg_ref := siteconfig.new(hero_script_main_file_path) or {
 			eprintln('Error loading configuration from HeroScript file ${hero_script_main_file_path}: ${err}. Falling back to JSON.')
 			return load_configuration_from_json(cfg_path) // Fallback to JSON private helper
 		}
@@ -151,15 +151,27 @@ pub fn load_configuration(cfg_path string) !Configuration {
 				title: site_cfg_from_heroscript.title,
 				tagline: site_cfg_from_heroscript.tagline,
 				favicon: site_cfg_from_heroscript.favicon,
+				url: site_cfg_from_heroscript.url,
+				base_url: site_cfg_from_heroscript.base_url,
+				url_home: site_cfg_from_heroscript.url_home,
+				image: site_cfg_from_heroscript.image, // General site image
+				metadata: Metadata{
+					title: site_cfg_from_heroscript.meta_title, // Specific title for metadata
+					description: site_cfg_from_heroscript.description,
+					image: site_cfg_from_heroscript.meta_image, // Use the specific meta_image from siteconfig
+				},
+				build_dest: site_cfg_from_heroscript.build_dest.map(it.path),
+				build_dest_dev: site_cfg_from_heroscript.build_dest_dev.map(it.path),
 				copyright: site_cfg_from_heroscript.copyright,
 				name: site_cfg_from_heroscript.name,
-				// url, base_url, url_home, image, metadata, build_dest etc. from site_cfg_from_heroscript.main if available
-				// or leave to fix_configuration. siteconfig.SiteConfig doesn't have a direct 'Main' substruct.
-				// These fields are top-level in siteconfig.SiteConfig.
 			},
 			navbar: Navbar{
 				title: site_cfg_from_heroscript.menu.title,
-				// logo: site_cfg_from_heroscript.menu.logo, // siteconfig.Menu doesn't have a direct logo struct like docusaurus.Logo
+				logo: Logo{
+					alt: site_cfg_from_heroscript.menu.logo_alt,
+					src: site_cfg_from_heroscript.menu.logo_src,
+					src_dark: site_cfg_from_heroscript.menu.logo_src_dark,
+				},
 				items: nav_items,
 			},
 			footer: Footer{
