@@ -95,7 +95,9 @@ This is a default page created by the Docusaurus site generator.
 		}
 	}
 
-	mut myconfig := load_configuration('${args.path}/cfg')!
+	mut myconfig := load_configuration('${args.path}/cfg') or {
+		return error("Failed to load configuration from ${args.path}/cfg:\n${err.msg()}")
+	}
 
 	if myconfig.main.name.len == 0 {
 		myconfig.main.name = myconfig.main.base_url.trim_space().trim('/').trim_space()

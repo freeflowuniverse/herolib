@@ -186,7 +186,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	mut site := docs.get(
 		url:          url
-		build_path:         build_path
+		build_path:   build_path
 		update:       update
 		publish_path: publish_path
 		deploykey:    deploykey
