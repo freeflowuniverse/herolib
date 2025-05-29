@@ -47,3 +47,4 @@ tmp
 compile_summary.log
 .summary_lock
 .aider*
+*.dylib

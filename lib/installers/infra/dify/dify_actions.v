@@ -69,7 +69,6 @@ fn installed() !bool {
 	mut cfg := get()!
 	mut docker := docker_installer.get()!
 	docker.install()!
-	os.execute("systemctl start docker")
 
 	cmd := "docker ps | grep dify-web"
 	result := os.execute(cmd)
@@ -101,7 +100,6 @@ fn install() ! {
 	[ -d ${cfg.path} ] || git clone https://github.com/langgenius/dify.git -b 1.4.0 ${cfg.path}
 	cp ${cfg.path}/docker/.env.example ${cfg.path}/docker/.env
 
-    # Ensure all Docker containers inherit higher open files limits
     sudo bash -c 'cat > /etc/docker/daemon.json <<EOF
 {
   \"default-ulimits\": {

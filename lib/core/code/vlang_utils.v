@@ -1,9 +1,8 @@
 module code
 
-import freeflowuniverse.herolib.mcp
-import freeflowuniverse.herolib.mcp.logger
+import freeflowuniverse.herolib.ui.console
+
 import os
-import log
 
 // ===== FILE AND DIRECTORY OPERATIONS =====
 
@@ -90,7 +89,7 @@ pub fn get_function_from_module(module_path string, function_name string) !Funct
 		return error('Failed to list V files in ${module_path}: ${err}')
 	}
 
-	log.error('Found ${v_files} V files in ${module_path}')
+	console.print_stderr('Found ${v_files} V files in ${module_path}')
 	for v_file in v_files {
 		// Read the file content
 		content := os.read_file(v_file) or { continue }
@@ -114,13 +113,13 @@ pub fn get_function_from_module(module_path string, function_name string) !Funct
 // RETURNS:
 //   string - the type definition if found, or error if not found
 pub fn get_type_from_module(module_path string, type_name string) !string {
-	println('Looking for type ${type_name} in module ${module_path}')
+	console.print_debug('Looking for type ${type_name} in module ${module_path}')
 	v_files := list_v_files(module_path) or {
 		return error('Failed to list V files in ${module_path}: ${err}')
 	}
 
 	for v_file in v_files {
-		println('Checking file: ${v_file}')
+		console.print_debug('Checking file: ${v_file}')
 		content := os.read_file(v_file) or { return error('Failed to read file ${v_file}: ${err}') }
 
 		// Look for both regular and pub struct declarations
@@ -139,13 +138,12 @@ pub fn get_type_from_module(module_path string, type_name string) !string {
 			type_import := content.split_into_lines().filter(it.contains('import')
 				&& it.contains(type_name))
 			if type_import.len > 0 {
-				log.debug('debugzoooo')
 				mod := type_import[0].trim_space().trim_string_left('import ').all_before(' ')
 				return get_type_from_module(get_module_dir(mod), type_name)
 			}
 			continue
 		}
-		println('Found type ${type_name} in ${v_file} at position ${i}')
+		console.print_debug('Found type ${type_name} in ${v_file} at position ${i}')
 
 		// Find the start of the struct definition including comments
 		mut comment_start := i
@@ -186,7 +184,7 @@ pub fn get_type_from_module(module_path string, type_name string) !string {
 
 		// Get the full struct definition including the struct declaration line
 		full_struct := content.substr(line_start, closing_i + 1)
-		println('Found struct definition:\n${full_struct}')
+		console.print_debug('Found struct definition:\n${full_struct}')
 
 		// Return the full struct definition
 		return full_struct
@@ -203,7 +201,7 @@ pub fn get_type_from_module(module_path string, type_name string) !string {
 // RETURNS:
 //   string - test results output, or error if test fails
 pub fn vtest(fullpath string) !string {
-	logger.info('test ${fullpath}')
+	console.print_item('test ${fullpath}')
 	if !os.exists(fullpath) {
 		return error('File or directory does not exist: ${fullpath}')
 	}
@@ -216,12 +214,12 @@ pub fn vtest(fullpath string) !string {
 		return results
 	} else {
 		cmd := 'v -gc none -stats -enable-globals -show-c-output -keepc -n -w -cg -o /tmp/tester.c -g -cc tcc test ${fullpath}'
-		logger.debug('Executing command: ${cmd}')
+		console.print_debug('Executing command: ${cmd}')
 		result := os.execute(cmd)
 		if result.exit_code != 0 {
 			return error('Test failed for ${fullpath} with exit code ${result.exit_code}\n${result.output}')
 		} else {
-			logger.info('Test completed for ${fullpath}')
+			console.print_item('Test completed for ${fullpath}')
 		}
 		return 'Command: ${cmd}\nExit code: ${result.exit_code}\nOutput:\n${result.output}'
 	}
@@ -234,12 +232,12 @@ pub fn vtest(fullpath string) !string {
 //   string - vet results output, or error if vet fails
 fn vet_file(file string) !string {
 	cmd := 'v vet -v -w ${file}'
-	logger.debug('Executing command: ${cmd}')
+	console.print_debug('Executing command: ${cmd}')
 	result := os.execute(cmd)
 	if result.exit_code != 0 {
 		return error('Vet failed for ${file} with exit code ${result.exit_code}\n${result.output}')
 	} else {
-		logger.info('Vet completed for ${file}')
+		console.print_item('Vet completed for ${file}')
 	}
 	return 'Command: ${cmd}\nExit code: ${result.exit_code}\nOutput:\n${result.output}'
 }
@@ -250,7 +248,7 @@ fn vet_file(file string) !string {
 // RETURNS:
 //   string - vet results output, or error if vet fails
 pub fn vvet(fullpath string) !string {
-	logger.info('vet ${fullpath}')
+	console.print_item('vet ${fullpath}')
 	if !os.exists(fullpath) {
 		return error('File or directory does not exist: ${fullpath}')
 	}
@@ -260,7 +258,7 @@ pub fn vvet(fullpath string) !string {
 		files := list_v_files(fullpath) or { return error('Error listing V files: ${err}') }
 		for file in files {
 			results += vet_file(file) or {
-				logger.error('Failed to vet ${file}: ${err}')
+				console.print_stderr('Failed to vet ${file}: ${err}')
 				return error('Failed to vet ${file}: ${err}')
 			}
 			results += '\n-----------------------\n'
