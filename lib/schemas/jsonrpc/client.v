@@ -20,8 +20,8 @@ mut:
 @[params]
 pub struct SendParams {
 pub:
-	// Maximum time in seconds to wait for a response (default: 60)
-	timeout int = 60
+	// Maximum time in seconds to wait for a response (default: 2)
+	timeout int = 2
 
 	// Number of times to retry the request if it fails
 	retry int

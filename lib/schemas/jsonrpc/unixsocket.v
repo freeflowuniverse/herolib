@@ -2,7 +2,7 @@ module jsonrpc
 
 import net.unix
 import time
-import json
+import freeflowuniverse.herolib.ui.console
 
 // UnixSocketTransport implements the IRPCTransportClient interface for Unix domain sockets
 struct UnixSocketTransport {
@@ -20,56 +20,51 @@ pub fn new_unix_socket_transport(socket_path string) &UnixSocketTransport {
 // send implements the IRPCTransportClient interface
 pub fn (mut t UnixSocketTransport) send(request string, params SendParams) !string {
 	// Create a Unix domain socket client
+	// console.print_debug('Connecting to Unix socket at: $t.socket_path')
 	mut socket := unix.connect_stream(t.socket_path)!
-	defer { socket.close() or {} }
+	
+	// Ensure socket is always closed, even if there's an error
+	defer {
+		// Close the socket explicitly
+		unix.shutdown(socket.sock.handle)
+		socket.close() or {}
+		// console.print_debug('Socket closed')
+	}
 	
 	// Set timeout if specified
 	if params.timeout > 0 {
 		socket.set_read_timeout(params.timeout * time.second)
 		socket.set_write_timeout(params.timeout * time.second)
+		// console.print_debug('Set socket timeout to ${params.timeout} seconds')
 	}
 	
 	// Send the request
+	// console.print_debug('Sending request: $request')
 	socket.write_string(request + '\n')!
+	// println(18)
 	
-	// Read the response
-	mut response := ''
-	mut buf := []u8{len: 4096}
+	// Read the response in a single call with a larger buffer
+	mut res := []u8{len: 8192, cap: 8192}
+	n := socket.read(mut res)!
+	// println(19)
 	
-	for {
-		bytes_read := socket.read(mut buf)!
-		if bytes_read <= 0 {
-			break
-		}
-		response += buf[..bytes_read].bytestr()
-		
-		// Check if we've received a complete JSON response
-		if response.ends_with('}') {
-			break
-		}
+	// Convert response to string and trim whitespace
+	mut response := res[..n].bytestr().trim_space()
+	// console.print_debug('Received ${n} bytes')
+	
+	// Basic validation
+	if response.len == 0 {
+		return error('Empty response received from server')
 	}
 	
+	// console.print_debug('Response: $response')
 	return response
 }
-
-// Client provides a client interface to the zinit JSON-RPC API over Unix socket
-// @[heap]
-// pub struct UnixSocketClient {
-// mut:
-// 	socket_path string
-// 	rpc_client  &Client
-// 	request_id  int
-// }
 
 // new_client creates a new zinit client instance
 // socket_path: path to the Unix socket (default: /tmp/zinit.sock)
 pub fn new_unix_socket_client(socket_path string) &Client {
 	mut transport := new_unix_socket_transport(socket_path)
 	mut rpc_client := new_client(transport)
-	// return &UnixSocketClient{
-	// 	socket_path: socket_path
-	// 	rpc_client: rpc_client
-	// 	request_id: 0
-	// }
 	return rpc_client
 }

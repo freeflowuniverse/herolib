@@ -38,7 +38,7 @@ pub fn new_request(method string, params string) Request {
 		jsonrpc: jsonrpc_version
 		method:  method
 		params:  params
-		id:      rand.i32() // Automatically generate a unique ID using UUID v4
+		id:      rand.int_in_range(1, 1000000)  or {panic("Failed to generate unique ID")}
 	}
 }
 
@@ -108,7 +108,7 @@ pub fn new_request_generic[T](method string, params T) RequestGeneric[T] {
 		jsonrpc: jsonrpc_version
 		method:  method
 		params:  params
-		id:      rand.i32()
+		id:      rand.int_in_range(1, 1000000000) or { panic("Failed to generate unique ID") }
 	}
 }
 

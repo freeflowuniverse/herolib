@@ -2,40 +2,73 @@
 
 import freeflowuniverse.herolib.schemas.jsonrpc
 
-mut cl:=jsonrpc.new_unix_socket_client("/tmp/zinit.sock")
-
-
-send_params := jsonrpc.SendParams{
-	timeout: 30
-	retry: 1
+// Define the service status response structure based on the OpenRPC schema
+struct ServiceStatus {
+	name string
+	pid int
+	state string
+	target string
+	after map[string]string
 }
-//[]string{} = T is the generic type for the request, which can be any type
-request := jsonrpc.new_request_generic('service_list', []string{})
 
-// send sends a JSON-RPC request with parameters of type T and expects a response with result of type D.
-// This method handles the full request-response cycle including validation and error handling.
-//
-// Type Parameters:
-//   - T: The type of the request parameters
-//   - D: The expected type of the response result
-//
-// Parameters:
-//   - request: The JSON-RPC request object with parameters of type T
-//   - params: Configuration parameters for the send operation
-//
-// Returns:
-//   - The response result of type D or an error if any step in the process fails
-// pub fn (mut c Client) send[T, D](request RequestGeneric[T], params SendParams) !D {
-result := cl.send[[]string, map[string]string](request, send_params)!
+// Create a client using the Unix socket transport
+mut cl := jsonrpc.new_unix_socket_client("/tmp/zinit.sock")
 
-// println('Service List:')
-// for service in result {
-// 	println(service)
-// }
+// Example 1: List all services
+// Create a request for service_list method with empty parameters
+list_request := jsonrpc.new_request_generic('service_list', []string{})
 
+// Send the request and receive a map of service names to states
+println('Sending service_list request...')
+service_list := cl.send[[]string, map[string]string](list_request)!
 
+// Display the service list
+println('Service List:')
+println(service_list)
 
-// user := client.send[UserParams, UserResult](request, send_params) or {
-//     eprintln('Error sending request: $err')
-//     return
+// Example 2: Get status of a specific service
+// First, check if we have any services to query
+if service_list.len > 0 {
+	// Get the first service name from the list
+	service_name := service_list.keys()[0]
+	
+	// Create a request for service_status method with the service name as parameter
+	// The parameter for service_status is a single string (service name)
+	status_request := jsonrpc.new_request_generic('service_status', {"name": service_name})
+	
+	// Send the request and receive a ServiceStatus object
+	println('\nSending service_status request for service: $service_name')
+	service_status := cl.send[ map[string]string, ServiceStatus](status_request)!
+	
+	// Display the service status details
+	println('Service Status:')
+	println('- Name: ${service_status.name}')
+	println('- PID: ${service_status.pid}')
+	println('- State: ${service_status.state}')
+	println('- Target: ${service_status.target}')
+	println('- Dependencies:')
+	for dep_name, dep_state in service_status.after {
+		println('  - $dep_name: $dep_state')
+	}
+} else {
+	println('\nNo services found to query status')
+}
+
+// // Example 3: Alternative approach using a string array for the parameter
+// // Some JSON-RPC servers expect parameters as an array, even for a single parameter
+// println('\nAlternative approach using array parameter:')
+// if service_list.len > 0 {
+// 	service_name := service_list.keys()[0]
+	
+// 	// Create a request with the service name in an array
+// 	status_request_alt := jsonrpc.new_request_generic('service_status', service_name)
+	
+// 	// Send the request and receive a ServiceStatus object
+// 	println('Sending service_status request for service: $service_name (array parameter)')
+// 	service_status_alt := cl.send[[]string, ServiceStatus](status_request_alt)!
+	
+// 	// Display the service status details
+// 	println('Service Status (alternative):')
+// 	println('- Name: ${service_status_alt.name}')
+// 	println('- State: ${service_status_alt.state}')
 // }
