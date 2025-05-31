@@ -23,9 +23,25 @@
         "name": "OpenRPCSpec",
         "description": "The OpenRPC specification",
         "schema": {
-          "type": "string"
+          "type": "object"
         }
-      }
+      },
+      "examples": [
+        {
+          "name": "Get API specification",
+          "params": [],
+          "result": {
+            "name": "OpenRPCSpecResult",
+            "value": {
+              "openrpc": "1.2.6",
+              "info": {
+                "version": "1.0.0",
+                "title": "Zinit JSON-RPC API"
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "name": "service_list",

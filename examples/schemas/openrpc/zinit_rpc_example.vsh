@@ -1,7 +1,9 @@
 #!/usr/bin/env -S v -n -w -cg -gc none -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.schemas.jsonrpc
+import freeflowuniverse.herolib.schemas.openrpc
 import json
+import x.json2
 
 // Define the service status response structure based on the OpenRPC schema
 struct ServiceStatus {
@@ -25,10 +27,15 @@ println('This will return the OpenRPC specification for the API')
 
 // Use map[string]string for the result to avoid json2.Any issues
 api_spec_raw := cl.send[[]string, string](discover_request)!
+api_spec_any := json2.raw_decode(api_spec_raw)! //checks the json format
 
-// Parse the JSON string manually
-println('API Specification (raw):')
-println(api_spec_raw)
+// Print the decoded JSON structure to see the keys
+// println('API Specification (decoded structure):')
+// println(api_spec_any)
+
+mut myschema:=openrpc.decode(api_spec_raw)!
+println('API Specification Methods (parsed):\n${myschema.methods}')
+
 
 // Example 2: List all services
 // Create a request for service_list method with empty parameters

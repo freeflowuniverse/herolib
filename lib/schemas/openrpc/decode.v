@@ -1,10 +1,11 @@
 module openrpc
-
+import json
 import x.json2 { Any }
 import freeflowuniverse.herolib.schemas.jsonschema { Reference, decode_schemaref }
 
 pub fn decode(data string) !OpenRPC {
-	mut object := json2.decode[OpenRPC](data) or { return error('Failed to decode json\n${err}') }
+	// mut object := json.decode[OpenRPC](data) or { return error('Failed to decode json\n=======\n${data}\n===========\n${err}') }
+	mut object := json.decode(OpenRPC,data) or { return error('Failed to decode json\n=======\n${data}\n===========\n${err}') }
 	data_map := json2.raw_decode(data)!.as_map()
 	if 'components' in data_map {
 		object.components = decode_components(data_map) or {
@@ -16,17 +17,19 @@ pub fn decode(data string) !OpenRPC {
 	for i, method in methods_any.arr() {
 		method_map := method.as_map()
 
-		if result_any := method_map['result'] {
-			object.methods[i].result = decode_content_descriptor_ref(result_any.as_map()) or {
-				return error('Failed to decode result\n${err}')
-			}
-		}
-		if params_any := method_map['params'] {
-			params_arr := params_any.arr()
-			object.methods[i].params = params_arr.map(decode_content_descriptor_ref(it.as_map()) or {
-				return error('Failed to decode params\n${err}')
-			})
-		}
+		//TODO: I had to disable this because it was not working, need to check why !!!!!
+
+		// if result_any := method_map['result'] {
+		// 	object.methods[i].result = decode_content_descriptor_ref(result_any.as_map()) or {
+		// 		return error('Failed to decode result\n${err}')
+		// 	}
+		// }
+		// 	if params_any := method_map['params'] {
+		// 		params_arr := params_any.arr()
+		// 		object.methods[i].params = params_arr.map(decode_content_descriptor_ref(it.as_map()) or {
+		// 			return error('Failed to decode params\n${err}')
+		// 		})
+		// 	}
 	}
 	// object.methods = decode_method(data_map['methods'].as_array)!
 	return object

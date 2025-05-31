@@ -44,6 +44,12 @@ The properties of a JSON Schema is a list of key value pairs, where keys represe
 
 It's good practice to define object type schemas separately and reference them in properties, especially if the same schema is used in multiple places. However, object type schemas can also be defined in property definitions. This may make sense if the schema is exclusively used as a property of a schema, similar to using an anonymous struct for the type definition of a field of a struct.
 
+## Json Schema Decode & Validation
+
+```v
+import freeflowuniverse.herolib.schemas.jsonschema
+mut myschema:=jsonschema.decode("the spec...")!
+
 ## Code Generation
 
 ### V Code to JSON Schema

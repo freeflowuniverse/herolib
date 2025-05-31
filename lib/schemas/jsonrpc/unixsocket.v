@@ -36,7 +36,7 @@ pub fn (mut t UnixSocketTransport) send(request string, params SendParams) !stri
 	if params.timeout > 0 {
 		socket.set_read_timeout(params.timeout * time.second)
 		socket.set_write_timeout(params.timeout * time.second)
-		console.print_debug('Set socket timeout to ${params.timeout} seconds')
+		// console.print_debug('Set socket timeout to ${params.timeout} seconds')
 	}
 	net.set_blocking(socket.sock.handle,false) !
 
@@ -53,26 +53,26 @@ pub fn (mut t UnixSocketTransport) send(request string, params SendParams) !stri
 		// Read up to 64000 bytes
 		mut res := []u8{len: 64000, cap: 64000}
 		n := socket.read(mut res)!
-		console.print_debug('Read ${n} bytes from socket')
+		// console.print_debug('Read ${n} bytes from socket')
 		if n == 0 {
-			console.print_debug('No more data to read, breaking loop')
+			// console.print_debug('No more data to read, breaking loop')
 			break
 		}
 		// Append the newly read data to the total response
 		res_total << res[..n]
 		if n < 8192{
-			console.print_debug('No more data to read, breaking loop after ${n} bytes')
+			// console.print_debug('No more data to read, breaking loop after ${n} bytes')
 			break
 		}		
 	}
-	println(res_total.bytestr().trim_space())
+	// println(res_total.bytestr().trim_space())
 
 
 	// println(19)
 	
 	// Convert response to string and trim whitespace
 	mut response := res_total.bytestr().trim_space()
-	console.print_debug('Received ${response.len} bytes')
+	// console.print_debug('Received ${response.len} bytes')
 
 	// Basic validation
 	if response.len == 0 {
