@@ -78,7 +78,8 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
 		config.favicon = p.get_default('favicon', 'img/favicon.png')!
 		config.image = p.get_default('image', 'img/tf_graph.png')!
-		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() + ' Example Organization')!
+		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() +
+			' Example Organization')!
 		config.url = p.get_default('url', '')!
 		config.base_url = p.get_default('base_url', '/')!
 		config.url_home = p.get_default('url_home', '')!
@@ -89,7 +90,7 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 	for action in meta_actions { // Should ideally be one
 		mut p_meta := action.params
 		// If 'title' is present in site.config_meta, it overrides. Otherwise, meta_title remains empty or uses site.config.title logic in docusaurus model.
-		config.meta_title = p_meta.get_default('title', config.title)! 
+		config.meta_title = p_meta.get_default('title', config.title)!
 		// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
 		config.meta_image = p_meta.get_default('image', config.image)!
 		// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to SiteConfig

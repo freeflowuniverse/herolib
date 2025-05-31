@@ -17,8 +17,7 @@ tree.scan(
 )!
 
 tree.export(
-	destination: '/tmp/mdexport'
-	reset:       true
+	destination:    '/tmp/mdexport'
+	reset:          true
 	exclude_errors: false
 )!
-

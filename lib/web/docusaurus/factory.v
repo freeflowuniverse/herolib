@@ -22,9 +22,9 @@ pub mut:
 pub struct DocusaurusArgs {
 pub mut:
 	// publish_path string
-	build_path      string
-	production      bool
-	update          bool
+	build_path string
+	production bool
+	update     bool
 	// heroscript      string
 	// heroscript_path string
 }

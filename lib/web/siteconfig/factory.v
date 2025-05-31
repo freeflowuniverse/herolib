@@ -1,4 +1,5 @@
 module siteconfig
+
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.base
@@ -26,11 +27,11 @@ pub fn new(path string) !&SiteConfig {
 pub fn get(name_ string) !&SiteConfig {
 	name := texttools.name_fix(name_)
 	mut context := base.context()!
-	mut redis := context.redis()!	json_config := redis.hget('siteconfigs', name)!
+	mut redis := context.redis()!
+	json_config := redis.hget('siteconfigs', name)!
 	if json_config == '' {
 		return error('SiteConfig ${name} not found in redis')
 	}
 	mut sc := json.decode(SiteConfig, json_config)!
 	return &sc
 }
-

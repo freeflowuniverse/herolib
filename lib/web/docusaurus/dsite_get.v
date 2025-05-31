@@ -53,17 +53,17 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	} else if f.config.main.title != '' {
 		// Use the factory's config from heroscript if available
 		generate_configuration(args.path, f.config)!
-	// } else {
-	// 	// Then ensure cfg directory exists in src,
-	// 	if !os.exists('${args.path}/cfg') {
-	// 		if args.init {
-	// 			// else copy config from template
-	// 			mut template_cfg := template_path.dir_get('cfg')!
-	// 			template_cfg.copy(dest: '${args.path}/cfg')!
-	// 		} else {
-	// 			return error("Can't find cfg dir in chosen docusaurus location: ${args.path}")
-	// 		}
-	// 	}
+		// } else {
+		// 	// Then ensure cfg directory exists in src,
+		// 	if !os.exists('${args.path}/cfg') {
+		// 		if args.init {
+		// 			// else copy config from template
+		// 			mut template_cfg := template_path.dir_get('cfg')!
+		// 			template_cfg.copy(dest: '${args.path}/cfg')!
+		// 		} else {
+		// 			return error("Can't find cfg dir in chosen docusaurus location: ${args.path}")
+		// 		}
+		// 	}
 	}
 	if !os.exists('${args.path}/docs') {
 		if args.init {
@@ -90,7 +90,7 @@ This is a default page created by the Docusaurus site generator.
 	}
 
 	mut myconfig := load_configuration('${args.path}/cfg') or {
-		return error("Failed to load configuration from ${args.path}/cfg:\n${err.msg()}")
+		return error('Failed to load configuration from ${args.path}/cfg:\n${err.msg()}')
 	}
 
 	if myconfig.main.name.len == 0 {

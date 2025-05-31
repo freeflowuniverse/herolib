@@ -124,8 +124,6 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut publish_path := cmd.flags.get_string('publish') or { '' }
 	mut deploykey := cmd.flags.get_string('deploykey') or { '' }
 
-
-
 	// --- Build Path Logic ---
 	mut build_path := cmd.flags.get_string('buildpath') or { '' }
 	if build_path == '' {
@@ -172,14 +170,13 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		// }
 	}
 
-	
 	// --- End: Heroscript Path Logic ---
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
 	mut docs := docusaurus.new(
-		update: update
+		update:     update
 		build_path: build_path
 		// heroscript: os.read_file(target_heroscript_path)! // Read the copied heroscript
 	)!
@@ -191,7 +188,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		publish_path: publish_path
 		deploykey:    deploykey
 		init:         init
-		open: 		  open
+		open:         open
 	)!
 
 	site.generate()!

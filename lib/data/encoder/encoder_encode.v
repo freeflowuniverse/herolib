@@ -108,7 +108,6 @@ pub fn (mut b Encoder) add_currency(data currency.Amount) {
 	b.add_f64(data.val)
 }
 
-
 // adds a float64 value
 pub fn (mut b Encoder) add_f64(data f64) {
 	// Convert f64 to bits first, then store as u64

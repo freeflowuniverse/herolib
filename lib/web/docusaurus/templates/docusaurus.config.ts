@@ -1,6 +1,6 @@
 import {themes as prismThemes} from 'prism-react-renderer';
-import type {Configuration} from '@@docusaurus/types';
-import type * as Preset from '@@docusaurus/preset-classic';
+import type {Configuration} from '??docusaurus/types';
+import type * as Preset from '??docusaurus/preset-classic';
 
 const config: Configuration = {
   title: '@{config.main.title}',

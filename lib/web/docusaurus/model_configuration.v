@@ -8,75 +8,75 @@ import freeflowuniverse.herolib.web.siteconfig // For siteconfig.SiteConfig and 
 // import freeflowuniverse.herolib.core.playbook // No longer directly needed here
 
 pub struct Configuration {
-	pub mut:
-		main Main
-		navbar Navbar
-		footer Footer
-	}
+pub mut:
+	main   Main
+	navbar Navbar
+	footer Footer
+}
 
 pub struct Main {
-	pub mut:
-		title        string
-		tagline      string
-		favicon      string
-		url          string
-		base_url     string @[json: 'baseUrl']
-		url_home     string
-		image        string
-		metadata     Metadata
-		build_dest   []string @[json: 'buildDest']
-		build_dest_dev []string @[json: 'buildDestDev']
-		copyright    string
-		name         string
-	}
+pub mut:
+	title          string
+	tagline        string
+	favicon        string
+	url            string
+	base_url       string @[json: 'baseUrl']
+	url_home       string
+	image          string
+	metadata       Metadata
+	build_dest     []string @[json: 'buildDest']
+	build_dest_dev []string @[json: 'buildDestDev']
+	copyright      string
+	name           string
+}
 
 pub struct Metadata {
-	pub mut:
-		description string
-		image       string
-		title       string
-	}
+pub mut:
+	description string
+	image       string
+	title       string
+}
 
 pub struct Navbar {
-	pub mut:
-		title  string
-		logo   Logo
-		items  []NavbarItem
-	}
+pub mut:
+	title string
+	logo  Logo
+	items []NavbarItem
+}
 
 pub struct Logo {
-	pub mut:
-		alt      string
-		src      string
-		src_dark string @[json: 'srcDark']
-	}
+pub mut:
+	alt      string
+	src      string
+	src_dark string @[json: 'srcDark']
+}
 
 pub struct NavbarItem {
-	pub mut:
-		label    string
-		href     string
-		position string
-		to       string
-	}
+pub mut:
+	label    string
+	href     string
+	position string
+	to       string
+}
 
 pub struct Footer {
-	pub mut:
-		style  string
-		links  []FooterLink
-	}
+pub mut:
+	style string
+	links []FooterLink
+}
 
 pub struct FooterLink {
-	pub mut:
-		title string
-		items []FooterItem
-	}
+pub mut:
+	title string
+	items []FooterItem
+}
 
 pub struct FooterItem {
-	pub mut:
-		label string
-		href  string
-		to    string
-	}
+pub mut:
+	label string
+	href  string
+	to    string
+}
 
 // Private helper function for JSON loading logic
 fn load_configuration_from_json(cfg_path string) !Configuration {
@@ -91,15 +91,15 @@ fn load_configuration_from_json(cfg_path string) !Configuration {
 	mut main_json_content := pathlib.get_file(path: main_json_path)!
 	mut navbar_json_content := pathlib.get_file(path: navbar_json_path)!
 	mut footer_json_content := pathlib.get_file(path: footer_json_path)!
-	
+
 	main_data := json.decode(Main, main_json_content.read()!)!
 	navbar_data := json.decode(Navbar, navbar_json_content.read()!)!
 	footer_data := json.decode(Footer, footer_json_content.read()!)!
 
 	mut cfg := Configuration{
-		main: main_data,
-		navbar: navbar_data,
-		footer: footer_data,
+		main:   main_data
+		navbar: navbar_data
+		footer: footer_data
 	}
 	return cfg
 }
@@ -110,23 +110,23 @@ pub fn load_configuration(cfg_path string) !Configuration {
 
 	if os.exists(hero_script_main_file_path) {
 		println('Found primary HeroScript file: ${hero_script_main_file_path}. Attempting to load configuration.')
-		
+
 		// Use siteconfig.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
 		site_cfg_ref := siteconfig.new(hero_script_main_file_path) or {
 			eprintln('Error loading configuration from HeroScript file ${hero_script_main_file_path}: ${err}. Falling back to JSON.')
 			return load_configuration_from_json(cfg_path) // Fallback to JSON private helper
 		}
-		
+
 		site_cfg_from_heroscript := *site_cfg_ref // Dereference to get the actual SiteConfig struct
 
 		// Transform siteconfig.SiteConfig to docusaurus.Configuration
 		mut nav_items := []NavbarItem{}
 		for item in site_cfg_from_heroscript.menu.items {
 			nav_items << NavbarItem{
-				label: item.label,
-				href: item.href,
-				position: item.position,
-				to: item.to,
+				label:    item.label
+				href:     item.href
+				position: item.position
+				to:       item.to
 			}
 		}
 
@@ -135,49 +135,49 @@ pub fn load_configuration(cfg_path string) !Configuration {
 			mut footer_items_mapped := []FooterItem{}
 			for item in link.items {
 				footer_items_mapped << FooterItem{
-					label: item.label,
-					href: item.href,
-					to: item.to,
+					label: item.label
+					href:  item.href
+					to:    item.to
 				}
 			}
 			footer_links << FooterLink{
-				title: link.title,
-				items: footer_items_mapped,
+				title: link.title
+				items: footer_items_mapped
 			}
 		}
 
 		cfg := Configuration{
-			main: Main{
-				title: site_cfg_from_heroscript.title,
-				tagline: site_cfg_from_heroscript.tagline,
-				favicon: site_cfg_from_heroscript.favicon,
-				url: site_cfg_from_heroscript.url,
-				base_url: site_cfg_from_heroscript.base_url,
-				url_home: site_cfg_from_heroscript.url_home,
-				image: site_cfg_from_heroscript.image, // General site image
-				metadata: Metadata{
-					title: site_cfg_from_heroscript.meta_title, // Specific title for metadata
-					description: site_cfg_from_heroscript.description,
-					image: site_cfg_from_heroscript.meta_image, // Use the specific meta_image from siteconfig
-				},
-				build_dest: site_cfg_from_heroscript.build_dest.map(it.path),
-				build_dest_dev: site_cfg_from_heroscript.build_dest_dev.map(it.path),
-				copyright: site_cfg_from_heroscript.copyright,
-				name: site_cfg_from_heroscript.name,
-			},
+			main:   Main{
+				title:          site_cfg_from_heroscript.title
+				tagline:        site_cfg_from_heroscript.tagline
+				favicon:        site_cfg_from_heroscript.favicon
+				url:            site_cfg_from_heroscript.url
+				base_url:       site_cfg_from_heroscript.base_url
+				url_home:       site_cfg_from_heroscript.url_home
+				image:          site_cfg_from_heroscript.image // General site image
+				metadata:       Metadata{
+					title:       site_cfg_from_heroscript.meta_title // Specific title for metadata
+					description: site_cfg_from_heroscript.description
+					image:       site_cfg_from_heroscript.meta_image // Use the specific meta_image from siteconfig
+				}
+				build_dest:     site_cfg_from_heroscript.build_dest.map(it.path)
+				build_dest_dev: site_cfg_from_heroscript.build_dest_dev.map(it.path)
+				copyright:      site_cfg_from_heroscript.copyright
+				name:           site_cfg_from_heroscript.name
+			}
 			navbar: Navbar{
-				title: site_cfg_from_heroscript.menu.title,
-				logo: Logo{
-					alt: site_cfg_from_heroscript.menu.logo_alt,
-					src: site_cfg_from_heroscript.menu.logo_src,
-					src_dark: site_cfg_from_heroscript.menu.logo_src_dark,
-				},
-				items: nav_items,
-			},
+				title: site_cfg_from_heroscript.menu.title
+				logo:  Logo{
+					alt:      site_cfg_from_heroscript.menu.logo_alt
+					src:      site_cfg_from_heroscript.menu.logo_src
+					src_dark: site_cfg_from_heroscript.menu.logo_src_dark
+				}
+				items: nav_items
+			}
 			footer: Footer{
-				style: site_cfg_from_heroscript.footer.style,
-				links: footer_links,
-			},
+				style: site_cfg_from_heroscript.footer.style
+				links: footer_links
+			}
 		}
 		return cfg
 	} else {
@@ -187,14 +187,14 @@ pub fn load_configuration(cfg_path string) !Configuration {
 }
 
 pub fn fix_configuration(config Configuration) !Configuration {
-	return Configuration {
-		...config,
-		main: Main {
-			...config.main,
-			title: if config.main.title == "" { "Docusaurus" } else { config.main.title },
-			favicon: if config.main.favicon == "" { "img/favicon.ico" } else { config.main.favicon },
-			url: if config.main.url == "" { "https://example.com" } else { config.main.url },
-			base_url: if config.main.base_url == "" { "/" } else { config.main.base_url },
+	return Configuration{
+		...config
+		main: Main{
+			...config.main
+			title:    if config.main.title == '' { 'Docusaurus' } else { config.main.title }
+			favicon:  if config.main.favicon == '' { 'img/favicon.ico' } else { config.main.favicon }
+			url:      if config.main.url == '' { 'https://example.com' } else { config.main.url }
+			base_url: if config.main.base_url == '' { '/' } else { config.main.base_url }
 		}
 	}
 }

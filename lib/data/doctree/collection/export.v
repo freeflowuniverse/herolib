@@ -34,15 +34,15 @@ pub fn (mut c Collection) export(args CollectionExportArgs) ! {
 		file_paths:     args.file_paths
 		keep_structure: args.keep_structure
 		replacer:       args.replacer
-		redis: args.redis
+		redis:          args.redis
 	)!
 
-	c.export_files(c.name,dir_src, args.reset)!
-	c.export_images(c.name,dir_src, args.reset)!
-	c.export_linked_pages(c.name,dir_src)!
+	c.export_files(c.name, dir_src, args.reset)!
+	c.export_images(c.name, dir_src, args.reset)!
+	c.export_linked_pages(c.name, dir_src)!
 
 	if !args.exclude_errors {
-		c.errors_report(c.name,'${dir_src.path}/errors.md')!
+		c.errors_report(c.name, '${dir_src.path}/errors.md')!
 	}
 }
 
@@ -99,42 +99,41 @@ fn export_pages(col_name string, col_path string, pages []&data.Page, args Expor
 			markdown = replacer.replace(text: markdown)!
 		}
 		dest_path.write(markdown)!
-		redis.hset('doctree:${col_name}', page.name, "${page.name}.md")!
-
+		redis.hset('doctree:${col_name}', page.name, '${page.name}.md')!
 	}
 	return errors
 }
 
-fn (c Collection) export_files(col_name string,dir_src pathlib.Path, reset bool) ! {
+fn (c Collection) export_files(col_name string, dir_src pathlib.Path, reset bool) ! {
 	mut context := base.context()!
-	mut redis := context.redis()!	
+	mut redis := context.redis()!
 	for _, file in c.files {
 		mut d := '${dir_src.path}/img/${file.name}.${file.ext}'
 		if reset || !os.exists(d) {
 			file.copy(d)!
 		}
-		redis.hset('doctree:${col_name}', file.name, "img/${file.name}.${file.ext}")!
+		redis.hset('doctree:${col_name}', file.name, 'img/${file.name}.${file.ext}')!
 	}
 }
 
-fn (c Collection) export_images(col_name string,dir_src pathlib.Path, reset bool) ! {
+fn (c Collection) export_images(col_name string, dir_src pathlib.Path, reset bool) ! {
 	mut context := base.context()!
-	mut redis := context.redis()!	
+	mut redis := context.redis()!
 	for _, file in c.images {
 		mut d := '${dir_src.path}/img/${file.name}.${file.ext}'
-		redis.hset('doctree:${col_name}', file.name, "img/${file.name}.${file.ext}")!
+		redis.hset('doctree:${col_name}', file.name, 'img/${file.name}.${file.ext}')!
 		if reset || !os.exists(d) {
 			file.copy(d)!
 		}
 	}
 }
 
-fn (c Collection) export_linked_pages(col_name string,dir_src pathlib.Path) ! {
+fn (c Collection) export_linked_pages(col_name string, dir_src pathlib.Path) ! {
 	mut context := base.context()!
-	mut redis := context.redis()!	
+	mut redis := context.redis()!
 	collection_linked_pages := c.get_collection_linked_pages()!
 	mut linked_pages_file := pathlib.get_file(path: dir_src.path + '/.linkedpages', create: true)!
-	redis.hset('doctree:${col_name}', "linkedpages", "${linked_pages_file.name()}.md")!
+	redis.hset('doctree:${col_name}', 'linkedpages', '${linked_pages_file.name()}.md')!
 	linked_pages_file.write(collection_linked_pages.join_lines())!
 }
 

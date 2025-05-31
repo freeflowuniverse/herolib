@@ -1,4 +1,5 @@
 module doctreeclient
+
 import freeflowuniverse.herolib.core.base
 
 pub fn new() !&DocTreeClient {
@@ -9,4 +10,3 @@ pub fn new() !&DocTreeClient {
 		redis: redis
 	}
 }
-

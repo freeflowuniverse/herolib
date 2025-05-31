@@ -1,4 +1,5 @@
 module jsonrpc
+import freeflowuniverse.herolib.ui.console
 
 // IRPCTransportClient defines the interface for transport mechanisms used by the JSON-RPC client.
 // This allows for different transport implementations (HTTP, WebSocket, etc.) to be used
@@ -13,6 +14,19 @@ mut:
 	//   - The response string or an error if the send operation fails
 	send(request string, params SendParams) !string
 }
+
+// SendParams defines configuration options for sending JSON-RPC requests.
+// These parameters control timeout and retry behavior.
+@[params]
+pub struct SendParams {
+pub:
+	// Maximum time in seconds to wait for a response (default: 60)
+	timeout int = 60
+
+	// Number of times to retry the request if it fails
+	retry int
+}
+
 
 // Client implements a JSON-RPC 2.0 client that can send requests and process responses.
 // It uses a pluggable transport layer that implements the IRPCTransportClient interface.
@@ -29,23 +43,13 @@ mut:
 //
 // Returns:
 //   - A pointer to a new Client instance
-pub fn new_client(client Client) &Client {
-	return &Client{
-		...client
+pub fn new_client(transport IRPCTransportClient) &Client {
+	mut cl:=Client{
+		transport: transport 
 	}
+	return &cl
 }
 
-// SendParams defines configuration options for sending JSON-RPC requests.
-// These parameters control timeout and retry behavior.
-@[params]
-pub struct SendParams {
-pub:
-	// Maximum time in seconds to wait for a response (default: 60)
-	timeout int = 60
-
-	// Number of times to retry the request if it fails
-	retry int
-}
 
 // send sends a JSON-RPC request with parameters of type T and expects a response with result of type D.
 // This method handles the full request-response cycle including validation and error handling.
@@ -62,7 +66,9 @@ pub:
 //   - The response result of type D or an error if any step in the process fails
 pub fn (mut c Client) send[T, D](request RequestGeneric[T], params SendParams) !D {
 	// Send the encoded request through the transport layer
+	console.print_debug('Sending request: ${request.encode()}')
 	response_json := c.transport.send(request.encode(), params)!
+
 
 	// Decode the response JSON into a strongly-typed response object
 	response := decode_response_generic[D](response_json) or {

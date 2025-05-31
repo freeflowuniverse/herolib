@@ -64,7 +64,6 @@ pub fn (mut s DocSite) open() ! {
 	osal.exec(cmd: 'open https://localhost:3000')!
 }
 
-
 pub fn (mut s DocSite) dev() ! {
 	s.generate()!
 

@@ -10,18 +10,17 @@ println('=====================')
 // Step 1: First, populate Redis with doctree data
 println('\n1. Setting up doctree data in Redis...')
 
-
 tree.scan(
 	git_url:  'https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/collections'
 	git_pull: false
 )!
 
 tree.export(
-	destination: '/tmp/mdexport'
-	reset:       true
+	destination:    '/tmp/mdexport'
+	reset:          true
 	exclude_errors: false
 )!
-	
+
 println('Doctree data populated in Redis')
 
 // Step 2: Create a DocTreeClient instance
@@ -52,15 +51,15 @@ println('Found ${pages.len} pages: ${pages}')
 if pages.len > 0 {
 	page_name := 'introduction'
 	println('\n6. Getting content of page: ${page_name}')
-	
+
 	// Check if page exists
 	exists := client.page_exists(collection_name, page_name)
 	println('Page exists: ${exists}')
-	
+
 	// Get page path
 	page_path := client.get_page_path(collection_name, page_name)!
 	println('Page path: ${page_path}')
-	
+
 	// Get page content
 	content := client.get_page_content(collection_name, page_name)!
 	println('Page content:')
@@ -78,11 +77,11 @@ println('Found ${images.len} images: ${images}')
 if images.len > 0 {
 	image_name := images[0]
 	println('\n8. Getting path of image: ${image_name}')
-	
+
 	// Check if image exists
 	exists := client.image_exists(collection_name, image_name)
 	println('Image exists: ${exists}')
-	
+
 	// Get image path
 	image_path := client.get_image_path(collection_name, image_name)!
 	println('Image path: ${image_path}')
@@ -97,11 +96,11 @@ println('Found ${files.len} files: ${files}')
 if files.len > 0 {
 	file_name := files[0]
 	println('\n10. Getting path of file: ${file_name}')
-	
+
 	// Check if file exists
 	exists := client.file_exists(collection_name, file_name)
 	println('File exists: ${exists}')
-	
+
 	// Get file path
 	file_path := client.get_file_path(collection_name, file_name)!
 	println('File path: ${file_path}')

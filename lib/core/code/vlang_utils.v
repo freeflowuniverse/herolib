@@ -1,7 +1,6 @@
 module code
 
 import freeflowuniverse.herolib.ui.console
-
 import os
 
 // ===== FILE AND DIRECTORY OPERATIONS =====

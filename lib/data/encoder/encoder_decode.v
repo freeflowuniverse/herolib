@@ -150,14 +150,14 @@ pub fn (mut d Decoder) get_ourtime() !ourtime.OurTime {
 }
 
 pub fn (mut d Decoder) get_currency() !currency.Amount {
-	curstring:=d.get_string()!
+	curstring := d.get_string()!
 	if curstring.len == 0 {
 		return error('currency string is empty')
 	}
 	currencyo := currency.get(curstring)!
 	return currency.Amount{
 		currency: currencyo
-		val: d.get_f64()!
+		val:      d.get_f64()!
 	}
 }
 

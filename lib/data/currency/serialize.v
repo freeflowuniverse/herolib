@@ -1,7 +1,6 @@
 module currency
 
-//see encoder for binary
-
+// see encoder for binary
 
 // import freeflowuniverse.herolib.data.encoder
 
