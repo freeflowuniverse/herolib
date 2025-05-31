@@ -10,3 +10,8 @@ should return something like this:
 
 
 
+now copy following
+{"jsonrpc":"2.0","method":"rpc.discover","params":[],"id":286703868}
+
+
+

@@ -50,11 +50,11 @@ if service_list.len > 0 {
 	
 	// Create a request for service_status method with the service name as parameter
 	// The parameter for service_status is a single string (service name)
-	status_request := jsonrpc.new_request_generic('service_status', service_name)
+	status_request := jsonrpc.new_request_generic('service_status', {"name":service_name})
 	
 	// Send the request and receive a ServiceStatus object
 	println('\nSending service_status request for service: $service_name')
-	service_status := cl.send[string, ServiceStatus](status_request)!
+	service_status := cl.send[map[string]string, ServiceStatus](status_request)!
 	
 	// Display the service status details
 	println('Service Status:')

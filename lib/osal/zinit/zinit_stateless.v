@@ -9,22 +9,23 @@ import json
 
 @[params]
 pub struct ZinitConfig {
-	path     string = '/etc/zinit'
-	pathcmds string = '/etc/zinit/cmds'
+	path        string = '/etc/zinit'
+	pathcmds    string = '/etc/zinit/cmds'
+	socket_path string = default_socket_path
 }
 
 pub struct ZinitStateless {
 pub mut:
-	client   Client
+	client   ZinitClient
 	path     pathlib.Path
 	pathcmds pathlib.Path
 }
 
 pub fn new_stateless(z ZinitConfig) !ZinitStateless {
 	return ZinitStateless{
-		client:   new_rpc_client()
-		path:     pathlib.get_dir(path: '/etc/zinit', create: true)!
-		pathcmds: pathlib.get_dir(path: '/etc/zinit/cmds', create: true)!
+		client:   new_client(z.socket_path)
+		path:     pathlib.get_dir(path: z.path, create: true)!
+		pathcmds: pathlib.get_dir(path: z.pathcmds, create: true)!
 	}
 }
 
@@ -104,7 +105,7 @@ fn (mut zinit ZinitStateless) cmd_write(name string, cmd string, cat string, env
 	return '/bin/bash -c ${pathcmd.path}'
 }
 
-pub fn (zinit ZinitStateless) exists(name string) !bool {
+pub fn (mut zinit ZinitStateless) exists(name string) !bool {
 	return name in zinit.client.list()!
 }
 
