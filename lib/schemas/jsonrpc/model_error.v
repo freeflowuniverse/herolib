@@ -61,7 +61,7 @@ pub mut:
 	message string
 
 	// Additional information about the error (optional)
-	data string
+	data ?string
 }
 
 // new_error creates a new error response for a given request ID.

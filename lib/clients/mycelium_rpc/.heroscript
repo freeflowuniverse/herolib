@@ -1,0 +1,8 @@
+
+!!hero_code.generate_client
+    name:'mycelium_rpc'
+    classname:'MyceliumRPC'
+    singleton:1
+    default:0
+	hasconfig:1
+    reset:0

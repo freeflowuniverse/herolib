@@ -21,9 +21,10 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut tun_name := 'tun${installer.tun_nr}'
 
 	res << zinit.ZProcessNewArgs{
-		name: 'mycelium'
-		cmd:  'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
-		env:  {
+		name:        'mycelium'
+		startuptype: .zinit
+		cmd:         'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
+		env:         {
 			'HOME': '/root'
 		}
 	}
@@ -85,9 +86,6 @@ fn upload() ! {
 
 fn install() ! {
 	console.print_header('install mycelium')
-
-	mut z_installer := zinit_installer.get()!
-	z_installer.start()!
 
 	mut url := ''
 	if core.is_linux_arm()! {
