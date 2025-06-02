@@ -1,4 +1,5 @@
 module jsonrpc
+
 import freeflowuniverse.herolib.ui.console
 
 // IRPCTransportClient defines the interface for transport mechanisms used by the JSON-RPC client.
@@ -27,11 +28,10 @@ pub:
 	retry int
 }
 
-
 // Client implements a JSON-RPC 2.0 client that can send requests and process responses.
 // It uses a pluggable transport layer that implements the IRPCTransportClient interface.
 pub struct Client {
-mut:
+pub mut:
 	// The transport implementation used to send requests and receive responses
 	transport IRPCTransportClient
 }
@@ -44,12 +44,11 @@ mut:
 // Returns:
 //   - A pointer to a new Client instance
 pub fn new_client(transport IRPCTransportClient) &Client {
-	mut cl:=Client{
-		transport: transport 
+	mut cl := Client{
+		transport: transport
 	}
 	return &cl
 }
-
 
 // send sends a JSON-RPC request with parameters of type T and expects a response with result of type D.
 // This method handles the full request-response cycle including validation and error handling.
@@ -68,7 +67,6 @@ pub fn (mut c Client) send[T, D](request RequestGeneric[T], params SendParams) !
 	// Send the encoded request through the transport layer
 	console.print_debug('Sending request: ${request.encode()}')
 	response_json := c.transport.send(request.encode(), params)!
-
 
 	// Decode the response JSON into a strongly-typed response object
 	response := decode_response_generic[D](response_json) or {
