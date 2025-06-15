@@ -67,11 +67,11 @@ pub fn rhai_wrapper_generation_prompt(name string, source_code string, source_pk
 	errors_md := os.read_file('${current_dir}/prompts/errors.md')!
 
 	// Load all required template and guide files
-	guides := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhaiwrapping_classicai.md')!
+	guides := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhaiwrapping_classicai.md')!
 	engine := $tmpl('./prompts/engine.md')
-	vector_vs_array := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_array_vs_vector.md')!
-	rhai_integration_fixes := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_integration_fixes.md')!
-	rhai_syntax_guide := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_syntax_guide.md')!
+	vector_vs_array := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_array_vs_vector.md')!
+	rhai_integration_fixes := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_integration_fixes.md')!
+	rhai_syntax_guide := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_syntax_guide.md')!
 	generic_wrapper_rs := $tmpl('./templates/generic_wrapper.rs')
 
 	prompt := $tmpl('./prompts/main.md')

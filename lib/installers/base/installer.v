@@ -82,9 +82,9 @@ pub fn sshkeysinstall(args InstallArgs) ! {
     then
         ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
     fi
-    if ! grep git.ourworld.tf ~/.ssh/known_hosts > /dev/null
+    if ! grep git.threefold.info ~/.ssh/known_hosts > /dev/null
     then
-        ssh-keyscan -t rsa  git.ourworld.tf >> ~/.ssh/known_hosts
+        ssh-keyscan -t rsa  git.threefold.info >> ~/.ssh/known_hosts
     fi    
     git config --global pull.rebase false
 	'

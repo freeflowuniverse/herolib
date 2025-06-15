@@ -17,7 +17,7 @@ heroscript has numerous ways to execute actions using your hero tool.
 
 example:
 
-hero run -u https://git.ourworld.tf/threefold_coop/info_asimov/src/branch/main/heroscript
+hero run -u https://git.threefold.info/threefold_coop/info_asimov/src/branch/main/heroscript
 
 Can also do -e or -st to see sourcetree
 

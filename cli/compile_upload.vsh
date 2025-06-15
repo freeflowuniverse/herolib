@@ -28,7 +28,7 @@ fn get_platform_id() string {
 }
 
 fn read_secrets() ! {
-	secret_file := os.join_path(os.home_dir(), 'code/git.ourworld.tf/despiegk/hero_secrets/mysecrets.sh')
+	secret_file := os.join_path(os.home_dir(), 'code/git.threefold.info/despiegk/hero_secrets/mysecrets.sh')
 	if os.exists(secret_file) {
 		println('Reading secrets from ${secret_file}')
 		content := os.read_file(secret_file)!

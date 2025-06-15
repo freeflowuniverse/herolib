@@ -12,7 +12,7 @@ import os
 
 const name = 'tf9_budget'
 
-const wikipath = '${os.home_dir()}/code/git.ourworld.tf/ourworld_holding/info_ourworld/collections/${name}'
+const wikipath = '${os.home_dir()}/code/git.threefold.info/ourworld_holding/info_ourworld/collections/${name}'
 const summarypath = '${wikipath}/summary.md'
 
 // mut sh := spreadsheet.sheet_new(name: 'test2') or { panic(err) }

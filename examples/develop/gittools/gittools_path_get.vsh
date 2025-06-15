@@ -8,7 +8,7 @@ mut gs := gittools.new()!
 mydocs_path := gs.get_path(
 	pull:  true
 	reset: false
-	url:   'https://git.ourworld.tf/tfgrid/info_docs_depin/src/branch/main/docs'
+	url:   'https://git.threefold.info/tfgrid/info_docs_depin/src/branch/main/docs'
 )!
 
 println(mydocs_path)

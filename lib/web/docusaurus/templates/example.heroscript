@@ -22,7 +22,7 @@
 !!docusaurus.ssh_connection name:'main' host:'info.ourworld.tf' port:'21' login:'root' passwd:'' key_path:'' key:''
 
 !!docusaurus.import_source
-        url:'https://git.ourworld.tf/ourworld_holding/info_docs_owh/src/branch/main/docs'
+        url:'https://git.threefold.info/ourworld_holding/info_docs_owh/src/branch/main/docs'
         path:''
         dest:'' //if empty is root of docs
         replace:'NAME:MyName, URGENCY:red'

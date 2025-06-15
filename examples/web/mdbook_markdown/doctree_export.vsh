@@ -12,7 +12,7 @@ mut tree := doctree.new(name: 'test')!
 // git_pull  bool
 
 tree.scan(
-	git_url:  'https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/collections'
+	git_url:  'https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/collections'
 	git_pull: false
 )!
 

@@ -43,7 +43,7 @@ client.send(subject:'this is a test',to:'kristof@incubaid.com',body:'
 if you have a secrets file you could import as
 
 ```bash
-//e.g.  source ~/code/git.ourworld.tf/despiegk/hero_secrets/mysecrets.sh
+//e.g.  source ~/code/git.threefold.info/despiegk/hero_secrets/mysecrets.sh
 ```
 
 following env variables are supported

@@ -47,7 +47,7 @@ fn main() {
 
 	println('Task completed successfully')
 	println('The wrapper files have been generated and compiled in the target directory.')
-	println('Check /Users/timurgordon/code/git.ourworld.tf/herocode/sal/src/rhai for the compiled output.')
+	println('Check /Users/timurgordon/code/git.threefold.info/herocode/sal/src/rhai for the compiled output.')
 }
 
 // Validates command line arguments and returns the source code path
@@ -175,11 +175,11 @@ fn run_wrapper_generation_task(prompt_content string, gen RhaiGen) !string {
 // Define a Rhai wrapper generator function for Container functions
 fn create_rhai_wrappers(name string, source_code string, example_rhai string, wrapper_md string, errors_md string, crate_path string) string {
 	// Load all required template and guide files
-	guides := load_guide_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhaiwrapping_classicai.md')
+	guides := load_guide_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhaiwrapping_classicai.md')
 	engine := $tmpl('./prompts/engine.md')
-	vector_vs_array := load_guide_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_array_vs_vector.md')
-	rhai_integration_fixes := load_guide_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_integration_fixes.md')
-	rhai_syntax_guide := load_guide_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_syntax_guide.md')
+	vector_vs_array := load_guide_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_array_vs_vector.md')
+	rhai_integration_fixes := load_guide_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_integration_fixes.md')
+	rhai_syntax_guide := load_guide_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_syntax_guide.md')
 	generic_wrapper_rs := $tmpl('./templates/generic_wrapper.rs')
 
 	// Build the prompt content

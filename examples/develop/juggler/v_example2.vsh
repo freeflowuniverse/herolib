@@ -6,7 +6,7 @@ import os
 mut sm := startupmanager.get()!
 sm.start(
 	name:    'juggler'
-	cmd:     'hero juggler -secret planetfirst -u https://git.ourworld.tf/projectmycelium/itenv -reset true'
+	cmd:     'hero juggler -secret planetfirst -u https://git.threefold.info/projectmycelium/itenv -reset true'
 	env:     {
 		'HOME': os.home_dir()
 	}

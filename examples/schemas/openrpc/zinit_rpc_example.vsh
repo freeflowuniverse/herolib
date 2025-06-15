@@ -1,7 +1,7 @@
 #!/usr/bin/env -S v -n -w -cg -gc none -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.schemas.jsonrpc
-import freeflowuniverse.herolib.schemas.openrpc
+import freeflowuniverse.herolib.schemas.openrpc //for the model as used 
 import json
 import x.json2
 

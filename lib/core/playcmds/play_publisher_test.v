@@ -11,14 +11,14 @@ fn test_play_publisher() {
 	s2 := "
 
 !!publisher.new_collection
-	url:'https://git.ourworld.tf/tfgrid/info_tfgrid/src/branch/main/collections'
+	url:'https://git.threefold.info/tfgrid/info_tfgrid/src/branch/main/collections'
 	reset: false
 	pull: true
 
 
 !!book.define 
     name:'info_tfgrid' 
-    summary_url:'https://git.ourworld.tf/tfgrid/info_tfgrid/src/branch/development/books/tech/SUMMARY.md' 
+    summary_url:'https://git.threefold.info/tfgrid/info_tfgrid/src/branch/development/books/tech/SUMMARY.md' 
 	title:'ThreeFold Technology'
 	collections: 'about,dashboard,farmers,library,partners_utilization,tech,p2p'
 

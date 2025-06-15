@@ -10,7 +10,7 @@ mut docs := starlight.new(
 
 // Create a new starlight site
 mut site := docs.get(
-	url:  'https://git.ourworld.tf/tfgrid/docs_aibox'
+	url:  'https://git.threefold.info/tfgrid/docs_aibox'
 	init: true // init means we put config files if not there
 )!
 

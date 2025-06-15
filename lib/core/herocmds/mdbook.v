@@ -19,7 +19,7 @@ pub fn cmd_mdbook(mut cmdroot Command) {
 
 example:
 
-hero mdbook -u https://git.ourworld.tf/tfgrid/info_tfgrid/src/branch/main/heroscript
+hero mdbook -u https://git.threefold.info/tfgrid/info_tfgrid/src/branch/main/heroscript
 
 If you do -gp it will pull newest book content from git and give error if there are local changes.
 If you do -gr it will pull newest book content from git and overwrite local changes (careful).

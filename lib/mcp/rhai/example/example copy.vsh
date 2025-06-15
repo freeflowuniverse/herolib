@@ -60,7 +60,7 @@ fn main() {
 	}
 
 	// Read the rhaiwrapping.md file
-	rhai_wrapping_md := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhaiwrapping.md') or {
+	rhai_wrapping_md := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhaiwrapping.md') or {
 		println('Failed to read rhaiwrapping.md: ${err}')
 		return
 	}
@@ -140,7 +140,7 @@ fn main() {
 
 	println('Task completed successfully')
 	println('The wrapper files have been generated and compiled in the target directory.')
-	println('Check /Users/timurgordon/code/git.ourworld.tf/herocode/sal/src/rhai for the compiled output.')
+	println('Check /Users/timurgordon/code/git.threefold.info/herocode/sal/src/rhai for the compiled output.')
 }
 
 // Define the prompt functions
@@ -158,17 +158,17 @@ fn create_example(input string) string {
 
 // Define a Rhai wrapper generator function for Container functions
 fn create_rhai_wrappers(name string, source_code string, example_rhai string, wrapper_md string, errors_md string, crate_path string) string {
-	guides := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhaiwrapping_classicai.md') or {
+	guides := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhaiwrapping_classicai.md') or {
 		panic('Failed to read guides')
 	}
 	engine := $tmpl('./prompts/engine.md')
-	vector_vs_array := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_array_vs_vector.md') or {
+	vector_vs_array := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_array_vs_vector.md') or {
 		panic('Failed to read guides')
 	}
-	rhai_integration_fixes := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_integration_fixes.md') or {
+	rhai_integration_fixes := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_integration_fixes.md') or {
 		panic('Failed to read guides')
 	}
-	rhai_syntax_guide := os.read_file('/Users/timurgordon/code/git.ourworld.tf/herocode/sal/aiprompts/rhai_syntax_guide.md') or {
+	rhai_syntax_guide := os.read_file('/Users/timurgordon/code/git.threefold.info/herocode/sal/aiprompts/rhai_syntax_guide.md') or {
 		panic('Failed to read guides')
 	}
 	generic_wrapper_rs := $tmpl('./templates/generic_wrapper.rs')

@@ -16,7 +16,7 @@ pub fn cmd_publisher(pre_func fn (Command) !) Command {
 
 example:
 
-hero publisher -u https://git.ourworld.tf/ourworld_holding/info_ourworld/src/branch/develop/heroscript
+hero publisher -u https://git.threefold.info/ourworld_holding/info_ourworld/src/branch/develop/heroscript
 
 If you do -gp it will pull newest book content from git and give error if there are local changes.
 If you do -gr it will pull newest book content from git and overwrite local changes (careful).

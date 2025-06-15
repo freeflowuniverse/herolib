@@ -11,7 +11,7 @@ println('=====================')
 println('\n1. Setting up doctree data in Redis...')
 
 tree.scan(
-	git_url:  'https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/collections'
+	git_url:  'https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/collections'
 	git_pull: false
 )!
 

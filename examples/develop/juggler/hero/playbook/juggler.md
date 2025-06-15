@@ -1,5 +1,5 @@
 !!juggler.configure
-	url: 'https://git.ourworld.tf/projectmycelium/itenv'
+	url: 'https://git.threefold.info/projectmycelium/itenv'
     username: ''
     password: ''
     port: 8000

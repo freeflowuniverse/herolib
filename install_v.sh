@@ -88,9 +88,9 @@ function sshknownkeysadd {
     then
         ssh-keyscan github.com >> ~/.ssh/known_hosts
     fi
-    if ! grep git.ourworld.tf ~/.ssh/known_hosts > /dev/null
+    if ! grep git.threefold.info ~/.ssh/known_hosts > /dev/null
     then
-        ssh-keyscan git.ourworld.tf >> ~/.ssh/known_hosts
+        ssh-keyscan git.threefold.info >> ~/.ssh/known_hosts
     fi    
     git config --global pull.rebase false
 

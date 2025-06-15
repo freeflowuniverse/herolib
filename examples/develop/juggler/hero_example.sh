@@ -1,1 +1,1 @@
-hero juggler -u https://git.ourworld.tf/projectmycelium/itenv
+hero juggler -u https://git.threefold.info/projectmycelium/itenv

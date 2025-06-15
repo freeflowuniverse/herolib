@@ -14,7 +14,7 @@ export DOCKER_HOST=unix:///Users/despiegk1/.local/share/containers/herocontainer
 #had to install docker to get some docker tools, but was not running it
 brew install --cask docker
 cd /tmp
-git clone git@git.ourworld.tf:despiegk/test.git
+git clone git@git.threefold.info:despiegk/test.git
 cd test
 actrunner exec
 ```

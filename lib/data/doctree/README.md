@@ -40,7 +40,7 @@ tree.scan(path: './docs')!
 //git_url   string
 //git_reset bool
 //git_pull  bool
-tree.scan(git_url: 'https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/collections')!
+tree.scan(git_url: 'https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/collections')!
 
 // 3. Export the processed content to a destination directory
 // Replace './output' with your desired output path
