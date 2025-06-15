@@ -52,16 +52,16 @@ pub:
 pub fn (mut c ZinitClient) discover() !string {
 	// Use a simpler approach - just get the raw response and return it as a string
 	request := jsonrpc.new_request_generic('rpc.discover', []string{})
-	
+
 	// Send the request and get the raw response
-	raw_response := c.rpc_client.rpc_client.transport.send(request.encode(), jsonrpc.SendParams{
+	raw_response := c.rpc_client.transport.send(request.encode(), jsonrpc.SendParams{
 		timeout: 5 // Increase timeout to 5 seconds
 	})!
-	
+
 	// Extract just the result part from the response
 	// This is a simplified approach to avoid full JSON parsing
 	start_idx := raw_response.index('{"info":') or { return error('Invalid response format') }
-	
+
 	// Return the raw JSON string
 	return raw_response[start_idx..]
 }
@@ -142,10 +142,10 @@ pub:
 //   - signal: The signal to send (e.g., SIGTERM, SIGKILL)
 pub fn (mut c ZinitClient) kill(name string, signal string) ! {
 	params := KillParams{
-		name: name
+		name:   name
 		signal: signal
 	}
-	
+
 	request := jsonrpc.new_request_generic('service_kill', params)
 	c.rpc_client.send[KillParams, EmptyResponse](request)!
 }
@@ -211,11 +211,11 @@ pub fn (mut c ZinitClient) get_all_logs() ![]string {
 // ServiceConfig represents the configuration for a service
 pub struct ServiceConfig {
 pub:
-	exec            string
-	oneshot         bool
-	after           []string
-	log             string
-	env             map[string]string
+	exec             string
+	oneshot          bool
+	after            []string
+	log              string
+	env              map[string]string
 	shutdown_timeout int
 }
 
@@ -234,10 +234,10 @@ pub:
 //   - A string indicating the result of the operation
 pub fn (mut c ZinitClient) create_service(name string, config ServiceConfig) !string {
 	params := CreateServiceParams{
-		name: name
+		name:    name
 		content: config
 	}
-	
+
 	request := jsonrpc.new_request_generic('service_create', params)
 	return c.rpc_client.send[CreateServiceParams, string](request)!
 }
@@ -255,11 +255,11 @@ pub fn (mut c ZinitClient) delete_service(name string) !string {
 // ServiceConfigResponse represents the response from get_service
 pub struct ServiceConfigResponse {
 pub:
-	exec            string
-	oneshot         bool
-	after           []string
-	log             string
-	env             map[string]string
+	exec             string
+	oneshot          bool
+	after            []string
+	log              string
+	env              map[string]string
 	shutdown_timeout int
 }
 
