@@ -1,6 +1,7 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Configuration} from '??docusaurus/types';
-import type * as Preset from '??docusaurus/preset-classic';
+import { themes as prismThemes } from 'prism-react-renderer';
+import type { Configuration } from '@@docusaurus/types';
+import type * as Preset from '@@docusaurus/preset-classic';
+
 
 const config: Configuration = {
   title: '@{config.main.title}',
@@ -27,6 +28,11 @@ const config: Configuration = {
   //   locales: ['en'],
   // },
 
+  themes: ["@@docusaurus/theme-mermaid"],
+
+  markdown: {
+    mermaid: true,
+  },
   presets: [
     [
       'classic',
@@ -52,41 +58,41 @@ const config: Configuration = {
       items: [
         @for item in config.navbar.items 
         {
-          label: '@{item.label}',
-          href: '@{item.href}',
-          position: '@{item.position}'
-        },
-        @end
+  label: '@{item.label}',
+    href: '@{item.href}',
+      position: '@{item.position}'
+},
+@end
       ],
     },
-    footer: {
-      style: '@{config.footer.style}',
-      links: [
-        @for link_group in config.footer.links
+footer: {
+  style: '@{config.footer.style}',
+    links: [
+      @for link_group in config.footer.links
         {
-          title: '@{link_group.title}',
-          items: [
-            @for item in link_group.items 
+    title: '@{link_group.title}',
+      items: [
+        @for item in link_group.items 
             {
-              label: '@{item.label}',
-              @if item.href != ''
+      label: '@{item.label}',
+        @if item.href != ''
                 href: '@{item.href}'
-              @else if item.to != ''
+      @else if item.to != ''
                 to: '@{item.to}'
-              @else
-                to: '/docs'
-              @end
-            },
-            @end
-          ]
-        },
-        @end
-      ],
-      copyright: '@{config.main.copyright}',
+      @else
+      to: '/docs'
+      @end
     },
-    prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+    @end
+          ]
+  },
+  @end
+      ],
+  copyright: '@{config.main.copyright}',
+    },
+prism: {
+  theme: prismThemes.github,
+    darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
 };
