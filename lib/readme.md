@@ -80,4 +80,3 @@ bash doc.sh
 
 - linux as done by github actions, nothing to do
 - osx: ``
-
