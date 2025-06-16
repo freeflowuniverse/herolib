@@ -3,7 +3,7 @@ module mycelium_installer
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.osal.tun
 
-pub const version = '0.5.7'
+pub const version = '0.6.1'
 const singleton = true
 const default = true
 
@@ -13,16 +13,17 @@ pub struct MyceliumInstaller {
 pub mut:
 	name   string   = 'default'
 	peers  []string = [
-	'tcp://188.40.132.242:9651',
-	'quic://[2a01:4f8:212:fa6::2]:9651',
-	'tcp://185.69.166.7:9651',
+	// v0.6.x public nodes
+	'tcp://185.69.166.8:9651',
 	'quic://[2a02:1802:5e:0:ec4:7aff:fe51:e36b]:9651',
-	'tcp://65.21.231.58:9651',
+	'tcp://65.109.18.113:9651',
 	'quic://[2a01:4f9:5a:1042::2]:9651',
-	'tcp://[2604:a00:50:17b:9e6b:ff:fe1f:e054]:9651',
-	'quic://5.78.122.16:9651',
-	'tcp://[2a01:4ff:2f0:3621::1]:9651',
-	'quic://142.93.217.194:9651',
+	'tcp://5.78.122.16:9651',
+	'quic://[2a01:4ff:1f0:8859::1]:9651',
+	'tcp://5.223.43.251:9651',
+	'quic://[2a01:4ff:2f0:3621::1]:9651',
+	'tcp://142.93.217.194:9651',
+	'quic://[2400:6180:100:d0::841:2001]:9651',
 ]
 	tun_nr int
 }
