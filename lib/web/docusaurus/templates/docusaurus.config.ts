@@ -55,6 +55,11 @@ const config: Configuration = {
     },
     navbar: {
       title: '@{config.navbar.title}',
+      logo: {
+        alt: '@{config.navbar.logo.alt}',
+        src: '@{config.navbar.logo.src}',
+        srcDark: '@{config.navbar.logo.src_dark}',
+      },
       items: [
         @for item in config.navbar.items 
         {

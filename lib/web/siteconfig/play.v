@@ -161,6 +161,9 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 		for action in menu_actions {
 			mut p := action.params
 			config.menu.title = p.get_default('title', config.title)!
+			config.menu.logo_alt = p.get_default('logo_alt', '')!
+			config.menu.logo_src = p.get_default('logo_src', '')!
+			config.menu.logo_src_dark = p.get_default('logo_src_dark', '')!
 		}
 	}
 
