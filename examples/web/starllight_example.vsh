@@ -14,4 +14,4 @@ mut site := docs.get(
 	init: true // init means we put config files if not there
 )!
 
-site.dev()!
+site.dev(host: 'localhost', port: 3000)!

@@ -3,9 +3,7 @@ module docusaurus
 import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.texttools
 // import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.data.markdownparser
 import freeflowuniverse.herolib.develop.gittools
 // import json
 import freeflowuniverse.herolib.osal
@@ -58,13 +56,20 @@ pub fn (mut s DocSite) build_publish() ! {
 	)!
 }
 
-pub fn (mut s DocSite) open() ! {
-	// Print instructions for user
-	console.print_item('open browser: ${s.url}')
-	osal.exec(cmd: 'open https://localhost:3000')!
+@[params]
+pub struct DevArgs {
+pub mut:
+	host string = 'localhost'
+	port int    = 3000
 }
 
-pub fn (mut s DocSite) dev() ! {
+pub fn (mut s DocSite) open(args DevArgs) ! {
+	// Print instructions for user
+	console.print_item('open browser: https://${args.host}:${args.port}')
+	osal.exec(cmd: 'open https://${args.host}:${args.port}')!
+}
+
+pub fn (mut s DocSite) dev(args DevArgs) ! {
 	s.generate()!
 
 	// Create screen session for docusaurus development server
@@ -83,11 +88,12 @@ pub fn (mut s DocSite) dev() ! {
 	// Send commands to the screen session
 	console.print_item('To view the server output:: cd ${s.path_build.path}')
 	scr.cmd_send('cd ${s.path_build.path}')!
-	scr.cmd_send('bun start')!
+	scr.cmd_send('bun start -p ${args.port} -h ${args.host}')!
 
 	// Print instructions for user
 	console.print_header(' Docusaurus Development Server')
 	console.print_item('Development server is running in a screen session.')
+	console.print_item('Server is running on: https://${args.host}:${args.port}')
 	console.print_item('To view the server output:')
 	console.print_item('  1. Attach to screen: screen -r ${screen_name}')
 	console.print_item('  2. To detach from screen: Press Ctrl+A then D')

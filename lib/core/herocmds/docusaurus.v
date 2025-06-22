@@ -206,7 +206,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	}
 
 	if dev {
-		site.dev()!
+		site.dev(host: 'localhost', port: 3000)!
 	}
 
 	if open {

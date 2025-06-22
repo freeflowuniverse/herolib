@@ -138,6 +138,6 @@ fn cmd_starlight_execute(cmd Command) ! {
 	}
 
 	if dev {
-		site.dev()!
+		site.dev(host: 'localhost', port: 3000)!
 	}
 }
