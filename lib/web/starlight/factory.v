@@ -2,7 +2,6 @@ module starlight
 
 import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.develop.gittools
 
 @[heap]
 pub struct StarlightFactory {

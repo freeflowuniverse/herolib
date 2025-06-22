@@ -211,7 +211,7 @@ console.log(result);
 	// Option 1: Run in development mode
 	// This will start a development server in a screen session
 	println('Starting development server...')
-	site.dev() or {
+	site.dev(host: 'localhost', port: 3000) or {
 		eprintln('Error starting development server: ${err}')
 		exit(1)
 	}
