@@ -29,7 +29,7 @@ pub fn (mut s DocSite) build() ! {
 	osal.exec(
 		cmd:   '	
 			cd ${s.path_build.path}
-			bash build.sh
+			exit 1
 			'
 		retry: 0
 	)!
@@ -40,7 +40,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	osal.exec(
 		cmd:   '	
 			cd ${s.path_build.path}
-			bash build_dev_publish.sh
+			exit 1
 			'
 		retry: 0
 	)!
@@ -51,7 +51,7 @@ pub fn (mut s DocSite) build_publish() ! {
 	osal.exec(
 		cmd:   '	
 			cd ${s.path_build.path}
-			bash build_publish.sh
+			exit 1
 			'
 		retry: 0
 	)!
@@ -71,6 +71,18 @@ pub fn (mut s DocSite) open(args DevArgs) ! {
 }
 
 pub fn (mut s DocSite) dev(args DevArgs) ! {
+	s.generate()!
+	osal.exec(
+		cmd:   '	
+			cd ${s.path_build.path}
+			bun run start -p ${args.port} -h ${args.host}
+			'
+		retry: 0
+	)!
+}
+
+
+pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	s.generate()!
 
 	// Create screen session for docusaurus development server
@@ -201,55 +213,4 @@ fn (mut site DocSite) check() ! {
 	for item in site.config.main.build_dest_dev {
 		check_item(item)!
 	}
-}
-
-fn (mut site DocSite) template_install() ! {
-	mut gs := gittools.new()!
-
-	site.factory.template_install(template_update: false, install: true, delete: false)!
-
-	cfg := site.config
-
-	mut myhome := '\$\{HOME\}' // for usage in bash
-
-	profile_include := osal.profile_path_source()!.replace(os.home_dir(), myhome)
-
-	mydir := site.path_build.path.replace(os.home_dir(), myhome)
-
-	for item in ['src', 'static'] {
-		mut aa := site.path_src.dir_get(item) or { continue }
-		aa.copy(dest: '${site.factory.path_build.path}/${item}', delete: false)!
-	}
-
-	develop := $tmpl('templates/develop.sh')
-	build := $tmpl('templates/build.sh')
-	// build_dev_publish := $tmpl('templates/build_dev_publish.sh')
-	build_publish := $tmpl('templates/build_publish.sh')
-
-	mut develop_ := site.path_build.file_get_new('develop.sh')!
-	develop_.template_write(develop, true)!
-	develop_.chmod(0o700)!
-
-	mut build_ := site.path_build.file_get_new('build.sh')!
-	build_.template_write(build, true)!
-	build_.chmod(0o700)!
-
-	mut build_publish_ := site.path_build.file_get_new('build_publish.sh')!
-	build_publish_.template_write(build_publish, true)!
-	build_publish_.chmod(0o700)!
-
-	// TODO: implement
-	// mut build_dev_publish_ := site.path_build.file_get_new('build_dev_publish.sh')!
-	// build_dev_publish_.template_write(build_dev_publish, true)!
-	// build_dev_publish_.chmod(0o700)!
-
-	develop_templ := $tmpl('templates/develop_src.sh')
-	mut develop2_ := site.path_src.file_get_new('develop.sh')!
-	develop2_.template_write(develop_templ, true)!
-	develop2_.chmod(0o700)!
-
-	build_templ := $tmpl('templates/build_src.sh')
-	mut build2_ := site.path_src.file_get_new('build.sh')!
-	build2_.template_write(build_templ, true)!
-	build2_.chmod(0o700)!
 }

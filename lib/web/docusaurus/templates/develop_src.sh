@@ -1,6 +1,0 @@
-#!/bin/bash -e
-
-script_dir="???cd "???dirname "??{BASH_SOURCE[0]}")" && pwd)"
-cd "??{script_dir}"
-
-hero docusaurus -d
