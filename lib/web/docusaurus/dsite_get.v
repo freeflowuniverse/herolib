@@ -5,6 +5,7 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.osal
 
 @[params]
 pub struct DSiteGetArgs {
@@ -13,26 +14,20 @@ pub mut:
 	nameshort     string
 	path          string
 	url           string
-	publish_path  string
-	build_path    string
+	path_publish  string //default empty
+	// path_build    string //default empty
 	production    bool
 	watch_changes bool = true
 	update        bool
 	open          bool
 	init          bool // means create new one if needed
 	deploykey     string
-	config        ?Configuration
+	// config        ?Configuration
 }
 
 pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')
 	mut args := args_
-
-	if args.build_path.len == 0 {
-		args.build_path = '${f.path_build.path}'
-	}
-	// if args.publish_path.len == 0 {
-	// 	args.publish_path = '${f.path_publish.path}/${args.name}'
 
 	// coderoot:"${os.home_dir()}/hero/var/publishcode"
 	mut gs := gittools.new(ssh_key_path: args.deploykey)!
@@ -46,52 +41,30 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	}
 	args.path = args.path.replace('~', os.home_dir())
 
-	// First, check if the new site args provides a configuration
-	if cfg := args.config {
-		// Use the provided config
-		generate_configuration(args.path, cfg)!
-	} else if f.config.main.title != '' {
-		// Use the factory's config from heroscript if available
-		generate_configuration(args.path, f.config)!
-		// } else {
-		// 	// Then ensure cfg directory exists in src,
-		// 	if !os.exists('${args.path}/cfg') {
-		// 		if args.init {
-		// 			// else copy config from template
-		// 			mut template_cfg := template_path.dir_get('cfg')!
-		// 			template_cfg.copy(dest: '${args.path}/cfg')!
-		// 		} else {
-		// 			return error("Can't find cfg dir in chosen docusaurus location: ${args.path}")
-		// 		}
-		// 	}
+	configpath:='${args.path}/cfg'
+	if ! os.exists(configpath) {
+		return error("can't find config file in ${configpath}")
 	}
+
+	osal.rm("${args.path}/cfg/main.json")!
+	osal.rm("${args.path}/cfg/footer.json")!
+	osal.rm("${args.path}/cfg/navbar.json")!
+	osal.rm("${args.path}/build.sh")!
+	osal.rm("${args.path}/develop.sh")!
+	osal.rm("${args.path}/sync.sh")!
+	osal.rm("${args.path}/.DS_Store")!
+
 	if !os.exists('${args.path}/docs') {
 		if args.init {
 			// Create docs directory if it doesn't exist in template or site
 			os.mkdir_all('${args.path}/docs')!
-
-			// Create a default docs/intro.md file
-			intro_content := '---
-title: Introduction
-slug: /
-sidebar_position: 1
----
-
-# Introduction
-
-Welcome to the documentation site.
-
-This is a default page created by the Docusaurus site generator.
-'
-			os.write_file('${args.path}/docs/intro.md', intro_content)!
+			panic("implement")
 		} else {
 			return error("Can't find docs dir in chosen docusaurus location: ${args.path}")
 		}
 	}
 
-	mut myconfig := load_configuration('${args.path}/cfg') or {
-		return error('Failed to load configuration from ${args.path}/cfg:\n${err.msg()}')
-	}
+	mut myconfig:=config_load(configpath)!
 
 	if myconfig.main.name.len == 0 {
 		myconfig.main.name = myconfig.main.base_url.trim_space().trim('/').trim_space()
@@ -106,17 +79,19 @@ This is a default page created by the Docusaurus site generator.
 	}
 	args.nameshort = texttools.name_fix(args.nameshort)
 
+	if args.path_publish == ""{
+		args.path_publish = "${f.path_publish}/${args.name}"
+	}
+
 	mut ds := DocSite{
 		name:       args.name
 		url:        args.url
 		path_src:   pathlib.get_dir(path: args.path, create: false)!
-		path_build: f.path_build
-		// path_publish: pathlib.get_dir(path: args.publish_path, create: true)!
+		path_publish: pathlib.get_dir(path:args.path_publish)!
 		args:    args
 		config:  myconfig
 		factory: &f
 	}
-
 	ds.check()!
 
 	f.sites << &ds

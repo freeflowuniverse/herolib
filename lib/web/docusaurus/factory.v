@@ -13,7 +13,7 @@ pub struct DocusaurusFactory {
 pub mut:
 	sites      []&DocSite @[skip; str: skip]
 	path_build pathlib.Path
-	// path_publish pathlib.Path
+	path_publish pathlib.Path
 	args   DocusaurusArgs
 	config Configuration // Stores configuration from HeroScript if provided
 }
@@ -21,8 +21,8 @@ pub mut:
 @[params]
 pub struct DocusaurusArgs {
 pub mut:
-	// publish_path string
-	build_path string
+	path_publish string
+	path_build string
 	production bool
 	update     bool
 	// heroscript      string
@@ -31,21 +31,21 @@ pub mut:
 
 pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 	mut args := args_
-	if args.build_path == '' {
-		args.build_path = '${os.home_dir()}/hero/var/docusaurus'
+	if args.path_build == '' {
+		args.path_build = '${os.home_dir()}/hero/var/docusaurus/build'
 	}
-	// if args.publish_path == ""{
-	// 	args.publish_path = "${os.home_dir()}/hero/var/docusaurus/publish"
-	// }
+	if args.path_publish == ""{
+		args.path_publish = "${os.home_dir()}/hero/var/docusaurus/publish"
+	}
 
 	// Create the factory instance
-	mut ds := &DocusaurusFactory{
+	mut f := &DocusaurusFactory{
 		args:       args_
-		path_build: pathlib.get_dir(path: args.build_path, create: true)!
-		// path_publish: pathlib.get_dir(path: args_.publish_path, create: true)!
+		path_build: pathlib.get_dir(path: args.path_build, create: true)!
+		path_publish: pathlib.get_dir(path: args_.path_publish, create: true)!
 	}
 
-	ds.template_install(install: true, template_update: args.update, delete: true)!
+	f.template_install(install: args.update, template_update: args.update)!
 
-	return ds
+	return f
 }

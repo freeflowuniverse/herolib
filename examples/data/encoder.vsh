@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.data.encoder
 import crypto.ed25519
@@ -30,9 +30,9 @@ console.print_debug('${e.data}')
 // do decoding
 mut d := encoder.decoder_new(e.data)
 mut aa := AStruct{}
-aa.items = d.get_list_string()
-aa.nr = d.get_int()
-aa.privkey = d.get_bytes()
+aa.items = d.get_list_string()!
+aa.nr = d.get_int()!
+aa.privkey = d.get_bytes()!
 
 assert a == aa
 

@@ -16,8 +16,8 @@ pub mut:
 	name       string
 	url        string
 	path_src   pathlib.Path
-	path_build pathlib.Path
-	// path_publish pathlib.Path
+	// path_build pathlib.Path
+	path_publish pathlib.Path
 	args    DSiteGetArgs
 	errors  []SiteError
 	config  Configuration
@@ -28,7 +28,7 @@ pub fn (mut s DocSite) build() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.path_build.path}
+			cd ${s.factory.path_build.path}
 			exit 1
 			'
 		retry: 0
@@ -39,7 +39,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.path_build.path}
+			cd ${s.factory.path_build.path}
 			exit 1
 			'
 		retry: 0
@@ -50,7 +50,7 @@ pub fn (mut s DocSite) build_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.path_build.path}
+			cd ${s.factory.path_build.path}
 			exit 1
 			'
 		retry: 0
@@ -74,7 +74,7 @@ pub fn (mut s DocSite) dev(args DevArgs) ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.path_build.path}
+			cd ${s.factory.path_build.path}
 			bun run start -p ${args.port} -h ${args.host}
 			'
 		retry: 0
@@ -99,8 +99,8 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	)!
 
 	// Send commands to the screen session
-	console.print_item('To view the server output:: cd ${s.path_build.path}')
-	scr.cmd_send('cd ${s.path_build.path}')!
+	console.print_item('To view the server output:: cd ${s.factory.path_build.path}')
+	scr.cmd_send('cd ${s.factory.path_build.path}')!
 
 	// Start script recording in the screen session for log streaming
 	log_file := '/tmp/docusaurus_${screen_name}.log'
@@ -143,7 +143,7 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 
 	if s.args.watch_changes {
 		docs_path := '${s.path_src.path}/docs'
-		watch_docs(docs_path, s.path_src.path, s.path_build.path)!
+		watch_docs(docs_path, s.path_src.path, s.factory.path_build.path)!
 	}
 }
 
@@ -199,18 +199,3 @@ pub fn (mut site DocSite) error(args ErrorArgs) {
 	console.print_stderr(args.msg)
 }
 
-fn check_item(item string) ! {
-	item2 := item.trim_space().trim('/').trim_space().all_after_last('/')
-	if ['internal', 'infodev', 'info', 'dev', 'friends', 'dd', 'web'].contains(item2) {
-		return error('destination path is wrong, cannot be: ${item}')
-	}
-}
-
-fn (mut site DocSite) check() ! {
-	for item in site.config.main.build_dest {
-		check_item(item)!
-	}
-	for item in site.config.main.build_dest_dev {
-		check_item(item)!
-	}
-}
