@@ -1,12 +1,18 @@
-# HR Params
+# Revenue 
 
-This company is a cloud company ...
+```
+!!bizmodel.revenue_define bizname:'test' name:'oem1' ...
+```
+
+## Params
 
 - bizname, is the name of the biz model we are populating
 - name, name of product, project
 - descr, description of the revenue line item
 
-## descrete revenue (not per item)
+## descrete revenue/cogs (not per item)
+
+cogs stands for cost of goods
 
 - revenue: one of revenue, is not extrapolated, a deal at certain time
 - revenue_growth: is a revenue stream which is being extrapolated
@@ -32,13 +38,36 @@ This company is a cloud company ...
 
 ## results in 
 
-- revenue_total which is per product
-- cogs_total
+follow rows in sheets
 
-```js
+- {name}_ + all the arg names as mentioned above...
+- {name}_revenue_total
+- {name}_cogs_total
+
+## to use
+
+### basic example
+
+```v
+
+heroscript:='
+
+Next will define an OEM product in month 10, 1 Million EUR, ... cogs is a percent which is 20% at start but goes to 10% after 20 months.
+
 !!bizmodel.revenue_define bizname:'test' name:'oem1'
     descr:'OEM Deals'  
     revenue:'10:1000000EUR,15:3333,20:1200000'
-    cogs_percent: '1:5%,20:10%'  
+    cogs_percent: '1:20%,20:10%'  
+'
+
+This time we have the cogs defined in fixed manner, the default currency is USD doesn't have to be mentioned.
+
+!!bizmodel.revenue_define bizname:'test' name:'oem2'
+    descr:'OEM Deals'  
+    revenue:'10:1000000EUR,15:3333,20:1200000'
+    cogs: '10:100000,15:1000,20:120000'  
+'
+
+
 
 ```

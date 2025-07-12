@@ -14,4 +14,6 @@ println(model.sheet)
 println(model.sheet.export()!)
 
 model.sheet.export(path: '~/Downloads/test.csv')!
-model.sheet.export(path: '~/code/github/freeflowuniverse/starlight_template/src/content/test.csv')!
+// model.sheet.export(path: '~/code/github/freeflowuniverse/starlight_template/src/content/test.csv')!
+
+model.sheet

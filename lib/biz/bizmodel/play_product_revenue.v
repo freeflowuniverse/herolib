@@ -3,22 +3,7 @@ module bizmodel
 import freeflowuniverse.herolib.core.playbook { Action }
 import freeflowuniverse.herolib.core.texttools
 
-// - name, e.g. for a specific project
-// - descr, description of the revenue line item
-// - revenue_setup, revenue for 1 item '1000usd'
-// - revenue_setup_delay
-// - revenue_monthly, revenue per month for 1 item
-// - revenue_monthly_delay, how many months before monthly revenue starts
-// - maintenance_month_perc, how much percent of revenue_setup will come back over months
-// - cogs_setup, cost of good for 1 item at setup
-// - cogs_setup_delay, how many months before setup cogs starts, after sales
-// - cogs_setup_perc: what is percentage of the cogs (can change over time) for setup e.g. 0:50%
-// - cogs_monthly, cost of goods for the monthly per 1 item
-// - cogs_monthly_delay, how many months before monthly cogs starts, after sales
-// - cogs_monthly_perc: what is percentage of the cogs (can change over time) for monthly e.g. 0:5%,12:10%
-// - nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200, default is 1)
-// - nr_months_recurring: how many months is recurring, if 0 then no recurring
-//
+// see lib/biz/bizmodel/docs/revenue.md
 fn (mut m BizModel) revenue_action(action Action) !Action {
 	mut name := action.params.get_default('name', '')!
 	mut descr := action.params.get_default('descr', '')!
@@ -45,16 +30,11 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 	m.products[name] = &product
 
 	mut nr_months_recurring := action.params.get_int_default('nr_months_recurring', 60)!
-
-	if nr_months_recurring == 0 {
-		nr_months_recurring = 1
-	}
-
 	product.nr_months_recurring = nr_months_recurring
 
 	mut revenue := m.sheet.row_new(
-		name:        '${name}_revenue'
-		growth:      action.params.get_default('revenue', '0:0')!
+		name:        '${name}_revenue_total'
+		growth:      '0:0'
 		tags:        'rev name:${name}'
 		descr:       'Revenue for ${name2}'
 		extrapolate: false
@@ -62,8 +42,8 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 
 	// Handle revenue_items parameter (non-recurring revenue items)
 	mut revenue_items := m.sheet.row_new(
-		name:        '${name}_revenue_items'
-		growth:      action.params.get_default('revenue_items', '0:0')!
+		name:        '${name}_revenue'
+		growth:      action.params.get_default('revenue', '0:0')!
 		tags:        'rev name:${name}'
 		descr:       'Revenue items for ${name2}'
 		extrapolate: false
@@ -78,21 +58,37 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		extrapolate: true
 	)!
 
-	// Handle revenue_item parameter (singular item)
-	mut revenue_item := m.sheet.row_new(
-		name:        '${name}_revenue_item'
-		growth:      action.params.get_default('revenue_item', '0:0')!
-		tags:        'rev name:${name}'
-		descr:       'Revenue item for ${name2}'
-		extrapolate: false
-	)!
+
 
 	// Handle revenue_nr parameter (number of revenue items)
 	mut revenue_nr := m.sheet.row_new(
-		name:        '${name}_revenue_nr'
-		growth:      action.params.get_default('revenue_nr', '0:0')!
+		name:        '${name}_nr_sold'
+		growth:      action.params.get_default('nr_sold', '0:0')!
 		tags:        'rev name:${name}'
-		descr:       'Number of revenue items for ${name2}'
+		descr:       'Items sold per month for ${name2}'
+		extrapolate: false
+	)!
+
+
+	mut nr_sold := m.sheet.row_new(
+		name:          '${name}_nr_sold'
+		growth:        action.params.get_default('nr_sold', '0')!
+		tags:          'rev  name:${name}'
+		descr:         'nr of items sold/month for ${name2}'
+		aggregatetype: .avg
+	)!
+
+	if nr_sold.max() > 0 {
+		product.has_items = true
+	}
+
+
+	// Handle revenue_item parameter (singular item)
+	mut revenue_item := m.sheet.row_new(
+		name:        '${name}_revenue_item_setup'
+		growth:      action.params.get_default('revenue_item_setup', '0:0')!
+		tags:        'rev name:${name}'
+		descr:       'Item Revenue for ${name2}'
 		extrapolate: false
 	)!
 
@@ -118,9 +114,9 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		1)!
 
 	mut cogs := m.sheet.row_new(
-		name:        '${name}_cogs'
+		name:        '${name}_cogs_total'
 		growth:      action.params.get_default('cogs', '0:0')!
-		tags:        'rev name:${name}'
+		tags:        'cogs name:${name}'
 		descr:       'COGS for ${name2}'
 		extrapolate: false
 	)!
@@ -172,18 +168,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		descr:         'COGS as percent of revenue for ${name2} Monthly'
 		aggregatetype: .avg
 	)!
-
-	mut nr_sold := m.sheet.row_new(
-		name:          '${name}_nr_sold'
-		growth:        action.params.get_default('nr_sold', '0')!
-		tags:          'rev  name:${name}'
-		descr:         'nr of items sold/month for ${name2}'
-		aggregatetype: .avg
-	)!
-
-	if nr_sold.max() > 0 {
-		product.has_items = true
-	}
 
 	// CALCULATE THE TOTAL (multiply with nr sold)
 
