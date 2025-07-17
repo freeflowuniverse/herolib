@@ -248,7 +248,7 @@ fn (mut self ReplaceInstructions) replace_in_dir_recursive(path1 string, extensi
 				txtold := os.read_file(pathnew)!
 				txtnew := self.replace(text: txtold, dedent: false)!
 				if txtnew.trim(' \n') == txtold.trim(' \n') {
-					console.print_header(' nothing to do : ${pathnew}')
+					//console.print_header(' nothing to do : ${pathnew}')
 				} else {
 					console.print_header(' replace done  : ${pathnew}')
 					count++

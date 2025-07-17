@@ -79,6 +79,7 @@ pub fn (mut s DocSite) dev(args DevArgs) ! {
 			'
 		retry: 0
 	)!
+	s.open()!
 }
 
 
