@@ -4,6 +4,7 @@ import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.develop.gittools
+import freeflowuniverse.herolib.web.siteconfig
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal
 
@@ -64,6 +65,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		}
 	}
 
+
 	mut myconfig:=config_load(configpath)!
 
 	if myconfig.main.name.len == 0 {
@@ -83,6 +85,8 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		args.path_publish = "${f.path_publish}/${args.name}"
 	}
 
+	mut mysiteconfig:=*siteconfig.new(configpath)!
+
 	mut ds := DocSite{
 		name:       args.name
 		url:        args.url
@@ -90,6 +94,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		path_publish: pathlib.get_dir(path:args.path_publish)!
 		args:    args
 		config:  myconfig
+		siteconfig: mysiteconfig //comes from the heroconfig
 		factory: &f
 	}
 	ds.check()!

@@ -1,12 +1,7 @@
 module docusaurus
 
 import os
-// import freeflowuniverse.herolib.data.doctree.collection
 import freeflowuniverse.herolib.core.pathlib
-// import freeflowuniverse.herolib.ui.console
-// import freeflowuniverse.herolib.core.base
-// import freeflowuniverse.herolib.develop.gittools
-// import freeflowuniverse.herolib.ui.console
 
 @[heap]
 pub struct DocusaurusFactory {

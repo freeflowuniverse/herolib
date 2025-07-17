@@ -3,9 +3,8 @@ module docusaurus
 import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
-// import freeflowuniverse.herolib.core.base
+import freeflowuniverse.herolib.web.siteconfig
 import freeflowuniverse.herolib.develop.gittools
-// import json
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import time
@@ -21,6 +20,7 @@ pub mut:
 	args    DSiteGetArgs
 	errors  []SiteError
 	config  Configuration
+	siteconfig siteconfig.SiteConfig
 	factory &DocusaurusFactory @[skip; str: skip] // Reference to the parent
 }
 

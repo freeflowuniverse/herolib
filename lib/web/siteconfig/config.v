@@ -27,6 +27,8 @@ pub mut:
 	build_dest_dev []BuildDest // Development build destinations (from !!site.build_dest_dev)
 }
 
+
+
 pub struct Page {
 pub mut:
 	name        string
@@ -90,5 +92,5 @@ pub mut:
 	path    string
 	dest    string            // location in the docs folder of the place where we will build docusaurus
 	replace map[string]string // will replace ${NAME} in the imported content
-	visible bool
+	visible bool = true
 }

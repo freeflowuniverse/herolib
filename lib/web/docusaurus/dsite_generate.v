@@ -48,21 +48,20 @@ pub fn (mut site DocSite) generate() ! {
 
 	site.download_collections()!
 
-
 }
-
 
 pub fn (mut site DocSite) download_collections() ! {
 
 	mut gs := gittools.new()!
-	for item in site.config.import_sources {
+	for item in site.siteconfig.import_collections {
 		mypath := gs.get_path(
 			pull:  false
 			reset: false
 			url:   item.url
 		)!
 		mut mypatho := pathlib.get(mypath)
-		println(mypatho)
+		mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
+		println(mypath)
 		// site.process_md(mut mypatho, item)!
 	}	
 
