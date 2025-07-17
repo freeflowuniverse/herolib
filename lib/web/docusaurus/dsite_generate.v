@@ -35,13 +35,13 @@ pub fn (mut site DocSite) generate() ! {
 	}
 
 	mut main_file := pathlib.get_file(path: '${cfg_path}/main.json', create: true)!
-	main_file.write(json.encode(site.config.main))!
+	main_file.write(json.encode_pretty(site.config.main))!
 
 	mut navbar_file := pathlib.get_file(path: '${cfg_path}/navbar.json', create: true)!
-	navbar_file.write(json.encode(site.config.navbar))!
+	navbar_file.write(json.encode_pretty(site.config.navbar))!
 
 	mut footer_file := pathlib.get_file(path: '${cfg_path}/footer.json', create: true)!
-	footer_file.write(json.encode(site.config.footer))!
+	footer_file.write(json.encode_pretty(site.config.footer))!
 	
 	mut aa := site.path_src.dir_get("docs")!
 	aa.copy(dest: '${site.factory.path_build.path}/docs', delete: true)!
@@ -54,15 +54,16 @@ pub fn (mut site DocSite) generate() ! {
 
 pub fn (mut site DocSite) download_collections() ! {
 
-	// mut gs := gittools.new()!
-	// for item in site.config.import_sources {
-	// 	mypath := gs.get_path(
-	// 		pull:  false
-	// 		reset: false
-	// 		url:   item.url
-	// 	)!
-	// 	mut mypatho := pathlib.get(mypath)
-	// 	site.process_md(mut mypatho, item)!
-	// }	
+	mut gs := gittools.new()!
+	for item in site.config.import_sources {
+		mypath := gs.get_path(
+			pull:  false
+			reset: false
+			url:   item.url
+		)!
+		mut mypatho := pathlib.get(mypath)
+		println(mypatho)
+		// site.process_md(mut mypatho, item)!
+	}	
 
 }

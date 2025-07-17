@@ -54,9 +54,9 @@ pub mut:
 pub struct NavbarItem {
 pub mut:
 	label    string
-	href     string
+	href     string @[omitempty] 
 	position string
-	to       string
+	to       string @[omitempty] 
 }
 
 pub struct Footer {
@@ -74,8 +74,8 @@ pub mut:
 pub struct FooterItem {
 pub mut:
 	label string
-	href  string
-	to    string
+	href  string @[omitempty] 
+	to    string @[omitempty] 
 }
 
 // // Private helper function for JSON loading logic
