@@ -41,6 +41,19 @@ ri.add_item('^Stest 1', 'TTT') or { panic(err) } //will be case insensitive sear
 
 mut text_out2 := ri.replace(text: text, dedent: true) or { panic(err) }
 
+//pub struct ReplaceDirArgs {
+//pub mut:
+//	path       string
+//	extensions []string
+//	dryrun     bool
+//}
+// if dryrun is true then will not replace but just show
+ri.replace_in_dir(path:"/tmp/mypath",extensions:["md"])!
+
+```
+
+
+
 ```
 
 

@@ -6,6 +6,7 @@ import json
 import os
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.texttools.regext
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.factory.path_build.path}')
@@ -61,8 +62,16 @@ pub fn (mut site DocSite) download_collections() ! {
 		)!
 		mut mypatho := pathlib.get(mypath)
 		mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
-		println(mypath)
-		// site.process_md(mut mypatho, item)!
+		// println(item)
+		//replace: {'NAME': 'MyName', 'URGENCY': 'red'}
+		mut ri := regext.regex_instructions_new()
+		for key,val in item.replace {
+			ri.add_item("\{${key}\}",val)!
+		}
+		// println(ri)
+		ri.replace_in_dir(path:"${site.factory.path_build.path}/docs/${item.dest}",extensions:["md"])!
+
+		
 	}	
 
 }

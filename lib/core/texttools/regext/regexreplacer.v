@@ -58,7 +58,7 @@ pub fn regex_rewrite(r string) !string {
 // regex string see https://github.com/vlang/v/blob/master/vlib/regex/README.md .
 // find_str is a normal search (text) .
 // replace is the string we want to replace the match with
-fn (mut self ReplaceInstructions) add_item(regex_find_str string, replace_with string) ! {
+pub fn (mut self ReplaceInstructions) add_item(regex_find_str string, replace_with string) ! {
 	mut item := regex_find_str
 	if item.starts_with('^R') {
 		item = item[2..] // remove ^r
@@ -226,13 +226,11 @@ fn (mut self ReplaceInstructions) replace_in_dir_recursive(path1 string, extensi
 	mut pathnew := ''
 	mut count := 0
 
+	console.print_debug(" - replace in dir: ${path1}")
+
 	for item in items {
+		// println(item)
 		pathnew = os.join_path(path1, item)
-		// CAN DO THIS LATER IF NEEDED
-		// if pathnew in done{
-		// 	continue
-		// }
-		// done << pathnew
 		if os.is_dir(pathnew) {
 			if item.starts_with('.') {
 				continue
@@ -243,17 +241,15 @@ fn (mut self ReplaceInstructions) replace_in_dir_recursive(path1 string, extensi
 
 			self.replace_in_dir_recursive(pathnew, extensions, dryrun, mut done)!
 		} else {
-			ext := os.file_ext(pathnew)[1..].to_lower()
+			tmpext:=os.file_ext(pathnew)[1..] or { ""}
+			ext := tmpext.to_lower()
 			if extensions == [] || ext in extensions {
 				// means we match a file
-
 				txtold := os.read_file(pathnew)!
 				txtnew := self.replace(text: txtold, dedent: false)!
 				if txtnew.trim(' \n') == txtold.trim(' \n') {
-					// panic("need to move this file to other lib can't use print_header")
 					console.print_header(' nothing to do : ${pathnew}')
 				} else {
-					// panic("need to move this file to other lib can't use print_header")
 					console.print_header(' replace done  : ${pathnew}')
 					count++
 					if !dryrun {

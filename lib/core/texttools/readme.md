@@ -120,27 +120,3 @@ ver := texttools.version("v0.4.36")
 ver := texttools.version("v1.4.36")
 // Result: 1004036
 ```
-
-## Error Handling
-
-Many functions in the module return a Result type (indicated by `!` in the function signature). These functions can return errors that should be handled appropriately:
-
-```v
-// Example of error handling
-name := texttools.name_fix_keepspace("some@name") or {
-    println("Error: ${err}")
-    return
-}
-```
-
-## Best Practices
-
-1. Always use appropriate error handling for functions that return Results
-2. Consider using `dedent()` before processing multiline text to ensure consistent formatting
-3. When working with filenames, use the appropriate name_fix variant based on your needs
-4. For command line parsing, be aware of quote handling and escaping rules
-5. When using tokenization, consider the context and whether smart splitting is needed
-
-## Contributing
-
-The TextTools module is part of the heroLib project. Contributions are welcome through pull requests.
