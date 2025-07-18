@@ -78,32 +78,6 @@ pub mut:
 	to    string @[omitempty] 
 }
 
-// // Private helper function for JSON loading logic
-// fn load_configuration_from_json(cfg_path string) !Configuration {
-// 	mut main_json_path := os.join_path(cfg_path, 'main.json')
-// 	mut navbar_json_path := os.join_path(cfg_path, 'navbar.json')
-// 	mut footer_json_path := os.join_path(cfg_path, 'footer.json')
-
-// 	if !os.exists(main_json_path) || !os.exists(navbar_json_path) || !os.exists(footer_json_path) {
-// 		return error('Missing one or more required JSON configuration files (main.json, navbar.json, footer.json) in ${cfg_path} and no primary HeroScript file was successfully processed.')
-// 	}
-
-// 	mut main_json_content := pathlib.get_file(path: main_json_path)!
-// 	mut navbar_json_content := pathlib.get_file(path: navbar_json_path)!
-// 	mut footer_json_content := pathlib.get_file(path: footer_json_path)!
-
-// 	main_data := json.decode(Main, main_json_content.read()!)!
-// 	navbar_data := json.decode(Navbar, navbar_json_content.read()!)!
-// 	footer_data := json.decode(Footer, footer_json_content.read()!)!
-
-// 	mut cfg := Configuration{
-// 		main:   main_data
-// 		navbar: navbar_data
-// 		footer: footer_data
-// 	}
-// 	return cfg
-// }
-
 fn  config_load(path string) !Configuration {
 
 	// Use siteconfig.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
