@@ -17,12 +17,10 @@ tree.scan(
 	git_pull: false // Set to true to pull latest changes
 )!
 
-// Exporting data is optional, but useful for local access or debugging
-// tree.export(
-// 	destination:    '/tmp/doctree_example_export'
-// 	reset:          true
-// 	frontmatter_remove: true //remove frontmatter from markdown files
-// )!
+tree.export(
+	destination:    '/tmp/doctree_example_export'
+	reset:          true
+)!
 
 println('Doctree data setup complete.')
 

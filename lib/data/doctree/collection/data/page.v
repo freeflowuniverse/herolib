@@ -1,7 +1,7 @@
 module data
 
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.data.markdownparser.elements { Action, Doc, Element }
+import freeflowuniverse.herolib.data.markdownparser.elements { Action, Doc, Element, Frontmatter2 }
 import freeflowuniverse.herolib.data.markdownparser
 
 pub enum PageStatus {
@@ -58,7 +58,7 @@ pub fn new_page(args NewPageArgs) !Page {
 }
 
 // return doc, reparse if needed
-fn (mut page Page) doc() !&Doc {
+pub fn (mut page Page) doc() !&Doc {
 	if page.changed {
 		content := page.doc.markdown()!
 		page.reparse_doc(content)!
@@ -66,6 +66,8 @@ fn (mut page Page) doc() !&Doc {
 
 	return page.doc
 }
+
+
 
 // return doc, reparse if needed
 fn (page Page) doc_immute() !&Doc {
@@ -100,8 +102,17 @@ pub fn (page Page) get_linked_pages() ![]string {
 
 pub fn (page Page) get_markdown() !string {
 	mut doc := page.doc_immute()!
-	return doc.markdown()!
+	mut result := ''
+	for element in doc.children {
+		if element is Frontmatter2 {
+			continue
+		}
+		result += element.markdown()!
+	}
+	return result
 }
+
+
 
 pub fn (mut page Page) set_content(content string) ! {
 	page.reparse_doc(content)!
