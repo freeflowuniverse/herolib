@@ -135,6 +135,8 @@ fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
 			}
 		}
 		mut import_ := CollectionsImport{
+			name:        p.get_default('name','')!
+			frontmatter:        p.get_default('frontmatter','')!			
 			url:     p.get('url')!
 			path:    p.get_default('path', '')!
 			dest:    p.get_default('dest', '')!

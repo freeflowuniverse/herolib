@@ -88,9 +88,11 @@ pub mut:
 
 pub struct CollectionsImport {
 pub mut:
+	name string //will normally be empty
 	url     string // http git url can be to specific path
 	path    string
 	dest    string            // location in the docs folder of the place where we will build docusaurus
 	replace map[string]string // will replace ${NAME} in the imported content
 	visible bool = true
+	frontmatter bool //if frontmatter is part of the document
 }

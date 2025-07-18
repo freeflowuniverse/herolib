@@ -7,6 +7,8 @@ import os
 import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
+import freeflowuniverse.herolib.data.doctree
+
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.factory.path_build.path}')
@@ -53,6 +55,9 @@ pub fn (mut site DocSite) generate() ! {
 
 pub fn (mut site DocSite) download_collections() ! {
 
+	//this means we need to do doctree version
+	mut tree := doctree.new(name: 'site_${site.name}')!
+
 	mut gs := gittools.new()!
 	for item in site.siteconfig.import_collections {
 		mypath := gs.get_path(
@@ -61,7 +66,36 @@ pub fn (mut site DocSite) download_collections() ! {
 			url:   item.url
 		)!
 		mut mypatho := pathlib.get(mypath)
-		mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
+
+		if item.frontmatter{
+			//if frontmatter specified then no need to do as collections just copy to destination
+			mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
+		}else{
+			tree.add(
+				path: mypath
+				name: item.name
+			)!
+		}
+	}	
+
+	//now export all collections
+	tree.export(
+		destination:    '${site.factory.path_build.path}/collections'
+		reset:          true
+		exclude_errors: false
+	)!
+	for item in site.siteconfig.import_collections {
+		//if dest specified them we consider source to have the docusaurus parts
+		if item.dest!=""{
+			mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
+			continue
+		}
+		
+		tree.add(
+			path: mypath
+			name: item.name
+		)!
+
 		// println(item)
 		//replace: {'NAME': 'MyName', 'URGENCY': 'red'}
 		mut ri := regext.regex_instructions_new()
@@ -71,7 +105,14 @@ pub fn (mut site DocSite) download_collections() ! {
 		// println(ri)
 		ri.replace_in_dir(path:"${site.factory.path_build.path}/docs/${item.dest}",extensions:["md"])!
 
+		if item.dest:=""{
+			mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
+		}else{
+			mypatho.copy(dest: , delete: true)!
+		}
+
 		
-	}	
+	}		
+
 
 }

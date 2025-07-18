@@ -1,9 +1,5 @@
 # Doctree Module
 
-The `doctree` module is a V language library designed for scanning, processing, and exporting collections of documents. It provides a structured way to manage document-based content, making it suitable for generating documentation, building static websites, or processing any content organized into collections.
-
-## Purpose
-
 The primary goal of this module is to transform structured document collections into a format suitable for various outputs. It handles the complexities of finding collections, loading their content, processing includes, definitions, and macros, and exporting the final result while managing assets like images and files.
 
 ## Key Concepts
@@ -17,7 +13,7 @@ The primary goal of this module is to transform structured document collections 
 The typical workflow involves creating a `Tree`, scanning for collections, and then exporting the processed content.å
 
 1.  **Create Tree:** Initialize a `doctree.Tree` instance using `doctree.new()`.
-2.  **Scan:** Use the `tree.scan()` or `tree.scan_concurrent()` method, providing a path to a directory or a Git repository URL. The scanner recursively looks for directories containing a `.collection` file.
+2.  **Scan:** Use the `tree.scan()`  method, providing a path to a directory or a Git repository URL. The scanner recursively looks for directories containing a `.collection` file.
 3.  **Load Content:** For each identified collection, the module loads its content, including markdown pages, images, and other files.
 4.  **Process Content:** The loaded content is processed. This includes handling definitions, includes (content from other files), and macros (dynamic content generation or transformation).
 5.  **Generate Output Paths:** The module determines the final paths for all processed files and assets in the destination directory.
