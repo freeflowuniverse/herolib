@@ -57,9 +57,6 @@ the first one is the action, the rest are the params
 ```v
 import freeflowuniverse.herolib.core.playbook
 
-
-
-
 mut plbook := playbook.new(text: "....")!
 
 ```

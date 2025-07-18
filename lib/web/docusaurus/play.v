@@ -1,4 +1,4 @@
-module doctree
+module docusaurus
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
@@ -36,6 +36,8 @@ pub fn play(args_ PlayArgs) ! {
 			path_build: path_build
 			production: production
 			update: update
+			// heroscript: p.get_default('heroscript', "")!
+			// heroscript_path: p.get_default('heroscript_path', "")!
 		)!
 	}
 
@@ -48,9 +50,30 @@ pub fn play(args_ PlayArgs) ! {
 		git_reset:= p.get_default_false('git_reset')
 		git_pull:= p.get_default_false('git_pull')
 
-		mut site:=ds.get(url:url,path:path,name:"atest")!
+		mut site:=ds.get(
+			name: name
+			nameshort: p.get_default('nameshort', name)!
+			path: path
+			git_url: git_url
+			git_reset: git_reset
+			git_root: p.get_default('git_root', "")!
+			git_pull: git_pull
+			path_publish: p.get_default('path_publish', "")!
+			production: p.get_default_false('production')
+			watch_changes: p.get_default_true('watch_changes')
+			update: p.get_default_false('update')
+			open: p.get_default_false('open')
+			init: p.get_default_false('init')
+		)!
+
+		if plbook.exists_once(filter: 'docusaurus.dev'){
+
+			// site.dev()!
+
+		}
 
 
 	}	
 
+	
 }
