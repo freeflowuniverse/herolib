@@ -6,14 +6,44 @@ below is powerful command, will get the repo, put on right location, you can for
 
 ```v
 import freeflowuniverse.herolib.develop.gittools
-mut gs := gittools.new()!
-mydocs_path:=gs.get_path(
+// 	path      string
+// 	git_url   string
+// 	git_reset bool
+// 	git_root  string
+// 	git_pull  bool
+//  currentdir bool // can use currentdir, if true, will use current directory as base path if not giturl or path specified
+mydocs_path:=gittools.path(
     pull:true,
-    reset:false,
-    url:'https://git.threefold.info/tfgrid/info_docs_depin/src/branch/main/docs'
+    git_url:'https://git.threefold.info/tfgrid/info_docs_depin/src/branch/main/docs'
 )!
 
 println(mydocs_path)
+
+//the returned path is from pathlib, so its easy to further process
+
+//more complete example
+
+@[params]
+pub struct GitPathGetArgs {
+pub mut:
+    someotherparams string // you can add other params here if you want
+    //gittools will use these params to find the right path
+	path      string
+	git_url   string
+	git_reset bool
+	git_root  string
+	git_pull  bool
+}
+pub fn something(args GitPathGetArgs) !string{
+    mut path := gittools.path(path: args.path, git_url: args.git_url, git_reset: args.git_reset, git_root: args.git_root, git_pull: args.git_pull)!
+	if !path.is_dir() {
+		return error('path is not a directory')
+	}
+	if path.file_exists('.site') {
+		move_site_to_collection(mut path)!
+	}
+    return path.path
+}
 
 ```
 

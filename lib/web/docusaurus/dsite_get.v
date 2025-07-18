@@ -14,16 +14,20 @@ pub struct DSiteGetArgs {
 pub mut:
 	name          string
 	nameshort     string
-	path          string
-	url           string
+    //gittools will use these params to find the right path
+	path      string
+	git_url   string
+	git_reset bool
+	git_root  string
+	git_pull  bool
+	//more params	
 	path_publish  string //default empty
-	// path_build    string //default empty
 	production    bool
 	watch_changes bool = true
 	update        bool
 	open          bool
 	init          bool // means create new one if needed
-	deploykey     string
+	// deploykey     string
 	// config        ?Configuration
 }
 
@@ -31,19 +35,10 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')
 	mut args := args_
 
-	// coderoot:"${os.home_dir()}/hero/var/publishcode"
-	mut gs := gittools.new(ssh_key_path: args.deploykey)!
-
-	if args.url.len > 0 {
-		args.path = gs.get_path(url: args.url)!
+    mut path := gittools.path(path: args.path, git_url: args.git_url, git_reset: args.git_reset, git_root: args.git_root, git_pull: args.git_pull,currentdir:true)!
+	if !path.is_dir() {
+		return error('path is not a directory')
 	}
-
-
-
-	if args.path.trim_space() == '' {
-		args.path = os.getwd()
-	}
-	args.path = args.path.replace('~', os.home_dir())
 
 	configpath:='${args.path}/cfg'
 	if ! os.exists(configpath) {
@@ -97,7 +92,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 
 	mut ds := DocSite{
 		name:       args.name
-		url:        args.url
+		// url:        args.url
 		path_src:   pathlib.get_dir(path: args.path, create: false)!
 		path_publish: pathlib.get_dir(path:args.path_publish)!
 		args:    args

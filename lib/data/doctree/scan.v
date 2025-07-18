@@ -29,27 +29,11 @@ pub mut:
 //	git_root  string
 //	git_pull  bool
 // ```	
-pub fn (mut tree Tree) scan(args_ TreeScannerArgs) ! {
-	mut args := args_
-	if args.git_url.len > 0 {
-		mut gs := gittools.get(coderoot: args.git_root)!
-		mut repo := gs.get_repo(
-			url:   args.git_url
-			pull:  args.git_pull
-			reset: args.git_reset
-		)!
-		args.path = repo.get_path_of_url(args.git_url)!
-	}
-
-	if args.path.len == 0 {
-		return error('Path needs to be provided.')
-	}
-
-	mut path := pathlib.get_dir(path: args.path)!
+pub fn (mut tree Tree) scan(args TreeScannerArgs) ! {
+	mut path := gittools.path(path: args.path, git_url: args.git_url, git_reset: args.git_reset, git_root: args.git_root, git_pull: args.git_pull)!
 	if !path.is_dir() {
 		return error('path is not a directory')
 	}
-
 	if path.file_exists('.site') {
 		move_site_to_collection(mut path)!
 	}
