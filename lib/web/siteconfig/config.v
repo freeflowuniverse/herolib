@@ -12,7 +12,7 @@ pub mut:
 	copyright          string = 'someone'
 	footer             Footer
 	menu               Menu
-	import_collections []CollectionsImport
+	imports 		   []ImportItem
 	pages              []Page
 
 	// New fields for Docusaurus compatibility
@@ -86,7 +86,7 @@ pub mut:
 	ssh_name string
 }
 
-pub struct CollectionsImport {
+pub struct ImportItem {
 pub mut:
 	name string //will normally be empty
 	url     string // http git url can be to specific path
@@ -94,5 +94,4 @@ pub mut:
 	dest    string            // location in the docs folder of the place where we will build docusaurus
 	replace map[string]string // will replace ${NAME} in the imported content
 	visible bool = true
-	frontmatter bool //if frontmatter is part of the document
 }

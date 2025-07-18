@@ -49,17 +49,17 @@ pub fn (mut site DocSite) generate() ! {
 	mut aa := site.path_src.dir_get("docs")!
 	aa.copy(dest: '${site.factory.path_build.path}/docs', delete: true)!
 
-	site.download_collections()!
+	site.process_imports()!
 
 }
 
-pub fn (mut site DocSite) download_collections() ! {
+pub fn (mut site DocSite) process_imports() ! {
 
 	//this means we need to do doctree version
 	mut tree := doctree.new(name: 'site_${site.name}')!
 
 	mut gs := gittools.new()!
-	for item in site.siteconfig.import_collections {
+	for item in site.siteconfig.imports {
 		mypath := gs.get_path(
 			pull:  false
 			reset: false
@@ -67,34 +67,7 @@ pub fn (mut site DocSite) download_collections() ! {
 		)!
 		mut mypatho := pathlib.get(mypath)
 
-		if item.frontmatter{
-			//if frontmatter specified then no need to do as collections just copy to destination
-			mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
-		}else{
-			tree.add(
-				path: mypath
-				name: item.name
-			)!
-		}
-	}	
-
-	//now export all collections
-	tree.export(
-		destination:    '${site.factory.path_build.path}/collections'
-		reset:          true
-		exclude_errors: false
-	)!
-	for item in site.siteconfig.import_collections {
-		//if dest specified them we consider source to have the docusaurus parts
-		if item.dest!=""{
-			mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
-			continue
-		}
-		
-		tree.add(
-			path: mypath
-			name: item.name
-		)!
+		mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
 
 		// println(item)
 		//replace: {'NAME': 'MyName', 'URGENCY': 'red'}
@@ -102,17 +75,11 @@ pub fn (mut site DocSite) download_collections() ! {
 		for key,val in item.replace {
 			ri.add_item("\{${key}\}",val)!
 		}
-		// println(ri)
+		mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
 		ri.replace_in_dir(path:"${site.factory.path_build.path}/docs/${item.dest}",extensions:["md"])!
 
-		if item.dest:=""{
-			mypatho.copy(dest: '${site.factory.path_build.path}/docs/${item.dest}', delete: true)!
-		}else{
-			mypatho.copy(dest: , delete: true)!
-		}
 
-		
-	}		
+	}	
 
 
 }

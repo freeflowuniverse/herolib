@@ -48,7 +48,7 @@ pub fn play(args_ PlayArgs) ! {
 	mut config := SiteConfig{}
 
 	play_config(mut plbook, mut config)!
-	play_collections(mut plbook, mut config)!
+	play_import(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
 	play_pages(mut plbook, mut config)!
@@ -98,30 +98,9 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-// Remove the old play_config content as it's now part of the new one above
-/*
-	config_actions := plbook.find(filter: 'site.config')!
-	if config_actions.len == 0 {
-		return error('no config found')
-	}
-	if config_actions.len > 1 {
-		return error('multiple config found, not ok')
-	}
-	for action in config_actions {
-		mut p := action.params
-		// Get optional name parameter or use base_url as fallback
-		config.name = p.get('name')!
-		config.name = texttools.name_fix(config.name)
-		config.title = p.get_default('title', 'Documentation Site')!
-		config.description = p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
-		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
-		config.favicon = p.get_default('favicon', 'img/favicon.png')!
-		config.image = p.get_default('image', 'img/tf_graph.png')!
-*/
-
-fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
-	import_actions := plbook.find(filter: 'site.collections')!
-	// println('import_actions: ${import_actions}')
+fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
+	import_actions := plbook.find(filter: 'site.import')!
+	println('import_actions: ${import_actions}')
 	for action in import_actions {
 		mut p := action.params
 		mut replace_map := map[string]string{}
@@ -134,16 +113,15 @@ fn play_collections(mut plbook PlayBook, mut config SiteConfig) ! {
 				}
 			}
 		}
-		mut import_ := CollectionsImport{
+		mut import_ := ImportItem{
 			name:        p.get_default('name','')!
-			frontmatter:        p.get_default('frontmatter','')!			
 			url:     p.get('url')!
 			path:    p.get_default('path', '')!
 			dest:    p.get_default('dest', '')!
 			replace: replace_map
 			visible: p.get_default_false('visible')
 		}
-		config.import_collections << import_
+		config.imports << import_
 	}
 }
 

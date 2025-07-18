@@ -31,13 +31,6 @@ console.print_header('Actions:')
 println('')
 println(doc1.actions(actor: 'myactor', name: 'myname'))
 
-// console.print_header('Action Pointers:')
-// println('')
-// for a in doc1.action_pointers(actor: 'myactor', name: 'myname') {
-// 	doc1.content_set(a.element_id, '> THIS IS WHAT WE FILL IN FROM ACTOR')
-// 	println(a)
-// }
-
 console.print_header("Markdown output after macro's:")
 println('')
 content2 := doc1.treeview()
