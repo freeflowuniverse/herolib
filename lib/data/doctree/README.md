@@ -66,6 +66,21 @@ my_collection/
 
 Markdown files (`.md`) are treated as pages. 
 
+## use Play
+
+```heroscript
+
+!!doctree.collection name:"my_local_docs" path:"./docs"
+
+!!doctree.collection name:"tfgrid_docs"
+    git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/collections"
+    git_reset: true
+    git_pull: true
+
+//is optional, if not specified then will be at ${os.home_dir()}/hero/var/doctree/main
+!!doctree.export name: "my_local_docs", destination: "/tmp/1" exclude_errors:0 reset:1
+```
+
 ## Redis Structure
 
 when using the export redis:true argument, which is default

@@ -4,11 +4,12 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.data.doctree.collection { Collection }
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
+import os
 
 @[params]
 pub struct TreeExportArgs {
 pub mut:
-	destination    string @[required]
+	destination    string
 	reset          bool = true
 	keep_structure bool // wether the structure of the src collection will be preserved or not
 	exclude_errors bool // wether error reporting should be exported as well
@@ -20,13 +21,18 @@ pub mut:
 // export all collections to chosen directory .
 // all names will be in name_fixed mode .
 // all images in img/
-pub fn (mut tree Tree) export(args TreeExportArgs) ! {
-	console.print_header('export tree: name:${tree.name} to ${args.destination}')
+pub fn (mut tree Tree) export(args_ TreeExportArgs) ! {
+	mut args:= args_
 	if args.toreplace.len > 0 {
 		mut ri := regext.regex_instructions_new()
 		ri.add_from_text(args.toreplace)!
 		tree.replacer = ri
 	}
+
+	if args.destination.len == 0 {
+		args.destination = '${os.home_dir()}/hero/var/doctree/main'
+	}
+	console.print_header('export tree: name:${tree.name} to ${args.destination}')
 
 	mut dest_path := pathlib.get_dir(path: args.destination, create: true)!
 	if args.reset {

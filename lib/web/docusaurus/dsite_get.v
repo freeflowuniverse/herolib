@@ -7,6 +7,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.web.siteconfig
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.data.doctree
 
 @[params]
 pub struct DSiteGetArgs {
@@ -36,6 +37,8 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	if args.url.len > 0 {
 		args.path = gs.get_path(url: args.url)!
 	}
+
+
 
 	if args.path.trim_space() == '' {
 		args.path = os.getwd()
@@ -84,6 +87,11 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	if args.path_publish == ""{
 		args.path_publish = "${f.path_publish}/${args.name}"
 	}
+
+	doctree.play(
+		heroscript_path: configpath
+		reset: args.update
+	)!
 
 	mut mysiteconfig:=*siteconfig.new(configpath)!
 

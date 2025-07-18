@@ -1,11 +1,13 @@
 module doctree
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
+import freeflowuniverse.herolib.ui.console
+
 
 @[params]
 pub struct PlayArgs {
 pub mut:
-	heroscript string // if filled in then plbook will be made out of it
+	heroscript string
 	heroscript_path string
 	plbook     ?PlayBook
 	reset      bool
@@ -22,7 +24,7 @@ pub fn play(args_ PlayArgs) ! {
 	collection_actions := plbook.find(filter: 'doctree.collection')!
 	for action in collection_actions {
 		mut p := action.params		
-		name := p.get('name')!
+		name := p.get_default('name',"main")!
 		mut doctree := doctrees[name] or { 
 			mut newdtr:= doctree.new(name: name)!
 			doctrees[name] = newdtr
@@ -36,18 +38,24 @@ pub fn play(args_ PlayArgs) ! {
 
 	}	
 
+
+	if collection_actions.len==0 {
+		return error("No collections configured, use !!doctree.collection...")
+	}
+
 	export_actions := plbook.find(filter: 'doctree.export')!
+	if export_actions.len == 0 {
+		name0:="main"
+		mut doctree0	 := doctrees[name0] or { panic("can't find doctree with name ${name0}") }
+		doctree0.export()!
+	}
 	for action in export_actions {
 		mut p := action.params		
-		name := p.get('name')!
+		name := p.get_default('name',"main")!
 		destination := p.get('destination')!
 		reset:= p.get_default_false('reset')
-		exclude_errors:= p.get_default_false('exclude_errors')
-		mut doctree := doctrees[name] or { 
-			mut newdtr:= doctree.new(name: name)!
-			doctrees[name] = newdtr
-			newdtr
-		}	
+		exclude_errors:= p.get_default_true('exclude_errors')
+		mut doctree := doctrees[name] or { return error("can't find doctree with name ${name}") }
 		doctree.export(
 			destination:    destination
 			reset:          reset

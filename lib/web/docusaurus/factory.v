@@ -2,6 +2,7 @@ module docusaurus
 
 import os
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.data.doctree
 
 @[heap]
 pub struct DocusaurusFactory {
@@ -20,8 +21,8 @@ pub mut:
 	path_build string
 	production bool
 	update     bool
-	// heroscript      string
-	// heroscript_path string
+	heroscript      string
+	heroscript_path string
 }
 
 pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
@@ -41,6 +42,5 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 	}
 
 	f.template_install(install: args.update, template_update: args.update)!
-
 	return f
 }
