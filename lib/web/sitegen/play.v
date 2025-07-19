@@ -8,7 +8,6 @@ import freeflowuniverse.herolib.data.doctree
 @[params]
 pub struct PlayArgs {
 pub mut:
-
 	heroscript string
 	heroscript_path string
 	plbook     ?PlayBook
@@ -41,7 +40,7 @@ pub fn play(args_ PlayArgs) ! {
 	// 	description:"A description not filled in"
 	// 	draft:1 hide_title:1 
 
-	mut factory:=new(mut tree)!
+	mut factory:=new(tree)!
 
 	page_actions := plbook.find(filter: 'site.page')!
 	mut mypage:=Page{src:"",path:""}

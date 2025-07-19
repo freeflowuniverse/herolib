@@ -8,6 +8,7 @@ import freeflowuniverse.herolib.osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
 import freeflowuniverse.herolib.data.doctree
+import freeflowuniverse.herolib.web.sitegen
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.factory.path_build.path}')
@@ -48,12 +49,26 @@ pub fn (mut site DocSite) generate() ! {
 	mut aa := site.path_src.dir_get('docs')!
 	aa.copy(dest: '${site.factory.path_build.path}/docs', delete: true)!
 
+
+	//now we need to process the pages, call the sitegen module, which will look for statements like
+	// !!site.page sitename:'atest'
+	// 		path:"crazy/sub.md" position:1
+	// 		src:"marketplace_specs:tft_tfp_marketplace" 
+	// 		title:"Just a Page"
+	// 		description:"A description not filled in"
+	// 		draft:1 hide_title:1 
+
+	configpath:="${site.path_src.path}/cfg"
+	sitegen.play(heroscript_path: configpath)!
+
+	// sitegenpath := '${os.home_dir()}/hero/var/sitegen/${site.name}'
+	// if os.exists(sitegenpath) {
+	// 	panic("Sdsdsd:${sitegenpath}")
+	// }
 	site.process_imports()!
 }
 
 pub fn (mut site DocSite) process_imports() ! {
-	// this means we need to do doctree version
-	mut tree := doctree.new(name: 'site_${site.name}')!
 
 	mut gs := gittools.new()!
 	for item in site.siteconfig.imports {

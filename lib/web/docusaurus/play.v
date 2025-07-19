@@ -56,7 +56,7 @@ pub fn play(args_ PlayArgs) ! {
 			git_pull:      git_pull
 			path_publish:  p.get_default('path_publish', '')!
 			production:    p.get_default_false('production')
-			watch_changes: p.get_default_true('watch_changes')
+			// watch_changes: p.get_default_true('watch_changes')
 			update:        p.get_default_false('update')
 			open:          p.get_default_false('open')
 			init:          p.get_default_false('init')

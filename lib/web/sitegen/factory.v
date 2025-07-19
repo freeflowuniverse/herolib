@@ -19,7 +19,7 @@ pub mut:
 
 
 // new creates a new siteconfig and stores it in redis, or gets an existing one
-pub fn new(mut tree &doctree.Tree, args SiteNewArgs) !SiteFactory {
+pub fn new(tree &doctree.Tree, args SiteNewArgs) !SiteFactory {
 	mut path := args.path
 	if path == '' {
 		path = '${os.home_dir()}/hero/var/sitegen'
