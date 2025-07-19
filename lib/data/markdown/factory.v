@@ -1,8 +1,8 @@
-module markdownparser
+module markdown
 
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.data.markdownparser.elements
-import freeflowuniverse.herolib.data.markdownparser.parsers
+import freeflowuniverse.herolib.data.markdown.elements
+import freeflowuniverse.herolib.data.markdown.parsers
 import os
 
 @[params]

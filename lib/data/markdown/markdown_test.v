@@ -1,7 +1,7 @@
-module markdownparser
+module markdown
 
 import freeflowuniverse.herolib.data.paramsparser { Param, Params }
-import freeflowuniverse.herolib.data.markdownparser.elements { Action, Codeblock, Header, Link, List, Paragraph, Table, Text }
+import freeflowuniverse.herolib.data.markdown.elements { Action, Codeblock, Header, Link, List, Paragraph, Table, Text }
 import freeflowuniverse.herolib.ui.console
 
 const text = "

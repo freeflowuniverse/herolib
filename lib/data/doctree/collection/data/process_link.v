@@ -1,7 +1,7 @@
 module data
 
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 import freeflowuniverse.herolib.data.doctree.pointer
 
 // Note: doc should not get reparsed after invoking this method

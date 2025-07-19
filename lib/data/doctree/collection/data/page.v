@@ -1,8 +1,8 @@
 module data
 
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.data.markdownparser.elements { Action, Doc, Element, Frontmatter2 }
-import freeflowuniverse.herolib.data.markdownparser
+import freeflowuniverse.herolib.data.markdown.elements { Action, Doc, Element, Frontmatter2 }
+import freeflowuniverse.herolib.data.markdown
 
 pub enum PageStatus {
 	unknown
@@ -39,7 +39,7 @@ pub fn new_page(args NewPageArgs) !Page {
 	if args.name == '' {
 		return error('page name must not be empty')
 	}
-	mut doc := markdownparser.new(path: args.path.path, collection_name: args.collection_name) or {
+	mut doc := markdown.new(path: args.path.path, collection_name: args.collection_name) or {
 		return error('failed to parse doc for path ${args.path.path}\n${err}')
 	}
 	children := doc.children_recursive()
@@ -71,7 +71,7 @@ pub fn (mut page Page) doc() !&Doc {
 fn (page Page) doc_immute() !&Doc {
 	if page.changed {
 		content := page.doc.markdown()!
-		doc := markdownparser.new(content: content, collection_name: page.collection_name)!
+		doc := markdown.new(content: content, collection_name: page.collection_name)!
 		return &doc
 	}
 	return page.doc
@@ -79,7 +79,7 @@ fn (page Page) doc_immute() !&Doc {
 
 // reparse doc markdown and assign new doc to page
 fn (mut page Page) reparse_doc(content string) ! {
-	doc := markdownparser.new(content: content, collection_name: page.collection_name)!
+	doc := markdown.new(content: content, collection_name: page.collection_name)!
 	page.element_cache = map[int]Element{}
 	for child in doc.children_recursive() {
 		page.element_cache[child.id] = child

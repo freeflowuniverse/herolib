@@ -1,7 +1,7 @@
 module doctree
 
 import freeflowuniverse.herolib.data.doctree.collection { Collection }
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.core.playmacros

@@ -1,6 +1,6 @@
-module markdownparser
+module markdown
 
-import freeflowuniverse.herolib.data.markdownparser.elements { Table }
+import freeflowuniverse.herolib.data.markdown.elements { Table }
 
 fn test_table_no_rows_invalid() {
 	mut content := '

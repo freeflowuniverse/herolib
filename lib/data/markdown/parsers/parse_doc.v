@@ -1,6 +1,6 @@
 module parsers
 
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 // import freeflowuniverse.herolib.ui.console
 
 // DO NOT CHANGE THE WAY HOW THIS WORKS, THIS HAS BEEN DONE AS A STATEFUL PARSER BY DESIGN

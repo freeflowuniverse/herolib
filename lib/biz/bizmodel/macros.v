@@ -2,7 +2,7 @@ module bizmodel
 
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 import freeflowuniverse.herolib.ui.console
 
 pub fn playmacro(action playbook.Action) !string {

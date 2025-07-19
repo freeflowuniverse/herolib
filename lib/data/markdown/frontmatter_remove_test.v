@@ -1,7 +1,7 @@
-module markdownparser
+module markdown
 
-import freeflowuniverse.herolib.data.markdownparser { new }
-import freeflowuniverse.herolib.data.markdownparser.elements { Frontmatter2 }
+import freeflowuniverse.herolib.data.markdown { new }
+import freeflowuniverse.herolib.data.markdown.elements { Frontmatter2 }
 import os
 
 fn test_get_content_without_frontmatter() {

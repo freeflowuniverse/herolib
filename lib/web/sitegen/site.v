@@ -2,6 +2,7 @@ module sitegen
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient
+import freeflowuniverse.herolib.data.markdown.tools as markdowntools
 import freeflowuniverse.herolib.ui.console
 pub struct Site {
 pub mut:
@@ -41,7 +42,7 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 	}
 
 	if args.description.len==0 {
-		descnew:=doctreeclient.extract_title(page_content)
+		descnew:=markdowntools.extract_title(page_content)
 		if descnew!=""{
 			args.description = descnew
 		}else{
@@ -72,7 +73,7 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 
 	if args.title_nr > 0 {
 		// Set the title number in the page content
-		page_content = doctreeclient.set_titles(page_content, args.title_nr)
+		page_content = markdowntools.set_titles(page_content, args.title_nr)
 	}
 
 	c+="\n${page_content}\n"

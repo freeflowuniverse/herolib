@@ -1,7 +1,7 @@
 module data
 
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 
 // returns !!wiki.def actions
 pub fn (mut page Page) get_def_actions() ![]elements.Action {

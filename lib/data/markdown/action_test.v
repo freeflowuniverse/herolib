@@ -1,7 +1,7 @@
-module markdownparser
+module markdown
 
 import freeflowuniverse.herolib.data.paramsparser { Param, Params }
-import freeflowuniverse.herolib.data.markdownparser.elements { Action }
+import freeflowuniverse.herolib.data.markdown.elements { Action }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.ui.console
 

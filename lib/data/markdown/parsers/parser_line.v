@@ -1,6 +1,6 @@
 module parsers
 
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 // is a line parser, useful to quickly parse a file in any format as long as it is line based
 
 // error while parsing

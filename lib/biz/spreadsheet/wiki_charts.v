@@ -1,6 +1,6 @@
 module spreadsheet
 
-import freeflowuniverse.herolib.data.markdownparser.elements
+import freeflowuniverse.herolib.data.markdown.elements
 import freeflowuniverse.herolib.ui.console
 
 pub fn (s Sheet) wiki_title_chart(args RowGetArgs) !string {
