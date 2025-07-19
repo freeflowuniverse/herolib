@@ -1,4 +1,4 @@
-module doctreeclient
+module tools
 
 // extract_title extracts the highest level markdown title from a page string.
 // It returns the first one found, or an empty string if none are present.

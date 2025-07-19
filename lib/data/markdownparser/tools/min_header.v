@@ -1,8 +1,7 @@
-module markdownparser
+module tools
 
-import freeflowuniverse.herolib.ui.console
 
-pub fn markdown_min_header(text string, minlevel int) string {
+pub fn min_header(text string, minlevel int) string {
 	mut nrhash := 100
 	mut out := []string{}
 
@@ -24,12 +23,13 @@ pub fn markdown_min_header(text string, minlevel int) string {
 		for _ in 0 .. (minlevel - nrhash) {
 			addhashstring += '#'
 		}
-		for mut line2 in text.split('\n') {
-			if line2.starts_with('#') {
-				line2 = addhashstring + '${line2}'
-			}
-			out << line2
+	}
+
+	for mut line2 in text.split('\n') {
+		if line2.starts_with('#') && minlevel > nrhash {
+			line2 = addhashstring + '${line2}'
 		}
+		out << line2
 	}
 
 	return out.join('\n')
