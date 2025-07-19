@@ -31,10 +31,8 @@ pub fn set_titles(page string, maxnr int) string {
 	mut current_numbers := []int{len: 6, init: 0} // Support up to H6, initialize with 0s
 	mut has_h1 := false
 
-	mut effective_maxnr := maxnr
-	if effective_maxnr == 0 {
-		effective_maxnr = 3 // Default to H3 if maxnr is not set
-	}
+	mut effective_maxnr := if maxnr > 0 { maxnr } else { 6 }
+	autonumber := maxnr > 0
 
 	lines := page.split_into_lines()
 	for line in lines {
@@ -76,11 +74,13 @@ pub fn set_titles(page string, maxnr int) string {
 			}
 
 			mut new_prefix := ""
-			for i := 0; i < numbering_hash_count; i++ {
-				if i > 0 && current_numbers[i] == 0 && current_numbers[i-1] > 0{
-					current_numbers[i] = 1
+			if autonumber {
+				for i := 0; i < numbering_hash_count; i++ {
+					if i > 0 && current_numbers[i] == 0 && current_numbers[i - 1] > 0 {
+						current_numbers[i] = 1
+					}
+					new_prefix += '${current_numbers[i]}.'
 				}
-				new_prefix += '${current_numbers[i]}.'
 			}
 
 			// Extract the original title text (after hashes and spaces)
@@ -109,7 +109,11 @@ pub fn set_titles(page string, maxnr int) string {
 			}
 
 
-			new_line += " ${new_prefix} ${original_title_text}"
+			if autonumber {
+				new_line += " ${new_prefix} ${original_title_text}"
+			} else {
+				new_line += " ${original_title_text}"
+			}
 			result_lines << new_line
 		}else {
 			result_lines << line

@@ -60,7 +60,7 @@ Even more content.
 ### 1.2.1. Sub-subsection B.1
 #### Sub-subsection B.1.1 (should not be numbered)
 "
-	assert doctreeclient.set_titles(page1, 0) == expected1
+	assert doctreeclient.set_titles(page1, 3) == expected1
 
 	// Test case 2: maxnr = 2
 	page2 := "
@@ -142,4 +142,23 @@ Some text.
 ### 2.1.1. Sub-principle 44
 "
 	assert doctreeclient.set_titles(page6, 3) == expected6
+
+	// Test case 7: maxnr = 0, no numbering but still shift headings
+	page7 := "
+## Core Architectural Principles
+Some text.
+### Sub-principle 1
+### Sub-principle 2
+## Core Architectural Principles 2
+#### Sub-principle 44
+"
+	expected7 := "
+# Core Architectural Principles
+Some text.
+## Sub-principle 1
+## Sub-principle 2
+# Core Architectural Principles 2
+### Sub-principle 44
+"
+	assert doctreeclient.set_titles(page7, 0) == expected7
 }
