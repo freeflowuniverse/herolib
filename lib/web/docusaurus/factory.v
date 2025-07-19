@@ -2,7 +2,6 @@ module docusaurus
 
 import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.data.doctree
 
 @[heap]
 pub struct DocusaurusFactory {
@@ -42,5 +41,10 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 	}
 
 	f.template_install(install: args.update, template_update: args.update)!
+
+	if args.heroscript != '' {
+		play(heroscript: args.heroscript, heroscript_path: args.heroscript_path)!
+	}
+
 	return f
 }

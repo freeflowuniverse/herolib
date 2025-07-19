@@ -42,7 +42,7 @@ fn (mut self DocusaurusFactory) template_install(args_ TemplateInstallArgs) ! {
 			//always stay in the context of the build directory
 			cmd: '
 				${osal.profile_path_source_and()!} 
-				export PATH=${self.path_build.path}/node_modules/.bin::??{HOME}/.bun/bin/:??PATH
+				export PATH=${self.path_build.path}/node_modules/.bin::${os.home_dir()}/.bun/bin/:\$PATH
 				cd ${self.path_build.path}
 				bun install
 			'

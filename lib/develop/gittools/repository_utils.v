@@ -87,27 +87,32 @@ pub fn (mut repo GitRepo) get_parent_dir(args GetParentDir) !string {
 	return parent_dir
 }
 
-@[params]
-pub struct GetRepoUrlArgs {
-pub mut:
-	with_branch bool // // If true, return the repo URL for an exact branch.
-}
+//DONT THINK ITS GOOD TO GIVE THE BRANCH
+// @[params]
+// pub struct GetRepoUrlArgs {
+// pub mut:
+// 	with_branch bool // // If true, return the repo URL for an exact branch.
+// }
 
 // url_get returns the URL of a git address
-fn (self GitRepo) get_repo_url(args GetRepoUrlArgs) !string {
-	url := self.status_wanted.url
-	if url.len != 0 {
-		if args.with_branch {
-			return '${url}/tree/${self.status_local.branch}'
-		}
-		return url
-	}
+fn (self GitRepo) get_repo_url_for_clone() !string {
+	
+	//WHY do we do following, now uncommented, the following code dispisses the ssh url part
+	// url := self.status_wanted.url
+	// if true{panic(url)}
+	// if url.len != 0 {
+	// 	if args.with_branch {
+	// 		return '${url}/tree/${self.status_local.branch}'
+	// 	}
+	// 	return url
+	// }
 
 	if sshagent.loaded() {
 		return self.get_ssh_url()!
 	} else {
 		return self.get_http_url()!
 	}
+
 }
 
 fn (self GitRepo) get_ssh_url() !string {

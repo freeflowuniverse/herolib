@@ -35,13 +35,7 @@ pub fn play(args_ PlayArgs) ! {
 		git_reset:= p.get_default_false('git_reset')
 		git_pull:= p.get_default_false('git_pull')
 		doctree.scan(path: path, git_url: git_url, git_reset: git_reset, git_pull: git_pull)!
-
 	}	
-
-
-	if collection_actions.len==0 {
-		return error("No collections configured, use !!doctree.collection...")
-	}
 
 	export_actions := plbook.find(filter: 'doctree.export')!
 	if export_actions.len == 0 {
@@ -49,6 +43,13 @@ pub fn play(args_ PlayArgs) ! {
 		mut doctree0	 := doctrees[name0] or { panic("can't find doctree with name ${name0}") }
 		doctree0.export()!
 	}
+	if export_actions.len > 0 {
+		if collection_actions.len==0 {
+			println(plbook)
+			return error("No collections configured, use !!doctree.collection..., otherwise cannot export")
+		}
+	}
+
 	for action in export_actions {
 		mut p := action.params		
 		name := p.get_default('name',"main")!

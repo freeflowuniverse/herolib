@@ -17,7 +17,7 @@ pub mut:
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-// Get GitLocation from a path within the Git repository
+// Get GitLocation from a path within the Git repository, doesn't read from fs, is just from path missing branch...
 pub fn (mut gs GitStructure) gitlocation_from_path(path string) !GitLocation {
 	mut full_path := pathlib.get(path)
 	rel_path := full_path.path_relative(gs.coderoot.path)!
@@ -42,7 +42,7 @@ pub fn (mut gs GitStructure) gitlocation_from_path(path string) !GitLocation {
 	}
 }
 
-// Get GitLocation from a URL
+// Get GitLocation from a URL, doesn't go on filesystem just tries to figure out branch, ...
 pub fn (mut gs GitStructure) gitlocation_from_url(url string) !GitLocation {
 	mut urllower := url.trim_space()
 	if urllower == '' {
@@ -60,12 +60,35 @@ pub fn (mut gs GitStructure) gitlocation_from_url(url string) !GitLocation {
 
 	// Extract branch if available
 	for i := 0; i < parts.len; i++ {
-		if parts[i] == 'refs' || parts[i] == 'tree' {
+		if parts[i] == 'src' && i + 1 < parts.len && parts[i + 1] == 'branch' {
+			if i + 2 < parts.len {
+				branch_or_tag = parts[i + 2]
+			}
+			if i + 3 < parts.len {
+				path = parts[(i + 3)..].join('/')
+			}
+			break
+		} else if parts[i] == 'tree' {
 			if i + 1 < parts.len {
 				branch_or_tag = parts[i + 1]
 			}
 			if i + 2 < parts.len {
 				path = parts[(i + 2)..].join('/')
+			}
+			break
+		} else if parts[i] == 'refs' {
+			if i + 1 < parts.len && (parts[i + 1] == 'heads' || parts[i + 1] == 'tags') {
+				if i + 2 < parts.len {
+					branch_or_tag = parts[i + 2]
+				}
+				if i + 3 < parts.len {
+					path = parts[(i + 3)..].join('/')
+				}
+			} else if i + 1 < parts.len { // Fallback if no heads/tags
+				branch_or_tag = parts[i + 1]
+				if i + 2 < parts.len {
+					path = parts[(i + 2)..].join('/')
+				}
 			}
 			break
 		}
@@ -100,15 +123,6 @@ pub fn (mut gs GitStructure) gitlocation_from_url(url string) !GitLocation {
 		path:          path
 		anker:         anchor
 	}
-}
-
-// Return a herolib path object on the filesystem pointing to the locator
-pub fn (l GitLocation) patho() !pathlib.Path {
-	mut addrpath := pathlib.get_dir(path: '${l.provider}/${l.account}/${l.name}', create: false)!
-	if l.path.len > 0 {
-		return pathlib.get('${addrpath.path}/${l.path}')
-	}
-	return addrpath
 }
 
 // Normalize the URL for consistent parsing

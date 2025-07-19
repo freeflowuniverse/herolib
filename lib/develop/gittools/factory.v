@@ -130,6 +130,7 @@ pub fn path(args_ GitPathGetArgs) !pathlib.Path {
 	if args.path.trim_space() == '' && args.currentdir{
 		args.path = os.getwd()
 	}
+
 	if args.git_url.len > 0 {
 		mut gs := gittools.get(coderoot: args.git_root)!
 		mut repo := gs.get_repo(

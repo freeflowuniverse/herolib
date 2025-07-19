@@ -36,13 +36,14 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	mut args := args_
 
     mut path := gittools.path(path: args.path, git_url: args.git_url, git_reset: args.git_reset, git_root: args.git_root, git_pull: args.git_pull,currentdir:true)!
+	args.path = path.path
 	if !path.is_dir() {
 		return error('path is not a directory')
 	}
 
 	configpath:='${args.path}/cfg'
 	if ! os.exists(configpath) {
-		return error("can't find config file in ${configpath}")
+		return error("can't find config file for docusaurus in ${configpath}")
 	}
 
 	osal.rm("${args.path}/cfg/main.json")!
@@ -62,7 +63,6 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 			return error("Can't find docs dir in chosen docusaurus location: ${args.path}")
 		}
 	}
-
 
 	mut myconfig:=config_load(configpath)!
 

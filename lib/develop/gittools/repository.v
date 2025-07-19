@@ -96,7 +96,7 @@ pub fn (mut repo GitRepo) commit(msg string) ! {
 pub fn (mut repo GitRepo) push() ! {
 	repo.status_update()!
 	if repo.need_push_or_pull()! {
-		url := repo.get_repo_url()!
+		url := repo.get_repo_url_for_clone()!
 		console.print_header('Pushing changes to ${url}')
 		// We may need to push the locally created branches
 		repo.exec('git push --set-upstream origin ${repo.status_local.branch}')!

@@ -113,7 +113,16 @@ pub fn (mut gitstructure GitStructure) get_repo(args_ ReposGetArgs) !&GitRepo {
 		return error('Found more than one repository for \n${args}\n${repos}')
 	}
 
-	return repositories[0]
+	//the pull & reset was not used, now re-inserted
+	mut repo := repositories[0] or { panic('bug get_repo') }
+
+	if args.pull {
+		repo.pull()!
+	} else if args.reset {
+		repo.reset()!
+	}
+
+	return repo
 }
 
 // Helper function to check if a repository matches the criteria (name, account, provider).

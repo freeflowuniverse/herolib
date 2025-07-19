@@ -6,6 +6,7 @@ import os
 @[params]
 pub struct GitCloneArgs {
 pub mut:
+	//only url needed because is a clone
 	url    string
 	sshkey string
 }
@@ -17,11 +18,20 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 	}
 
 	console.print_header('Git clone from the URL: ${args.url}.')
+	//gitlocatin comes just from the url, not from fs of whats already there
 	git_location := gitstructure.gitlocation_from_url(args.url)!
 
+
 	mut repo := gitstructure.repo_new_from_gitlocation(git_location)!
-	repo.status_wanted.url = args.url
-	repo.status_wanted.branch = git_location.branch_or_tag
+	//TODO: this seems to be wrong, we should not set the url here
+	// repo.status_wanted.url = args.url
+	// repo.status_wanted.branch = git_location.branch_or_tag
+
+	mut repopath := repo.patho()!
+	if repopath.exists(){
+		return error("can't clone on existing path, came from url, path found is ${repopath.path}.\n")
+	}
+
 
 	if args.sshkey.len > 0 {
 		repo.set_sshkey(args.sshkey)!
@@ -29,14 +39,17 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 
 	parent_dir := repo.get_parent_dir(create: true)!
 
+	cfg := gitstructure.config()!
+
+
 	mut extra := ''
-	if gitstructure.config()!.light {
+	if cfg.light {
 		extra = '--depth 1 --no-single-branch '
 	}
 
-	cfg := gitstructure.config()!
+	//the url needs to be http if no agent, otherwise its ssh, the following code will do this
+	mut cmd := 'cd ${parent_dir} && git clone ${extra} ${repo.get_repo_url_for_clone()!} ${repo.name}'
 
-	mut cmd := 'cd ${parent_dir} && git clone ${extra} ${repo.get_http_url()!} ${repo.name}'
 
 	mut sshkey_include := ''
 	if cfg.ssh_key_path.len > 0 {
