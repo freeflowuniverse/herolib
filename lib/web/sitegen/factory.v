@@ -38,7 +38,7 @@ pub fn (mut f SiteFactory) site_get(name string) !&Site {
 			name: name
 			tree: f.tree
 		}
-		&mysite
+		mysite
 	}
 	return s
 }
