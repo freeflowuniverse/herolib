@@ -13,7 +13,7 @@ pub mut:
 	footer      Footer
 	menu        Menu
 	imports     []ImportItem
-	pages       []Page
+	// pages       []Page
 
 	// New fields for Docusaurus compatibility
 	url      string // The main URL of the site (from !!site.config url:)
@@ -27,18 +27,18 @@ pub mut:
 	build_dest_dev []BuildDest // Development build destinations (from !!site.build_dest_dev)
 }
 
-pub struct Page {
-pub mut:
-	name        string
-	content     string
-	title       string
-	description string
-	draft       bool
-	folder      string
-	prio        int
-	src         string
-	collection  string
-}
+// pub struct Page {
+// pub mut:
+// 	name        string
+// 	content     string
+// 	title       string
+// 	description string
+// 	draft       bool
+// 	folder      string
+// 	prio        int
+// 	src         string
+// 	collection  string
+// }
 
 // Footer config structures
 pub struct FooterItem {
@@ -89,7 +89,7 @@ pub mut:
 	name    string // will normally be empty
 	url     string // http git url can be to specific path
 	path    string
-	dest    string            // location in the docs folder of the place where we will build docusaurus
+	dest    string            // location in the docs folder of the place where we will build the documentation site e.g. docusaurus
 	replace map[string]string // will replace ${NAME} in the imported content
 	visible bool = true
 }

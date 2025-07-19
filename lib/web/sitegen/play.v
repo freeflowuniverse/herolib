@@ -19,7 +19,7 @@ pub fn play(args_ PlayArgs) ! {
 	mut args := args_
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript,path:args.heroscript_path)! }
 
-	mut doctreename:="default"
+	mut doctreename:="main"
 	if plbook.exists(filter: 'site.doctree'){
 		if plbook.exists_once(filter: 'site.doctree'){
 			mut action:=plbook.action_get(actor:'site',name:'doctree')!
@@ -30,8 +30,8 @@ pub fn play(args_ PlayArgs) ! {
 		}
 	}
 
-	mut tree := doctree.new(name: doctreename) or {
-		return error("can't find doctree with name ${doctreename}")
+	mut tree := doctree.tree_get(doctreename) or {
+		return error("can't find doctree with name ${doctreename}\n list of trees: ${doctree.tree_list()}")
 	}
 
 	// !!site.page name:"atest" path:"crazy/sub" position:1
@@ -45,8 +45,9 @@ pub fn play(args_ PlayArgs) ! {
 	page_actions := plbook.find(filter: 'site.page')!
 	mut mypage:=Page{src:"",path:""}
 	for action in page_actions {
+		println(action)
 		mut p := action.params		
-		sitename := p.get('sitename') or { return error("need to specify name in site.page") }
+		sitename := p.get('sitename') or { return error("need to specify sitename in site.page") }
 		mypage.path = p.get_default('path', "")!
 		pagename := mypage.path.split('/').last()
 		mypage.position = p.get_int_default('position', 0)!

@@ -61,7 +61,7 @@ pub fn tree_get(name string) !&Tree {
 			return doctrees[name] or { return error('Doctree ${name} not found') }
 		}
 	}
-	return error("cann't doctree:'${name}'")
+	return error("can't get doctree:'${name}'")
 }
 
 pub fn tree_exist(name string) bool {
@@ -71,6 +71,12 @@ pub fn tree_exist(name string) bool {
 		}
 	}
 	return false
+}
+
+pub fn tree_list() []string {
+	rlock doctrees {
+		return doctrees.keys()
+	}
 }
 
 

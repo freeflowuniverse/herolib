@@ -37,6 +37,8 @@ pub fn play(args_ PlayArgs) ! {
 		)!
 	}
 
+
+
 	actions := plbook.find(filter: 'docusaurus.add')!
 	for action in actions {
 		mut p := action.params
@@ -45,6 +47,7 @@ pub fn play(args_ PlayArgs) ! {
 		git_url := p.get_default('git_url', '')!
 		git_reset := p.get_default_false('git_reset')
 		git_pull := p.get_default_false('git_pull')
+
 
 		mut site := ds.get(
 			name:          name
@@ -61,6 +64,7 @@ pub fn play(args_ PlayArgs) ! {
 			open:          p.get_default_false('open')
 			init:          p.get_default_false('init')
 		)!
+
 
 		if plbook.exists_once(filter: 'docusaurus.dev') {
 			site.dev()!

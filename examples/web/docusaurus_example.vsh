@@ -11,7 +11,7 @@ docusaurus.new(
 
 	!!docusaurus.add name:"tfgrid_docs" 
 		git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
-		git_root:"/tmp/code"
+		// git_root:"/tmp/code"
 		// git_reset:1
 		// git_pull:1
 

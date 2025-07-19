@@ -35,6 +35,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')
 	mut args := args_
 
+
 	mut path := gittools.path(
 		path:       args.path
 		git_url:    args.git_url
@@ -94,6 +95,14 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		heroscript_path: configpath
 		reset:           args.update
 	)!
+
+	// doctreename:="main"
+	// mut tree := doctree.tree_get(doctreename) or {
+	// 	return error("can't find doctree with name ${doctreename}\n list of trees: ${doctree.tree_list()}")
+	// }
+	// println(tree)
+	// if true{panic("226")}
+
 
 	mut mysiteconfig := *siteconfig.new(configpath)!
 

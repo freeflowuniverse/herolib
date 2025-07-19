@@ -20,7 +20,7 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut doctrees := map[string]&Tree{}
 
-	collection_actions := plbook.find(filter: 'doctree.collection')!
+	collection_actions := plbook.find(filter: 'doctree.scan')!
 	for action in collection_actions {
 		mut p := action.params
 		name := p.get_default('name', 'main')!
@@ -34,6 +34,9 @@ pub fn play(args_ PlayArgs) ! {
 		git_reset := p.get_default_false('git_reset')
 		git_pull := p.get_default_false('git_pull')
 		doctree.scan(path: path, git_url: git_url, git_reset: git_reset, git_pull: git_pull)!
+
+		tree_set(doctree)
+
 	}
 
 	export_actions := plbook.find(filter: 'doctree.export')!
@@ -62,4 +65,10 @@ pub fn play(args_ PlayArgs) ! {
 			exclude_errors: exclude_errors
 		)!
 	}
+
+	// println(tree_list())	
+	// println(tree_get("main")!)
+	// panic("sd")
+
+
 }

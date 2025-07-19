@@ -51,7 +51,7 @@ pub fn play(args_ PlayArgs) ! {
 	play_import(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
-	play_pages(mut plbook, mut config)!
+	// play_pages(mut plbook, mut config)!
 	play_build_dest(mut plbook, mut config)!
 	play_build_dest_dev(mut plbook, mut config)!
 
@@ -100,7 +100,7 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 	import_actions := plbook.find(filter: 'site.import')!
-	println('import_actions: ${import_actions}')
+	// println('import_actions: ${import_actions}')
 	for action in import_actions {
 		mut p := action.params
 		mut replace_map := map[string]string{}
@@ -199,23 +199,23 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-fn play_pages(mut plbook PlayBook, mut config SiteConfig) ! {
-	page_actions := plbook.find(filter: 'site.page')!
-	// println('page_actions: ${page_actions}')
-	for action in page_actions {
-		mut p := action.params
+// fn play_pages(mut plbook PlayBook, mut config SiteConfig) ! {
+// 	page_actions := plbook.find(filter: 'site.page')!
+// 	// println('page_actions: ${page_actions}')
+// 	for action in page_actions {
+// 		mut p := action.params
 
-		mut page := Page{
-			name:        p.get('name')!
-			title:       p.get_default('title', '')!
-			description: p.get_default('description', '')!
-			content:     p.get_default('content', '')!
-			src:         p.get_default('src', '')!
-			draft:       p.get_default_false('draft')
-			folder:      p.get_default('folder', '')!
-			prio:        p.get_int_default('prio', 0)!
-		}
+// 		mut page := Page{
+// 			name:        p.get('name')!
+// 			title:       p.get_default('title', '')!
+// 			description: p.get_default('description', '')!
+// 			content:     p.get_default('content', '')!
+// 			src:         p.get_default('src', '')!
+// 			draft:       p.get_default_false('draft')
+// 			folder:      p.get_default('folder', '')!
+// 			prio:        p.get_int_default('prio', 0)!
+// 		}
 
-		config.pages << page
-	}
-}
+// 		config.pages << page
+// 	}
+// }

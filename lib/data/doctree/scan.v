@@ -6,6 +6,7 @@ import freeflowuniverse.herolib.data.doctree.collection { Collection }
 import freeflowuniverse.herolib.develop.gittools
 import os
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.ui.console
 
 @[params]
 pub struct TreeScannerArgs {
@@ -37,6 +38,9 @@ pub fn (mut tree Tree) scan(args TreeScannerArgs) ! {
 		git_root:  args.git_root
 		git_pull:  args.git_pull
 	)!
+
+	console.print_header('doctree.scan: ${path.path}')
+
 	if !path.is_dir() {
 		return error('path is not a directory')
 	}

@@ -14,6 +14,7 @@ pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.factory.path_build.path}')
 	console.print_header(' site source on ${site.path_src.path}')
 
+
 	// lets make sure we remove the cfg dir so we rebuild
 	cfg_path := os.join_path(site.factory.path_build.path, 'cfg')
 	osal.rm(cfg_path)!
@@ -60,11 +61,11 @@ pub fn (mut site DocSite) generate() ! {
 
 	configpath:="${site.path_src.path}/cfg"
 	sitegen.play(heroscript_path: configpath)!
-
-	// sitegenpath := '${os.home_dir()}/hero/var/sitegen/${site.name}'
-	// if os.exists(sitegenpath) {
-	// 	panic("Sdsdsd:${sitegenpath}")
-	// }
+	if true{panic("123456")} // TODO: remove this line, it is just to show where the code continues
+	sitegenpath := '${os.home_dir()}/hero/var/sitegen/${site.name}'
+	if os.exists(sitegenpath) {
+		panic("Sdsdsd:${sitegenpath}")
+	}
 	site.process_imports()!
 }
 
