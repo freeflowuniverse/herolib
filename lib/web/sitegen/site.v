@@ -60,8 +60,8 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 	mut c:=content.join("\n")
 
 	mut mypage:=site.tree.page_get(args.src) or {
-		println(site.tree)
-		return error("Couldn't find page '${args.src}' in site tree:'${site.tree.name}', needs to be in form \$collection:\$name")
+		// site.tree.print_pages()
+		return error("Couldn't find page '${args.src}' in site tree:'${site.tree.name}', needs to be in form \$collection:\$name\n${site.tree.list_markdown()}")
 	}
 
 	c+="\n${mypage.get_markdown()!}\n"

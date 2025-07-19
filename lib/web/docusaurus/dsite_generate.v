@@ -61,9 +61,8 @@ pub fn (mut site DocSite) generate() ! {
 
 	configpath:="${site.path_src.path}/cfg"
 	sitegen.play(heroscript_path: configpath)!
-	if true{panic("123456")} // TODO: remove this line, it is just to show where the code continues
 	sitegenpath := '${os.home_dir()}/hero/var/sitegen/${site.name}'
-	if os.exists(sitegenpath) {
+	if true || os.exists(sitegenpath) {
 		panic("Sdsdsd:${sitegenpath}")
 	}
 	site.process_imports()!
