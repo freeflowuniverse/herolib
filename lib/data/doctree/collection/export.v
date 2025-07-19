@@ -112,7 +112,7 @@ fn (c Collection) export_files(col_name string, dir_src pathlib.Path, reset bool
 		if reset || !os.exists(d) {
 			file.copy(d)!
 		}
-		redis.hset('doctree:${col_name}', file.name, 'img/${file.name}.${file.ext}')!
+		redis.hset('doctree:${col_name}', '${file.name}.${file.ext}', 'img/${file.name}.${file.ext}')!
 	}
 }
 
@@ -121,7 +121,7 @@ fn (c Collection) export_images(col_name string, dir_src pathlib.Path, reset boo
 	mut redis := context.redis()!
 	for _, file in c.images {
 		mut d := '${dir_src.path}/img/${file.name}.${file.ext}'
-		redis.hset('doctree:${col_name}', file.name, 'img/${file.name}.${file.ext}')!
+		redis.hset('doctree:${col_name}', '${file.name}.${file.ext}', 'img/${file.name}.${file.ext}')!
 		if reset || !os.exists(d) {
 			file.copy(d)!
 		}

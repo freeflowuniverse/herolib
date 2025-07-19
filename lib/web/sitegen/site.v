@@ -66,22 +66,51 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 	collection_name := parts[0]
 	page_name := parts[1]
 
-	// mut page_content := site.client.get_page_content(collection_name, page_name) or {
-	// 	return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
-	// }
+	mut page_content := site.client.get_page_content(collection_name, page_name) or {
+		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
+	}
 
-	// c+="\n${page_content}\n"
+	c+="\n${page_content}\n"
 
 	mut pagepath:= "${site.path.path}/${args.path}"
-	// mut pagefile:= pathlib.get_file(path:pagepath,create:true)!
+	mut pagefile:= pathlib.get_file(path:pagepath,create:true)!
 
-	// pagefile.write(c)!
+	pagefile.write(c)!
 
-   console.print_debug("Copy page '${pagepath}' in collection '${collection_name}")
+   console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
 
-	
-   site.client.copy_page(collection_name, page_name, pagepath)  or {
-		return error("Couldn't copy page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
+   site.client.copy_images(collection_name, page_name, pagefile.path_dir())  or {
+		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
 	}
 
 }
+
+
+
+@[params]
+pub struct Section {
+pub mut:
+	position int
+	path string
+	label string
+}
+
+
+pub fn (mut site Site) section_add(args_ Section) ! {
+	mut args:= args_
+
+	mut c:='{
+    "label": "${args.label}",
+    "position": ${args.position},
+    "link": {
+      "type": "generated-index"
+    }
+  }'
+
+	mut category_path:= "${site.path.path}/${args.path}/_category_.json"
+	mut catfile:= pathlib.get_file(path:category_path,create:true)!
+
+	catfile.write(c)!
+
+}
+

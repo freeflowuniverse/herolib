@@ -73,6 +73,12 @@ pub fn (mut c DocTreeClient) get_image_path(collection_name string, image_name s
 	rel_path := c.redis.hget('doctree:${fixed_collection_name}', fixed_image_name) or {
 		return error('${DocTreeError.image_not_found}: Image "${image_name}" not found in collection "${collection_name}"')
 	}
+	
+	if rel_path == '' {
+		return error('${DocTreeError.image_not_found}: Image "${image_name}" found in collection "${collection_name}" but its path is empty in Redis.')
+	}
+	
+	// console.print_debug('get_image_path: rel_path for "${image_name}": "${rel_path}"')
 
 	// Combine the collection path with the relative path
 	return os.join_path(collection_path, rel_path)
@@ -297,7 +303,8 @@ pub fn (mut c DocTreeClient) get_page_paths(collection_name string, page_name st
 	page_content := c.get_page_content(collection_name, page_name)!
 
 	// Extract image names from the page content
-	image_names := extract_image_links(page_content)!
+	image_names := extract_image_links(page_content,true)!
+	// println(image_names)
 
 	mut image_paths := []string{}
 	for image_name in image_names {
@@ -313,42 +320,33 @@ pub fn (mut c DocTreeClient) get_page_paths(collection_name string, page_name st
 }
 
 // copy_page copies a page and its linked images to a specified destination.
-pub fn (mut c DocTreeClient) copy_page(collection_name string, page_name string, destination_path string) ! {
-	console.print_debug('copy_page: Copying page "${page_name}" from collection "${collection_name}" to "${destination_path}"')
+pub fn (mut c DocTreeClient) copy_images(collection_name string, page_name string, destination_path string) ! {
 	// Get the page path and linked image paths
 	page_path, image_paths := c.get_page_paths(collection_name, page_name)!
 
-	console.print_debug('copy_page: Page path: "${page_path}"')
-	console.print_debug('copy_page: Linked image paths: ${image_paths}')
-
-	if true{panic("sdsdsd7")}
+	// println('copy_page: Linked image paths: ${image_paths}')
 
 	// Ensure the destination directory exists
-	console.print_debug('copy_page: Ensuring destination directory "${destination_path}" exists.')
 	os.mkdir_all(destination_path)!
-	console.print_debug('copy_page: Destination directory created/exists.')
 
-	// Copy the page file
-	page_file_name := os.base(page_path)
-	dest_page_path := os.join_path(destination_path, page_file_name)
-	console.print_debug('copy_page: Copying page file from "${page_path}" to "${dest_page_path}"')
-	os.cp(page_path, dest_page_path)!
-	console.print_debug('copy_page: Page file copied.')
+	// // Copy the page file
+	// page_file_name := os.base(page_path)
+	// dest_page_path := os.join_path(destination_path, page_file_name)
+	// os.cp(page_path, dest_page_path)!
 
-	// Create an 'images' subdirectory within the destination
-	images_dest_path := os.join_path(destination_path, 'images')
-	console.print_debug('copy_page: Ensuring images directory "${images_dest_path}" exists.')
+	// Create an 'img' subdirectory within the destination
+	images_dest_path := os.join_path(destination_path, 'img')
 	os.mkdir_all(images_dest_path)!
-	console.print_debug('copy_page: Images directory created/exists.')
 
 	// Copy each linked image
 	for image_path in image_paths {
+		// println(image_path)
 		image_file_name := os.base(image_path)
 		dest_image_path := os.join_path(images_dest_path, image_file_name)
-		console.print_debug('copy_page: Copying image file from "${image_path}" to "${dest_image_path}"')
+		// console.print_debug('copy_page: Copying image file from "${image_path}" to "${dest_image_path}"')
 		os.cp(image_path, dest_image_path)!
-		console.print_debug('copy_page: Image file "${image_file_name}" copied.')
+		// console.print_debug('Copy Image file "${image_file_name}" copied.')
 	}
-	console.print_debug('copy_page: All files copied successfully.')
 }
+
 

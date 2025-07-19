@@ -1,6 +1,8 @@
 module doctreeclient
 
-pub fn extract_image_links(s string) ![]string {
+import os
+
+pub fn extract_image_links(s string, exclude_http bool) ![]string {
 	mut result := []string{}
 	mut current_pos := 0
 	for {
@@ -35,7 +37,14 @@ pub fn extract_image_links(s string) ![]string {
 		
 		// Extract the URL
 		url := s[url_start_index..url_end_index]
-		result << url
+		if exclude_http && (url.starts_with('http://') || url.starts_with('https://')) {
+			current_pos = url_end_index + 1
+			continue
+		}
+		
+		// Extract only the base name of the image from the URL
+		image_base_name := os.base(url)
+		result << image_base_name
 		
 		// Move current_pos past the found link to continue searching
 		current_pos = url_end_index + 1
