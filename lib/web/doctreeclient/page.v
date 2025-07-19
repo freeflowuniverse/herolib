@@ -29,6 +29,7 @@ pub fn extract_title(page string) string {
 pub fn set_titles(page string, maxnr int) string {
 	mut result_lines := []string{}
 	mut current_numbers := []int{len: 6, init: 0} // Support up to H6, initialize with 0s
+	mut has_h1 := false
 
 	mut effective_maxnr := maxnr
 	if effective_maxnr == 0 {
@@ -55,14 +56,31 @@ pub fn set_titles(page string, maxnr int) string {
 		if hash_count > 0 && hash_count <= effective_maxnr {
 			// This is a title within the effective_maxnr
 			current_numbers[hash_count - 1]++ // Increment current level
+			if hash_count == 1 {
+				has_h1 = true
+			}
 			// Reset lower levels
 			for i := hash_count; i < current_numbers.len; i++ {
 				current_numbers[i] = 0
 			}
 
 			mut new_prefix := ""
-			for i := 0; i < hash_count; i++ {
-				new_prefix += '${current_numbers[i]}.'
+			mut actual_hash_count_for_prefix := hash_count
+			mut first_num_override := false
+
+			if !has_h1 && hash_count > 1 {
+				// If no H1 has been encountered yet, and this is an H2 or lower,
+				// the first number should be 1, and the prefix length is hash_count - 1.
+				first_num_override = true
+				actual_hash_count_for_prefix = hash_count - 1
+			}
+
+			for i := 0; i < actual_hash_count_for_prefix; i++ {
+				if i == 0 && first_num_override {
+					new_prefix += '1.'
+				} else {
+					new_prefix += '${current_numbers[i + (if first_num_override {1} else {0}) ]}.'
+				}
 			}
 
 			// Extract the original title text (after hashes and spaces)
