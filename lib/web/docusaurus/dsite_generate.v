@@ -60,11 +60,8 @@ pub fn (mut site DocSite) generate() ! {
 	// 		draft:1 hide_title:1 
 
 	configpath:="${site.path_src.path}/cfg"
-	sitegen.play(heroscript_path: configpath)!
-	sitegenpath := '${os.home_dir()}/hero/var/sitegen/${site.name}'
-	if true || os.exists(sitegenpath) {
-		panic("Sdsdsd:${sitegenpath}")
-	}
+	sitegen.play(heroscript_path: configpath, dest:'${site.factory.path_build.path}/docs', flat:true)!
+
 	site.process_imports()!
 }
 

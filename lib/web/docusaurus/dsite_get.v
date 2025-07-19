@@ -96,13 +96,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		reset:           args.update
 	)!
 
-	// doctreename:="main"
-	// mut tree := doctree.tree_get(doctreename) or {
-	// 	return error("can't find doctree with name ${doctreename}\n list of trees: ${doctree.tree_list()}")
-	// }
-	// println(tree)
-	// if true{panic("226")}
-
+	//the play will automatically do an export on ~/hero/var/doctree/main if no export specified in the heroscript
 
 	mut mysiteconfig := *siteconfig.new(configpath)!
 

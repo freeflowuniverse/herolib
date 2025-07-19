@@ -2,8 +2,7 @@ module sitegen
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.data.doctree
-
+import os
 
 @[params]
 pub struct PlayArgs {
@@ -11,6 +10,8 @@ pub mut:
 	heroscript string
 	heroscript_path string
 	plbook     ?PlayBook
+	dest 	 string
+	flat bool //if flat then won't use sitenames as subdir's
 }
 
 
@@ -18,6 +19,10 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut args := args_
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript,path:args.heroscript_path)! }
+
+	if args.dest==""{
+		args.dest = '${os.home_dir()}/hero/var/sitegen'
+	}
 
 	mut doctreename:="main"
 	if plbook.exists(filter: 'site.doctree'){
@@ -30,9 +35,6 @@ pub fn play(args_ PlayArgs) ! {
 		}
 	}
 
-	mut tree := doctree.tree_get(doctreename) or {
-		return error("can't find doctree with name ${doctreename}\n list of trees: ${doctree.tree_list()}")
-	}
 
 	// !!site.page name:"atest" path:"crazy/sub" position:1
 	// 	src:"marketplace_specs:tft_tfp_marketplace" 
@@ -40,7 +42,7 @@ pub fn play(args_ PlayArgs) ! {
 	// 	description:"A description not filled in"
 	// 	draft:1 hide_title:1 
 
-	mut factory:=new(tree)!
+	mut factory:=new(path:args.dest,flat:args.flat)!
 
 	page_actions := plbook.find(filter: 'site.page')!
 	mut mypage:=Page{src:"",path:""}
