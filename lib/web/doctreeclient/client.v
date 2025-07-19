@@ -2,9 +2,7 @@ module doctreeclient
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.ui.console
 import os
-import regex
 
 
 // List of recognized image file extensions

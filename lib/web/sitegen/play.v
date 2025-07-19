@@ -12,6 +12,7 @@ pub mut:
 	plbook     ?PlayBook
 	dest 	 string
 	flat bool //if flat then won't use sitenames as subdir's
+	sitename string
 }
 
 
@@ -46,18 +47,47 @@ pub fn play(args_ PlayArgs) ! {
 
 	page_actions := plbook.find(filter: 'site.page')!
 	mut mypage:=Page{src:"",path:""}
+	mut position_next:=1
+	mut position := 0
+	mut path:=""
 	for action in page_actions {
-		// println(action)
+		println(action)
 		mut p := action.params		
-		sitename := p.get('sitename') or { return error("need to specify sitename in site.page") }
-		mypage.path = p.get_default('path', "")!
-		pagename := mypage.path.split('/').last()
-		mypage.position = p.get_int_default('position', 0)!
+		sitename := p.get_default('sitename',args.sitename)!
+		pathnew := p.get_default('path', "")!
+		if pathnew!=""{
+			mypage.path = path
+			if pathnew.ends_with(".md"){
+				//means we fully specified the name
+				mypage.path = pathnew
+			}else{
+				//only remember path if no .md file specified
+				path = pathnew	
+				if ! path.ends_with("/"){
+					path+="/"
+				}
+				println(" -- NEW PATH: ${path}")
+				mypage.path = path
+			}		
+		}else{
+			mypage.path = path
+		}		
+		position = p.get_int_default('position', 0)!
+		if position==0{
+			position = position_next			
+			position_next +=1
+		}else{
+			if position > position_next{
+				position_next = position + 1
+			}
+		}
+		mypage.position = position
 		mypage.src = p.get('src') or { return error("need to specify src in site.page") }
-		mypage.title = p.get_default('title', pagename)!
+		mypage.title = p.get_default('title', "")!
 		mypage.description = p.get_default('description', '')!
 		mypage.draft = p.get_default_false('draft')
 		mypage.hide_title = p.get_default_false('hide_title')
+		mypage.title_nr= p.get_int_default('title_nr', 0)!
 		mut site := factory.site_get(sitename)!
 		site.page_add(mypage)!
 	}	
@@ -65,7 +95,7 @@ pub fn play(args_ PlayArgs) ! {
 	category_actions := plbook.find(filter: 'site.page_category')!
 	mut section := Section{}
 	for action in category_actions {
-		println(action)
+		// println(action)
 		mut p := action.params		
 		sitename := p.get('sitename') or { return error("need to specify sitename in site.page") }
 		section.position = p.get_int_default('position', 20)!

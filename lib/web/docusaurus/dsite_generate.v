@@ -60,7 +60,7 @@ pub fn (mut site DocSite) generate() ! {
 	// 		draft:1 hide_title:1 
 
 	configpath:="${site.path_src.path}/cfg"
-	sitegen.play(heroscript_path: configpath, dest:'${site.factory.path_build.path}/docs', flat:true)!
+	sitegen.play(heroscript_path: configpath, dest:'${site.factory.path_build.path}/docs', flat:true, sitename:site.name)!
 
 	site.process_imports()!
 }

@@ -21,6 +21,7 @@ pub mut:
 	hide_title bool
 	src 	string  @[required]
 	path string @[required]
+	title_nr int
 }
 
 pub fn (mut site Site) page_add(args_ Page) ! {
@@ -28,14 +29,24 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 
 	mut content:=["---"]
 
-	if ! args.path.ends_with(".md") {
-		args.path += ".md"
+	mut parts := args.src.split(':')
+	if parts.len != 2 {
+		return error("Invalid src format for page '${args.src}', expected format: collection:page_name")
+	}
+	collection_name := parts[0]
+	page_name := parts[1]
+
+	mut page_content := site.client.get_page_content(collection_name, page_name) or {
+		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
 	}
 
-	pagename := args.path.split('/').last()
-
-	if args.title.len==0 {
-		args.title = pagename
+	if args.description.len==0 {
+		descnew:=doctreeclient.extract_title(page_content)
+		if descnew!=""{
+			args.description = descnew
+		}else{
+			args.description = page_name
+		}
 	}
 	content<< "title: '${args.title}'"
 
@@ -59,18 +70,21 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 
 	mut c:=content.join("\n")
 
-	mut parts := args.src.split(':')
-	if parts.len != 2 {
-		return error("Invalid src format for page '${args.src}', expected format: collection:page_name")
-	}
-	collection_name := parts[0]
-	page_name := parts[1]
-
-	mut page_content := site.client.get_page_content(collection_name, page_name) or {
-		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
+	if args.title_nr > 0 {
+		// Set the title number in the page content
+		page_content = doctreeclient.set_titles(page_content, args.title_nr)
 	}
 
 	c+="\n${page_content}\n"
+
+	if args.path.ends_with("/"){
+		//means is dir
+		args.path += page_name
+	}
+
+	if ! args.path.ends_with(".md"){
+		args.path += ".md"
+	}
 
 	mut pagepath:= "${site.path.path}/${args.path}"
 	mut pagefile:= pathlib.get_file(path:pagepath,create:true)!
