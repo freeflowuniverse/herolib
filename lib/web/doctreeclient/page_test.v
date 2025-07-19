@@ -123,13 +123,15 @@ Text.
 ## 1.1. Old Section
 "
 	assert doctreeclient.set_titles(page5, 3) == expected5
-	// Test case 6: First heading is H2, should start with 1.
+
+	// Test case 6: First heading is H2, should be treated as H1
 	page6 := "
 ## Core Architectural Principles
 Some text.
 ### Sub-principle 1
 ### Sub-principle 2
 ## Core Architectural Principles 2
+#### Sub-principle 44
 "
 	expected6 := "
 ## 1. Core Architectural Principles
@@ -137,9 +139,7 @@ Some text.
 ### 1.1. Sub-principle 1
 ### 1.2. Sub-principle 2
 ## 2. Core Architectural Principles 2
-"
-	assert doctreeclient.set_titles(page6, 3) == expected6
-}
+#### 2.1.1. Sub-principle 44
 "
 	assert doctreeclient.set_titles(page6, 3) == expected6
 }
