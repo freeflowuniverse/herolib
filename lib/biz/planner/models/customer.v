@@ -6,31 +6,31 @@ import time
 pub struct Customer {
 	BaseModel
 pub mut:
-	name            string @[required]
-	type            CustomerType
-	status          CustomerStatus
-	industry        string
-	website         string
-	description     string
-	contacts        []Contact
-	addresses       []Address
-	projects        []int // Project IDs associated with this customer
-	total_value     f64   // Total contract value
-	annual_value    f64   // Annual recurring revenue
-	payment_terms   string
-	tax_id          string
+	name               string @[required]
+	type               CustomerType
+	status             CustomerStatus
+	industry           string
+	website            string
+	description        string
+	contacts           []Contact
+	addresses          []Address
+	projects           []int // Project IDs associated with this customer
+	total_value        f64   // Total contract value
+	annual_value       f64   // Annual recurring revenue
+	payment_terms      string
+	tax_id             string
 	account_manager_id int // User ID of account manager
-	lead_source     string
-	acquisition_date time.Time
-	last_contact_date time.Time
+	lead_source        string
+	acquisition_date   time.Time
+	last_contact_date  time.Time
 	next_followup_date time.Time
-	credit_limit    f64
-	payment_method  string
-	billing_cycle   string // monthly, quarterly, annually
-	notes           string
-	logo_url        string
-	social_media    map[string]string // platform -> URL
-	custom_fields   map[string]string // Flexible custom data
+	credit_limit       f64
+	payment_method     string
+	billing_cycle      string // monthly, quarterly, annually
+	notes              string
+	logo_url           string
+	social_media       map[string]string // platform -> URL
+	custom_fields      map[string]string // Flexible custom data
 }
 
 // get_primary_contact returns the primary contact for this customer

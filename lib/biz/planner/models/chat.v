@@ -11,20 +11,20 @@ pub mut:
 	chat_type       ChatType
 	status          ChatStatus
 	visibility      ChatVisibility
-	owner_id        int    // User who owns/created the chat
+	owner_id        int // User who owns/created the chat
 	members         []ChatMember
 	messages        []Message
-	project_id      int    // Links to Project (optional)
-	team_id         int    // Links to Team (optional)
-	customer_id     int    // Links to Customer (optional)
-	task_id         int    // Links to Task (optional)
-	issue_id        int    // Links to Issue (optional)
-	milestone_id    int    // Links to Milestone (optional)
-	sprint_id       int    // Links to Sprint (optional)
-	agenda_id       int    // Links to Agenda (optional)
+	project_id      int // Links to Project (optional)
+	team_id         int // Links to Team (optional)
+	customer_id     int // Links to Customer (optional)
+	task_id         int // Links to Task (optional)
+	issue_id        int // Links to Issue (optional)
+	milestone_id    int // Links to Milestone (optional)
+	sprint_id       int // Links to Sprint (optional)
+	agenda_id       int // Links to Agenda (optional)
 	settings        ChatSettings
 	integrations    []ChatIntegration
-	pinned_messages []int  // Message IDs that are pinned
+	pinned_messages []int // Message IDs that are pinned
 	archived_at     time.Time
 	last_activity   time.Time
 	message_count   int
@@ -67,19 +67,19 @@ pub enum ChatVisibility {
 // ChatMember represents a member of a chat
 pub struct ChatMember {
 pub mut:
-	user_id         int
-	chat_id         int
-	role            ChatRole
-	permissions     []ChatPermission
-	joined_at       time.Time
-	last_read_at    time.Time
-	last_read_message_id int
+	user_id               int
+	chat_id               int
+	role                  ChatRole
+	permissions           []ChatPermission
+	joined_at             time.Time
+	last_read_at          time.Time
+	last_read_message_id  int
 	notification_settings NotificationSettings
-	status          MemberStatus
-	invited_by      int
-	muted           bool
-	muted_until     time.Time
-	custom_title    string
+	status                MemberStatus
+	invited_by            int
+	muted                 bool
+	muted_until           time.Time
+	custom_title          string
 }
 
 // ChatRole for member roles in chat
@@ -116,9 +116,9 @@ pub mut:
 	sender_id       int
 	content         string
 	message_type    MessageType
-	thread_id       int    // For threaded conversations
-	reply_to_id     int    // Message this is replying to
-	mentions        []int  // User IDs mentioned in message
+	thread_id       int   // For threaded conversations
+	reply_to_id     int   // Message this is replying to
+	mentions        []int // User IDs mentioned in message
 	attachments     []Attachment
 	reactions       []Reaction
 	edited_at       time.Time
@@ -128,7 +128,7 @@ pub mut:
 	pinned          bool
 	pinned_at       time.Time
 	pinned_by       int
-	forwarded_from  int    // Original message ID if forwarded
+	forwarded_from  int       // Original message ID if forwarded
 	scheduled_at    time.Time // For scheduled messages
 	delivery_status MessageDeliveryStatus
 	read_by         []MessageRead
@@ -181,66 +181,66 @@ pub enum MessagePriority {
 // MessageRead tracks who has read a message
 pub struct MessageRead {
 pub mut:
-	user_id         int
-	message_id      int
-	read_at         time.Time
-	device          string
+	user_id    int
+	message_id int
+	read_at    time.Time
+	device     string
 }
 
 // Reaction represents an emoji reaction to a message
 pub struct Reaction {
 pub mut:
-	id              int
-	message_id      int
-	user_id         int
-	emoji           string
-	created_at      time.Time
+	id         int
+	message_id int
+	user_id    int
+	emoji      string
+	created_at time.Time
 }
 
 // RichContent for rich message formatting
 pub struct RichContent {
 pub mut:
-	formatted_text  string // HTML or markdown
-	embeds          []Embed
-	buttons         []ActionButton
-	cards           []Card
-	polls           []Poll
+	formatted_text string // HTML or markdown
+	embeds         []Embed
+	buttons        []ActionButton
+	cards          []Card
+	polls          []Poll
 }
 
 // Embed for rich content embeds
 pub struct Embed {
 pub mut:
-	title           string
-	description     string
-	url             string
-	thumbnail_url   string
-	image_url       string
-	video_url       string
-	author_name     string
-	author_url      string
-	color           string
-	fields          []EmbedField
-	footer_text     string
-	timestamp       time.Time
+	title         string
+	description   string
+	url           string
+	thumbnail_url string
+	image_url     string
+	video_url     string
+	author_name   string
+	author_url    string
+	color         string
+	fields        []EmbedField
+	footer_text   string
+	timestamp     time.Time
 }
 
 // EmbedField for structured embed data
 pub struct EmbedField {
 pub mut:
-	name            string
-	value           string
-	inline          bool
+	name   string
+	value  string
+	inline bool
 }
 
 // ActionButton for interactive messages
 pub struct ActionButton {
 pub mut:
-	id              string
-	label           string
-	style           ButtonStyle
-	action          string
-	url             string
-	confirmation    string
+	id           string
+	label        string
+	style        ButtonStyle
+	action       string
+	url          string
+	confirmation string
 }
 
 // ButtonStyle for button appearance
@@ -256,19 +256,19 @@ pub enum ButtonStyle {
 // Card for rich card content
 pub struct Card {
 pub mut:
-	title           string
-	subtitle        string
-	text            string
-	image_url       string
-	actions         []ActionButton
-	facts           []CardFact
+	title     string
+	subtitle  string
+	text      string
+	image_url string
+	actions   []ActionButton
+	facts     []CardFact
 }
 
 // CardFact for key-value pairs in cards
 pub struct CardFact {
 pub mut:
-	name            string
-	value           string
+	name  string
+	value string
 }
 
 // Poll for interactive polls
@@ -287,90 +287,90 @@ pub mut:
 // PollOption for poll choices
 pub struct PollOption {
 pub mut:
-	id              int
-	text            string
-	votes           []PollVote
-	vote_count      int
+	id         int
+	text       string
+	votes      []PollVote
+	vote_count int
 }
 
 // PollVote for tracking poll votes
 pub struct PollVote {
 pub mut:
-	user_id         int
-	option_id       int
-	voted_at        time.Time
+	user_id   int
+	option_id int
+	voted_at  time.Time
 }
 
 // ChatSettings for chat configuration
 pub struct ChatSettings {
 pub mut:
-	allow_guests    bool
-	require_approval bool
+	allow_guests           bool
+	require_approval       bool
 	message_retention_days int
-	file_retention_days int
-	max_members     int
-	slow_mode_seconds int
-	profanity_filter bool
-	link_preview    bool
-	emoji_reactions bool
-	threading       bool
-	message_editing bool
-	message_deletion bool
-	file_uploads    bool
-	external_sharing bool
-	read_receipts   bool
-	typing_indicators bool
-	welcome_message string
-	rules           []string
-	auto_moderation AutoModerationSettings
+	file_retention_days    int
+	max_members            int
+	slow_mode_seconds      int
+	profanity_filter       bool
+	link_preview           bool
+	emoji_reactions        bool
+	threading              bool
+	message_editing        bool
+	message_deletion       bool
+	file_uploads           bool
+	external_sharing       bool
+	read_receipts          bool
+	typing_indicators      bool
+	welcome_message        string
+	rules                  []string
+	auto_moderation        AutoModerationSettings
 }
 
 // AutoModerationSettings for automated moderation
 pub struct AutoModerationSettings {
 pub mut:
-	enabled         bool
-	spam_detection  bool
-	profanity_filter bool
-	link_filtering  bool
-	caps_limit      int
-	rate_limit_messages int
-	rate_limit_seconds int
+	enabled               bool
+	spam_detection        bool
+	profanity_filter      bool
+	link_filtering        bool
+	caps_limit            int
+	rate_limit_messages   int
+	rate_limit_seconds    int
 	auto_timeout_duration int
-	escalation_threshold int
+	escalation_threshold  int
 }
 
 // NotificationSettings for member notification preferences
 pub struct NotificationSettings {
 pub mut:
-	all_messages    bool
-	mentions_only   bool
-	direct_messages bool
-	keywords        []string
-	mute_until      time.Time
-	email_notifications bool
-	push_notifications bool
+	all_messages          bool
+	mentions_only         bool
+	direct_messages       bool
+	keywords              []string
+	mute_until            time.Time
+	email_notifications   bool
+	push_notifications    bool
 	desktop_notifications bool
-	sound_enabled   bool
-	vibration_enabled bool
+	sound_enabled         bool
+	vibration_enabled     bool
 }
 
 // ChatIntegration for external service integrations
 pub struct ChatIntegration {
 pub mut:
-	id              int
-	chat_id         int
+	id               int
+	chat_id          int
 	integration_type IntegrationType
-	name            string
-	description     string
-	webhook_url     string
-	api_key         string
-	settings        map[string]string
-	enabled         bool
-	created_by      int
-	created_at      time.Time
-	last_used       time.Time
-	error_count     int
-	last_error      string
+	name             string
+	description      string
+	webhook_url      string
+	api_key          string
+	settings         map[string]string
+	enabled          bool
+	created_by       int
+	created_at       time.Time
+	last_used        time.Time
+	error_count      int
+	last_error       string
 }
 
 // IntegrationType for different integrations
@@ -400,7 +400,7 @@ pub fn (c Chat) get_unread_count(user_id int) int {
 			break
 		}
 	}
-	
+
 	// Count messages after last read
 	return c.messages.filter(it.id > last_read_id && !it.system_message).len
 }
@@ -448,22 +448,22 @@ pub fn (mut c Chat) add_member(user_id int, role ChatRole, permissions []ChatPer
 			return
 		}
 	}
-	
+
 	// Add new member
 	c.members << ChatMember{
-		user_id: user_id
-		chat_id: c.id
-		role: role
-		permissions: permissions
-		joined_at: time.now()
-		invited_by: invited_by
-		status: .active
+		user_id:               user_id
+		chat_id:               c.id
+		role:                  role
+		permissions:           permissions
+		joined_at:             time.now()
+		invited_by:            invited_by
+		status:                .active
 		notification_settings: NotificationSettings{
-			all_messages: true
-			mentions_only: false
-			direct_messages: true
+			all_messages:        true
+			mentions_only:       false
+			direct_messages:     true
 			email_notifications: true
-			push_notifications: true
+			push_notifications:  true
 		}
 	}
 	c.update_timestamp(by_user_id)
@@ -483,26 +483,26 @@ pub fn (mut c Chat) remove_member(user_id int, by_user_id int) {
 // send_message sends a message to the chat
 pub fn (mut c Chat) send_message(sender_id int, content string, message_type MessageType, thread_id int, reply_to_id int, mentions []int, attachments []Attachment, by_user_id int) int {
 	message := Message{
-		id: c.messages.len + 1
-		chat_id: c.id
-		sender_id: sender_id
-		content: content
-		message_type: message_type
-		thread_id: thread_id
-		reply_to_id: reply_to_id
-		mentions: mentions
-		attachments: attachments
+		id:              c.messages.len + 1
+		chat_id:         c.id
+		sender_id:       sender_id
+		content:         content
+		message_type:    message_type
+		thread_id:       thread_id
+		reply_to_id:     reply_to_id
+		mentions:        mentions
+		attachments:     attachments
 		delivery_status: .sent
-		priority: .normal
-		created_at: time.now()
-		created_by: by_user_id
+		priority:        .normal
+		created_at:      time.now()
+		created_by:      by_user_id
 	}
-	
+
 	c.messages << message
 	c.message_count++
 	c.last_activity = time.now()
 	c.update_timestamp(by_user_id)
-	
+
 	return message.id
 }
 
@@ -557,15 +557,15 @@ pub fn (mut c Chat) add_reaction(message_id int, user_id int, emoji string, by_u
 			// Check if user already reacted with this emoji
 			for reaction in message.reactions {
 				if reaction.user_id == user_id && reaction.emoji == emoji {
-					return // Already reacted
+					return
 				}
 			}
-			
+
 			c.messages[i].reactions << Reaction{
-				id: message.reactions.len + 1
+				id:         message.reactions.len + 1
 				message_id: message_id
-				user_id: user_id
-				emoji: emoji
+				user_id:    user_id
+				emoji:      emoji
 				created_at: time.now()
 			}
 			c.update_timestamp(by_user_id)
@@ -584,7 +584,7 @@ pub fn (mut c Chat) mark_as_read(user_id int, message_id int, by_user_id int) {
 			break
 		}
 	}
-	
+
 	// Add read receipt to message
 	for i, mut message in c.messages {
 		if message.id == message_id {
@@ -594,16 +594,16 @@ pub fn (mut c Chat) mark_as_read(user_id int, message_id int, by_user_id int) {
 					return
 				}
 			}
-			
+
 			c.messages[i].read_by << MessageRead{
-				user_id: user_id
+				user_id:    user_id
 				message_id: message_id
-				read_at: time.now()
+				read_at:    time.now()
 			}
 			break
 		}
 	}
-	
+
 	c.update_timestamp(by_user_id)
 }
 
@@ -629,15 +629,15 @@ pub fn (mut c Chat) archive_chat(by_user_id int) {
 // add_integration adds an external integration
 pub fn (mut c Chat) add_integration(integration_type IntegrationType, name string, webhook_url string, settings map[string]string, by_user_id int) {
 	c.integrations << ChatIntegration{
-		id: c.integrations.len + 1
-		chat_id: c.id
+		id:               c.integrations.len + 1
+		chat_id:          c.id
 		integration_type: integration_type
-		name: name
-		webhook_url: webhook_url
-		settings: settings
-		enabled: true
-		created_by: by_user_id
-		created_at: time.now()
+		name:             name
+		webhook_url:      webhook_url
+		settings:         settings
+		enabled:          true
+		created_by:       by_user_id
+		created_at:       time.now()
 	}
 	c.update_timestamp(by_user_id)
 }
@@ -647,11 +647,11 @@ pub fn (c Chat) get_activity_level() string {
 	if c.messages.len == 0 {
 		return 'Inactive'
 	}
-	
+
 	// Messages in last 24 hours
 	day_ago := time.now().unix - 86400
 	recent_messages := c.messages.filter(it.created_at.unix > day_ago).len
-	
+
 	if recent_messages > 50 {
 		return 'Very Active'
 	} else if recent_messages > 20 {
@@ -670,30 +670,34 @@ pub fn (c Chat) get_engagement_score() f32 {
 	if c.members.len == 0 || c.messages.len == 0 {
 		return 0
 	}
-	
+
 	// Calculate unique participants in last 7 days
 	week_ago := time.now().unix - (86400 * 7)
 	recent_messages := c.messages.filter(it.created_at.unix > week_ago)
-	
+
 	mut unique_senders := map[int]bool{}
 	for message in recent_messages {
 		unique_senders[message.sender_id] = true
 	}
-	
+
 	participation_rate := f32(unique_senders.len) / f32(c.members.len)
-	
+
 	// Calculate message frequency
 	messages_per_day := f32(recent_messages.len) / 7.0
 	frequency_score := if messages_per_day > 10 { 1.0 } else { messages_per_day / 10.0 }
-	
+
 	// Calculate reaction engagement
 	mut total_reactions := 0
 	for message in recent_messages {
 		total_reactions += message.reactions.len
 	}
-	reaction_rate := if recent_messages.len > 0 { f32(total_reactions) / f32(recent_messages.len) } else { 0 }
+	reaction_rate := if recent_messages.len > 0 {
+		f32(total_reactions) / f32(recent_messages.len)
+	} else {
+		0
+	}
 	reaction_score := if reaction_rate > 2 { 1.0 } else { reaction_rate / 2.0 }
-	
+
 	// Weighted average
 	return (participation_rate * 0.5) + (frequency_score * 0.3) + (reaction_score * 0.2)
 }

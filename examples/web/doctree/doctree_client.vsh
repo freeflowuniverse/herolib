@@ -1,6 +1,5 @@
 #!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
-
 import freeflowuniverse.herolib.data.doctree
 import freeflowuniverse.herolib.web.doctreeclient
 import os
@@ -18,8 +17,8 @@ tree.scan(
 )!
 
 tree.export(
-	destination:    '/tmp/doctree_example_export'
-	reset:          true
+	destination: '/tmp/doctree_example_export'
+	reset:       true
 )!
 
 println('Doctree data setup complete.')
@@ -72,7 +71,6 @@ non_existent_page := 'non_existent_page_123'
 exists_non_existent := client.page_exists(collection_name, non_existent_page)
 println('Page "${non_existent_page}" exists: ${exists_non_existent}')
 
-
 // Step 7: List images in the collection
 println('\n7. Listing images:')
 images := client.list_images(collection_name)!
@@ -121,6 +119,4 @@ content := client.get_page_content(collection_name, non_existent_page2) or {
 	'Error content'
 }
 
-
 println('\nExample completed successfully!')
-

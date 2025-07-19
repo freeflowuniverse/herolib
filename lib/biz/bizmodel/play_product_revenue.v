@@ -58,8 +58,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		extrapolate: true
 	)!
 
-
-
 	// Handle revenue_nr parameter (number of revenue items)
 	mut revenue_nr := m.sheet.row_new(
 		name:        '${name}_nr_sold'
@@ -68,7 +66,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		descr:       'Items sold per month for ${name2}'
 		extrapolate: false
 	)!
-
 
 	mut nr_sold := m.sheet.row_new(
 		name:          '${name}_nr_sold'
@@ -81,7 +78,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 	if nr_sold.max() > 0 {
 		product.has_items = true
 	}
-
 
 	// Handle revenue_item parameter (singular item)
 	mut revenue_item := m.sheet.row_new(

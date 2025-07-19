@@ -6,37 +6,37 @@ import time
 pub struct Project {
 	BaseModel
 pub mut:
-	name            string @[required]
-	description     string
-	customer_id     int    // Links to Customer
-	status          ProjectStatus
-	priority        Priority
-	start_date      time.Time
-	end_date        time.Time
-	actual_start_date time.Time
-	actual_end_date   time.Time
-	budget          f64
-	actual_cost     f64
-	estimated_hours f32
-	actual_hours    f32
-	progress        f32    // 0.0 to 1.0
-	milestones      []int  // Milestone IDs
-	sprints         []int  // Sprint IDs
-	tasks           []int  // Task IDs
-	issues          []int  // Issue IDs
-	team_members    []ProjectRole // Users and their roles in this project
-	project_manager_id int    // User ID of project manager
-	client_contact_id  int    // Contact ID from customer
-	billing_type    ProjectBillingType
-	hourly_rate     f64    // Default hourly rate for this project
-	currency        string = 'USD'
-	risk_level      RiskLevel
-	methodology     ProjectMethodology
-	repository_url  string
-	documentation_url string
-	slack_channel   string
-	custom_fields   map[string]string
-	labels          []int  // Label IDs
+	name               string @[required]
+	description        string
+	customer_id        int // Links to Customer
+	status             ProjectStatus
+	priority           Priority
+	start_date         time.Time
+	end_date           time.Time
+	actual_start_date  time.Time
+	actual_end_date    time.Time
+	budget             f64
+	actual_cost        f64
+	estimated_hours    f32
+	actual_hours       f32
+	progress           f32           // 0.0 to 1.0
+	milestones         []int         // Milestone IDs
+	sprints            []int         // Sprint IDs
+	tasks              []int         // Task IDs
+	issues             []int         // Issue IDs
+	team_members       []ProjectRole // Users and their roles in this project
+	project_manager_id int           // User ID of project manager
+	client_contact_id  int           // Contact ID from customer
+	billing_type       ProjectBillingType
+	hourly_rate        f64 // Default hourly rate for this project
+	currency           string = 'USD'
+	risk_level         RiskLevel
+	methodology        ProjectMethodology
+	repository_url     string
+	documentation_url  string
+	slack_channel      string
+	custom_fields      map[string]string
+	labels             []int // Label IDs
 }
 
 // ProjectBillingType for different billing models
@@ -112,24 +112,24 @@ pub fn (p Project) get_schedule_variance() int {
 	if planned_duration == 0 {
 		return 0
 	}
-	
+
 	if p.status == .completed {
 		actual_duration := p.get_actual_duration()
 		return planned_duration - actual_duration
 	}
-	
+
 	// For ongoing projects, calculate based on current date
 	if p.start_date.unix == 0 {
 		return 0
 	}
-	
+
 	days_elapsed := int((time.now().unix - p.start_date.unix) / 86400)
 	expected_progress := f32(days_elapsed) / f32(planned_duration)
-	
+
 	if expected_progress == 0 {
 		return 0
 	}
-	
+
 	schedule_performance := p.progress / expected_progress
 	return int(f32(planned_duration) * (schedule_performance - 1))
 }
@@ -145,12 +145,12 @@ pub fn (mut p Project) add_team_member(user_id int, role string, permissions []s
 			return
 		}
 	}
-	
+
 	// Add new member
 	p.team_members << ProjectRole{
-		user_id: user_id
-		project_id: p.id
-		role: role
+		user_id:     user_id
+		project_id:  p.id
+		role:        role
 		permissions: permissions
 		assigned_at: time.now()
 	}
@@ -289,7 +289,7 @@ pub fn (mut p Project) add_hours(hours f32, by_user_id int) {
 // calculate_health returns a project health score based on various factors
 pub fn (p Project) calculate_health() f32 {
 	mut score := f32(1.0)
-	
+
 	// Budget health (25% weight)
 	if p.budget > 0 {
 		budget_ratio := p.actual_cost / p.budget
@@ -299,7 +299,7 @@ pub fn (p Project) calculate_health() f32 {
 			score -= 0.125
 		}
 	}
-	
+
 	// Schedule health (25% weight)
 	schedule_var := p.get_schedule_variance()
 	if schedule_var < -7 { // More than a week behind
@@ -307,7 +307,7 @@ pub fn (p Project) calculate_health() f32 {
 	} else if schedule_var < 0 {
 		score -= 0.125
 	}
-	
+
 	// Progress health (25% weight)
 	if p.progress < 0.5 && p.status == .active {
 		days_elapsed := int((time.now().unix - p.start_date.unix) / 86400)
@@ -319,18 +319,18 @@ pub fn (p Project) calculate_health() f32 {
 			}
 		}
 	}
-	
+
 	// Risk level (25% weight)
 	match p.risk_level {
 		.critical { score -= 0.25 }
 		.high { score -= 0.125 }
 		else {}
 	}
-	
+
 	if score < 0 {
 		score = 0
 	}
-	
+
 	return score
 }
 

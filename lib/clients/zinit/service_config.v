@@ -1,6 +1,5 @@
 module zinit
 
-
 pub struct ServiceConfigResponse {
 pub mut:
 	exec             string            // Command to run
@@ -11,14 +10,13 @@ pub mut:
 	shutdown_timeout int               // Maximum time to wait for service to stop during shutdown
 }
 
-
 // Helper function to create a basic service configuration
 pub fn new_service_config(exec string) ServiceConfig {
 	return ServiceConfig{
-		exec: exec
-		oneshot: false
-		log: log_stdout
-		env: map[string]string{}
+		exec:             exec
+		oneshot:          false
+		log:              log_stdout
+		env:              map[string]string{}
 		shutdown_timeout: 30
 	}
 }
@@ -26,10 +24,10 @@ pub fn new_service_config(exec string) ServiceConfig {
 // Helper function to create a oneshot service configuration
 pub fn new_oneshot_service_config(exec string) ServiceConfig {
 	return ServiceConfig{
-		exec: exec
-		oneshot: true
-		log: log_stdout
-		env: map[string]string{}
+		exec:             exec
+		oneshot:          true
+		log:              log_stdout
+		env:              map[string]string{}
 		shutdown_timeout: 30
 	}
 }

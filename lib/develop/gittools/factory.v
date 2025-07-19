@@ -105,20 +105,18 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 	return gsinstances[rediskey_] or { panic('bug') }
 }
 
-
 @[params]
 pub struct GitPathGetArgs {
 pub mut:
-	path      string
-	git_url   string
-	git_reset bool
-	git_root  string
-	git_pull  bool
-	currentdir bool //can use currentdir
+	path       string
+	git_url    string
+	git_reset  bool
+	git_root   string
+	git_pull   bool
+	currentdir bool // can use currentdir
 }
 
-
-//return pathlib Path based on, will pull... 
+// return pathlib Path based on, will pull...
 // params:
 // 	path      string
 // 	git_url   string
@@ -126,13 +124,13 @@ pub mut:
 // 	git_root  string
 // 	git_pull  bool
 pub fn path(args_ GitPathGetArgs) !pathlib.Path {
-	mut args:= args_	
-	if args.path.trim_space() == '' && args.currentdir{
+	mut args := args_
+	if args.path.trim_space() == '' && args.currentdir {
 		args.path = os.getwd()
 	}
 
 	if args.git_url.len > 0 {
-		mut gs := gittools.get(coderoot: args.git_root)!
+		mut gs := get(coderoot: args.git_root)!
 		mut repo := gs.get_repo(
 			url:   args.git_url
 			pull:  args.git_pull

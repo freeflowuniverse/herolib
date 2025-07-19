@@ -29,7 +29,7 @@ fn test_service_list() {
 		assert false, 'Failed to list services: ${err}'
 		return
 	}
-	
+
 	// Just verify we got a map, even if it's empty
 	assert typeof(services).name == 'map[string]string'
 	println('Found ${services.len} services')
@@ -46,7 +46,7 @@ fn test_discover() {
 		assert false, 'Failed to get OpenRPC spec: ${err}'
 		return
 	}
-	
+
 	// Verify we got a non-empty string
 	assert spec.len > 0
 	assert spec.contains('"openrpc"')
@@ -63,7 +63,7 @@ fn test_stateless_client() {
 	temp_dir := os.temp_dir()
 	path := os.join_path(temp_dir, 'zinit_test')
 	pathcmds := os.join_path(temp_dir, 'zinit_test_cmds')
-	
+
 	// Create the directories
 	os.mkdir_all(path) or {
 		assert false, 'Failed to create test directory: ${err}'
@@ -73,7 +73,7 @@ fn test_stateless_client() {
 		assert false, 'Failed to create test commands directory: ${err}'
 		return
 	}
-	
+
 	// Clean up after the test
 	defer {
 		os.rmdir_all(path) or {}
@@ -82,19 +82,19 @@ fn test_stateless_client() {
 
 	mut zinit_client := new_stateless(
 		socket_path: '/tmp/zinit.sock'
-		path: path
-		pathcmds: pathcmds
+		path:        path
+		pathcmds:    pathcmds
 	) or {
 		assert false, 'Failed to create stateless client: ${err}'
 		return
 	}
-	
+
 	// Test the names method which uses the client
 	names := zinit_client.names() or {
 		assert false, 'Failed to get service names: ${err}'
 		return
 	}
-	
+
 	assert typeof(names).name == '[]string'
 }
 

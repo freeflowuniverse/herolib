@@ -5,15 +5,15 @@ import time
 // BaseModel provides common fields and functionality for all root objects
 pub struct BaseModel {
 pub mut:
-	id          int       @[primary; sql: serial]
-	created_at  time.Time @[sql_type: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP']
-	updated_at  time.Time @[sql_type: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP']
-	created_by  int       // User ID who created this record
-	updated_by  int       // User ID who last updated this record
-	version     int       // For optimistic locking
-	tags        []string  // Flexible tagging system for categorization
-	metadata    map[string]string // Extensible key-value data for custom fields
-	is_active   bool = true       // Soft delete flag
+	id         int       @[primary; sql: serial]
+	created_at time.Time @[sql_type: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP']
+	updated_at time.Time @[sql_type: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP']
+	created_by int               // User ID who created this record
+	updated_by int               // User ID who last updated this record
+	version    int               // For optimistic locking
+	tags       []string          // Flexible tagging system for categorization
+	metadata   map[string]string // Extensible key-value data for custom fields
+	is_active  bool = true // Soft delete flag
 }
 
 // update_timestamp updates the updated_at field and version for optimistic locking

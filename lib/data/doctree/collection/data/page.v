@@ -67,8 +67,6 @@ pub fn (mut page Page) doc() !&Doc {
 	return page.doc
 }
 
-
-
 // return doc, reparse if needed
 fn (page Page) doc_immute() !&Doc {
 	if page.changed {
@@ -111,8 +109,6 @@ pub fn (page Page) get_markdown() !string {
 	}
 	return result
 }
-
-
 
 pub fn (mut page Page) set_content(content string) ! {
 	page.reparse_doc(content)!

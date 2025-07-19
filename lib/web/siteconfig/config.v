@@ -3,17 +3,17 @@ module siteconfig
 // Combined config structure
 pub struct SiteConfig {
 pub mut:
-	name               string
-	title              string = 'My Documentation Site' // General site title
-	description        string // General site description, can be used for meta if meta_description not set
-	tagline            string
-	favicon            string = 'img/favicon.png'
-	image              string = 'img/tf_graph.png' // General site image, can be used for meta if meta_image not set
-	copyright          string = 'someone'
-	footer             Footer
-	menu               Menu
-	imports 		   []ImportItem
-	pages              []Page
+	name        string
+	title       string = 'My Documentation Site' // General site title
+	description string // General site description, can be used for meta if meta_description not set
+	tagline     string
+	favicon     string = 'img/favicon.png'
+	image       string = 'img/tf_graph.png' // General site image, can be used for meta if meta_image not set
+	copyright   string = 'someone'
+	footer      Footer
+	menu        Menu
+	imports     []ImportItem
+	pages       []Page
 
 	// New fields for Docusaurus compatibility
 	url      string // The main URL of the site (from !!site.config url:)
@@ -26,8 +26,6 @@ pub mut:
 	build_dest     []BuildDest // Production build destinations (from !!site.build_dest)
 	build_dest_dev []BuildDest // Development build destinations (from !!site.build_dest_dev)
 }
-
-
 
 pub struct Page {
 pub mut:
@@ -88,7 +86,7 @@ pub mut:
 
 pub struct ImportItem {
 pub mut:
-	name string //will normally be empty
+	name    string // will normally be empty
 	url     string // http git url can be to specific path
 	path    string
 	dest    string            // location in the docs folder of the place where we will build docusaurus

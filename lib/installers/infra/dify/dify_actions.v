@@ -17,11 +17,11 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut installer := get()!
 	mut res := []zinit.ZProcessNewArgs{}
 	mut cfg := get()!
-        res << zinit.ZProcessNewArgs{
-            name:        'docker'
-            cmd:         'dockerd'
-            startuptype: .systemd
-        }
+	res << zinit.ZProcessNewArgs{
+		name:        'docker'
+		cmd:         'dockerd'
+		startuptype: .systemd
+	}
 
 	cmd := "
         echo 'zinit starting dify'
@@ -32,9 +32,9 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
         docker compose --env-file ${cfg.path}/docker/.env up
 	"
 	res << zinit.ZProcessNewArgs{
-	    name:        'dify'
-	    cmd:         cmd
-	    startuptype: .systemd
+		name:        'dify'
+		cmd:         cmd
+		startuptype: .systemd
 	}
 	return res
 }
@@ -42,10 +42,10 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 fn running() !bool {
 	mut installer := get()!
 	cfg := get()!
-	cmd := "
+	cmd := '
 	sleep 120
 	docker ps | grep dify-web
-	"
+	'
 	res := os.execute(cmd)
 	return res.exit_code == 0
 }
@@ -70,7 +70,7 @@ fn installed() !bool {
 	mut docker := docker_installer.get()!
 	docker.install()!
 
-	cmd := "docker ps | grep dify-web"
+	cmd := 'docker ps | grep dify-web'
 	result := os.execute(cmd)
 	if result.exit_code != 0 {
 		return false
@@ -146,7 +146,7 @@ fn build() ! {
 
 fn destroy() ! {
 	mut cfg := get()!
-	cmd := "systemctl stop dify"
+	cmd := 'systemctl stop dify'
 	result := os.execute(cmd)
 	if result.exit_code != 0 {
 		return error("dify isn't running: ${result.output}")

@@ -15,4 +15,3 @@ text := os.read_file(path1)!
 println('=== PLAINTEXT RENDERING ===')
 println(markdown.to_plain(text))
 println('')
-

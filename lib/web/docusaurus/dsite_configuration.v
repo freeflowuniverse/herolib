@@ -54,9 +54,9 @@ pub mut:
 pub struct NavbarItem {
 pub mut:
 	label    string
-	href     string @[omitempty] 
+	href     string @[omitempty]
 	position string
-	to       string @[omitempty] 
+	to       string @[omitempty]
 }
 
 pub struct Footer {
@@ -74,12 +74,11 @@ pub mut:
 pub struct FooterItem {
 pub mut:
 	label string
-	href  string @[omitempty] 
-	to    string @[omitempty] 
+	href  string @[omitempty]
+	to    string @[omitempty]
 }
 
-fn  config_load(path string) !Configuration {
-
+fn config_load(path string) !Configuration {
 	// Use siteconfig.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
 	site_cfg_ref := siteconfig.new(path)!
 	site_cfg_from_heroscript := *site_cfg_ref // Dereference to get the actual SiteConfig struct
@@ -145,7 +144,6 @@ fn  config_load(path string) !Configuration {
 		}
 	}
 	return config_fix(cfg)!
-
 }
 
 fn config_fix(config Configuration) !Configuration {

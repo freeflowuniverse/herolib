@@ -226,7 +226,7 @@ fn (mut self ReplaceInstructions) replace_in_dir_recursive(path1 string, extensi
 	mut pathnew := ''
 	mut count := 0
 
-	console.print_debug(" - replace in dir: ${path1}")
+	console.print_debug(' - replace in dir: ${path1}')
 
 	for item in items {
 		// println(item)
@@ -241,14 +241,14 @@ fn (mut self ReplaceInstructions) replace_in_dir_recursive(path1 string, extensi
 
 			self.replace_in_dir_recursive(pathnew, extensions, dryrun, mut done)!
 		} else {
-			tmpext:=os.file_ext(pathnew)[1..] or { ""}
+			tmpext := os.file_ext(pathnew)[1..] or { '' }
 			ext := tmpext.to_lower()
 			if extensions == [] || ext in extensions {
 				// means we match a file
 				txtold := os.read_file(pathnew)!
 				txtnew := self.replace(text: txtold, dedent: false)!
 				if txtnew.trim(' \n') == txtold.trim(' \n') {
-					//console.print_header(' nothing to do : ${pathnew}')
+					// console.print_header(' nothing to do : ${pathnew}')
 				} else {
 					console.print_header(' replace done  : ${pathnew}')
 					count++

@@ -20,13 +20,11 @@ pub:
 	signal string // Signal to send (e.g., SIGTERM, SIGKILL)
 }
 
-
 // RpcDiscoverResponse represents the response from rpc.discover
 pub struct RpcDiscoverResponse {
 pub mut:
 	spec map[string]string // OpenRPC specification
 }
-
 
 // rpc_discover returns the OpenRPC specification for the API
 pub fn (mut c Client) rpc_discover() !RpcDiscoverResponse {
@@ -36,8 +34,6 @@ pub fn (mut c Client) rpc_discover() !RpcDiscoverResponse {
 		spec: response
 	}
 }
-
-
 
 // // Response Models for Zinit API
 // //
@@ -54,7 +50,7 @@ pub fn (mut c Client) rpc_discover() !RpcDiscoverResponse {
 // service_list lists all services managed by Zinit
 // Returns a map of service names to their current states
 pub fn (mut c Client) service_list() !map[string]string {
-	request := jsonrpc.new_request_generic('service_list',map[string]string  )
+	request := jsonrpc.new_request_generic('service_list', map[string]string{})
 	services := c.rpc_client.send[map[string]string, map[string]string](request)!
 	// return ServiceListResponse{
 	// 	services: services
@@ -76,7 +72,7 @@ pub mut:
 // name: the name of the service
 pub fn (mut c Client) service_status(name string) !ServiceStatusResponse {
 	request := jsonrpc.new_request_generic('service_status', name)
-	
+
 	// Use a direct struct mapping instead of manual conversion
 	return c.rpc_client.send[string, ServiceStatusResponse](request)!
 }
@@ -121,22 +117,20 @@ pub fn (mut c Client) service_forget(name string) ! {
 	c.rpc_client.send[string, string](request)!
 }
 
-//TODO: make sure the signal is a valid signal and enumerator do as @[params] so its optional
-
+// TODO: make sure the signal is a valid signal and enumerator do as @[params] so its optional
 
 // service_kill sends a signal to a running service
 // name: the name of the service to send the signal to
 // signal: the signal to send (e.g., SIGTERM, SIGKILL)
 pub fn (mut c Client) service_kill(name string, signal string) ! {
 	params := KillParams{
-		name: name
+		name:   name
 		signal: signal
 	}
-	
+
 	request := jsonrpc.new_request_generic('service_kill', params)
 	c.rpc_client.send[KillParams, string](request)!
 }
-
 
 // CreateServiceParams represents the parameters for the service_create method
 struct CreateServiceParams {
@@ -144,16 +138,15 @@ struct CreateServiceParams {
 	content ServiceConfig // Configuration for the service
 }
 
-
 // service_create creates a new service configuration file
 // name: the name of the service to create
 // config: the service configuration
 pub fn (mut c Client) service_create(name string, config ServiceConfig) !ServiceCreateResponse {
 	params := CreateServiceParams{
-		name: name
+		name:    name
 		content: config
 	}
-	
+
 	request := jsonrpc.new_request_generic('service_create', params)
 	path := c.rpc_client.send[CreateServiceParams, string](request)!
 	return ServiceCreateResponse{
@@ -164,18 +157,19 @@ pub fn (mut c Client) service_create(name string, config ServiceConfig) !Service
 // service_get gets a service configuration file
 // name: the name of the service to get
 pub fn (mut c Client) service_get(name string) !ServiceConfigResponse {
+	request := jsonrpc.new_request_generic('service_get', {
+		'name': name
+	})
 
-	request := jsonrpc.new_request_generic('service_get', {"name":name})
-	
 	// We need to handle the conversion from ServiceConfig to ServiceConfigResponse
 	config := c.rpc_client.send[map[string]string, ServiceConfig](request)!
-	
+
 	return ServiceConfigResponse{
-		exec: config.exec
-		oneshot: config.oneshot
-		after: config.after
-		log: config.log
-		env: config.env
+		exec:             config.exec
+		oneshot:          config.oneshot
+		after:            config.after
+		log:              config.log
+		env:              config.env
 		shutdown_timeout: config.shutdown_timeout
 	}
 }

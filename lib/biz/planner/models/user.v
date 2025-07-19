@@ -6,28 +6,28 @@ import time
 pub struct User {
 	BaseModel
 pub mut:
-	username        string @[required; unique]
-	email           string @[required; unique]
-	first_name      string @[required]
-	last_name       string @[required]
-	display_name    string
-	avatar_url      string
-	role            UserRole
-	status          UserStatus
-	timezone        string = 'UTC'
-	preferences     UserPreferences
-	teams           []int  // Team IDs this user belongs to
-	skills          []string
-	hourly_rate     f64
-	hire_date       time.Time
-	last_login      time.Time
-	password_hash   string // For authentication
-	phone           string
-	mobile          string
-	department      string
-	job_title       string
-	manager_id      int    // User ID of manager
-	reports         []int  // User IDs of direct reports
+	username      string @[required; unique]
+	email         string @[required; unique]
+	first_name    string @[required]
+	last_name     string @[required]
+	display_name  string
+	avatar_url    string
+	role          UserRole
+	status        UserStatus
+	timezone      string = 'UTC'
+	preferences   UserPreferences
+	teams         []int // Team IDs this user belongs to
+	skills        []string
+	hourly_rate   f64
+	hire_date     time.Time
+	last_login    time.Time
+	password_hash string // For authentication
+	phone         string
+	mobile        string
+	department    string
+	job_title     string
+	manager_id    int   // User ID of manager
+	reports       []int // User IDs of direct reports
 }
 
 // get_full_name returns the user's full name
@@ -159,7 +159,8 @@ pub fn (u User) calculate_total_hours(start_date time.Time, end_date time.Time, 
 pub fn (u User) calculate_billable_hours(start_date time.Time, end_date time.Time, time_entries []TimeEntry) f32 {
 	mut total := f32(0)
 	for entry in time_entries {
-		if entry.user_id == u.id && entry.billable && entry.start_time >= start_date && entry.end_time <= end_date {
+		if entry.user_id == u.id && entry.billable && entry.start_time >= start_date
+			&& entry.end_time <= end_date {
 			total += entry.duration
 		}
 	}

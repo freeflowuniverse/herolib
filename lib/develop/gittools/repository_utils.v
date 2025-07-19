@@ -87,7 +87,7 @@ pub fn (mut repo GitRepo) get_parent_dir(args GetParentDir) !string {
 	return parent_dir
 }
 
-//DONT THINK ITS GOOD TO GIVE THE BRANCH
+// DONT THINK ITS GOOD TO GIVE THE BRANCH
 // @[params]
 // pub struct GetRepoUrlArgs {
 // pub mut:
@@ -96,8 +96,7 @@ pub fn (mut repo GitRepo) get_parent_dir(args GetParentDir) !string {
 
 // url_get returns the URL of a git address
 fn (self GitRepo) get_repo_url_for_clone() !string {
-	
-	//WHY do we do following, now uncommented, the following code dispisses the ssh url part
+	// WHY do we do following, now uncommented, the following code dispisses the ssh url part
 	// url := self.status_wanted.url
 	// if true{panic(url)}
 	// if url.len != 0 {
@@ -112,7 +111,6 @@ fn (self GitRepo) get_repo_url_for_clone() !string {
 	} else {
 		return self.get_http_url()!
 	}
-
 }
 
 fn (self GitRepo) get_ssh_url() !string {

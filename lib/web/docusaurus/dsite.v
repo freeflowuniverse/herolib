@@ -12,16 +12,16 @@ import time
 @[heap]
 pub struct DocSite {
 pub mut:
-	name       string
-	url        string
-	path_src   pathlib.Path
+	name     string
+	url      string
+	path_src pathlib.Path
 	// path_build pathlib.Path
 	path_publish pathlib.Path
-	args    DSiteGetArgs
-	errors  []SiteError
-	config  Configuration
-	siteconfig siteconfig.SiteConfig
-	factory &DocusaurusFactory @[skip; str: skip] // Reference to the parent
+	args         DSiteGetArgs
+	errors       []SiteError
+	config       Configuration
+	siteconfig   siteconfig.SiteConfig
+	factory      &DocusaurusFactory @[skip; str: skip] // Reference to the parent
 }
 
 pub fn (mut s DocSite) build() ! {
@@ -81,7 +81,6 @@ pub fn (mut s DocSite) dev(args DevArgs) ! {
 	)!
 	s.open()!
 }
-
 
 pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	s.generate()!
@@ -199,4 +198,3 @@ pub fn (mut site DocSite) error(args ErrorArgs) {
 	site.errors << e
 	console.print_stderr(args.msg)
 }
-

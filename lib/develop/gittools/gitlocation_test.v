@@ -1,7 +1,6 @@
 module gittools
 
 import os
-
 import freeflowuniverse.herolib.core.pathlib
 
 fn test_gitlocation_from_url() {

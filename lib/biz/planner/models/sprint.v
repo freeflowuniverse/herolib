@@ -6,27 +6,27 @@ import time
 pub struct Sprint {
 	BaseModel
 pub mut:
-	name            string @[required]
-	description     string
-	project_id      int    // Links to Project
-	sprint_number   int    // Sequential number within project
-	status          SprintStatus
-	start_date      time.Time
-	end_date        time.Time
-	goal            string // Sprint goal
-	capacity        f32    // Team capacity in hours
-	commitment      int    // Story points committed
-	completed       int    // Story points completed
-	velocity        f32    // Actual velocity (story points / sprint duration)
-	tasks           []int  // Task IDs in this sprint
-	team_members    []SprintMember // Team members and their capacity
-	retrospective   SprintRetrospective
-	review_notes    string
-	demo_url        string
-	burndown_data   []BurndownPoint
-	daily_standups  []DailyStandup
-	impediments     []Impediment
-	custom_fields   map[string]string
+	name           string @[required]
+	description    string
+	project_id     int // Links to Project
+	sprint_number  int // Sequential number within project
+	status         SprintStatus
+	start_date     time.Time
+	end_date       time.Time
+	goal           string         // Sprint goal
+	capacity       f32            // Team capacity in hours
+	commitment     int            // Story points committed
+	completed      int            // Story points completed
+	velocity       f32            // Actual velocity (story points / sprint duration)
+	tasks          []int          // Task IDs in this sprint
+	team_members   []SprintMember // Team members and their capacity
+	retrospective  SprintRetrospective
+	review_notes   string
+	demo_url       string
+	burndown_data  []BurndownPoint
+	daily_standups []DailyStandup
+	impediments    []Impediment
+	custom_fields  map[string]string
 }
 
 // SprintStatus for sprint lifecycle
@@ -42,10 +42,10 @@ pub struct SprintMember {
 pub mut:
 	user_id         int
 	sprint_id       int
-	capacity_hours  f32    // Available hours for this sprint
-	allocated_hours f32    // Hours allocated to tasks
-	actual_hours    f32    // Hours actually worked
-	availability    f32    // Percentage availability (0.0 to 1.0)
+	capacity_hours  f32 // Available hours for this sprint
+	allocated_hours f32 // Hours allocated to tasks
+	actual_hours    f32 // Hours actually worked
+	availability    f32 // Percentage availability (0.0 to 1.0)
 	role            string
 	joined_at       time.Time
 }
@@ -55,22 +55,22 @@ pub struct SprintRetrospective {
 pub mut:
 	conducted_at    time.Time
 	facilitator_id  int
-	participants    []int  // User IDs
+	participants    []int // User IDs
 	what_went_well  []string
 	what_went_wrong []string
 	action_items    []ActionItem
-	team_mood       f32    // 1.0 to 5.0 scale
+	team_mood       f32 // 1.0 to 5.0 scale
 	notes           string
 }
 
 // ActionItem for retrospective action items
 pub struct ActionItem {
 pub mut:
-	description     string
-	assignee_id     int
-	due_date        time.Time
-	status          ActionItemStatus
-	created_at      time.Time
+	description string
+	assignee_id int
+	due_date    time.Time
+	status      ActionItemStatus
+	created_at  time.Time
 }
 
 // ActionItemStatus for action item tracking
@@ -84,50 +84,50 @@ pub enum ActionItemStatus {
 // BurndownPoint for burndown chart data
 pub struct BurndownPoint {
 pub mut:
-	date            time.Time
+	date             time.Time
 	remaining_points int
-	remaining_hours f32
+	remaining_hours  f32
 	completed_points int
-	added_points    int    // Points added during sprint
-	removed_points  int    // Points removed during sprint
+	added_points     int // Points added during sprint
+	removed_points   int // Points removed during sprint
 }
 
 // DailyStandup for daily standup meeting data
 pub struct DailyStandup {
 pub mut:
-	date            time.Time
-	facilitator_id  int
-	participants    []int  // User IDs
-	updates         []StandupUpdate
-	impediments     []int  // Impediment IDs discussed
+	date             time.Time
+	facilitator_id   int
+	participants     []int // User IDs
+	updates          []StandupUpdate
+	impediments      []int // Impediment IDs discussed
 	duration_minutes int
-	notes           string
+	notes            string
 }
 
 // StandupUpdate for individual team member updates
 pub struct StandupUpdate {
 pub mut:
-	user_id         int
-	yesterday       string // What did you do yesterday?
-	today           string // What will you do today?
-	blockers        string // Any blockers or impediments?
-	mood            f32    // 1.0 to 5.0 scale
+	user_id   int
+	yesterday string // What did you do yesterday?
+	today     string // What will you do today?
+	blockers  string // Any blockers or impediments?
+	mood      f32    // 1.0 to 5.0 scale
 }
 
 // Impediment for tracking sprint impediments
 pub struct Impediment {
 pub mut:
-	id              int
-	sprint_id       int
-	title           string
-	description     string
-	reported_by     int
-	assigned_to     int
-	status          ImpedimentStatus
-	severity        Priority
-	reported_at     time.Time
-	resolved_at     time.Time
-	resolution      string
+	id          int
+	sprint_id   int
+	title       string
+	description string
+	reported_by int
+	assigned_to int
+	status      ImpedimentStatus
+	severity    Priority
+	reported_at time.Time
+	resolved_at time.Time
+	resolution  string
 }
 
 // ImpedimentStatus for impediment tracking
@@ -151,12 +151,12 @@ pub fn (s Sprint) get_days_remaining() int {
 	if s.end_date.unix == 0 || s.status != .active {
 		return 0
 	}
-	
+
 	now := time.now()
 	if now > s.end_date {
 		return 0
 	}
-	
+
 	return int((s.end_date.unix - now.unix) / 86400)
 }
 
@@ -165,12 +165,12 @@ pub fn (s Sprint) get_days_elapsed() int {
 	if s.start_date.unix == 0 {
 		return 0
 	}
-	
+
 	now := time.now()
 	if now < s.start_date {
 		return 0
 	}
-	
+
 	end_time := if s.status == .completed && s.end_date.unix > 0 { s.end_date } else { now }
 	return int((end_time.unix - s.start_date.unix) / 86400)
 }
@@ -217,12 +217,12 @@ pub fn (s Sprint) get_team_utilization() f32 {
 	if capacity == 0 {
 		return 0
 	}
-	
+
 	mut actual := f32(0)
 	for member in s.team_members {
 		actual += member.actual_hours
 	}
-	
+
 	return (actual / capacity) * 100
 }
 
@@ -253,15 +253,15 @@ pub fn (mut s Sprint) add_team_member(user_id int, capacity_hours f32, availabil
 			return
 		}
 	}
-	
+
 	// Add new member
 	s.team_members << SprintMember{
-		user_id: user_id
-		sprint_id: s.id
+		user_id:        user_id
+		sprint_id:      s.id
 		capacity_hours: capacity_hours
-		availability: availability
-		role: role
-		joined_at: time.now()
+		availability:   availability
+		role:           role
+		joined_at:      time.now()
 	}
 	s.update_timestamp(by_user_id)
 }
@@ -314,9 +314,9 @@ pub fn (mut s Sprint) update_completed(points int, by_user_id int) {
 // add_burndown_point adds a burndown chart data point
 pub fn (mut s Sprint) add_burndown_point(remaining_points int, remaining_hours f32, completed_points int, by_user_id int) {
 	s.burndown_data << BurndownPoint{
-		date: time.now()
+		date:             time.now()
 		remaining_points: remaining_points
-		remaining_hours: remaining_hours
+		remaining_hours:  remaining_hours
 		completed_points: completed_points
 	}
 	s.update_timestamp(by_user_id)
@@ -325,12 +325,12 @@ pub fn (mut s Sprint) add_burndown_point(remaining_points int, remaining_hours f
 // add_daily_standup adds a daily standup record
 pub fn (mut s Sprint) add_daily_standup(facilitator_id int, participants []int, updates []StandupUpdate, duration_minutes int, notes string, by_user_id int) {
 	s.daily_standups << DailyStandup{
-		date: time.now()
-		facilitator_id: facilitator_id
-		participants: participants
-		updates: updates
+		date:             time.now()
+		facilitator_id:   facilitator_id
+		participants:     participants
+		updates:          updates
 		duration_minutes: duration_minutes
-		notes: notes
+		notes:            notes
 	}
 	s.update_timestamp(by_user_id)
 }
@@ -338,13 +338,13 @@ pub fn (mut s Sprint) add_daily_standup(facilitator_id int, participants []int, 
 // add_impediment adds an impediment to the sprint
 pub fn (mut s Sprint) add_impediment(title string, description string, reported_by int, severity Priority, by_user_id int) {
 	s.impediments << Impediment{
-		id: s.impediments.len + 1
-		sprint_id: s.id
-		title: title
+		id:          s.impediments.len + 1
+		sprint_id:   s.id
+		title:       title
 		description: description
 		reported_by: reported_by
-		status: .open
-		severity: severity
+		status:      .open
+		severity:    severity
 		reported_at: time.now()
 	}
 	s.update_timestamp(by_user_id)
@@ -366,14 +366,14 @@ pub fn (mut s Sprint) resolve_impediment(impediment_id int, resolution string, b
 // conduct_retrospective conducts a sprint retrospective
 pub fn (mut s Sprint) conduct_retrospective(facilitator_id int, participants []int, went_well []string, went_wrong []string, action_items []ActionItem, team_mood f32, notes string, by_user_id int) {
 	s.retrospective = SprintRetrospective{
-		conducted_at: time.now()
-		facilitator_id: facilitator_id
-		participants: participants
-		what_went_well: went_well
+		conducted_at:    time.now()
+		facilitator_id:  facilitator_id
+		participants:    participants
+		what_went_well:  went_well
 		what_went_wrong: went_wrong
-		action_items: action_items
-		team_mood: team_mood
-		notes: notes
+		action_items:    action_items
+		team_mood:       team_mood
+		notes:           notes
 	}
 	s.update_timestamp(by_user_id)
 }
@@ -381,13 +381,13 @@ pub fn (mut s Sprint) conduct_retrospective(facilitator_id int, participants []i
 // get_health_score calculates a health score for the sprint
 pub fn (s Sprint) get_health_score() f32 {
 	mut score := f32(1.0)
-	
+
 	// Completion rate (40% weight)
 	completion := s.get_completion_percentage()
 	if completion < 70 {
 		score -= 0.4 * (70 - completion) / 70
 	}
-	
+
 	// Team utilization (30% weight)
 	utilization := s.get_team_utilization()
 	if utilization < 80 || utilization > 120 {
@@ -397,22 +397,22 @@ pub fn (s Sprint) get_health_score() f32 {
 			score -= 0.3 * (utilization - 120) / 120
 		}
 	}
-	
+
 	// Impediments (20% weight)
 	open_impediments := s.impediments.filter(it.status == .open).len
 	if open_impediments > 0 {
 		score -= 0.2 * f32(open_impediments) / 5 // Assume 5+ impediments is very bad
 	}
-	
+
 	// Schedule adherence (10% weight)
 	if s.is_overdue() {
 		score -= 0.1
 	}
-	
+
 	if score < 0 {
 		score = 0
 	}
-	
+
 	return score
 }
 

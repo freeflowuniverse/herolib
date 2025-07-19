@@ -2,7 +2,6 @@ module zinit
 
 import freeflowuniverse.herolib.schemas.jsonrpc
 
-
 // system_shutdown stops all services and powers off the system
 pub fn (mut c Client) system_shutdown() ! {
 	request := jsonrpc.new_request_generic('system_shutdown', []string{})
@@ -14,7 +13,6 @@ pub fn (mut c Client) system_reboot() ! {
 	request := jsonrpc.new_request_generic('system_reboot', []string{})
 	c.rpc_client.send[[]string, string](request)!
 }
-
 
 // system_start_http_server starts an HTTP/RPC server at the specified address
 // address: the network address to bind the server to (e.g., '127.0.0.1:8080')
@@ -34,16 +32,18 @@ pub fn (mut c Client) system_stop_http_server() ! {
 
 @[params]
 pub struct LogParams {
-	name string 
+	name string
 }
 
 // stream_current_logs gets current logs from zinit and monitored services
 // name: optional service name filter. If provided, only logs from this service will be returned
 pub fn (mut c Client) stream_current_logs(args LogParams) ![]string {
 	mut logs := []string{}
-	
+
 	if args.name != '' {
-		request := jsonrpc.new_request_generic('stream_currentLogs', {"name":args.name})
+		request := jsonrpc.new_request_generic('stream_currentLogs', {
+			'name': args.name
+		})
 		logs = c.rpc_client.send[map[string]string, map[string]string](request)!
 	} else {
 		request := jsonrpc.new_request_generic('stream_currentLogs', map[string]string{})
@@ -56,7 +56,7 @@ pub fn (mut c Client) stream_current_logs(args LogParams) ![]string {
 // name: optional service name filter. If provided, only logs from this service will be returned
 pub fn (mut c Client) stream_subscribe_logs(name ?string) !StreamSubscribeLogsResponse {
 	mut subscription_id := ''
-	
+
 	if service_name := name {
 		request := jsonrpc.new_request_generic('stream_subscribeLogs', service_name)
 		subscription_id = c.rpc_client.send[string, string](request)!
@@ -64,7 +64,7 @@ pub fn (mut c Client) stream_subscribe_logs(name ?string) !StreamSubscribeLogsRe
 		request := jsonrpc.new_request_generic('stream_subscribeLogs', []string{})
 		subscription_id = c.rpc_client.send[[]string, string](request)!
 	}
-	
+
 	return StreamSubscribeLogsResponse{
 		subscription_id: subscription_id
 	}

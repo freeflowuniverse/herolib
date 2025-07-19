@@ -6,9 +6,9 @@ import json
 fn main() {
 	// Create a new Zinit client with the default socket path
 	mut zinit_client := zinit.new_stateless(socket_path: '/tmp/zinit.sock')!
-	
+
 	println('Connected to Zinit via OpenRPC')
-	
+
 	// Example 1: Get the OpenRPC API specification
 	println('\n=== Getting API Specification ===')
 	api_spec := zinit_client.client.discover() or {
@@ -16,7 +16,7 @@ fn main() {
 		return
 	}
 	println('API Specification (first 100 chars): ${api_spec[..100]}...')
-	
+
 	// Example 2: List all services
 	println('\n=== Listing Services ===')
 	service_list := zinit_client.client.list() or {
@@ -27,17 +27,17 @@ fn main() {
 	for name, state in service_list {
 		println('- ${name}: ${state}')
 	}
-	
+
 	// Example 3: Get detailed status of a service (if any exist)
 	if service_list.len > 0 {
 		service_name := service_list.keys()[0]
 		println('\n=== Getting Status for Service: ${service_name} ===')
-		
+
 		status := zinit_client.client.status(service_name) or {
 			println('Error getting status: ${err}')
 			return
 		}
-		
+
 		println('Service Status:')
 		println('- Name: ${status.name}')
 		println('- PID: ${status.pid}')
@@ -47,7 +47,7 @@ fn main() {
 		for dep_name, dep_state in status.after {
 			println('  - ${dep_name}: ${dep_state}')
 		}
-		
+
 		// Example 4: Get service stats
 		println('\n=== Getting Stats for Service: ${service_name} ===')
 		stats := zinit_client.client.stats(service_name) or {
@@ -55,7 +55,7 @@ fn main() {
 			println('Note: Stats are only available for running services')
 			return
 		}
-		
+
 		println('Service Stats:')
 		println('- Memory Usage: ${stats.memory_usage} bytes')
 		println('- CPU Usage: ${stats.cpu_usage}%')
@@ -68,7 +68,7 @@ fn main() {
 	} else {
 		println('\nNo services found to query')
 	}
-	
+
 	// Example 5: Create a new service (commented out for safety)
 	/*
 	println('\n=== Creating a New Service ===')
@@ -121,6 +121,6 @@ fn main() {
 	}
 	println('Service deleted')
 	*/
-	
+
 	println('\nZinit OpenRPC client example completed')
 }

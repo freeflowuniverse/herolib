@@ -124,3 +124,48 @@ Each Path object contains:
 - `exist`: Existence status
 
 This provides a safe and convenient API for all file system operations in V.
+
+## 5. Sub-path Getters and Checkers
+
+The `pathlib` module provides methods to get and check for the existence of sub-paths (files, directories, and links) within a given path.
+
+```v
+// Get a sub-path (file or directory) with various options
+path.sub_get(name:"mysub_file.md", name_fix_find:true, name_fix:true)!
+
+// Check if a sub-path exists
+path.sub_exists(name:"my_sub_dir")!
+
+// Check if a file exists
+path.file_exists("my_file.txt")
+
+// Check if a file exists (case-insensitive)
+path.file_exists_ignorecase("My_File.txt")
+
+// Get a file as a Path object
+path.file_get("another_file.txt")!
+
+// Get a file as a Path object (case-insensitive)
+path.file_get_ignorecase("Another_File.txt")!
+
+// Get a file, create if it doesn't exist
+path.file_get_new("new_file.txt")!
+
+// Check if a link exists
+path.link_exists("my_link")
+
+// Check if a link exists (case-insensitive)
+path.link_exists_ignorecase("My_Link")
+
+// Get a link as a Path object
+path.link_get("some_link")!
+
+// Check if a directory exists
+path.dir_exists("my_directory")
+
+// Get a directory as a Path object
+path.dir_get("another_directory")!
+
+// Get a directory, create if it doesn't exist
+path.dir_get_new("new_directory")!
+```

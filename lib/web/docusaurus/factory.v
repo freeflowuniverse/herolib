@@ -6,20 +6,20 @@ import freeflowuniverse.herolib.core.pathlib
 @[heap]
 pub struct DocusaurusFactory {
 pub mut:
-	sites      []&DocSite @[skip; str: skip]
-	path_build pathlib.Path
+	sites        []&DocSite @[skip; str: skip]
+	path_build   pathlib.Path
 	path_publish pathlib.Path
-	args   DocusaurusArgs
-	config Configuration // Stores configuration from HeroScript if provided
+	args         DocusaurusArgs
+	config       Configuration // Stores configuration from HeroScript if provided
 }
 
 @[params]
 pub struct DocusaurusArgs {
 pub mut:
-	path_publish string
-	path_build string
-	production bool
-	update     bool
+	path_publish    string
+	path_build      string
+	production      bool
+	update          bool
 	heroscript      string
 	heroscript_path string
 }
@@ -29,14 +29,14 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 	if args.path_build == '' {
 		args.path_build = '${os.home_dir()}/hero/var/docusaurus/build'
 	}
-	if args.path_publish == ""{
-		args.path_publish = "${os.home_dir()}/hero/var/docusaurus/publish"
+	if args.path_publish == '' {
+		args.path_publish = '${os.home_dir()}/hero/var/docusaurus/publish'
 	}
 
 	// Create the factory instance
 	mut f := &DocusaurusFactory{
-		args:       args_
-		path_build: pathlib.get_dir(path: args.path_build, create: true)!
+		args:         args_
+		path_build:   pathlib.get_dir(path: args.path_build, create: true)!
 		path_publish: pathlib.get_dir(path: args_.path_publish, create: true)!
 	}
 

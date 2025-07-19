@@ -114,7 +114,7 @@ fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 			}
 		}
 		mut import_ := ImportItem{
-			name:        p.get_default('name','')!
+			name:    p.get_default('name', '')!
 			url:     p.get('url')!
 			path:    p.get_default('path', '')!
 			dest:    p.get_default('dest', '')!

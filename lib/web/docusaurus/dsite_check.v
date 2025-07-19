@@ -1,7 +1,6 @@
 module docusaurus
 
-
-//to avoid overwriting wrong locations
+// to avoid overwriting wrong locations
 
 fn check_item(item string) ! {
 	item2 := item.trim_space().trim('/').trim_space().all_after_last('/')

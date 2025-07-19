@@ -6,32 +6,32 @@ import time
 pub struct Team {
 	BaseModel
 pub mut:
-	name            string @[required]
-	description     string
-	team_type       TeamType
-	status          TeamStatus
-	manager_id      int    // Team manager/lead
-	members         []TeamMember
-	projects        []int  // Project IDs this team works on
-	skills          []TeamSkill // Skills available in this team
-	capacity        TeamCapacity
-	location        string
-	time_zone       string
-	working_hours   WorkingHours
-	holidays        []Holiday
-	rituals         []TeamRitual
-	goals           []TeamGoal
-	metrics         []TeamMetric
-	budget          f64    // Team budget
-	cost_per_hour   f64    // Average cost per hour
+	name               string @[required]
+	description        string
+	team_type          TeamType
+	status             TeamStatus
+	manager_id         int // Team manager/lead
+	members            []TeamMember
+	projects           []int       // Project IDs this team works on
+	skills             []TeamSkill // Skills available in this team
+	capacity           TeamCapacity
+	location           string
+	time_zone          string
+	working_hours      WorkingHours
+	holidays           []Holiday
+	rituals            []TeamRitual
+	goals              []TeamGoal
+	metrics            []TeamMetric
+	budget             f64 // Team budget
+	cost_per_hour      f64 // Average cost per hour
 	utilization_target f32 // Target utilization percentage
-	velocity_target int    // Target velocity (story points per sprint)
-	slack_channel   string
-	email_list      string
-	wiki_url        string
-	repository_urls []string
-	tools           []TeamTool
-	custom_fields   map[string]string
+	velocity_target    int // Target velocity (story points per sprint)
+	slack_channel      string
+	email_list         string
+	wiki_url           string
+	repository_urls    []string
+	tools              []TeamTool
+	custom_fields      map[string]string
 }
 
 // TeamType for categorizing teams
@@ -64,22 +64,22 @@ pub enum TeamStatus {
 // TeamMember represents a user's membership in a team
 pub struct TeamMember {
 pub mut:
-	user_id         int
-	team_id         int
-	role            string
-	permissions     []string
-	capacity_hours  f32    // Weekly capacity in hours
-	allocation      f32    // Percentage allocation to this team (0.0 to 1.0)
-	hourly_rate     f64    // Member's hourly rate
-	start_date      time.Time
-	end_date        time.Time // For temporary members
-	status          MemberStatus
-	skills          []int  // Skill IDs
-	certifications  []string
-	seniority_level SeniorityLevel
+	user_id            int
+	team_id            int
+	role               string
+	permissions        []string
+	capacity_hours     f32 // Weekly capacity in hours
+	allocation         f32 // Percentage allocation to this team (0.0 to 1.0)
+	hourly_rate        f64 // Member's hourly rate
+	start_date         time.Time
+	end_date           time.Time // For temporary members
+	status             MemberStatus
+	skills             []int // Skill IDs
+	certifications     []string
+	seniority_level    SeniorityLevel
 	performance_rating f32 // 1.0 to 5.0 scale
-	last_review     time.Time
-	notes           string
+	last_review        time.Time
+	notes              string
 }
 
 // MemberStatus for team member status
@@ -106,43 +106,43 @@ pub enum SeniorityLevel {
 // TeamSkill represents a skill available in the team
 pub struct TeamSkill {
 pub mut:
-	skill_id        int
-	team_id         int
-	skill_name      string
-	category        string
+	skill_id           int
+	team_id            int
+	skill_name         string
+	category           string
 	proficiency_levels map[int]SkillLevel // user_id -> proficiency level
-	demand          f32    // How much this skill is needed (0.0 to 1.0)
-	supply          f32    // How much this skill is available (0.0 to 1.0)
-	gap             f32    // Skill gap (demand - supply)
-	training_plan   string
+	demand             f32                // How much this skill is needed (0.0 to 1.0)
+	supply             f32                // How much this skill is available (0.0 to 1.0)
+	gap                f32                // Skill gap (demand - supply)
+	training_plan      string
 }
 
 // TeamCapacity represents team capacity planning
 pub struct TeamCapacity {
 pub mut:
-	total_hours_per_week f32
+	total_hours_per_week     f32
 	available_hours_per_week f32
 	committed_hours_per_week f32
-	utilization_percentage f32
-	velocity_last_sprint int
-	velocity_average int
-	velocity_trend f32 // Positive = improving, negative = declining
-	capacity_by_skill map[string]f32 // skill -> available hours
-	capacity_forecast []CapacityForecast
+	utilization_percentage   f32
+	velocity_last_sprint     int
+	velocity_average         int
+	velocity_trend           f32            // Positive = improving, negative = declining
+	capacity_by_skill        map[string]f32 // skill -> available hours
+	capacity_forecast        []CapacityForecast
 }
 
 // CapacityForecast for future capacity planning
 pub struct CapacityForecast {
 pub mut:
-	period_start    time.Time
-	period_end      time.Time
-	forecast_type   ForecastType
-	total_capacity  f32
+	period_start       time.Time
+	period_end         time.Time
+	forecast_type      ForecastType
+	total_capacity     f32
 	available_capacity f32
 	planned_allocation f32
-	confidence_level f32 // 0.0 to 1.0
-	assumptions     []string
-	risks           []string
+	confidence_level   f32 // 0.0 to 1.0
+	assumptions        []string
+	risks              []string
 }
 
 // ForecastType for capacity forecasting
@@ -156,25 +156,25 @@ pub enum ForecastType {
 // WorkingHours represents team working schedule
 pub struct WorkingHours {
 pub mut:
-	monday_start    string // "09:00"
-	monday_end      string // "17:00"
-	tuesday_start   string
-	tuesday_end     string
-	wednesday_start string
-	wednesday_end   string
-	thursday_start  string
-	thursday_end    string
-	friday_start    string
-	friday_end      string
-	saturday_start  string
-	saturday_end    string
-	sunday_start    string
-	sunday_end      string
-	break_duration  int    // Minutes
-	lunch_duration  int    // Minutes
-	flexible_hours  bool
+	monday_start     string // "09:00"
+	monday_end       string // "17:00"
+	tuesday_start    string
+	tuesday_end      string
+	wednesday_start  string
+	wednesday_end    string
+	thursday_start   string
+	thursday_end     string
+	friday_start     string
+	friday_end       string
+	saturday_start   string
+	saturday_end     string
+	sunday_start     string
+	sunday_end       string
+	break_duration   int // Minutes
+	lunch_duration   int // Minutes
+	flexible_hours   bool
 	core_hours_start string
-	core_hours_end  string
+	core_hours_end   string
 }
 
 // Holiday represents team holidays and time off
@@ -184,7 +184,7 @@ pub mut:
 	date            time.Time
 	end_date        time.Time // For multi-day holidays
 	holiday_type    HolidayType
-	affects_members []int  // User IDs affected (empty = all)
+	affects_members []int // User IDs affected (empty = all)
 	description     string
 }
 
@@ -203,22 +203,22 @@ pub enum HolidayType {
 // TeamRitual represents recurring team activities
 pub struct TeamRitual {
 pub mut:
-	id              int
-	team_id         int
-	name            string
-	description     string
-	ritual_type     RitualType
-	frequency       RitualFrequency
+	id               int
+	team_id          int
+	name             string
+	description      string
+	ritual_type      RitualType
+	frequency        RitualFrequency
 	duration_minutes int
-	participants    []int  // User IDs
-	facilitator_id  int
-	location        string
-	virtual_link    string
-	agenda          string
-	outcomes        []string
-	next_occurrence time.Time
-	last_occurrence time.Time
-	active          bool
+	participants     []int // User IDs
+	facilitator_id   int
+	location         string
+	virtual_link     string
+	agenda           string
+	outcomes         []string
+	next_occurrence  time.Time
+	last_occurrence  time.Time
+	active           bool
 }
 
 // RitualType for categorizing team rituals
@@ -248,20 +248,20 @@ pub enum RitualFrequency {
 // TeamGoal represents team objectives
 pub struct TeamGoal {
 pub mut:
-	id              int
-	team_id         int
-	title           string
-	description     string
-	goal_type       GoalType
-	target_value    f64
-	current_value   f64
-	unit            string
-	start_date      time.Time
-	target_date     time.Time
-	status          GoalStatus
-	owner_id        int
-	progress        f32    // 0.0 to 1.0
-	milestones      []GoalMilestone
+	id               int
+	team_id          int
+	title            string
+	description      string
+	goal_type        GoalType
+	target_value     f64
+	current_value    f64
+	unit             string
+	start_date       time.Time
+	target_date      time.Time
+	status           GoalStatus
+	owner_id         int
+	progress         f32 // 0.0 to 1.0
+	milestones       []GoalMilestone
 	success_criteria []string
 }
 
@@ -290,50 +290,50 @@ pub enum GoalStatus {
 // GoalMilestone represents milestones within team goals
 pub struct GoalMilestone {
 pub mut:
-	title           string
-	target_date     time.Time
-	target_value    f64
-	achieved        bool
-	achieved_date   time.Time
-	achieved_value  f64
+	title          string
+	target_date    time.Time
+	target_value   f64
+	achieved       bool
+	achieved_date  time.Time
+	achieved_value f64
 }
 
 // TeamMetric represents team performance metrics
 pub struct TeamMetric {
 pub mut:
-	id              int
-	team_id         int
-	name            string
-	description     string
-	metric_type     MetricType
-	current_value   f64
-	target_value    f64
-	unit            string
-	trend           f32    // Positive = improving
-	last_updated    time.Time
-	history         []MetricDataPoint
-	benchmark       f64    // Industry/company benchmark
+	id            int
+	team_id       int
+	name          string
+	description   string
+	metric_type   MetricType
+	current_value f64
+	target_value  f64
+	unit          string
+	trend         f32 // Positive = improving
+	last_updated  time.Time
+	history       []MetricDataPoint
+	benchmark     f64 // Industry/company benchmark
 }
 
 // MetricDataPoint for metric history
 pub struct MetricDataPoint {
 pub mut:
-	timestamp       time.Time
-	value           f64
-	period          string // "2024-Q1", "2024-01", etc.
+	timestamp time.Time
+	value     f64
+	period    string // "2024-Q1", "2024-01", etc.
 }
 
 // TeamTool represents tools used by the team
 pub struct TeamTool {
 pub mut:
-	name            string
-	category        ToolCategory
-	url             string
-	description     string
-	cost_per_month  f64
-	licenses        int
-	admin_contact   string
-	renewal_date    time.Time
+	name                string
+	category            ToolCategory
+	url                 string
+	description         string
+	cost_per_month      f64
+	licenses            int
+	admin_contact       string
+	renewal_date        time.Time
 	satisfaction_rating f32 // 1.0 to 5.0
 }
 
@@ -388,7 +388,7 @@ pub fn (t Team) get_average_seniority() f32 {
 	if active_members.len == 0 {
 		return 0
 	}
-	
+
 	mut total := f32(0)
 	for member in active_members {
 		match member.seniority_level {
@@ -401,7 +401,7 @@ pub fn (t Team) get_average_seniority() f32 {
 			.architect { total += 7 }
 		}
 	}
-	
+
 	return total / f32(active_members.len)
 }
 
@@ -421,17 +421,17 @@ pub fn (mut t Team) add_member(user_id int, role string, capacity_hours f32, all
 			return
 		}
 	}
-	
+
 	// Add new member
 	t.members << TeamMember{
-		user_id: user_id
-		team_id: t.id
-		role: role
-		capacity_hours: capacity_hours
-		allocation: allocation
-		hourly_rate: hourly_rate
-		start_date: time.now()
-		status: .active
+		user_id:         user_id
+		team_id:         t.id
+		role:            role
+		capacity_hours:  capacity_hours
+		allocation:      allocation
+		hourly_rate:     hourly_rate
+		start_date:      time.now()
+		status:          .active
 		seniority_level: seniority_level
 	}
 	t.update_timestamp(by_user_id)
@@ -471,13 +471,13 @@ pub fn (mut t Team) add_skill(skill_id int, skill_name string, category string, 
 			return
 		}
 	}
-	
+
 	t.skills << TeamSkill{
-		skill_id: skill_id
-		team_id: t.id
-		skill_name: skill_name
-		category: category
-		demand: demand
+		skill_id:           skill_id
+		team_id:            t.id
+		skill_name:         skill_name
+		category:           category
+		demand:             demand
 		proficiency_levels: map[int]SkillLevel{}
 	}
 	t.update_timestamp(by_user_id)
@@ -497,17 +497,17 @@ pub fn (mut t Team) update_skill_proficiency(skill_id int, user_id int, level Sk
 // add_goal adds a goal to the team
 pub fn (mut t Team) add_goal(title string, description string, goal_type GoalType, target_value f64, unit string, target_date time.Time, owner_id int, by_user_id int) {
 	t.goals << TeamGoal{
-		id: t.goals.len + 1
-		team_id: t.id
-		title: title
-		description: description
-		goal_type: goal_type
+		id:           t.goals.len + 1
+		team_id:      t.id
+		title:        title
+		description:  description
+		goal_type:    goal_type
 		target_value: target_value
-		unit: unit
-		start_date: time.now()
-		target_date: target_date
-		status: .active
-		owner_id: owner_id
+		unit:         unit
+		start_date:   time.now()
+		target_date:  target_date
+		status:       .active
+		owner_id:     owner_id
 	}
 	t.update_timestamp(by_user_id)
 }
@@ -532,15 +532,15 @@ pub fn (mut t Team) update_goal_progress(goal_id int, current_value f64, by_user
 // add_ritual adds a recurring ritual to the team
 pub fn (mut t Team) add_ritual(name string, description string, ritual_type RitualType, frequency RitualFrequency, duration_minutes int, facilitator_id int, by_user_id int) {
 	t.rituals << TeamRitual{
-		id: t.rituals.len + 1
-		team_id: t.id
-		name: name
-		description: description
-		ritual_type: ritual_type
-		frequency: frequency
+		id:               t.rituals.len + 1
+		team_id:          t.id
+		name:             name
+		description:      description
+		ritual_type:      ritual_type
+		frequency:        frequency
 		duration_minutes: duration_minutes
-		facilitator_id: facilitator_id
-		active: true
+		facilitator_id:   facilitator_id
+		active:           true
 	}
 	t.update_timestamp(by_user_id)
 }
@@ -548,7 +548,7 @@ pub fn (mut t Team) add_ritual(name string, description string, ritual_type Ritu
 // calculate_team_health returns a team health score
 pub fn (t Team) calculate_team_health() f32 {
 	mut score := f32(1.0)
-	
+
 	// Utilization health (25% weight)
 	utilization := t.get_utilization()
 	if utilization < 70 || utilization > 90 {
@@ -558,12 +558,12 @@ pub fn (t Team) calculate_team_health() f32 {
 			score -= 0.25 * (utilization - 90) / 90
 		}
 	}
-	
+
 	// Velocity trend (25% weight)
 	if t.capacity.velocity_trend < -0.1 {
 		score -= 0.25 * (-t.capacity.velocity_trend)
 	}
-	
+
 	// Goal achievement (25% weight)
 	active_goals := t.goals.filter(it.status == .active)
 	if active_goals.len > 0 {
@@ -576,17 +576,17 @@ pub fn (t Team) calculate_team_health() f32 {
 			score -= 0.25 * (0.7 - avg_progress)
 		}
 	}
-	
+
 	// Team stability (25% weight)
 	active_members := t.members.filter(it.status == .active)
 	if active_members.len < 3 {
 		score -= 0.25 * (3 - f32(active_members.len)) / 3
 	}
-	
+
 	if score < 0 {
 		score = 0
 	}
-	
+
 	return score
 }
 
@@ -619,18 +619,19 @@ pub fn (t Team) get_cost_per_week() f64 {
 // forecast_capacity forecasts team capacity for a future period
 pub fn (t Team) forecast_capacity(start_date time.Time, end_date time.Time, forecast_type ForecastType) CapacityForecast {
 	current_capacity := t.get_total_capacity()
-	
+
 	// Simple forecast based on current capacity
 	// In a real implementation, this would consider planned hires, departures, etc.
 	return CapacityForecast{
-		period_start: start_date
-		period_end: end_date
-		forecast_type: forecast_type
-		total_capacity: current_capacity
+		period_start:       start_date
+		period_end:         end_date
+		forecast_type:      forecast_type
+		total_capacity:     current_capacity
 		available_capacity: t.get_available_capacity()
 		planned_allocation: t.capacity.committed_hours_per_week
-		confidence_level: 0.8
-		assumptions: ['Current team composition remains stable', 'No major holidays or time off']
-		risks: ['Team member departures', 'Increased project demands']
+		confidence_level:   0.8
+		assumptions:        ['Current team composition remains stable',
+			'No major holidays or time off']
+		risks:              ['Team member departures', 'Increased project demands']
 	}
 }

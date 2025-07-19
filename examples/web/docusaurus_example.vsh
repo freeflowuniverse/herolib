@@ -2,7 +2,8 @@
 
 import freeflowuniverse.herolib.web.docusaurus
 
-docusaurus.new(heroscript:'
+docusaurus.new(
+	heroscript: '
 
 	!!docusaurus.define
 		path_build: "/tmp/docusaurus_build"
@@ -11,9 +12,10 @@ docusaurus.new(heroscript:'
 	!!docusaurus.add name:"tfgrid_docs" 
 		git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
 		git_root:"/tmp/code"
-		git_reset:1
-		git_pull:1
+		// git_reset:1
+		// git_pull:1
 
 	!!docusaurus.dev
 
-	')!
+	'
+)!

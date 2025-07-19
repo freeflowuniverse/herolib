@@ -30,7 +30,13 @@ pub mut:
 //	git_pull  bool
 // ```	
 pub fn (mut tree Tree) scan(args TreeScannerArgs) ! {
-	mut path := gittools.path(path: args.path, git_url: args.git_url, git_reset: args.git_reset, git_root: args.git_root, git_pull: args.git_pull)!
+	mut path := gittools.path(
+		path:      args.path
+		git_url:   args.git_url
+		git_reset: args.git_reset
+		git_root:  args.git_root
+		git_pull:  args.git_pull
+	)!
 	if !path.is_dir() {
 		return error('path is not a directory')
 	}

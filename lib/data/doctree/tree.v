@@ -64,6 +64,16 @@ pub fn tree_get(name string) !&Tree {
 	return error("cann't doctree:'${name}'")
 }
 
+pub fn tree_exist(name string) bool {
+	rlock doctrees {
+		if name in doctrees {
+			return true
+		}
+	}
+	return false
+}
+
+
 // tree_set stores tree in global map
 pub fn tree_set(tree Tree) {
 	lock doctrees {

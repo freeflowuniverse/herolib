@@ -22,7 +22,7 @@ pub mut:
 // all names will be in name_fixed mode .
 // all images in img/
 pub fn (mut tree Tree) export(args_ TreeExportArgs) ! {
-	mut args:= args_
+	mut args := args_
 	if args.toreplace.len > 0 {
 		mut ri := regext.regex_instructions_new()
 		ri.add_from_text(args.toreplace)!

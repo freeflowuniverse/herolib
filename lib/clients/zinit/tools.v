@@ -1,6 +1,5 @@
 module zinit
 
-
 // Helper function to format memory usage in human-readable format
 pub fn format_memory_usage(bytes i64) string {
 	if bytes < 1024 {

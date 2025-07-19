@@ -6,66 +6,66 @@ import time
 pub struct Issue {
 	BaseModel
 pub mut:
-	title           string @[required]
-	description     string
-	project_id      int    // Links to Project
-	task_id         int    // Links to Task (optional)
-	sprint_id       int    // Links to Sprint (optional)
-	reporter_id     int    // User who reported the issue
-	assignee_id     int    // User assigned to resolve the issue
-	status          IssueStatus
-	priority        Priority
-	severity        Severity
-	issue_type      IssueType
-	category        IssueCategory
-	resolution      IssueResolution
+	title                  string @[required]
+	description            string
+	project_id             int // Links to Project
+	task_id                int // Links to Task (optional)
+	sprint_id              int // Links to Sprint (optional)
+	reporter_id            int // User who reported the issue
+	assignee_id            int // User assigned to resolve the issue
+	status                 IssueStatus
+	priority               Priority
+	severity               Severity
+	issue_type             IssueType
+	category               IssueCategory
+	resolution             IssueResolution
 	resolution_description string
-	environment     string // Environment where issue occurred
-	version         string // Version where issue was found
-	fixed_version   string // Version where issue was fixed
-	component       string // Component/module affected
-	labels          []int  // Label IDs
-	affects_versions []string
-	fix_versions    []string
-	due_date        time.Time
-	resolved_date   time.Time
-	closed_date     time.Time
-	estimated_hours f32
-	actual_hours    f32
-	story_points    int    // For estimation
-	watchers        []int  // User IDs watching this issue
-	linked_issues   []IssueLink
-	duplicates      []int  // Issue IDs that are duplicates of this
-	duplicated_by   int    // Issue ID that this duplicates
-	parent_issue_id int    // For sub-issues
-	sub_issues      []int  // Sub-issue IDs
-	time_entries    []TimeEntry
-	comments        []Comment
-	attachments     []Attachment
-	workarounds     []Workaround
-	test_cases      []TestCase
-	steps_to_reproduce []string
-	expected_behavior  string
-	actual_behavior    string
-	additional_info    string
-	browser            string
-	operating_system   string
-	device_info        string
-	network_info       string
-	user_agent         string
-	screen_resolution  string
-	logs               []LogEntry
-	stack_trace        string
-	error_message      string
-	frequency          IssueFrequency
-	impact_users       int    // Number of users affected
-	business_impact    string
-	technical_debt     bool   // Is this technical debt?
-	security_issue     bool   // Is this a security issue?
-	performance_issue  bool   // Is this a performance issue?
-	accessibility_issue bool  // Is this an accessibility issue?
-	regression         bool   // Is this a regression?
-	custom_fields      map[string]string
+	environment            string // Environment where issue occurred
+	version                string // Version where issue was found
+	fixed_version          string // Version where issue was fixed
+	component              string // Component/module affected
+	labels                 []int  // Label IDs
+	affects_versions       []string
+	fix_versions           []string
+	due_date               time.Time
+	resolved_date          time.Time
+	closed_date            time.Time
+	estimated_hours        f32
+	actual_hours           f32
+	story_points           int   // For estimation
+	watchers               []int // User IDs watching this issue
+	linked_issues          []IssueLink
+	duplicates             []int // Issue IDs that are duplicates of this
+	duplicated_by          int   // Issue ID that this duplicates
+	parent_issue_id        int   // For sub-issues
+	sub_issues             []int // Sub-issue IDs
+	time_entries           []TimeEntry
+	comments               []Comment
+	attachments            []Attachment
+	workarounds            []Workaround
+	test_cases             []TestCase
+	steps_to_reproduce     []string
+	expected_behavior      string
+	actual_behavior        string
+	additional_info        string
+	browser                string
+	operating_system       string
+	device_info            string
+	network_info           string
+	user_agent             string
+	screen_resolution      string
+	logs                   []LogEntry
+	stack_trace            string
+	error_message          string
+	frequency              IssueFrequency
+	impact_users           int // Number of users affected
+	business_impact        string
+	technical_debt         bool // Is this technical debt?
+	security_issue         bool // Is this a security issue?
+	performance_issue      bool // Is this a performance issue?
+	accessibility_issue    bool // Is this an accessibility issue?
+	regression             bool // Is this a regression?
+	custom_fields          map[string]string
 }
 
 // IssueType for categorizing issues
@@ -160,18 +160,18 @@ pub enum IssueLinkType {
 // Workaround represents a temporary solution for an issue
 pub struct Workaround {
 pub mut:
-	id              int
-	issue_id        int
-	title           string
-	description     string
-	steps           []string
-	effectiveness   f32    // 0.0 to 1.0 scale
-	complexity      WorkaroundComplexity
-	temporary       bool   // Is this a temporary workaround?
-	created_at      time.Time
-	created_by      int
-	tested_by       []int  // User IDs who tested this workaround
-	success_rate    f32    // Success rate from testing
+	id            int
+	issue_id      int
+	title         string
+	description   string
+	steps         []string
+	effectiveness f32 // 0.0 to 1.0 scale
+	complexity    WorkaroundComplexity
+	temporary     bool // Is this a temporary workaround?
+	created_at    time.Time
+	created_by    int
+	tested_by     []int // User IDs who tested this workaround
+	success_rate  f32   // Success rate from testing
 }
 
 // WorkaroundComplexity for rating workaround complexity
@@ -359,14 +359,14 @@ pub fn (mut i Issue) add_link(linked_issue_id int, link_type IssueLinkType, desc
 			return
 		}
 	}
-	
+
 	i.linked_issues << IssueLink{
-		issue_id: i.id
+		issue_id:        i.id
 		linked_issue_id: linked_issue_id
-		link_type: link_type
-		description: description
-		created_at: time.now()
-		created_by: by_user_id
+		link_type:       link_type
+		description:     description
+		created_at:      time.now()
+		created_by:      by_user_id
 	}
 	i.update_timestamp(by_user_id)
 }
@@ -402,12 +402,12 @@ pub fn (mut i Issue) add_duplicate(duplicate_issue_id int, by_user_id int) {
 // log_time adds a time entry to the issue
 pub fn (mut i Issue) log_time(user_id int, hours f32, description string, date time.Time, by_user_id int) {
 	i.time_entries << TimeEntry{
-		user_id: user_id
-		hours: hours
+		user_id:     user_id
+		hours:       hours
 		description: description
-		date: date
-		created_at: time.now()
-		created_by: by_user_id
+		date:        date
+		created_at:  time.now()
+		created_by:  by_user_id
 	}
 	i.actual_hours += hours
 	i.update_timestamp(by_user_id)
@@ -416,8 +416,8 @@ pub fn (mut i Issue) log_time(user_id int, hours f32, description string, date t
 // add_comment adds a comment to the issue
 pub fn (mut i Issue) add_comment(user_id int, content string, by_user_id int) {
 	i.comments << Comment{
-		user_id: user_id
-		content: content
+		user_id:    user_id
+		content:    content
 		created_at: time.now()
 		created_by: by_user_id
 	}
@@ -427,10 +427,10 @@ pub fn (mut i Issue) add_comment(user_id int, content string, by_user_id int) {
 // add_attachment adds an attachment to the issue
 pub fn (mut i Issue) add_attachment(filename string, file_path string, file_size int, mime_type string, by_user_id int) {
 	i.attachments << Attachment{
-		filename: filename
-		file_path: file_path
-		file_size: file_size
-		mime_type: mime_type
+		filename:    filename
+		file_path:   file_path
+		file_size:   file_size
+		mime_type:   mime_type
 		uploaded_at: time.now()
 		uploaded_by: by_user_id
 	}
@@ -440,16 +440,16 @@ pub fn (mut i Issue) add_attachment(filename string, file_path string, file_size
 // add_workaround adds a workaround for the issue
 pub fn (mut i Issue) add_workaround(title string, description string, steps []string, effectiveness f32, complexity WorkaroundComplexity, temporary bool, by_user_id int) {
 	i.workarounds << Workaround{
-		id: i.workarounds.len + 1
-		issue_id: i.id
-		title: title
-		description: description
-		steps: steps
+		id:            i.workarounds.len + 1
+		issue_id:      i.id
+		title:         title
+		description:   description
+		steps:         steps
 		effectiveness: effectiveness
-		complexity: complexity
-		temporary: temporary
-		created_at: time.now()
-		created_by: by_user_id
+		complexity:    complexity
+		temporary:     temporary
+		created_at:    time.now()
+		created_by:    by_user_id
 	}
 	i.update_timestamp(by_user_id)
 }
@@ -457,17 +457,17 @@ pub fn (mut i Issue) add_workaround(title string, description string, steps []st
 // add_test_case adds a test case for the issue
 pub fn (mut i Issue) add_test_case(title string, description string, preconditions []string, steps []string, expected_result string, test_type TestType, automated bool, by_user_id int) {
 	i.test_cases << TestCase{
-		id: i.test_cases.len + 1
-		issue_id: i.id
-		title: title
-		description: description
-		preconditions: preconditions
-		steps: steps
+		id:              i.test_cases.len + 1
+		issue_id:        i.id
+		title:           title
+		description:     description
+		preconditions:   preconditions
+		steps:           steps
 		expected_result: expected_result
-		test_type: test_type
-		automated: automated
-		created_at: time.now()
-		created_by: by_user_id
+		test_type:       test_type
+		automated:       automated
+		created_at:      time.now()
+		created_by:      by_user_id
 	}
 	i.update_timestamp(by_user_id)
 }
@@ -475,14 +475,14 @@ pub fn (mut i Issue) add_test_case(title string, description string, preconditio
 // add_log_entry adds a log entry to the issue
 pub fn (mut i Issue) add_log_entry(timestamp time.Time, level LogLevel, message string, source string, thread string, user_id int, session_id string, request_id string, additional_data map[string]string) {
 	i.logs << LogEntry{
-		timestamp: timestamp
-		level: level
-		message: message
-		source: source
-		thread: thread
-		user_id: user_id
-		session_id: session_id
-		request_id: request_id
+		timestamp:       timestamp
+		level:           level
+		message:         message
+		source:          source
+		thread:          thread
+		user_id:         user_id
+		session_id:      session_id
+		request_id:      request_id
 		additional_data: additional_data
 	}
 }
@@ -502,7 +502,7 @@ pub fn (mut i Issue) escalate(new_priority Priority, by_user_id int) {
 // calculate_priority_score calculates a priority score based on various factors
 pub fn (i Issue) calculate_priority_score() f32 {
 	mut score := f32(0)
-	
+
 	// Base priority score
 	match i.priority {
 		.critical { score += 100 }
@@ -510,7 +510,7 @@ pub fn (i Issue) calculate_priority_score() f32 {
 		.medium { score += 50 }
 		.low { score += 25 }
 	}
-	
+
 	// Severity modifier
 	match i.severity {
 		.blocker { score += 50 }
@@ -519,7 +519,7 @@ pub fn (i Issue) calculate_priority_score() f32 {
 		.minor { score += 10 }
 		.trivial { score += 0 }
 	}
-	
+
 	// Age factor (older issues get higher priority)
 	age := i.get_age()
 	if age > 30 {
@@ -529,7 +529,7 @@ pub fn (i Issue) calculate_priority_score() f32 {
 	} else if age > 7 {
 		score += 5
 	}
-	
+
 	// User impact factor
 	if i.impact_users > 1000 {
 		score += 30
@@ -538,7 +538,7 @@ pub fn (i Issue) calculate_priority_score() f32 {
 	} else if i.impact_users > 10 {
 		score += 10
 	}
-	
+
 	// Special issue type modifiers
 	if i.security_issue {
 		score += 25
@@ -549,14 +549,14 @@ pub fn (i Issue) calculate_priority_score() f32 {
 	if i.regression {
 		score += 20
 	}
-	
+
 	return score
 }
 
 // get_sla_status returns SLA compliance status
 pub fn (i Issue) get_sla_status() string {
 	age := i.get_age()
-	
+
 	// Define SLA based on priority
 	mut sla_days := 0
 	match i.priority {
@@ -565,7 +565,7 @@ pub fn (i Issue) get_sla_status() string {
 		.medium { sla_days = 7 }
 		.low { sla_days = 14 }
 	}
-	
+
 	if i.status in [.resolved, .closed] {
 		resolution_days := int(i.get_resolution_time() / 24)
 		if resolution_days <= sla_days {
