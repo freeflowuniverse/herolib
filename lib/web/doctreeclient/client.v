@@ -2,7 +2,10 @@ module doctreeclient
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.ui.console
 import os
+import regex
+
 
 // List of recognized image file extensions
 const image_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.bmp', '.tiff', '.ico']
@@ -285,3 +288,67 @@ pub fn (mut c DocTreeClient) list_markdown() !string {
 	}
 	return markdown_output
 }
+
+// get_page_paths returns the path of a page and the paths of its linked images.
+// Returns (page_path, image_paths)
+pub fn (mut c DocTreeClient) get_page_paths(collection_name string, page_name string) !(string, []string) {
+	// Get the page path
+	page_path := c.get_page_path(collection_name, page_name)!
+	page_content := c.get_page_content(collection_name, page_name)!
+
+	// Extract image names from the page content
+	image_names := extract_image_links(page_content)!
+
+	mut image_paths := []string{}
+	for image_name in image_names {
+		// Get the path for each image
+		image_path := c.get_image_path(collection_name, image_name) or {
+			// If an image is not found, log a warning and continue, don't fail the whole operation
+			return error('Error: Linked image "${image_name}" not found in collection "${collection_name}". Skipping.')
+		}
+		image_paths << image_path
+	}
+
+	return page_path, image_paths
+}
+
+// copy_page copies a page and its linked images to a specified destination.
+pub fn (mut c DocTreeClient) copy_page(collection_name string, page_name string, destination_path string) ! {
+	console.print_debug('copy_page: Copying page "${page_name}" from collection "${collection_name}" to "${destination_path}"')
+	// Get the page path and linked image paths
+	page_path, image_paths := c.get_page_paths(collection_name, page_name)!
+
+	console.print_debug('copy_page: Page path: "${page_path}"')
+	console.print_debug('copy_page: Linked image paths: ${image_paths}')
+
+	if true{panic("sdsdsd7")}
+
+	// Ensure the destination directory exists
+	console.print_debug('copy_page: Ensuring destination directory "${destination_path}" exists.')
+	os.mkdir_all(destination_path)!
+	console.print_debug('copy_page: Destination directory created/exists.')
+
+	// Copy the page file
+	page_file_name := os.base(page_path)
+	dest_page_path := os.join_path(destination_path, page_file_name)
+	console.print_debug('copy_page: Copying page file from "${page_path}" to "${dest_page_path}"')
+	os.cp(page_path, dest_page_path)!
+	console.print_debug('copy_page: Page file copied.')
+
+	// Create an 'images' subdirectory within the destination
+	images_dest_path := os.join_path(destination_path, 'images')
+	console.print_debug('copy_page: Ensuring images directory "${images_dest_path}" exists.')
+	os.mkdir_all(images_dest_path)!
+	console.print_debug('copy_page: Images directory created/exists.')
+
+	// Copy each linked image
+	for image_path in image_paths {
+		image_file_name := os.base(image_path)
+		dest_image_path := os.join_path(images_dest_path, image_file_name)
+		console.print_debug('copy_page: Copying image file from "${image_path}" to "${dest_image_path}"')
+		os.cp(image_path, dest_image_path)!
+		console.print_debug('copy_page: Image file "${image_file_name}" copied.')
+	}
+	console.print_debug('copy_page: All files copied successfully.')
+}
+
