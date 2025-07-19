@@ -134,12 +134,12 @@ Some text.
 #### Sub-principle 44
 "
 	expected6 := "
-## 1. Core Architectural Principles
+# 1. Core Architectural Principles
 Some text.
-### 1.1. Sub-principle 1
-### 1.2. Sub-principle 2
-## 2. Core Architectural Principles 2
-#### 2.1.1. Sub-principle 44
+## 1.1. Sub-principle 1
+## 1.2. Sub-principle 2
+# 2. Core Architectural Principles 2
+### 2.1.1. Sub-principle 44
 "
 	assert doctreeclient.set_titles(page6, 3) == expected6
 }
