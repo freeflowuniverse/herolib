@@ -97,7 +97,7 @@ pub fn play(args_ PlayArgs) ! {
 	for action in category_actions {
 		// println(action)
 		mut p := action.params		
-		sitename := p.get('sitename') or { return error("need to specify sitename in site.page") }
+		sitename := p.get_default('sitename',args.sitename)!
 		section.position = p.get_int_default('position', 20)!
 		section.label = p.get('label' ) or { return error("need to specify label in site.page_category") }
 		section.path = p.get('path') or { return error("need to specify path in site.page_category") }
