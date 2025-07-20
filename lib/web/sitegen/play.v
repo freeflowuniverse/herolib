@@ -45,6 +45,21 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut factory:=new(path:args.dest,flat:args.flat)!
 
+	//LETS FIRST DO THE CATEGORIES
+	category_actions := plbook.find(filter: 'site.page_category')!
+	mut section := Section{}
+	for action in category_actions {
+		// println(action)
+		mut p := action.params		
+		sitename := p.get_default('sitename',args.sitename)!
+		section.position = p.get_int_default('position', 20)!
+		section.label = p.get('label' ) or { return error("need to specify label in site.page_category") }
+		section.path = p.get('path') or { return error("need to specify path in site.page_category") }
+		mut site := factory.site_get(sitename)!
+		site.section_add(section)!
+	}	
+
+
 	page_actions := plbook.find(filter: 'site.page')!
 	mut mypage:=Page{src:"",path:""}
 	mut position_next:=1
@@ -92,18 +107,6 @@ pub fn play(args_ PlayArgs) ! {
 		site.page_add(mypage)!
 	}	
 
-	category_actions := plbook.find(filter: 'site.page_category')!
-	mut section := Section{}
-	for action in category_actions {
-		// println(action)
-		mut p := action.params		
-		sitename := p.get_default('sitename',args.sitename)!
-		section.position = p.get_int_default('position', 20)!
-		section.label = p.get('label' ) or { return error("need to specify label in site.page_category") }
-		section.path = p.get('path') or { return error("need to specify path in site.page_category") }
-		mut site := factory.site_get(sitename)!
-		site.section_add(section)!
-	}	
 
 
 
