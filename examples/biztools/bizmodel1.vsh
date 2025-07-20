@@ -25,4 +25,4 @@ bizmodel.play(heroscript:heroscript)!
 
 mut bm:=bizmodel.get("test")!
 
-bm.sheet.pprint(nr_columns:40)!
+bm.sheet.pprint(nr_columns:30)!

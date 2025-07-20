@@ -17,7 +17,6 @@ pub fn (mut m BizModel) act(action Action) !Action {
 		'revenue_define' {
 			m.revenue_action(action)!
 			m.revenue_item_action(action)!
-			m.revenue_name_total(action)!
 		}
 		'costcenter_define' {
 			m.costcenter_define_action(action)!

@@ -81,6 +81,7 @@ pub fn (mut s Sheet) pprint(args PPrintArgs) ! {
 
 	// Prepare data rows
 	for _, row in s.rows {
+		// println('Processing row: ${row.name}')
 		mut row_data := []string{} // Initialize row_data for each row
 		row_data << row.name // Add the name of the row
 		if args.description {
@@ -118,9 +119,12 @@ pub fn (mut s Sheet) pprint(args PPrintArgs) ! {
 			data_start_index++
 		}
 
+		//check if row is empty
+		// println(row_data)
 		for i := data_start_index; i < row_data.len; i++ {
 			cell_val := row_data[i]
 			if cell_val.trim_space() != '' && cell_val.trim_space() != '-' {
+				// println("Row '${row.name}' has non-empty cell at index $i: '$cell_val'")
 				is_empty_row = false
 				break
 			}

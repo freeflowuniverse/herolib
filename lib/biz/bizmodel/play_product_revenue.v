@@ -18,6 +18,21 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 	mut nr_months_recurring := action.params.get_int_default('nr_months_recurring', 60)!
 	product.nr_months_recurring = nr_months_recurring
 
+	mut nr_sold := m.sheet.row_new(
+		name:          '${r.name}_nr_sold'
+		growth:        action.params.get_default('nr_sold', '0')!
+		tags:          'name:${r.name}'
+		descr:         'nr of items sold/month for ${r.name}'
+		aggregatetype: .avg
+		extrapolate: true
+	)!
+
+	if nr_sold.max() > 0 {
+		//don't process if nr sold
+		return action
+	}
+
+
 	mut revenue := m.sheet.row_new(
 		name:        '${r.name}_revenue'
 		growth:      action.params.get_default('revenue', '0:0')!
@@ -56,12 +71,23 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		action: .add
 		rows:   [cogs_percent_temp]
 		name:   '${r.name}_cogs'
-		tags:   'cogs  cogs:${r.name} name:${r.name}'
+		tags:   'cogs name:${r.name}'
 	)!
 
 	if revenue.max() > 0 {
 		product.has_revenue = true
 	}
+
+	mut margin := revenue.action(
+		name:        '${r.name}_margin'
+		descr:       'Margin for ${r.name}'
+		action:      .substract
+		rows:        [cogs]
+		tags:        'name:${r.name} margin'
+	)!
+
+	println(margin)
+	m.sheet.pprint(nr_columns:30)!
 
 	return action
 }

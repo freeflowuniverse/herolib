@@ -20,6 +20,8 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 
 	if nr_sold.max() > 0 {
 		product.has_items = true
+	}else{
+		return action
 	}
 
 	mut revenue_item_setup_param := m.sheet.row_new(
@@ -119,7 +121,7 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 		descr:       'Setup sales for ${r.name} total'
 		action:      .multiply
 		rows:        [nr_sold]
-		tags:          'name:${r.name}'
+		tags:          'name:${r.name} rev'
 		delaymonths: action.params.get_int_default('revenue_item_setup_delay', 0)!
 	)!
 
@@ -138,7 +140,7 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 		descr:       'Setup COGS for ${r.name} total'
 		action:      .multiply
 		rows:        [nr_sold]
-		tags:        'name:${r.name}'
+		tags:        'name:${r.name} cogs'
 		delaymonths: action.params.get_int_default('cogs_item_delay', 0)!
 	)!
 
@@ -159,6 +161,7 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 		name:     '${r.name}_revenue_monthly'
 		descr:    'Revenue monthly recurring for ${r.name}'
 		nrmonths: product.nr_months_recurring
+		tags:        'name:${r.name} rev'
 	)!
 
 	revenue_monthly_total.delete()
@@ -167,6 +170,7 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 		name:     '${r.name}_cogs_monthly'
 		descr:    'COGS monthly recurring for ${r.name}'
 		nrmonths: product.nr_months_recurring
+		tags:        'name:${r.name} cogs'
 	)!
 
 	cogs_monthly_total.delete()		
@@ -177,11 +181,12 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 		nrmonths:      product.nr_months_recurring
 		aggregatetype: .max
 		delaymonths:  action.params.get_int_default('revenue_item_monthly_delay', 0)!
+		
 	)!
 
 	//DEAL WITH MARGIN
 
-	mut margin_setup_total := revenue_setup.action(
+	mut margin_setup := revenue_setup.action(
 		name:        '${r.name}_margin_setup'
 		descr:       'Setup margin for ${r.name}'
 		action:      .substract
@@ -190,13 +195,22 @@ fn (mut m BizModel) revenue_item_action(action Action) !Action {
 	)!
 
 
-	mut margin_monthly_total := revenue_monthly_recurring.action(
+	mut margin_monthly := revenue_monthly_recurring.action(
 		name:        '${r.name}_margin_monthly'
 		descr:       'Monthly margin for ${r.name}'
 		action:      .substract
 		rows:        [cogs_monthly_recurring]
 		tags:        'name:${r.name}'
 	)!
+
+	mut margin := margin_setup.action(
+		name:        '${r.name}_margin'
+		descr:       'Margin for ${r.name}'
+		action:      .add
+		rows:        [margin_monthly]
+		tags:        'name:${r.name} margin'
+	)!
+
 
 
 	return action
