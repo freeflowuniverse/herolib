@@ -11,9 +11,9 @@ buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
 mut model := bizmodel.generate('test', playbook_path)!
 
 println(model.sheet)
-println(model.sheet.export()!)
+// println(model.sheet.export()!)
 
-model.sheet.export(path: '~/Downloads/test.csv')!
+model.sheet.pprint()!
 // model.sheet.export(path: '~/code/github/freeflowuniverse/starlight_template/src/content/test.csv')!
+// model.sheet
 
-model.sheet

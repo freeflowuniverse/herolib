@@ -9,6 +9,9 @@ pub enum ReprType {
 
 // represent a
 pub fn float_repr(nr_ f64, reprtype ReprType) string {
+	if nr_ == 0.0 {
+		return ''
+	}
 	mut out := ''
 	mut nr := nr_
 	mut nr_pos := math.abs(nr)

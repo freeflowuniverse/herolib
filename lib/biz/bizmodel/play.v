@@ -1,12 +1,8 @@
 module bizmodel
 
 import arrays
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.playbook { Action, PlayBook }
+import freeflowuniverse.herolib.core.playbook { PlayBook, Action }
 import freeflowuniverse.herolib.ui.console
-// import freeflowuniverse.herolib.core.texttools
-// import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.biz.spreadsheet
 
 const action_priorities = {
 	0: ['revenue_define', 'costcenter_define', 'funding_define']
@@ -14,7 +10,20 @@ const action_priorities = {
 	2: ['sheet_wiki', 'graph_bar_row', 'graph_pie_row', 'graph_line_row', 'row_overview']
 }
 
-pub fn play(mut plbook PlayBook) ! {
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript      string
+	heroscript_path string
+	plbook          ?PlayBook
+	reset           bool
+}
+
+pub fn play(args_ PlayArgs) ! {
+	mut args := args_
+	mut plbook := args.plbook or {
+		playbook.new(text: args.heroscript, path: args.heroscript_path)!
+	}
 	// group actions by which bizmodel they belong to
 	actions_by_biz := arrays.group_by[string, &Action](plbook.actions_find(actor: 'bizmodel')!,
 		fn (a &Action) string {
