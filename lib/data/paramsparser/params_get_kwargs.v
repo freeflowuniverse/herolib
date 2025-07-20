@@ -50,7 +50,15 @@ pub fn (params &Params) get_int(key string) !int {
 }
 
 pub fn (params &Params) get_float(key string) !f64 {
-	valuestr := params.get(key)!
+	mut valuestr := params.get(key)!
+	if valuestr.contains("%"){
+		valuestr = valuestr.replace('%', '')
+		mut vs:=strconv.atof64(valuestr) or {
+			return error('Parameter ${key} = ${valuestr} is not a valid 64-bit float')
+		}
+		vs=vs/100
+		return vs
+	}
 	return strconv.atof64(valuestr) or {
 		return error('Parameter ${key} = ${valuestr} is not a valid 64-bit float')
 	}

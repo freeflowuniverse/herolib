@@ -19,7 +19,7 @@ pub struct RowActionArgs {
 pub mut:
 	name          string
 	action        RowAction
-	val           f64
+	val           ?f64
 	rows          []&Row
 	tags          string
 	descr         string
@@ -98,15 +98,16 @@ pub fn (mut r Row) action(args_ RowActionArgs) !&Row {
 				}
 			}
 		}
-		if args.val > 0.0 {
+		val := args.val or { 999999999 }
+		if val != 999999999 {
 			if args.action == .add {
-				row_result.cells[x].val = row_result.cells[x].val + args.val
+				row_result.cells[x].val = row_result.cells[x].val + val
 			} else if args.action == .substract {
-				row_result.cells[x].val = row_result.cells[x].val - args.val
+				row_result.cells[x].val = row_result.cells[x].val - val
 			} else if args.action == .multiply {
-				row_result.cells[x].val = row_result.cells[x].val * args.val
+				row_result.cells[x].val = row_result.cells[x].val * val
 			} else if args.action == .divide {
-				row_result.cells[x].val = row_result.cells[x].val / args.val
+				row_result.cells[x].val = row_result.cells[x].val / val
 			} else if args.action == .aggregate {
 				row_result.cells[x].val = row_result.cells[x].val + prevval
 				prevval = row_result.cells[x].val
@@ -115,12 +116,12 @@ pub fn (mut r Row) action(args_ RowActionArgs) !&Row {
 			} else if args.action == .roundint {
 				row_result.cells[x].val = int(row_result.cells[x].val)
 			} else if args.action == .max {
-				if args.val > row_result.cells[x].val {
-					row_result.cells[x].val = args.val
+				if val > row_result.cells[x].val {
+					row_result.cells[x].val = val
 				}
 			} else if args.action == .min {
-				if args.val < row_result.cells[x].val {
-					row_result.cells[x].val = args.val
+				if val < row_result.cells[x].val {
+					row_result.cells[x].val = val
 				}
 			} else {
 				return error('Action wrongly specified for ${r} with\nargs:${args}')
@@ -141,9 +142,8 @@ pub fn (mut r Row) action(args_ RowActionArgs) !&Row {
 	return row_result
 }
 
-// pub fn (mut r Row) add(name string, r2 Row) !&Row {
-// 	return r.action(name:name, rows:[]r2, tags:r.tags)
-// }
+
+
 pub fn (mut r Row) delay(monthdelay int) ! {
 	mut todelay := []f64{}
 	for x in 0 .. r.sheet.nrcol {

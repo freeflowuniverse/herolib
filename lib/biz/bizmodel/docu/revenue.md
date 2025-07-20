@@ -9,40 +9,53 @@
 - bizname, is the name of the biz model we are populating
 - name, name of product, project
 - descr, description of the revenue line item
+- nr_months_recurring: e.g. 60 is 5 years
 
-## descrete revenue/cogs (not per item)
+## discrete revenue/cogs (not per item)
 
 cogs stands for cost of goods
 
-- revenue: one of revenue, is not extrapolated, a deal at certain time
-- revenue_growth: is a revenue stream which is being extrapolated
+- revenue: one of revenue, can be extrapolated if specified
+- cogs: cost of goods, this is the cost of the revenue, can be extrapolated if specified
 - cogs_percent: percent of revenue
 - cogs_delay: delay in months between cogs and revenue
 
-## grouped per items sold
+if you want to extrapolate cogs or revenue do extrapolate:1 
 
-- nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200, default is 1)
-- nr_months_recurring: e.g. 60 is 5 years
-
-- revenue_item_setup, revenue for 1 item '1000usd'
-- revenue_item_setup_delay, delay between sell and recognition of sale in months
-- revenue_item_monthly, revenue per month for 1 item
-- revenue_item_monthly_delay, how many months before monthly revenue starts
-- revenue_item_maintenance_perc, how much percent of revenue_item_setup will come back over months
-- cogs_item_setup, cost of good for 1 item at setup
-- cogs_item_setup_delay, how many months before setup cogs starts, after sales
-- cogs_item_setup_perc: what is percentage of the cogs (can change over time) for setup e.g. 0:50%
-- cogs_item_monthly, cost of goods for the monthly per 1 item
-- cogs_item_monthly_delay, how many months before monthly cogs starts, after sales
-- cogs_item_monthly_perc: what is percentage of the cogs (can change over time) for monthly e.g. 0:5%,12:10%
-
-## results in 
+### results in 
 
 follow rows in sheets
 
 - {name}_ + all the arg names as mentioned above...
 - {name}_revenue_total
 - {name}_cogs_total
+
+## grouped per items sold
+
+- nr_sold: how many do we sell per month (is in growth format e.g. 10:100,20:200, default is 1)
+- revenue_item_setup, revenue for 1 item '1000usd'
+- revenue_item_setup_delay, delay between sell and recognition of sale in months e.g. 1
+- revenue_item_monthly, revenue per month for 1 item
+- revenue_item_monthly_delay, how many months before monthly revenue starts
+- revenue_item_monthly_perc, how much percent of revenue_item_setup will come back over months e.g. 20% 
+- cogs_item_setup, cost of good for 1 item at setup
+- cogs_item_setup_rev_perc: what is percentage of the revenue which is cogs, e.g. 2%
+- cogs_item_monthly, cost of goods for the monthly per 1 item
+- cogs_item_monthly_rev_perc: what is percentage of the monthly revenue which is cogs, e.g. 10%
+- cogs_item_delay, how many months before cogs starts after sales
+
+
+
+### results in 
+
+follow rows in sheets
+
+- {name}_ + all the arg names as mentioned above...
+- {name}_revenue_item_setup_total
+- {name}_revenue_item_monthly_total
+- {name}_revenue_item_total
+
+- {name}_cogs_item_total
 
 ## to use
 

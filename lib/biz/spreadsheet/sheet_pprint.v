@@ -23,7 +23,7 @@ pub mut:
 	nr_columns int = 0 //number of columns to show in the table, 0 is all
 	description bool //show description in the table
 	aggrtype bool = true //show aggregate type in the table
-	tags bool //show tags in the table
+	tags bool = true //show tags in the table
 	subgroup bool //show subgroup in the table
 }
 // calculate_column_widths calculates the maximum width for each column
@@ -31,8 +31,14 @@ fn calculate_column_widths(rows [][]string) []int {
 	if rows.len == 0 {
 		return []int{}
 	}
+	mut max_nr_cols := 0
+	for row in rows {
+		if row.len > max_nr_cols {
+			max_nr_cols = row.len
+		}
+	}
 
-	mut widths := []int{len: rows[0].len, init: 0}
+	mut widths := []int{len: max_nr_cols, init: 0}
 	for _, row in rows {
 		for i, cell in row {
 			if cell.len > widths[i] {
@@ -122,6 +128,32 @@ pub fn (mut s Sheet) pprint(args PPrintArgs) ! {
 		if !is_empty_row {
 			all_rows << row_data
 		}
+	}
+
+	if args.nr_columns > 0 {
+		mut data_start_index := 1 // for row.name
+		if args.description {
+			data_start_index++
+		}
+		if args.aggrtype {
+			data_start_index++
+		}
+		if args.tags {
+			data_start_index++
+		}
+		if args.subgroup {
+			data_start_index++
+		}
+		max_cols := data_start_index + args.nr_columns
+		mut new_all_rows := [][]string{}
+		for i, row in all_rows {
+			if row.len > max_cols {
+				new_all_rows << row[0..max_cols]
+			} else {
+				new_all_rows << row
+			}
+		}
+		all_rows = new_all_rows.clone()
 	}
 
 	// Calculate column widths

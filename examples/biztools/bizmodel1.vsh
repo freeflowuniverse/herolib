@@ -10,7 +10,7 @@ Next will define an OEM product in month 10, 1 Million EUR, ... cogs is a percen
 !!bizmodel.revenue_define bizname:'test' name:'oem1'
     descr:'OEM Deals'  
     revenue:'10:1000000EUR,15:3333,20:1200000'
-    cogs_percent: '1:20%,20:10%'  
+    cogs_percent: '1:20%,20:15%'  cogs_delay:1
 
 
 This time we have the cogs defined in fixed manner, the default currency is USD doesn't have to be mentioned.
@@ -25,4 +25,4 @@ bizmodel.play(heroscript:heroscript)!
 
 mut bm:=bizmodel.get("test")!
 
-bm.sheet.pprint()!
+bm.sheet.pprint(nr_columns:40)!
