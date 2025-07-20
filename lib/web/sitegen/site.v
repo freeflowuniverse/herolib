@@ -49,6 +49,15 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 			args.description = page_name
 		}
 	}
+
+	if args.title.len==0 {
+		descnew:=markdowntools.extract_title(page_content)
+		if descnew!=""{
+			args.title = descnew
+		}else{
+			args.title = page_name
+		}
+	}	
 	content<< "title: '${args.title}'"
 
 	if args.description.len>0 {

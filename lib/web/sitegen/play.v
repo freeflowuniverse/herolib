@@ -66,7 +66,7 @@ pub fn play(args_ PlayArgs) ! {
 	mut position := 0
 	mut path:=""
 	for action in page_actions {
-		println(action)
+		// println(action)
 		mut p := action.params		
 		sitename := p.get_default('sitename',args.sitename)!
 		pathnew := p.get_default('path', "")!
