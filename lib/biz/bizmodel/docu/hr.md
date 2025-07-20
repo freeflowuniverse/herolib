@@ -41,7 +41,22 @@ Defines a department within the business model.
 ## **Example:**
 
 ```js
+
+!!bizmodel.department_define bizname:'test' 
+    name:'engineering'
+    descr:'Software Development Department'
+    title:'Engineering Division'
+    //optional, if set overrules the hr_params
+    //avg_monthly_cost:'6000USD' avg_indexation:'5%'
+
+!!bizmodel.employee_define bizname:'test'
+    name:'ourclo'
+    descr:'CLO'
+    cost:'10000EUR'
+    indexation:'5%'
+
 !!bizmodel.employee_define bizname:'test' 
+    name:'junior_engineer'
     descr:'Junior Engineer'
     nrpeople:'1:5,60:30'
     cost:'4000USD'
@@ -49,10 +64,6 @@ Defines a department within the business model.
     department:'engineering'
     cost_percent_revenue:'4%'
 
-!!bizmodel.department_define bizname:'test' 
-    name:'engineering'
-    descr:'Software Development Department'
-    title:'Engineering Division'
 
 ```
 

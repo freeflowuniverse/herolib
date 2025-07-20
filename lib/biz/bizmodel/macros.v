@@ -37,7 +37,7 @@ fn employee_wiki(p paramsparser.Params, sim BizModel) !string {
 	if id !in sim.employees {
 		println(id)
 		println(sim.employees)
-		panic('sss')
+		panic('1278')
 		return error('employee with name \'${id}\' not found')
 	}
 

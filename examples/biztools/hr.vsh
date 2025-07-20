@@ -5,22 +5,39 @@ import os
 
 heroscript:="
 
-!!bizmodel.employee_define bizname:'test' 
-    descr:'Junior Engineer'
-    nrpeople:'1:5,60:30'
-    cost:'4000USD'
-    indexation:'5%'
-    department:'engineering'
-    cost_percent_revenue:'4%'
+!!bizmodel.hr_params bizname:'test' avg_monthly_cost:'4000USD' avg_indexation:'5%'
 
 !!bizmodel.department_define bizname:'test' 
     name:'engineering'
     descr:'Software Development Department'
     title:'Engineering Division'
+
+//need to define some revenue because otherwise can't see how HR relates to it
+!!bizmodel.revenue_define bizname:'test' name:'oem1' extrapolate:1
+    descr:'OEM Deals'  revenue:'0:1000000,60:10000000' 
+    cogs_percent: '0:20%'
+
+!!bizmodel.employee_define bizname:'test'  name:'junior_engineer'
+    descr:'Junior Engineer'
+    nrpeople:'0:10,60:50'
+    cost:'4000USD' indexation:'5%'
+    department:'engineering'
+    cost_percent_revenue:'20%'
+
+!!bizmodel.employee_define bizname:'test' name:'marketing_group'
+    descr:'Marketing Team'
+    cost_percent_revenue:'2%'
+
+!!bizmodel.employee_define bizname:'test'
+    name:'ourclo'
+    descr:'CLO'
+    cost:'10000EUR'
+    indexation:'5%'
+
 "
 
 bizmodel.play(heroscript:heroscript)!
 
 mut bm:=bizmodel.get("test")!
 
-bm.sheet.pprint(nr_columns:30)!
+bm.sheet.pprint(nr_columns:20)!

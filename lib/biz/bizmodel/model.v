@@ -40,6 +40,8 @@ pub:
 	page        string
 	title       string
 	order       int
+	avg_monthly_cost string = '6000USD'
+	avg_indexation   string = '2%'
 }
 
 pub struct Costcenter {

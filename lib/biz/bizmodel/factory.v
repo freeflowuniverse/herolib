@@ -24,9 +24,9 @@ pub fn getset(name string) !&BizModel {
 			mut bizmodel := BizModel{
 				sheet: sh
 				name:  name
-				// currencies: cs
 			}
 			bizmodels[bizmodel.name] = &bizmodel
+			bizmodel.departments["default"] = &Department{name:"default"}
 		}
 		return bizmodels[name] or { panic('bug') }
 	}

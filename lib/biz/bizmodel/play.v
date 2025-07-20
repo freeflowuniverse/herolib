@@ -5,9 +5,10 @@ import freeflowuniverse.herolib.core.playbook { PlayBook, Action }
 import freeflowuniverse.herolib.ui.console
 
 const action_priorities = {
-	0: ['revenue_define', 'costcenter_define', 'funding_define']
-	1: ['cost_define', 'department_define', 'employee_define']
-	2: ['sheet_wiki', 'graph_bar_row', 'graph_pie_row', 'graph_line_row', 'row_overview']
+	0: ['department_define', 'costcenter_define']
+	1: ['revenue_define','funding_define','cost_define']
+	2: ['employee_define']
+	3: ['sheet_wiki', 'graph_bar_row', 'graph_pie_row', 'graph_line_row', 'row_overview']
 }
 
 @[params]
@@ -40,20 +41,13 @@ pub fn play(args_ PlayArgs) ! {
 pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 	mut actions := plbook.actions_find(actor: 'bizmodel')!
 
-	for action in actions.filter(it.name in action_priorities[0]) {
-		console.print_debug(action)
-		m.act(*action)!
-	}
+	for action in actions.filter(it.name in action_priorities[0]) {m.act(*action)!}
+	for action in actions.filter(it.name in action_priorities[1]) {m.act(*action)!}
 
 	m.cost_total()!
 	m.revenue_total()!
 	m.funding_total()!
 
-	for action in actions.filter(it.name in action_priorities[1]) {
-		m.act(*action)!
-	}
-
-	for action in actions.filter(it.name in action_priorities[2]) {
-		m.act(*action)!
-	}
+	for action in actions.filter(it.name in action_priorities[2]) {m.act(*action)!}
+	for action in actions.filter(it.name in action_priorities[3]) {m.act(*action)!}
 }

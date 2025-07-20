@@ -9,7 +9,7 @@ pub fn refresh() ! {
 		'USDANG': 1.803359
 		'USDAOA': 912.503981
 		'USDARS': 973.490388
-		'USDAUD': 1.481262
+		'USDAUD': 1.53610
 		'USDAWG': 1.8005
 		'USDAZN': 1.70397
 		'USDBAM': 1.789575
@@ -29,9 +29,9 @@ pub fn refresh() ! {
 		'USDBYN': 3.274501
 		'USDBYR': 19600
 		'USDBZD': 2.016881
-		'USDCAD': 1.37705
+		'USDCAD': 1.37245
 		'USDCDF': 2878.000362
-		'USDCHF': 0.857219
+		'USDCHF': 0.80172
 		'USDCLF': 0.033584
 		'USDCLP': 926.680396
 		'USDCNY': 7.066204
@@ -49,10 +49,10 @@ pub fn refresh() ! {
 		'USDEGP': 48.517284
 		'USDERN': 15
 		'USDETB': 121.39275
-		'USDEUR': 0.91335
+		'USDEUR': 0.86
 		'USDFJD': 2.230391
 		'USDFKP': 0.761559
-		'USDGBP': 0.765169
+		'USDGBP': 0.7458
 		'USDGEL': 2.71504
 		'USDGGP': 0.761559
 		'USDGHS': 15.95504
@@ -180,9 +180,11 @@ pub fn refresh() ! {
 	}
 
 	result['TFT'] = 0.01
-	result['XLM'] = 0.092
+	result['XLM'] = 0.46
 	result['USDC'] = 1
 	result['USD'] = 1
+	result['BTC'] = 115000
+	result['ETH'] = 3750
 
 	lock currencies {
 		for name, val in result {

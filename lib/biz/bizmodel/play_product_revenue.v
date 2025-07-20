@@ -32,7 +32,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		return action
 	}
 
-
 	mut revenue := m.sheet.row_new(
 		name:        '${r.name}_revenue'
 		growth:      action.params.get_default('revenue', '0:0')!
@@ -85,9 +84,6 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		rows:        [cogs]
 		tags:        'name:${r.name} margin'
 	)!
-
-	println(margin)
-	m.sheet.pprint(nr_columns:30)!
 
 	return action
 }
