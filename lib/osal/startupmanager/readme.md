@@ -1,7 +1,7 @@
 # startup manager
 
 ```go
-import freeflowuniverse.herolib.osal.core.startupmanager
+import freeflowuniverse.herolib.osal.startupmanager
 mut sm:=startupmanager.get()!
 
 

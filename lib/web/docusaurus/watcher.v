@@ -1,6 +1,6 @@
 module docusaurus
 
-import freeflowuniverse.herolib.osal.core.notifier
+import freeflowuniverse.herolib.osal.notifier
 import os
 
 fn watch_docs(docs_path string, path_src string, path_build string) ! {

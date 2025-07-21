@@ -1,6 +1,6 @@
 module builder
 
-import freeflowuniverse.herolib.osal.core.screen
+import freeflowuniverse.herolib.osal.screen
 import freeflowuniverse.herolib.data.ipaddress
 import freeflowuniverse.herolib.ui.console
 

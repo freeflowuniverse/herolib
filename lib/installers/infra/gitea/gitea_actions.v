@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.osal.core.zinit
+import freeflowuniverse.herolib.osal.zinit
 import os
 
 fn installed() !bool {

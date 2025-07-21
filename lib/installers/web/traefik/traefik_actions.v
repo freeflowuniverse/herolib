@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.osal.core.zinit
+import freeflowuniverse.herolib.osal.zinit
 import freeflowuniverse.herolib.installers.ulist
 import os
 

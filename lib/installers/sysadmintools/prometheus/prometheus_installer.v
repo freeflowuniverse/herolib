@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.httpconnection
-import freeflowuniverse.herolib.osal.core.startupmanager
+import freeflowuniverse.herolib.osal.startupmanager
 import os
 import time
 

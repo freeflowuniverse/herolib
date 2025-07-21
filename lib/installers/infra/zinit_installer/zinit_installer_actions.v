@@ -5,8 +5,8 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.osal.core.systemd
-import freeflowuniverse.herolib.osal.core.zinit as zinit_module
+import freeflowuniverse.herolib.osal.systemd
+import freeflowuniverse.herolib.osal.zinit as zinit_module
 import freeflowuniverse.herolib.installers.ulist
 import os
 

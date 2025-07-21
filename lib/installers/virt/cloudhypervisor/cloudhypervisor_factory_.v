@@ -2,8 +2,8 @@ module cloudhypervisor
 
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.core.startupmanager
-import freeflowuniverse.herolib.osal.core.zinit
+import freeflowuniverse.herolib.osal.startupmanager
+import freeflowuniverse.herolib.osal.zinit
 
 __global (
 	cloudhypervisor_global  map[string]&CloudHypervisor
