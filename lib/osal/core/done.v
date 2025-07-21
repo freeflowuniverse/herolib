@@ -1,4 +1,4 @@
-module done
+module core
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.data.dbfs

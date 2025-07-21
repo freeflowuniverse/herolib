@@ -1,0 +1,39 @@
+!!bizmodel.revenue_define bizname:'threefold' name:'cloud_services' extrapolate:1
+    descr:'Cloud Services Revenue'
+    revenue:'10:10000USD,46:1000000USD'
+    cogs_percent:'0%'
+
+!!bizmodel.funding_define bizname:'threefold' name:'initial_investment'
+    descr:'Seed Capital'
+    investment:'0:5000000USD'
+    type:'capital'
+
+!!bizmodel.department_define bizname:'threefold' name:'engineering' descr:'Engineering Department'
+!!bizmodel.department_define bizname:'threefold' name:'operations' descr:'Operations Department'
+!!bizmodel.department_define bizname:'threefold' name:'sales' descr:'Sales Department'
+!!bizmodel.department_define bizname:'threefold' name:'admin' descr:'Admin Department'
+
+!!bizmodel.employee_define bizname:'threefold' name:'engineer'
+    descr:'Engineer'
+    cost:'7000USD'
+    indexation:'5%'
+    nrpeople:'0:5,12:6,24:7,36:9,48:10,60:11,72:12,84:14,96:16,108:18,120:20'
+    department:'engineering'
+
+!!bizmodel.employee_define bizname:'threefold' name:'operations_staff'
+    descr:'Operations Staff'
+    cost:'5000USD'
+    indexation:'5%'
+    nrpeople:'2'
+    department:'operations'
+    cost_percent_revenue:'4%'
+
+!!bizmodel.cost_define bizname:'threefold' name:'travel'
+    descr:'Travel Costs'
+    cost:'0USD'
+    cost_percent_revenue:'3%'
+
+!!bizmodel.cost_define bizname:'threefold' name:'office_rent'
+    descr:'Offices Rent (3 locations)'
+    cost:'24000USD'
+    indexation:'3%'

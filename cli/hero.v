@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.core.herocmds
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.ui
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.core.playcmds
