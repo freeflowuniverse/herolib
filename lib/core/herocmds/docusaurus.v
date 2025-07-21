@@ -134,82 +134,52 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	// --- Start: Heroscript Path Logic ---
 	mut provided_path := cmd.flags.get_string('path') or { '' }
-	mut heroscript_source_path := ''
-	build_cfg_dir := os.join_path(build_path, 'cfg')
-	// target_heroscript_path := os.join_path(build_cfg_dir, 'config.heroscript')
+	mut heroscript_config_dir := ''
 
 	if provided_path != '' {
-		if !os.exists(provided_path) || !os.is_file(provided_path) {
-			return error('Provided path "${provided_path}" does not exist or is not a file.')
+		if !os.exists(provided_path) || !os.is_dir(provided_path) {
+			return error('Provided path "${provided_path}" does not exist or is not a directory.')
 		}
-		// heroscript_source_path = provided_path
-		// // --- Copy Heroscript to Build Location ---
-		// os.mkdir_all(build_cfg_dir)!
-		// os.cp(heroscript_source_path, target_heroscript_path)!
+		heroscript_config_dir = provided_path
 	} else {
-		// Path not provided, look in ./cfg/
 		mut cwd := os.getwd()
 		cfg_dir := os.join_path(cwd, 'cfg')
 		if !os.exists(cfg_dir) || !os.is_dir(cfg_dir) {
 			return error('Flag -path not provided and directory "./cfg" not found in the current working directory.')
 		}
-		// mut found_files := []string
-		// for file in os.ls(cfg_dir) or { []string{} } {
-		// 	if file.ends_with('.heroscript') {
-		// 		found_files << os.join_path(cfg_dir, file)
-		// 	}
-		// }
-		// if found_files.len == 1 {
-		// 	heroscript_source_path = found_files[0]
-		// 	os.mkdir_all(build_cfg_dir)!
-		// 	os.cp(heroscript_source_path, target_heroscript_path)!
-		// } else if found_files.len == 0 {
-		// 	return error('Flag -path not provided and no *.heroscript file found in "./cfg".')
-		// } else {
-		// 	return error('Flag -path not provided and multiple *.heroscript files found in "./cfg". Please specify one using -path.')
-		// }
+		heroscript_config_dir = cfg_dir
 	}
 
-	// --- End: Heroscript Path Logic ---
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
 	mut docs := docusaurus.new(
-		update:     update
-		build_path: build_path
-		// heroscript: os.read_file(target_heroscript_path)! // Read the copied heroscript
+		update:          update
+		path_build:      build_path
+		heroscript_path: heroscript_config_dir // Pass the directory path
 	)!
 
 	mut site := docs.get(
-		url:          url
-		build_path:   build_path
+		git_url:      url // Map CLI 'url' flag to DSiteGetArgs 'git_url'
 		update:       update
-		publish_path: publish_path
-		deploykey:    deploykey
+		path_publish: publish_path // Map CLI 'publish' flag to DSiteGetArgs 'path_publish'
 		init:         init
 		open:         open
+		// Removed build_path and deploykey as they are not in DSiteGetArgs
 	)!
 
-	site.generate()!
-
-	if publish_path.len > 0 {
-		site.build()!
-	}
-
+	// Conditional site actions based on flags
 	if buildpublish {
 		site.build_publish()!
-	}
-
-	if builddevpublish {
+	} else if builddevpublish {
 		site.build_dev_publish()!
-	}
-
-	if dev {
+	} else if dev {
 		site.dev(host: 'localhost', port: 3000)!
-	}
-
-	if open {
+	} else if open {
 		site.open()!
+	} else {
+		// If no specific action (build/dev/open) is requested, just generate the site
+		site.generate()!
 	}
 }
