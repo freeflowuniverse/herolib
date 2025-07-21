@@ -3,7 +3,7 @@ module zerodb
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.zinit
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.installers.base

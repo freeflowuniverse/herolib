@@ -17,7 +17,7 @@ RCloneClient must be installed on your system. Visit https://rclone.org/install/
 ## Usage
 
 ```v
-import freeflowuniverse.herolib.osal.core as osal.rclone
+import freeflowuniverse.herolib.osal.core.rclone
 
 fn main() {
     // Create a new RCloneClient instance

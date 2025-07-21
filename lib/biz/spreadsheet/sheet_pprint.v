@@ -19,13 +19,14 @@ fn pad_right(s string, length int) string {
 @[params]
 pub struct PPrintArgs {
 pub mut:
-	group_months int = 1  //e.g. if 2 then will group by 2 months
-	nr_columns int = 0 //number of columns to show in the table, 0 is all
-	description bool //show description in the table
-	aggrtype bool = true //show aggregate type in the table
-	tags bool = true //show tags in the table
-	subgroup bool //show subgroup in the table
+	group_months int = 1 // e.g. if 2 then will group by 2 months
+	nr_columns   int = 0 // number of columns to show in the table, 0 is all
+	description  bool // show description in the table
+	aggrtype     bool = true // show aggregate type in the table
+	tags         bool = true // show tags in the table
+	subgroup     bool // show subgroup in the table
 }
+
 // calculate_column_widths calculates the maximum width for each column
 fn calculate_column_widths(rows [][]string) []int {
 	if rows.len == 0 {
@@ -119,7 +120,7 @@ pub fn (mut s Sheet) pprint(args PPrintArgs) ! {
 			data_start_index++
 		}
 
-		//check if row is empty
+		// check if row is empty
 		// println(row_data)
 		for i := data_start_index; i < row_data.len; i++ {
 			cell_val := row_data[i]

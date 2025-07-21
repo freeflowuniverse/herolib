@@ -4,31 +4,31 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient
 import freeflowuniverse.herolib.data.markdown.tools as markdowntools
 import freeflowuniverse.herolib.ui.console
+
 pub struct Site {
 pub mut:
-	name string
-	path pathlib.Path
+	name   string
+	path   pathlib.Path
 	client &doctreeclient.DocTreeClient
 }
-
 
 @[params]
 pub struct Page {
 pub mut:
-	title string
-	description 	string
-	draft bool
-	position int
-	hide_title bool
-	src 	string  @[required]
-	path string @[required]
-	title_nr int
+	title       string
+	description string
+	draft       bool
+	position    int
+	hide_title  bool
+	src         string @[required]
+	path        string @[required]
+	title_nr    int
 }
 
 pub fn (mut site Site) page_add(args_ Page) ! {
-	mut args:= args_
+	mut args := args_
 
-	mut content:=["---"]
+	mut content := ['---']
 
 	mut parts := args.src.split(':')
 	if parts.len != 2 {
@@ -41,89 +41,85 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
 	}
 
-	if args.description.len==0 {
-		descnew:=markdowntools.extract_title(page_content)
-		if descnew!=""{
+	if args.description.len == 0 {
+		descnew := markdowntools.extract_title(page_content)
+		if descnew != '' {
 			args.description = descnew
-		}else{
+		} else {
 			args.description = page_name
 		}
 	}
 
-	if args.title.len==0 {
-		descnew:=markdowntools.extract_title(page_content)
-		if descnew!=""{
+	if args.title.len == 0 {
+		descnew := markdowntools.extract_title(page_content)
+		if descnew != '' {
 			args.title = descnew
-		}else{
+		} else {
 			args.title = page_name
 		}
-	}	
-	content<< "title: '${args.title}'"
+	}
+	content << "title: '${args.title}'"
 
-	if args.description.len>0 {
-		content<< "description: '${args.description}'"
+	if args.description.len > 0 {
+		content << "description: '${args.description}'"
 	}
 
 	if args.hide_title {
-		content<< "hide_title: ${args.hide_title}"
+		content << 'hide_title: ${args.hide_title}'
 	}
 
-	if args.draft{
-		content<< "draft: ${args.draft}"
+	if args.draft {
+		content << 'draft: ${args.draft}'
 	}
 
-	if args.position>0{
-		content<< "sidebar_position: ${args.position}"
+	if args.position > 0 {
+		content << 'sidebar_position: ${args.position}'
 	}
-	
-	content<< "---"
 
-	mut c:=content.join("\n")
+	content << '---'
+
+	mut c := content.join('\n')
 
 	if args.title_nr > 0 {
 		// Set the title number in the page content
 		page_content = markdowntools.set_titles(page_content, args.title_nr)
 	}
 
-	c+="\n${page_content}\n"
+	c += '\n${page_content}\n'
 
-	if args.path.ends_with("/"){
-		//means is dir
+	if args.path.ends_with('/') {
+		// means is dir
 		args.path += page_name
 	}
 
-	if ! args.path.ends_with(".md"){
-		args.path += ".md"
+	if !args.path.ends_with('.md') {
+		args.path += '.md'
 	}
 
-	mut pagepath:= "${site.path.path}/${args.path}"
-	mut pagefile:= pathlib.get_file(path:pagepath,create:true)!
+	mut pagepath := '${site.path.path}/${args.path}'
+	mut pagefile := pathlib.get_file(path: pagepath, create: true)!
 
 	pagefile.write(c)!
 
-   console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
+	console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
 
-   site.client.copy_images(collection_name, page_name, pagefile.path_dir())  or {
+	site.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
 		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
 	}
-
 }
-
-
 
 @[params]
 pub struct Section {
 pub mut:
 	position int
-	path string
-	label string
+	path     string
+	label    string
 }
 
-
 pub fn (mut site Site) section_add(args_ Section) ! {
-	mut args:= args_
+	mut args := args_
 
-	mut c:='{
+	mut c := '{
     "label": "${args.label}",
     "position": ${args.position},
     "link": {
@@ -131,10 +127,8 @@ pub fn (mut site Site) section_add(args_ Section) ! {
     }
   }'
 
-	mut category_path:= "${site.path.path}/${args.path}/_category_.json"
-	mut catfile:= pathlib.get_file(path:category_path,create:true)!
+	mut category_path := '${site.path.path}/${args.path}/_category_.json'
+	mut catfile := pathlib.get_file(path: category_path, create: true)!
 
 	catfile.write(c)!
-
 }
-

@@ -79,7 +79,6 @@ pub fn tree_list() []string {
 	}
 }
 
-
 // tree_set stores tree in global map
 pub fn tree_set(tree Tree) {
 	lock doctrees {

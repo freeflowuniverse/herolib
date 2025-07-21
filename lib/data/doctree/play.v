@@ -36,7 +36,6 @@ pub fn play(args_ PlayArgs) ! {
 		doctree.scan(path: path, git_url: git_url, git_reset: git_reset, git_pull: git_pull)!
 
 		tree_set(doctree)
-
 	}
 
 	export_actions := plbook.find(filter: 'doctree.export')!
@@ -69,6 +68,4 @@ pub fn play(args_ PlayArgs) ! {
 	// println(tree_list())	
 	// println(tree_get("main")!)
 	// panic("sd")
-
-
 }

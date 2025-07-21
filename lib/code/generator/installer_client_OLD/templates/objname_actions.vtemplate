@@ -9,8 +9,8 @@ import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.base
 
 @if model.startupmanager
-import freeflowuniverse.herolib.osal.core as osal.systemd
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.systemd
+import freeflowuniverse.herolib.osal.core.zinit
 @end
 
 @if model.build

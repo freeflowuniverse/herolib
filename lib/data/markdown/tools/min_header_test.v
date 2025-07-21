@@ -4,83 +4,83 @@ import os
 import freeflowuniverse.herolib.ui.console
 
 fn test_markdown_min_header_basic() {
-	txt := "
+	txt := '
 # Header 1
 ## Header 2
 ### Header 3
-"
-	expected := "
+'
+	expected := '
 ## Header 1
 ### Header 2
 #### Header 3
-"
+'
 	result := min_header(txt, 2)
 	assert result == expected
 }
 
 fn test_markdown_min_header_no_change() {
-	txt := "
+	txt := '
 ## Header 2
 ### Header 3
-"
-	expected := "
+'
+	expected := '
 ## Header 2
 ### Header 3
-"
+'
 	result := min_header(txt, 2)
 	assert result == expected
 }
 
 fn test_markdown_min_header_multiple_levels() {
-	txt := "
+	txt := '
 # Title
 Some txt here.
 ## Subtitle
 More txt.
 ### Sub-subtitle
-"
-	expected := "
+'
+	expected := '
 ### Title
 Some txt here.
 #### Subtitle
 More txt.
 ##### Sub-subtitle
-"
+'
 	result := min_header(txt, 3)
 	assert result == expected
 }
 
 fn test_markdown_min_header_no_headers() {
-	txt := "
+	txt := '
 This is some plain txt.
 No headers here.
-"
-	expected := "
+'
+	expected := '
 This is some plain txt.
 No headers here.
-"
+'
 	result := min_header(txt, 1)
 	assert result == expected
 }
 
 fn test_markdown_min_header_empty_input() {
-	txt := ""
-	expected := ""
+	txt := ''
+	expected := ''
 	result := min_header(txt, 1)
 	assert result == expected
 }
 
 fn test_markdown_min_header_with_txt_before_header() {
-	txt := "
+	txt := '
 Some intro txt
 # Header 1
 ## Header 2
-"
-	expected := "
+'
+	expected := '
 Some intro txt
 ## Header 1
 ### Header 2
-"
+'
 	result := min_header(txt, 2)
 	assert result == expected
 }

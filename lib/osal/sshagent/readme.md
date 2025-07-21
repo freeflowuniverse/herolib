@@ -1,7 +1,7 @@
 ## ssh agent
 
 ```v
-import freeflowuniverse.herolib.osal.core as osal.sshagent
+import freeflowuniverse.herolib.osal.core.sshagent
 
 mut agent := sshagent.new()!
 

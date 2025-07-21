@@ -5,9 +5,7 @@ import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.osal.core as osal.screen
 import freeflowuniverse.herolib.ui
-import freeflowuniverse.herolib.osal.core as osal.startupmanager
 import os
 import time
 import json

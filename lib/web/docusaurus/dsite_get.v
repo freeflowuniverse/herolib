@@ -35,7 +35,6 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')
 	mut args := args_
 
-
 	mut path := gittools.path(
 		path:       args.path
 		git_url:    args.git_url
@@ -96,7 +95,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		reset:           args.update
 	)!
 
-	//the play will automatically do an export on ~/hero/var/doctree/main if no export specified in the heroscript
+	// the play will automatically do an export on ~/hero/var/doctree/main if no export specified in the heroscript
 
 	mut mysiteconfig := *siteconfig.new(configpath)!
 

@@ -5,7 +5,6 @@ import freeflowuniverse.herolib.core.texttools
 
 // see lib/biz/bizmodel/docs/revenue.md
 fn (mut m BizModel) revenue_action(action Action) !Action {
-
 	mut r := get_action_descr(action)!
 
 	mut product := Product{
@@ -24,11 +23,11 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		tags:          'name:${r.name}'
 		descr:         'nr of items sold/month for ${r.name}'
 		aggregatetype: .avg
-		extrapolate: true
+		extrapolate:   true
 	)!
 
 	if nr_sold.max() > 0 {
-		//don't process if nr sold
+		// don't process if nr sold
 		return action
 	}
 
@@ -78,11 +77,11 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 	}
 
 	mut margin := revenue.action(
-		name:        '${r.name}_margin'
-		descr:       'Margin for ${r.name}'
-		action:      .substract
-		rows:        [cogs]
-		tags:        'name:${r.name} margin'
+		name:   '${r.name}_margin'
+		descr:  'Margin for ${r.name}'
+		action: .substract
+		rows:   [cogs]
+		tags:   'name:${r.name} margin'
 	)!
 
 	return action

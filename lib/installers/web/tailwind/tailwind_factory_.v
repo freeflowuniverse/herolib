@@ -2,8 +2,8 @@ module tailwind
 
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.core as osal.startupmanager
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.startupmanager
+import freeflowuniverse.herolib.osal.core.zinit
 
 __global (
 	tailwind_global  map[string]&Tailwind

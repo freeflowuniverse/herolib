@@ -1,6 +1,6 @@
 module docusaurus
 
-import freeflowuniverse.herolib.osal.core as osal.screen
+import freeflowuniverse.herolib.osal.core.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.siteconfig

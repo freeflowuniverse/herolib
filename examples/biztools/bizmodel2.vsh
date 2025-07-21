@@ -3,7 +3,7 @@
 import freeflowuniverse.herolib.biz.bizmodel
 import os
 
-heroscript:="
+heroscript := "
 
 !!bizmodel.revenue_define bizname:'test' name:'nodes'
     descr:'Node Sales'  
@@ -16,8 +16,8 @@ heroscript:="
     //revenue_item_monthly_perc:'3%'
 "
 
-bizmodel.play(heroscript:heroscript)!
+bizmodel.play(heroscript: heroscript)!
 
-mut bm:=bizmodel.get("test")!
+mut bm := bizmodel.get('test')!
 
-bm.sheet.pprint(nr_columns:30)!
+bm.sheet.pprint(nr_columns: 30)!

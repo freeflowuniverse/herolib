@@ -1,9 +1,9 @@
 module startupmanager
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.core as osal.screen
-import freeflowuniverse.herolib.osal.core as osal.systemd
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.screen
+import freeflowuniverse.herolib.osal.core.systemd
+import freeflowuniverse.herolib.osal.core.zinit
 
 // // TODO: check if using this interface would simplify things
 // pub interface StartupManagerI {

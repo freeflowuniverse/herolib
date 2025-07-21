@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.zinit
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.core.httpconnection
 import freeflowuniverse.herolib.installers.lang.golang

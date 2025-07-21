@@ -21,7 +21,7 @@ pub fn extract_title(page string) string {
 			}
 		}
 	}
-	return ""
+	return ''
 }
 
 // set_titles renumbers markdown titles in a page string up to a specified maximum level.
@@ -73,7 +73,7 @@ pub fn set_titles(page string, maxnr int) string {
 				current_numbers[i] = 0
 			}
 
-			mut new_prefix := ""
+			mut new_prefix := ''
 			if autonumber {
 				for i := 0; i < numbering_hash_count; i++ {
 					if i > 0 && current_numbers[i] == 0 && current_numbers[i - 1] > 0 {
@@ -103,19 +103,18 @@ pub fn set_titles(page string, maxnr int) string {
 			original_title_text = original_title_text[skip_chars..].trim_space()
 
 			// Construct the new line
-			mut new_line := ""
-			for _ in 0..display_hash_count {
+			mut new_line := ''
+			for _ in 0 .. display_hash_count {
 				new_line += '#'
 			}
 
-
 			if autonumber {
-				new_line += " ${new_prefix} ${original_title_text}"
+				new_line += ' ${new_prefix} ${original_title_text}'
 			} else {
-				new_line += " ${original_title_text}"
+				new_line += ' ${original_title_text}'
 			}
 			result_lines << new_line
-		}else {
+		} else {
 			result_lines << line
 		}
 	}

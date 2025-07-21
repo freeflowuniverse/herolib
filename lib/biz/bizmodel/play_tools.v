@@ -1,10 +1,9 @@
-
 module bizmodel
 
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.playbook { Action }
 
-pub struct RowDescrFields{
+pub struct RowDescrFields {
 pub mut:
 	name        string
 	title       string
@@ -12,11 +11,10 @@ pub mut:
 }
 
 fn get_action_descr(action Action) !RowDescrFields {
+	mut r := RowDescrFields{}
 
-	mut r:=RowDescrFields{}
-
-	r.name= action.params.get_default('name', '')!
-	r.description= action.params.get_default('descr', '')!
+	r.name = action.params.get_default('name', '')!
+	r.description = action.params.get_default('descr', '')!
 	if r.description.len == 0 {
 		r.description = action.params.get_default('description', '')!
 	}
@@ -33,5 +31,4 @@ fn get_action_descr(action Action) !RowDescrFields {
 	r.description = r.description.replace('_', ' ').replace('-', ' ')
 
 	return r
-
 }

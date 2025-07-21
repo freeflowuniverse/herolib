@@ -35,11 +35,11 @@ pub:
 
 pub struct Department {
 pub:
-	name        string
-	description string
-	page        string
-	title       string
-	order       int
+	name             string
+	description      string
+	page             string
+	title            string
+	order            int
 	avg_monthly_cost string = '6000USD'
 	avg_indexation   string = '2%'
 }

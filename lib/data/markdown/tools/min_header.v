@@ -1,6 +1,5 @@
 module tools
 
-
 pub fn min_header(text string, minlevel int) string {
 	mut nrhash := 100
 	mut out := []string{}

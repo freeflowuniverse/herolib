@@ -6,7 +6,7 @@ Rclone is this incredible swiss army knive to deal with S3 storage servers.
 ## Example
 
 ```golang
-import freeflowuniverse.herolib.osal.core as osal.rclone
+import freeflowuniverse.herolib.osal.core.rclone
 
 fn main() {
 	do() or { panic(err) }

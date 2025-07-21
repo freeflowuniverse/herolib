@@ -3,7 +3,7 @@
 import freeflowuniverse.herolib.biz.bizmodel
 import os
 
-heroscript:="
+heroscript := "
 
 Next will define an OEM product in month 10, 1 Million EUR, ... cogs is a percent which is 20% at start but goes to 10% after 20 months.
 
@@ -21,8 +21,8 @@ This time we have the cogs defined in fixed manner, the default currency is USD 
     cogs: '10:100000,15:1000,20:120000'  
 "
 
-bizmodel.play(heroscript:heroscript)!
+bizmodel.play(heroscript: heroscript)!
 
-mut bm:=bizmodel.get("test")!
+mut bm := bizmodel.get('test')!
 
-bm.sheet.pprint(nr_columns:30)!
+bm.sheet.pprint(nr_columns: 30)!

@@ -20,7 +20,7 @@ Returns the name of an available TUN interface:
 
 #!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.osal.core as osal.tun
+import freeflowuniverse.herolib.osal.core.tun
 
 
 // Check if TUN is available

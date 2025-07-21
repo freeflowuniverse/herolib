@@ -26,7 +26,9 @@ pub fn getset(name string) !&BizModel {
 				name:  name
 			}
 			bizmodels[bizmodel.name] = &bizmodel
-			bizmodel.departments["default"] = &Department{name:"default"}
+			bizmodel.departments['default'] = &Department{
+				name: 'default'
+			}
 		}
 		return bizmodels[name] or { panic('bug') }
 	}

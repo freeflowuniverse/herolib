@@ -1,7 +1,7 @@
 module qdrant_installer
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.zinit
 import freeflowuniverse.herolib.installers.ulist
 import os
 

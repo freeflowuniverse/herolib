@@ -4,7 +4,6 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
 import os
 
-
 // List of recognized image file extensions
 const image_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.bmp', '.tiff', '.ico']
 
@@ -71,11 +70,11 @@ pub fn (mut c DocTreeClient) get_image_path(collection_name string, image_name s
 	rel_path := c.redis.hget('doctree:${fixed_collection_name}', fixed_image_name) or {
 		return error('${DocTreeError.image_not_found}: Image "${image_name}" not found in collection "${collection_name}"')
 	}
-	
+
 	if rel_path == '' {
 		return error('${DocTreeError.image_not_found}: Image "${image_name}" found in collection "${collection_name}" but its path is empty in Redis.')
 	}
-	
+
 	// console.print_debug('get_image_path: rel_path for "${image_name}": "${rel_path}"')
 
 	// Combine the collection path with the relative path
@@ -257,7 +256,7 @@ pub fn (mut c DocTreeClient) list_images(collection_name string) ![]string {
 pub fn (mut c DocTreeClient) list_pages_map() !map[string][]string {
 	mut result := map[string][]string{}
 	collections := c.list_collections()!
-	
+
 	for col_name in collections {
 		mut page_names := c.list_pages(col_name)!
 		page_names.sort()
@@ -301,7 +300,7 @@ pub fn (mut c DocTreeClient) get_page_paths(collection_name string, page_name st
 	page_content := c.get_page_content(collection_name, page_name)!
 
 	// Extract image names from the page content
-	image_names := extract_image_links(page_content,true)!
+	image_names := extract_image_links(page_content, true)!
 	// println(image_names)
 
 	mut image_paths := []string{}
@@ -346,5 +345,3 @@ pub fn (mut c DocTreeClient) copy_images(collection_name string, page_name strin
 		// console.print_debug('Copy Image file "${image_file_name}" copied.')
 	}
 }
-
-

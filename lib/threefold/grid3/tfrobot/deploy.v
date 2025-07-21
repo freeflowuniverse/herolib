@@ -6,7 +6,7 @@ import os
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.osal.core as osal
-import freeflowuniverse.herolib.osal.core as osal.sshagent
+import freeflowuniverse.herolib.osal.core.sshagent
 
 const tfrobot_dir = '${os.home_dir()}/hero/tfrobot' // path to tfrobot dir in fs
 

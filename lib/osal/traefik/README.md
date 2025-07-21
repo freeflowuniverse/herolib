@@ -14,7 +14,7 @@ The module allows you to:
 ## Usage Example
 
 ```v
-import freeflowuniverse.herolib.osal.core as osal.traefik
+import freeflowuniverse.herolib.osal.core.traefik
 
 fn main() ! {
     // Create a new Traefik configuration

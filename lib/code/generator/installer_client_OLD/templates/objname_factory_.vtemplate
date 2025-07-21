@@ -10,8 +10,8 @@ import freeflowuniverse.herolib.data.encoderhero
 @end
 
 @if model.cat == .installer
-import freeflowuniverse.herolib.osal.core as osal.startupmanager
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.startupmanager
+import freeflowuniverse.herolib.osal.core.zinit
 import time
 @end
 

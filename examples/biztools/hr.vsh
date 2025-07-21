@@ -3,7 +3,7 @@
 import freeflowuniverse.herolib.biz.bizmodel
 import os
 
-heroscript:="
+heroscript := "
 
 !!bizmodel.hr_params bizname:'test' avg_monthly_cost:'4000USD' avg_indexation:'5%'
 
@@ -36,8 +36,8 @@ heroscript:="
 
 "
 
-bizmodel.play(heroscript:heroscript)!
+bizmodel.play(heroscript: heroscript)!
 
-mut bm:=bizmodel.get("test")!
+mut bm := bizmodel.get('test')!
 
-bm.sheet.pprint(nr_columns:20)!
+bm.sheet.pprint(nr_columns: 20)!

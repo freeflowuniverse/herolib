@@ -142,8 +142,6 @@ pub fn (mut r Row) action(args_ RowActionArgs) !&Row {
 	return row_result
 }
 
-
-
 pub fn (mut r Row) delay(monthdelay int) ! {
 	mut todelay := []f64{}
 	for x in 0 .. r.sheet.nrcol {

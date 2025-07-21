@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.data.currency
 import math
 
 // populate the params for hr
-// !!bizmodel.department_define bizname:'test' 
+// !!bizmodel.department_define bizname:'test'
 //     descr:'Junior Engineer'
 //     nrpeople:'1:5,60:30'
 //	   cost:'4000USD'
@@ -16,7 +16,9 @@ import math
 //	   cost_percent_revenue e.g. 4%, will make sure the cost will be at least 4% of revenue
 fn (mut m BizModel) employee_define_action(action Action) !Action {
 	// bizname := action.params.get_default('bizname', '')!
-	mut name := action.params.get('name') or { return error('employee name is required in ${action.name}, now \n${action}') }
+	mut name := action.params.get('name') or {
+		return error('employee name is required in ${action.name}, now \n${action}')
+	}
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
 		descr = action.params.get('description')!
@@ -34,7 +36,8 @@ fn (mut m BizModel) employee_define_action(action Action) !Action {
 
 	page := action.params.get_default('page', '')!
 
-	cost_percent_revenue := action.params.get_percentage_default('cost_percent_revenue','0%')!
+	cost_percent_revenue := action.params.get_percentage_default('cost_percent_revenue',
+		'0%')!
 	nrpeople := action.params.get_default('nrpeople', '1')!
 	cost_center := action.params.get_default('costcenter', '')!
 
@@ -64,15 +67,15 @@ fn (mut m BizModel) employee_define_action(action Action) !Action {
 		aggregatetype: .avg
 	)!
 	costpeople_row = costpeople_row.action(action: .multiply, rows: [nrpeople_row])!
-	
-	//lets make sure nr of people filled in properly as well as cost
+
+	// lets make sure nr of people filled in properly as well as cost
 	if cost_percent_revenue > 0 {
 		mut revtotal := m.sheet.row_get('revenue_total')!
 		// println(revtotal)
 		for x in 0 .. nrpeople_row.cells.len {
-			mut curcost:= -costpeople_row.cells[x].val
-			mut curpeople:= nrpeople_row.cells[x].val
-			mut currev:= revtotal.cells[x].val
+			mut curcost := -costpeople_row.cells[x].val
+			mut curpeople := nrpeople_row.cells[x].val
+			mut currev := revtotal.cells[x].val
 			// println("currev: ${currev}, curcost: ${curcost}, curpeople: ${curpeople}, costpercent_revenue: ${cost_percent_revenue}")
 			if currev * cost_percent_revenue > curcost {
 				costpeople_row.cells[x].val = -currev * cost_percent_revenue

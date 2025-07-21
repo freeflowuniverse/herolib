@@ -6,8 +6,8 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 
 @if args.startupmanager
-import freeflowuniverse.herolib.osal.core as osal.systemd
-import freeflowuniverse.herolib.osal.core as osal.zinit
+import freeflowuniverse.herolib.osal.core.systemd
+import freeflowuniverse.herolib.osal.core.zinit
 @end
 import freeflowuniverse.herolib.installers.ulist
 

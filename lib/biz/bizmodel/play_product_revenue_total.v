@@ -1,16 +1,27 @@
 module bizmodel
 
-import freeflowuniverse.herolib.core.playbook { Action }
+import freeflowuniverse.herolib.core.playbook
 
 // revenue_total calculates and aggregates the total revenue and cost of goods sold (COGS) for the business model
 fn (mut sim BizModel) revenue_total() ! {
+	mut sheet := sim.sheet
 
-	mut sheet:= sim.sheet
-
-	mut revenue_total := sheet.group2row(name:"revenue_total", include:['rev'], tags:"total", descr:'total revenue.')!
-	mut cogs_total := sheet.group2row(name:"cogs_total", include:['cogs'], tags:"total", descr:'total cogs.')!
-	mut margin_total := sheet.group2row(name:"margin_total", include:['margin'], tags:"total", descr:'total margin.')!
-
-
+	mut revenue_total := sheet.group2row(
+		name:    'revenue_total'
+		include: ['rev']
+		tags:    'total'
+		descr:   'total revenue.'
+	)!
+	mut cogs_total := sheet.group2row(
+		name:    'cogs_total'
+		include: ['cogs']
+		tags:    'total'
+		descr:   'total cogs.'
+	)!
+	mut margin_total := sheet.group2row(
+		name:    'margin_total'
+		include: ['margin']
+		tags:    'total'
+		descr:   'total margin.'
+	)!
 }
-

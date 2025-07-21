@@ -1,7 +1,7 @@
 module mycelium_installer
 
 import freeflowuniverse.herolib.data.encoderhero
-import freeflowuniverse.herolib.osal.core as osal.tun
+import freeflowuniverse.herolib.osal.core.tun
 
 pub const version = '0.6.1'
 const singleton = true
