@@ -54,9 +54,7 @@ pub fn (mut repo GitRepo) need_push() !bool {
 	last_remote_commit := repo.get_last_remote_commit() or {
 		return error('Failed to get last remote commit: ${repo.path()}\n${err}')
 	}
-	last_local_commit := repo.get_last_local_commit() or {
-		return error('Failed to get last local commit: ${repo.path()}\n${err}')
-	}
+	last_local_commit := repo.get_last_local_commit()!
 	// If remote commit is empty, it means the branch doesn't exist remotely yet
 	if last_remote_commit.len == 0 {
 		return true
@@ -138,6 +136,5 @@ pub fn (self GitRepo) get_last_local_commit() !string {
 	if self.status_local.branch in self.status_local.branches {
 		return self.status_local.branches[self.status_local.branch]
 	}
-
-	return error("can't find branch: ${self.status_local.branch} in local branches:\n${self.status_local.branches}")
+	return ""
 }
