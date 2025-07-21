@@ -46,8 +46,12 @@ pub fn (mut site DocSite) generate() ! {
 	mut footer_file := pathlib.get_file(path: '${cfg_path}/footer.json', create: true)!
 	footer_file.write(json.encode_pretty(site.config.footer))!
 
-	mut aa := site.path_src.dir_get('docs')!
-	aa.copy(dest: '${site.factory.path_build.path}/docs', delete: true)!
+	osal.rm("${site.factory.path_build.path}/docs")!
+
+	if os.exists("${site.path_src.path}/docs"){
+		mut aa := site.path_src.dir_get('docs')!
+		aa.copy(dest: '${site.factory.path_build.path}/docs', delete: true)!
+	}
 
 	// now we need to process the pages, call the sitegen module, which will look for statements like
 	// !!site.page sitename:'atest'

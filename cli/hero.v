@@ -101,7 +101,7 @@ fn do() ! {
 	// herocmds.cmd_juggler(mut cmd)
 	herocmds.cmd_generator(mut cmd)
 	herocmds.cmd_docusaurus(mut cmd)
-	herocmds.cmd_starlight(mut cmd)
+	// herocmds.cmd_starlight(mut cmd)
 	// herocmds.cmd_docsorter(mut cmd)
 	// cmd.add_command(publishing.cmd_publisher(pre_func))
 	cmd.setup()
