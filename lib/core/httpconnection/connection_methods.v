@@ -17,7 +17,7 @@ module httpconnection
 
 import x.json2
 import net.http
-import freeflowuniverse.herolib.data.hjson
+import freeflowuniverse.herolib.data.ourjson
 import freeflowuniverse.herolib.ui.console
 
 // Build url from Request and httpconnection
@@ -142,7 +142,7 @@ pub fn (mut h HTTPConnection) post_json_str(req_ Request) !string {
 	if result.is_ok() {
 		mut data_ := result.data
 		if req.dict_key.len > 0 {
-			data_ = hjson.json_dict_get_string(data_, false, req.dict_key)!
+			data_ = ourjson.json_dict_get_string(data_, false, req.dict_key)!
 		}
 		return data_
 	}
@@ -154,7 +154,7 @@ pub fn (mut h HTTPConnection) post_json_str(req_ Request) !string {
 pub fn (mut h HTTPConnection) get_json_dict(req Request) !map[string]json2.Any {
 	data_ := h.get(req)!
 	mut data := map[string]json2.Any{}
-	data = hjson.json_dict_filter_any(data_, false, [], [])!
+	data = ourjson.json_dict_filter_any(data_, false, [], [])!
 	return data
 }
 
@@ -164,12 +164,12 @@ pub fn (mut h HTTPConnection) get_json_dict(req Request) !map[string]json2.Any {
 pub fn (mut h HTTPConnection) get_json_list(req Request) ![]string {
 	mut data_ := h.get(req)!
 	if req.dict_key.len > 0 {
-		data_ = hjson.json_dict_get_string(data_, false, req.dict_key)!
+		data_ = ourjson.json_dict_get_string(data_, false, req.dict_key)!
 	}
 	if req.list_dict_key.len > 0 {
-		return hjson.json_list_dict_get_string(data_, false, req.list_dict_key)!
+		return ourjson.json_list_dict_get_string(data_, false, req.list_dict_key)!
 	}
-	data := hjson.json_list(data_, false)
+	data := ourjson.json_list(data_, false)
 	return data
 }
 
@@ -178,7 +178,7 @@ pub fn (mut h HTTPConnection) get_json(req Request) !string {
 	h.default_header.add(.content_language, 'Content-Type: application/json')
 	mut data_ := h.get(req)!
 	if req.dict_key.len > 0 {
-		data_ = hjson.json_dict_get_string(data_, false, req.dict_key)!
+		data_ = ourjson.json_dict_get_string(data_, false, req.dict_key)!
 	}
 	return data_
 }

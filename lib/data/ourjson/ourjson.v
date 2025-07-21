@@ -1,4 +1,4 @@
-module hjson
+module ourjson
 
 import x.json2
 import freeflowuniverse.herolib.core.texttools
