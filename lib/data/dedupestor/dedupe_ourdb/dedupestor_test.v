@@ -1,6 +1,7 @@
-module dedupestor
+module dedupe_ourdb
 
 import os
+import freeflowuniverse.herolib.data.dedupestor
 
 fn testsuite_begin() ! {
 	// Ensure test directories exist and are clean
@@ -28,33 +29,33 @@ fn test_basic_operations() ! {
 
 	// Test storing and retrieving data
 	value1 := 'test data 1'.bytes()
-	ref1 := Reference{
+	ref1 := dedupestor.Reference{
 		owner: 1
 		id:    1
 	}
-	hash1 := ds.store(value1, ref1)!
+	id1 := ds.store(value1, ref1)!
 
-	retrieved1 := ds.get(hash1)!
+	retrieved1 := ds.get(id1)!
 	assert retrieved1 == value1
 
 	// Test deduplication with different reference
-	ref2 := Reference{
+	ref2 := dedupestor.Reference{
 		owner: 1
 		id:    2
 	}
-	hash2 := ds.store(value1, ref2)!
-	assert hash1 == hash2 // Should return same hash for same data
+	id2 := ds.store(value1, ref2)!
+	assert id1 == id2 // Should return same id for same data
 
-	// Test different data gets different hash
+	// Test different data gets different id
 	value2 := 'test data 2'.bytes()
-	ref3 := Reference{
+	ref3 := dedupestor.Reference{
 		owner: 1
 		id:    3
 	}
-	hash3 := ds.store(value2, ref3)!
-	assert hash1 != hash3 // Should be different hash for different data
+	id3 := ds.store(value2, ref3)!
+	assert id1 != id3 // Should be different id for different data
 
-	retrieved2 := ds.get(hash3)!
+	retrieved2 := ds.get(id3)!
 	assert retrieved2 == value2
 }
 
@@ -66,12 +67,12 @@ fn test_size_limit() ! {
 
 	// Test data under size limit (1KB)
 	small_data := []u8{len: 1024, init: u8(index)}
-	ref := Reference{
+	ref := dedupestor.Reference{
 		owner: 1
 		id:    1
 	}
-	small_hash := ds.store(small_data, ref)!
-	retrieved := ds.get(small_hash)!
+	small_id := ds.store(small_data, ref)!
+	retrieved := ds.get(small_id)!
 	assert retrieved == small_data
 
 	// Test data over size limit (2MB)
@@ -88,13 +89,13 @@ fn test_exists() ! {
 	)!
 
 	value := 'test data'.bytes()
-	ref := Reference{
+	ref := dedupestor.Reference{
 		owner: 1
 		id:    1
 	}
-	hash := ds.store(value, ref)!
+	id := ds.store(value, ref)!
 
-	assert ds.id_exists(hash) == true
+	assert ds.id_exists(id) == true
 	assert ds.id_exists(u32(99)) == false
 }
 
@@ -111,7 +112,7 @@ fn test_multiple_operations() ! {
 	for i in 0 .. 5 {
 		value := 'test data ${i}'.bytes()
 		values << value
-		ref := Reference{
+		ref := dedupestor.Reference{
 			owner: 1
 			id:    u32(i)
 		}
@@ -127,12 +128,12 @@ fn test_multiple_operations() ! {
 
 	// Test deduplication by storing same values again
 	for i, value in values {
-		ref := Reference{
+		ref := dedupestor.Reference{
 			owner: 2
 			id:    u32(i)
 		}
 		id := ds.store(value, ref)!
-		assert id == ids[i] // Should get same hash for same data
+		assert id == ids[i] // Should get same id for same data
 	}
 }
 
@@ -144,15 +145,15 @@ fn test_references() ! {
 
 	// Store same data with different references
 	value := 'test data'.bytes()
-	ref1 := Reference{
+	ref1 := dedupestor.Reference{
 		owner: 1
 		id:    1
 	}
-	ref2 := Reference{
+	ref2 := dedupestor.Reference{
 		owner: 1
 		id:    2
 	}
-	ref3 := Reference{
+	ref3 := dedupestor.Reference{
 		owner: 2
 		id:    1
 	}
@@ -162,11 +163,11 @@ fn test_references() ! {
 
 	// Store same data with second reference
 	id2 := ds.store(value, ref2)!
-	assert id == id2 // Same hash for same data
+	assert id == id2 // Same id for same data
 
 	// Store same data with third reference
 	id3 := ds.store(value, ref3)!
-	assert id == id3 // Same hash for same data
+	assert id == id3 // Same id for same data
 
 	// Delete first reference - data should still exist
 	ds.delete(id, ref1)!
