@@ -16,9 +16,6 @@ fn (mut m BizModel) funding_define_action(action Action) !Action {
 	if descr.len == 0 {
 		descr = action.params.get_default('description', '')!
 	}
-	// if descr.len == 0 {
-	// 	descr = 'Funding definition for ${name}'
-	// }
 
 	mut investment := action.params.get_default('investment', '')!
 	if investment.len == 0 {
@@ -35,7 +32,7 @@ fn (mut m BizModel) funding_define_action(action Action) !Action {
 		growth:      investment
 		tags:        'funding type:${fundingtype}'
 		descr:       descr
-		extrapolate: false
+		extrapolate: action.params.get_default_false('extrapolate')
 	)!
 
 	return action

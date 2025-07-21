@@ -1,7 +1,6 @@
 module bizmodel
 
 import freeflowuniverse.herolib.core.playbook { Action }
-import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.data.currency
 import math
 
@@ -22,7 +21,6 @@ fn (mut m BizModel) cost_define_action(action Action) !Action {
 		descr = action.params.get_default('description', '')!
 	}
 	mut cost := action.params.get_default('cost', '0.0')! // is extrapolated
-	mut cost_one := action.params.get_default('cost_one', '')!
 
 	department := action.params.get_default('department', 'default')!
 	if department != 'default' && department !in m.departments {
@@ -34,8 +32,7 @@ fn (mut m BizModel) cost_define_action(action Action) !Action {
 		return error('Costcenter `${costcenter}` not found. Please define it first.')
 	}
 
-	cost_percent_revenue := action.params.get_percentage_default('cost_percent_revenue',
-		'0%')!
+	cost_percent_revenue := action.params.get_percentage_default('cost_percent_revenue','0%')!
 
 	indexation := action.params.get_percentage_default('indexation', '0%')!
 
@@ -49,38 +46,29 @@ fn (mut m BizModel) cost_define_action(action Action) !Action {
 		cost = '0:${cost_amount.usd()},59:${cost_amount_val_result}'
 	}
 
-	mut extrap := false
-	if cost_one != '' {
-		extrap = false
-		cost = cost_one
-	} else {
-		extrap = true
-	}
-
 	mut cost_row := m.sheet.row_new(
 		name:        'cost_${name}'
 		growth:      cost
-		tags:        'department:${department} ocost'
-		descr:       'cost overhead for department ${department}'
-		extrapolate: extrap
+		tags:        'department:${department} cost'
+		descr:       descr
+		extrapolate: action.params.get_default_true('extrapolate')
 	)!
-	cost_row.action(action: .reverse)!
+	cost_row = cost_row.action(action: .reverse)!
+
 
 	if cost_percent_revenue > 0 {
+		// println(cost_row)
 		mut revtotal := m.sheet.row_get('revenue_total')!
-		mut cost_min := revtotal.action(
-			action:        .multiply
-			val:           cost_percent_revenue
-			name:          'tmp3'
-			aggregatetype: .avg
-		)!
-		cost_min.action(action: .forwardavg)! // avg out forward looking for 12 months	
-		cost_min.action(action: .reverse)!
-		cost_row.action(
-			action: .min
-			rows:   [cost_min]
-		)!
-		m.sheet.row_delete('tmp3')
+
+		for x in 0 .. cost_row.cells.len {
+			mut curcost := -cost_row.cells[x].val
+			mut currev := revtotal.cells[x].val
+			// println("currev: ${currev}, curcost: ${curcost}, costpercent_revenue: ${currev*cost_percent_revenue}")
+			if currev * cost_percent_revenue > curcost {
+				cost_row.cells[x].val = -currev * cost_percent_revenue
+			}
+		}
+		// println(cost_row)
 	}
 	return action
 }

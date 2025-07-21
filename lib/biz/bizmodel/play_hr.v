@@ -1,8 +1,6 @@
 module bizmodel
 
 import freeflowuniverse.herolib.core.playbook { Action }
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.currency
 import math
 

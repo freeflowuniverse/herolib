@@ -6,8 +6,8 @@ import freeflowuniverse.herolib.ui.console
 
 const action_priorities = {
 	0: ['department_define', 'costcenter_define']
-	1: ['revenue_define', 'funding_define', 'cost_define']
-	2: ['employee_define']
+	1: ['revenue_define', 'funding_define']
+	2: ['cost_define','employee_define']
 	3: ['sheet_wiki', 'graph_bar_row', 'graph_pie_row', 'graph_line_row', 'row_overview']
 }
 

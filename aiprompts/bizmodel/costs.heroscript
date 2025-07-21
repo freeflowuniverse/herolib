@@ -1,9 +1,3 @@
-#!/usr/bin/env -S v -n -w -cg -gc none -no-retry-compilation -cc tcc -d use_openssl -enable-globals run
-
-import freeflowuniverse.herolib.biz.bizmodel
-import os
-
-heroscript := "
 
 //need to define some revenue because otherwise can't see how HR relates to it
 !!bizmodel.revenue_define bizname:'test' name:'oem1' extrapolate:1
@@ -42,11 +36,3 @@ heroscript := "
 //     descr:'Annual Software Licenses'
 //     cost:'0:10000 10:EUR:20kCHF,12:5000USD'
 //     department:'engineering'
-
-"
-
-bizmodel.play(heroscript: heroscript)!
-
-mut bm := bizmodel.get('test')!
-
-bm.sheet.pprint(nr_columns: 20)!
