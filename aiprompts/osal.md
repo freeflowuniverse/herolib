@@ -1,1 +1,0 @@
-../lib/osal/readme.md
