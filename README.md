@@ -72,6 +72,17 @@ Herolib provides a wide range of functionality:
 
 - Cloud automation tools
 - Git operations and management
+  ### Offline Mode for Git Operations
+
+  Herolib now supports an `offline` mode for Git operations, which prevents automatic fetching from remote repositories. This can be useful in environments with limited or no internet connectivity, or when you want to avoid network calls during development or testing.
+
+  To enable offline mode:
+
+  -   **Via `GitStructureConfig`**: Set the `offline` field to `true` in the `GitStructureConfig` struct.
+  -   **Via `GitStructureArgsNew`**: When creating a new `GitStructure` instance using `gittools.new()`, set the `offline` parameter to `true`.
+  -   **Via Environment Variable**: Set the `OFFLINE` environment variable to any value (e.g., `export OFFLINE=true`).
+
+  When offline mode is active, `git fetch --all` operations will be skipped, and a debug message "fetch skipped (offline)" will be printed.
 - Documentation building
 - Hero AI integration
 - System management utilities

@@ -15,6 +15,7 @@ pub mut:
 	debug        bool = true
 	ssh_key_name string
 	ssh_key_path string
+	offline      bool = false
 }
 
 // GitStructure holds information about repositories within a specific code root.
@@ -53,13 +54,13 @@ pub fn (mut gitstructure GitStructure) load(reload bool) ! {
 	redisclient.checkempty()
 
 	for _, mut repo in gitstructure.repos {
-		// mut myfunction := fn (mut repo GitRepo) ! {
-		// }
-		// ths << spawn myfunction(mut repo_)
 		repo.status_update(reload: reload) or {
-			msg := 'Error in git repo: ${repo.path()}\n${err}'
-			console.print_stderr(msg)
-			return error(msg)
+			// If status_update fails, the error is already captured within the repo object.
+			// We log it here and continue to process other repositories.
+			console.print_stderr('Error updating status for repo ${repo.path()}: ${err}')
+			// Ensure last_load is reset to 0 if there was an error, so it's re-checked next time.
+			repo.last_load = 0
+			repo.cache_set()! // Persist the updated last_load and error state
 		}
 	}
 }

@@ -22,6 +22,7 @@ pub mut:
 	ssh_key_name string // name of ssh key to be used when loading the gitstructure
 	ssh_key_path string
 	reload       bool
+	offline      bool = false
 }
 
 // Retrieve or create a new GitStructure instance with the given configuration.
@@ -37,6 +38,7 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		debug:        args.debug
 		ssh_key_name: args.ssh_key_name
 		ssh_key_path: args.ssh_key_path
+		offline:      args.offline
 	}
 
 	return get(coderoot: args.coderoot, reload: args.reload, cfg: cfg)

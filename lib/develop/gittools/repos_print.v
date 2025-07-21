@@ -7,6 +7,21 @@ fn get_repo_status(gr GitRepo) !string {
 	mut repo := gr
 	mut statuses := []string{}
 
+	if repo.status_local.error.len > 0 {
+		mut err_msg := repo.status_local.error
+		if err_msg.len > 40 {
+			err_msg = err_msg[0..40] + '...'
+		}
+		statuses << 'ERROR (Local): ${err_msg}'
+	}
+	if repo.status_remote.error.len > 0 {
+		mut err_msg := repo.status_remote.error
+		if err_msg.len > 40 {
+			err_msg = err_msg[0..40] + '...'
+		}
+		statuses << 'ERROR (Remote): ${err_msg}'
+	}
+
 	if repo.has_changes {
 		statuses << 'COMMIT'
 	}
@@ -38,32 +53,22 @@ fn format_repo_info(repo GitRepo) ![]string {
 
 // Print repositories based on the provided criteria, showing their statuses
 pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
-	// console.print_debug('#### Overview of repositories:')
-	// console.print_debug('')
-
 	mut repo_data := [][]string{}
 
 	// Collect repository information based on the provided criteria
 	for _, repo in gitstructure.get_repos(args)! {
-		// repo.status_update()!
 		repo_data << format_repo_info(repo)!
 	}
 
 	// Clear the console and start printing the formatted repository information
 	console.clear()
-	console.print_lf(1)
+	// console.print_lf(1) // Removed to reduce newlines
 
-	// Display header with optional argument filtering information
-	// header := if args.str().len > 0 {
-	// 	'Repositories: ${gitstructure.config()!.coderoot} [${args.str()}]'
-	// } else {
-	// 	'Repositories: ${gitstructure.config()!.coderoot}'
-	// }
 	header := 'Repositories: ${gitstructure.config()!.coderoot}'
 	console.print_header(header)
+	console.print_lf(1) // Keep one newline after header
 
 	// Print the repository information in a formatted array
-	console.print_lf(1)
 	console.print_array(repo_data, '  ', true) // true -> aligned for better readability
-	console.print_lf(5)
+	// console.print_lf(5) // Removed to reduce newlines
 }

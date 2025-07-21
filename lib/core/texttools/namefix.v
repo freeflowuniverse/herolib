@@ -192,17 +192,17 @@ pub fn path_fix(path_ string) string {
 	if starts_with_dot_slash {
 		result_components << '.'
 		// Skip the first component which is '.'
-		components = components[1..]
+		components = components[1..].clone()
 	} else if starts_with_dot_dot_slash {
 		result_components << '..'
 		// Skip the first component which is '..'
-		components = components[1..]
+		components = components[1..].clone()
 	} else if is_absolute {
 		// Keep the empty component for absolute paths
 		result_components << ''
 		// Skip the first empty component
 		if components.len > 0 && components[0] == '' {
-			components = components[1..]
+			components = components[1..].clone()
 		}
 	}
 

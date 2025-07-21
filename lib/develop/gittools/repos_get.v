@@ -1,6 +1,7 @@
 module gittools
 
 import freeflowuniverse.herolib.core.redisclient
+import freeflowuniverse.herolib.ui.console
 import time
 
 // ReposGetArgs defines arguments to retrieve repositories from the git structure.
@@ -61,7 +62,13 @@ pub fn (mut gitstructure GitStructure) get_repos(args_ ReposGetArgs) ![]&GitRepo
 			repo.cache_last_load_clear()!
 		}
 		if args.status_update {
-			repo.status_update()!
+			repo.status_update() or {
+				// Log the error but continue processing other repositories
+				console.print_stderr('Error updating status for repo ${repo.path()}: ${err}')
+				// Ensure last_load is reset to 0 if there was an error, so it's re-checked next time.
+				repo.last_load = 0
+				repo.cache_set()! // Persist the updated last_load and error state
+			}
 		}
 		if args.reset {
 			repo.reset()!

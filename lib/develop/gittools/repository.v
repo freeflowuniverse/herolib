@@ -36,6 +36,7 @@ pub mut:
 	ref_default string            // is the default branch hash
 	branches    map[string]string // Branch name -> commit hash
 	tags        map[string]string // Tag name -> commit hash
+	error       string            // Error message if remote status update fails
 }
 
 // GitRepoStatusLocal holds local status information for a repository.
@@ -44,6 +45,7 @@ pub mut:
 	branches map[string]string // Branch name -> commit hash
 	branch   string            // the current branch
 	tag      string            // If the local branch is not set, the tag may be set
+	error    string            // Error message if local status update fails
 }
 
 // GitRepoConfig holds repository-specific configuration options.
