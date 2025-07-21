@@ -105,6 +105,7 @@ pub fn play(args_ PlayArgs) ! {
 		mypage.src = p.get('src') or { return error('need to specify src in site.page') }
 		mypage.title = p.get_default('title', '')!
 		mypage.description = p.get_default('description', '')!
+		mypage.slug = p.get_default('slug', '')!
 		mypage.draft = p.get_default_false('draft')
 		mypage.hide_title = p.get_default_false('hide_title')
 		mypage.title_nr = p.get_int_default('title_nr', 0)!

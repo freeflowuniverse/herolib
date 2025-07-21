@@ -23,6 +23,7 @@ pub mut:
 	src         string @[required]
 	path        string @[required]
 	title_nr    int
+	slug string
 }
 
 pub fn (mut site Site) page_add(args_ Page) ! {
@@ -62,6 +63,10 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 
 	if args.description.len > 0 {
 		content << "description: '${args.description}'"
+	}
+
+	if args.slug.len > 0 {
+		content << "slug: '${args.slug}'"
 	}
 
 	if args.hide_title {
