@@ -1,0 +1,52 @@
+// Define departments
+!!bizmodel.department_define bizname:'threefold' name:'engineering' descr:'Engineering Department'
+!!bizmodel.department_define bizname:'threefold' name:'operations' descr:'Operations Department'
+!!bizmodel.department_define bizname:'threefold' name:'sales' descr:'Sales Department'
+!!bizmodel.department_define bizname:'threefold' name:'admin' descr:'Administrative Department'
+
+// Define engineering team with 10 people growing 10%/year (max 20)
+!!bizmodel.employee_define bizname:'threefold' name:'engineering_team' descr:'Engineering Team'
+    nrpeople:'0:10,12:11,24:12,36:13,48:14,60:15,72:16,84:17,96:18,108:19,120:20'
+    cost:'5000USD'
+    indexation:'10%'
+    department:'engineering'
+
+// Define operations team with 2 people and 4% of revenue
+!!bizmodel.employee_define bizname:'threefold' name:'operations_team' descr:'Operations Team'
+    nrpeople:'2'
+    cost:'2000USD'
+    cost_percent_revenue:'4%'
+    department:'operations'
+
+// Define sales team (placeholder)
+!!bizmodel.employee_define bizname:'threefold' name:'sales_team' descr:'Sales Department'
+    nrpeople:'3'
+    cost:'4000USD'
+    department:'sales'
+
+// Define admin team (placeholder)
+!!bizmodel.employee_define bizname:'threefold' name:'admin_team' descr:'Administrative Team'
+    nrpeople:'2'
+    cost:'3000USD'
+    department:'admin'
+
+// Define revenue stream
+!!bizmodel.revenue_define bizname:'threefold' name:'cloud_services'
+    descr:'Cloud Services Revenue'
+    revenue:'10:10000,36:1000000'
+    extrapolate:1
+    // 5% annual growth after 3 years (36 months)
+    // Manually define growth for 5 years: 1.05^1, 1.05^2, etc.
+    // This is a simplified representation
+    // Actual implementation would need precise month:amount pairs
+
+// Define travel cost at 3% of revenue
+!!bizmodel.cost_define bizname:'threefold' name:'travel_cost'
+    descr:'Travel Expenses'
+    cost_percent_revenue:'3%'
+
+// Define initial funding
+!!bizmodel.funding_define bizname:'threefold' name:'initial_funding'
+    descr:'Initial Funding'
+    investment:'0:5000000'
+    type:'capital'

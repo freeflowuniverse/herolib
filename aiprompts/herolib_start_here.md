@@ -18,8 +18,15 @@ when I generate vlang scripts I will always use .vsh extension and use following
 - in .vsh file there is no need for a main() function
 - these scripts can be used for examples or instruction scripts e.g. an installs script
 
+## executing vlang scripts
 
-## when creating a test script
+As AI agent I should also execute v or .vsh scripts with vrun
+
+```bash
+vrun ~/code/github/freeflowuniverse/herolib/examples/biztools/bizmodel.vsh
+```
+
+## executing test scripts
 
 instruct user to test as follows (vtest is an alias which gets installed when herolib gets installed), can be done for a dir and for a file
 

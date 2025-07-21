@@ -15,3 +15,4 @@ the files are in ~/code/github/freeflowuniverse/herolib/examples for herolib
 
 - never use fn main() in a .vsh script
 - always use the top line as in example above
+- these scripts can be executed as is but can also use vrun $pathOfFile

@@ -7,17 +7,6 @@ Herolib is an opinionated library primarily used by ThreeFold to automate cloud 
 
 > [Complete Documentation](https://freeflowuniverse.github.io/herolib/)
 
-## Table of Contents
-
-- [Installation](#installation)
-  - [For Users](#for-users)
-  - [For Developers](#for-developers)
-- [Features](#features)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [Additional Resources](#additional-resources)
-
 ## Installation
 
 ### For Users
@@ -27,6 +16,8 @@ The Hero tool can be installed with a single command:
 ```bash
 curl https://raw.githubusercontent.com/freeflowuniverse/herolib/refs/heads/development/install_hero.sh > /tmp/install_hero.sh
 bash /tmp/install_hero.sh
+#do not forget to do the following this makes sure vtest and vrun exists
+bash install_herolib.vsh
 ```
 
 Hero will be installed in:
