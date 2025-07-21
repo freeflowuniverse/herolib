@@ -1,6 +1,6 @@
 module herocmds
 
-import freeflowuniverse.herolib.osal.core.sshagent
+import freeflowuniverse.herolib.osal.sshagent
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.ui
 import cli { Command, Flag }

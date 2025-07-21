@@ -1,4 +1,4 @@
-module osal
+module core
 
 import net
 import time

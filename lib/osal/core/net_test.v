@@ -1,4 +1,4 @@
-module osal
+module core
 
 fn test_ipaddr_pub_get() {
 	ipaddr := ipaddr_pub_get()!

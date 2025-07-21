@@ -1,4 +1,4 @@
-module osal
+module core
 
 fn test_env_get_default() ! {
 	key := 'keythatshouldnotexist'

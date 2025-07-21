@@ -1,4 +1,4 @@
-module osal
+module core
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools

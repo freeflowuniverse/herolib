@@ -1,4 +1,4 @@
-module osal
+module core
 
 import freeflowuniverse.herolib.core.pathlib
 import os

@@ -2,21 +2,38 @@ module bizmodel
 
 import freeflowuniverse.herolib.core.playbook { Action }
 import freeflowuniverse.herolib.core.texttools
+import freeflowuniverse.herolib.data.currency
+import math
 
+// Example HeroScript for cost_define_action:
+// !!bizmodel.cost_define bizname:'test'
+//     name:'office_rent'
+//     descr:'Office Rent'
+//     cost:'5000USD'
+//     indexation:'3%'
+//     costcenter:'marketing_cc'
+//     cost_percent_revenue:'1%'
 fn (mut m BizModel) cost_define_action(action Action) !Action {
-	mut name := action.params.get_default('name', '')!
+	mut name := action.params.get('name') or {
+		return error('Cost name is required.')
+	}
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
-		descr = action.params.get('description')!
-	}
-	if name.len == 0 {
-		// make name ourselves
-		name = texttools.name_fix(descr) // TODO:limit len
+		descr = action.params.get_default('description', '')!
 	}
 	mut cost := action.params.get_default('cost', '0.0')! // is extrapolated
 	mut cost_one := action.params.get_default('cost_one', '')!
 
-	department := action.params.get_default('department', 'unknown department')!
+	department := action.params.get_default('department', 'default')!
+	if department != 'default' && department !in m.departments {
+		return error('Department `${department}` not found. Please define it first.')
+	}
+
+	costcenter := action.params.get_default('costcenter', 'default_costcenter')!
+	if costcenter != 'default_costcenter' && costcenter !in m.costcenters {
+		return error('Costcenter `${costcenter}` not found. Please define it first.')
+	}
+
 	cost_percent_revenue := action.params.get_percentage_default('cost_percent_revenue',
 		'0%')!
 
@@ -26,25 +43,17 @@ fn (mut m BizModel) cost_define_action(action Action) !Action {
 		if cost.contains(':') {
 			return error('cannot specify cost growth and indexation, should be no : inside cost param.')
 		}
-		// TODO: need to be able to go from e.g. month 6 and still do indexation
-		mut cost_ := cost.int()
-		cost2 := cost_ * (1 + indexation) * (1 + indexation) * (1 + indexation) * (1 + indexation) * (
-			1 + indexation) * (1 + indexation) // 6 years, maybe need to look at months
-		cost = '0:${cost},59:${cost2}'
-		// console.print_debug(cost)
+		// Assuming 6 years for indexation, adjust as needed
+		mut cost_amount := currency.amount_get(cost)!
+		cost_amount_val_result := cost_amount.usd() * math.powf(1 + f32(indexation), 6)
+		cost = '0:${cost_amount.usd()},59:${cost_amount_val_result}'
 	}
 
 	mut extrap := false
 	if cost_one != '' {
-		// if cost!=""{
-		// 	return error("Cannot specify cost:'${cost}' and cost_one:'${cost_one}'.")
-		// }
 		extrap = false
 		cost = cost_one
 	} else {
-		// if cost_one!=""{
-		// 	return error("Cannot specify cost:'${cost}' and cost_one:'${cost_one}'.")
-		// }
 		extrap = true
 	}
 

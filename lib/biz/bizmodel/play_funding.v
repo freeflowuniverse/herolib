@@ -1,26 +1,34 @@
 module bizmodel
 
 import freeflowuniverse.herolib.core.playbook { Action }
-import freeflowuniverse.herolib.core.texttools
 
-// populate the params for hr .
-// !!hr.funding_define .
-// - name, e.g. for a specific person .
-// - descr: description of the funding .
-// - investment is month:amount,month:amount, ... .
-// - type: loan or capital .
+// !!hr.funding_define
+// - name: identifier for the funding entity
+// - descr: human-readable description
+// - investment: format month\:amount, e.g. 0:10000,12:5000
+// - type: 'loan' or 'capital'
 fn (mut m BizModel) funding_define_action(action Action) !Action {
-	mut name := action.params.get_default('name', '')!
+	mut name := action.params.get('name') or {
+		return error('funding "name" is required for action `${action.name}`\n${action}')
+	}
+
 	mut descr := action.params.get_default('descr', '')!
 	if descr.len == 0 {
-		descr = action.params.get('description')!
+		descr = action.params.get_default('description', '')!
 	}
-	if name.len == 0 {
-		// make name ourselves
-		name = texttools.name_fix(descr) // TODO:limit len
+	// if descr.len == 0 {
+	// 	descr = 'Funding definition for ${name}'
+	// }
+
+	mut investment := action.params.get_default('investment', '')!
+	if investment.len == 0 {
+		return error('investment is required (format: "0:10000,6:20000") for funding `${name}`')
 	}
-	mut investment := action.params.get_default('investment', '0.0')!
-	fundingtype := action.params.get_default('type', 'capital')!
+
+	mut fundingtype := action.params.get_default('type', 'capital')!.to_lower()
+	if fundingtype !in ['loan', 'capital'] {
+		return error('Invalid funding "type": "${fundingtype}". Allowed: "loan", "capital"')
+	}
 
 	m.sheet.row_new(
 		name:        'funding_${name}'
@@ -29,6 +37,7 @@ fn (mut m BizModel) funding_define_action(action Action) !Action {
 		descr:       descr
 		extrapolate: false
 	)!
+
 	return action
 }
 
@@ -37,6 +46,6 @@ fn (mut sim BizModel) funding_total() ! {
 		name:    'funding_total'
 		include: ['funding']
 		tags:    'pl'
-		descr:   'total funding'
+		descr:   'Total funding'
 	)!
 }

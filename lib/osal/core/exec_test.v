@@ -1,4 +1,4 @@
-module osal
+module core
 
 // import crypto.md5
 // import os
