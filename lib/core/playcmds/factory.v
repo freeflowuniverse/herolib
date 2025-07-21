@@ -32,7 +32,7 @@ pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 
 	farmingsimulator.play(mut plbook)!
 	gridsimulator.play(mut plbook)!
-	bizmodel.play(mut plbook)!
+	bizmodel.play(plbook:*plbook)!
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!
 	// coredns.play(mut plbook)!
