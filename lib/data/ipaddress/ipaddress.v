@@ -1,7 +1,7 @@
 module ipaddress
 
 import os
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 

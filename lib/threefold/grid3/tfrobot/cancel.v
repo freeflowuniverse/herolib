@@ -2,7 +2,7 @@ module tfrobot
 
 import json
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 
 pub struct CancelConfig {
 mut:

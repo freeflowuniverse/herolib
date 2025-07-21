@@ -2,7 +2,7 @@ module imagemagick
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 
 pub struct DownsizeArgs {

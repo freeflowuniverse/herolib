@@ -1,7 +1,7 @@
 module herocontainers
 
 import time
-import freeflowuniverse.herolib.osal { exec }
+import freeflowuniverse.herolib.osal.core as osal { exec }
 import freeflowuniverse.herolib.data.ipaddress
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.virt.utils

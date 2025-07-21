@@ -3,7 +3,7 @@ module tfrobot
 // import os
 // import arrays
 // import freeflowuniverse.herolib.core.pathlib
-// import freeflowuniverse.herolib.osal
+// import freeflowuniverse.herolib.osal.core as osal
 // import json
 // import freeflowuniverse.herolib.ui.console
 

@@ -1,1 +1,0 @@
-../crystallib/virt/docker/readme.md

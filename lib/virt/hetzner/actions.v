@@ -3,7 +3,7 @@ module hetzner
 import freeflowuniverse.herolib.core.texttools
 import time
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.builder
 
 /////////////////////////// LIST

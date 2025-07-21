@@ -1,7 +1,7 @@
 module docker
 
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal { download }
+import freeflowuniverse.herolib.osal.core as osal { download }
 
 @[params]
 pub struct DownloadArgs {

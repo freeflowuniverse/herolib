@@ -2,7 +2,7 @@ module main
 
 import os
 import cli { Command, Flag }
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 // import freeflowuniverse.herolib.ai.mcp.vcode
 // import freeflowuniverse.herolib.ai.mcp.mcpgen
 // import freeflowuniverse.herolib.ai.mcp.baobab

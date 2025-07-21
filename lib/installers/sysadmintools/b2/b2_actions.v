@@ -1,6 +1,6 @@
 module b2
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.lang.python

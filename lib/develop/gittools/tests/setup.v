@@ -1,6 +1,6 @@
 module tests
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import os
 import time
 

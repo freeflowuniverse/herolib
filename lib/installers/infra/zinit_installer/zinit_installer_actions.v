@@ -1,12 +1,12 @@
 module zinit_installer
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.osal.systemd
-import freeflowuniverse.herolib.osal.zinit as zinit_module
+import freeflowuniverse.herolib.osal.core as osal.systemd
+import freeflowuniverse.herolib.osal.core as osal.zinit as zinit_module
 import freeflowuniverse.herolib.installers.ulist
 import os
 

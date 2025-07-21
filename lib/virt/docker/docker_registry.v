@@ -2,7 +2,7 @@ module docker
 
 import freeflowuniverse.herolib.crypt.openssl
 import freeflowuniverse.herolib.core.httpconnection
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import os
 import freeflowuniverse.herolib.ui.console
 

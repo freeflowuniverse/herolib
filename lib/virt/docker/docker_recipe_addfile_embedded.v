@@ -1,6 +1,6 @@
 module docker
 
-import freeflowuniverse.herolib.osal { file_read }
+import freeflowuniverse.herolib.osal.core as osal { file_read }
 
 @[params]
 pub struct AddFileEmbeddedArgs {

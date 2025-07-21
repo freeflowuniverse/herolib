@@ -2,7 +2,7 @@ module publishing
 
 import os
 import freeflowuniverse.herolib.core.pathlib { Path }
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.data.doctree { Tree }
 import freeflowuniverse.herolib.web.mdbook
 

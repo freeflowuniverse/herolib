@@ -1,6 +1,6 @@
 module tmux
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 // import freeflowuniverse.herolib.session
 import os
 import time

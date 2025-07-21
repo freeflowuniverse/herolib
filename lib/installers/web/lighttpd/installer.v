@@ -1,13 +1,13 @@
 module lighttpd
 
 import freeflowuniverse.herolib.installers.base
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.infra.zinit
-import freeflowuniverse.herolib.osal.zinit as zinitmgmt
+import freeflowuniverse.herolib.osal.core as osal.zinit as zinitmgmt
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.screen
+import freeflowuniverse.herolib.osal.core as osal.screen
 import os
 
 // install lighttpd will return true if it was already installed

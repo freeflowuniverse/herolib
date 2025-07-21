@@ -1,7 +1,7 @@
 module screen
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core
 import os
 import time

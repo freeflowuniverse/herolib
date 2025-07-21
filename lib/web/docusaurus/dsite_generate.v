@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.pathlib
 import json
 import os
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
 import freeflowuniverse.herolib.data.doctree

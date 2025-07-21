@@ -2,8 +2,8 @@ module builder
 
 import os
 import rand
-import freeflowuniverse.herolib.osal
-import freeflowuniverse.herolib.osal.rsync
+import freeflowuniverse.herolib.osal.core as osal
+import freeflowuniverse.herolib.osal.core as osal.rsync
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.data.ipaddress
 import freeflowuniverse.herolib.ui.console

@@ -1,7 +1,7 @@
 module mdbook
 
 import freeflowuniverse.herolib.develop.vscode
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.base
 import os
 

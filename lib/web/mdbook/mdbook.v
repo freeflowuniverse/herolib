@@ -1,6 +1,6 @@
 module mdbook
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import os
 import freeflowuniverse.herolib.data.doctree.collection
 import freeflowuniverse.herolib.core.pathlib

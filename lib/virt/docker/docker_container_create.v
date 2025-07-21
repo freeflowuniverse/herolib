@@ -1,6 +1,6 @@
 module docker
 
-import freeflowuniverse.herolib.osal { exec }
+import freeflowuniverse.herolib.osal.core as osal { exec }
 import freeflowuniverse.herolib.virt.utils
 
 @[params]

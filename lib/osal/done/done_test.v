@@ -1,4 +1,4 @@
-module osal
+module done
 
 fn test_done_set() ! {
 	done_set('mykey', 'myvalue')!

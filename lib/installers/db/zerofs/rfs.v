@@ -1,6 +1,6 @@
 module rfs
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.lang.rust
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.installers.zinit

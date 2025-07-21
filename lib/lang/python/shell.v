@@ -1,6 +1,6 @@
 module python
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.texttools
 
 pub fn (py PythonEnv) shell(name_ string) ! {

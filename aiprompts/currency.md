@@ -1,1 +1,0 @@
-../lib/data/currency/readme.md

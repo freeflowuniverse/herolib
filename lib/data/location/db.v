@@ -3,7 +3,7 @@ module location
 import db.pg
 import os
 import encoding.csv
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.clients.postgresql_client
 

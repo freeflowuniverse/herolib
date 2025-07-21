@@ -2,7 +2,7 @@ module docker
 
 import freeflowuniverse.herolib.data.paramsparser { Params }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.osal { exec, file_write }
+import freeflowuniverse.herolib.osal.core as osal { exec, file_write }
 import crypto.md5
 import v.embed_file
 import os

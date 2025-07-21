@@ -1,7 +1,7 @@
 module gittools
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import os
 
 // GitRepo holds information about a single Git repository.

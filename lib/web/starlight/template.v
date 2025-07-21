@@ -1,7 +1,7 @@
 module starlight
 
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.web.bun
 import freeflowuniverse.herolib.installers.web.tailwind
 import os

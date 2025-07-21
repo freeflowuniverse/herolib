@@ -1,6 +1,6 @@
 module python
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.installers.lang.python
 import freeflowuniverse.herolib.core.texttools

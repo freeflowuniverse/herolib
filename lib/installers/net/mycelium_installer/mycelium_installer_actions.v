@@ -1,6 +1,6 @@
 module mycelium_installer
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.installers.infra.zinit_installer
 import freeflowuniverse.herolib.clients.mycelium
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.core as osal.zinit
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.rust
 import os

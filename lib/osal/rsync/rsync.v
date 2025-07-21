@@ -2,7 +2,7 @@ module rsync
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 
 @[params]
 pub struct RsyncArgs {

@@ -1,6 +1,6 @@
 module ${model.name}
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
@@ -9,8 +9,8 @@ import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.base
 
 @if model.startupmanager
-import freeflowuniverse.herolib.osal.systemd
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.core as osal.systemd
+import freeflowuniverse.herolib.osal.core as osal.zinit
 @end
 
 @if model.build

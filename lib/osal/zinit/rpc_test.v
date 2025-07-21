@@ -3,7 +3,7 @@ module zinit
 import os
 import time
 import freeflowuniverse.herolib.core
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 
 fn test_zinit() {
 	if !core.is_linux()! {

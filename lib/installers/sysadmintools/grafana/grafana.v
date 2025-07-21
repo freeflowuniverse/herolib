@@ -1,12 +1,12 @@
 module grafana
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.httpconnection
-import freeflowuniverse.herolib.osal.startupmanager
+import freeflowuniverse.herolib.osal.core as osal.startupmanager
 import os
 import time
 

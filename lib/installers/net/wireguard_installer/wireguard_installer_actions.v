@@ -1,6 +1,6 @@
 module wireguard_installer
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core

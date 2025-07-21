@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.web.siteconfig
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.data.doctree
 
 @[params]

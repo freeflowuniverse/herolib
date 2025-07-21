@@ -1,11 +1,11 @@
 module docusaurus
 
-import freeflowuniverse.herolib.osal.screen
+import freeflowuniverse.herolib.osal.core as osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.siteconfig
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import time
 

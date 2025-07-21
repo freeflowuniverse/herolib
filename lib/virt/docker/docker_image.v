@@ -1,7 +1,7 @@
 module docker
 
 import time
-import freeflowuniverse.herolib.osal { exec }
+import freeflowuniverse.herolib.osal.core as osal { exec }
 import freeflowuniverse.herolib.virt.utils
 
 @[heap]

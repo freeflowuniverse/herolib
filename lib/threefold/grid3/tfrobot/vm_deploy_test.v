@@ -1,7 +1,7 @@
 module tfrobot
 
 import os
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 
 const testdata_dir = '${os.dir(@FILE)}/testdata'
 

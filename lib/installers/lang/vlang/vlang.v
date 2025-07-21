@@ -1,6 +1,6 @@
 module vlang
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.ui.console

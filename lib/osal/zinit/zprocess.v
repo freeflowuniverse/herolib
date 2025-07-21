@@ -1,7 +1,7 @@
 module zinit
 
 import os
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.data.ourtime
 import freeflowuniverse.herolib.ui.console
 import time

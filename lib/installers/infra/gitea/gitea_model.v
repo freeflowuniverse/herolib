@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import os
 import freeflowuniverse.herolib.clients.mailclient
 import freeflowuniverse.herolib.clients.postgresql_client

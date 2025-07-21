@@ -1,6 +1,6 @@
 module s3
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.installers.zinit as zinitinstaller
 import freeflowuniverse.herolib.installers.rclone

@@ -1,6 +1,6 @@
 module playcmds
 
-import freeflowuniverse.herolib.osal.sshagent
+import freeflowuniverse.herolib.osal.core as osal.sshagent
 import freeflowuniverse.herolib.core.playbook
 
 pub fn play_ssh(mut plbook playbook.PlayBook) ! {

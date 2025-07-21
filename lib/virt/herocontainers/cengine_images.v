@@ -1,7 +1,7 @@
 module herocontainers
 
 import freeflowuniverse.herolib.virt.utils
-import freeflowuniverse.herolib.osal { exec }
+import freeflowuniverse.herolib.osal.core as osal { exec }
 import time
 import freeflowuniverse.herolib.ui.console
 

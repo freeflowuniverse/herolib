@@ -1,11 +1,11 @@
 module imagemagick
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.osal.systemd
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.core as osal.systemd
+import freeflowuniverse.herolib.osal.core as osal.zinit
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.installers.lang.rust

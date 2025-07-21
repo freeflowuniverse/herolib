@@ -2,8 +2,8 @@ module podman
 
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.core as osal.startupmanager
+import freeflowuniverse.herolib.osal.core as osal.zinit
 
 __global (
 	podman_global  map[string]&PodmanInstaller

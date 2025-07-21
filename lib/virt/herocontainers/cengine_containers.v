@@ -1,6 +1,6 @@
 module herocontainers
 
-import freeflowuniverse.herolib.osal { exec }
+import freeflowuniverse.herolib.osal.core as osal { exec }
 // import freeflowuniverse.herolib.data.ipaddress { IPAddress }
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.virt.utils

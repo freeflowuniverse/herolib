@@ -1,9 +1,9 @@
 module yggdrasil
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.screen
+import freeflowuniverse.herolib.osal.core as osal.screen
 import freeflowuniverse.herolib.ui
 import freeflowuniverse.herolib.develop.gittools
 import os

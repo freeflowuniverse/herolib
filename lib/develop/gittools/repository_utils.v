@@ -1,6 +1,6 @@
 module gittools
 
-import freeflowuniverse.herolib.osal.sshagent
+import freeflowuniverse.herolib.osal.core as osal.sshagent
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.develop.vscode

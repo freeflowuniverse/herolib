@@ -1,6 +1,6 @@
 module systemd
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 
 pub struct JournalArgs {
 pub:

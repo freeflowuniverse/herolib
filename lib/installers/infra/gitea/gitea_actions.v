@@ -1,11 +1,11 @@
 module gitea
 
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.installers.ulist
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.core as osal.zinit
 import os
 
 fn installed() !bool {

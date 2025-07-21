@@ -1,7 +1,7 @@
 module s3
 
 import freeflowuniverse.herolib.installers.lang.rust
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.ui.console
 

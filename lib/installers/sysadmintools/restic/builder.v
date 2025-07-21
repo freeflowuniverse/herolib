@@ -2,7 +2,7 @@ module restic
 
 // import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.installers.lang.golang
-import freeflowuniverse.herolib.osal
+import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.ui.console
 
