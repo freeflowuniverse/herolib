@@ -118,6 +118,14 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		return ''
 	}
 
+	if args.cmd == 'clone' {
+		if args.url.len == 0 {
+			return error('URL needs to be specified for clone operation.')
+		}
+		gs.clone(url: args.url, recursive: args.recursive)!
+		return ''
+	}
+
 	if args.cmd in 'pull,push,commit,delete'.split(',') {
 		gs.repos_print(
 			filter:   args.filter

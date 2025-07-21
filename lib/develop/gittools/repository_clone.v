@@ -7,8 +7,9 @@ import os
 pub struct GitCloneArgs {
 pub mut:
 	// only url needed because is a clone
-	url    string
-	sshkey string
+	url       string
+	sshkey    string
+	recursive bool // If true, also clone submodules
 }
 
 // Clones a new repository into the git structure based on the provided arguments.
