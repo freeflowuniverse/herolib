@@ -61,16 +61,6 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	osal.rm('${args.path}/sync.sh')!
 	osal.rm('${args.path}/.DS_Store')!
 
-	if !os.exists('${args.path}/docs') {
-		if args.init {
-			// Create docs directory if it doesn't exist in template or site
-			os.mkdir_all('${args.path}/docs')!
-			panic('implement')
-		} else {
-			return error("Can't find docs dir in chosen docusaurus location: ${args.path}")
-		}
-	}
-
 	mut myconfig := config_load(configpath)!
 
 	if myconfig.main.name.len == 0 {
