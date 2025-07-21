@@ -76,22 +76,23 @@ pub fn (mut gitstructure GitStructure) repo_new_from_gitlocation(git_location Gi
 // Commit the staged changes with the provided commit message.
 pub fn (mut repo GitRepo) commit(msg string) ! {
 	repo.status_update()!
-	if repo.need_commit()! {
-		if msg == '' {
-			return error('Commit message is empty.')
-		}
-		repo_path := repo.path()
-		repo.exec('git add . -A') or {
-			return error('Cannot add to repo: ${repo_path}. Error: ${err}')
-		}
-		repo.exec('git commit -m "${msg}"') or {
-			return error('Cannot commit repo: ${repo_path}. Error: ${err}')
-		}
-		console.print_green('Changes committed successfully.')
-		repo.load()!
-	} else {
+	if !repo.need_commit()! {
 		console.print_debug('No changes to commit.')
+		return
 	}
+
+	if msg == '' {
+		return error('Commit message is empty.')
+	}
+	repo_path := repo.path()
+	repo.exec('git add . -A') or {
+		return error('Cannot add to repo: ${repo_path}. Error: ${err}')
+	}
+	repo.exec('git commit -m "${msg}"') or {
+		return error('Cannot commit repo: ${repo_path}. Error: ${err}')
+	}
+	console.print_green('Changes committed successfully.')
+	repo.load()!
 }
 
 // Push local changes to the remote repository.
