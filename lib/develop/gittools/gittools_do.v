@@ -83,10 +83,11 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	)!
 
 	// reset the status for the repo
-	if args.reload {
+	if args.reload || args.cmd == 'reload'{
 		for mut repo in repos {
 			repo.cache_last_load_clear()!
 		}
+		gs.load(true)!
 	}
 
 	if args.cmd == 'list' {
