@@ -202,7 +202,7 @@ fn is_ignored_dir(path_ Path) !bool {
 		return error('path is not a directory')
 	}
 	name := path.name()
-	return name.starts_with('.') || name.starts_with('_')
+	return name.starts_with('.') || name.starts_with('_') || name == 'img'
 }
 
 // gets collection name from .collection file
