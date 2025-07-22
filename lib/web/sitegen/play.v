@@ -86,7 +86,7 @@ pub fn play(args_ PlayArgs) ! {
 				if !path.ends_with('/') {
 					path += '/'
 				}
-				println(' -- NEW PATH: ${path}')
+				// println(' -- NEW PATH: ${path}')
 				mypage.path = path
 			}
 		} else {

@@ -15,7 +15,7 @@ mut:
 struct ParserChar {
 mut:
 	charnr int
-	chars  string
+	runes  []rune
 	errors []ParserCharError
 }
 
@@ -25,14 +25,14 @@ fn parser_char_new_path(path string) !ParserChar {
 	}
 	mut content := os.read_file(path) or { return error('Failed to load file ${path}') }
 	return ParserChar{
-		chars:  content
+		runes:  content.runes()
 		charnr: 0
 	}
 }
 
 pub fn parser_char_new_text(text string) ParserChar {
 	return ParserChar{
-		chars:  text
+		runes:  text.runes()
 		charnr: 0
 	}
 }
@@ -53,12 +53,10 @@ fn (mut parser ParserChar) char(nr int) !string {
 	if parser.eof() {
 		return ''
 	}
-	mut c := parser.chars.substr(nr, nr + 1)
-	if c == '“' { // TODO: doesn't seem to be working, it can't because unicode chars are not 1 char, they are more than 1
-		c = '"'
-	}
-	// console.print_debug(" +++ '${c}' ${c[0]}")
-	return c
+	// V's substr operates on bytes, not runes.
+	// To get a single rune, we access the runes slice directly.
+	// The comment on line 57 was a strong hint.
+	return parser.runes[nr].str()
 }
 
 // get current char
@@ -90,10 +88,14 @@ fn (mut parser ParserChar) char_prev() string {
 // check if starting from position we are on, offset is to count further
 fn (mut parser ParserChar) text_next_is(tofind string, offset int) bool {
 	startpos := parser.charnr + offset
-	if startpos + tofind.len > parser.chars.len {
+	// Convert tofind to runes for accurate length comparison and slicing
+	tofind_runes := tofind.runes()
+	if startpos + tofind_runes.len > parser.runes.len {
 		return false
 	}
-	text := parser.chars.substr(startpos, startpos + tofind.len).replace('\n', '\\n')
+	// Extract the substring based on rune indices
+	mut text_runes := parser.runes[startpos..startpos + tofind_runes.len]
+	text := text_runes.string()
 	didfind := (text == tofind)
 	// console.print_debug(" -NT${offset}($tofind):'$text':$didfind .. ")
 	return didfind
@@ -119,7 +121,7 @@ fn (mut parser ParserChar) next() {
 
 // return true if end of file
 fn (mut parser ParserChar) eof() bool {
-	if parser.charnr > parser.chars.len - 1 {
+	if parser.charnr > parser.runes.len - 1 {
 		return true
 	}
 	return false

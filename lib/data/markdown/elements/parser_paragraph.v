@@ -1,7 +1,7 @@
 module elements
 
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.ui.console
+// import freeflowuniverse.herolib.ui.console
 
 // DO NOT CHANGE THE WAY HOW THIS WORKS, THIS HAS BEEN DONE AS A STATEFUL PARSER BY DESIGN
 // THIS ALLOWS FOR EASY ADOPTIONS TO DIFFERENT REALITIES
@@ -20,7 +20,6 @@ fn (mut paragraph Paragraph) paragraph_parse() ! {
 		mut char_ := parser.char_current()
 
 		// console.print_debug("[[[${char_}]]]")
-
 		// char == '' means end of file
 		if mut llast is Def {
 			if (char_ == '' || char_ == ' ' || char_ == '\n') && parser.char_prev() != '*' {
@@ -36,6 +35,7 @@ fn (mut paragraph Paragraph) paragraph_parse() ! {
 					char_ = ''
 					continue
 				} else {
+					println(14)
 					// means we did find a def, we can stop
 					// console.print_debug(" -- end def")
 					paragraph.text_new(mut paragraph.parent_doc(), char_)
@@ -62,12 +62,10 @@ fn (mut paragraph Paragraph) paragraph_parse() ! {
 			}
 			// console.print_debug(" -- def: ${char_}")
 		}
-
 		if parser.eof() {
 			assert char_ == ''
 			break
 		}
-
 		// check for comments end
 		if mut llast is Comment {
 			if char_ == '\n' {
@@ -141,12 +139,12 @@ fn (mut paragraph Paragraph) paragraph_parse() ! {
 
 		if mut llast is Text {
 			if char_ != '' {
-				if char_ == '*' {
-					paragraph.def_new(mut paragraph.parent_doc(), '*')
-					parser.next()
-					char_ = ''
-					continue
-				}
+				// if char_ == '*' {
+				// 	paragraph.def_new(mut paragraph.parent_doc(), '*')
+				// 	parser.next()
+				// 	char_ = ''
+				// 	continue
+				// }
 				// check for comments start
 				for totry in ['<!--', '//'] {
 					// TODO: this is a quick fix for now (https:// is being parsed as comment)

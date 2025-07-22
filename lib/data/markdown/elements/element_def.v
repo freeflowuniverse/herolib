@@ -1,5 +1,8 @@
 module elements
 
+
+//TODO: def is broken, way how we do it is bad
+
 @[heap]
 pub struct Def {
 	DocBase

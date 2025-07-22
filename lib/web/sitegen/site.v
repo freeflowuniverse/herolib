@@ -106,7 +106,7 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 
 	pagefile.write(c)!
 
-	console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
+	// console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
 
 	site.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
 		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
