@@ -47,9 +47,10 @@ pub fn rm(todelete_ string) ! {
 		}
 
 		item = item.replace('~', os.home_dir())
-		console.print_debug(' - rm: ${item}')
+		
 		if item.starts_with('/') {
 			if os.exists(item) {
+				console.print_debug(' - rm: ${item}')
 				if os.is_dir(item) {
 					if core.sudo_path_ok(item)! {
 						// console.print_debug("rm deletedir: ${item}")
