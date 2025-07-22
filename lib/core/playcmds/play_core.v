@@ -10,30 +10,30 @@ import freeflowuniverse.herolib.ui.console
 //     interactive:true
 
 pub fn play_core(mut plbook playbook.PlayBook) ! {
-	for mut action in plbook.find(filter: 'context.configure')! {
-		mut p := action.params
-		mut session := plbook.session
+	// for mut action in plbook.find(filter: 'context.configure')! {
+	// 	mut p := action.params
+	// 	mut session := plbook.session
 
-		if p.exists('interactive') {
-			session.interactive = p.get_default_false('interactive')
-		}
+	// 	if p.exists('interactive') {
+	// 		session.interactive = p.get_default_false('interactive')
+	// 	}
 
-		if p.exists('coderoot') {
-			panic('implement')
-			// mut coderoot := p.get_path_create('coderoot')!
-			// mut gs := gittools.get()!
-		}
-		action.done = true
-	}
+	// 	if p.exists('coderoot') {
+	// 		panic('implement')
+	// 		// mut coderoot := p.get_path_create('coderoot')!
+	// 		// mut gs := gittools.get()!
+	// 	}
+	// 	action.done = true
+	// }
 
-	for mut action in plbook.find(filter: 'session.')! {
-		// mut p := action.params
-		// mut session := plbook.session
+	// for mut action in plbook.find(filter: 'session.')! {
+	// 	// mut p := action.params
+	// 	// mut session := plbook.session
 
-		//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
+	// 	//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
 
-		action.done = true
-	}
+	// 	action.done = true
+	// }
 
 	for action_ in plbook.find(filter: 'play.*')! {
 		if action_.name == 'run' {

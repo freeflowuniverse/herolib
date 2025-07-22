@@ -9,15 +9,20 @@ import os
 @[params]
 struct TemplateInstallArgs {
 mut:
-	template_update bool = true
 	install         bool
-	delete          bool
+	reset           bool
+	template_update bool
 }
 
 // copy template in build location
-fn (mut self DocusaurusFactory) template_install(args_ TemplateInstallArgs) ! {
+fn (mut self DocusaurusFactory) install(args_ TemplateInstallArgs) ! {
 	mut gs := gittools.new()!
 	mut args := args_
+
+	if args.reset {
+		osal.rm('${self.path_build.path}')!
+		osal.mkdir('${self.path_build.path}')!
+	}
 
 	template_path := gs.get_path(
 		pull:  args.template_update

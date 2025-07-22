@@ -15,7 +15,6 @@ pub mut:
 	name     string
 	url      string
 	path_src pathlib.Path
-	// path_build pathlib.Path
 	path_publish pathlib.Path
 	args         DSiteGetArgs
 	errors       []SiteError

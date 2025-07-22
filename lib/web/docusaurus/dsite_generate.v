@@ -7,7 +7,7 @@ import os
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
-import freeflowuniverse.herolib.data.doctree
+// import freeflowuniverse.herolib.data.doctree
 import freeflowuniverse.herolib.web.sitegen
 
 pub fn (mut site DocSite) generate() ! {

@@ -2,11 +2,12 @@ module docusaurus
 
 import os
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.texttools
 
 @[heap]
 pub struct DocusaurusFactory {
 pub mut:
-	sites        []&DocSite @[skip; str: skip]
+	sites        map[string]&DocSite @[skip; str: skip]
 	path_build   pathlib.Path
 	path_publish pathlib.Path
 	args         DocusaurusArgs
@@ -18,8 +19,9 @@ pub struct DocusaurusArgs {
 pub mut:
 	path_publish    string
 	path_build      string
-	production      bool
-	update          bool
+	install         bool   //install required modules
+	reset           bool   //reset the full system
+	template_update bool	//update docusaurus template
 	heroscript      string
 	heroscript_path string
 }
@@ -40,11 +42,18 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 		path_publish: pathlib.get_dir(path: args_.path_publish, create: true)!
 	}
 
-	f.template_install(install: args.update, template_update: args.update)!
+	f.install(install: args.install, template_update: args.template_update, reset: args.reset)!
 
 	if args.heroscript != '' {
 		play(heroscript: args.heroscript, heroscript_path: args.heroscript_path)!
 	}
 
 	return f
+}
+
+
+// get site from the docusaurus factory
+pub fn (mut self DocusaurusFactory) site_get(name string) ! {
+	name_:=texttools.name_fix(name: name)!
+	return self.sites[name_] or {return error('site not found: ${name} in docusaurus factory.')!}
 }

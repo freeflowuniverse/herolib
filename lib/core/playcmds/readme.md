@@ -41,3 +41,9 @@ mut plbook := playbook.new(text: "....",session:s) or { panic(err) }
 
 
 ```
+
+## some core play commands
+
+```heroscript
+
+```

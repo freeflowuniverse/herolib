@@ -23,15 +23,13 @@ pub mut:
 	// more params	
 	path_publish  string // default empty
 	production    bool
-	watch_changes bool = true
-	update        bool
-	open          bool
-	init          bool // means create new one if needed
+	// update        bool
+	// init          bool // means create new one if needed
 	// deploykey     string
 	// config        ?Configuration
 }
 
-pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
+pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')
 	mut args := args_
 
@@ -74,6 +72,8 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	if args.nameshort.len == 0 {
 		args.nameshort = args.name
 	}
+	
+	args.name = texttools.name_fix(args.name)
 	args.nameshort = texttools.name_fix(args.nameshort)
 
 	if args.path_publish == '' {
@@ -85,13 +85,10 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 		reset:           args.update
 	)!
 
-	// the play will automatically do an export on ~/hero/var/doctree/main if no export specified in the heroscript
-
 	mut mysiteconfig := *siteconfig.new(configpath)!
 
 	mut ds := DocSite{
 		name: args.name
-		// url:        args.url
 		path_src:     pathlib.get_dir(path: args.path, create: false)!
 		path_publish: pathlib.get_dir(path: args.path_publish)!
 		args:         args
@@ -101,7 +98,7 @@ pub fn (mut f DocusaurusFactory) get(args_ DSiteGetArgs) !&DocSite {
 	}
 	ds.check()!
 
-	f.sites << &ds
+	f.sites[args.name] = &ds
 
 	return &ds
 }
