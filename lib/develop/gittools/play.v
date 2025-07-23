@@ -36,11 +36,10 @@ pub fn play(args_ PlayArgs) ! {
 			url: url
 			sshkey: sshkey
 			recursive: recursive
+			light: light
 		}
 		if coderoot.len > 0 {
-			gs = gittools.new(coderoot: coderoot, light: light)!
-		} else {
-			gs.config_!.light = light // Update light setting on existing gs
+			gs = gittools.new(coderoot: coderoot)!
 		}
 		gs.clone(clone_args)!
 	}
@@ -49,47 +48,92 @@ pub fn play(args_ PlayArgs) ! {
 	repo_actions := plbook.find(filter: 'git.repo_action')!
 	for action in repo_actions {
 		mut p := action.params
-		name := p.get('name')!
-		account := p.get('account')!
-		provider := p.get('provider')!
+		filter_str := p.get_default('filter', '')!
+		name := p.get_default('name', '')!
+		account := p.get_default('account', '')!
+		provider := p.get_default('provider', '')!
 		action_type := p.get('action')!
 		message := p.get_default('message', '')!
 		branchname := p.get_default('branchname', '')!
 		tagname := p.get_default('tagname', '')!
 		submodules := p.get_default_false('submodules')
+		error_ignore := p.get_default_false('error_ignore')
 
-		mut repo := gs.get_repo(name: name, account: account, provider: provider)!
+		mut repos := gs.get_repos(
+			filter: filter_str
+			name: name
+			account: account
+			provider: provider
+		)!
 
-		match action_type {
-			'pull' {
-				repo.pull(submodules: submodules)!
+		if repos.len == 0 {
+			if !error_ignore {
+				return error('No repositories found for git.repo_action with filter: ${filter_str}, name: ${name}, account: ${account}, provider: ${provider}')
 			}
-			'commit' {
-				repo.commit(message)!
-			}
-			'push' {
-				repo.push()!
-			}
-			'reset' {
-				repo.reset()!
-			}
-			'branch_create' {
-				repo.branch_create(branchname)!
-			}
-			'branch_switch' {
-				repo.branch_switch(branchname)!
-			}
-			'tag_create' {
-				repo.tag_create(tagname)!
-			}
-			'tag_switch' {
-				repo.tag_switch(tagname)!
-			}
-			'delete' {
-				repo.delete()!
-			}
-			else {
-				return error('Unknown git.repo_action: ${action_type}')
+			console.print_stderr('No repositories found for git.repo_action with filter: ${filter_str}, name: ${name}, account: ${account}, provider: ${provider}. Ignoring due to error_ignore: true.')
+			continue
+		}
+
+		for mut repo in repos {
+			match action_type {
+				'pull' {
+					repo.pull(submodules: submodules) or {
+						if !error_ignore { return error('Failed to pull repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to pull repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'commit' {
+					repo.commit(message) or {
+						if !error_ignore { return error('Failed to commit repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to commit repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'push' {
+					repo.push() or {
+						if !error_ignore { return error('Failed to push repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to push repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'reset' {
+					repo.reset() or {
+						if !error_ignore { return error('Failed to reset repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to reset repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'branch_create' {
+					repo.branch_create(branchname) or {
+						if !error_ignore { return error('Failed to create branch ${branchname} in repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to create branch ${branchname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'branch_switch' {
+					repo.branch_switch(branchname) or {
+						if !error_ignore { return error('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'tag_create' {
+					repo.tag_create(tagname) or {
+						if !error_ignore { return error('Failed to create tag ${tagname} in repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to create tag ${tagname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'tag_switch' {
+					repo.tag_switch(tagname) or {
+						if !error_ignore { return error('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				'delete' {
+					repo.delete() or {
+						if !error_ignore { return error('Failed to delete repo ${repo.name}: ${err}') }
+						console.print_stderr('Failed to delete repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
+					}
+				}
+				else {
+					if !error_ignore { return error('Unknown git.repo_action: ${action_type}') }
+					console.print_stderr('Unknown git.repo_action: ${action_type}. Ignoring due to error_ignore: true.')
+				}
 			}
 		}
 	}

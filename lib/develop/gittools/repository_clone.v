@@ -10,6 +10,7 @@ pub mut:
 	url       string
 	sshkey    string
 	recursive bool // If true, also clone submodules
+	light     bool // If true, clones only the last history for all branches (clone with only 1 level deep)
 }
 
 // Clones a new repository into the git structure based on the provided arguments.
@@ -38,10 +39,8 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 
 	parent_dir := repo.get_parent_dir(create: true)!
 
-	cfg := gitstructure.config()!
-
 	mut extra := ''
-	if cfg.light {
+	if args.light {
 		extra = '--depth 1 --no-single-branch '
 	}
 
