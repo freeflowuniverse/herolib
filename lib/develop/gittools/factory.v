@@ -3,10 +3,31 @@ module gittools
 import os
 import json
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.gitresolver
 
 __global (
 	gsinstances map[string]&GitStructure
 )
+
+// GitToolsResolver implements the GitUrlResolver interface
+struct GitToolsResolver {}
+
+// get_repo_path implements the GitUrlResolver interface
+pub fn (resolver GitToolsResolver) get_repo_path(url string, pull bool, reset bool) !string {
+	mut gs := get()!
+	mut repo := gs.get_repo(
+		url:   url
+		pull:  pull
+		reset: reset
+	)!
+	return repo.path()
+}
+
+// init function to register the resolver when the module is imported
+fn init() {
+	resolver := GitToolsResolver{}
+	gitresolver.register_resolver(resolver)
+}
 
 pub fn reset() {
 	gsinstances = map[string]&GitStructure{} // they key is the redis_key (hash of coderoot)

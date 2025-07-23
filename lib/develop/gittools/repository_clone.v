@@ -48,6 +48,7 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 	mut cmd := 'cd ${parent_dir} && git clone ${extra} ${repo.get_repo_url_for_clone()!} ${repo.name}'
 
 	mut sshkey_include := ''
+	cfg := gitstructure.config()!
 	if cfg.ssh_key_path.len > 0 {
 		sshkey_include = "GIT_SSH_COMMAND=\"ssh -i ${cfg.ssh_key_path}\" "
 		cmd = 'cd ${parent_dir} && ${sshkey_include}git clone ${extra} ${repo.get_ssh_url()!} ${repo.name}'

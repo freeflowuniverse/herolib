@@ -2,7 +2,6 @@ module gittools
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.develop.gittools
 
 @[params]
 pub struct PlayArgs {
@@ -19,8 +18,31 @@ pub fn play(args_ PlayArgs) ! {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
 
-	// Initialize GitStructure
-	mut gs := gittools.new()!
+	// Handle !!git.define action first to configure GitStructure
+	define_actions := plbook.find(filter: 'git.define')!
+	mut gs := if define_actions.len > 0 {
+		mut p := define_actions[0].params
+		coderoot := p.get_default('coderoot', '')!
+		light := p.get_default_true('light')
+		log := p.get_default_true('log')
+		debug := p.get_default_false('debug')
+		offline := p.get_default_false('offline')
+		ssh_key_path := p.get_default('ssh_key_path', '')!
+		reload := p.get_default_false('reload')
+
+		new(
+			coderoot:     coderoot
+			light:        light
+			log:          log
+			debug:        debug
+			offline:      offline
+			ssh_key_path: ssh_key_path
+			reload:       reload
+		)!
+	} else {
+		// Initialize GitStructure with defaults
+		new()!
+	}
 
 	// Handle !!git.clone action
 	clone_actions := plbook.find(filter: 'git.clone')!
@@ -32,14 +54,14 @@ pub fn play(args_ PlayArgs) ! {
 		light := p.get_default_true('light')
 		recursive := p.get_default_false('recursive')
 
-		mut clone_args := gittools.GitCloneArgs{
-			url: url
-			sshkey: sshkey
+		mut clone_args := GitCloneArgs{
+			url:       url
+			sshkey:    sshkey
 			recursive: recursive
-			light: light
+			light:     light
 		}
 		if coderoot.len > 0 {
-			gs = gittools.new(coderoot: coderoot)!
+			gs = new(coderoot: coderoot)!
 		}
 		gs.clone(clone_args)!
 	}
@@ -60,9 +82,9 @@ pub fn play(args_ PlayArgs) ! {
 		error_ignore := p.get_default_false('error_ignore')
 
 		mut repos := gs.get_repos(
-			filter: filter_str
-			name: name
-			account: account
+			filter:   filter_str
+			name:     name
+			account:  account
 			provider: provider
 		)!
 
@@ -78,60 +100,80 @@ pub fn play(args_ PlayArgs) ! {
 			match action_type {
 				'pull' {
 					repo.pull(submodules: submodules) or {
-						if !error_ignore { return error('Failed to pull repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to pull repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to pull repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'commit' {
 					repo.commit(message) or {
-						if !error_ignore { return error('Failed to commit repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to commit repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to commit repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'push' {
 					repo.push() or {
-						if !error_ignore { return error('Failed to push repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to push repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to push repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'reset' {
 					repo.reset() or {
-						if !error_ignore { return error('Failed to reset repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to reset repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to reset repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'branch_create' {
 					repo.branch_create(branchname) or {
-						if !error_ignore { return error('Failed to create branch ${branchname} in repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to create branch ${branchname} in repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to create branch ${branchname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'branch_switch' {
 					repo.branch_switch(branchname) or {
-						if !error_ignore { return error('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'tag_create' {
 					repo.tag_create(tagname) or {
-						if !error_ignore { return error('Failed to create tag ${tagname} in repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to create tag ${tagname} in repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to create tag ${tagname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'tag_switch' {
 					repo.tag_switch(tagname) or {
-						if !error_ignore { return error('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				'delete' {
 					repo.delete() or {
-						if !error_ignore { return error('Failed to delete repo ${repo.name}: ${err}') }
+						if !error_ignore {
+							return error('Failed to delete repo ${repo.name}: ${err}')
+						}
 						console.print_stderr('Failed to delete repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
 					}
 				}
 				else {
-					if !error_ignore { return error('Unknown git.repo_action: ${action_type}') }
+					if !error_ignore {
+						return error('Unknown git.repo_action: ${action_type}')
+					}
 					console.print_stderr('Unknown git.repo_action: ${action_type}. Ignoring due to error_ignore: true.')
 				}
 			}
@@ -149,10 +191,10 @@ pub fn play(args_ PlayArgs) ! {
 		status_update := p.get_default_false('status_update')
 
 		gs.repos_print(
-			filter: filter_str
-			name: name
-			account: account
-			provider: provider
+			filter:        filter_str
+			name:          name
+			account:       account
+			provider:      provider
 			status_update: status_update
 		)!
 	}
@@ -163,7 +205,7 @@ pub fn play(args_ PlayArgs) ! {
 		mut p := action.params
 		coderoot := p.get_default('coderoot', '')!
 		if coderoot.len > 0 {
-			gs = gittools.new(coderoot: coderoot)!
+			gs = new(coderoot: coderoot)!
 		}
 		gs.load(true)! // Force reload
 	}

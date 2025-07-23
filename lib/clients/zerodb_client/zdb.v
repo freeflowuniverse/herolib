@@ -19,7 +19,6 @@ pub fn get(addr string, auth string, namespace string) !ZDB {
 		redis: redis
 	}
 
-	println('Here..')
 	if auth != '' {
 		zdb.redis.send_expect_ok(['AUTH', auth])!
 	}

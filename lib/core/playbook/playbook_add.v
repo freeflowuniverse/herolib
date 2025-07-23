@@ -3,8 +3,8 @@ module playbook
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.gitresolver
 // import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.develop.gittools
 // import freeflowuniverse.herolib.ui.console
 
 enum State {
@@ -18,13 +18,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 	mut args := args_
 
 	if args.git_url.len > 0 {
-		mut gs := gittools.get()!
-		mut repo := gs.get_repo(
-			url:   args.git_url
-			pull:  args.git_pull
-			reset: args.git_reset
-		)!
-		args.path = repo.path()
+		args.path = gitresolver.resolve_git_url(args.git_url, args.git_pull, args.git_reset)!
 	}
 
 	// walk over directory
