@@ -23,6 +23,23 @@ pub mut:
 	factory      &DocusaurusFactory @[skip; str: skip] // Reference to the parent
 }
 
+@[params]
+pub struct DSiteGetArgs {
+pub mut:
+	name         string
+	nameshort    string
+	path         string
+	git_url      string
+	git_reset    bool
+	git_root     string
+	git_pull     bool
+	open         bool // Added
+	watch_changes bool // Added
+	path_publish string // Added
+	init         bool // Added
+	update       bool // Added (maps to template_update in DocusaurusArgs)
+}
+
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
 	osal.exec(

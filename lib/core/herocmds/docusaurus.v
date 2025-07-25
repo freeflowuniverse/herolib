@@ -155,7 +155,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
 	mut docs := docusaurus.new(
-		update:          update
+		template_update: update // Changed 'update' to 'template_update'
 		path_build:      build_path
 		heroscript_path: heroscript_config_dir // Pass the directory path
 	)!

@@ -31,7 +31,7 @@ pub fn play(args_ PlayArgs) ! {
 		ssh_key_path := p.get_default('ssh_key_path', '')!
 		reload := p.get_default_false('reload')
 
-		new(
+		gittools.new( // Changed to gittools.new
 			coderoot:     coderoot
 			light:        light
 			log:          log
@@ -42,7 +42,7 @@ pub fn play(args_ PlayArgs) ! {
 		)!
 	} else {
 		// Initialize GitStructure with defaults
-		new()!
+		gittools.get(gittools.GitStructureArgGet{})! // Changed to gittools.get with default args
 	}
 
 	// Handle !!git.clone action
@@ -55,14 +55,14 @@ pub fn play(args_ PlayArgs) ! {
 		light := p.get_default_true('light')
 		recursive := p.get_default_false('recursive')
 
-		mut clone_args := GitCloneArgs{
+		mut clone_args := gittools.GitCloneArgs{ // Changed to gittools.GitCloneArgs
 			url:       url
 			sshkey:    sshkey
 			recursive: recursive
 			light:     light
 		}
 		if coderoot.len > 0 {
-			gs = new(coderoot: coderoot)!
+			gs = gittools.new(coderoot: coderoot)! // Changed to gittools.new
 		}
 		gs.clone(clone_args)!
 	}
@@ -100,76 +100,31 @@ pub fn play(args_ PlayArgs) ! {
 		for mut repo in repos {
 			match action_type {
 				'pull' {
-					repo.pull(submodules: submodules) or {
-						if !error_ignore {
-							return error('Failed to pull repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to pull repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.pull(submodules: submodules)
 				}
 				'commit' {
-					repo.commit(message) or {
-						if !error_ignore {
-							return error('Failed to commit repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to commit repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.commit(message)
 				}
 				'push' {
-					repo.push() or {
-						if !error_ignore {
-							return error('Failed to push repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to push repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.push()
 				}
 				'reset' {
-					repo.reset() or {
-						if !error_ignore {
-							return error('Failed to reset repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to reset repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.reset()
 				}
 				'branch_create' {
-					repo.branch_create(branchname) or {
-						if !error_ignore {
-							return error('Failed to create branch ${branchname} in repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to create branch ${branchname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.branch_create(branchname)
 				}
 				'branch_switch' {
-					repo.branch_switch(branchname) or {
-						if !error_ignore {
-							return error('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to switch branch to ${branchname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.branch_switch(branchname)
 				}
 				'tag_create' {
-					repo.tag_create(tagname) or {
-						if !error_ignore {
-							return error('Failed to create tag ${tagname} in repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to create tag ${tagname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.tag_create(tagname)
 				}
 				'tag_switch' {
-					repo.tag_switch(tagname) or {
-						if !error_ignore {
-							return error('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to switch tag to ${tagname} in repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.tag_switch(tagname)
 				}
 				'delete' {
-					repo.delete() or {
-						if !error_ignore {
-							return error('Failed to delete repo ${repo.name}: ${err}')
-						}
-						console.print_stderr('Failed to delete repo ${repo.name}: ${err}. Ignoring due to error_ignore: true.')
-					}
+					repo.delete()
 				}
 				else {
 					if !error_ignore {
@@ -197,7 +152,7 @@ pub fn play(args_ PlayArgs) ! {
 			account:       account
 			provider:      provider
 			status_update: status_update
-		)!
+		)
 	}
 
 	// Handle !!git.reload_cache
@@ -206,8 +161,8 @@ pub fn play(args_ PlayArgs) ! {
 		mut p := action.params
 		coderoot := p.get_default('coderoot', '')!
 		if coderoot.len > 0 {
-			gs = new(coderoot: coderoot)!
+			gs = gittools.new(coderoot: coderoot)!
 		}
-		gs.load(true)! // Force reload
+		gs.load(true) // Force reload
 	}
 }

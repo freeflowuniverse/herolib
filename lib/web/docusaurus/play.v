@@ -20,7 +20,7 @@ pub fn play(args_ PlayArgs) ! {
 
 	mut ds := new()!
 
-	if plbook.if_once(filter: 'docusaurus.define') or {return error("docusarus.define should be there 0 or 1 time.\n${args}")!} {
+	if plbook.exists_once(filter: 'docusaurus.define') { // Changed if_once to exists_once and removed or block
 		mut action := plbook.action_get(actor: 'docusaurus', name: 'define')!
 
 		mut p := action.params

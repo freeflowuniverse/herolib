@@ -53,7 +53,7 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 
 
 // get site from the docusaurus factory
-pub fn (mut self DocusaurusFactory) site_get(name string) ! {
-	name_:=texttools.name_fix(name: name)!
-	return self.sites[name_] or {return error('site not found: ${name} in docusaurus factory.')!}
+pub fn (mut self DocusaurusFactory) site_get(name string) !&DocSite { // Changed return type to !&DocSite
+	name_:=texttools.name_fix(name: name) // Removed !
+	return self.sites[name_] or {return error('site not found: ${name} in docusaurus factory.') } // Removed ! from error()
 }
