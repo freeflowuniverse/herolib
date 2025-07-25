@@ -9,25 +9,6 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.data.doctree
 
-@[params]
-pub struct DSiteGetArgs {
-pub mut:
-	name      string
-	nameshort string
-	// gittools will use these params to find the right path
-	path      string
-	git_url   string
-	git_reset bool
-	git_root  string
-	git_pull  bool
-	// more params	
-	path_publish  string // default empty
-	production    bool
-	// update        bool
-	// init          bool // means create new one if needed
-	// deploykey     string
-	// config        ?Configuration
-}
 
 pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')

@@ -44,16 +44,12 @@ pub fn new(args_ DocusaurusArgs) !&DocusaurusFactory {
 
 	f.install(install: args.install, template_update: args.template_update, reset: args.reset)!
 
-	if args.heroscript != '' {
-		play(heroscript: args.heroscript, heroscript_path: args.heroscript_path)!
-	}
-
 	return f
 }
 
 
 // get site from the docusaurus factory
 pub fn (mut self DocusaurusFactory) site_get(name string) !&DocSite { // Changed return type to !&DocSite
-	name_:=texttools.name_fix(name: name) // Removed !
+	name_:=texttools.name_fix(name) // Removed !
 	return self.sites[name_] or {return error('site not found: ${name} in docusaurus factory.') } // Removed ! from error()
 }

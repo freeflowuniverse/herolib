@@ -160,7 +160,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		heroscript_path: heroscript_config_dir // Pass the directory path
 	)!
 
-	mut site := docs.get(
+	mut site := docs.add(
 		git_url:      url // Map CLI 'url' flag to DSiteGetArgs 'git_url'
 		update:       update
 		path_publish: publish_path // Map CLI 'publish' flag to DSiteGetArgs 'path_publish'

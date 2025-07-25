@@ -21,7 +21,7 @@ fn (mut self DocusaurusFactory) install(args_ TemplateInstallArgs) ! {
 
 	if args.reset {
 		osal.rm('${self.path_build.path}')!
-		osal.mkdir_all('${self.path_build.path}')! // Changed mkdir to mkdir_all
+		osal.dir_ensure('${self.path_build.path}')!
 	}
 
 	template_path := gs.get_path(
