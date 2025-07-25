@@ -3,7 +3,6 @@ module playbook
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.gitresolver
 // import freeflowuniverse.herolib.core.base
 // import freeflowuniverse.herolib.ui.console
 

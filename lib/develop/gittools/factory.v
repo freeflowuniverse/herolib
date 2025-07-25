@@ -3,7 +3,6 @@ module gittools
 import os
 import json
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.gitresolver
 
 __global (
 	gsinstances map[string]&GitStructure
