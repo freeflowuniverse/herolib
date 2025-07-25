@@ -40,6 +40,24 @@
     // This is a simplified representation
     // Actual implementation would need precise month:amount pairs
 
+
+!!bizmodel.costcenter_define bizname:'test' name:'marketing_cc'
+    descr:'Marketing Cost Center'
+    department:'marketing'
+
+!!bizmodel.cost_define bizname:'test' name:'office_rent'
+    descr:'Office Rent'
+    cost:'8000USD'
+    indexation:'3%'
+    costcenter:'marketing_cc'
+    cost_percent_revenue:'0.5%'
+
+!!bizmodel.cost_define bizname:'test' name:'triptomoon'
+    descr:'Office Rent'
+    cost:'10:500000USD' extrapolate:0 //this means we do a one off cost in this case month 11
+    costcenter:'marketing_cc'
+
+
 // Define travel cost at 3% of revenue
 !!bizmodel.cost_define bizname:'threefold' name:'travel_cost'
     descr:'Travel Expenses'

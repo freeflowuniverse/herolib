@@ -84,7 +84,12 @@ pub fn (mut m BizModel) export_overview_action(action Action) !Action {
 }
 
 fn (mut m BizModel) new_report_action(action Action) !Action {
-	m.new_report(action.params.decode[Report]()!)!
+	mut p:=action.params
+	path := p.get_default('path', '')!
+	name := p.get_default('name', '')!
+	title := p.get_default('title', '')!
+	description := p.get_default('description', '')!
+	m.export_all(path:path,name:name,title:title,description:description)!
 	return action
 }
 

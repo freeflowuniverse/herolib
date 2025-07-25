@@ -6,14 +6,21 @@ import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.core.playcmds
 import os
 
-// TODO: need to fix wrong location
-const playbook_path = os.dir(@FILE) + '/playbook'
-const build_path = os.join_path(os.dir(@FILE), '/docusaurus')
+// heroscript := os.join_path(os.dir(@FILE), 'examples/full')
+// // Execute the script and print results
+// bizmodel.play(heroscript_path:heroscript)!
+
+heroscript := os.join_path(os.dir(@FILE), 'examples/complete.heroscript')
+// Execute the script and print results
+bizmodel.play(heroscript_path:heroscript)!
+
+
+mut bm := bizmodel.get("threefold")!
+bm.sheet.pprint(nr_columns: 25)!
 
 buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
+println("buildpath: ${buildpath}")
 
-mut model := bizmodel.getset('example')!
-model.workdir = build_path
 model.play(mut playbook.new(path: playbook_path)!)!
 
 println(model.sheet)
