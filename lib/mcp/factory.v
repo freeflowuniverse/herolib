@@ -1,23 +1,34 @@
 module mcp
 
-import time
-import os
-import log
-import x.json2
 import freeflowuniverse.herolib.schemas.jsonrpc
+import freeflowuniverse.herolib.mcp.transport
 
 @[params]
 pub struct ServerParams {
 pub:
-	handlers map[string]jsonrpc.ProcedureHandler
-	config   ServerConfiguration
+	handlers  map[string]jsonrpc.ProcedureHandler
+	config    ServerConfiguration
+	transport transport.TransportConfig = transport.TransportConfig{
+		mode: .stdio
+	}
 }
 
 // new_server creates a new MCP server
 pub fn new_server(backend Backend, params ServerParams) !&Server {
+	// Create the appropriate transport based on configuration
+	transport_impl := match params.transport.mode {
+		.stdio {
+			transport.new_stdio_transport()
+		}
+		.http {
+			transport.new_http_transport(params.transport.http)
+		}
+	}
+
 	mut server := &Server{
 		ServerConfiguration: params.config
 		backend:             backend
+		transport:           transport_impl
 	}
 
 	// Create a handler with the core MCP procedures registered
