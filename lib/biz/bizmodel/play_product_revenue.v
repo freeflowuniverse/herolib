@@ -43,7 +43,7 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		name:        '${r.name}_cogs_param'
 		growth:      action.params.get_default('cogs', '0:0')!
 		tags:        'name:${r.name}'
-		descr:       'COGS for ${r.name}'
+		descr:       'COGS Param for ${r.name}'
 		extrapolate: action.params.get_default_false('extrapolate')
 	)!
 
@@ -70,6 +70,7 @@ fn (mut m BizModel) revenue_action(action Action) !Action {
 		rows:   [cogs_percent_temp]
 		name:   '${r.name}_cogs'
 		tags:   'cogs name:${r.name}'
+		descr:  'COGS for ${r.name}'
 	)!
 
 	if revenue.max() > 0 {

@@ -14,7 +14,7 @@ pub mut:
 	path        string
 }
 
-pub fn (b BizModel) export_all(args ExportArgs) ! {
+pub fn (b BizModel) export(args ExportArgs) ! {
 	name := if args.name != '' { args.name } else { texttools.snake_case(args.title) }
 	path := pathlib.get_dir(
 		path:   os.join_path(os.home_dir(), '/hero/var/bizmodel/exports/${name}')

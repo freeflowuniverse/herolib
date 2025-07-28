@@ -3,6 +3,7 @@
 !!bizmodel.department_define bizname:'threefold' name:'operations' descr:'Operations Department'
 !!bizmodel.department_define bizname:'threefold' name:'sales' descr:'Sales Department'
 !!bizmodel.department_define bizname:'threefold' name:'admin' descr:'Administrative Department'
+!!bizmodel.department_define bizname:'threefold' name:'marketing' descr:'Marketing Department'
 
 // Define engineering team with 10 people growing 10%/year (max 20)
 !!bizmodel.employee_define bizname:'threefold' name:'engineering_team' descr:'Engineering Team'
@@ -53,7 +54,7 @@
     cost_percent_revenue:'0.5%'
 
 !!bizmodel.cost_define bizname:'test' name:'triptomoon'
-    descr:'Office Rent'
+    descr:'Planet Rental We are crazy'
     cost:'10:500000USD' extrapolate:0 //this means we do a one off cost in this case month 11
     costcenter:'marketing_cc'
 

@@ -89,7 +89,7 @@ fn (mut m BizModel) new_report_action(action Action) !Action {
 	name := p.get_default('name', '')!
 	title := p.get_default('title', '')!
 	description := p.get_default('description', '')!
-	m.export_all(path:path,name:name,title:title,description:description)!
+	m.export(path:path,name:name,title:title,description:description)!
 	return action
 }
 

@@ -18,24 +18,19 @@ bizmodel.play(heroscript_path:heroscript)!
 mut bm := bizmodel.get("threefold")!
 bm.sheet.pprint(nr_columns: 25)!
 
-buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
-println("buildpath: ${buildpath}")
+// buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
+// println("buildpath: ${buildpath}")
 
-model.play(mut playbook.new(path: playbook_path)!)!
+// model.play(mut playbook.new(path: playbook_path)!)!
 
-println(model.sheet)
-println(model.sheet.export()!)
+// println(model.sheet)
+// println(model.sheet.export()!)
 
 // model.sheet.export(path:"~/Downloads/test.csv")!
 // model.sheet.export(path:"~/code/github/freeflowuniverse/starlight_template/src/content/test.csv")!
 
-report := model.new_report(
+bm.export(
 	name:  'example_report'
 	title: 'Example Business Model'
-)!
-
-report.export(
-	path:      build_path
-	overwrite: true
-	format:    .docusaurus
+	path: '/tmp/bizmodel_export'
 )!
