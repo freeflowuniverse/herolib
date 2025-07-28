@@ -39,6 +39,9 @@
 
 @{model.sheet.wiki(title:'P&L Overview', includefilter:['pl']) or {panic(err)}}
 
+@{model.sheet.wiki(title:'P&L Result', includefilter:['summary']) or {panic(err)}}
+
+
 @{model.sheet.bar_chart(rowname:'revenue_total', unit: .million, title:'Total Revenue', title_sub:'Sub') or {panic(err)}.mdx()}
 
 Unit is in Million USD.
@@ -47,8 +50,8 @@ Unit is in Million USD.
 
 @{model.sheet.pie_chart(rowname:'revenue_total', unit: .million, size:'80%') or {panic(err)}.mdx()}
 
-## Some Details
+<!-- ## Some Details
 
 > show how we can do per month
 
-@{model.sheet.wiki(includefilter:['pl'], period_type:.month) or {panic(err)}}
+@{model.sheet.wiki(includefilter:['pl'], period_type:.month) or {panic(err)}} -->

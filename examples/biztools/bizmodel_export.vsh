@@ -16,7 +16,7 @@ bizmodel.play(heroscript_path:heroscript)!
 
 
 mut bm := bizmodel.get("threefold")!
-bm.sheet.pprint(nr_columns: 25)!
+bm.sheet.pprint(nr_columns: 10)!
 
 // buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
 // println("buildpath: ${buildpath}")

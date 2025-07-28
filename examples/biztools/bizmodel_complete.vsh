@@ -9,4 +9,4 @@ heroscript := os.join_path(os.dir(@FILE), 'examples/complete.heroscript')
 // Execute the script and print results
 bizmodel.play(heroscript_path:heroscript)!
 mut bm := bizmodel.get("threefold")!
-bm.sheet.pprint(nr_columns: 25)!
+bm.sheet.pprint(nr_columns: 10)!

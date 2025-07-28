@@ -57,6 +57,9 @@ pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 	m.hrcost_total()!
 	m.funding_total()!
 	m.cost_total()!
+	m.pl_total()!
+
+	// m.sheet.pprint(nr_columns: 10)!
 
 
 	for action in actions.filter(it.name in action_priorities[3]) {

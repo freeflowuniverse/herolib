@@ -32,7 +32,13 @@
 
 @{bizmodel.sheet.wiki(title:'P&L Overview', includefilter:'pl')!}
 
+### result
+
+@{bizmodel.sheet.wiki(title:'P&L Result', includefilter:'summary')!}
+
+
 @{bizmodel.graph_bar_row(rowname:'revenue_total', unit:'million', title:'A Title', title_sub:'Sub')!}
+
 
 Unit is in Million USD.
 
@@ -42,8 +48,9 @@ Unit is in Million USD.
 
 @{bizmodel.graph_pie_row(rowname:'revenue_total', unit:'million', size:'80%')!}
 
-## Some Details
+
+<!-- ## Some Details
 
 > show how we can do per month
 
-@{bizmodel.sheet_wiki(includefilter:'pl', period_months:1)!}
+@{bizmodel.sheet_wiki(includefilter:'pl', period_months:1)!} -->
