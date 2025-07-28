@@ -3,30 +3,33 @@ module gittools
 import os
 import json
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.gitresolver
 
 __global (
 	gsinstances map[string]&GitStructure
 )
 
-// GitToolsResolver implements the GitUrlResolver interface
-struct GitToolsResolver {}
 
-// get_repo_path implements the GitUrlResolver interface
-pub fn (resolver GitToolsResolver) get_repo_path(url string, pull bool, reset bool) !string {
-	mut gs := get()!
-	mut repo := gs.get_repo(
-		url:   url
-		pull:  pull
-		reset: reset
-	)!
-	return repo.path()
+@[params]
+pub struct GetRepoArgs{
+pub mut:
+	path string //if used will check if path exists if yes, just return
+	git_url string
+	git_pull bool
+	git_reset bool
 }
 
-// init function to register the resolver when the module is imported
-fn init() {
-	resolver := GitToolsResolver{}
-	gitresolver.register_resolver(resolver)
+// get_repo_path implements the GitUrlResolver interface
+pub fn  get_repo_path(args GetRepoArgs) !string {
+	if os.exists(args.path){
+		return args.path
+	}
+	mut gs := get()!
+	mut repo := gs.get_repo(
+		url:  args.git_url
+		pull:  args.git_pull
+		reset: args.git_reset
+	)!
+	return repo.path()
 }
 
 pub fn reset() {

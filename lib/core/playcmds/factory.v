@@ -12,6 +12,7 @@ import freeflowuniverse.herolib.threefold.grid4.farmingsimulator
 // import freeflowuniverse.herolib.web.components.slides
 // import freeflowuniverse.herolib.installers.base as base_install
 // import freeflowuniverse.herolib.installers.infra.coredns
+import freeflowuniverse.herolib.data.doctree
 
 pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 	if dagu {
@@ -21,7 +22,7 @@ pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 
 	play_core(mut plbook)!
 	play_ssh(mut plbook)!
-	play_git(mut plbook)!
+	// play_git.play(mut plbook)! // Changed to play_git.play
 	// play_publisher(mut plbook)!
 	// play_zola(mut plbook)!
 	// play_caddy(mut plbook)!
@@ -33,6 +34,8 @@ pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
 	farmingsimulator.play(mut plbook)!
 	gridsimulator.play(mut plbook)!
 	bizmodel.play(plbook:*plbook)!
+	doctree.play(plbook:*plbook)!
+	
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!
 	// coredns.play(mut plbook)!

@@ -50,7 +50,7 @@ fn (mut m BizModel) employee_define_action(action Action) !Action {
 		name:     'hr_cost_${name}'
 		growth:   cost
 		tags:     'department:${department} hrcost'
-		descr:    'Department ${department} Cost For Person ${name}'
+		descr:    '${descr} Cost'
 		subgroup: 'HR cost per department.'
 	)!
 
@@ -61,7 +61,7 @@ fn (mut m BizModel) employee_define_action(action Action) !Action {
 		name:          'hr_nrpeople_${name}'
 		growth:        nrpeople
 		tags:          'hrnr'
-		descr:         '# people for ${descr}'
+		descr:         '${descr} Nr of People'
 		aggregatetype: .avg
 	)!
 	costpeople_row = costpeople_row.action(action: .multiply, rows: [nrpeople_row])!
@@ -100,4 +100,14 @@ fn (mut m BizModel) employee_define_action(action Action) !Action {
 		m.employees[name] = &employee
 	}
 	return action
+}
+
+
+fn (mut sim BizModel) hrcost_total() ! {
+	sim.sheet.group2row(
+		name:    'hr_cost_total'
+		include: ['hrcost']
+		tags:    'pl'
+		descr:   'Human Resources Costs Total'
+	)!
 }

@@ -43,6 +43,6 @@ fn (mut sim BizModel) funding_total() ! {
 		name:    'funding_total'
 		include: ['funding']
 		tags:    'pl'
-		descr:   'Total funding'
+		descr:   'Funding Total'
 	)!
 }

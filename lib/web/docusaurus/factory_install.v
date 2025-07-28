@@ -21,18 +21,18 @@ fn (mut self DocusaurusFactory) install(args_ TemplateInstallArgs) ! {
 
 	if args.reset {
 		osal.rm('${self.path_build.path}')!
-		osal.mkdir('${self.path_build.path}')!
+		osal.dir_ensure('${self.path_build.path}')!
 	}
 
 	template_path := gs.get_path(
 		pull:  args.template_update
-		reset: args.delete
+		reset: args.reset // Changed args.delete to args.reset
 		url:   'https://github.com/freeflowuniverse/docusaurus_template/src/branch/main/template'
 	)!
 
 	mut template_path0 := pathlib.get_dir(path: template_path, create: false)!
 
-	template_path0.copy(dest: '${self.path_build.path}', delete: args.delete)!
+	template_path0.copy(dest: '${self.path_build.path}', delete: args.reset)! // Changed args.delete to args.reset
 
 	if !os.exists('${self.path_build.path}/node_modules') {
 		args.install = true

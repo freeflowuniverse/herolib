@@ -49,7 +49,7 @@ fn (mut m BizModel) cost_define_action(action Action) !Action {
 	mut cost_row := m.sheet.row_new(
 		name:        'cost_${name}'
 		growth:      cost
-		tags:        'department:${department} cost'
+		tags:        'department:${department} ocost'
 		descr:       descr
 		extrapolate: action.params.get_default_true('extrapolate')
 	)!
@@ -73,11 +73,14 @@ fn (mut m BizModel) cost_define_action(action Action) !Action {
 	return action
 }
 
+
+
+
 fn (mut sim BizModel) cost_total() ! {
 	sim.sheet.group2row(
-		name:    'hr_cost_total'
-		include: ['hrcost']
+		name:    'cost_total'
+		include: ['ocost']
 		tags:    'pl'
-		descr:   'total cost for hr'
+		descr:   'Operational Costs Total.'
 	)!
 }
