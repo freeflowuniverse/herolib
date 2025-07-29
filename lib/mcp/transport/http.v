@@ -1,7 +1,9 @@
 module transport
 
 import veb
+import veb.sse
 import log
+import time
 import freeflowuniverse.herolib.schemas.jsonrpc
 
 // HttpTransport implements the Transport interface for HTTP communication.
@@ -178,6 +180,75 @@ pub fn (mut app HttpApp) list_resources(mut ctx Context) veb.Result {
 	ctx.set_custom_header('Access-Control-Allow-Origin', '*') or {}
 	ctx.set_content_type('application/json')
 	return ctx.text(result)
+}
+
+// SSE endpoint for streaming MCP communication
+@['/sse'; get]
+pub fn (mut app HttpApp) handle_sse(mut ctx Context) veb.Result {
+	// Set CORS headers
+	ctx.set_custom_header('Access-Control-Allow-Origin', '*') or {}
+	ctx.set_custom_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS') or {}
+	ctx.set_custom_header('Access-Control-Allow-Headers', 'Content-Type, Authorization') or {}
+
+	// Take over the connection for SSE
+	ctx.takeover_conn()
+
+	// Handle SSE connection in a separate thread
+	spawn handle_sse_connection(mut ctx, app.transport.handler)
+
+	return veb.no_result()
+}
+
+// Handle SSE connection for MCP communication
+fn handle_sse_connection(mut ctx Context, handler &jsonrpc.Handler) {
+	mut sse_conn := sse.start_connection(mut ctx.Context)
+
+	log.info('SSE connection established for MCP')
+
+	// Keep connection alive with periodic messages
+	for {
+		// Send server capabilities periodically
+		capabilities_msg := '{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabilities":{"logging":{},"prompts":{"listChanged":true},"resources":{"subscribe":true,"listChanged":true},"tools":{"listChanged":true}},"serverInfo":{"name":"inspector_example","version":"1.0.0"}}}'
+
+		sse_conn.send_message(
+			event: 'capabilities'
+			data:  capabilities_msg
+		) or {
+			log.info('SSE connection closed during capabilities send')
+			break
+		}
+
+		time.sleep(2 * time.second)
+
+		// Send tools list
+		tools_response := handler.handle('{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}') or {
+			log.error('Failed to get tools list: ${err}')
+			continue
+		}
+
+		sse_conn.send_message(
+			event: 'tools'
+			data:  tools_response
+		) or {
+			log.info('SSE connection closed during tools send')
+			break
+		}
+
+		time.sleep(3 * time.second)
+
+		// Send keepalive ping
+		sse_conn.send_message(
+			event: 'ping'
+			data:  '{"status":"alive"}'
+		) or {
+			log.info('SSE connection closed during ping')
+			break
+		}
+
+		time.sleep(5 * time.second)
+	}
+
+	sse_conn.close()
 }
 
 // Helper function to extract result from JSON-RPC response
