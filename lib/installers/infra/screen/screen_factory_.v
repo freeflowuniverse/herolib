@@ -1,6 +1,6 @@
 module screen
 
-import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.osal.zinit

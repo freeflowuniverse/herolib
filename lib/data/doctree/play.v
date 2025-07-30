@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import freeflowuniverse.herolib.ui.console
 
 
-pub fn play(mut plbook PlayBook) ! {
+pub fn play(mut plbook playbook.PlayBook) ! {
 
 	mut doctrees := map[string]&Tree{}
 
@@ -57,5 +57,4 @@ pub fn play(mut plbook PlayBook) ! {
 	// println(tree_get("main")!)
 	// panic("sd")
 
-	return plbook
 }

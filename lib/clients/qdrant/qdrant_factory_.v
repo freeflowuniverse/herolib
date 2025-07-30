@@ -1,7 +1,7 @@
 module qdrant
 
 import freeflowuniverse.herolib.core.base
-import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
 __global (

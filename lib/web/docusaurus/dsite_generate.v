@@ -62,12 +62,12 @@ pub fn (mut site DocSite) generate() ! {
 	// 		draft:1 hide_title:1
 
 	configpath := '${site.path_src.path}/cfg'
-	sitegen.play(
+	sitegen.play(mut sitegen.Args{
 		heroscript_path: configpath
 		dest:            '${site.factory.path_build.path}/docs'
 		flat:            true
 		sitename:        site.name
-	)!
+	})!
 
 	site.process_imports()!
 }

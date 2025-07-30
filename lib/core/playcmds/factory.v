@@ -44,8 +44,8 @@ pub fn run(args_ PlayArgs) ! {
 
 	// plbook = farmingsimulator.play(mut plbook)!
 	// plbook = gridsimulator.play(mut plbook)!
-	plbook = bizmodel.play(mut plbook)!
-	plbook = doctree.play(mut plbook)!
+	bizmodel.play(mut plbook)!
+	doctree.play(mut plbook)!
 	
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!

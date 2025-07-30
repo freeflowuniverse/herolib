@@ -13,7 +13,7 @@ pub mut:
 	sitename string = 'default'
 }
 
-pub fn play(mut plbook PlayBook, args SiteGenArgs) ! {
+pub fn play(mut plbook PlayBook, mut args SiteGenArgs) ! {
 
 	if args.dest == '' {
 		args.dest = '${os.home_dir()}/hero/var/sitegen'

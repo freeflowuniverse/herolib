@@ -28,7 +28,7 @@ fn play(mut plbook PlayBook) ! {
 		mut p := action.params
 
 		mut site := ds.add(
-			name:         p.get('name') or {return error("can't find name in params for docusaurus.add.\n${args}")}
+			name:         p.get('name') or {return error("can't find name in params for docusaurus.add in action:\n${action.heroscript}")}
 			nameshort:    p.get_default('nameshort', p.get('name')!)!
 			path:         p.get_default('path', '')!
 			git_url:      p.get_default('git_url', '')!
