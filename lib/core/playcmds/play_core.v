@@ -1,7 +1,7 @@
 module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
 // !!context.configure
@@ -9,7 +9,14 @@ import freeflowuniverse.herolib.ui.console
 //     coderoot:...
 //     interactive:true
 
-pub fn play_core(mut plbook playbook.PlayBook) ! {
+
+pub fn play_core(args_ PlayArgs) !PlayBook {
+	mut args := args_
+	mut plbook := args.plbook or {
+		playbook.new(text: args.heroscript, path: args.heroscript_path)!
+	}
+
+
 	// for mut action in plbook.find(filter: 'context.configure')! {
 	// 	mut p := action.params
 	// 	mut session := plbook.session
@@ -92,4 +99,6 @@ pub fn play_core(mut plbook playbook.PlayBook) ! {
 	// 	}
 	// 	action.done = true
 	// }
+
+	return plbook
 }
