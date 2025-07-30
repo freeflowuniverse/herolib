@@ -5,7 +5,15 @@ import freeflowuniverse.herolib.ui.console
 import os
 
 
-pub fn play(mut plbook PlayBook) ! {
+@[params]
+pub struct SiteGenArgs {
+pub mut:
+	dest     string
+	flat     bool
+	sitename string = 'default'
+}
+
+pub fn play(mut plbook PlayBook, args SiteGenArgs) ! {
 
 	if args.dest == '' {
 		args.dest = '${os.home_dir()}/hero/var/sitegen'

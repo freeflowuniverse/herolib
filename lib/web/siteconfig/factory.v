@@ -13,7 +13,7 @@ pub fn new(path string) !&SiteConfig {
 		return error('path is empty')
 	}
 	mut plbook := playbook.new(path: path)!
-	play(plbook: plbook)! // Pass the config by mutable reference
+	play(mut plbook)! // Pass the config by mutable reference
 
 	current_config_name := redis.get('siteconfigs:current')!
 	if current_config_name == '' {

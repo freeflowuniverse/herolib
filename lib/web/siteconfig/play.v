@@ -39,7 +39,7 @@ fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-pub fn play(mut plbook PlayBook) ! {
+pub fn play(mut plbook PlayBook)! {
 
 	mut context := base.context()!
 	mut redis := context.redis()!
@@ -58,7 +58,6 @@ pub fn play(mut plbook PlayBook) ! {
 	redis.hset('siteconfigs', config.name, json_config)!
 	redis.set('siteconfigs:current', config.name)!
 
-	return plbook
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
