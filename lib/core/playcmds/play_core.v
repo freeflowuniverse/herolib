@@ -2,6 +2,7 @@ module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.playbook { PlayBook }
+import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.ui.console
 
 // !!context.configure
@@ -33,22 +34,9 @@ pub fn play_core(args_ PlayArgs) !PlayBook {
 	// 	action.done = true
 	// }
 
-	for mut action in plbook.find(filter: 'session.')! {
-		mut p := action.params
-		mut session := plbook.session
-
-		//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
-		if p.exists('env_set') {
-			mut key := p.get('key')!
-			mut val := p.get('val')!
-			session.env_set(key, val)!
-		}
-
-		action.done = true
-	}
 
 	for action_ in plbook.find(filter: 'play.*')! {
-		if action_.name == 'run' {
+		if action_.name == 'include' {
 			console.print_debug('play run:${action_}')
 			mut action := *action_
 			mut playrunpath := action.params.get_default('path', '')!
@@ -71,7 +59,42 @@ pub fn play_core(args_ PlayArgs) !PlayBook {
 			content := action_.params.get_default('content', "didn't find content")!
 			console.print_header(content)
 		}
+	}	
+
+	for mut action in plbook.find(filter: 'session.')! {
+		mut p := action.params
+		mut session := plbook.session
+
+		//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
+		if p.exists('env_set') {
+			mut key := p.get('key')!
+			mut val := p.get('val')!
+			session.env_set(key, val)!
+		}
+
+		if p.exists('env_set_once') {
+			mut key := p.get('key')!
+			mut val := p.get('val')!
+			session.env_set_once(key, val)!
+		}		
+
+		action.done = true
 	}
+
+
+	// CHANGE {...} args in playbook
+
+	println('playbook:${plbook}')
+
+	mut context := base.context()!
+	mut session := context.session_latest()!
+
+	sitename:=session.env_get('SITENAME') or {""}
+
+	println('session:${session}')
+	println('sitename:${sitename}')
+
+	if true{panic("dfghjkjhgfghjk")}
 
 	// for mut action in plbook.find(filter: 'core.coderoot_set')! {
 	// 	mut p := action.params

@@ -14,11 +14,11 @@ pub fn play(args_ PlayArgs) !PlayBook {
 
 	mut ds := docusaurus.new()!
 
-	mut action := plbook.action_get(actor: 'docusaurus', name: 'define')!
+	mut action0 := plbook.action_get(actor: 'docusaurus', name: 'define')!
 
-	mut p := action.params
-	path_publish := p.get_default('path_publish', '')!
-	path_build := p.get_default('path_build', '')!		// don't do heroscript here because this could already be done before
+	mut p0 := action0.params
+	path_publish := p0.get_default('path_publish', '')!
+	path_build := p0.get_default('path_build', '')!		// don't do heroscript here because this could already be done before
 	ds = docusaurus.new(
 		path_publish: path_publish
 		path_build:   path_build

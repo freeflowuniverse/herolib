@@ -70,6 +70,14 @@ pub fn (mut self Session) env_set(key string, value string) ! {
 	self.save()!
 }
 
+pub fn (mut self Session) env_set_once(key string, value string) ! {
+	if key in self.env {
+		return error("env variable '${key}' already exists in session '${self.name}'")
+	}
+	self.env_set(key, value)!
+}
+
+
 // Get an environment variable
 pub fn (mut self Session) env_get(key string) !string {
 	return self.env[key] or { return error("can't find env in session ${self.name}") }
