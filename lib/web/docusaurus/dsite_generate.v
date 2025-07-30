@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
 // import freeflowuniverse.herolib.data.doctree
-import freeflowuniverse.herolib.web.sitegen
+import freeflowuniverse.herolib.web.site
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.factory.path_build.path}')
