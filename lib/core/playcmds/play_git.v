@@ -1,9 +1,8 @@
 module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.core.playbook { PlayBook }
+import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
-
 
 pub fn play_git(args_ PlayArgs) ! {
 	mut args := args_
@@ -92,31 +91,31 @@ pub fn play_git(args_ PlayArgs) ! {
 		for mut repo in repos {
 			match action_type {
 				'pull' {
-					repo.pull(submodules: submodules)
+					repo.pull(submodules: submodules)!
 				}
 				'commit' {
-					repo.commit(message)
+					repo.commit(message)!
 				}
 				'push' {
-					repo.push()
+					repo.push()!
 				}
 				'reset' {
-					repo.reset()
+					repo.reset()!
 				}
 				'branch_create' {
-					repo.branch_create(branchname)
+					repo.branch_create(branchname)!
 				}
 				'branch_switch' {
-					repo.branch_switch(branchname)
+					repo.branch_switch(branchname)!
 				}
 				'tag_create' {
-					repo.tag_create(tagname)
+					repo.tag_create(tagname)!
 				}
 				'tag_switch' {
-					repo.tag_switch(tagname)
+					repo.tag_switch(tagname)!
 				}
 				'delete' {
-					repo.delete()
+					repo.delete()!
 				}
 				else {
 					if !error_ignore {
@@ -144,7 +143,7 @@ pub fn play_git(args_ PlayArgs) ! {
 			account:       account
 			provider:      provider
 			status_update: status_update
-		)
+		)!
 	}
 
 	// Handle !!git.reload_cache
@@ -155,6 +154,6 @@ pub fn play_git(args_ PlayArgs) ! {
 		if coderoot.len > 0 {
 			gs = gittools.new(coderoot: coderoot)!
 		}
-		gs.load(true) // Force reload
+		gs.load(true)! // Force reload
 	}
 }
