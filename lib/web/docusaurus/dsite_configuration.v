@@ -1,11 +1,7 @@
 module docusaurus
 
-// import os
-// import json
-// import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.web.siteconfig // For siteconfig.SiteConfig and siteconfig.new
-// import strings // No longer needed as we are not concatenating
-// import freeflowuniverse.herolib.core.playbook // No longer directly needed here
+import freeflowuniverse.herolib.web.site
+
 
 pub struct Configuration {
 pub mut:
@@ -77,15 +73,13 @@ pub mut:
 	href  string @[omitempty]
 	to    string @[omitempty]
 }
+// ... (struct definitions remain the same) ...
 
-fn config_load(path string) !Configuration {
-	// Use siteconfig.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
-	site_cfg_ref := siteconfig.new(path)!
-	site_cfg_from_heroscript := *site_cfg_ref // Dereference to get the actual SiteConfig struct
-
-	// Transform siteconfig.SiteConfig to docusaurus.Configuration
+// This function is now a pure transformer: site.SiteConfig -> docusaurus.Configuration
+fn config_from_site(site_cfg site.SiteConfig) !Configuration {
+	// Transform site.SiteConfig to docusaurus.Configuration
 	mut nav_items := []NavbarItem{}
-	for item in site_cfg_from_heroscript.menu.items {
+	for item in site_cfg.menu.items {
 		nav_items << NavbarItem{
 			label:    item.label
 			href:     item.href
@@ -95,7 +89,7 @@ fn config_load(path string) !Configuration {
 	}
 
 	mut footer_links := []FooterLink{}
-	for link in site_cfg_from_heroscript.footer.links {
+	for link in site_cfg.footer.links {
 		mut footer_items_mapped := []FooterItem{}
 		for item in link.items {
 			footer_items_mapped << FooterItem{
@@ -111,35 +105,35 @@ fn config_load(path string) !Configuration {
 	}
 
 	cfg := Configuration{
-		main:   Main{
-			title:          site_cfg_from_heroscript.title
-			tagline:        site_cfg_from_heroscript.tagline
-			favicon:        site_cfg_from_heroscript.favicon
-			url:            site_cfg_from_heroscript.url
-			base_url:       site_cfg_from_heroscript.base_url
-			url_home:       site_cfg_from_heroscript.url_home
-			image:          site_cfg_from_heroscript.image // General site image
+		main: Main{
+			title:          site_cfg.title
+			tagline:        site_cfg.tagline
+			favicon:        site_cfg.favicon
+			url:            site_cfg.url
+			base_url:       site_cfg.base_url
+			url_home:       site_cfg.url_home
+			image:          site_cfg.image
 			metadata:       Metadata{
-				title:       site_cfg_from_heroscript.meta_title // Specific title for metadata
-				description: site_cfg_from_heroscript.description
-				image:       site_cfg_from_heroscript.meta_image // Use the specific meta_image from siteconfig
+				title:       site_cfg.meta_title
+				description: site_cfg.description
+				image:       site_cfg.meta_image
 			}
-			build_dest:     site_cfg_from_heroscript.build_dest.map(it.path)
-			build_dest_dev: site_cfg_from_heroscript.build_dest_dev.map(it.path)
-			copyright:      site_cfg_from_heroscript.copyright
-			name:           site_cfg_from_heroscript.name
+			build_dest:     site_cfg.build_dest.map(it.path)
+			build_dest_dev: site_cfg.build_dest_dev.map(it.path)
+			copyright:      site_cfg.copyright
+			name:           site_cfg.name
 		}
 		navbar: Navbar{
-			title: site_cfg_from_heroscript.menu.title
+			title: site_cfg.menu.title
 			logo:  Logo{
-				alt:      site_cfg_from_heroscript.menu.logo_alt
-				src:      site_cfg_from_heroscript.menu.logo_src
-				src_dark: site_cfg_from_heroscript.menu.logo_src_dark
+				alt:      site_cfg.menu.logo_alt
+				src:      site_cfg.menu.logo_src
+				src_dark: site_cfg.menu.logo_src_dark
 			}
 			items: nav_items
 		}
 		footer: Footer{
-			style: site_cfg_from_heroscript.footer.style
+			style: site_cfg.footer.style
 			links: footer_links
 		}
 	}
@@ -156,5 +150,5 @@ fn config_fix(config Configuration) !Configuration {
 			url:      if config.main.url == '' { 'https://example.com' } else { config.main.url }
 			base_url: if config.main.base_url == '' { '/' } else { config.main.base_url }
 		}
-	}
+	}	// ... (no changes needed here) ...
 }

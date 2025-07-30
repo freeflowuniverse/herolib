@@ -1,89 +1,47 @@
 module docusaurus
 
-import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.web.siteconfig
+import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.core as osal
-// import freeflowuniverse.herolib.data.doctree
 
+@[params]
+pub struct AddArgs {
+pub:
+	site &site.Site
+	path string // Source path for additional assets (static/, local docs/)
+}
 
-pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
-	console.print_header(' Docusaurus: ${args_.name}')
-	mut args := args_
+pub fn (mut f DocusaurusFactory) add(args AddArgs) !&DocSite {
+	name := args.site.siteconfig.name
+	console.print_header('Docusaurus: add site: ${name}')
 
-	mut path := gittools.path(
-		path:       args.path
-		git_url:    args.git_url
-		git_reset:  args.git_reset
-		git_root:   args.git_root
-		git_pull:   args.git_pull
-		currentdir: true
-	)!
-	args.path = path.path
-	if !path.is_dir() {
-		return error('path is not a directory')
+	if name in f.sites {
+		return f.sites[name]
 	}
 
-	configpath := '${args.path}/cfg'
-	if !os.exists(configpath) {
-		return error("can't find config file for docusaurus in ${configpath}")
+	// The `path` arg points to the source repo/directory for this site,
+	// containing things like `static/` or a base `docs/` folder.
+	src_path := pathlib.get_dir(path: args.path, create: false) or {
+		return error("Source path '${args.path}' for site '${name}' not found or not a directory.")
 	}
 
-	osal.rm('${args.path}/cfg/main.json')!
-	osal.rm('${args.path}/cfg/footer.json')!
-	osal.rm('${args.path}/cfg/navbar.json')!
-	osal.rm('${args.path}/build.sh')!
-	osal.rm('${args.path}/develop.sh')!
-	osal.rm('${args.path}/sync.sh')!
-	osal.rm('${args.path}/.DS_Store')!
+	// Transform the generic site config to a docusaurus-specific one
+	docusaurus_config := config_from_site(args.site.siteconfig)!
 
-	mut myconfig := config_load(configpath)!
+	// The path to publish this specific site to
+	mut path_publish := pathlib.get_dir(path: '${f.path_publish.path}/${name}', create: true)!
 
-	if myconfig.main.name.len == 0 {
-		myconfig.main.name = myconfig.main.base_url.trim_space().trim('/').trim_space()
-	}
-
-	if args.name == '' {
-		args.name = myconfig.main.name
-	}
-
-	if args.nameshort.len == 0 {
-		args.nameshort = args.name
-	}
-	
-	args.name = texttools.name_fix(args.name)
-	args.nameshort = texttools.name_fix(args.nameshort)
-
-	if args.path_publish == '' {
-		args.path_publish = '${f.path_publish}/${args.name}'
-	}
-
-	//this will get us the siteconfig run through plbook
-	mut mysiteconfig := *siteconfig.new(configpath)!
-
-	// NOT NEEDED IS DONE FROM HEROSCRIPT BEFORE
-	// //now run the plbook to get all relevant for the site, {SITENAME} has been set in the context.session
-	// doctree.play(
-	// 	heroscript_path: configpath
-	// 	reset:           args.update
-	// )!
-
-
-	mut ds := DocSite{
-		name: args.name
-		path_src:     pathlib.get_dir(path: args.path, create: false)!
-		path_publish: pathlib.get_dir(path: args.path_publish)!
-		args:         args
-		config:       myconfig
-		siteconfig:   mysiteconfig // comes from the heroconfig
-		factory:      &f
+	mut ds := &DocSite{
+		name:         name
+		path_src:     src_path
+		path_publish: path_publish
+		site:         args.site
+		config:       docusaurus_config
+		factory:      f
 	}
 	ds.check()!
 
-	f.sites[args.name] = &ds
+	f.sites[name] = ds
 
-	return &ds
+	return ds
 }

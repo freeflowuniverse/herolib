@@ -3,7 +3,7 @@ module docusaurus
 import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.web.siteconfig
+import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
@@ -12,41 +12,24 @@ import time
 @[heap]
 pub struct DocSite {
 pub mut:
-	name     string
-	url      string
-	path_src pathlib.Path
+	name         string
+	path_src     pathlib.Path
 	path_publish pathlib.Path
-	args         DSiteGetArgs
 	errors       []SiteError
-	config       Configuration
-	siteconfig   siteconfig.SiteConfig
+	config       Configuration      // Docusaurus-specific config, transformed from site.SiteConfig
+	site         &site.Site         @[skip; str: skip]
 	factory      &DocusaurusFactory @[skip; str: skip] // Reference to the parent
+	// OPEN & WATCH ARGS are now passed directly to dev_watch
 }
 
-@[params]
-pub struct DSiteGetArgs {
-pub mut:
-	name         string
-	nameshort    string
-	path         string
-	git_url      string
-	git_reset    bool
-	git_root     string
-	git_pull     bool
-	open         bool // Added
-	watch_changes bool // Added
-	path_publish string // Added
-	init         bool // Added
-	update       bool // Added (maps to template_update in DocusaurusArgs)
-}
 
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
 	osal.exec(
-		cmd:   '	
+		cmd: '
 			cd ${s.factory.path_build.path}
-			exit 1
-			'
+			bun run build
+			',
 		retry: 0
 	)!
 }
@@ -54,10 +37,10 @@ pub fn (mut s DocSite) build() ! {
 pub fn (mut s DocSite) build_dev_publish() ! {
 	s.generate()!
 	osal.exec(
-		cmd:   '	
+		cmd: '
 			cd ${s.factory.path_build.path}
 			exit 1
-			'
+			',
 		retry: 0
 	)!
 }
@@ -65,10 +48,10 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 pub fn (mut s DocSite) build_publish() ! {
 	s.generate()!
 	osal.exec(
-		cmd:   '	
+		cmd: '
 			cd ${s.factory.path_build.path}
 			exit 1
-			'
+			',
 		retry: 0
 	)!
 }
@@ -76,33 +59,42 @@ pub fn (mut s DocSite) build_publish() ! {
 @[params]
 pub struct DevArgs {
 pub mut:
-	host string = 'localhost'
-	port int    = 3000
+	host          string = 'localhost'
+	port          int    = 3000
+	open          bool   // open browser
+	watch_changes bool   // watch for file changes
 }
 
-pub fn (mut s DocSite) open(args DevArgs) ! {
+pub fn (mut s DocSite) open(host string, port int) ! {
 	// Print instructions for user
-	console.print_item('open browser: https://${args.host}:${args.port}')
-	osal.exec(cmd: 'open https://${args.host}:${args.port}')!
+	console.print_item('open browser: http://${host}:${port}')
+	osal.exec(cmd: 'open http://${host}:${port}')!
 }
 
 pub fn (mut s DocSite) dev(args DevArgs) ! {
 	s.generate()!
-	osal.exec(
-		cmd:   '	
-			cd ${s.factory.path_build.path}
-			bun run start -p ${args.port} -h ${args.host}
-			'
-		retry: 0
-	)!
-	s.open()!
+	
+	if args.watch_changes {
+		s.dev_watch(args)!
+	} else {
+		if args.open {
+			s.open(args.host, args.port)!
+		}
+		osal.exec(
+			cmd: '
+				cd ${s.factory.path_build.path}
+				bun run start -p ${args.port} -h ${args.host}
+				',
+			retry: 0
+		)!
+	}
 }
 
 pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	s.generate()!
 
 	// Create screen session for docusaurus development server
-	mut screen_name := 'docusaurus'
+	mut screen_name := 'docusaurus_${s.name}'
 	mut sf := screen.new()!
 
 	// Add and start a new screen session
@@ -149,17 +141,11 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	console.print_item('The site content is on: ${s.path_src.path}/docs')
 
 	// Start the watcher in a separate thread
-	// mut tf:=spawn watch_docs(docs_path, s.path_src.path, s.path_build.path)
-	// tf.wait()!
-	println('\n')
+	spawn watch_docs(s, s.path_src.path, s.factory.path_build.path)
+	println('')
 
-	if s.args.open {
-		s.open()!
-	}
-
-	if s.args.watch_changes {
-		docs_path := '${s.path_src.path}/docs'
-		watch_docs(docs_path, s.path_src.path, s.factory.path_build.path)!
+	if args.open {
+		s.open(args.host, args.port)!
 	}
 }
 
@@ -204,7 +190,7 @@ pub mut:
 	cat  ErrorCat
 }
 
-pub fn (mut site DocSite) error(args ErrorArgs) {
+pub fn (mut doc_site DocSite) error(args ErrorArgs) {
 	// path2 := pathlib.get(args.path)
 	e := SiteError{
 		path: args.path
