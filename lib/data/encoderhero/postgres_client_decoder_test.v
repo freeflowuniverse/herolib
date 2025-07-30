@@ -1,7 +1,7 @@
 module encoderhero
 
 
-pub struct PostgresClient {
+pub struct PostgresqlClient {
 pub mut:
 	name     string = 'default'
 	user     string = 'root'
@@ -21,7 +21,7 @@ const postgres_client_complex = "
 "
 
 fn test_postgres_client_decode_blank() ! {
-	mut client := decode[PostgresClient](postgres_client_blank)!
+	mut client := decode[PostgresqlClient](postgres_client_blank)!
 	assert client.name == 'default'
 	assert client.user == 'root'
 	assert client.port == 5432
@@ -31,7 +31,7 @@ fn test_postgres_client_decode_blank() ! {
 }
 
 fn test_postgres_client_decode_full() ! {
-	mut client := decode[PostgresClient](postgres_client_full)!
+	mut client := decode[PostgresqlClient](postgres_client_full)!
 	assert client.name == 'production'
 	assert client.user == 'app_user'
 	assert client.port == 5433
@@ -41,7 +41,7 @@ fn test_postgres_client_decode_full() ! {
 }
 
 fn test_postgres_client_decode_partial() ! {
-	mut client := decode[PostgresClient](postgres_client_partial)!
+	mut client := decode[PostgresqlClient](postgres_client_partial)!
 	assert client.name == 'dev'
 	assert client.user == 'root' // default value
 	assert client.port == 5432 // default value
@@ -51,7 +51,7 @@ fn test_postgres_client_decode_partial() ! {
 }
 
 fn test_postgres_client_decode_complex() ! {
-	mut client := decode[PostgresClient](postgres_client_complex)!
+	mut client := decode[PostgresqlClient](postgres_client_complex)!
 	assert client.name == 'staging'
 	assert client.user == 'stage_user'
 	assert client.port == 5434
@@ -62,7 +62,7 @@ fn test_postgres_client_decode_complex() ! {
 
 fn test_postgres_client_encode_decode_roundtrip() ! {
 	// Test encoding and decoding roundtrip
-	original := PostgresClient{
+	original := PostgresqlClient{
 		name: 'testdb'
 		user: 'testuser'
 		port: 5435
@@ -72,10 +72,10 @@ fn test_postgres_client_encode_decode_roundtrip() ! {
 	}
 	
 	// Encode to heroscript
-	encoded := encode[PostgresClient](original)!
+	encoded := encode[PostgresqlClient](original)!
 	
 	// Decode back from heroscript
-	decoded := decode[PostgresClient](encoded)!
+	decoded := decode[PostgresqlClient](encoded)!
 	
 	// Verify roundtrip
 	assert decoded.name == original.name
@@ -89,7 +89,7 @@ fn test_postgres_client_encode_decode_roundtrip() ! {
 fn test_postgres_client_encode() ! {
 	// Test encoding with different configurations
 	test_cases := [
-		PostgresClient{
+		PostgresqlClient{
 			name: 'minimal'
 			user: 'root'
 			port: 5432
@@ -97,7 +97,7 @@ fn test_postgres_client_encode() ! {
 			password: ''
 			dbname: 'postgres'
 		},
-		PostgresClient{
+		PostgresqlClient{
 			name: 'full_config'
 			user: 'admin'
 			port: 5433
@@ -105,7 +105,7 @@ fn test_postgres_client_encode() ! {
 			password: 'securepass'
 			dbname: 'production'
 		},
-		PostgresClient{
+		PostgresqlClient{
 			name: 'localhost_dev'
 			user: 'dev'
 			port: 5432
@@ -116,8 +116,8 @@ fn test_postgres_client_encode() ! {
 	]
 	
 	for client in test_cases {
-		encoded := encode[PostgresClient](client)!
-		decoded := decode[PostgresClient](encoded)!
+		encoded := encode[PostgresqlClient](client)!
+		decoded := decode[PostgresqlClient](encoded)!
 		
 		assert decoded.name == client.name
 		assert decoded.user == client.user
@@ -130,10 +130,14 @@ fn test_postgres_client_encode() ! {
 
 // Play script for interactive testing
 const play_script = "
-# PostgresClient Encode/Decode Play Script
-# This script demonstrates encoding and decoding PostgresClient configurations
+# PostgresqlClient Encode/Decode Play Script
+# This script demonstrates encoding and decoding PostgresqlClient configurations
 
-!!define.postgres_client name:playground user:play_user port:5432 host:localhost password:playpass dbname:playdb
+!!define.postgres_client name:playground user:play_user 
+		port:5432 
+		host:localhost 
+		password:playpass 
+		dbname:playdb
 
 # You can also use partial configurations
 !!define.postgres_client name:quick_test host:127.0.0.1
@@ -148,11 +152,11 @@ fn test_play_script() ! {
 		return line.trim(' ') != '' && !line.starts_with('#')
 	})
 	
-	mut clients := []PostgresClient{}
+	mut clients := []PostgresqlClient{}
 	
 	for line in lines {
 		if line.starts_with('!!define.postgres_client') {
-			client := decode[PostgresClient](line)!
+			client := decode[PostgresqlClient](line)!
 			clients << client
 		}
 	}
@@ -177,12 +181,12 @@ fn test_play_script() ! {
 
 // Utility function for manual testing
 pub fn run_play_script() ! {
-	println('=== PostgresClient Encode/Decode Play Script ===')
-	println('Testing encoding and decoding of PostgresClient configurations...')
+	println('=== PostgresqlClient Encode/Decode Play Script ===')
+	println('Testing encoding and decoding of PostgresqlClient configurations...')
 	
 	// Test 1: Basic encoding
 	println('\n1. Testing basic encoding...')
-	client := PostgresClient{
+	client := PostgresqlClient{
 		name: 'example'
 		user: 'example_user'
 		port: 5432
@@ -191,10 +195,10 @@ pub fn run_play_script() ! {
 		dbname: 'example_db'
 	}
 	
-	encoded := encode[PostgresClient](client)!
+	encoded := encode[PostgresqlClient](client)!
 	println('Encoded: ${encoded}')
 	
-	decoded := decode[PostgresClient](encoded)!
+	decoded := decode[PostgresqlClient](encoded)!
 	println('Decoded name: ${decoded.name}')
 	println('Decoded host: ${decoded.host}')
 	
@@ -205,7 +209,7 @@ pub fn run_play_script() ! {
 	
 	// Test 3: Edge cases
 	println('\n3. Testing edge cases...')
-	edge_client := PostgresClient{
+	edge_client := PostgresqlClient{
 		name: 'edge'
 		user: ''
 		port: 0
@@ -214,8 +218,8 @@ pub fn run_play_script() ! {
 		dbname: ''
 	}
 	
-	edge_encoded := encode[PostgresClient](edge_client)!
-	edge_decoded := decode[PostgresClient](edge_encoded)!
+	edge_encoded := encode[PostgresqlClient](edge_client)!
+	edge_decoded := decode[PostgresqlClient](edge_encoded)!
 	
 	assert edge_decoded.name == 'edge'
 	assert edge_decoded.user == ''

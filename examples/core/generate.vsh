@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.core.generator.generic as generator
 import freeflowuniverse.herolib.core.pathlib
 
 mut args := generator.GeneratorArgs{
-	path: '~/code/github/freeflowuniverse/herolib/lib/installers/infra'
+	path: '~/code/github/freeflowuniverse/herolib/lib/clients/postgresql_client'
 	force: true
 }
 

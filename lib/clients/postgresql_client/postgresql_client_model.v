@@ -9,7 +9,7 @@ pub const version = '0.0.0'
 const singleton = false
 const default = true
 
-pub struct PostgresClient {
+pub struct PostgresqlClient {
 mut:
 	db_ ?pg.DB @[skip]
 pub mut:
@@ -17,17 +17,17 @@ pub mut:
 	user     string = 'root'
 	port     int    = 5432
 	host     string = 'localhost'
-	password string
+	password string = ''
 	dbname   string = 'postgres'
 }
 
-fn obj_init(obj_ PostgresClient) !PostgresClient {
+fn obj_init(obj_ PostgresqlClient) !PostgresqlClient {
 	// never call get here, only thing we can do here is work on object itself
 	mut obj := obj_
 	return obj
 }
 
-pub fn (mut self PostgresClient) db() !pg.DB {
+pub fn (mut self PostgresqlClient) db() !pg.DB {
 	// console.print_debug(args)
 	mut db := self.db_ or {
 		mut db_ := pg.connect(
@@ -43,14 +43,13 @@ pub fn (mut self PostgresClient) db() !pg.DB {
 	return db
 }
 
-
 /////////////NORMALLY NO NEED TO TOUCH
 
-pub fn heroscript_dumps(obj PostgresClient) !string {
-	return encoderhero.encode[PostgresClient](obj)!
+pub fn heroscript_dumps(obj PostgresqlClient) !string {
+	return encoderhero.encode[PostgresqlClient](obj)!
 }
 
-pub fn heroscript_loads(heroscript string) !PostgresClient {
-	mut obj := encoderhero.decode[PostgresClient](heroscript)!
+pub fn heroscript_loads(heroscript string) !PostgresqlClient {
+	mut obj := encoderhero.decode[PostgresqlClient](heroscript)!
 	return obj
 }

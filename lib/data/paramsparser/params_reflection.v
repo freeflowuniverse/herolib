@@ -6,17 +6,21 @@ import v.reflection
 // import freeflowuniverse.herolib.data.encoderhero
 // TODO: support more field types
 
-pub fn (params Params) decode[T]() !T {
+pub fn (params Params) decode[T](args ...T) !T {
 	// work around to allow recursive decoding
 	// otherwise v cant infer generic type for child fields that are structs
-	return params.decode_struct[T](T{})!
+	if args.len > 0 {
+		return params.decode_struct[T](args[0])!
+	} else {
+		return params.decode_struct[T](T{})!
+	}
 }
 
-pub fn (params Params) decode_struct[T](_ T) !T {
-	mut t := T{}
+pub fn (params Params) decode_struct[T](start T) !T {
+	mut t := start
 	$for field in T.fields {
 		$if field.is_enum {
-			t.$(field.name) = params.get_int(field.name) or { 0 }
+			t.$(field.name) = params.get_int(field.name) or { t.$(field.name) }
 		} $else {
 			// super annoying didn't find other way, then to ignore options
 			$if field.is_option {
@@ -34,7 +38,7 @@ pub fn (params Params) decode_struct[T](_ T) !T {
 	return t
 }
 
-pub fn (params Params) decode_value[T](_ T, key string) !T {
+pub fn (params Params) decode_value[T](val T, key string) !T {
 	// $if T is $option {
 	// 	return error("is option")
 	// }
@@ -42,7 +46,7 @@ pub fn (params Params) decode_value[T](_ T, key string) !T {
 
 	// TODO: handle required fields
 	if !params.exists(key) {
-		return T{}
+		return val
 	}
 
 	$if T is string {

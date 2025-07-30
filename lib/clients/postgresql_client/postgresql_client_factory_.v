@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
 __global (
-	postgresql_client_global  map[string]&PostgresClient
+	postgresql_client_global  map[string]&PostgresqlClient
 	postgresql_client_default string
 )
 
@@ -25,10 +25,10 @@ fn args_get(args_ ArgsGet) ArgsGet {
 	return args
 }
 
-pub fn get(args_ ArgsGet) !&PostgresClient {
+pub fn get(args_ ArgsGet) !&PostgresqlClient {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := PostgresClient{
+	mut obj := PostgresqlClient{
 		name: args.name
 	}
 	if args.name !in postgresql_client_global {
@@ -48,11 +48,10 @@ pub fn get(args_ ArgsGet) !&PostgresClient {
 }
 
 // register the config for the future
-pub fn set(o PostgresClient) ! {
+pub fn set(o PostgresqlClient) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	println(heroscript)
 	context.hero_config_set('postgresql_client', o.name, heroscript)!
 }
 
@@ -73,7 +72,7 @@ pub fn delete(args_ ArgsGet) ! {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o PostgresClient) ! {
+fn set_in_mem(o PostgresqlClient) ! {
 	mut o2 := obj_init(o)!
 	postgresql_client_global[o.name] = &o2
 	postgresql_client_default = o.name
@@ -84,10 +83,7 @@ pub fn play(mut plbook PlayBook) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
-			println(heroscript)
 			mut obj2 := heroscript_loads(heroscript)!
-			println('postgresql_client playbook action: ${obj2}')
-			if true{panic("TODO: implement playbook action for postgresql_client, currently not implemented yet.")}
 			set(obj2)!
 		}
 	}

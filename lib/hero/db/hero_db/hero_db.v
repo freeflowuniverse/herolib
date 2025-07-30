@@ -6,12 +6,12 @@ import freeflowuniverse.herolib.core.texttools
 
 // Generic database interface for Hero root objects
 pub struct HeroDB[T] {
-	db_client &postgresql_client.PostgresClient
+	db_client &postgresql_client.PostgresqlClient
 	table_name string
 }
 
 // new creates a new HeroDB instance for a specific type T
-pub fn new[T](client &postgresql_client.PostgresClient) HeroDB[T] {
+pub fn new[T](client &postgresql_client.PostgresqlClient) HeroDB[T] {
 	mut table_name := '${texttools.snake_case(T.name)}s'
 	// Map dirname from module path
 	module_path := T.name.split('.')
