@@ -1,7 +1,7 @@
 module playcmds
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import freeflowuniverse.herolib.virt.hetzner
 // import freeflowuniverse.herolib.clients.b2
 import freeflowuniverse.herolib.biz.bizmodel
@@ -14,14 +14,21 @@ import freeflowuniverse.herolib.threefold.grid4.farmingsimulator
 // import freeflowuniverse.herolib.installers.infra.coredns
 import freeflowuniverse.herolib.data.doctree
 
-pub fn run(mut plbook playbook.PlayBook) ! {
+pub fn run(args_ PlayArgs) !PlayBook {
+
+	mut args := args_
+
+	mut plbook := args.plbook or {
+		playbook.new(text: args.heroscript, path: args.heroscript_path)!
+	}
+
 	// if dagu {
 	// 	hscript := plbook.str()
 	// 	scheduler(hscript)!
 	// }
 
-	play_core(mut plbook)!
-	play_ssh(mut plbook)!
+	plbook = play_core(mut plbook)!
+	plbook = play_ssh(mut plbook)!
 	// play_git.play(mut plbook)! // Changed to play_git.play
 	// play_publisher(mut plbook)!
 	// play_zola(mut plbook)!
@@ -31,10 +38,10 @@ pub fn run(mut plbook playbook.PlayBook) ! {
 	// hetzner.heroplay(mut plbook)!
 	// b2.heroplay(mut plbook)!
 
-	farmingsimulator.play(mut plbook)!
-	gridsimulator.play(mut plbook)!
-	bizmodel.play(plbook:*plbook)!
-	doctree.play(plbook:*plbook)!
+	plbook = farmingsimulator.play(mut plbook)!
+	plbook = gridsimulator.play(mut plbook)!
+	plbook = bizmodel.play(plbook:*plbook)!
+	plbook = doctree.play(plbook:*plbook)!
 	
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!
@@ -42,5 +49,6 @@ pub fn run(mut plbook playbook.PlayBook) ! {
 
 	// plbook.empty_check()!
 
-	console.print_header('Actions concluded succesfully.')
+
+	return plbook
 }
