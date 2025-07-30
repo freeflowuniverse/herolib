@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.web.siteconfig
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
-import freeflowuniverse.herolib.data.doctree
+// import freeflowuniverse.herolib.data.doctree
 
 
 pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
@@ -61,12 +61,16 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 		args.path_publish = '${f.path_publish}/${args.name}'
 	}
 
-	doctree.play(
-		heroscript_path: configpath
-		reset:           args.update
-	)!
-
+	//this will get us the siteconfig run through playbook
 	mut mysiteconfig := *siteconfig.new(configpath)!
+
+	// NOT NEEDED IS DONE FROM HEROSCRIPT BEFORE
+	// //now run the playbook to get all relevant for the site, {SITENAME} has been set in the context.session
+	// doctree.play(
+	// 	heroscript_path: configpath
+	// 	reset:           args.update
+	// )!
+
 
 	mut ds := DocSite{
 		name: args.name
