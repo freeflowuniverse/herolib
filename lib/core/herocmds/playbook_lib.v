@@ -153,7 +153,7 @@ pub fn plbook_run(cmd Command) !(&playbook.PlayBook, string) {
 
 	dagu := cmd.flags.get_bool('dagu') or { false }
 
-	playcmds.run(mut plbook, dagu)!
+	plbook = playcmds.run(plbook:plbook)!
 
 	// TODO: below gives Segmentation fault (core dumped)
 	// console.print_stdout(plbook.str())
