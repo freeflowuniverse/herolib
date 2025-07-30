@@ -1,4 +1,4 @@
-module sitegen
+module site
 
 import os
 import freeflowuniverse.herolib.core.pathlib

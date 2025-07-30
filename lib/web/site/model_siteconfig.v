@@ -1,6 +1,7 @@
-module siteconfig
-
+module site
+import os
 // Combined config structure
+@[heap]
 pub struct SiteConfig {
 pub mut:
 	name        string
@@ -13,7 +14,6 @@ pub mut:
 	footer      Footer
 	menu        Menu
 	imports     []ImportItem
-	// pages       []Page
 
 	// New fields for Docusaurus compatibility
 	url      string // The main URL of the site (from !!site.config url:)
@@ -26,19 +26,6 @@ pub mut:
 	build_dest     []BuildDest // Production build destinations (from !!site.build_dest)
 	build_dest_dev []BuildDest // Development build destinations (from !!site.build_dest_dev)
 }
-
-// pub struct Page {
-// pub mut:
-// 	name        string
-// 	content     string
-// 	title       string
-// 	description string
-// 	draft       bool
-// 	folder      string
-// 	prio        int
-// 	src         string
-// 	collection  string
-// }
 
 // Footer config structures
 pub struct FooterItem {

@@ -1,4 +1,4 @@
-module siteconfig
+module site
 
 import os
 

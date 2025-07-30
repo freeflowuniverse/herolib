@@ -1,32 +1,48 @@
-module sitegen
+module site
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient
 import freeflowuniverse.herolib.data.markdown.tools as markdowntools
-import freeflowuniverse.herolib.ui.console
+// import freeflowuniverse.herolib.ui.console
+import os
 
-pub struct Site {
+pub struct SiteGenerator {
 pub mut:
-	name   string
+	siteconfig_name   string
 	path   pathlib.Path
 	client &doctreeclient.DocTreeClient
+	flat   bool // if flat then won't use sitenames as subdir's
 }
 
 @[params]
-pub struct Page {
+pub struct SiteGeneratorArgs {
 pub mut:
-	title       string
-	description string
-	draft       bool
-	position    int
-	hide_title  bool
-	src         string @[required]
-	path        string @[required]
-	title_nr    int
-	slug string
+	path string
+	flat bool // if flat then won't use sitenames as subdir's
 }
 
-pub fn (mut site Site) page_add(args_ Page) ! {
+// new creates a new siteconfig and stores it in redis, or gets an existing one
+pub fn (siteconfig SiteConfig)generate(args SiteGeneratorArgs) ! {
+	mut path := args.path
+	if path == '' {
+		path = '${os.home_dir()}/hero/var/sitegen'
+	}
+	mut factory := SiteGenerator{
+		path:   pathlib.get_dir(path: path, create: true)!
+		client: doctreeclient.new()!
+		flat:   args.flat
+	}
+
+	for section in siteconfig.sections {
+		factory.section_generate(section)!
+	}
+
+	for page in siteconfig.pages {
+		factory.page_generate(page)!
+	}
+}
+
+fn (mut site SiteGenerator) page_generate(args_ Page) ! {
 	mut args := args_
 
 	mut content := ['---']
@@ -113,15 +129,7 @@ pub fn (mut site Site) page_add(args_ Page) ! {
 	}
 }
 
-@[params]
-pub struct Section {
-pub mut:
-	position int
-	path     string
-	label    string
-}
-
-pub fn (mut site Site) section_add(args_ Section) ! {
+fn (mut site SiteGenerator) section_generate(args_ Section) ! {
 	mut args := args_
 
 	mut c := '{

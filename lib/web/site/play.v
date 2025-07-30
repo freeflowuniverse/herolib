@@ -1,82 +1,35 @@
-module siteconfig
+module site
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.base
+
 import time
-import json
-
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript      string
-	heroscript_path string
-	plbook          ?PlayBook
-	reset           bool
-}
-
-fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
-	build_dest_actions := plbook.find(filter: 'site.build_dest')!
-	for action in build_dest_actions {
-		mut p := action.params
-		mut dest := BuildDest{
-			path:     p.get('path')!
-			ssh_name: p.get_default('ssh_name', '')!
-		}
-		config.build_dest << dest
-	}
-}
-
-fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
-	build_dest_dev_actions := plbook.find(filter: 'site.build_dest_dev')!
-	for action in build_dest_dev_actions {
-		mut p := action.params
-		mut dest_dev := BuildDest{
-			path:     p.get('path')!
-			ssh_name: p.get_default('ssh_name', '')!
-		}
-		config.build_dest_dev << dest_dev
-	}
-}
 
 pub fn play(mut plbook PlayBook)! {
 
-	mut context := base.context()!
-	mut redis := context.redis()!
+	mut website := play_config(mut plbook)!
+	mut config := &website.siteconfig
 
-	mut config := SiteConfig{}
+	play_import(mut plbook,mut config)!
+	play_menu(mut plbook,mut config)!
+	play_footer(mut plbook,mut config)!
+	play_build_dest(mut plbook,mut config)!
+	play_build_dest_dev(mut plbook,mut config)!
 
-	play_config(mut plbook, mut config)!
-	play_import(mut plbook, mut config)!
-	play_menu(mut plbook, mut config)!
-	play_footer(mut plbook, mut config)!
-	// play_pages(mut plbook, mut config)!
-	play_build_dest(mut plbook, mut config)!
-	play_build_dest_dev(mut plbook, mut config)!
-
-	json_config := json.encode(config)
-	redis.hset('siteconfigs', config.name, json_config)!
-	redis.set('siteconfigs:current', config.name)!
+	play_pages(mut plbook,mut website)!
 
 }
 
-fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
+fn play_config(mut plbook PlayBook) !&Site {
 	mut action := plbook.get(filter: 'site.config')!
 
+	mut p:= action.params
+	name := p.get('name') or {return error("need to specify name in site.config")}
 
-	mut context := base.context()!
-	mut session := context.session_latest()!
+	mut website := new(name: name)!
+	mut config:= &website.siteconfig
 
-	sitename:=session.env_get('SITENAME') or {""}
-
-	mut p := action.params
-	config.name = p.get_default('name', sitename)!
-
-	if config.name == '' {
-		return error('site name is not set, please set it in the heroscript')
-	}
-
-	config.name = texttools.name_fix(config.name)
+	config.name = texttools.name_fix(name)
 	config.title = p.get_default('title', 'Documentation Site')!
 	config.description = p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
 	config.tagline = p.get_default('tagline', 'Your awesome documentation')!
@@ -96,13 +49,16 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 	config.meta_title = p_meta.get_default('title', config.title)!
 	// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
 	config.meta_image = p_meta.get_default('image', config.image)!
-	// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to SiteConfig
+	// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to 
 	// For now, config.description (from site.config) is used as the primary source or fallback.
+
+	return website
 }
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 	import_actions := plbook.find(filter: 'site.import')!
 	// println('import_actions: ${import_actions}')
+
 	for action in import_actions {
 		mut p := action.params
 		mut replace_map := map[string]string{}
@@ -167,7 +123,7 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
+fn play_footer(mut plbook PlayBook , mut config SiteConfig) ! {
 	footer_actions := plbook.find(filter: 'site.footer')!
 	for action in footer_actions {
 		mut p := action.params
@@ -201,23 +157,27 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-// fn play_pages(mut plbook PlayBook, mut config SiteConfig) ! {
-// 	page_actions := plbook.find(filter: 'site.page')!
-// 	// println('page_actions: ${page_actions}')
-// 	for action in page_actions {
-// 		mut p := action.params
+fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
+	build_dest_actions := plbook.find(filter: 'site.build_dest')!
+	for action in build_dest_actions {
+		mut p := action.params
+		mut dest := BuildDest{
+			path:     p.get('path')!
+			ssh_name: p.get_default('ssh_name', '')!
+		}
+		config.build_dest << dest
+	}
+}
 
-// 		mut page := Page{
-// 			name:        p.get('name')!
-// 			title:       p.get_default('title', '')!
-// 			description: p.get_default('description', '')!
-// 			content:     p.get_default('content', '')!
-// 			src:         p.get_default('src', '')!
-// 			draft:       p.get_default_false('draft')
-// 			folder:      p.get_default('folder', '')!
-// 			prio:        p.get_int_default('prio', 0)!
-// 		}
+fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
+	build_dest_dev_actions := plbook.find(filter: 'site.build_dest_dev')!
+	for action in build_dest_dev_actions {
+		mut p := action.params
+		mut dest_dev := BuildDest{
+			path:     p.get('path')!
+			ssh_name: p.get_default('ssh_name', '')!
+		}
+		config.build_dest_dev << dest_dev
+	}
+}
 
-// 		config.pages << page
-// 	}
-// }

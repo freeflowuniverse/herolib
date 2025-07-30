@@ -1,11 +1,5 @@
 # Site Module
 
-The `lib/web/site/` directory contains the Vlang code responsible for generating and managing a documentation website all the config elements are specified in heroscript
-
-The result is in redis on the DB as used in the context on
-
-- hset: siteconfigs:$name as json
-- set: siteconfigs:current is the name of the last one we processed
 
 ## config heroscript
 
@@ -102,11 +96,11 @@ The result is in redis on the DB as used in the context on
 
 ```
 
-## how to use easy
+## factory
 
 ```v
 import freeflowuniverse.herolib.web.site
-siteconfig := site.new("/tmp/mypath")!
+mut mysite := site.new()!
 
 ```
 

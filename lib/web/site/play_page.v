@@ -1,14 +1,11 @@
-module sitegen
+module site
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
-import freeflowuniverse.herolib.ui.console
-import os
 
+//plays the sections & pages
+fn play_pages(mut plbook PlayBook, mut site Site) ! {
 
-
-pub fn play(mut plbook PlayBook) ! {
-
-	defaultdest := '${os.home_dir()}/hero/var/sitegen'
+	// mut siteconfig := &site.siteconfig
 
 	//if only 1 doctree is specified, then we use that as the default doctree name
 	mut doctreename := 'main'
@@ -22,21 +19,12 @@ pub fn play(mut plbook PlayBook) ! {
 		}
 	}
 
-	// !!site.page name:"atest" path:"crazy/sub" position:1
-	// 	src:"marketplace_specs:tft_tfp_marketplace"
-	// 	title:"Just a Page"
-	// 	description:"A description not filled in"
-	// 	draft:1 hide_title:1
-
-	mut factory := new(path: defaultdest, flat: true)!
-
 	// LETS FIRST DO THE CATEGORIES
 	category_actions := plbook.find(filter: 'site.page_category')!
 	mut section := Section{}
 	for action in category_actions {
 		// println(action)
 		mut p := action.params
-		sitename := p.get_default('sitename', '')!
 		section.position = p.get_int_default('position', 20)!
 		section.label = p.get('label') or {
 			return error('need to specify label in site.page_category')
@@ -44,8 +32,7 @@ pub fn play(mut plbook PlayBook) ! {
 		section.path = p.get('path') or {
 			return error('need to specify path in site.page_category')
 		}
-		mut site := factory.site_get(sitename)!
-		site.section_add(section)!
+		site.sections << section
 	}
 
 	page_actions := plbook.find(filter: 'site.page')!
@@ -59,7 +46,6 @@ pub fn play(mut plbook PlayBook) ! {
 	for action in page_actions {
 		// println(action)
 		mut p := action.params
-		sitename := p.get_default('sitename', '')!
 		pathnew := p.get_default('path', '')!
 		if pathnew != '' {
 			mypage.path = path
@@ -95,7 +81,7 @@ pub fn play(mut plbook PlayBook) ! {
 		mypage.draft = p.get_default_false('draft')
 		mypage.hide_title = p.get_default_false('hide_title')
 		mypage.title_nr = p.get_int_default('title_nr', 0)!
-		mut site := factory.site_get(sitename)!
-		site.page_add(mypage)!
+
+		site.pages << mypage
 	}
 }
