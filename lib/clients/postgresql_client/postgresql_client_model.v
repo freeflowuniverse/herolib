@@ -1,6 +1,7 @@
 module postgresql_client
 
 import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.data.encoderhero
 import os
 import db.pg
 
@@ -10,7 +11,7 @@ const default = true
 
 pub fn heroscript_default() !string {
 	heroscript := "
-    !!postgresql_client.configure 
+    !!postgresql_client.configure
         name:'default'
         user: 'root'
         port: 5432
@@ -19,6 +20,15 @@ pub fn heroscript_default() !string {
         dbname: 'postgres'
         "
 	return heroscript
+}
+
+pub fn heroscript_dumps(obj PostgresClient) !string {
+	return encoderhero.encode[PostgresClient](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !PostgresClient {
+	mut obj := encoderhero.decode[PostgresClient](heroscript)!
+	return obj
 }
 
 // THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED

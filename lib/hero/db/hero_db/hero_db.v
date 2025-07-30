@@ -3,7 +3,6 @@ module hero_db
 import json
 import freeflowuniverse.herolib.clients.postgresql_client
 import freeflowuniverse.herolib.core.texttools
-import time
 
 // Generic database interface for Hero root objects
 pub struct HeroDB[T] {
@@ -11,7 +10,7 @@ pub struct HeroDB[T] {
 	table_name string
 }
 
-// Initialize a new HeroDB instance for a specific type
+// new creates a new HeroDB instance for a specific type T
 pub fn new[T](client &postgresql_client.PostgresClient) HeroDB[T] {
 	mut table_name := '${texttools.snake_case(T.name)}s'
 	// Map dirname from module path
@@ -27,7 +26,7 @@ pub fn new[T](client &postgresql_client.PostgresClient) HeroDB[T] {
 	}
 }
 
-// Ensure table exists with proper schema
+// ensure_table creates the database table with proper schema for type T
 pub fn (mut self HeroDB[T]) ensure_table() ! {
 	// Get index fields from struct reflection
 	index_fields := self.get_index_fields()
@@ -73,7 +72,7 @@ fn (self HeroDB[T]) get_index_fields() []string {
 	return fields
 }
 
-// Save object to database
+// save stores the object T in the database, updating if it already exists
 pub fn (mut self HeroDB[T]) save(obj &T) ! {
 	// Get index values from object
 	index_data := self.extract_index_values(obj)
@@ -125,7 +124,7 @@ pub fn (mut self HeroDB[T]) save(obj &T) ! {
 	}
 }
 
-// Get object by index values
+// get_by_index retrieves an object T by its index values
 pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !&T {
 	mut query := 'SELECT data FROM ${self.table_name} WHERE '
 	mut params := []string{}
@@ -148,7 +147,7 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !&T {
 	return &obj
 }
 
-// Get all objects
+// get_all retrieves all objects T from the database
 pub fn (mut self HeroDB[T]) get_all() ![]&T {
 	query := 'SELECT data FROM ${self.table_name} ORDER BY id DESC'
 	rows := self.db_client.exec(query)!
@@ -165,7 +164,7 @@ pub fn (mut self HeroDB[T]) get_all() ![]&T {
 	return results
 }
 
-// Search by index field
+// search_by_index searches for objects T by a specific index field
 pub fn (mut self HeroDB[T]) search_by_index(field_name string, value string) ![]&T {
 	query := 'SELECT data FROM ${self.table_name} WHERE ${field_name} = \'${value}\' ORDER BY id DESC'
 	rows := self.db_client.exec(query)!
@@ -182,7 +181,7 @@ pub fn (mut self HeroDB[T]) search_by_index(field_name string, value string) ![]
 	return results
 }
 
-// Delete by index values
+// delete_by_index removes objects T matching the given index values
 pub fn (mut self HeroDB[T]) delete_by_index(index_values map[string]string) ! {
 	mut query := 'DELETE FROM ${self.table_name} WHERE '
 	mut params := []string{}
