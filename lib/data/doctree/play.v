@@ -3,20 +3,8 @@ module doctree
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import freeflowuniverse.herolib.ui.console
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript      string
-	heroscript_path string
-	plbook          ?PlayBook
-	reset           bool
-}
 
-pub fn play(args_ PlayArgs) !PlayBook {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
+pub fn play(mut plbook PlayBook) ! {
 
 	mut doctrees := map[string]&Tree{}
 

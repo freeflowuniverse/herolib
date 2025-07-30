@@ -87,10 +87,7 @@ pub mut:
 	reset      bool
 }
 
-pub fn play(args_ PlayArgs) ! {
-	mut args := args_
-
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+pub fn play(mut plbook PlayBook) ! {
 
 	mut install_actions := plbook.find(filter: 'postgresql.configure')!
 	if install_actions.len > 0 {

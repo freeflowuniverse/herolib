@@ -189,7 +189,7 @@ pub fn (plbook PlayBook) hashkey() string {
 	return bs.hex()
 }
 
-// check if playbook is empty,if not will give error, means there are actions left to be exected
+// check if plbook is empty,if not will give error, means there are actions left to be exected
 pub fn (mut plbook PlayBook) empty_check() ! {
 	mut actions := []&Action{}
 	for a in plbook.actions {

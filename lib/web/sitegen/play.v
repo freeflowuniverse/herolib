@@ -4,22 +4,8 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 import os
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript      string
-	heroscript_path string
-	plbook          ?PlayBook
-	dest            string
-	flat            bool // if flat then won't use sitenames as subdir's
-	sitename        string
-}
 
-pub fn play(args_ PlayArgs) ! {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
+pub fn play(mut plbook PlayBook) ! {
 
 	if args.dest == '' {
 		args.dest = '${os.home_dir()}/hero/var/sitegen'

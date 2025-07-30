@@ -14,16 +14,24 @@ import freeflowuniverse.herolib.biz.bizmodel
 // import freeflowuniverse.herolib.virt.hetzner
 // import freeflowuniverse.herolib.clients.b2
 
+@[params]
+pub struct PlayArgs {
+pub mut:
+	heroscript      string
+	heroscript_path string
+	plbook          ?playbook.PlayBook
+	reset           bool
+}
 
-pub fn run(args_ PlayArgs) !PlayBook {
+pub fn run(args_ PlayArgs) ! {
 
 	mut args := args_
 
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
-	play_core(mut playbook)!
-	play_git(mut playbook)!
+	play_core(mut plbook)!
+	play_git(mut plbook)!
 
 	// play_ssh(mut plbook)!
 	// play_publisher(mut plbook)!
@@ -36,8 +44,8 @@ pub fn run(args_ PlayArgs) !PlayBook {
 
 	// plbook = farmingsimulator.play(mut plbook)!
 	// plbook = gridsimulator.play(mut plbook)!
-	plbook = bizmodel.play(mut playbook)!
-	plbook = doctree.play(mut playbook)!
+	plbook = bizmodel.play(mut plbook)!
+	plbook = doctree.play(mut plbook)!
 	
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!
@@ -46,5 +54,5 @@ pub fn run(args_ PlayArgs) !PlayBook {
 	// plbook.empty_check()!
 
 
-	return plbook
+	
 }

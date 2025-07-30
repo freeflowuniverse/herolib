@@ -3,11 +3,7 @@ module playcmds
 import freeflowuniverse.herolib.osal.sshagent
 import freeflowuniverse.herolib.core.playbook {PlayBook}
 
-fn play_ssh(args_ PlayArgs) !PlayBook {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
+fn play_ssh(mut plbook PlayBook) ! {
 
 	mut agent := sshagent.new()!
 	for mut action in plbook.find(filter: 'sshagent.*')! {
@@ -24,5 +20,5 @@ fn play_ssh(args_ PlayArgs) !PlayBook {
 		}
 		action.done = true
 	}
-	return plbook
+	
 }

@@ -67,28 +67,8 @@ fn set(o RCloneClient) ! {
 	rclone_global['default'] = &o2
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	name       string = 'default'
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
 
-	start     bool
-	stop      bool
-	restart   bool
-	delete    bool
-	configure bool // make sure there is at least one installed
-}
-
-pub fn play(args_ PlayArgs) ! {
-	mut args := args_
-
-	if args.heroscript == '' {
-		args.heroscript = heroscript_default()!
-	}
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+pub fn play(mut plbook PlayBook) ! {
 
 	mut install_actions := plbook.find(filter: 'rclone.configure')!
 	if install_actions.len > 0 {

@@ -74,21 +74,9 @@ fn set(o MailClient) ! {
 	mailclient_default = o.name
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
 
-pub fn play(args_ PlayArgs) ! {
-	mut args := args_
 
-	if args.heroscript == '' {
-		args.heroscript = heroscript_default()!
-	}
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+pub fn play(mut plbook PlayBook) ! {
 
 	mut install_actions := plbook.find(filter: 'mailclient.configure')!
 	if install_actions.len > 0 {

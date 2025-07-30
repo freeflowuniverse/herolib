@@ -61,11 +61,11 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 		args.path_publish = '${f.path_publish}/${args.name}'
 	}
 
-	//this will get us the siteconfig run through playbook
+	//this will get us the siteconfig run through plbook
 	mut mysiteconfig := *siteconfig.new(configpath)!
 
 	// NOT NEEDED IS DONE FROM HEROSCRIPT BEFORE
-	// //now run the playbook to get all relevant for the site, {SITENAME} has been set in the context.session
+	// //now run the plbook to get all relevant for the site, {SITENAME} has been set in the context.session
 	// doctree.play(
 	// 	heroscript_path: configpath
 	// 	reset:           args.update

@@ -87,7 +87,7 @@ pub mut:
 	reset      bool
 }
 
-pub fn play(args_ PlayArgs) ! {
+pub fn play(mut plbook PlayBook) ! {
 	mut args := args_
 
 	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }

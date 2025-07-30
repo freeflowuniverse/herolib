@@ -11,12 +11,7 @@ import freeflowuniverse.herolib.ui.console
 //     interactive:true
 
 
-fn play_core(args_ PlayArgs) !PlayBook {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
-
+fn play_core(mut plbook PlayBook) ! {
 
 	// for mut action in plbook.find(filter: 'context.configure')! {
 	// 	mut p := action.params
@@ -33,7 +28,6 @@ fn play_core(args_ PlayArgs) !PlayBook {
 	// 	}
 	// 	action.done = true
 	// }
-
 
 	for action_ in plbook.find(filter: 'play.*')! {
 		if action_.name == 'include' {
@@ -82,9 +76,9 @@ fn play_core(args_ PlayArgs) !PlayBook {
 	}
 
 
-	// CHANGE {...} args in playbook
+	// CHANGE {...} args in plbook
 
-	println('playbook:${plbook}')
+	println('plbook:${plbook}')
 
 	mut context := base.context()!
 	mut session := context.session_latest()!
@@ -128,5 +122,4 @@ fn play_core(args_ PlayArgs) !PlayBook {
 	// 	action.done = true
 	// }
 
-	return plbook
 }

@@ -78,21 +78,8 @@ pub fn save(o PostgresClient) ! {
 	context.hero_config_set('postgresql_client', o.name, heroscript)!
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
 
-pub fn play(args_ PlayArgs) ! {
-	mut model := args_
-
-	if model.heroscript == '' {
-		model.heroscript = heroscript_default()!
-	}
-	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
+pub fn play(mut plbook PlayBook) ! {
 
 	mut configure_actions := plbook.find(filter: 'postgresql_client.configure')!
 	if configure_actions.len > 0 {

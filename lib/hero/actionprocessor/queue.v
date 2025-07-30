@@ -73,8 +73,8 @@ pub fn action_job_from_json(data string) !ActionJob {
 	return json.decode(ActionJob, data)
 }
 
-// to_playbook converts the job's heroscript to a PlayBook object
-pub fn (job ActionJob) to_playbook() !&playbook.PlayBook {
+// to_plbook converts the job's heroscript to a PlayBook object
+pub fn (job ActionJob) to_plbook() !&playbook.PlayBook {
 	if job.heroscript.trim_space() == '' {
 		return error('No heroscript content in job')
 	}

@@ -93,24 +93,9 @@ pub fn get(args_ ArgsGet) !&${args.classname}  {
 }
 @end
 
-^^[params]
-pub struct PlayArgs {
-pub mut:
-    heroscript string  //if filled in then plbook will be made out of it
-    plbook     ?playbook.PlayBook 
-	reset      bool
-}
 
-pub fn play(args_ PlayArgs) ! {
+pub fn play(mut plbook PlayBook) ! {
 	
-	mut args:=args_
-
-    @if args.hasconfig
-
-    @end
-    mut plbook := args.plbook or {
-        playbook.new(text: args.heroscript)!
-    }
     
     @if args.hasconfig
     mut install_actions := plbook.find(filter: '${args.name}.configure')!

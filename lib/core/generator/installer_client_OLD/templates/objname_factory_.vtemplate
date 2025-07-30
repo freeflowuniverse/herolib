@@ -94,23 +94,9 @@ pub fn save(o ${model.classname})! {
 	context.hero_config_set("${model.name}",o.name,heroscript)!
 }
 
-^^[params]
-pub struct PlayArgs {
-pub mut:
-    heroscript string  //if filled in then plbook will be made out of it
-    plbook     ?playbook.PlayBook 
-	reset      bool
-}
 
-pub fn play(args_ PlayArgs) ! {
+pub fn play(mut plbook PlayBook) ! {
 	
-	mut model:=args_
-
-    @if model.hasconfig
-    if model.heroscript == "" {
-        model.heroscript = heroscript_default()!
-    }
-    @end
     mut plbook := model.plbook or {
         playbook.new(text: model.heroscript)!
     }

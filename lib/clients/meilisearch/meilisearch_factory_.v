@@ -77,21 +77,8 @@ pub fn save(o MeilisearchClient) ! {
 	context.hero_config_set('meilisearch', model.name, heroscript)!
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
 
-pub fn play(args_ PlayArgs) ! {
-	mut model := args_
-
-	if model.heroscript == '' {
-		model.heroscript = heroscript_default()!
-	}
-	mut plbook := model.plbook or { playbook.new(text: model.heroscript)! }
+pub fn play(mut plbook PlayBook) ! {
 
 	mut configure_actions := plbook.find(filter: 'meilisearch.configure')!
 	if configure_actions.len > 0 {

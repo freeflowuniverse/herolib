@@ -16,7 +16,7 @@ pub mut:
 	// session    ?&base.Session
 }
 
-// get a new playbook, can scan a directory or just add text
+// get a new plbook, can scan a directory or just add text
 // ```
 // path string
 // text string
@@ -26,7 +26,7 @@ pub mut:
 // git_reset bool
 // session &base.Session
 // ```
-pub fn new(args_ PlayBookNewArgs) !PlayBook {
+pub fn new(args_ PlayBookNewArgs) ! {
 	mut args := args_
 
 	mut c := base.context() or { return error('failed to get context: ${err}') }

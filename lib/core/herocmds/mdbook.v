@@ -84,7 +84,7 @@ fn cmd_mdbook_execute(cmd Command) ! {
 	mut url := cmd.flags.get_string('url') or { '' }
 	mut path := cmd.flags.get_string('path') or { '' }
 	if path.len > 0 || url.len > 0 {
-		// execute the attached playbook
+		// execute the attached plbook
 		mut plbook, _ := plbook_run(cmd)!
 		// get name from the book.generate action
 		if name == '' {

@@ -23,18 +23,8 @@ pub fn get(args_ ArgsGet) !&ZeroFS {
 	return &ZeroFS{}
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
 
-pub fn play(args_ PlayArgs) ! {
-	mut args := args_
-
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
+pub fn play(mut plbook PlayBook) ! {
 
 	mut other_actions := plbook.find(filter: 'zerofs.')!
 	for other_action in other_actions {

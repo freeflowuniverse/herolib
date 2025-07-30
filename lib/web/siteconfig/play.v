@@ -39,11 +39,7 @@ fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-pub fn play(args_ PlayArgs) !PlayBook {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
+pub fn play(mut plbook PlayBook) ! {
 
 	mut context := base.context()!
 	mut redis := context.redis()!

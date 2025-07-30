@@ -110,7 +110,7 @@ siteconfig := site.new("/tmp/mypath")!
 
 ```
 
-## how to use with playbook
+## how to use with plbook
 
 ```v
 import freeflowuniverse.herolib.core.playbook
@@ -124,7 +124,7 @@ import freeflowuniverse.herolib.web.site
 // session  ?&base.Session      is optional
 mut plbook := playbook.new( "....")!
 
-site.play(mut playbook)!
+site.play(mut plbook)!
 
 ```
 

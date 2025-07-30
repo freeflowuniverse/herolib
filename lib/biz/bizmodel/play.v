@@ -11,16 +11,8 @@ const action_priorities = {
 	3: ['sheet_wiki', 'graph_bar_row', 'graph_pie_row', 'graph_line_row', 'row_overview']
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript      string
-	heroscript_path string
-	plbook          ?PlayBook
-	reset           bool
-}
 
-pub fn play(args PlayArgs) ! PlayBook {
+pub fn play(mut plbook PlayBook) ! {
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
@@ -31,16 +23,15 @@ pub fn play(args PlayArgs) ! PlayBook {
 		return a.params.get('bizname') or { 'default' }
 	})
 
-	// play actions for each biz in playbook
+	// play actions for each biz in plbook
 	for biz, actions in actions_by_biz {
 		mut model := getset(biz)!
 		model.play(mut plbook)!
 	}
 
-	return plbook
 }
 
-pub fn (mut m BizModel) play(mut plbook PlayBook) !PlayBook {
+pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 	mut actions := plbook.actions_find(actor: 'bizmodel')!
 
 	for action in actions.filter(it.name in action_priorities[0]) {
@@ -68,5 +59,4 @@ pub fn (mut m BizModel) play(mut plbook PlayBook) !PlayBook {
 		m.act(*action)!
 	}
 
-	return plbook
 }

@@ -81,7 +81,7 @@ pub mut:
 	configure  bool // make sure there is at least one installed
 }
 
-pub fn play(args_ PlayArgs) ! {
+pub fn play(mut plbook PlayBook) ! {
 	mut args := args_
 
 	if args.heroscript == '' {

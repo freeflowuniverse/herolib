@@ -141,19 +141,19 @@ pub fn plbook_code_get(cmd Command) !string {
 	return path
 }
 
-// same as session_run_get but will also run the playbook
+// same as session_run_get but will also run the plbook
 pub fn plbook_run(cmd Command) !(&playbook.PlayBook, string) {
 	path := plbook_code_get(cmd)!
 	if path.len == 0 {
 		return error(cmd.help_message())
 	}
 
-	// add all actions inside to the playbook
+	// add all actions inside to the plbook
 	mut plbook := playbook.new(path: path)!
 
 	dagu := cmd.flags.get_bool('dagu') or { false }
 
-	playcmds.run(mut playbook)!
+	playcmds.run(mut plbook)!
 
 	// TODO: below gives Segmentation fault (core dumped)
 	// console.print_stdout(plbook.str())

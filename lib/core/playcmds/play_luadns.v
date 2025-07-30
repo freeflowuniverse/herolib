@@ -4,12 +4,7 @@ import freeflowuniverse.herolib.develop.luadns
 import freeflowuniverse.herolib.core.playbook {PlayBook}
 // import os
 
-fn play_luadns(args_ PlayArgs) !PlayBook {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
-
+fn play_luadns(mut plbook PlayBook) ! {
 
 	// Variables below are not used, commenting them out
 	// mut buildroot := '${os.home_dir()}/hero/var/mdbuild'
@@ -40,5 +35,5 @@ fn play_luadns(args_ PlayArgs) !PlayBook {
 		action.done = true
 	}
 
-	return plbook
+	
 }
