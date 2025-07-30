@@ -151,9 +151,7 @@ pub fn play_git(args_ PlayArgs) !PlayBook {
 	for action in reload_cache_actions {
 		mut p := action.params
 		coderoot := p.get_default('coderoot', '')!
-		if coderoot.len > 0 {
-			gs = gittools.new(coderoot: coderoot)!
-		}
+		gs = gittools.new(coderoot: coderoot)!
 		gs.load(true)! // Force reload
 	}
 
