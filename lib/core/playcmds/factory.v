@@ -23,7 +23,7 @@ pub fn run(args_ PlayArgs) !PlayBook {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
 	plbook = play_core(plbook:plbook)!
-	plbook = play_git.play(mut plbook)!
+	plbook = play_git(plbook:plbook)!
 
 	// plbook = play_ssh(mut plbook)!
 	// play_publisher(mut plbook)!
