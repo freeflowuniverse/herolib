@@ -113,71 +113,72 @@ pub fn (mut plbook PlayBook) names() ![]string {
 	return names
 }
 
-@[params]
-pub struct ActionGetArgs {
-pub mut:
-	id         int
-	actor      string
-	name       string
-	actiontype ActionType = .sal
-}
+// @[params]
+// pub struct ActionGetArgs {
+// pub mut:
+// 	id         int
+// 	actor      string
+// 	name       string
+// 	filter string
+// 	actiontype ActionType = .sal
+// }
 
-// Find all actions based on ActionGetArgs
-// - If id == 0, then matches all ids; when id is specified, can only return 1.
-// - If actor == "", then matches all actors.
-// - If name == "", then matches all actions from the defined actor (if defined).
-// - If actiontype == .unknown, then matches all action types; when specified, filters by the action type, default .sal
-pub fn (mut plbook PlayBook) actions_find(args ActionGetArgs) ![]&Action {
-	mut res := []&Action{}
-	for a in plbook.actions {
-		// If id is specified, return only the action with that id
-		if args.id != 0 {
-			if a.id == args.id {
-				return [a]
-			}
-			continue
-		}
-		// Filter by actor if specified
-		if args.actor.len > 0 && a.actor != args.actor {
-			continue
-		}
-		// Filter by name if specified
-		if args.name.len > 0 && a.name != args.name {
-			continue
-		}
-		// Filter by actiontype if specified
-		if args.actiontype != .unknown && a.actiontype != args.actiontype {
-			continue
-		}
-		// If the action passes all filters, add it to the result
-		res << a
-	}
-	return res
-}
+// // Find all actions based on ActionGetArgs
+// // - If id == 0, then matches all ids; when id is specified, can only return 1.
+// // - If actor == "", then matches all actors.
+// // - If name == "", then matches all actions from the defined actor (if defined).
+// // - If actiontype == .unknown, then matches all action types; when specified, filters by the action type, default .sal
+// pub fn (mut plbook PlayBook) actions_find(args ActionGetArgs) ![]&Action {
+// 	mut res := []&Action{}
+// 	for a in plbook.actions {
+// 		// If id is specified, return only the action with that id
+// 		if args.id != 0 {
+// 			if a.id == args.id {
+// 				return [a]
+// 			}
+// 			continue
+// 		}
+// 		// Filter by actor if specified
+// 		if args.actor.len > 0 && a.actor != args.actor {
+// 			continue
+// 		}
+// 		// Filter by name if specified
+// 		if args.name.len > 0 && a.name != args.name {
+// 			continue
+// 		}
+// 		// Filter by actiontype if specified
+// 		if args.actiontype != .unknown && a.actiontype != args.actiontype {
+// 			continue
+// 		}
+// 		// If the action passes all filters, add it to the result
+// 		res << a
+// 	}
+// 	return res
+// }
 
-pub fn (mut plbook PlayBook) action_exists(args ActionGetArgs) bool {
-	// Use actions_find to get the filtered actions
-	actions := plbook.actions_find(args) or { return false }
-	if actions.len == 1 {
-		return true
-	} else if actions.len == 0 {
-		return false
-	} else {
-		return false
-	}
-}
+// pub fn (mut plbook PlayBook) action_exists(args ActionGetArgs) bool {
+// 	// Use actions_find to get the filtered actions
+// 	actions := plbook.actions_find(args) or { return false }
+// 	if actions.len == 1 {
+// 		return true
+// 	} else if actions.len == 0 {
+// 		return false
+// 	} else {
+// 		return false
+// 	}
+// }
 
-pub fn (mut plbook PlayBook) action_get(args ActionGetArgs) !&Action {
-	// Use actions_find to get the filtered actions
-	actions := plbook.actions_find(args)!
-	if actions.len == 1 {
-		return actions[0]
-	} else if actions.len == 0 {
-		return error("couldn't find action with args: ${args}")
-	} else {
-		return error('multiple actions found with args: ${args}, expected only one')
-	}
-}
+// pub fn (mut plbook PlayBook) action_get(args ActionGetArgs) !&Action {
+// 	// Use actions_find to get the filtered actions
+// 	actions := plbook.actions_find(args)!
+// 	if actions.len == 1 {
+// 		return actions[0]
+// 	} else if actions.len == 0 {
+// 		return error("couldn't find action with args: ${args}")
+// 	} else {
+// 		return error('multiple actions found with args: ${args}, expected only one')
+// 	}
+// }
 
 pub fn (plbook PlayBook) hashkey() string {
 	mut out := []string{}

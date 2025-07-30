@@ -5,20 +5,12 @@ import freeflowuniverse.herolib.ui.console
 import os
 
 
-@[params]
-pub struct SiteGenArgs {
-pub mut:
-	dest     string
-	flat     bool
-	sitename string = 'default'
-}
 
-pub fn play(mut plbook PlayBook, mut args SiteGenArgs) ! {
+pub fn play(mut plbook PlayBook) ! {
 
-	if args.dest == '' {
-		args.dest = '${os.home_dir()}/hero/var/sitegen'
-	}
+	defaultdest = '${os.home_dir()}/hero/var/sitegen'
 
+	//if only 1 doctree is specified, then we use that as the default doctree name
 	mut doctreename := 'main'
 	if plbook.exists(filter: 'site.doctree') {
 		if plbook.exists_once(filter: 'site.doctree') {
@@ -36,7 +28,7 @@ pub fn play(mut plbook PlayBook, mut args SiteGenArgs) ! {
 	// 	description:"A description not filled in"
 	// 	draft:1 hide_title:1
 
-	mut factory := new(path: args.dest, flat: args.flat)!
+	mut factory := new(path: defaultdest, flat: true)!
 
 	// LETS FIRST DO THE CATEGORIES
 	category_actions := plbook.find(filter: 'site.page_category')!

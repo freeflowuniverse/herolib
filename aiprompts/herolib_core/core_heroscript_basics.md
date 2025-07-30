@@ -23,38 +23,21 @@ Key characteristics:
 
 ## Processing HeroScript in Vlang
 
-HeroScript can be parsed into a `playbook.PlayBook` object, allowing structured access to actions and their parameters, 
-a good way how to do this as part of a module in a play.v file is shown below.
+HeroScript can be parsed into a `playbook.PlayBook` object, allowing structured access to actions and their parameters, this is used in most of the herolib modules, it allows configuration or actions in a structured way.
 
 ```v
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript      string
-	heroscript_path string
-	plbook          ?PlayBook
-	reset           bool
-}
+pub fn play(mut plbook PlayBook) ! {
 
-pub fn play(args_ PlayArgs) ! {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
-
-	// Initialize Docusaurus site manager based on 'docusaurus.define' action
-	mut ds := new()!
 	if plbook.exists_once(filter: 'docusaurus.define') {
-		mut action := plbook.action_get(actor: 'docusaurus', name: 'define')!
+		mut action := plbook.get(filter: 'docusaurus.define')!
 		mut p := action.params
+		//example how we get parameters from the action see core_params.md for more details
 		ds = new(
-			path_publish: p.get_default('path_publish', '')!
-			path_build:   p.get_default('path_build', '')!
+			path: p.get_default('path_publish', '')!
 			production:   p.get_default_false('production')
-			update:       p.get_default_false('update')
 		)!
 	}
 
@@ -62,15 +45,7 @@ pub fn play(args_ PlayArgs) ! {
 	actions := plbook.find(filter: 'docusaurus.add')!
 	for action in actions {
 		mut p := action.params
-		mut site := ds.get(
-			name:          p.get_default('name', 'main')!
-			nameshort:     p.get_default('nameshort', p.get_default('name', 'main')!)!
-			git_reset:     p.get_default_false('git_reset')
-			//... more
-		)!
-		if plbook.exists_once(filter: 'docusaurus.dev') {
-			site.dev()!
-		}
+		//do more processing here
 	}
 }
 ```

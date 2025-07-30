@@ -102,7 +102,7 @@ pub fn (mut plbook PlayBook) exists(args FindArgs) bool {
 	return res.len > 0
 }
 
-pub fn (mut plbook PlayBook) find_one(args FindArgs) !&Action {
+pub fn (mut plbook PlayBook) get(args FindArgs) !&Action {
 	mut res := plbook.find(args)!
 	if res.len == 0 {
 		return error("can't find action: '${args.filter}'")
@@ -110,14 +110,6 @@ pub fn (mut plbook PlayBook) find_one(args FindArgs) !&Action {
 		return error("found more than one action: '${args.filter}'")
 	}
 	return res[0] or { panic('bug') }
-}
-
-pub fn (mut plbook PlayBook) find_max_one(args FindArgs) ![]&Action {
-	mut res := plbook.find(args)!
-	if res.len > 1 {
-		return error("found more than one action: '${args.filter}'")
-	}
-	return res
 }
 
 fn (action Action) match_items(items []string) bool {
