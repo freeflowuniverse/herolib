@@ -14,20 +14,18 @@ pub fn play(args_ PlayArgs) !PlayBook {
 
 	mut ds := docusaurus.new()!
 
-	if plbook.exists_once(filter: 'docusaurus.define') { // Changed if_once to exists_once and removed or block
-		mut action := plbook.action_get(actor: 'docusaurus', name: 'define')!
+	mut action := plbook.action_get(actor: 'docusaurus', name: 'define')!
 
-		mut p := action.params
-		path_publish := p.get_default('path_publish', '')!
-		path_build := p.get_default('path_build', '')!		// don't do heroscript here because this could already be done before
-		ds = docusaurus.new(
-			path_publish: path_publish
-			path_build:   path_build
-			install: plbook.exists(filter: 'docusaurus.reset') || plbook.exists(filter: 'docusaurus.update') 
-			reset: plbook.exists(filter: 'docusaurus.reset')
-			template_update: plbook.exists(filter: 'docusaurus.reset') || plbook.exists(filter: 'docusaurus.update') 
-		)!
-	}
+	mut p := action.params
+	path_publish := p.get_default('path_publish', '')!
+	path_build := p.get_default('path_build', '')!		// don't do heroscript here because this could already be done before
+	ds = docusaurus.new(
+		path_publish: path_publish
+		path_build:   path_build
+		install: plbook.exists(filter: 'docusaurus.reset') || plbook.exists(filter: 'docusaurus.update') 
+		reset: plbook.exists(filter: 'docusaurus.reset')
+		template_update: plbook.exists(filter: 'docusaurus.reset') || plbook.exists(filter: 'docusaurus.update') 
+	)!
 
 	actions := plbook.find(filter: 'docusaurus.generate')!
 	for action in actions {
