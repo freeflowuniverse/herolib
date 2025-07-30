@@ -8,7 +8,7 @@ import os
 
 pub fn play(mut plbook playbook.PlayBook) ! {
 	// first lets configure are publisher
-	if mut action := plbook.action_get(actor: 'publisher', name: 'configure') {
+	if mut action := plbook.get(filter: 'publisher.configure') {
 		play_configure(mut action)!
 	}
 

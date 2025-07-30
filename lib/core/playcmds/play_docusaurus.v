@@ -10,7 +10,7 @@ fn play(mut plbook PlayBook) ! {
 
 	mut ds := docusaurus.new()!
 
-	mut action0 := plbook.action_get(actor: 'docusaurus', name: 'define')!
+	mut action0 := plbook.get(filter: 'docusaurus.define')!
 
 	mut p0 := action0.params
 	path_publish := p0.get_default('path_publish', '')!

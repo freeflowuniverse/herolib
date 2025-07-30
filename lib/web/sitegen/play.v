@@ -8,13 +8,13 @@ import os
 
 pub fn play(mut plbook PlayBook) ! {
 
-	defaultdest = '${os.home_dir()}/hero/var/sitegen'
+	defaultdest := '${os.home_dir()}/hero/var/sitegen'
 
 	//if only 1 doctree is specified, then we use that as the default doctree name
 	mut doctreename := 'main'
 	if plbook.exists(filter: 'site.doctree') {
 		if plbook.exists_once(filter: 'site.doctree') {
-			mut action := plbook.action_get(actor: 'site', name: 'doctree')!
+			mut action := plbook.get(filter: 'site.doctree')!
 			mut p := action.params
 			doctreename = p.get('name') or { return error('need to specify name in site.doctree') }
 		} else {
@@ -36,7 +36,7 @@ pub fn play(mut plbook PlayBook) ! {
 	for action in category_actions {
 		// println(action)
 		mut p := action.params
-		sitename := p.get_default('sitename', args.sitename)!
+		sitename := p.get_default('sitename', '')!
 		section.position = p.get_int_default('position', 20)!
 		section.label = p.get('label') or {
 			return error('need to specify label in site.page_category')
@@ -59,7 +59,7 @@ pub fn play(mut plbook PlayBook) ! {
 	for action in page_actions {
 		// println(action)
 		mut p := action.params
-		sitename := p.get_default('sitename', args.sitename)!
+		sitename := p.get_default('sitename', '')!
 		pathnew := p.get_default('path', '')!
 		if pathnew != '' {
 			mypage.path = path

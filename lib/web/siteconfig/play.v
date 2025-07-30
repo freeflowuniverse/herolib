@@ -61,7 +61,7 @@ pub fn play(mut plbook PlayBook)! {
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut action := plbook.action_get(actor: 'site', name: 'config')!
+	mut action := plbook.get(filter: 'site.config')!
 
 
 	mut context := base.context()!
@@ -89,7 +89,7 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 	config.url_home = p.get_default('url_home', '')!
 
 	// Process !!site.config_meta for specific metadata overrides
-	mut meta_action := plbook.action_get(actor: 'site', name: 'config_meta')!
+	mut meta_action := plbook.get(filter: 'site.config_meta')!
 
 	mut p_meta := meta_action.params
 	// If 'title' is present in site.config_meta, it overrides. Otherwise, meta_title remains empty or uses site.config.title logic in docusaurus model.

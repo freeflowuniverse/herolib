@@ -73,7 +73,7 @@ pub fn (mut plbook PlayBook) actions_sorted(args SortArgs) ![]&Action {
 		}
 		action_ids := plbook.priorities[nr] or { panic('bug') }
 		for id in action_ids {
-			mut a := plbook.action_get(id: id)!
+			mut a := plbook.actions[id-1] or { panic("bug in actions sorted") }
 			res << a
 		}
 	}
@@ -168,16 +168,12 @@ pub fn (mut plbook PlayBook) names() ![]string {
 // 	}
 // }
 
+// @[deprecated: "Use plbook.get(filter: 'actor.name') or plbook.get(id: id) instead."]
 // pub fn (mut plbook PlayBook) action_get(args ActionGetArgs) !&Action {
-// 	// Use actions_find to get the filtered actions
-// 	actions := plbook.actions_find(args)!
-// 	if actions.len == 1 {
-// 		return actions[0]
-// 	} else if actions.len == 0 {
-// 		return error("couldn't find action with args: ${args}")
-// 	} else {
-// 		return error('multiple actions found with args: ${args}, expected only one')
+// 	if args.id != 0 {
+// 		return plbook.actions[args.id-1] or { panic("bug in action get") }
 // 	}
+// 	return plbook.get(filter: '${args.actor}.${args.name}')!
 // }
 
 pub fn (plbook PlayBook) hashkey() string {

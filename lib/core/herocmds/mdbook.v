@@ -1,6 +1,6 @@
 module herocmds
 
-import freeflowuniverse.herolib.web.mdbook
+// import freeflowuniverse.herolib.web.mdbook
 import freeflowuniverse.herolib.core.pathlib
 import cli { Command, Flag }
 import os
@@ -88,7 +88,7 @@ fn cmd_mdbook_execute(cmd Command) ! {
 		mut plbook, _ := plbook_run(cmd)!
 		// get name from the book.generate action
 		if name == '' {
-			mut a := plbook.action_get(actor: 'book', name: 'define')!
+			mut a := plbook.get(filter: 'book.define')!
 			name = a.params.get('name') or { '' }
 		}
 	} else {
@@ -104,11 +104,11 @@ fn cmd_mdbook_execute(cmd Command) ! {
 	edit := cmd.flags.get_bool('edit') or { false }
 	open := cmd.flags.get_bool('open') or { false }
 	if edit || open {
-		mdbook.book_open(name)!
+		// mdbook.book_open(name)!
 	}
 
 	if edit {
-		mdbook.book_edit(name)!
+		// mdbook.book_edit(name)!
 	}
 }
 
