@@ -20,65 +20,71 @@ pub mut:
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
 	if args.name == '' {
-		args.name = runpod_default
-	}
-	if args.name == '' {
 		args.name = 'default'
 	}
 	return args
 }
 
 pub fn get(args_ ArgsGet) !&RunPod {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := RunPod{
+		name: args.name
+	}
 	if args.name !in runpod_global {
-		if args.name == 'default' {
-			if !config_exists(args) {
-				if default {
-					config_save(args)!
-				}
-			}
-			config_load(args)!
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('runpod', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
 	}
 	return runpod_global[args.name] or {
 		println(runpod_global)
-		panic('could not get config for runpod with name:${args.name}')
+		// bug if we get here because should be in globals
+		panic('could not get config for runpod with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o RunPod) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('runpod', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('runpod', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('runpod', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('runpod', args.name)!
+	if args.name in runpod_global {
+		// del runpod_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('runpod', args.name, heroscript_default()!)!
-}
-
-fn set(o RunPod) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o RunPod) ! {
 	mut o2 := obj_init(o)!
 	runpod_global[o.name] = &o2
 	runpod_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'runpod.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			cfg_play(p)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 }
@@ -86,4 +92,11 @@ pub fn play(mut plbook PlayBook) ! {
 // switch instance to be used for runpod
 pub fn switch(name string) {
 	runpod_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

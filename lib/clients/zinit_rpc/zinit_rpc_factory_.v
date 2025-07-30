@@ -78,7 +78,6 @@ fn set_in_mem(o ZinitRPC) ! {
 	zinit_rpc_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
 	mut install_actions := plbook.find(filter: 'zinit_rpc.configure')!
 	if install_actions.len > 0 {

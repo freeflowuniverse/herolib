@@ -2,7 +2,7 @@ module openai
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-// import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	openai_global  map[string]&OpenAI
@@ -43,7 +43,7 @@ pub fn get(args_ ArgsGet) !&OpenAI {
 	return openai_global[args.name] or {
 		println(openai_global)
 		// bug if we get here because should be in globals
-		panic('could not get config for openai with name, is bug, was for: ${args.name}')
+		panic('could not get config for openai with name, is bug:${args.name}')
 	}
 }
 
@@ -77,7 +77,6 @@ fn set_in_mem(o OpenAI) ! {
 	openai_global[o.name] = &o2
 	openai_default = o.name
 }
-
 
 pub fn play(mut plbook PlayBook) ! {
 	mut install_actions := plbook.find(filter: 'openai.configure')!

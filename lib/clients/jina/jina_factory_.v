@@ -2,7 +2,7 @@ module jina
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
-// import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	jina_global  map[string]&Jina
@@ -28,7 +28,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&Jina {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := Jina{}
+	mut obj := Jina{
+		name: args.name
+	}
 	if args.name !in jina_global {
 		if !exists(args)! {
 			set(obj)!
@@ -76,9 +78,7 @@ fn set_in_mem(o Jina) ! {
 	jina_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-	
 	mut install_actions := plbook.find(filter: 'jina.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

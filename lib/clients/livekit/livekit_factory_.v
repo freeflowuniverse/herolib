@@ -1,12 +1,12 @@
-module postgresql_client
+module livekit
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.ui.console
 
 __global (
-	postgresql_client_global  map[string]&PostgresClient
-	postgresql_client_default string
+	livekit_global  map[string]&LivekitClient
+	livekit_default string
 )
 
 /////////FACTORY
@@ -25,61 +25,61 @@ fn args_get(args_ ArgsGet) ArgsGet {
 	return args
 }
 
-pub fn get(args_ ArgsGet) !&PostgresClient {
+pub fn get(args_ ArgsGet) !&LivekitClient {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := PostgresClient{
+	mut obj := LivekitClient{
 		name: args.name
 	}
-	if args.name !in postgresql_client_global {
+	if args.name !in livekit_global {
 		if !exists(args)! {
 			set(obj)!
 		} else {
-			heroscript := context.hero_config_get('postgresql_client', args.name)!
+			heroscript := context.hero_config_get('livekit', args.name)!
 			mut obj_ := heroscript_loads(heroscript)!
 			set_in_mem(obj_)!
 		}
 	}
-	return postgresql_client_global[args.name] or {
-		println(postgresql_client_global)
+	return livekit_global[args.name] or {
+		println(livekit_global)
 		// bug if we get here because should be in globals
-		panic('could not get config for postgresql_client with name, is bug:${args.name}')
+		panic('could not get config for livekit with name, is bug:${args.name}')
 	}
 }
 
 // register the config for the future
-pub fn set(o PostgresClient) ! {
+pub fn set(o LivekitClient) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('postgresql_client', o.name, heroscript)!
+	context.hero_config_set('livekit', o.name, heroscript)!
 }
 
 // does the config exists?
 pub fn exists(args_ ArgsGet) !bool {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	return context.hero_config_exists('postgresql_client', args.name)
+	return context.hero_config_exists('livekit', args.name)
 }
 
 pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_delete('postgresql_client', args.name)!
-	if args.name in postgresql_client_global {
-		// del postgresql_client_global[args.name]
+	context.hero_config_delete('livekit', args.name)!
+	if args.name in livekit_global {
+		// del livekit_global[args.name]
 	}
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o PostgresClient) ! {
+fn set_in_mem(o LivekitClient) ! {
 	mut o2 := obj_init(o)!
-	postgresql_client_global[o.name] = &o2
-	postgresql_client_default = o.name
+	livekit_global[o.name] = &o2
+	livekit_default = o.name
 }
 
 pub fn play(mut plbook PlayBook) ! {
-	mut install_actions := plbook.find(filter: 'postgresql_client.configure')!
+	mut install_actions := plbook.find(filter: 'livekit.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
@@ -89,9 +89,9 @@ pub fn play(mut plbook PlayBook) ! {
 	}
 }
 
-// switch instance to be used for postgresql_client
+// switch instance to be used for livekit
 pub fn switch(name string) {
-	postgresql_client_default = name
+	livekit_default = name
 }
 
 // helpers

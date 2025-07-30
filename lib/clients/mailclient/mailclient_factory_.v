@@ -20,21 +20,25 @@ pub mut:
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
 	if args.name == '' {
-		args.name = mailclient_default
-	}
-	if args.name == '' {
 		args.name = 'default'
 	}
 	return args
 }
 
 pub fn get(args_ ArgsGet) !&MailClient {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := MailClient{
+		name: args.name
+	}
 	if args.name !in mailclient_global {
-		if !config_exists(args) {
-			config_save(args)!
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('mailclient', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
-		config_load(args)!
 	}
 	return mailclient_global[args.name] or {
 		println(mailclient_global)
@@ -43,46 +47,44 @@ pub fn get(args_ ArgsGet) !&MailClient {
 	}
 }
 
-pub fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o MailClient) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('mailclient', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('mailclient', args.name)
 }
 
-pub fn config_load(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	mut heroscript := context.hero_config_get('mailclient', args.name)!
-	play(heroscript: heroscript)!
-}
-
-pub fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('mailclient', args.name, heroscript_default(instance: args.name)!)!
-}
-
-pub fn config_delete(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
 	context.hero_config_delete('mailclient', args.name)!
+	if args.name in mailclient_global {
+		// del mailclient_global[args.name]
+	}
 }
 
-fn set(o MailClient) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o MailClient) ! {
 	mut o2 := obj_init(o)!
 	mailclient_global[o.name] = &o2
 	mailclient_default = o.name
 }
 
-
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'mailclient.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			cfg_play(p)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 }

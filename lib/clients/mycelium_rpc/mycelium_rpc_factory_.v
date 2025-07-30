@@ -78,9 +78,7 @@ fn set_in_mem(o MyceliumRPC) ! {
 	mycelium_rpc_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'mycelium_rpc.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

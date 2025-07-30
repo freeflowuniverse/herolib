@@ -2,6 +2,7 @@ module mycelium
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	mycelium_global  map[string]&Mycelium
@@ -27,7 +28,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&Mycelium {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := Mycelium{}
+	mut obj := Mycelium{
+		name: args.name
+	}
 	if args.name !in mycelium_global {
 		if !exists(args)! {
 			set(obj)!
@@ -75,9 +78,7 @@ fn set_in_mem(o Mycelium) ! {
 	mycelium_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'mycelium.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

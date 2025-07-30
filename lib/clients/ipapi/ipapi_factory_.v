@@ -20,65 +20,71 @@ pub mut:
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
 	if args.name == '' {
-		args.name = ipapi_default
-	}
-	if args.name == '' {
 		args.name = 'default'
 	}
 	return args
 }
 
 pub fn get(args_ ArgsGet) !&IPApi {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := IPApi{
+		name: args.name
+	}
 	if args.name !in ipapi_global {
-		if args.name == 'default' {
-			if !config_exists(args) {
-				if default {
-					config_save(args)!
-				}
-			}
-			config_load(args)!
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('ipapi', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
 	}
 	return ipapi_global[args.name] or {
 		println(ipapi_global)
-		panic('could not get config for ipapi with name:${args.name}')
+		// bug if we get here because should be in globals
+		panic('could not get config for ipapi with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o IPApi) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('ipapi', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('ipapi', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('ipapi', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('ipapi', args.name)!
+	if args.name in ipapi_global {
+		// del ipapi_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('ipapi', args.name, heroscript_default()!)!
-}
-
-fn set(o IPApi) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o IPApi) ! {
 	mut o2 := obj_init(o)!
 	ipapi_global[o.name] = &o2
 	ipapi_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'ipapi.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			cfg_play(p)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 }
@@ -86,4 +92,11 @@ pub fn play(mut plbook PlayBook) ! {
 // switch instance to be used for ipapi
 pub fn switch(name string) {
 	ipapi_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

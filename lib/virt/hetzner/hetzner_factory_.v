@@ -2,6 +2,7 @@ module hetzner
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	hetzner_global  map[string]&HetznerManager
@@ -13,14 +14,11 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string = 'default'
+	name string
 }
 
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
-	if args.name == '' {
-		args.name = hetzner_default
-	}
 	if args.name == '' {
 		args.name = 'default'
 	}
@@ -28,73 +26,65 @@ fn args_get(args_ ArgsGet) ArgsGet {
 }
 
 pub fn get(args_ ArgsGet) !&HetznerManager {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := HetznerManager{
+		name: args.name
+	}
 	if args.name !in hetzner_global {
-		if !config_exists() {
-			if default {
-				config_save()!
-			}
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('hetzner', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
-		config_load()!
 	}
 	return hetzner_global[args.name] or {
 		println(hetzner_global)
-		panic('bug in get from factory: ')
+		// bug if we get here because should be in globals
+		panic('could not get config for hetzner with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o HetznerManager) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('hetzner', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('hetzner', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('hetzner', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('hetzner', args.name)!
+	if args.name in hetzner_global {
+		// del hetzner_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('hetzner', args.name, heroscript_default()!)!
-}
-
-fn set(o HetznerManager) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o HetznerManager) ! {
 	mut o2 := obj_init(o)!
-	hetzner_global['default'] = &o2
-}
-
-@[params]
-pub struct PlayArgs {
-pub mut:
-	name       string = 'default'
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-	start      bool
-	stop       bool
-	restart    bool
-	delete     bool
-	configure  bool // make sure there is at least one installed
+	hetzner_global[o.name] = &o2
+	hetzner_default = o.name
 }
 
 pub fn play(mut plbook PlayBook) ! {
-	mut args := args_
-
-	if args.heroscript == '' {
-		args.heroscript = heroscript_default()!
-	}
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
-
 	mut install_actions := plbook.find(filter: 'hetzner.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			mycfg := cfg_play(p)!
-			set(mycfg)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 }
@@ -102,4 +92,11 @@ pub fn play(mut plbook PlayBook) ! {
 // switch instance to be used for hetzner
 pub fn switch(name string) {
 	hetzner_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }

@@ -2,6 +2,7 @@ module wireguard
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	wireguard_global  map[string]&WireGuard
@@ -19,66 +20,71 @@ pub mut:
 fn args_get(args_ ArgsGet) ArgsGet {
 	mut args := args_
 	if args.name == '' {
-		args.name = wireguard_default
-	}
-	if args.name == '' {
-		args.name = 'wireguard'
+		args.name = 'default'
 	}
 	return args
 }
 
 pub fn get(args_ ArgsGet) !&WireGuard {
+	mut context := base.context()!
 	mut args := args_get(args_)
+	mut obj := WireGuard{
+		name: args.name
+	}
 	if args.name !in wireguard_global {
-		if args.name == 'wireguard' {
-			if !config_exists(args) {
-				if default {
-					println('When saving')
-					config_save(args)!
-				}
-			}
-			config_load(args)!
+		if !exists(args)! {
+			set(obj)!
+		} else {
+			heroscript := context.hero_config_get('wireguard', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
 		}
 	}
 	return wireguard_global[args.name] or {
 		println(wireguard_global)
-		panic('could not get config for wireguard with name:${args.name}')
+		// bug if we get here because should be in globals
+		panic('could not get config for wireguard with name, is bug:${args.name}')
 	}
 }
 
-fn config_exists(args_ ArgsGet) bool {
+// register the config for the future
+pub fn set(o WireGuard) ! {
+	set_in_mem(o)!
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('wireguard', o.name, heroscript)!
+}
+
+// does the config exists?
+pub fn exists(args_ ArgsGet) !bool {
+	mut context := base.context()!
 	mut args := args_get(args_)
-	mut context := base.context() or { panic('bug') }
 	return context.hero_config_exists('wireguard', args.name)
 }
 
-fn config_load(args_ ArgsGet) ! {
+pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	mut heroscript := context.hero_config_get('wireguard', args.name)!
-	play(heroscript: heroscript)!
+	context.hero_config_delete('wireguard', args.name)!
+	if args.name in wireguard_global {
+		// del wireguard_global[args.name]
+	}
 }
 
-fn config_save(args_ ArgsGet) ! {
-	mut args := args_get(args_)
-	mut context := base.context()!
-	context.hero_config_set('wireguard', args.name, heroscript_default()!)!
-}
-
-fn set(o WireGuard) ! {
+// only sets in mem, does not set as config
+fn set_in_mem(o WireGuard) ! {
 	mut o2 := obj_init(o)!
 	wireguard_global[o.name] = &o2
 	wireguard_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'wireguard.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			mut p := install_action.params
-			cfg_play(p)!
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
 		}
 	}
 }
@@ -86,4 +92,11 @@ pub fn play(mut plbook PlayBook) ! {
 // switch instance to be used for wireguard
 pub fn switch(name string) {
 	wireguard_default = name
+}
+
+// helpers
+
+@[params]
+pub struct DefaultConfigArgs {
+	instance string = 'default'
 }
