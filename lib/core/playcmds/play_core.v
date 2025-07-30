@@ -33,14 +33,19 @@ pub fn play_core(args_ PlayArgs) !PlayBook {
 	// 	action.done = true
 	// }
 
-	// for mut action in plbook.find(filter: 'session.')! {
-	// 	// mut p := action.params
-	// 	// mut session := plbook.session
+	for mut action in plbook.find(filter: 'session.')! {
+		mut p := action.params
+		mut session := plbook.session
 
-	// 	//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
+		//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
+		if p.exists('env_set') {
+			mut key := p.get('key')!
+			mut val := p.get('val')!
+			session.env_set(key, val)!
+		}
 
-	// 	action.done = true
-	// }
+		action.done = true
+	}
 
 	for action_ in plbook.find(filter: 'play.*')! {
 		if action_.name == 'run' {

@@ -9,9 +9,10 @@ import json
 @[params]
 pub struct PlayArgs {
 pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?PlayBook
-	reset      bool
+	heroscript      string
+	heroscript_path string
+	plbook          ?playbook.PlayBook
+	reset           bool
 }
 
 fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
@@ -38,12 +39,14 @@ fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-pub fn play(args_ PlayArgs) ! {
+pub fn play(args_ PlayArgs) !PlayBook {
+	mut args := args_
+	mut plbook := args.plbook or {
+		playbook.new(text: args.heroscript, path: args.heroscript_path)!
+	}
+
 	mut context := base.context()!
 	mut redis := context.redis()!
-
-	mut args := args_
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
 
 	mut config := SiteConfig{}
 
@@ -58,32 +61,32 @@ pub fn play(args_ PlayArgs) ! {
 	json_config := json.encode(config)
 	redis.hset('siteconfigs', config.name, json_config)!
 	redis.set('siteconfigs:current', config.name)!
+
+	return plbook
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
-	// Process !!site.config
-	config_actions := plbook.find(filter: 'site.config')!
-	if config_actions.len == 0 {
-		return error('no site.config directive found')
-	}
-	if config_actions.len > 1 {
-		return error('multiple site.config directives found, only one is allowed')
-	}
-	for action in config_actions { // Should be only one
-		mut p := action.params
-		config.name = p.get('name')!
-		config.name = texttools.name_fix(config.name)
-		config.title = p.get_default('title', 'Documentation Site')!
-		config.description = p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
-		config.tagline = p.get_default('tagline', 'Your awesome documentation')!
-		config.favicon = p.get_default('favicon', 'img/favicon.png')!
-		config.image = p.get_default('image', 'img/tf_graph.png')!
-		config.copyright = p.get_default('copyright', '© ' + time.now().year.str() +
-			' Example Organization')!
-		config.url = p.get_default('url', '')!
-		config.base_url = p.get_default('base_url', '/')!
-		config.url_home = p.get_default('url_home', '')!
-	}
+
+	mut action:= plbook.action_get(actor:"site",action:"config")!
+
+	mut p := action.params
+	config.name = p.get('name')!
+
+	mut context := base.context()!
+	mut session:=context.session_latest()!
+	session.env_set("SITENAME", config.name)!
+
+	config.name = texttools.name_fix(config.name)
+	config.title = p.get_default('title', 'Documentation Site')!
+	config.description = p.get_default('description', 'Comprehensive documentation built with Docusaurus.')!
+	config.tagline = p.get_default('tagline', 'Your awesome documentation')!
+	config.favicon = p.get_default('favicon', 'img/favicon.png')!
+	config.image = p.get_default('image', 'img/tf_graph.png')!
+	config.copyright = p.get_default('copyright', '© ' + time.now().year.str() +
+		' Example Organization')!
+	config.url = p.get_default('url', '')!
+	config.base_url = p.get_default('base_url', '/')!
+	config.url_home = p.get_default('url_home', '')!
 
 	// Process !!site.config_meta for specific metadata overrides
 	meta_actions := plbook.find(filter: 'site.config_meta')!
