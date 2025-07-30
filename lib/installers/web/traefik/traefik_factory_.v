@@ -31,7 +31,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&TraefikServer {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := TraefikServer{}
+	mut obj := TraefikServer{
+		name: args.name
+	}
 	if args.name !in traefik_global {
 		if !exists(args)! {
 			set(obj)!
@@ -79,19 +81,7 @@ fn set_in_mem(o TraefikServer) ! {
 	traefik_default = o.name
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
-
 pub fn play(mut plbook PlayBook) ! {
-	mut args := args_
-
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
-
 	mut install_actions := plbook.find(filter: 'traefik.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

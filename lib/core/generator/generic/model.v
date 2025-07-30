@@ -31,17 +31,17 @@ pub enum Cat {
 }
 
 fn args_get(path string) !GeneratorArgs {
-	console.print_debug('play installer code for path: ${path}')
+	console.print_debug('generate code for path: ${path}')
 
 	mut config_path := pathlib.get_file(path: '${path}/.heroscript', create: false)!
 
 	if !config_path.exists() {
-		return error("can't find path with .heroscript in ${path}")
+		return error("can't find path with .heroscript in ${path}, is a bug")
 	}
 
-	mut plbook := playbook.new(text: config_path.read()!)!
+	mut plbook := playbook.new(text: config_path.read()!) or { return error('failed to create playbook: ${err}') }
 
-	mut install_actions := plbook.find(filter: 'hero_code.generate_installer')!
+	mut install_actions := plbook.actions_find(actor:'hero_code', name: 'generate_installer')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			mut p := install_action.params
@@ -65,7 +65,7 @@ fn args_get(path string) !GeneratorArgs {
 		}
 	}
 
-	mut client_actions := plbook.find(filter: 'hero_code.generate_client')!
+	mut client_actions := plbook.actions_find(actor:'hero_code', name: 'generate_client')!
 	if client_actions.len > 0 {
 		for client_action in client_actions {
 			mut p := client_action.params

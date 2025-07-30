@@ -23,9 +23,7 @@ pub fn get(args_ ArgsGet) !&DockerInstaller {
 	return &DockerInstaller{}
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut other_actions := plbook.find(filter: 'docker.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {

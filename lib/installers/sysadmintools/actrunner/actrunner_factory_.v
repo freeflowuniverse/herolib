@@ -23,19 +23,7 @@ pub fn get(args_ ArgsGet) !&ActRunner {
 	return &ActRunner{}
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
-
 pub fn play(mut plbook PlayBook) ! {
-	mut args := args_
-
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
-
 	mut other_actions := plbook.find(filter: 'actrunner.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {

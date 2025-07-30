@@ -31,7 +31,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&MeilisearchInstaller {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := MeilisearchInstaller{}
+	mut obj := MeilisearchInstaller{
+		name: args.name
+	}
 	if args.name !in meilisearch_installer_global {
 		if !exists(args)! {
 			set(obj)!
@@ -79,9 +81,7 @@ fn set_in_mem(o MeilisearchInstaller) ! {
 	meilisearch_installer_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'meilisearch_installer.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

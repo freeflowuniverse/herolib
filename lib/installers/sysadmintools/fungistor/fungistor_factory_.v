@@ -24,10 +24,6 @@ pub fn get(args_ ArgsGet) !&FungiStor {
 }
 
 pub fn play(mut plbook PlayBook) ! {
-	mut args := args_
-
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
-
 	mut other_actions := plbook.find(filter: 'fungistor.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {

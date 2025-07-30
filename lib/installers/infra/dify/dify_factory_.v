@@ -81,10 +81,7 @@ fn set_in_mem(o DifyInstaller) ! {
 	dify_default = o.name
 }
 
-
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'dify.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

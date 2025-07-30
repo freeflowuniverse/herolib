@@ -6,8 +6,8 @@ import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 
 __global (
-	tailwind_global  map[string]&Tailwind
-	tailwind_default string
+	tailwind4_global  map[string]&Tailwind
+	tailwind4_default string
 )
 
 /////////FACTORY
@@ -22,19 +22,7 @@ pub fn get(args_ ArgsGet) !&Tailwind {
 	return &Tailwind{}
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
-
 pub fn play(mut plbook PlayBook) ! {
-	mut args := args_
-
-	mut plbook := args.plbook or { playbook.new(text: args.heroscript)! }
-
 	mut other_actions := plbook.find(filter: 'tailwind4.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -98,7 +86,7 @@ pub fn (mut self Tailwind) destroy() ! {
 
 // switch instance to be used for tailwind4
 pub fn switch(name string) {
-	tailwind_default = name
+	tailwind4_default = name
 }
 
 // helpers

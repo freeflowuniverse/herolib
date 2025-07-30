@@ -23,9 +23,7 @@ pub fn get(args_ ArgsGet) !&ZeroFS {
 	return &ZeroFS{}
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut other_actions := plbook.find(filter: 'zerofs.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {

@@ -31,7 +31,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&Postgresql {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := Postgresql{}
+	mut obj := Postgresql{
+		name: args.name
+	}
 	if args.name !in postgresql_global {
 		if !exists(args)! {
 			set(obj)!
@@ -79,16 +81,7 @@ fn set_in_mem(o Postgresql) ! {
 	postgresql_default = o.name
 }
 
-@[params]
-pub struct PlayArgs {
-pub mut:
-	heroscript string // if filled in then plbook will be made out of it
-	plbook     ?playbook.PlayBook
-	reset      bool
-}
-
 pub fn play(mut plbook PlayBook) ! {
-
 	mut install_actions := plbook.find(filter: 'postgresql.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

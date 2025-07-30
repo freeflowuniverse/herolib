@@ -31,7 +31,9 @@ fn args_get(args_ ArgsGet) ArgsGet {
 pub fn get(args_ ArgsGet) !&GiteaServer {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := GiteaServer{}
+	mut obj := GiteaServer{
+		name: args.name
+	}
 	if args.name !in gitea_global {
 		if !exists(args)! {
 			set(obj)!
@@ -79,9 +81,7 @@ fn set_in_mem(o GiteaServer) ! {
 	gitea_default = o.name
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-	
 	mut install_actions := plbook.find(filter: 'gitea.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {

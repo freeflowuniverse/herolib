@@ -26,7 +26,7 @@ pub mut:
 // git_reset bool
 // session &base.Session
 // ```
-pub fn new(args_ PlayBookNewArgs) ! {
+pub fn new(args_ PlayBookNewArgs) !PlayBook {
 	mut args := args_
 
 	mut c := base.context() or { return error('failed to get context: ${err}') }
