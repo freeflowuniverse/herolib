@@ -94,9 +94,9 @@ pub fn (mut plbook PlayBook) heroscript(args HeroScriptArgs) !string {
 		}
 		out += '${action.heroscript()}\n'
 	}
-	if plbook.othertext.len > 0 {
-		out += '${plbook.othertext}'
-	}
+	// if plbook.othertext.len > 0 {
+	// 	out += '${plbook.othertext}'
+	// }
 	out = texttools.remove_empty_js_blocks(out)
 	return out
 }
