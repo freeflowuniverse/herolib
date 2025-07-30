@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
 
-pub fn play_git(args_ PlayArgs) ! {
+pub fn play_git(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
@@ -157,4 +157,6 @@ pub fn play_git(args_ PlayArgs) ! {
 		}
 		gs.load(true) // Force reload
 	}
+
+	return plbook
 }
