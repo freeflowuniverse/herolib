@@ -76,7 +76,7 @@ pub mut:
 // ... (struct definitions remain the same) ...
 
 // This function is now a pure transformer: site.SiteConfig -> docusaurus.Configuration
-fn config_from_site(site_cfg site.SiteConfig) !Configuration {
+pub fn new_configuration(site_cfg site.SiteConfig) !Configuration {
 	// Transform site.SiteConfig to docusaurus.Configuration
 	mut nav_items := []NavbarItem{}
 	for item in site_cfg.menu.items {

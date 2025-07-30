@@ -15,10 +15,11 @@ pub mut:
 	name         string
 	path_src     pathlib.Path
 	path_publish pathlib.Path
+	path_build   pathlib.Path // <<< ADD THIS FIELD
 	errors       []SiteError
 	config       Configuration      // Docusaurus-specific config, transformed from site.SiteConfig
 	site         &site.Site         @[skip; str: skip]
-	factory      &DocusaurusFactory @[skip; str: skip] // Reference to the parent
+	// factory      &DocusaurusFactory @[skip; str: skip] // <<< REMOVE THIS FIELD
 	// OPEN & WATCH ARGS are now passed directly to dev_watch
 }
 
@@ -27,7 +28,7 @@ pub fn (mut s DocSite) build() ! {
 	s.generate()!
 	osal.exec(
 		cmd: '
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			bun run build
 			',
 		retry: 0
@@ -38,7 +39,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd: '
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			exit 1
 			',
 		retry: 0
@@ -49,7 +50,7 @@ pub fn (mut s DocSite) build_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd: '
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			exit 1
 			',
 		retry: 0
@@ -82,7 +83,7 @@ pub fn (mut s DocSite) dev(args DevArgs) ! {
 		}
 		osal.exec(
 			cmd: '
-				cd ${s.factory.path_build.path}
+				cd ${s.path_build.path}
 				bun run start -p ${args.port} -h ${args.host}
 				',
 			retry: 0
@@ -107,8 +108,8 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	)!
 
 	// Send commands to the screen session
-	console.print_item('To view the server output:: cd ${s.factory.path_build.path}')
-	scr.cmd_send('cd ${s.factory.path_build.path}')!
+	console.print_item('To view the server output:: cd ${s.path_build.path}')
+	scr.cmd_send('cd ${s.path_build.path}')!
 
 	// Start script recording in the screen session for log streaming
 	log_file := '/tmp/docusaurus_${screen_name}.log'
@@ -141,7 +142,7 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	console.print_item('The site content is on: ${s.path_src.path}/docs')
 
 	// Start the watcher in a separate thread
-	spawn watch_docs(s, s.path_src.path, s.factory.path_build.path)
+	spawn watch_docs(os.join_path(s.path_src.path, 'docs'), s.path_src.path, s.path_build.path)
 	println('')
 
 	if args.open {
@@ -197,6 +198,6 @@ pub fn (mut doc_site DocSite) error(args ErrorArgs) {
 		msg:  args.msg
 		cat:  args.cat
 	}
-	site.errors << e
+	doc_site.errors << e
 	console.print_stderr(args.msg)
 }

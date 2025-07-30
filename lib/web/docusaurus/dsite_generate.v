@@ -10,11 +10,11 @@ import freeflowuniverse.herolib.core.texttools.regext
 import freeflowuniverse.herolib.web.site
 
 pub fn (mut self DocSite) generate() ! {
-	console.print_header(' site generate: ${self.name} on ${self.factory.path_build.path}')
+	console.print_header(' site generate: ${self.name} on ${self.path_build.path}')
 	console.print_header(' site source on ${self.path_src.path}')
 
 	// lets make sure we remove the cfg dir so we rebuild
-	cfg_path := os.join_path(self.factory.path_build.path, 'cfg')
+	cfg_path := os.join_path(self.path_build.path, 'cfg')
 	osal.rm(cfg_path)!
 
 	mut gs := gittools.new()!
@@ -27,12 +27,12 @@ pub fn (mut self DocSite) generate() ! {
 
 	for item in ['src', 'static'] {
 		mut template_src_path := pathlib.get_dir(path: '${template_path}/${item}', create: true)!
-		template_src_path.copy(dest: '${self.factory.path_build.path}/${item}', delete: true)!
+		template_src_path.copy(dest: '${self.path_build.path}/${item}', delete: true)!
 		// now copy the info which can be overruled from source in relation to the template
 		src_item_path := os.join_path(self.path_src.path, item)
 		if os.exists(src_item_path) {
 			mut src_path := pathlib.get_dir(path: src_item_path, create: false)!
-			src_path.copy(dest: '${self.factory.path_build.path}/${item}', delete: false)!
+			src_path.copy(dest: '${self.path_build.path}/${item}', delete: false)!
 		}
 	}
 
@@ -45,7 +45,7 @@ pub fn (mut self DocSite) generate() ! {
 	mut footer_file := pathlib.get_file(path: '${cfg_path}/footer.json', create: true)!
 	footer_file.write(json.encode_pretty(self.config.footer))!
 
-	docs_dest := os.join_path(self.factory.path_build.path, 'docs')
+	docs_dest := os.join_path(self.path_build.path, 'docs')
 	osal.rm(docs_dest)!
 	osal.dir_ensure(docs_dest)!
 
@@ -69,7 +69,7 @@ pub fn (mut self DocSite) process_imports() ! {
 		)!
 		mut mypatho := pathlib.get(mypath)
 
-		dest_path := '${self.factory.path_build.path}/docs/${item.dest}'
+		dest_path := '${self.path_build.path}/docs/${item.dest}'
 		mypatho.copy(dest: dest_path, delete: true)!
 
 		mut ri := regext.regex_instructions_new()
