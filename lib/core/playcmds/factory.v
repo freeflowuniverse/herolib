@@ -14,11 +14,11 @@ import freeflowuniverse.herolib.threefold.grid4.farmingsimulator
 // import freeflowuniverse.herolib.installers.infra.coredns
 import freeflowuniverse.herolib.data.doctree
 
-pub fn run(mut plbook playbook.PlayBook, dagu bool) ! {
-	if dagu {
-		hscript := plbook.str()
-		scheduler(hscript)!
-	}
+pub fn run(mut plbook playbook.PlayBook) ! {
+	// if dagu {
+	// 	hscript := plbook.str()
+	// 	scheduler(hscript)!
+	// }
 
 	play_core(mut plbook)!
 	play_ssh(mut plbook)!
