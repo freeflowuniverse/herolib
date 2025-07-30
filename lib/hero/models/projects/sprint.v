@@ -15,12 +15,12 @@ pub enum SprintStatus {
 pub struct Sprint {
 	core.Base
 pub mut:
-	name        string @[index]         // Sprint name
-	description string                // Sprint description
+	name        string @[index] // Sprint name
+	description string // Sprint description
 	status      SprintStatus @[index] // Current sprint status
-	goal        string                // Sprint goal/objective
-	project_id  u64   @[index]         // Link to parent project
-	start_date  u64                   // Sprint start timestamp (Unix)
-	end_date    u64                   // Sprint end timestamp (Unix)
-	task_ids    []u64 @[index]         // List of task IDs in this sprint
+	goal        string // Sprint goal/objective
+	project_id  u64 @[index] // Link to parent project
+	start_date  u64 // Sprint start timestamp (Unix)
+	end_date    u64 // Sprint end timestamp (Unix)
+	task_ids    []u64 @[index] // List of task IDs in this sprint
 }

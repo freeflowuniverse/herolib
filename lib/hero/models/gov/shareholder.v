@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.hero.models.core
 pub struct Shareholder {
 	core.Base
 pub mut:
-	company_id       u32 @[index]
+	company_id       u32    @[index]
 	name             string @[index]
 	shareholder_type ShareholderType
 	contact_info     string @[index]

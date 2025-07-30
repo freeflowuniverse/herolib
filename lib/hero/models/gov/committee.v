@@ -4,8 +4,7 @@ import freeflowuniverse.herolib.hero.models.core
 
 // CommitteeMember represents a member of a committee
 pub struct CommitteeMember {
-pub struct CommitteeMember {
-    core.Base
+	core.Base
 pub mut:
 	user_id     u32
 	name        string
@@ -18,8 +17,8 @@ pub mut:
 pub struct Committee {
 	core.Base
 pub mut:
-	company_id    u32 @[index]
-	name          string @[index]
-	description   string
-	members       []CommitteeMember
+	company_id  u32    @[index]
+	name        string @[index]
+	description string
+	members     []CommitteeMember
 }

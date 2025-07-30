@@ -16,12 +16,12 @@ pub mut:
 pub struct Vote {
 	core.Base
 pub mut:
-	company_id   u32 @[index]
-	resolution_id u32 @[index]
-	title        string @[index]
-	description  string
-	status       VoteStatus
-	start_date   u64 // Unix timestamp
-	end_date     u64 // Unix timestamp
-	ballots      []Ballot
+	company_id    u32    @[index]
+	resolution_id u32    @[index]
+	title         string @[index]
+	description   string
+	status        VoteStatus
+	start_date    u64 // Unix timestamp
+	end_date      u64 // Unix timestamp
+	ballots       []Ballot
 }

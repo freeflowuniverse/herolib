@@ -25,18 +25,18 @@ pub enum TaskPriority {
 pub struct Task {
 	core.Base
 pub mut:
-	title               string @[index]         // Task title
-	description         string                // Task description
-	status              TaskStatus @[index]   // Current task status
-	priority            TaskPriority @[index]  // Task priority level
-	assignee_id         u64   @[index]         // User ID of task assignee
-	reporter_id         u64   @[index]         // User ID of task reporter
-	parent_task_id      u64                   // For subtasks - parent task ID
-	epic_id             u64   @[index]         // Link to parent epic
-	sprint_id           u64   @[index]         // Link to parent sprint
-	project_id          u64   @[index]         // Link to parent project
-	due_date              u64                   // Task due timestamp (Unix)
-	estimated_time_hours f32                 // Estimated hours to complete
-	logged_time_hours     f32                 // Actual hours logged
-	tags                  []string @[index]      // Task tags for categorization
+	title                string @[index] // Task title
+	description          string // Task description
+	status               TaskStatus   @[index] // Current task status
+	priority             TaskPriority @[index] // Task priority level
+	assignee_id          u64          @[index] // User ID of task assignee
+	reporter_id          u64          @[index] // User ID of task reporter
+	parent_task_id       u64 // For subtasks - parent task ID
+	epic_id              u64 @[index] // Link to parent epic
+	sprint_id            u64 @[index] // Link to parent sprint
+	project_id           u64 @[index] // Link to parent project
+	due_date             u64 // Task due timestamp (Unix)
+	estimated_time_hours f32 // Estimated hours to complete
+	logged_time_hours    f32 // Actual hours logged
+	tags                 []string @[index] // Task tags for categorization
 }
