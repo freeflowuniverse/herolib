@@ -5,10 +5,6 @@ import freeflowuniverse.herolib.core.playbook {PlayBook}
 import freeflowuniverse.herolib.ui.console
 
 fn play_git(mut plbook PlayBook) ! {
-	mut args := args_
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
 
 	// Handle !!git.define action first to configure GitStructure
 	define_actions := plbook.find(filter: 'git.define')!

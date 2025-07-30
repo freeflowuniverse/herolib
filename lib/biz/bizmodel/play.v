@@ -13,9 +13,6 @@ const action_priorities = {
 
 
 pub fn play(mut plbook PlayBook) ! {
-	mut plbook := args.plbook or {
-		playbook.new(text: args.heroscript, path: args.heroscript_path)!
-	}
 
 	// group actions by which bizmodel they belong to
 	actions_by_biz := arrays.group_by[string, &Action](plbook.actions_find(actor: 'bizmodel')!,
