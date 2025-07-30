@@ -11,7 +11,7 @@ pub struct PlayArgs {
 pub mut:
 	heroscript      string
 	heroscript_path string
-	plbook          ?playbook.PlayBook
+	plbook          ?PlayBook
 	reset           bool
 }
 
@@ -66,15 +66,14 @@ pub fn play(args_ PlayArgs) !PlayBook {
 }
 
 fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
-
-	mut action:= plbook.action_get(actor:"site",action:"config")!
+	mut action := plbook.action_get(actor: 'site', action: 'config')!
 
 	mut p := action.params
 	config.name = p.get('name')!
 
 	mut context := base.context()!
-	mut session:=context.session_latest()!
-	session.env_set("SITENAME", config.name)!
+	mut session := context.session_latest()!
+	session.env_set('SITENAME', config.name)!
 
 	config.name = texttools.name_fix(config.name)
 	config.title = p.get_default('title', 'Documentation Site')!
@@ -89,16 +88,15 @@ fn play_config(mut plbook PlayBook, mut config SiteConfig) ! {
 	config.url_home = p.get_default('url_home', '')!
 
 	// Process !!site.config_meta for specific metadata overrides
-	meta_actions := plbook.find(filter: 'site.config_meta')!
-	for action in meta_actions { // Should ideally be one
-		mut p_meta := action.params
-		// If 'title' is present in site.config_meta, it overrides. Otherwise, meta_title remains empty or uses site.config.title logic in docusaurus model.
-		config.meta_title = p_meta.get_default('title', config.title)!
-		// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
-		config.meta_image = p_meta.get_default('image', config.image)!
-		// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to SiteConfig
-		// For now, config.description (from site.config) is used as the primary source or fallback.
-	}
+	mut meta_action := plbook.action_get(actor: 'site', action: 'config_meta')!
+
+	mut p_meta := meta_action.params
+	// If 'title' is present in site.config_meta, it overrides. Otherwise, meta_title remains empty or uses site.config.title logic in docusaurus model.
+	config.meta_title = p_meta.get_default('title', config.title)!
+	// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
+	config.meta_image = p_meta.get_default('image', config.image)!
+	// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to SiteConfig
+	// For now, config.description (from site.config) is used as the primary source or fallback.
 }
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
