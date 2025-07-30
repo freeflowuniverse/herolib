@@ -1,7 +1,7 @@
 module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.core.playbook {PlayBook}
 import freeflowuniverse.herolib.ui.console
 
 pub fn play_git(args_ PlayArgs) !PlayBook {
