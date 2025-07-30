@@ -52,6 +52,7 @@ pub fn set(o PostgresClient) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
+	println(heroscript)
 	context.hero_config_set('postgresql_client', o.name, heroscript)!
 }
 
@@ -83,7 +84,10 @@ pub fn play(mut plbook PlayBook) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
+			println(heroscript)
 			mut obj2 := heroscript_loads(heroscript)!
+			println('postgresql_client playbook action: ${obj2}')
+			if true{panic("TODO: implement playbook action for postgresql_client, currently not implemented yet.")}
 			set(obj2)!
 		}
 	}

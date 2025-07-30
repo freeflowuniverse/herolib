@@ -9,34 +9,9 @@ pub const version = '0.0.0'
 const singleton = false
 const default = true
 
-pub fn heroscript_default() !string {
-	heroscript := "
-    !!postgresql_client.configure
-        name:'default'
-        user: 'root'
-        port: 5432
-        host: 'localhost'
-        password: ''
-        dbname: 'postgres'
-        "
-	return heroscript
-}
-
-pub fn heroscript_dumps(obj PostgresClient) !string {
-	return encoderhero.encode[PostgresClient](obj)!
-}
-
-pub fn heroscript_loads(heroscript string) !PostgresClient {
-	mut obj := encoderhero.decode[PostgresClient](heroscript)!
-	return obj
-}
-
-// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-
-@[heap]
 pub struct PostgresClient {
 mut:
-	db_ ?pg.DB
+	db_ ?pg.DB @[skip]
 pub mut:
 	name     string = 'default'
 	user     string = 'root'
@@ -44,19 +19,6 @@ pub mut:
 	host     string = 'localhost'
 	password string
 	dbname   string = 'postgres'
-}
-
-fn cfg_play(p paramsparser.Params) !PostgresClient {
-	mut mycfg := PostgresClient{
-		name:     p.get_default('name', 'default')!
-		user:     p.get_default('user', 'root')!
-		port:     p.get_int_default('port', 5432)!
-		host:     p.get_default('host', 'localhost')!
-		password: p.get_default('password', '')!
-		dbname:   p.get_default('dbname', 'postgres')!
-	}
-	set(mycfg)!
-	return mycfg
 }
 
 fn obj_init(obj_ PostgresClient) !PostgresClient {
@@ -79,4 +41,16 @@ pub fn (mut self PostgresClient) db() !pg.DB {
 	}
 
 	return db
+}
+
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_dumps(obj PostgresClient) !string {
+	return encoderhero.encode[PostgresClient](obj)!
+}
+
+pub fn heroscript_loads(heroscript string) !PostgresClient {
+	mut obj := encoderhero.decode[PostgresClient](heroscript)!
+	return obj
 }

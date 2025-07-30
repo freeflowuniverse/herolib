@@ -7,38 +7,39 @@ import freeflowuniverse.herolib.core.playbook
 
 // Configure PostgreSQL client
 heroscript := "
-!!postgresql_client.configure
-	name:'test'
-	user: 'postgres'
+!!postgresql_client.configure password: 'testpass'
+	name:'test2'
+	user: 'testuser'
 	port: 5432
-	host: 'localhost'
-	password: '1234'
-	dbname: 'postgres'
+	host: 'localhost'	
+	dbname: 'testdb'
 "
 mut plbook := playbook.new(text: heroscript)!
 postgresql_client.play(mut plbook)!
 
 // Get the configured client
-mut db_client := postgresql_client.get(name: 'test')!
+mut db_client := postgresql_client.get(name: 'test2')!
 
-// Check if test database exists, create if not
-if !db_client.db_exists('test')! {
-	println('Creating database test...')
-	db_client.db_create('test')!
-}
+// println(db_client)
 
-// Switch to test database
-db_client.dbname = 'test'
+// // Check if test database exists, create if not
+// if !db_client.db_exists('test')! {
+// 	println('Creating database test...')
+// 	db_client.db_create('test')!
+// }
 
-// Create table if not exists
-create_table_sql := 'CREATE TABLE IF NOT EXISTS users (
-	id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NOT NULL,
-	email VARCHAR(255) UNIQUE NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)'
+// // Switch to test database
+// db_client.dbname = 'test'
 
-println('Creating table users if not exists...')
-db_client.exec(create_table_sql)!
+// // Create table if not exists
+// create_table_sql := 'CREATE TABLE IF NOT EXISTS users (
+// 	id SERIAL PRIMARY KEY,
+// 	name VARCHAR(100) NOT NULL,
+// 	email VARCHAR(255) UNIQUE NOT NULL,
+// 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+// )'
 
-println('Database and table setup completed successfully!')
+// println('Creating table users if not exists...')
+// db_client.exec(create_table_sql)!
+
+// println('Database and table setup completed successfully!')
