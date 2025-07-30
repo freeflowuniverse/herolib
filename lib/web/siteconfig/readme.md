@@ -124,7 +124,7 @@ import freeflowuniverse.herolib.web.site
 // session  ?&base.Session      is optional
 mut plbook := playbook.new( "....")!
 
-site.play(plbook:plbook)!
+site.play(mut playbook)!
 
 ```
 

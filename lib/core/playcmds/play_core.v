@@ -11,7 +11,7 @@ import freeflowuniverse.herolib.ui.console
 //     interactive:true
 
 
-pub fn play_core(args_ PlayArgs) !PlayBook {
+fn play_core(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!

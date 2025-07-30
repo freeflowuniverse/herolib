@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.develop.luadns
 import freeflowuniverse.herolib.core.playbook {PlayBook}
 // import os
 
-pub fn play_luadns(args_ PlayArgs) !PlayBook {
+fn play_luadns(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!

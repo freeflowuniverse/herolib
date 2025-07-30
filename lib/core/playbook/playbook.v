@@ -58,6 +58,7 @@ pub mut:
 
 // only return the actions which are not done  yet
 // if filtered is set, it means we only get the ones which were prioritized before
+// we ignore prio's above 49
 pub fn (mut plbook PlayBook) actions_sorted(args SortArgs) ![]&Action {
 	mut res := []&Action{}
 	mut nrs := plbook.priorities.keys()
@@ -98,6 +99,7 @@ pub fn (mut plbook PlayBook) heroscript(args HeroScriptArgs) !string {
 	// 	out += '${plbook.othertext}'
 	// }
 	out = texttools.remove_empty_js_blocks(out)
+	out +="\n\n"
 	return out
 }
 

@@ -22,10 +22,10 @@ pub fn run(args_ PlayArgs) !PlayBook {
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
-	plbook = play_core(plbook:plbook)!
-	plbook = play_git(plbook:plbook)!
+	play_core(mut playbook)!
+	play_git(mut playbook)!
 
-	// plbook = play_ssh(mut plbook)!
+	// play_ssh(mut plbook)!
 	// play_publisher(mut plbook)!
 	// play_zola(mut plbook)!
 	// play_caddy(mut plbook)!
@@ -36,8 +36,8 @@ pub fn run(args_ PlayArgs) !PlayBook {
 
 	// plbook = farmingsimulator.play(mut plbook)!
 	// plbook = gridsimulator.play(mut plbook)!
-	plbook = bizmodel.play(plbook:plbook)!
-	plbook = doctree.play(plbook:plbook)!
+	plbook = bizmodel.play(mut playbook)!
+	plbook = doctree.play(mut playbook)!
 	
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!

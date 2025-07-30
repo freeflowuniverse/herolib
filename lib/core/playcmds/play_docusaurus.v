@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.web.docusaurus
 
-pub fn play(args_ PlayArgs) !PlayBook {
+fn play(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!

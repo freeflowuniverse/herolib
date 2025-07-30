@@ -3,7 +3,7 @@ module playcmds
 import freeflowuniverse.herolib.osal.sshagent
 import freeflowuniverse.herolib.core.playbook {PlayBook}
 
-pub fn play_ssh(args_ PlayArgs) !PlayBook {
+fn play_ssh(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!

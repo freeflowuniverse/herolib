@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.playbook {PlayBook}
 import freeflowuniverse.herolib.ui.console
 
-pub fn play_git(args_ PlayArgs) !PlayBook {
+fn play_git(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
