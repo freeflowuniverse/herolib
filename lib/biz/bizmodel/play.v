@@ -20,7 +20,7 @@ pub mut:
 	reset           bool
 }
 
-pub fn play(args PlayArgs) ! {
+pub fn play(args PlayArgs) ! PlayBook {
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
@@ -36,9 +36,11 @@ pub fn play(args PlayArgs) ! {
 		mut model := getset(biz)!
 		model.play(mut plbook)!
 	}
+
+	return plbook
 }
 
-pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
+pub fn (mut m BizModel) play(mut plbook PlayBook) !PlayBook {
 	mut actions := plbook.actions_find(actor: 'bizmodel')!
 
 	for action in actions.filter(it.name in action_priorities[0]) {
@@ -65,4 +67,6 @@ pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 	for action in actions.filter(it.name in action_priorities[3]) {
 		m.act(*action)!
 	}
+
+	return plbook
 }

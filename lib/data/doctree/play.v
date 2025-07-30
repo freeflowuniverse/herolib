@@ -1,7 +1,7 @@
 module doctree
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
-import freeflowuniverse.herolib.ui.console
+// import freeflowuniverse.herolib.ui.console
 
 @[params]
 pub struct PlayArgs {
@@ -12,7 +12,7 @@ pub mut:
 	reset           bool
 }
 
-pub fn play(args_ PlayArgs) ! {
+pub fn play(args_ PlayArgs) !PlayBook {
 	mut args := args_
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
@@ -68,4 +68,6 @@ pub fn play(args_ PlayArgs) ! {
 	// println(tree_list())	
 	// println(tree_get("main")!)
 	// panic("sd")
+
+	return plbook
 }
