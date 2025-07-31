@@ -2,6 +2,10 @@
 // #!/usr/bin/env -S v -n -w -enable-globals run
 import freeflowuniverse.herolib.clients.postgresql_client
 import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.hero.models.circle
+import freeflowuniverse.herolib.core.playcmds
+import freeflowuniverse.herolib.hero.db.hero_db
+
 import db.pg
 
 // psql -h /tmp -U myuser -d mydb
@@ -18,11 +22,8 @@ mut r:=db.exec("select * from users;")!
 
 println(r)
 
-// import freeflowuniverse.herolib.core
 
-// import freeflowuniverse.herolib.hero.db.hero_db
-// import freeflowuniverse.herolib.hero.models.circle
-// import freeflowuniverse.herolib.core.playcmds
+
 
 // // Configure PostgreSQL client
 // heroscript := "
@@ -51,7 +52,7 @@ postgresql_client.play(mut plbook)!
 
 
 // //Get the configured client
-// mut db_client := postgresql_client.get(name: 'test5')!
+mut db_client := postgresql_client.get(name: 'aaa')!
 
 // println(db_client)
 

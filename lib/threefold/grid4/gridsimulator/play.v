@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.threefold.grid4.cloudslices
 
 pub fn play(mut plbook PlayBook) ! {
 	// first make sure we find a run action to know the name
-	mut my_actions := plbook.actions_find(actor: 'tfgrid_simulator')!
+	mut my_actions := plbook.find(filter: 'tfgrid_simulator.')!
 
 	if my_actions.len == 0 {
 		return
@@ -33,7 +33,7 @@ pub fn play(mut plbook PlayBook) ! {
 
 pub fn (mut self Simulator) play(mut plbook PlayBook) ! {
 	// make sure we know the inca price
-	mut actions4 := plbook.actions_find(actor: 'tfgrid_simulator')!
+	mut actions4 := plbook.find(filter: 'tfgrid_simulator.')!
 
 	if actions4.len == 0 {
 		return
@@ -61,7 +61,7 @@ pub fn (mut self Simulator) play(mut plbook PlayBook) ! {
 		return error("can't find incaprice_define action for tfgrid_simulator, needs to define INCA price.")
 	}
 
-	mut actions2 := plbook.actions_find(actor: 'tfgrid_simulator')!
+	mut actions2 := plbook.find(filter: 'tfgrid_simulator.')!
 	for action in actions2 {
 		if action.name == 'node_growth_define' {
 			mut node_name := action.params.get_default('node_name', '')!

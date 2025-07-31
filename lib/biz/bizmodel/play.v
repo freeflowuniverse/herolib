@@ -15,7 +15,7 @@ const action_priorities = {
 pub fn play(mut plbook PlayBook) ! {
 
 	// group actions by which bizmodel they belong to
-	actions_by_biz := arrays.group_by[string, &Action](plbook.actions_find(actor: 'bizmodel')!,
+	actions_by_biz := arrays.group_by[string, &Action](plbook.find(filter: 'bizmodel.')!,
 		fn (a &Action) string {
 		return a.params.get('bizname') or { 'default' }
 	})
@@ -29,7 +29,7 @@ pub fn play(mut plbook PlayBook) ! {
 }
 
 pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
-	mut actions := plbook.actions_find(actor: 'bizmodel')!
+	mut actions := plbook.find(filter: 'bizmodel.')!
 
 	for action in actions.filter(it.name in action_priorities[0]) {
 		m.act(*action)!

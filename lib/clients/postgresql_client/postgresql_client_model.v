@@ -23,17 +23,6 @@ pub mut:
 	dbname   string = 'postgres'
 }
 
-pub struct PostgresqlClientData {
-pub mut:
-	name     string = 'default'
-	user     string = 'root'
-	port     int    = 5432
-	host     string = 'localhost'
-	password string = ''
-	dbname   string = 'postgres'
-}
-
-
 fn obj_init(obj_ PostgresqlClient) !PostgresqlClient {
 	// never call get here, only thing we can do here is work on object itself
 	mut obj := obj_
@@ -63,6 +52,8 @@ pub fn heroscript_dumps(obj PostgresqlClient) !string {
 }
 
 pub fn heroscript_loads(heroscript string) !PostgresqlClient {
-	mut obj := encoderhero.decode[PostgresqlClientData](heroscript)!
-	return PostgresqlClient{db_:pg.DB{}}
+	mut obj := encoderhero.decode[PostgresqlClient](heroscript)!
+	return PostgresqlClient{
+		db_: pg.DB{}
+	}
 }
