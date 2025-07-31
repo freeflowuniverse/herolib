@@ -3,6 +3,7 @@ module circle
 import freeflowuniverse.herolib.hero.models.core
 
 // Circle represents a circle entity with configuration and metadata
+@[heap]
 pub struct Circle {
 	core.Base
 pub mut:

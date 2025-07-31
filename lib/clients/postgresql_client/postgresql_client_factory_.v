@@ -3,6 +3,7 @@ module postgresql_client
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.data.encoderhero
 
 __global (
 	postgresql_client_global  map[string]&PostgresqlClient
@@ -83,8 +84,10 @@ pub fn play(mut plbook PlayBook) ! {
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
-			mut obj2 := heroscript_loads(heroscript)!
-			set(obj2)!
+			println(heroscript)
+			mut obj := encoderhero.decode[PostgresqlClientData](heroscript)!
+			// mut obj2 := heroscript_loads(heroscript)!
+			// set(obj2)!
 		}
 	}
 }
