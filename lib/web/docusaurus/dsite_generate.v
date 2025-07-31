@@ -2,13 +2,14 @@ module docusaurus
 
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.playbook
 import json
 import os
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools.regext
 // import freeflowuniverse.herolib.data.doctree
-import freeflowuniverse.herolib.web.site
+import freeflowuniverse.herolib.web.site as sitegen
 
 pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${site.factory.path_build.path}')
@@ -46,9 +47,9 @@ pub fn (mut site DocSite) generate() ! {
 	mut footer_file := pathlib.get_file(path: '${cfg_path}/footer.json', create: true)!
 	footer_file.write(json.encode_pretty(site.config.footer))!
 
-	osal.rm("${site.factory.path_build.path}/docs")!
+	osal.rm('${site.factory.path_build.path}/docs')!
 
-	if os.exists("${site.path_src.path}/docs"){
+	if os.exists('${site.path_src.path}/docs') {
 		mut aa := site.path_src.dir_get('docs')!
 		aa.copy(dest: '${site.factory.path_build.path}/docs', delete: true)!
 	}
@@ -62,12 +63,10 @@ pub fn (mut site DocSite) generate() ! {
 	// 		draft:1 hide_title:1
 
 	configpath := '${site.path_src.path}/cfg'
-	sitegen.play(mut sitegen.Args{
-		heroscript_path: configpath
-		dest:            '${site.factory.path_build.path}/docs'
-		flat:            true
-		sitename:        site.name
-	})!
+
+	// Create a playbook from the config path and run site processing
+	mut plbook := playbook.new(path: configpath)!
+	sitegen.play(mut plbook)!
 
 	site.process_imports()!
 }

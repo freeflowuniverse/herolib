@@ -3,7 +3,7 @@ module docusaurus
 import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.web.siteconfig
+import freeflowuniverse.herolib.web.site as sitemodule
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
@@ -12,32 +12,32 @@ import time
 @[heap]
 pub struct DocSite {
 pub mut:
-	name     string
-	url      string
-	path_src pathlib.Path
+	name         string
+	url          string
+	path_src     pathlib.Path
 	path_publish pathlib.Path
 	args         DSiteGetArgs
 	errors       []SiteError
 	config       Configuration
-	siteconfig   siteconfig.SiteConfig
+	siteconfig   sitemodule.SiteConfig
 	factory      &DocusaurusFactory @[skip; str: skip] // Reference to the parent
 }
 
 @[params]
 pub struct DSiteGetArgs {
 pub mut:
-	name         string
-	nameshort    string
-	path         string
-	git_url      string
-	git_reset    bool
-	git_root     string
-	git_pull     bool
-	open         bool // Added
-	watch_changes bool // Added
-	path_publish string // Added
-	init         bool // Added
-	update       bool // Added (maps to template_update in DocusaurusArgs)
+	name          string
+	nameshort     string
+	path          string
+	git_url       string
+	git_reset     bool
+	git_root      string
+	git_pull      bool
+	open          bool   // Added
+	watch_changes bool   // Added
+	path_publish  string // Added
+	init          bool   // Added
+	update        bool   // Added (maps to template_update in DocusaurusArgs)
 }
 
 pub fn (mut s DocSite) build() ! {

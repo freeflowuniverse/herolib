@@ -3,7 +3,7 @@ module docusaurus
 // import os
 // import json
 // import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.web.siteconfig // For siteconfig.SiteConfig and siteconfig.new
+import freeflowuniverse.herolib.web.site // For site.SiteConfig and site.new
 // import strings // No longer needed as we are not concatenating
 // import freeflowuniverse.herolib.core.playbook // No longer directly needed here
 
@@ -79,9 +79,9 @@ pub mut:
 }
 
 fn config_load(path string) !Configuration {
-	// Use siteconfig.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
-	site_cfg_ref := siteconfig.new(path)!
-	site_cfg_from_heroscript := *site_cfg_ref // Dereference to get the actual SiteConfig struct
+	// Use site.new from factory.v. This function handles PlayBook creation, playing, and Redis interaction.
+	site_ref := site.new(name: 'default')!
+	site_cfg_from_heroscript := site_ref.siteconfig // Get the actual SiteConfig struct
 
 	// Transform siteconfig.SiteConfig to docusaurus.Configuration
 	mut nav_items := []NavbarItem{}

@@ -4,11 +4,10 @@ import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.web.siteconfig
+import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
 // import freeflowuniverse.herolib.data.doctree
-
 
 pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 	console.print_header(' Docusaurus: ${args_.name}')
@@ -53,7 +52,7 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 	if args.nameshort.len == 0 {
 		args.nameshort = args.name
 	}
-	
+
 	args.name = texttools.name_fix(args.name)
 	args.nameshort = texttools.name_fix(args.nameshort)
 
@@ -61,8 +60,9 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 		args.path_publish = '${f.path_publish}/${args.name}'
 	}
 
-	//this will get us the siteconfig run through plbook
-	mut mysiteconfig := *siteconfig.new(configpath)!
+	// this will get us the siteconfig run through plbook
+	mut mysite := site.new(name: args.name)!
+	mut mysiteconfig := mysite.siteconfig
 
 	// NOT NEEDED IS DONE FROM HEROSCRIPT BEFORE
 	// //now run the plbook to get all relevant for the site, {SITENAME} has been set in the context.session
@@ -71,9 +71,8 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 	// 	reset:           args.update
 	// )!
 
-
 	mut ds := DocSite{
-		name: args.name
+		name:         args.name
 		path_src:     pathlib.get_dir(path: args.path, create: false)!
 		path_publish: pathlib.get_dir(path: args.path_publish)!
 		args:         args

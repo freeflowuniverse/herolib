@@ -7,15 +7,13 @@ import freeflowuniverse.herolib.ui.console
 const action_priorities = {
 	0: ['department_define', 'costcenter_define']
 	1: ['revenue_define', 'funding_define']
-	2: ['cost_define','employee_define']
+	2: ['cost_define', 'employee_define']
 	3: ['sheet_wiki', 'graph_bar_row', 'graph_pie_row', 'graph_line_row', 'row_overview']
 }
 
-
 pub fn play(mut plbook PlayBook) ! {
-
 	// group actions by which bizmodel they belong to
-	actions_by_biz := arrays.group_by[string, &Action](plbook.actions_find(actor: 'bizmodel')!,
+	actions_by_biz := arrays.group_by[string, &Action](plbook.find(filter: 'bizmodel.*')!,
 		fn (a &Action) string {
 		return a.params.get('bizname') or { 'default' }
 	})
@@ -25,11 +23,10 @@ pub fn play(mut plbook PlayBook) ! {
 		mut model := getset(biz)!
 		model.play(mut plbook)!
 	}
-
 }
 
 pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
-	mut actions := plbook.actions_find(actor: 'bizmodel')!
+	mut actions := plbook.find(filter: 'bizmodel.*')!
 
 	for action in actions.filter(it.name in action_priorities[0]) {
 		m.act(*action)!
@@ -51,9 +48,7 @@ pub fn (mut m BizModel) play(mut plbook PlayBook) ! {
 
 	// m.sheet.pprint(nr_columns: 10)!
 
-
 	for action in actions.filter(it.name in action_priorities[3]) {
 		m.act(*action)!
 	}
-
 }
