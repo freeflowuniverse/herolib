@@ -110,7 +110,7 @@ pub fn (mut s Simulator) play(mut plbook PlayBook) ! {
 	}
 
 	// now do the simulation, run it
-	mut actions4 := plbook.filter(find: 'tfgridsimulation_farming.')!
+	mut actions4 := plbook.find(filter: 'tfgridsimulation_farming.*')!
 	for action_ri in actions4 {
 		if action_ri.name == 'regional_internet_add' {
 			mut iname := action_ri.params.get('name')!

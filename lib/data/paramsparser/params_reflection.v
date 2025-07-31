@@ -14,7 +14,7 @@ pub fn (params Params) decode_struct[T](start T) !T {
 	mut t := T{}
 	$for field in T.fields {
 		$if field.is_enum {
-			t.$(field.name) = params.get_int(field.name) or { t.$(field.name) }
+			t.$(field.name) = params.get_int(field.name) or { int(t.$(field.name)) }
 		} $else {
 			// super annoying didn't find other way, then to ignore options
 			$if field.is_option {

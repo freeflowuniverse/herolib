@@ -50,9 +50,9 @@ pub fn (mut self DocSite) generate() ! {
 	osal.dir_ensure(docs_dest)!
 
 	// Generate pages defined in site.heroscript (!!site.page ...)
-	self.site.siteconfig.generate(
-		path: docs_dest,
-		flat: true,
+	self.site.generate(
+		path: docs_dest
+		flat: true
 	)!
 
 	self.process_imports()!
@@ -76,7 +76,7 @@ pub fn (mut self DocSite) process_imports() ! {
 		for key, val in item.replace {
 			ri.add_item('\{${key}\}', val)!
 		}
-		
+
 		ri.replace_in_dir(
 			path:       dest_path
 			extensions: ['md']

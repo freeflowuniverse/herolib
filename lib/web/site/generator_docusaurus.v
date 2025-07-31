@@ -8,10 +8,10 @@ import os
 
 pub struct SiteGenerator {
 pub mut:
-	siteconfig_name   string
-	path   pathlib.Path
-	client &doctreeclient.DocTreeClient
-	flat   bool // if flat then won't use sitenames as subdir's
+	siteconfig_name string
+	path            pathlib.Path
+	client          &doctreeclient.DocTreeClient
+	flat            bool // if flat then won't use sitenames as subdir's
 }
 
 @[params]
@@ -22,7 +22,7 @@ pub mut:
 }
 
 // new creates a new siteconfig and stores it in redis, or gets an existing one
-pub fn (siteconfig SiteConfig)generate(args SiteGeneratorArgs) ! {
+pub fn (site Site) generate(args SiteGeneratorArgs) ! {
 	mut path := args.path
 	if path == '' {
 		path = '${os.home_dir()}/hero/var/sitegen'
@@ -33,11 +33,11 @@ pub fn (siteconfig SiteConfig)generate(args SiteGeneratorArgs) ! {
 		flat:   args.flat
 	}
 
-	for section in siteconfig.sections {
+	for section in site.sections {
 		factory.section_generate(section)!
 	}
 
-	for page in siteconfig.pages {
+	for page in site.pages {
 		factory.page_generate(page)!
 	}
 }
