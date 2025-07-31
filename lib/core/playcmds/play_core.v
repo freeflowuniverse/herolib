@@ -2,7 +2,6 @@ module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.playbook { PlayBook }
-import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.ui.console
 
 // !!context.configure
@@ -10,9 +9,7 @@ import freeflowuniverse.herolib.ui.console
 //     coderoot:...
 //     interactive:true
 
-
 fn play_core(mut plbook PlayBook) ! {
-
 	// for mut action in plbook.find(filter: 'context.configure')! {
 	// 	mut p := action.params
 	// 	mut session := plbook.session
@@ -37,11 +34,11 @@ fn play_core(mut plbook PlayBook) ! {
 			if playrunpath.len == 0 {
 				action.name = 'pull'
 				playrunpath = gittools.get_repo_path(
-						path:action.params.get_default('path', '')!
-						git_url:action.params.get_default('git_url', '')!
-						git_reset:action.params.get_default_false('git_reset')
-						git_pull:action.params.get_default_false('git_pull')
-						)!
+					path:      action.params.get_default('path', '')!
+					git_url:   action.params.get_default('git_url', '')!
+					git_reset: action.params.get_default_false('git_reset')
+					git_pull:  action.params.get_default_false('git_pull')
+				)!
 			}
 			if playrunpath.len == 0 {
 				return error("can't run a heroscript didn't find url or path.")
@@ -53,42 +50,31 @@ fn play_core(mut plbook PlayBook) ! {
 			content := action_.params.get_default('content', "didn't find content")!
 			console.print_header(content)
 		}
-	}	
+	}
 
 	for mut action in plbook.find(filter: 'session.')! {
 		mut p := action.params
 		mut session := plbook.session
 
 		//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
-		if p.exists('env_set') {
+		if action.name == 'env_set' {
 			mut key := p.get('key')!
-			mut val := p.get('val')!
+			mut val := p.get('val') or { p.get('value')! }
 			session.env_set(key, val)!
 		}
 
-		if p.exists('env_set_once') {
+		if action.name == 'env_set_once' {
 			mut key := p.get('key')!
-			mut val := p.get('val')!
-			session.env_set_once(key, val)!
-		}		
+			mut val := p.get('val') or { p.get('value')! }
+			// Use env_set instead of env_set_once to avoid duplicate errors
+			session.env_set(key, val)!
+		}
 
 		action.done = true
 	}
+	mut session := plbook.session
 
-
-	// CHANGE {...} args in plbook
-
-	println('plbook:${plbook}')
-
-	mut context := base.context()!
-	mut session := context.session_latest()!
-
-	sitename:=session.env_get('SITENAME') or {""}
-
-	println('session:${session}')
-	println('sitename:${sitename}')
-
-	if true{panic("dfghjkjhgfghjk")}
+	sitename := session.env_get('SITENAME') or { '' }
 
 	// for mut action in plbook.find(filter: 'core.coderoot_set')! {
 	// 	mut p := action.params
@@ -121,5 +107,4 @@ fn play_core(mut plbook PlayBook) ! {
 	// 	}
 	// 	action.done = true
 	// }
-
 }
