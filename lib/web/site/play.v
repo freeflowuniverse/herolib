@@ -80,8 +80,10 @@ fn play_config(mut plbook PlayBook) !&Site {
 	config.meta_title = p_meta.get_default('title', config.title)!
 	// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
 	config.meta_image = p_meta.get_default('image', config.image)!
-	// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to
-	// For now, config.description (from site.config) is used as the primary source or fallback.
+	// If 'description' is present in site.config_meta, it overrides the main description
+	if p_meta.exists('description') {
+		config.description = p_meta.get('description')!
+	}
 
 	return website
 }
