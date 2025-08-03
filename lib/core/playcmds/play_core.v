@@ -3,6 +3,7 @@ module playcmds
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.texttools
 
 // !!context.configure
 //     name:'test'
@@ -76,35 +77,51 @@ fn play_core(mut plbook PlayBook) ! {
 
 	sitename := session.env_get('SITENAME') or { '' }
 
-	// for mut action in plbook.find(filter: 'core.coderoot_set')! {
-	// 	mut p := action.params
-	// 	if p.exists('coderoot') {
-	// 		coderoot := p.get_path_create('coderoot')!
-	// 		mut gs := session.context.gitstructure()!
-	// 		if gs.rootpath.path != coderoot {
-	// 			mut db := session.context.contextdb.db_get(dbname: 'context')!
-	// 			db.set('coderoot', coderoot)!
-	// 			session.context.gitstructure_reload()!
-	// 		}
-	// 	} else {
-	// 		return error('coderoot needs to be specified')
-	// 	}
-	// 	action.done = true
-	// }
+	// Apply template replacement from session environment variables
+	if session.env.len > 0 {
+		// Create a map with name_fix applied to keys for template replacement
+		mut env_fixed := map[string]string{}
+		for key, value in session.env {
+			env_fixed[texttools.name_fix(key)] = value
+		}
 
-	// for mut action in plbook.find(filter: 'core.params_context_set')! {
-	// 	mut p := action.params
-	// 	for param in p.params {
-	// 		session.context.params.set(param.key, param.value)
-	// 	}
-	// 	action.done = true
-	// }
+		for mut action in plbook.actions {
+			if !action.done {
+				action.params.replace(env_fixed)
+			}
+		}
+	}
 
-	// for mut action in plbook.find(filter: 'core.params_session_set')! {
-	// 	mut p := action.params
-	// 	for param in p.params {
-	// 		session.params.set(param.key, param.value)
-	// 	}
-	// 	action.done = true
-	// }
+	for mut action in plbook.find(filter: 'core.coderoot_set')! {
+		mut p := action.params
+		if p.exists('coderoot') {
+			coderoot := p.get_path_create('coderoot')!
+			if session.context.config.coderoot != coderoot {
+				session.context.config.coderoot = coderoot
+				session.context.save()!
+			}
+		} else {
+			return error('coderoot needs to be specified')
+		}
+		action.done = true
+	}
+
+	for mut action in plbook.find(filter: 'core.params_context_set')! {
+		mut p := action.params
+		mut context_params := session.context.params()!
+		for param in p.params {
+			context_params.set(param.key, param.value)
+		}
+		session.context.save()!
+		action.done = true
+	}
+
+	for mut action in plbook.find(filter: 'core.params_session_set')! {
+		mut p := action.params
+		for param in p.params {
+			session.params.set(param.key, param.value)
+		}
+		session.save()!
+		action.done = true
+	}
 }

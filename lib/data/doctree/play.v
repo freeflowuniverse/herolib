@@ -3,9 +3,7 @@ module doctree
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import freeflowuniverse.herolib.ui.console
 
-
-pub fn play(mut plbook playbook.PlayBook) ! {
-
+pub fn play(mut plbook PlayBook) ! {
 	mut doctrees := map[string]&Tree{}
 
 	collection_actions := plbook.find(filter: 'doctree.scan')!
@@ -27,7 +25,8 @@ pub fn play(mut plbook playbook.PlayBook) ! {
 	}
 
 	export_actions := plbook.find(filter: 'doctree.export')!
-	if export_actions.len == 0 {
+	if export_actions.len == 0 && collection_actions.len > 0 {
+		// Only auto-export if we have collections to export
 		name0 := 'main'
 		mut doctree0 := doctrees[name0] or { panic("can't find doctree with name ${name0}") }
 		doctree0.export()!
@@ -56,5 +55,4 @@ pub fn play(mut plbook playbook.PlayBook) ! {
 	// println(tree_list())	
 	// println(tree_get("main")!)
 	// panic("sd")
-
 }
