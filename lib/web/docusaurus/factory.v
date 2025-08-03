@@ -18,7 +18,6 @@ pub struct AddArgs {
 pub:
     site &site.Site
     path_src string
-    // Parameters that were previously on the factory
     path_build string
     path_publish string
     install bool
