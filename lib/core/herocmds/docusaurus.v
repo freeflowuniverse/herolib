@@ -141,7 +141,15 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		if !os.exists(provided_path) || !os.is_dir(provided_path) {
 			return error('Provided path "${provided_path}" does not exist or is not a directory.')
 		}
-		heroscript_config_dir = provided_path
+
+		// Check if the provided path contains a cfg subdirectory (ebook directory structure)
+		cfg_subdir := os.join_path(provided_path, 'cfg')
+		if os.exists(cfg_subdir) && os.is_dir(cfg_subdir) {
+			heroscript_config_dir = cfg_subdir
+		} else {
+			// Assume the provided path is already the cfg directory
+			heroscript_config_dir = provided_path
+		}
 	} else {
 		mut cwd := os.getwd()
 		cfg_dir := os.join_path(cwd, 'cfg')
@@ -161,19 +169,16 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// Dynamically add ebook configuration files
 	config_file := '${heroscript_config_dir}/config.heroscript'
 	if os.exists(config_file) {
-		println('DEBUG: Adding config file: ${config_file}')
 		plbook.add(path: config_file)!
 	}
 
 	menus_file := '${heroscript_config_dir}/menus.heroscript'
 	if os.exists(menus_file) {
-		println('DEBUG: Adding menus file: ${menus_file}')
 		plbook.add(path: menus_file)!
 	}
 
 	pages_dir := '${heroscript_config_dir}/pages'
 	if os.exists(pages_dir) && os.is_dir(pages_dir) {
-		println('DEBUG: Adding pages directory: ${pages_dir}')
 		plbook.add(path: pages_dir)!
 	}
 
@@ -189,9 +194,6 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	if config_actions.len == 0 {
 		return error('No site.config found in heroscript files. Make sure config.heroscript contains !!site.config.')
 	}
-
-	// Debug: Check if site.page actions are found
-	page_actions := plbook.find(filter: 'site.page')!
 
 	// Get the site name from the first site.config action
 	site_name := config_actions[0].params.get('name') or {
