@@ -2,7 +2,7 @@
 
 import freeflowuniverse.herolib.web.docusaurus
 
-docusaurus.new(
+docusaurus.add(
 	heroscript: '
 
 	!!docusaurus.define

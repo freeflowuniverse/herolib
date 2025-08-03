@@ -45,12 +45,12 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut args := args_
 	// console.print_debug('git do ${args.cmd}')
 
-	if args.path == '' {
+	if args.path == '' && args.url == '' && args.repo == '' && args.account == '' && args.provider == '' && args.filter == ''{
 		args.path = os.getwd()
+
 	}
 
-	// see if its one repo we are in, based on current path
-	if args.repo == '' && args.account == '' && args.provider == '' && args.filter == '' {
+	if args.path != '' {
 		mut curdiro := pathlib.get_dir(path: args.path, create: false)!
 		mut parentpath := curdiro.parent_find('.git') or { pathlib.Path{} }
 		if parentpath.path != '' {
@@ -60,6 +60,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			args.provider = r0.provider
 		}
 	}
+
 	// see if a url was used means we are in 1 repo
 	if args.url.len > 0 {
 		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {

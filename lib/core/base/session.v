@@ -77,7 +77,6 @@ pub fn (mut self Session) env_set_once(key string, value string) ! {
 	self.env_set(key, value)!
 }
 
-
 // Get an environment variable
 pub fn (mut self Session) env_get(key string) !string {
 	return self.env[key] or { return error("can't find env in session ${self.name}") }

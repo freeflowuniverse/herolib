@@ -1,6 +1,7 @@
 module herocmds
 
 import freeflowuniverse.herolib.web.docusaurus
+import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.core.pathlib
 import os
 import cli { Command, Flag }
@@ -154,32 +155,31 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
-	mut docs := docusaurus.new(
-		template_update: update // Changed 'update' to 'template_update'
-		path_build:      build_path
-		heroscript_path: heroscript_config_dir // Pass the directory path
-	)!
+	// Create a site first using the new API
+	mut generic_site := site.new(name: 'cli_site')!
 
-	mut site := docs.add(
-		git_url:      url // Map CLI 'url' flag to DSiteGetArgs 'git_url'
-		update:       update
-		path_publish: publish_path // Map CLI 'publish' flag to DSiteGetArgs 'path_publish'
-		init:         init
-		open:         open
-		// Removed build_path and deploykey as they are not in DSiteGetArgs
+	// Add docusaurus site
+	mut dsite := docusaurus.add(
+		site:            generic_site
+		path_src:        url // Use URL as source path for now
+		path_build:      build_path
+		path_publish:    publish_path
+		reset:           false
+		template_update: update
+		install:         init
 	)!
 
 	// Conditional site actions based on flags
 	if buildpublish {
-		site.build_publish()!
+		dsite.build_publish()!
 	} else if builddevpublish {
-		site.build_dev_publish()!
+		dsite.build_dev_publish()!
 	} else if dev {
-		site.dev(host: 'localhost', port: 3000)!
+		dsite.dev(host: 'localhost', port: 3000, open: open)!
 	} else if open {
-		site.open()!
+		dsite.open('localhost', 3000)!
 	} else {
 		// If no specific action (build/dev/open) is requested, just generate the site
-		site.generate()!
+		dsite.generate()!
 	}
 }

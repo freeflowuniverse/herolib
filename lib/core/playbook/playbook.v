@@ -128,7 +128,7 @@ pub fn (mut plbook PlayBook) names() ![]string {
 // // - If actor == "", then matches all actors.
 // // - If name == "", then matches all actions from the defined actor (if defined).
 // // - If actiontype == .unknown, then matches all action types; when specified, filters by the action type, default .sal
-// pub fn (mut plbook PlayBook) actions_find(args ActionGetArgs) ![]&Action {
+// pub fn (mut plbook PlayBook) find(args ActionGetArgs) ![]&Action {
 // 	mut res := []&Action{}
 // 	for a in plbook.actions {
 // 		// If id is specified, return only the action with that id

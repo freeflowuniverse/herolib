@@ -39,7 +39,7 @@ pub fn encode[T](val T) !string {
 // export exports an encoder into encoded heroscript
 pub fn (e Encoder) export() !string {
 	mut script := e.params.export(
-		pre:        '!!define.${e.action_names.join('.')}'
+		pre:        '!!${e.action_names.join('.')}.configure'
 		indent:     '	'
 		skip_empty: true
 	)
@@ -119,6 +119,7 @@ pub fn (mut e Encoder) encode_struct[T](t T) ! {
 	struct_attrs := attrs_get_reflection(mytype)
 
 	mut action_name := texttools.snake_case(T.name.all_after_last('.'))
+	// println('action_name: ${action_name} ${T.name}')
 	if 'alias' in struct_attrs {
 		action_name = struct_attrs['alias'].to_lower()
 	}
