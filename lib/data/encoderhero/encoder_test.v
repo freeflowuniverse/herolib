@@ -76,11 +76,11 @@ struct Profile {
 }
 
 const person_heroscript = "
-!!define.person id:1 name:Bob birthday:'2012-12-12 00:00:00'
-!!define.person.car name:'Bob\\'s car' year:2014
-!!define.person.car.insurance provider:insurer
+!!person.configure id:1 name:Bob age:21 birthday:'2012-12-12 00:00:00'
+!!person.car.configure name:'Bob\\'s car' year:2014
+!!person.car.insurance.configure provider:insurer
 
-!!define.person.profile platform:Github url:github.com/example
+!!person.profile.configure platform:Github url:github.com/example
 "
 
 const person = Person{
@@ -107,20 +107,18 @@ const person = Person{
 	]
 }
 
-const company_script = "
-!!define.company name:'Tech Corp' founded:'2022-12-05 20:14'
-!!define.company.person id:1 name:Bob birthday:'2012-12-12 00:00:00'
-!!define.company.person.car name:'Bob\\'s car' year:2014
-!!define.company.person.car.insurance provider:insurer
+const company_script = "!!company.configure name:'Tech Corp' founded:'2022-12-05 20:14'
+!!company.person.configure id:1 name:Bob age:21 birthday:'2012-12-12 00:00:00'
+!!company.person.car.configure name:'Bob\\'s car' year:2014
+!!company.person.car.insurance.configure provider:insurer
 
-!!define.company.person.profile platform:Github url:github.com/example
+!!company.person.profile.configure platform:Github url:github.com/example
 
-!!define.company.person id:2 name:Alice birthday:'1990-06-20 00:00:00'
-!!define.company.person.car name:'Alice\\'s car' year:2018
-!!define.company.person.car.insurance 
+!!company.person.configure id:2 name:Alice age:30 birthday:'1990-06-20 00:00:00'
+!!company.person.car.configure name:'Alice\\'s car' year:2018
+!!company.person.car.insurance.configure
 
-!!define.company.person.profile platform:LinkedIn url:linkedin.com/alice
-"
+!!company.person.profile.configure platform:LinkedIn url:linkedin.com/alice"
 
 fn test_encode() ! {
 	person_script := encode[Person](person)!

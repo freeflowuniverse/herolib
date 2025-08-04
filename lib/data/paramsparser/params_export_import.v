@@ -256,20 +256,28 @@ pub fn (p Params) export(args ExportArgs) string {
 	mut outstr := ''
 	if args.oneline {
 		if args.pre.len > 0 {
-			outstr += args.pre + ' '
+			if out.len > 0 {
+				outstr += args.pre + ' '
+			} else {
+				outstr += args.pre
+			}
 		}
 		outstr += out.join(' ')
 	} else {
 		comments := out_pre.join('\n')
-		oneliner := out.join(' ') + '\n'
+		oneliner := out.join(' ')
 		poststr := out_post.join('\n')
 		if args.pre.len > 0 {
 			outstr += comments
-			outstr += args.pre + ' ' + oneliner
+			if oneliner.trim_space().len > 0 {
+				outstr += args.pre + ' ' + oneliner + '\n'
+			} else {
+				outstr += args.pre + '\n'
+			}
 			outstr += poststr
 		} else {
 			outstr += comments
-			outstr += oneliner
+			outstr += oneliner + '\n'
 			outstr += poststr
 		}
 	}

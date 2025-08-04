@@ -27,7 +27,7 @@ fn test_encode() ! {
 
 	script := encode[MyStruct](o)!
 
-	assert script.trim_space() == '!!define.my_struct id:1 name:test'
+	assert script.trim_space() == '!!my_struct.configure id:1 name:test'
 
 	println(script)
 

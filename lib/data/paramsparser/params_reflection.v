@@ -109,97 +109,101 @@ pub fn encode[T](t T, args EncodeArgs) !Params {
 	$for field in T.fields {
 		val := t.$(field.name)
 		field_attrs := attrs_get(field.attrs)
-		mut key := field.name
-		if 'alias' in field_attrs {
-			key = field_attrs['alias']
-		}
-		$if field.is_option {
-			// Handle optional fields
-			if val != none {
-				// Unwrap the optional value before type checking and encoding
-				// Get the unwrapped value using reflection
-				// This is a workaround for V's reflection limitations with optionals
-				// We assume that if val != none, then it can be safely unwrapped
-				// and its underlying type can be determined.
-				// This might require a more robust way to get the underlying value
-				// if V's reflection doesn't provide a direct 'unwrap' for generic `val`.
-				// For now, we'll rely on the type checks below.
-				// The `val` here is the actual value of the field, which is `?T`.
-				// We need to check the type of `field.typ` to know what `T` is.
 
-				// Revert to simpler handling for optional fields
-				// Rely on V's string interpolation for optional types
-				// If val is none, this block will be skipped.
-				// If val is not none, it will be converted to string.
-				params.set(key, '${val}')
+		// Skip fields with @[skip] attribute
+		if 'skip' !in field_attrs {
+			mut key := field.name
+			if 'alias' in field_attrs {
+				key = field_attrs['alias']
 			}
-		} $else $if val is string || val is int || val is bool || val is i64 || val is u32
-			|| val is time.Time || val is ourtime.OurTime {
-			params.set(key, '${val}')
-		} $else $if field.is_enum {
-			params.set(key, '${int(val)}')
-		} $else $if field.typ is []string {
-			mut v2 := ''
-			for i in val {
-				if i.contains(' ') {
-					v2 += "\"${i}\","
-				} else {
-					v2 += '${i},'
-				}
-			}
-			v2 = v2.trim(',')
-			params.params << Param{
-				key:   field.name
-				value: v2
-			}
-		} $else $if field.typ is []int {
-			mut v2 := ''
-			for i in val {
-				v2 += '${i},'
-			}
-			v2 = v2.trim(',')
-			params.params << Param{
-				key:   field.name
-				value: v2
-			}
-		} $else $if field.typ is []bool {
-			mut v2 := ''
-			for i in val {
-				v2 += '${i},'
-			}
-			v2 = v2.trim(',')
-			params.params << Param{
-				key:   field.name
-				value: v2
-			}
-		} $else $if field.typ is []u32 {
-			mut v2 := ''
-			for i in val {
-				v2 += '${i},'
-			}
-			v2 = v2.trim(',')
-			params.params << Param{
-				key:   field.name
-				value: v2
-			}
-		} $else $if field.typ is $struct {
-			// TODO: Handle embeds better
-			is_embed := field.name[0].is_capital()
-			if is_embed {
-				$if val is string || val is int || val is bool || val is i64 || val is u32
-					|| val is time.Time {
+			$if field.is_option {
+				// Handle optional fields
+				if val != none {
+					// Unwrap the optional value before type checking and encoding
+					// Get the unwrapped value using reflection
+					// This is a workaround for V's reflection limitations with optionals
+					// We assume that if val != none, then it can be safely unwrapped
+					// and its underlying type can be determined.
+					// This might require a more robust way to get the underlying value
+					// if V's reflection doesn't provide a direct 'unwrap' for generic `val`.
+					// For now, we'll rely on the type checks below.
+					// The `val` here is the actual value of the field, which is `?T`.
+					// We need to check the type of `field.typ` to know what `T` is.
+
+					// Revert to simpler handling for optional fields
+					// Rely on V's string interpolation for optional types
+					// If val is none, this block will be skipped.
+					// If val is not none, it will be converted to string.
 					params.set(key, '${val}')
 				}
-			} else {
-				if args.recursive {
-					child_params := encode(val)!
-					params.params << Param{
-						key:   field.name
-						value: child_params.export()
+			} $else $if val is string || val is int || val is bool || val is i64 || val is u32
+				|| val is time.Time || val is ourtime.OurTime {
+				params.set(key, '${val}')
+			} $else $if field.is_enum {
+				params.set(key, '${int(val)}')
+			} $else $if field.typ is []string {
+				mut v2 := ''
+				for i in val {
+					if i.contains(' ') {
+						v2 += "\"${i}\","
+					} else {
+						v2 += '${i},'
 					}
 				}
+				v2 = v2.trim(',')
+				params.params << Param{
+					key:   field.name
+					value: v2
+				}
+			} $else $if field.typ is []int {
+				mut v2 := ''
+				for i in val {
+					v2 += '${i},'
+				}
+				v2 = v2.trim(',')
+				params.params << Param{
+					key:   field.name
+					value: v2
+				}
+			} $else $if field.typ is []bool {
+				mut v2 := ''
+				for i in val {
+					v2 += '${i},'
+				}
+				v2 = v2.trim(',')
+				params.params << Param{
+					key:   field.name
+					value: v2
+				}
+			} $else $if field.typ is []u32 {
+				mut v2 := ''
+				for i in val {
+					v2 += '${i},'
+				}
+				v2 = v2.trim(',')
+				params.params << Param{
+					key:   field.name
+					value: v2
+				}
+			} $else $if field.typ is $struct {
+				// TODO: Handle embeds better
+				is_embed := field.name[0].is_capital()
+				if is_embed {
+					$if val is string || val is int || val is bool || val is i64 || val is u32
+						|| val is time.Time {
+						params.set(key, '${val}')
+					}
+				} else {
+					if args.recursive {
+						child_params := encode(val)!
+						params.params << Param{
+							key:   field.name
+							value: child_params.export()
+						}
+					}
+				}
+			} $else {
 			}
-		} $else {
 		}
 	}
 	return params
