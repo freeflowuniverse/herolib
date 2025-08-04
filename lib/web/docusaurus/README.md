@@ -12,15 +12,37 @@ This module allows you to build and manage Docusaurus websites using a generic c
 ### Example HeroScript
 
 ```heroscript
-# 1. Define the Docusaurus build environment
-!!docusaurus.define
-	path_build: "/tmp/docusaurus_build"
-	path_publish: "/tmp/docusaurus_publish"
-	reset: true
-	install: true
 
-# 2. Configure the site using the generic 'site' module
-# This part is handled by lib/web/site
+// Define the Docusaurus build environment, is optional
+!!docusaurus.define
+    path_build: "/tmp/docusaurus_build"
+    path_publish: "/tmp/docusaurus_publish"
+    reset: 1
+    install: 1
+    template_update: 1
+
+!!docusaurus.add    
+    sitename:"my_site" 
+    path:"./path/to/my/site/source"
+    path_publish: "/tmp/docusaurus_publish"                                                 //optional    
+    git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"    //or can use git to pull the site source, if we do like this then will 
+    git_root:"/tmp/code"
+    git_reset:1
+    git_pull:1
+    
+
+// Run the development server
+!!docusaurus.dev site:"my_site" open:true watch_changes:true
+
+```
+
+## see sites to define a site
+
+the site needs to be defined following the generic site definition, see the `lib/web/site` module for more details.
+
+```heroscript
+
+//Configure the site using the generic 'site' module
 !!site.config
     name: "my_site"
     title: "My Awesome Docs"
@@ -34,14 +56,8 @@ This module allows you to build and manage Docusaurus websites using a generic c
     href: "https://example.com"
     position: "right"
 
-# ... add footer, pages, etc. using !!site.* actions ...
+// ... add footer, pages, etc. using !!site.* actions ...
 
-# 3. Add the generic site to the Docusaurus factory for building
-# The 'path' points to your local source directory with static assets etc.
-!!docusaurus.add site:"my_site" path:"./path/to/my/site/source"
-
-# 4. Run the development server
-!!docusaurus.dev site:"my_site" open:true watch_changes:true
 ```
 
 ### Heroscript Actions

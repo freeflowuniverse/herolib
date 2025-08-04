@@ -20,7 +20,7 @@ pub mut:
 
 @[params]
 pub struct DocSiteFactoryArgs {
-pub:
+pub mut:
     path_build string
     path_publish string
     install bool
@@ -30,29 +30,36 @@ pub:
 
 pub fn factory_get(args_ DocSiteFactoryArgs) !DocSiteFactory {
     mut args:= args_
-    mut f:= docusaurus_factory or {
-        if args.path_build == '' {
-            args.path_build = '${os.home_dir()}/hero/var/docusaurus/build/${site_name}'
-        }
-        if args.path_publish == '' {
-            args.path_publish = '${os.home_dir()}/hero/var/docusaurus/publish/${site_name}'
-        }
-        mut factory := DocSiteFactory{
-            path_publish: pathlib.get_dir(args.path_publish)!
-            path_build: pathlib.get_dir(args.path_build)!
-        }
-
-        if !os.exists('${f.path_build.path}/node_modules') {
-            args.install = true
-        }
-
-        if args.install {
-            factory.install(args.reset, args.template_update)!
-        }
+    mut f:= docusaurus_factory or {        
+        mut factory:=factory_set(args)!
         factory
     }
 	return f
 }
+
+pub fn factory_set(args_ DocSiteFactoryArgs) !DocSiteFactory {
+    mut args:= args_
+    if args.path_build == '' {
+        args.path_build = '${os.home_dir()}/hero/var/docusaurus/build'
+    }
+    if args.path_publish == '' {
+        args.path_publish = '${os.home_dir()}/hero/var/docusaurus/publish'
+    }
+    mut factory := DocSiteFactory{
+        path_publish: pathlib.get_dir(path:args.path_publish,create:true)!
+        path_build: pathlib.get_dir(path:args.path_build,create:true)!
+    }
+
+    if !os.exists('${args.path_build}/node_modules') {
+        args.install = true
+    }
+
+    if args.install {
+        factory.install(args.reset, args.template_update)!
+    }
+	return factory
+}
+
 
 pub fn dsite_get(name_ string) !&DocSite {
     name := texttools.name_fix(name_)

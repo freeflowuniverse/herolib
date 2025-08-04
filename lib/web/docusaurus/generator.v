@@ -1,4 +1,4 @@
-module site
+module docusaurus
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient

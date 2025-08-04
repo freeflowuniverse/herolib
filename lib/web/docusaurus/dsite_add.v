@@ -20,6 +20,7 @@ pub mut:
 	git_root string
 	git_pull bool
 	path_publish string
+	play bool = true
 }
 
 pub fn dsite_add(args_ AddArgs) !&DocSite {
@@ -85,6 +86,9 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 		console.print_debug('Docusaurus site ${args.sitename} already exists, using existing site.')
 		mysite = site.get(name: args.sitename)!
 	} else {
+		if !args.play{
+			return error('Docusaurus site ${args.sitename} does not exist, please set play to true to create it.')
+		}
 		console.print_debug('Creating new Docusaurus site ${args.sitename}.')
 		mut plbook := playbook.new(path: "${args.path}/cfg")!
 		site.play(mut plbook)!

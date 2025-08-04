@@ -92,6 +92,7 @@ pub fn (mut plbook PlayBook) find(args FindArgs) ![]&Action {
 	return res
 }
 
+
 pub fn (mut plbook PlayBook) exists_once(args FindArgs) bool {
 	mut res := plbook.find(args) or { [] }
 	return res.len == 1
