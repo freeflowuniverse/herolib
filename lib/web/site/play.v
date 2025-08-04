@@ -30,9 +30,7 @@ pub fn play(mut plbook PlayBook) ! {
 fn play_config_single(action Action) !&Site {
 	mut p := action.params
 	name := p.get('name') or {
-		// If name is not specified, try to derive it from title or use a default
-		title := p.get_default('title', 'default-site')!
-		texttools.name_fix(title)
+		return error('need to specify name in site.config.\n${action}')
 	}
 
 	mut website := new(name: name)!
@@ -47,6 +45,7 @@ fn play_config_single(action Action) !&Site {
 	config.url = p.get_default('url', config.url)!
 	config.base_url = p.get_default('base_url', config.base_url)!
 	config.url_home = p.get_default('url_home', config.url_home)!
+	config.name = name
 
 	return website
 }

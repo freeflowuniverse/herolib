@@ -2,6 +2,8 @@ module docusaurus
 
 import freeflowuniverse.herolib.web.site
 
+//IS THE ONE AS USED BY DOCUSAURUS
+
 pub struct Configuration {
 pub mut:
 	main   Main
@@ -76,7 +78,7 @@ pub mut:
 // ... (struct definitions remain the same) ...
 
 // This function is now a pure transformer: site.SiteConfig -> docusaurus.Configuration
-pub fn new_configuration(site_cfg site.SiteConfig) !Configuration {
+fn new_configuration(site_cfg site.SiteConfig) !Configuration {
 	// Transform site.SiteConfig to docusaurus.Configuration
 	mut nav_items := []NavbarItem{}
 	for item in site_cfg.menu.items {

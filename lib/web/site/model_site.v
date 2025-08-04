@@ -1,5 +1,4 @@
 module site
-import os
 
 
 @[heap]
@@ -18,7 +17,7 @@ pub mut:
 	draft       bool
 	position    int
 	hide_title  bool
-	src         string @[required]
+	src         string @[required] //always in format collection:page_name
 	path        string @[required]
 	title_nr    int
 	slug string

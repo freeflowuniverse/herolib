@@ -4,7 +4,6 @@ import freeflowuniverse.herolib.osal.screen
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.site as sitemodule
-import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import time
@@ -16,35 +15,17 @@ pub mut:
 	url          string
 	path_src     pathlib.Path
 	path_publish pathlib.Path
-	args         DSiteGetArgs
+	path_build   pathlib.Path
 	errors       []SiteError
 	config       Configuration
-	siteconfig   sitemodule.SiteConfig
-	factory      &DocusaurusFactory @[skip; str: skip] // Reference to the parent
-}
-
-@[params]
-pub struct DSiteGetArgs {
-pub mut:
-	name          string
-	nameshort     string
-	path          string
-	git_url       string
-	git_reset     bool
-	git_root      string
-	git_pull      bool
-	open          bool   // Added
-	watch_changes bool   // Added
-	path_publish  string // Added
-	init          bool   // Added
-	update        bool   // Added (maps to template_update in DocusaurusArgs)
+	website   sitemodule.Site
 }
 
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			exit 1
 			'
 		retry: 0
@@ -55,7 +36,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			exit 1
 			'
 		retry: 0
@@ -66,7 +47,7 @@ pub fn (mut s DocSite) build_publish() ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			exit 1
 			'
 		retry: 0
@@ -76,8 +57,10 @@ pub fn (mut s DocSite) build_publish() ! {
 @[params]
 pub struct DevArgs {
 pub mut:
-	host string = 'localhost'
-	port int    = 3000
+	host          string = 'localhost'
+	port          int    = 3000
+	open          bool   = true  // whether to open the browser automatically
+	watch_changes bool   = false // whether to watch for changes in docs and rebuild automatically
 }
 
 pub fn (mut s DocSite) open(args DevArgs) ! {
@@ -90,7 +73,7 @@ pub fn (mut s DocSite) dev(args DevArgs) ! {
 	s.generate()!
 	osal.exec(
 		cmd:   '	
-			cd ${s.factory.path_build.path}
+			cd ${s.path_build.path}
 			bun run start -p ${args.port} -h ${args.host}
 			'
 		retry: 0
@@ -115,8 +98,8 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	)!
 
 	// Send commands to the screen session
-	console.print_item('To view the server output:: cd ${s.factory.path_build.path}')
-	scr.cmd_send('cd ${s.factory.path_build.path}')!
+	console.print_item('To view the server output:: cd ${s.path_build.path}')
+	scr.cmd_send('cd ${s.path_build.path}')!
 
 	// Start script recording in the screen session for log streaming
 	log_file := '/tmp/docusaurus_${screen_name}.log'
@@ -153,13 +136,13 @@ pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 	// tf.wait()!
 	println('\n')
 
-	if s.args.open {
+	if args.open {
 		s.open()!
 	}
 
-	if s.args.watch_changes {
+	if args.watch_changes {
 		docs_path := '${s.path_src.path}/docs'
-		watch_docs(docs_path, s.path_src.path, s.factory.path_build.path)!
+		watch_docs(docs_path, s.path_src.path, s.path_build.path)!
 	}
 }
 

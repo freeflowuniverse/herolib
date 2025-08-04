@@ -30,6 +30,15 @@ pub fn get(args FactoryArgs) !&Site {
 	return sc
 }
 
+
+pub fn exists(args FactoryArgs) bool {
+	name := texttools.name_fix(args.name)
+	mut sc := websites[name] or {
+		return false
+	}
+	return true
+}
+
 pub fn default() !&Site {
 	if websites.len == 0 {
 		return new(name:'default')!

@@ -2,47 +2,53 @@ module site
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient
+import freeflowuniverse.herolib.web.site {Site, Page, Section}
 import freeflowuniverse.herolib.data.markdown.tools as markdowntools
 // import freeflowuniverse.herolib.ui.console
-import os
 
-pub struct SiteGenerator {
-pub mut:
+//THIS CODE GENERATES A DOCUSAURUS SITE FROM A DOCTREECLIENT AND SITE DEFINITION
+
+
+struct SiteGenerator {
+mut:
 	siteconfig_name string
 	path            pathlib.Path
 	client          &doctreeclient.DocTreeClient
 	flat            bool // if flat then won't use sitenames as subdir's
+	site 		 Site
 }
 
 @[params]
-pub struct SiteGeneratorArgs {
-pub mut:
+struct SiteGeneratorArgs {
+mut:
 	path string
 	flat bool // if flat then won't use sitenames as subdir's
+	site Site
 }
 
 // new creates a new siteconfig and stores it in redis, or gets an existing one
-pub fn (site Site) generate(args SiteGeneratorArgs) ! {
+fn generate(args SiteGeneratorArgs) ! {
 	mut path := args.path
-	if path == '' {
-		path = '${os.home_dir()}/hero/var/sitegen'
+	if args.path == '' {
+		return error('Path must be provided to generate site')
 	}
-	mut factory := SiteGenerator{
+	mut gen := SiteGenerator{
 		path:   pathlib.get_dir(path: path, create: true)!
 		client: doctreeclient.new()!
 		flat:   args.flat
+		site:  args.site
 	}
 
-	for section in site.sections {
-		factory.section_generate(section)!
+	for section in gen.site.sections {
+		gen.section_generate(section)!
 	}
 
-	for page in site.pages {
-		factory.page_generate(page)!
+	for page in gen.site.pages {
+		gen.page_generate(page)!
 	}
 }
 
-fn (mut site SiteGenerator) page_generate(args_ Page) ! {
+fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	mut args := args_
 
 	mut content := ['---']
@@ -54,8 +60,8 @@ fn (mut site SiteGenerator) page_generate(args_ Page) ! {
 	collection_name := parts[0]
 	page_name := parts[1]
 
-	mut page_content := site.client.get_page_content(collection_name, page_name) or {
-		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
+	mut page_content := mysite.client.get_page_content(collection_name, page_name) or {
+		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${mysite.client.list_markdown()!}\nError: ${err}")
 	}
 
 	if args.description.len == 0 {
@@ -117,19 +123,19 @@ fn (mut site SiteGenerator) page_generate(args_ Page) ! {
 		args.path += '.md'
 	}
 
-	mut pagepath := '${site.path.path}/${args.path}'
+	mut pagepath := '${mysite.path.path}/${args.path}'
 	mut pagefile := pathlib.get_file(path: pagepath, create: true)!
 
 	pagefile.write(c)!
 
 	// console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
 
-	site.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
-		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${site.client.list_markdown()!}\nError: ${err}")
+	mysite.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
+		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${mysite.client.list_markdown()!}\nError: ${err}")
 	}
 }
 
-fn (mut site SiteGenerator) section_generate(args_ Section) ! {
+fn (mut mysite SiteGenerator) section_generate(args_ Section) ! {
 	mut args := args_
 
 	mut c := '{
@@ -140,7 +146,7 @@ fn (mut site SiteGenerator) section_generate(args_ Section) ! {
     }
   }'
 
-	mut category_path := '${site.path.path}/${args.path}/_category_.json'
+	mut category_path := '${mysite.path.path}/${args.path}/_category_.json'
 	mut catfile := pathlib.get_file(path: category_path, create: true)!
 
 	catfile.write(c)!

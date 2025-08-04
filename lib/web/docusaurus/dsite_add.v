@@ -7,11 +7,31 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
+import freeflowuniverse.herolib.core.playbook
 // import freeflowuniverse.herolib.data.doctree
 
-pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
-	console.print_header(' Docusaurus: ${args_.name}')
+@[params]
+pub struct AddArgs {
+pub mut:
+	sitename string //needs to exist in web.site module
+	path string //site of the docusaurus site with the config as is needed to populate the docusaurus site
+	git_url string
+	git_reset bool
+	git_root string
+	git_pull bool
+	path_publish string
+}
+
+pub fn dsite_add(args_ AddArgs) !&DocSite {
 	mut args := args_
+	args.sitename = texttools.name_fix(args_.sitename)
+
+	console.print_header('Add Docusaurus Site: ${args.sitename}')
+
+    if args.sitename in docusaurus_sites {
+        return error('Docusaurus site ${args.sitename} already exists, returning existing.')
+
+    }
 
 	mut path := gittools.path(
 		path:       args.path
@@ -19,11 +39,15 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 		git_reset:  args.git_reset
 		git_root:   args.git_root
 		git_pull:   args.git_pull
-		currentdir: true
+		currentdir: false
 	)!
 	args.path = path.path
 	if !path.is_dir() {
 		return error('path is not a directory')
+	}
+
+	if ! os.exists('${args.path}/cfg') {
+		return error('config directory for docusaurus does not exist in ${args.path}/cfg.\n${args}')
 	}
 
 	configpath := '${args.path}/cfg'
@@ -39,50 +63,50 @@ pub fn (mut f DocusaurusFactory) add(args_ DSiteGetArgs) !&DocSite {
 	osal.rm('${args.path}/sync.sh')!
 	osal.rm('${args.path}/.DS_Store')!
 
-	mut myconfig := config_load(configpath)!
+	mut website := site.get(name: args.sitename)!
+
+	mut myconfig := new_configuration(website.siteconfig)! //go from site.SiteConfig to docusaurus.Configuration
 
 	if myconfig.main.name.len == 0 {
-		myconfig.main.name = myconfig.main.base_url.trim_space().trim('/').trim_space()
+		return error('main.name is not set in the site configuration')
 	}
 
-	if args.name == '' {
-		args.name = myconfig.main.name
-	}
-
-	if args.nameshort.len == 0 {
-		args.nameshort = args.name
-	}
-
-	args.name = texttools.name_fix(args.name)
-	args.nameshort = texttools.name_fix(args.nameshort)
+	mut f:=factory_get()!
 
 	if args.path_publish == '' {
-		args.path_publish = '${f.path_publish}/${args.name}'
+		args.path_publish = '${f.path_publish.path}/${args.sitename}'
 	}
 
-	// this will get us the siteconfig run through plbook
-	mut mysite := site.new(name: args.name)!
-	mut mysiteconfig := mysite.siteconfig
+	path_build_ := '${f.path_build.path}/${args.sitename}'
 
-	// NOT NEEDED IS DONE FROM HEROSCRIPT BEFORE
-	// //now run the plbook to get all relevant for the site, {SITENAME} has been set in the context.session
-	// doctree.play(
-	// 	heroscript_path: configpath
-	// 	reset:           args.update
-	// )!
-
-	mut ds := DocSite{
-		name:         args.name
-		path_src:     pathlib.get_dir(path: args.path, create: false)!
-		path_publish: pathlib.get_dir(path: args.path_publish)!
-		args:         args
-		config:       myconfig
-		siteconfig:   mysiteconfig // comes from the heroconfig
-		factory:      &f
+	//get our website
+	mut mysite := site.new(name: args.sitename)!
+	if site.exists(name: args.sitename) {
+		console.print_debug('Docusaurus site ${args.sitename} already exists, using existing site.')
+		mysite = site.get(name: args.sitename)!
+	} else {
+		console.print_debug('Creating new Docusaurus site ${args.sitename}.')
+		mut plbook := playbook.new(path: "${args.path}/cfg")!
+		site.play(mut plbook)!
+		mysite = site.get(name: args.sitename) or {
+			return error('Failed to get site after playing playbook: ${args.sitename}')
+		}		
 	}
-	ds.check()!
 
-	f.sites[args.name] = &ds
+    // Create the DocSite instance
+    mut dsite := &DocSite{
+        name:         args.sitename
+        path_src:     pathlib.get_dir(path: args.path, create: false)!
+        path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
+        path_build:   pathlib.get_dir(path: path_build_, create: true)!
+        config:       new_configuration(website.siteconfig)!
+		website:      mysite
+    }
 
-	return &ds
+    docusaurus_sites[args.sitename] = dsite
+    return dsite
 }
+
+
+
+
