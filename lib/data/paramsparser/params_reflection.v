@@ -111,7 +111,9 @@ pub fn encode[T](t T, args EncodeArgs) !Params {
 		field_attrs := attrs_get(field.attrs)
 
 		// Skip fields with @[skip] attribute
-		if 'skip' !in field_attrs {
+		if 'skip' in field_attrs {
+			// Skip this field
+		} else {
 			mut key := field.name
 			if 'alias' in field_attrs {
 				key = field_attrs['alias']
