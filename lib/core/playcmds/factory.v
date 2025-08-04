@@ -4,6 +4,7 @@ module playcmds
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.data.doctree
 import freeflowuniverse.herolib.biz.bizmodel
+import freeflowuniverse.herolib.web.docusaurus
 // import freeflowuniverse.herolib.hero.publishing
 // import freeflowuniverse.herolib.threefold.grid4.gridsimulator
 // import freeflowuniverse.herolib.installers.sysadmintools.daguserver
@@ -19,17 +20,17 @@ pub struct PlayArgs {
 pub mut:
 	heroscript      string
 	heroscript_path string
-	plbook          ?playbook.PlayBook
+	plbook          ?PlayBook
 	reset           bool
 }
 
 pub fn run(args_ PlayArgs) ! {
-
 	mut args := args_
 
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
+
 	play_core(mut plbook)!
 	play_git(mut plbook)!
 
@@ -46,13 +47,11 @@ pub fn run(args_ PlayArgs) ! {
 	// plbook = gridsimulator.play(mut plbook)!
 	bizmodel.play(mut plbook)!
 	doctree.play(mut plbook)!
-	
+	docusaurus.play(mut plbook)!
+
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!
 	// coredns.play(mut plbook)!
 
 	// plbook.empty_check()!
-
-
-	
 }

@@ -1,9 +1,0 @@
-{
-  "chat.mcp.discovery.enabled": true,
-  "mcpServers": {
-    "VSCode": {
-      "type": "internal",
-      "tools": ["chat_send", "apply_edits", "read_file", "write_file", "get_file_tree"]
-    }
-  }
-}

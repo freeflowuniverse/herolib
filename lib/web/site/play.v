@@ -1,33 +1,64 @@
 module site
 
-import freeflowuniverse.herolib.core.playbook { PlayBook }
+import freeflowuniverse.herolib.core.playbook { Action, PlayBook }
 import freeflowuniverse.herolib.core.texttools
-
 import time
 
-pub fn play(mut plbook PlayBook)! {
+pub fn play(mut plbook PlayBook) ! {
+	// Handle multiple site configurations
+	config_actions := plbook.find(filter: 'site.config')!
 
-	mut website := play_config(mut plbook)!
+	if config_actions.len == 0 {
+		return error('No site.config actions found')
+	}
+
+	// Process each site configuration separately
+	for config_action in config_actions {
+		mut website := play_config_single(config_action)!
+		mut config := &website.siteconfig
+
+		play_import(mut plbook, mut config)!
+		play_menu(mut plbook, mut config)!
+		play_footer(mut plbook, mut config)!
+		play_build_dest(mut plbook, mut config)!
+		play_build_dest_dev(mut plbook, mut config)!
+
+		play_pages(mut plbook, mut website)!
+	}
+}
+
+fn play_config_single(action Action) !&Site {
+	mut p := action.params
+	name := p.get('name') or {
+		// If name is not specified, try to derive it from title or use a default
+		title := p.get_default('title', 'default-site')!
+		texttools.name_fix(title)
+	}
+
+	mut website := new(name: name)!
 	mut config := &website.siteconfig
 
-	play_import(mut plbook,mut config)!
-	play_menu(mut plbook,mut config)!
-	play_footer(mut plbook,mut config)!
-	play_build_dest(mut plbook,mut config)!
-	play_build_dest_dev(mut plbook,mut config)!
+	config.title = p.get_default('title', config.title)!
+	config.description = p.get_default('description', config.description)!
+	config.tagline = p.get_default('tagline', config.tagline)!
+	config.favicon = p.get_default('favicon', config.favicon)!
+	config.image = p.get_default('image', config.image)!
+	config.copyright = p.get_default('copyright', config.copyright)!
+	config.url = p.get_default('url', config.url)!
+	config.base_url = p.get_default('base_url', config.base_url)!
+	config.url_home = p.get_default('url_home', config.url_home)!
 
-	play_pages(mut plbook,mut website)!
-
+	return website
 }
 
 fn play_config(mut plbook PlayBook) !&Site {
 	mut action := plbook.get(filter: 'site.config')!
 
-	mut p:= action.params
-	name := p.get('name') or {return error("need to specify name in site.config")}
+	mut p := action.params
+	name := p.get('name') or { return error('need to specify name in site.config') }
 
 	mut website := new(name: name)!
-	mut config:= &website.siteconfig
+	mut config := &website.siteconfig
 
 	config.name = texttools.name_fix(name)
 	config.title = p.get_default('title', 'Documentation Site')!
@@ -49,8 +80,10 @@ fn play_config(mut plbook PlayBook) !&Site {
 	config.meta_title = p_meta.get_default('title', config.title)!
 	// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
 	config.meta_image = p_meta.get_default('image', config.image)!
-	// 'description' from site.config_meta can also be parsed here if a separate meta_description field is added to 
-	// For now, config.description (from site.config) is used as the primary source or fallback.
+	// If 'description' is present in site.config_meta, it overrides the main description
+	if p_meta.exists('description') {
+		config.description = p_meta.get('description')!
+	}
 
 	return website
 }
@@ -123,7 +156,7 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-fn play_footer(mut plbook PlayBook , mut config SiteConfig) ! {
+fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 	footer_actions := plbook.find(filter: 'site.footer')!
 	for action in footer_actions {
 		mut p := action.params
@@ -180,4 +213,3 @@ fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
 		config.build_dest_dev << dest_dev
 	}
 }
-

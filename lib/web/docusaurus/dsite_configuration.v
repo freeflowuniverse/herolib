@@ -2,7 +2,6 @@ module docusaurus
 
 import freeflowuniverse.herolib.web.site
 
-
 pub struct Configuration {
 pub mut:
 	main   Main
@@ -73,6 +72,7 @@ pub mut:
 	href  string @[omitempty]
 	to    string @[omitempty]
 }
+
 // ... (struct definitions remain the same) ...
 
 // This function is now a pure transformer: site.SiteConfig -> docusaurus.Configuration
@@ -105,7 +105,7 @@ pub fn new_configuration(site_cfg site.SiteConfig) !Configuration {
 	}
 
 	cfg := Configuration{
-		main: Main{
+		main:   Main{
 			title:          site_cfg.title
 			tagline:        site_cfg.tagline
 			favicon:        site_cfg.favicon
@@ -114,9 +114,21 @@ pub fn new_configuration(site_cfg site.SiteConfig) !Configuration {
 			url_home:       site_cfg.url_home
 			image:          site_cfg.image
 			metadata:       Metadata{
-				title:       site_cfg.meta_title
-				description: site_cfg.description
-				image:       site_cfg.meta_image
+				title:       if site_cfg.meta_title == '' {
+					site_cfg.title
+				} else {
+					site_cfg.meta_title
+				}
+				description: if site_cfg.description == '' {
+					site_cfg.tagline
+				} else {
+					site_cfg.description
+				}
+				image:       if site_cfg.meta_image == '' {
+					site_cfg.image
+				} else {
+					site_cfg.meta_image
+				}
 			}
 			build_dest:     site_cfg.build_dest.map(it.path)
 			build_dest_dev: site_cfg.build_dest_dev.map(it.path)
@@ -141,14 +153,27 @@ pub fn new_configuration(site_cfg site.SiteConfig) !Configuration {
 }
 
 fn config_fix(config Configuration) !Configuration {
+	// Fix empty logo sources by removing logo entirely if all fields are empty
+	mut navbar_fixed := config.navbar
+	if config.navbar.logo.src == '' && config.navbar.logo.src_dark == ''
+		&& config.navbar.logo.alt == '' {
+		// Create navbar without logo if all logo fields are empty
+		navbar_fixed = Navbar{
+			title: config.navbar.title
+			items: config.navbar.items
+			// logo field omitted entirely
+		}
+	}
+
 	return Configuration{
 		...config
-		main: Main{
+		main:   Main{
 			...config.main
 			title:    if config.main.title == '' { 'Docusaurus' } else { config.main.title }
 			favicon:  if config.main.favicon == '' { 'img/favicon.ico' } else { config.main.favicon }
 			url:      if config.main.url == '' { 'https://example.com' } else { config.main.url }
 			base_url: if config.main.base_url == '' { '/' } else { config.main.base_url }
 		}
-	}	// ... (no changes needed here) ...
+		navbar: navbar_fixed
+	}
 }

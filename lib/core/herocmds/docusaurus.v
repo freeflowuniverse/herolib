@@ -2,7 +2,8 @@ module herocmds
 
 import freeflowuniverse.herolib.web.docusaurus
 import freeflowuniverse.herolib.web.site
-import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.core.playbook
+import freeflowuniverse.herolib.core.playcmds
 import os
 import cli { Command, Flag }
 
@@ -123,7 +124,6 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut open := cmd.flags.get_bool('open') or { false }
 	mut url := cmd.flags.get_string('url') or { '' }
 	mut publish_path := cmd.flags.get_string('publish') or { '' }
-	mut deploykey := cmd.flags.get_string('deploykey') or { '' }
 
 	// --- Build Path Logic ---
 	mut build_path := cmd.flags.get_string('buildpath') or { '' }
@@ -141,7 +141,15 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		if !os.exists(provided_path) || !os.is_dir(provided_path) {
 			return error('Provided path "${provided_path}" does not exist or is not a directory.')
 		}
-		heroscript_config_dir = provided_path
+
+		// Check if the provided path contains a cfg subdirectory (ebook directory structure)
+		cfg_subdir := os.join_path(provided_path, 'cfg')
+		if os.exists(cfg_subdir) && os.is_dir(cfg_subdir) {
+			heroscript_config_dir = cfg_subdir
+		} else {
+			// Assume the provided path is already the cfg directory
+			heroscript_config_dir = provided_path
+		}
 	} else {
 		mut cwd := os.getwd()
 		cfg_dir := os.join_path(cwd, 'cfg')
@@ -155,8 +163,45 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
-	// Create a site first using the new API
-	mut generic_site := site.new(name: 'cli_site')!
+	// Process heroscript files from the ebook directory to get proper site configuration
+	mut plbook := playbook.new(path: heroscript_config_dir)!
+
+	// Dynamically add ebook configuration files
+	config_file := '${heroscript_config_dir}/config.heroscript'
+	if os.exists(config_file) {
+		plbook.add(path: config_file)!
+	}
+
+	menus_file := '${heroscript_config_dir}/menus.heroscript'
+	if os.exists(menus_file) {
+		plbook.add(path: menus_file)!
+	}
+
+	pages_dir := '${heroscript_config_dir}/pages'
+	if os.exists(pages_dir) && os.is_dir(pages_dir) {
+		plbook.add(path: pages_dir)!
+	}
+
+	playcmds.run(plbook: plbook)!
+
+	// Process site pages to generate the actual documentation files
+	site.play(mut plbook)!
+
+	// Get the site configuration that was processed from the heroscript files
+	// The site.play() function processes the heroscript and creates sites in the global websites map
+	// We need to get the site by name from the processed configuration
+	config_actions := plbook.find(filter: 'site.config')!
+	if config_actions.len == 0 {
+		return error('No site.config found in heroscript files. Make sure config.heroscript contains !!site.config.')
+	}
+
+	// Get the site name from the first site.config action
+	site_name := config_actions[0].params.get('name') or {
+		return error('site.config must specify a name parameter')
+	}
+
+	// Get the processed site configuration
+	mut generic_site := site.get(name: site_name)!
 
 	// Add docusaurus site
 	mut dsite := docusaurus.add(
