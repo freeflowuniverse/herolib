@@ -119,8 +119,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 }
 
 fn cmd_docusaurus_execute(cmd Command) ! {
-	mut update := cmd.flags.get_bool('update') or { false }
-	mut init := cmd.flags.get_bool('new') or { false }
 	mut open := cmd.flags.get_bool('open') or { false }
 	mut url := cmd.flags.get_string('url') or { '' }
 	mut publish_path := cmd.flags.get_string('publish') or { '' }
@@ -200,18 +198,13 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		return error('site.config must specify a name parameter')
 	}
 
-	// Get the processed site configuration
-	mut generic_site := site.get(name: site_name)!
-
 	// Add docusaurus site
-	mut dsite := docusaurus.add(
-		site:            generic_site
-		path_src:        url // Use URL as source path for now
-		path_build:      build_path
-		path_publish:    publish_path
-		reset:           false
-		template_update: update
-		install:         init
+	mut dsite := docusaurus.dsite_add(
+		sitename:     site_name
+		path:         heroscript_config_dir
+		git_url:      url
+		path_publish: publish_path
+		play:         false // Don't play again since we already processed the site
 	)!
 
 	// Conditional site actions based on flags
@@ -222,7 +215,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	} else if dev {
 		dsite.dev(host: 'localhost', port: 3000, open: open)!
 	} else if open {
-		dsite.open('localhost', 3000)!
+		dsite.open(host: 'localhost', port: 3000)!
 	} else {
 		// If no specific action (build/dev/open) is requested, just generate the site
 		dsite.generate()!

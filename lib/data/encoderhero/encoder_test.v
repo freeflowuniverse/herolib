@@ -10,7 +10,7 @@ struct Base {
 	remarks []Remark
 }
 
-struct Remark {
+pub struct Remark {
 	text string
 }
 
