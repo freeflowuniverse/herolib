@@ -8,6 +8,70 @@ import json
 const cache_file = '/tmp/herolib_tests.json'
 const test_expiry_seconds = 3600 // 1 hour
 
+
+
+// can use // inside this list as well to ignore temporary certain dirs, useful for testing
+const tests_ci := '
+lib/data
+lib/osal
+lib/lang
+lib/clients
+lib/core
+lib/develop
+// lib/vfs The vfs folder is not exists on the development branch, so we need to uncomment it after merging this PR https://github.com/freeflowuniverse/herolib/pull/68
+// lib/crypt
+'
+
+const tests_basic := '
+
+'
+
+const tests_advanced := '
+
+'
+
+
+// the following tests have no prio and can be ignored
+const mut tests_ignore := '
+notifier_test.v
+clients/meilisearch
+clients/zdb
+clients/openai
+systemd_process_test.v
+data/graphdb
+data/radixtree
+clients/livekit
+clients/rclone
+clients/jina
+clients/qdrant
+data/radixtree
+data/dedupestor
+core/playcmds
+tst/
+rust/
+'
+
+
+const tests_error := '
+tmux_window_test.v
+tmux_test.v
+startupmanager_test.v
+python_test.v
+flist_test.v
+mnemonic_test.v
+decode_test.v
+codegen_test.v
+generate_test.v
+dbfs_test.v
+namedb_test.v
+timetools_test.v
+encoderhero/encoder_test.v
+encoderhero/decoder_test.v
+code/codeparser
+gittools_test.v
+'
+
+
 struct TestCache {
 mut:
 	tests map[string]i64 // Map of test paths to last successful run timestamp
@@ -140,6 +204,7 @@ mut fp := flag.new_flag_parser(os.args)
 fp.application('test_basic')
 fp.description('Run tests for herolib')
 remove_cache := fp.bool('r', `r`, false, 'Remove cache file before running tests')
+test_level := fp.string('level', `l`, 'basic', 'Set test level: basic, ci, or advanced. Default is basic.')
 fp.finalize() or {
 	eprintln(err)
 	exit(1)
@@ -158,64 +223,38 @@ abs_dir_of_script := dir(@FILE)
 norm_dir_of_script := normalize_path(abs_dir_of_script)
 os.chdir(abs_dir_of_script) or { panic(err) }
 
-// can use // inside this list as well to ignore temporary certain dirs, useful for testing
-tests := '
-lib/data
-lib/osal
-lib/lang
-lib/clients
-lib/core
-lib/develop
-// lib/vfs The vfs folder is not exists on the development branch, so we need to uncomment it after merging this PR https://github.com/freeflowuniverse/herolib/pull/68
-// lib/crypt
-'
-
-// the following tests have no prio and can be ignored
-mut tests_ignore := '
-notifier_test.v
-clients/meilisearch
-clients/zdb
-clients/openai
-systemd_process_test.v
-data/graphdb
-data/radixtree
-clients/livekit
-clients/rclone
-clients/jina
-clients/qdrant
-data/radixtree
-data/dedupestor
-core/playcmds
-tst/
-rust/
-'
 
 if in_github_actions() {
 	println('**** WE ARE IN GITHUB ACTION')
 	tests_ignore += '\nosal/tmux\n'
+	test_level="ci"
 }
 
-tests_error := '
-tmux_window_test.v
-tmux_test.v
-startupmanager_test.v
-python_test.v
-flist_test.v
-mnemonic_test.v
-decode_test.v
-codegen_test.v
-generate_test.v
-dbfs_test.v
-namedb_test.v
-timetools_test.v
-encoderhero/encoder_test.v
-encoderhero/decoder_test.v
-code/codeparser
-gittools_test.v
-'
+// Determine which tests to run based on test_level and environment
+mut tests_to_run := ''
+if in_github_actions() {
+	println('**** WE ARE IN GITHUB ACTION, setting test level to CI')
+	tests_to_run = tests_ci
+} else {
+	match test_level {
+		'basic' {
+			tests_to_run = tests_basic
+		}
+		'ci' {
+			tests_to_run = tests_ci
+		}
+		'advanced' {
+			tests_to_run = tests_advanced
+		}
+		else {
+			eprintln('Invalid test level: ${test_level}. Supported levels are basic, ci, advanced.')
+			exit(1)
+		}
+	}
+}
 
 // Split tests into array and remove empty lines
-test_files := tests.split('\n').filter(it.trim_space() != '')
+test_files := tests_to_run.split('\n').filter(it.trim_space() != '')
 test_files_ignore := tests_ignore.split('\n').filter(it.trim_space() != '')
 test_files_error := tests_error.split('\n').filter(it.trim_space() != '')
 
