@@ -204,14 +204,13 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut generic_site := site.get(name: site_name)!
 
 	// Add docusaurus site
-	mut dsite := docusaurus.add(
-		site:            generic_site
-		path_src:        url // Use URL as source path for now
-		path_build:      build_path
-		path_publish:    publish_path
-		reset:           false
-		template_update: update
-		install:         init
+	mut dsite := docusaurus.dsite_add(
+		sitename:     site_name
+		path:         url // Use URL as source path for now
+		path_publish: publish_path
+		git_reset:    false
+		git_pull:     false
+		play:         true
 	)!
 
 	// Conditional site actions based on flags
@@ -222,7 +221,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	} else if dev {
 		dsite.dev(host: 'localhost', port: 3000, open: open)!
 	} else if open {
-		dsite.open('localhost', 3000)!
+		dsite.open(host: 'localhost', port: 3000)!
 	} else {
 		// If no specific action (build/dev/open) is requested, just generate the site
 		dsite.generate()!
