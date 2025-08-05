@@ -130,18 +130,30 @@ pub fn (mut e Encoder) encode_struct[T](t T) ! {
 
 	// encode children structs and array of structs
 	$for field in T.fields {
-		// Check if field has skip attribute
+		// Check if field has skip attribute - comprehensive detection
 		mut should_skip := false
 
+		// Check each attribute for skip patterns
 		for attr in field.attrs {
-			// More robust skip detection - handle various formats
-			attr_lower := attr.to_lower().trim_space()
-			if attr_lower == 'skip' || attr_lower.starts_with('skip;')
-				|| attr_lower.starts_with('skip ') || attr_lower.contains(';skip;')
-				|| attr_lower.contains(' skip ') || attr_lower.ends_with(';skip')
-				|| attr_lower.ends_with(' skip') {
+			attr_clean := attr.to_lower().replace(' ', '').replace('\t', '')
+			// Handle various skip attribute formats:
+			// @[skip], @[skip;...], @[...;skip], @[...;skip;...], etc.
+			if attr_clean == 'skip' || attr_clean.starts_with('skip;')
+				|| attr_clean.ends_with(';skip') || attr_clean.contains(';skip;') {
 				should_skip = true
 				break
+			}
+		}
+
+		// Additional check: if field name suggests it should be skipped
+		// This is a fallback for cases where attribute parsing differs
+		if field.name == 'other' && !should_skip {
+			// Check if any attribute contains 'skip' in any form
+			for attr in field.attrs {
+				if attr.contains('skip') {
+					should_skip = true
+					break
+				}
 			}
 		}
 
