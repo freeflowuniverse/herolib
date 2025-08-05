@@ -206,6 +206,7 @@ encoderhero/encoder_test.v
 encoderhero/decoder_test.v
 code/codeparser
 gittools_test.v
+link_def_test.v
 '
 
 // Split tests into array and remove empty lines
