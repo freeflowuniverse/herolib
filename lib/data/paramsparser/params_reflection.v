@@ -110,7 +110,12 @@ pub fn encode[T](t T, args EncodeArgs) !Params {
 		// Check if field has skip attribute
 		mut should_skip := false
 		for attr in field.attrs {
-			if attr.contains('skip') {
+			// More robust skip detection - handle various formats
+			attr_lower := attr.to_lower().trim_space()
+			if attr_lower == 'skip' || attr_lower.starts_with('skip;')
+				|| attr_lower.starts_with('skip ') || attr_lower.contains(';skip;')
+				|| attr_lower.contains(' skip ') || attr_lower.ends_with(';skip')
+				|| attr_lower.ends_with(' skip') {
 				should_skip = true
 				break
 			}
