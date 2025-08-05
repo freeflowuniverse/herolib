@@ -12,12 +12,10 @@ import freeflowuniverse.herolib.core.texttools.regext
 import freeflowuniverse.herolib.web.site as sitegen
 
 pub fn (mut site DocSite) generate() ! {
-
-	mut f:=factory_get()!
+	mut f := factory_get()!
 
 	console.print_header(' site generate: ${site.name} on ${f.path_build.path}')
 	console.print_header(' site source on ${site.path_src.path}')
-
 
 	// lets make sure we remove the cfg dir so we rebuild
 	cfg_path := os.join_path(f.path_build.path, 'cfg')
@@ -71,6 +69,16 @@ pub fn (mut site DocSite) generate() ! {
 	// Create a playbook from the config path and run site processing
 	mut plbook := playbook.new(path: configpath)!
 	sitegen.play(mut plbook)!
+
+	// Get the updated site object after processing
+	mut updated_site := sitegen.get(name: site.name)!
+
+	// Generate the actual docs content from the processed site configuration
+	docs_path := '${f.path_build.path}/docs'
+	generate(
+		path: docs_path
+		site: updated_site
+	)!
 
 	// site.process_imports()!
 }

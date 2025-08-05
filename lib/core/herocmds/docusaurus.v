@@ -206,7 +206,8 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// Add docusaurus site
 	mut dsite := docusaurus.dsite_add(
 		sitename:     site_name
-		path:         url // Use URL as source path for now
+		path:         provided_path // Use the provided path from --path flag
+		git_url:      url           // Use URL for git operations if provided
 		path_publish: publish_path
 		git_reset:    false
 		git_pull:     false

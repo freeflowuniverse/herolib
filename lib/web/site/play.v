@@ -6,16 +6,16 @@ import time
 
 pub fn play(mut plbook PlayBook) ! {
 	// Handle multiple site configurations
-	mut config_actions := plbook.find(filter: 'site.config')!
+	config_actions := plbook.find(filter: 'site.config')!
 
 	if config_actions.len == 0 {
 		return error('No site.config actions found')
 	}
 
 	// Process each site configuration separately
-	for mut config_action in config_actions {
-		mut website := play_config_single(mut config_action)!
-	
+	for config_action in config_actions {
+		mut website := play_config_single(config_action)!
+
 		mut config := &website.siteconfig
 
 		play_import(mut plbook, mut config)!
@@ -28,10 +28,12 @@ pub fn play(mut plbook PlayBook) ! {
 	}
 }
 
-fn play_config_single(mut action Action) !&Site {
+fn play_config_single(action Action) !&Site {
 	mut p := action.params
 	name := p.get('name') or {
-		return error('need to specify name in site.config.\n${action}')
+		// If name is not specified, try to derive it from title or use a default
+		title := p.get_default('title', 'default-site')!
+		texttools.name_fix(title)
 	}
 
 	mut website := new(name: name)!
@@ -46,10 +48,6 @@ fn play_config_single(mut action Action) !&Site {
 	config.url = p.get_default('url', config.url)!
 	config.base_url = p.get_default('base_url', config.base_url)!
 	config.url_home = p.get_default('url_home', config.url_home)!
-	config.name = name
-
-	action.done = true // Mark the action as done
-
 	return website
 }
 
@@ -87,15 +85,14 @@ fn play_config(mut plbook PlayBook) !&Site {
 		config.description = p_meta.get('description')!
 	}
 
-	action.done = true // Mark the action as done
 	return website
 }
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut import_actions := plbook.find(filter: 'site.import')!
+	import_actions := plbook.find(filter: 'site.import')!
 	// println('import_actions: ${import_actions}')
 
-	for mut action in import_actions {
+	for action in import_actions {
 		mut p := action.params
 		mut replace_map := map[string]string{}
 		if replace_str := p.get_default('replace', '') {
@@ -116,32 +113,28 @@ fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 			visible: p.get_default_false('visible')
 		}
 		config.imports << import_
-
-		action.done = true // Mark the action as done
 	}
 }
 
 fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut navbar_actions := plbook.find(filter: 'site.navbar')!
+	navbar_actions := plbook.find(filter: 'site.navbar')!
 	if navbar_actions.len > 0 {
-		for mut action in navbar_actions { // Should ideally be one, but loop for safety
+		for action in navbar_actions { // Should ideally be one, but loop for safety
 			mut p := action.params
 			config.menu.title = p.get_default('title', config.title)! // Use existing config.title as ultimate fallback
 			config.menu.logo_alt = p.get_default('logo_alt', '')!
 			config.menu.logo_src = p.get_default('logo_src', '')!
 			config.menu.logo_src_dark = p.get_default('logo_src_dark', '')!
-			action.done = true // Mark the action as done
 		}
 	} else {
 		// Fallback to site.menu for title if site.navbar is not found
-		mut menu_actions := plbook.find(filter: 'site.menu')!
-		for mut action in menu_actions {
+		menu_actions := plbook.find(filter: 'site.menu')!
+		for action in menu_actions {
 			mut p := action.params
 			config.menu.title = p.get_default('title', config.title)!
 			config.menu.logo_alt = p.get_default('logo_alt', '')!
 			config.menu.logo_src = p.get_default('logo_src', '')!
 			config.menu.logo_src_dark = p.get_default('logo_src_dark', '')!
-			action.done = true // Mark the action as done
 		}
 	}
 
@@ -151,7 +144,7 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 		menu_item_actions = plbook.find(filter: 'site.menu_item')!
 	}
 
-	for mut action in menu_item_actions {
+	for action in menu_item_actions {
 		mut p := action.params
 		mut item := MenuItem{
 			label:    p.get_default('label', 'Documentation')!
@@ -160,22 +153,20 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 			position: p.get_default('position', 'right')!
 		}
 		config.menu.items << item
-		action.done = true // Mark the action as done
 	}
 }
 
 fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut footer_actions := plbook.find(filter: 'site.footer')!
-	for mut action in footer_actions {
+	footer_actions := plbook.find(filter: 'site.footer')!
+	for action in footer_actions {
 		mut p := action.params
 		config.footer.style = p.get_default('style', 'dark')!
-		action.done = true // Mark the action as done
 	}
 
-	mut footer_item_actions := plbook.find(filter: 'site.footer_item')!
+	footer_item_actions := plbook.find(filter: 'site.footer_item')!
 	mut links_map := map[string][]FooterItem{}
 
-	for mut action in footer_item_actions {
+	for action in footer_item_actions {
 		mut p := action.params
 		title := p.get_default('title', 'Docs')!
 		mut item := FooterItem{
@@ -188,7 +179,6 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 			links_map[title] = []FooterItem{}
 		}
 		links_map[title] << item
-		action.done = true // Mark the action as done
 	}
 
 	// Convert map to footer links array
@@ -201,27 +191,25 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 }
 
 fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut build_dest_actions := plbook.find(filter: 'site.build_dest')!
-	for mut action in build_dest_actions {
+	build_dest_actions := plbook.find(filter: 'site.build_dest')!
+	for action in build_dest_actions {
 		mut p := action.params
 		mut dest := BuildDest{
 			path:     p.get('path')!
 			ssh_name: p.get_default('ssh_name', '')!
 		}
 		config.build_dest << dest
-		action.done = true // Mark the action as done
 	}
 }
 
 fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut build_dest_dev_actions := plbook.find(filter: 'site.build_dest_dev')!
-	for mut action in build_dest_dev_actions {
+	build_dest_dev_actions := plbook.find(filter: 'site.build_dest_dev')!
+	for action in build_dest_dev_actions {
 		mut p := action.params
 		mut dest_dev := BuildDest{
 			path:     p.get('path')!
 			ssh_name: p.get_default('ssh_name', '')!
 		}
 		config.build_dest_dev << dest_dev
-		action.done = true // Mark the action as done
 	}
 }
