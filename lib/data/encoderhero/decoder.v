@@ -20,11 +20,11 @@ fn decode_struct[T](_ T, data string) !T {
 	// println(data)
 	$if T is $struct {
 		obj_name := texttools.snake_case(T.name.all_after_last('.'))
-		mut action_name := '${obj_name}.define'
+		mut action_name := 'define.${obj_name}'
 		if !data.contains(action_name) {
-			action_name = '${obj_name}.configure'
+			action_name = 'configure.${obj_name}'
 			if !data.contains(action_name) {
-				return error('Data does not contain action name: ${obj_name}.define or ${action_name}')
+				return error('Data does not contain action name: define.${obj_name} or ${action_name}')
 			}
 		}
 		actions_split := data.split('!!')

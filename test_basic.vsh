@@ -202,8 +202,6 @@ generate_test.v
 dbfs_test.v
 namedb_test.v
 timetools_test.v
-encoderhero/encoder_test.v
-encoderhero/decoder_test.v
 code/codeparser
 gittools_test.v
 link_def_test.v

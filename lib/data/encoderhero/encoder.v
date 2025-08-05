@@ -39,7 +39,7 @@ pub fn encode[T](val T) !string {
 // export exports an encoder into encoded heroscript
 pub fn (e Encoder) export() !string {
 	mut script := e.params.export(
-		pre:        '!!${e.action_names.join('.')}.configure'
+		pre:        '!!define.${e.action_names.join('.')}'
 		indent:     '	'
 		skip_empty: true
 	)
