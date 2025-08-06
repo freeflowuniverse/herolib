@@ -136,5 +136,5 @@ pub fn (self GitRepo) get_last_local_commit() !string {
 	if self.status_local.branch in self.status_local.branches {
 		return self.status_local.branches[self.status_local.branch]
 	}
-	return ""
+	return ''
 }

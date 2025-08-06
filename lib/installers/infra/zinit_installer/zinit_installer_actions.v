@@ -74,7 +74,7 @@ fn install() ! {
 		return error('only support linux for now')
 	}
 
-	release_url := 'https://github.com/threefoldtech/zinit/releases/download/v0.2.14/zinit'
+	release_url := 'https://github.com/threefoldtech/zinit/releases/download/v0.2.25/zinit'
 
 	mut dest := osal.download(
 		url:        release_url

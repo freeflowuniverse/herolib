@@ -85,9 +85,7 @@ pub fn (mut repo GitRepo) commit(msg string) ! {
 		return error('Commit message is empty.')
 	}
 	repo_path := repo.path()
-	repo.exec('git add . -A') or {
-		return error('Cannot add to repo: ${repo_path}. Error: ${err}')
-	}
+	repo.exec('git add . -A') or { return error('Cannot add to repo: ${repo_path}. Error: ${err}') }
 	repo.exec('git commit -m "${msg}"') or {
 		return error('Cannot commit repo: ${repo_path}. Error: ${err}')
 	}

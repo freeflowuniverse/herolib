@@ -12,10 +12,9 @@ import os
 
 heroscript := os.join_path(os.dir(@FILE), 'examples/complete.heroscript')
 // Execute the script and print results
-bizmodel.play(heroscript_path:heroscript)!
+bizmodel.play(heroscript_path: heroscript)!
 
-
-mut bm := bizmodel.get("threefold")!
+mut bm := bizmodel.get('threefold')!
 bm.sheet.pprint(nr_columns: 10)!
 
 // buildpath := '${os.home_dir()}/hero/var/mdbuild/bizmodel'
@@ -32,5 +31,5 @@ bm.sheet.pprint(nr_columns: 10)!
 bm.export(
 	name:  'example_report'
 	title: 'Example Business Model'
-	path: '/tmp/bizmodel_export'
+	path:  '/tmp/bizmodel_export'
 )!

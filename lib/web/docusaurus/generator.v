@@ -2,12 +2,11 @@ module docusaurus
 
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient
-import freeflowuniverse.herolib.web.site {Site, Page, Section}
+import freeflowuniverse.herolib.web.site { Page, Section, Site }
 import freeflowuniverse.herolib.data.markdown.tools as markdowntools
 // import freeflowuniverse.herolib.ui.console
 
-//THIS CODE GENERATES A DOCUSAURUS SITE FROM A DOCTREECLIENT AND SITE DEFINITION
-
+// THIS CODE GENERATES A DOCUSAURUS SITE FROM A DOCTREECLIENT AND SITE DEFINITION
 
 struct SiteGenerator {
 mut:
@@ -15,7 +14,7 @@ mut:
 	path            pathlib.Path
 	client          &doctreeclient.DocTreeClient
 	flat            bool // if flat then won't use sitenames as subdir's
-	site 		 Site
+	site            Site
 }
 
 @[params]
@@ -36,7 +35,7 @@ fn generate(args SiteGeneratorArgs) ! {
 		path:   pathlib.get_dir(path: path, create: true)!
 		client: doctreeclient.new()!
 		flat:   args.flat
-		site:  args.site
+		site:   args.site
 	}
 
 	for section in gen.site.sections {

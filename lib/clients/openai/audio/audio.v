@@ -1,9 +1,88 @@
-module openai
+module audio
 
 import json
 import freeflowuniverse.herolib.core.httpconnection
 import os
 import net.http
+import freeflowuniverse.herolib.clients.openai { OpenAI }
+
+type OpenAIAlias = OpenAI
+
+pub enum Voice {
+	alloy
+	ash
+	coral
+	echo
+	fable
+	onyx
+	nova
+	sage
+	shimmer
+}
+
+fn voice_str(x Voice) string {
+	return match x {
+		.alloy {
+			'alloy'
+		}
+		.ash {
+			'ash'
+		}
+		.coral {
+			'coral'
+		}
+		.echo {
+			'echo'
+		}
+		.fable {
+			'fable'
+		}
+		.onyx {
+			'onyx'
+		}
+		.nova {
+			'nova'
+		}
+		.sage {
+			'sage'
+		}
+		.shimmer {
+			'shimmer'
+		}
+	}
+}
+
+pub enum AudioFormat {
+	mp3
+	opus
+	aac
+	flac
+	wav
+	pcm
+}
+
+fn audio_format_str(x AudioFormat) string {
+	return match x {
+		.mp3 {
+			'mp3'
+		}
+		.opus {
+			'opus'
+		}
+		.aac {
+			'aac'
+		}
+		.flac {
+			'flac'
+		}
+		.wav {
+			'wav'
+		}
+		.pcm {
+			'pcm'
+		}
+	}
+}
 
 pub enum AudioRespType {
 	json
@@ -44,6 +123,7 @@ fn audio_resp_type_str(i AudioRespType) string {
 	}
 }
 
+@[params]
 pub struct AudioArgs {
 pub mut:
 	filepath        string
@@ -60,17 +140,17 @@ pub mut:
 
 // create transcription from an audio file
 // supported audio formats are mp3, mp4, mpeg, mpga, m4a, wav, or webm
-pub fn (mut f OpenAI) create_transcription(args AudioArgs) !AudioResponse {
+pub fn (mut f OpenAIAlias) create_transcription(args AudioArgs) !AudioResponse {
 	return f.create_audio_request(args, 'audio/transcriptions')
 }
 
 // create translation to english from an audio file
 // supported audio formats are mp3, mp4, mpeg, mpga, m4a, wav, or webm
-pub fn (mut f OpenAI) create_tranlation(args AudioArgs) !AudioResponse {
+pub fn (mut f OpenAIAlias) create_tranlation(args AudioArgs) !AudioResponse {
 	return f.create_audio_request(args, 'audio/translations')
 }
 
-fn (mut f OpenAI) create_audio_request(args AudioArgs, endpoint string) !AudioResponse {
+fn (mut f OpenAIAlias) create_audio_request(args AudioArgs, endpoint string) !AudioResponse {
 	file_content := os.read_file(args.filepath)!
 	ext := os.file_ext(args.filepath)
 	mut file_mime_type := ''
@@ -131,7 +211,7 @@ pub:
 	speed           f32
 }
 
-pub fn (mut f OpenAI) create_speech(args CreateSpeechArgs) ! {
+pub fn (mut f OpenAIAlias) create_speech(args CreateSpeechArgs) ! {
 	mut output_file := os.open_file(args.output_path, 'w+')!
 
 	req := CreateSpeechRequest{

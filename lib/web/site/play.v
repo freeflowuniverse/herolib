@@ -15,7 +15,7 @@ pub fn play(mut plbook PlayBook) ! {
 	// Process each site configuration separately
 	for mut config_action in config_actions {
 		mut website := play_config_single(mut config_action)!
-	
+
 		mut config := &website.siteconfig
 
 		play_import(mut plbook, mut config)!
@@ -30,9 +30,7 @@ pub fn play(mut plbook PlayBook) ! {
 
 fn play_config_single(mut action Action) !&Site {
 	mut p := action.params
-	name := p.get('name') or {
-		return error('need to specify name in site.config.\n${action}')
-	}
+	name := p.get('name') or { return error('need to specify name in site.config.\n${action}') }
 
 	mut website := new(name: name)!
 	mut config := &website.siteconfig

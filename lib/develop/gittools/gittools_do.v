@@ -45,9 +45,9 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut args := args_
 	// console.print_debug('git do ${args.cmd}')
 
-	if args.path == '' && args.url == '' && args.repo == '' && args.account == '' && args.provider == '' && args.filter == ''{
+	if args.path == '' && args.url == '' && args.repo == '' && args.account == ''
+		&& args.provider == '' && args.filter == '' {
 		args.path = os.getwd()
-
 	}
 
 	if args.path != '' {
@@ -84,7 +84,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	)!
 
 	// reset the status for the repo
-	if args.reload || args.cmd == 'reload'{
+	if args.reload || args.cmd == 'reload' {
 		for mut repo in repos {
 			repo.cache_last_load_clear()!
 		}

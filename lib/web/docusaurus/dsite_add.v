@@ -13,14 +13,14 @@ import freeflowuniverse.herolib.core.playbook
 @[params]
 pub struct AddArgs {
 pub mut:
-	sitename string //needs to exist in web.site module
-	path string //site of the docusaurus site with the config as is needed to populate the docusaurus site
-	git_url string
-	git_reset bool
-	git_root string
-	git_pull bool
+	sitename     string // needs to exist in web.site module
+	path         string // site of the docusaurus site with the config as is needed to populate the docusaurus site
+	git_url      string
+	git_reset    bool
+	git_root     string
+	git_pull     bool
 	path_publish string
-	play bool = true
+	play         bool = true
 }
 
 pub fn dsite_add(args_ AddArgs) !&DocSite {
@@ -29,10 +29,9 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 
 	console.print_header('Add Docusaurus Site: ${args.sitename}')
 
-    if args.sitename in docusaurus_sites {
-        return error('Docusaurus site ${args.sitename} already exists, returning existing.')
-
-    }
+	if args.sitename in docusaurus_sites {
+		return error('Docusaurus site ${args.sitename} already exists, returning existing.')
+	}
 
 	mut path := gittools.path(
 		path:       args.path
@@ -47,7 +46,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 		return error('path is not a directory')
 	}
 
-	if ! os.exists('${args.path}/cfg') {
+	if !os.exists('${args.path}/cfg') {
 		return error('config directory for docusaurus does not exist in ${args.path}/cfg.\n${args}')
 	}
 
@@ -66,13 +65,13 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 
 	mut website := site.get(name: args.sitename)!
 
-	mut myconfig := new_configuration(website.siteconfig)! //go from site.SiteConfig to docusaurus.Configuration
+	mut myconfig := new_configuration(website.siteconfig)! // go from site.SiteConfig to docusaurus.Configuration
 
 	if myconfig.main.name.len == 0 {
 		return error('main.name is not set in the site configuration')
 	}
 
-	mut f:=factory_get()!
+	mut f := factory_get()!
 
 	if args.path_publish == '' {
 		args.path_publish = '${f.path_publish.path}/${args.sitename}'
@@ -80,37 +79,33 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
-	//get our website
+	// get our website
 	mut mysite := site.new(name: args.sitename)!
 	if site.exists(name: args.sitename) {
 		console.print_debug('Docusaurus site ${args.sitename} already exists, using existing site.')
 		mysite = site.get(name: args.sitename)!
 	} else {
-		if !args.play{
+		if !args.play {
 			return error('Docusaurus site ${args.sitename} does not exist, please set play to true to create it.')
 		}
 		console.print_debug('Creating new Docusaurus site ${args.sitename}.')
-		mut plbook := playbook.new(path: "${args.path}/cfg")!
+		mut plbook := playbook.new(path: '${args.path}/cfg')!
 		site.play(mut plbook)!
 		mysite = site.get(name: args.sitename) or {
 			return error('Failed to get site after playing playbook: ${args.sitename}')
-		}		
+		}
 	}
 
-    // Create the DocSite instance
-    mut dsite := &DocSite{
-        name:         args.sitename
-        path_src:     pathlib.get_dir(path: args.path, create: false)!
-        path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
-        path_build:   pathlib.get_dir(path: path_build_, create: true)!
-        config:       new_configuration(website.siteconfig)!
+	// Create the DocSite instance
+	mut dsite := &DocSite{
+		name:         args.sitename
+		path_src:     pathlib.get_dir(path: args.path, create: false)!
+		path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
+		path_build:   pathlib.get_dir(path: path_build_, create: true)!
+		config:       new_configuration(website.siteconfig)!
 		website:      mysite
-    }
+	}
 
-    docusaurus_sites[args.sitename] = dsite
-    return dsite
+	docusaurus_sites[args.sitename] = dsite
+	return dsite
 }
-
-
-
-

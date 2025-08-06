@@ -1,29 +1,26 @@
 #!/usr/bin/env -S v -n -cg -w -gc none -cc tcc -d use_openssl -enable-globals run
+
 // #!/usr/bin/env -S v -n -w -enable-globals run
 import freeflowuniverse.herolib.clients.postgresql_client
 import freeflowuniverse.herolib.core.playbook
 import freeflowuniverse.herolib.hero.models.circle
 import freeflowuniverse.herolib.core.playcmds
 import freeflowuniverse.herolib.hero.db.hero_db
-
 import db.pg
 
 // psql -h /tmp -U myuser -d mydb
 
 mut db := pg.connect(pg.Config{
-        host: '/tmp'
-        port: 5432
-        user: 'myuser'
-        password: 'mypassword'
-        dbname: 'mydb'
-    })!
+	host:     '/tmp'
+	port:     5432
+	user:     'myuser'
+	password: 'mypassword'
+	dbname:   'mydb'
+})!
 
-mut r:=db.exec("select * from users;")!
+mut r := db.exec('select * from users;')!
 
 println(r)
-
-
-
 
 // // Configure PostgreSQL client
 // heroscript := "
@@ -49,7 +46,6 @@ heroscript := "
 "
 mut plbook := playbook.new(text: heroscript)!
 postgresql_client.play(mut plbook)!
-
 
 // //Get the configured client
 mut db_client := postgresql_client.get(name: 'aaa')!
@@ -77,7 +73,6 @@ mut db_client := postgresql_client.get(name: 'aaa')!
 // db_client.exec(create_table_sql)!
 
 // println('Database and table setup completed successfully!')
-
 
 // // Create HeroDB for Circle type
 // mut circle_db := hero_db.new[circle.Circle]()!
@@ -112,5 +107,4 @@ mut db_client := postgresql_client.get(name: 'aaa')!
 // // Search circles by status
 // active_circles := circle_db.search_by_index("status", "active")!
 
-
-//https://www.moncefbelyamani.com/how-to-install-postgresql-on-a-mac-with-homebrew-and-lunchy/
+// https://www.moncefbelyamani.com/how-to-install-postgresql-on-a-mac-with-homebrew-and-lunchy/

@@ -36,6 +36,11 @@ if os.system('v doc -m -f html . -readme -comments -no-timestamp -o ../docs') !=
     panic('Failed to generate HTML documentation')
 }
 
+if os.system('v doc -m -f md . -no-color  -o ../vdocs/') != 0 {
+    panic('Failed to generate Hero markdown documentation')
+}
+
+
 os.chdir(abs_dir_of_script) or {
     panic('Failed to change directory to abs_dir_of_script: ${err}')
 }
@@ -47,9 +52,9 @@ println('Generating Markdown documentation...')
 //     panic('Failed to generate V markdown documentation')
 // }
 
-if os.system('v doc -m -no-color -f md -o vdocs/') != 0 {
-    panic('Failed to generate Hero markdown documentation')
-}
+// if os.system('v doc -m -no-color -f md . -o vdocs/') != 0 {
+//     panic('Failed to generate Hero markdown documentation')
+// }
 
 // Open documentation in browser on non-Linux systems
 $if !linux {

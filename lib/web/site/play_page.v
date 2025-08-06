@@ -2,12 +2,11 @@ module site
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 
-//plays the sections & pages
+// plays the sections & pages
 fn play_pages(mut plbook PlayBook, mut site Site) ! {
-
 	// mut siteconfig := &site.siteconfig
 
-	//if only 1 doctree is specified, then we use that as the default doctree name
+	// if only 1 doctree is specified, then we use that as the default doctree name
 	mut doctreename := 'main'
 	if plbook.exists(filter: 'site.doctree') {
 		if plbook.exists_once(filter: 'site.doctree') {

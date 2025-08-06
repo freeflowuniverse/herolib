@@ -1,6 +1,10 @@
-module openai
+module finetune
 
+import freeflowuniverse.herolib.clients.openai { OpenAI }
+import freeflowuniverse.herolib.clients.openai.files { File }
 import json
+
+type OpenAIAlias = OpenAI
 
 pub struct FineTune {
 pub:
@@ -61,7 +65,7 @@ pub mut:
 }
 
 // creates a new fine-tune based on an already uploaded file
-pub fn (mut f OpenAI) create_fine_tune(args FineTuneCreateArgs) !FineTune {
+pub fn (mut f OpenAIAlias) create_fine_tune(args FineTuneCreateArgs) !FineTune {
 	data := json.encode(args)
 	mut conn := f.connection()!
 	r := conn.post_json_str(prefix: 'fine-tunes', data: data)!
@@ -70,28 +74,28 @@ pub fn (mut f OpenAI) create_fine_tune(args FineTuneCreateArgs) !FineTune {
 }
 
 // returns all fine-tunes in this account
-pub fn (mut f OpenAI) list_fine_tunes() !FineTuneList {
+pub fn (mut f OpenAIAlias) list_fine_tunes() !FineTuneList {
 	mut conn := f.connection()!
 	r := conn.get(prefix: 'fine-tunes')!
 	return json.decode(FineTuneList, r)!
 }
 
 // get a single fine-tune information
-pub fn (mut f OpenAI) get_fine_tune(fine_tune string) !FineTune {
+pub fn (mut f OpenAIAlias) get_fine_tune(fine_tune string) !FineTune {
 	mut conn := f.connection()!
 	r := conn.get(prefix: 'fine-tunes/' + fine_tune)!
 	return json.decode(FineTune, r)!
 }
 
 // cancel a fine-tune that didn't finish yet
-pub fn (mut f OpenAI) cancel_fine_tune(fine_tune string) !FineTune {
+pub fn (mut f OpenAIAlias) cancel_fine_tune(fine_tune string) !FineTune {
 	mut conn := f.connection()!
 	r := conn.post_json_str(prefix: 'fine-tunes/' + fine_tune + '/cancel')!
 	return json.decode(FineTune, r)!
 }
 
 // returns all events for a fine tune in this account
-pub fn (mut f OpenAI) list_fine_tune_events(fine_tune string) !FineTuneEventList {
+pub fn (mut f OpenAIAlias) list_fine_tune_events(fine_tune string) !FineTuneEventList {
 	mut conn := f.connection()!
 	r := conn.get(prefix: 'fine-tunes/' + fine_tune + '/events')!
 	return json.decode(FineTuneEventList, r)!

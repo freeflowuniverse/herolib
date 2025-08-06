@@ -118,7 +118,7 @@ pub fn (mut e Encoder) encode_struct[T](t T) ! {
 	mut mytype := reflection.type_of[T](t)
 	struct_attrs := attrs_get_reflection(mytype)
 
-	mut action_name := texttools.snake_case(T.name.all_after_last('.'))
+	mut action_name := T.name.all_after_last('.').to_lower()
 	// println('action_name: ${action_name} ${T.name}')
 	if 'alias' in struct_attrs {
 		action_name = struct_attrs['alias'].to_lower()

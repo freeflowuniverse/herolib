@@ -19,7 +19,7 @@ fn decode_struct[T](_ T, data string) !T {
 	mut typ := T{}
 	// println(data)
 	$if T is $struct {
-		obj_name := texttools.snake_case(T.name.all_after_last('.'))
+		obj_name := T.name.all_after_last('.').to_lower()
 		mut action_name := '${obj_name}.define'
 		if !data.contains(action_name) {
 			action_name = '${obj_name}.configure'

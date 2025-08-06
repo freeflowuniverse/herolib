@@ -2,7 +2,8 @@
 
 import freeflowuniverse.herolib.core.playcmds
 
-mut plbook := heroscript.new(heroscript: '
+mut plbook := heroscript.new(
+	heroscript: '
 
 	!!docusaurus.define
 		path_build: "/tmp/docusaurus_build"
@@ -18,6 +19,5 @@ mut plbook := heroscript.new(heroscript: '
 		git_pull:1
 
 	!!docusaurus.build
-')!
-
-
+'
+)!
