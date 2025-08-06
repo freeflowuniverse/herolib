@@ -9,7 +9,10 @@ import freeflowuniverse.herolib.core.playcmds
 
 playcmds.run(
     heroscript:'
-        !!openai.configure name: "default" key: "" url: "https://openrouter.ai/api/v1" model_default: "gpt-oss-120b"
+        !!openai.configure name:"default" 
+            key:"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" 
+            url:"https://openrouter.ai/api/v1" 
+            model_default:"gpt-oss-120b"
         '
     heroscript_path:''
     reset: false

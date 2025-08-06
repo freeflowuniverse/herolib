@@ -59,7 +59,7 @@ pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
 		)!
 		c2
 	}
-
+	//Authorization: 'Bearer <OPENROUTER_API_KEY>',
 	c.default_header.set(.authorization, 'Bearer ${client.api_key}')
 	client.conn = c
 	return c
