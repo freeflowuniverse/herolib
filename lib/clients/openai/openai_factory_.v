@@ -82,7 +82,7 @@ pub fn play(mut plbook PlayBook) ! {
 	mut install_actions := plbook.find(filter: 'openai.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
-			println('install_action: ${install_action}')
+			// println('install_action: ${install_action}')
 			heroscript := install_action.heroscript()
 			mut obj2 := heroscript_loads(heroscript)!
 			set(obj2)!

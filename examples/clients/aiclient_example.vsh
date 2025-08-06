@@ -13,8 +13,8 @@ playcmds.run(
 mut client := openai.get()!
 
 mut r := client.chat_completion(
-	model:                 'gpt-3.5-turbo'
+	model:                 'gpt-oss-20b'
 	message:               'Hello, world!'
-	temperature:           0.5
+	temperature:           0.3
 	max_completion_tokens: 1024
 )!

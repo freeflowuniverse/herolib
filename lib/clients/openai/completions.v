@@ -86,10 +86,7 @@ pub fn (mut f OpenAI) chat_completion(args_ CompletionArgs) !ChatCompletion {
 	data := json.encode(m)
 	// println('data: ${data}')
 	mut conn := f.connection()!
-	println(f)
 	r := conn.post_json_str(prefix: 'chat/completions', data: data)!
-	println('res: ${r}')
-	if true{panic("TO DEBUG, SOMETHING IS NOT RIGHT IN LINE WITH AUTHENTICATION")}
 
 
 	res := json.decode(ChatCompletionRaw, r)!

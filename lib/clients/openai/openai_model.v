@@ -39,7 +39,7 @@ fn obj_init(mycfg_ OpenAI) !OpenAI {
 		if k != '' {
 			mycfg.api_key = k
 		}
-		if k == '' {
+		if mycfg.url.contains("openrouter"){
 			k2 := os.getenv('OPENROUTER_API_KEY')
 			if k2 != '' {
 				mycfg.api_key = k2
