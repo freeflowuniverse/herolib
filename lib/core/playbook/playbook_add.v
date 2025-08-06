@@ -17,8 +17,8 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 
 	if args.git_url.len > 0 {
 		mut git_path_args := gittools.GitPathGetArgs{
-			git_url: args.git_url
-			git_pull: args.git_pull
+			git_url:   args.git_url
+			git_pull:  args.git_pull
 			git_reset: args.git_reset
 		}
 		args.path = gittools.path(git_path_args)!.path

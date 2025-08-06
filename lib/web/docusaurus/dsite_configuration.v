@@ -2,7 +2,7 @@ module docusaurus
 
 import freeflowuniverse.herolib.web.site
 
-//IS THE ONE AS USED BY DOCUSAURUS
+// IS THE ONE AS USED BY DOCUSAURUS
 
 pub struct Configuration {
 pub mut:

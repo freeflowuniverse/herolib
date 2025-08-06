@@ -10,12 +10,12 @@ pub mut:
 	dbname   string = 'postgres'
 }
 
-const postgres_client_blank = '!!define.postgresql_client'
-const postgres_client_full = '!!define.postgresql_client name:production user:app_user port:5433 host:db.example.com password:secret123 dbname:myapp'
-const postgres_client_partial = '!!define.postgresql_client name:dev host:localhost password:devpass'
+const postgres_client_blank = '!!postgresql_client.configure'
+const postgres_client_full = '!!postgresql_client.configure name:production user:app_user port:5433 host:db.example.com password:secret123 dbname:myapp'
+const postgres_client_partial = '!!postgresql_client.configure name:dev host:localhost password:devpass'
 
 const postgres_client_complex = '
-!!define.postgresql_client name:staging user:stage_user port:5434 host:staging.db.com password:stagepass dbname:stagingdb
+!!postgresql_client.configure name:staging user:stage_user port:5434 host:staging.db.com password:stagepass dbname:stagingdb
 '
 
 fn test_postgres_client_decode_blank() ! {
@@ -136,17 +136,17 @@ const play_script = '
 # PostgresqlClient Encode/Decode Play Script
 # This script demonstrates encoding and decoding PostgresqlClient configurations
 
-!!define.postgresql_client name:playground user:play_user
-		port:5432
-		host:localhost
-		password:playpass
+!!postgresql_client.configure name:playground user:play_user 
+		port:5432 
+		host:localhost 
+		password:playpass 
 		dbname:playdb
 
 # You can also use partial configurations
-!!define.postgresql_client name:quick_test host:127.0.0.1
+!!postgresql_client.configure name:quick_test host:127.0.0.1
 
 # Default configuration (all defaults)
-!!define.postgresql_client
+!!postgresql_client.configure
 '
 
 fn test_play_script() ! {
@@ -158,7 +158,7 @@ fn test_play_script() ! {
 	mut clients := []PostgresqlClient{}
 
 	for line in lines {
-		if line.starts_with('!!define.postgresql_client') {
+		if line.starts_with('!!postgresql_client.configure') {
 			client := decode[PostgresqlClient](line)!
 			clients << client
 		}

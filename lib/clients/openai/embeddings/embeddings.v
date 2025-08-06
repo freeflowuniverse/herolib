@@ -1,6 +1,9 @@
-module openai
+module embeddings
 
 import json
+import freeflowuniverse.herolib.clients.openai { OpenAI, Usage }
+
+type OpenAIAlias = OpenAI
 
 pub enum EmbeddingModel {
 	text_embedding_ada
@@ -42,7 +45,7 @@ pub mut:
 	usage  Usage
 }
 
-pub fn (mut f OpenAI) create_embeddings(args EmbeddingCreateArgs) !EmbeddingResponse {
+pub fn (mut f OpenAIAlias) create_embeddings(args EmbeddingCreateArgs) !EmbeddingResponse {
 	req := EmbeddingCreateRequest{
 		input: args.input
 		model: embedding_model_str(args.model)

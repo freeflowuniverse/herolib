@@ -26,13 +26,13 @@ struct TestChild {
 }
 
 const test_child = TestChild{
-	child_name:    'test_child'
-	child_number:  3
-	child_yesno:   false
-	child_liststr: ['three', 'four']
-	child_listint: [3, 4]
+	child_name:     'test_child'
+	child_number:   3
+	child_yesno:    false
+	child_liststr:  ['three', 'four']
+	child_listint:  [3, 4]
 	child_listbool: [true, false]
-	child_listu32: [u32(5), u32(6)]
+	child_listu32:  [u32(5), u32(6)]
 }
 
 const test_struct = TestStruct{
@@ -50,7 +50,6 @@ const test_struct = TestStruct{
 	listu32:  [u32(7), u32(8)]
 	child:    test_child
 }
-
 
 const test_child_params = Params{
 	params: [
@@ -115,7 +114,6 @@ const test_params = Params{
 		value: test_child_params.export()
 	}]
 }
-
 
 fn test_encode_struct() {
 	encoded_struct := encode[TestStruct](test_struct)!

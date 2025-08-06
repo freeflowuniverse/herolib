@@ -5,6 +5,9 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.data.doctree
 import freeflowuniverse.herolib.biz.bizmodel
 import freeflowuniverse.herolib.web.docusaurus
+import freeflowuniverse.herolib.clients.openai
+
+
 // import freeflowuniverse.herolib.hero.publishing
 // import freeflowuniverse.herolib.threefold.grid4.gridsimulator
 // import freeflowuniverse.herolib.installers.sysadmintools.daguserver
@@ -48,6 +51,7 @@ pub fn run(args_ PlayArgs) ! {
 	bizmodel.play(mut plbook)!
 	doctree.play(mut plbook)!
 	docusaurus.play(mut plbook)!
+	openai.play(mut plbook)!
 
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!

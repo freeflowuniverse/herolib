@@ -1,11 +1,10 @@
 module playcmds
 
 import freeflowuniverse.herolib.develop.luadns
-import freeflowuniverse.herolib.core.playbook {PlayBook}
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import os
 
 fn play_luadns(mut plbook PlayBook) ! {
-
 	// Variables below are not used, commenting them out
 	// mut buildroot := '${os.home_dir()}/hero/var/mdbuild'
 	// mut publishroot := '${os.home_dir()}/hero/www/info'
@@ -34,6 +33,4 @@ fn play_luadns(mut plbook PlayBook) ! {
 		dns.set_domain(domain, ip)!
 		action.done = true
 	}
-
-	
 }

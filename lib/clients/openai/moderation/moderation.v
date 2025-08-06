@@ -1,6 +1,9 @@
-module openai
+module moderation
 
 import json
+import freeflowuniverse.herolib.clients.openai { OpenAI }
+
+type OpenAIAlias = OpenAI
 
 pub enum ModerationModel {
 	text_moderation_latest
@@ -69,7 +72,7 @@ pub mut:
 	results []ModerationResult
 }
 
-pub fn (mut f OpenAI) create_moderation(input string, model ModerationModel) !ModerationResponse {
+pub fn (mut f OpenAIAlias) create_moderation(input string, model ModerationModel) !ModerationResponse {
 	req := ModerationRequest{
 		input: input
 		model: moderation_model_str(model)

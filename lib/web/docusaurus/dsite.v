@@ -18,7 +18,7 @@ pub mut:
 	path_build   pathlib.Path
 	errors       []SiteError
 	config       Configuration
-	website   sitemodule.Site
+	website      sitemodule.Site
 }
 
 pub fn (mut s DocSite) build() ! {

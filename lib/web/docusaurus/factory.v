@@ -9,7 +9,7 @@ import freeflowuniverse.herolib.installers.web.bun
 
 __global (
 	docusaurus_sites   map[string]&DocSite
-	docusaurus_factory ?DocSiteFactory
+	docusaurus_factory []DocSiteFactory
 )
 
 pub struct DocSiteFactory {
@@ -30,13 +30,13 @@ pub mut:
 
 pub fn factory_get(args_ DocSiteFactoryArgs) !DocSiteFactory {
 	mut args := args_
-	if f := docusaurus_factory {
-		return f
-	} else {
-		mut factory := factory_set(args)!
-		docusaurus_factory = factory
-		return factory
+	if docusaurus_factory.len > 1 {
+		panic("multiple docusaurus factories found, please specify which one to use")
 	}
+	if docusaurus_factory.len > 0 {
+		return docusaurus_factory[0]
+	}
+	return factory_set(args)!
 }
 
 pub fn factory_set(args_ DocSiteFactoryArgs) !DocSiteFactory {
@@ -59,6 +59,9 @@ pub fn factory_set(args_ DocSiteFactoryArgs) !DocSiteFactory {
 	if args.install {
 		factory.install(args.reset, args.template_update)!
 	}
+	
+	docusaurus_factory << factory
+
 	return factory
 }
 

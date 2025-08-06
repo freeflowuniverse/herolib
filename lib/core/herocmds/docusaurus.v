@@ -163,68 +163,47 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
 
-	// Process heroscript files from the ebook directory to get proper site configuration
-	mut plbook := playbook.new(path: heroscript_config_dir)!
 
-	// Dynamically add ebook configuration files
-	config_file := '${heroscript_config_dir}/config.heroscript'
-	if os.exists(config_file) {
-		plbook.add(path: config_file)!
-	}
+	// // Get the site configuration that was processed from the heroscript files
+	// // The site.play() function processes the heroscript and creates sites in the global websites map
+	// // We need to get the site by name from the processed configuration
+	// config_actions := plbook.find(filter: 'site.config')!
+	// if config_actions.len == 0 {
+	// 	return error('No site.config found in heroscript files. Make sure config.heroscript contains !!site.config.')
+	// }
 
-	menus_file := '${heroscript_config_dir}/menus.heroscript'
-	if os.exists(menus_file) {
-		plbook.add(path: menus_file)!
-	}
+	// // Get the site name from the first site.config action
+	// site_name := config_actions[0].params.get('name') or {
+	// 	return error('site.config must specify a name parameter')
+	// }
 
-	pages_dir := '${heroscript_config_dir}/pages'
-	if os.exists(pages_dir) && os.is_dir(pages_dir) {
-		plbook.add(path: pages_dir)!
-	}
+	// // Get the processed site configuration
+	// mut generic_site := site.get(name: site_name)!
 
-	playcmds.run(plbook: plbook)!
+	// // Add docusaurus site
+	// mut dsite := docusaurus.dsite_add(
+	// 	site:            generic_site
+	// 	path_src:        url // Use URL as source path for now
+	// 	path_build:      build_path
+	// 	path_publish:    publish_path
+	// 	reset:           false
+	// 	template_update: update
+	// 	install:         init
+	// )!
 
-	// Process site pages to generate the actual documentation files
-	site.play(mut plbook)!
+	// // Conditional site actions based on flags
+	// if buildpublish {
+	// 	dsite.build_publish()!
+	// } else if builddevpublish {
+	// 	dsite.build_dev_publish()!
+	// } else if dev {
+	// 	dsite.dev(host: 'localhost', port: 3000, open: open)!
+	// } else if open {
+	// 	dsite.open('localhost', 3000)!
+	// } else {
+	// 	// If no specific action (build/dev/open) is requested, just generate the site
+	// 	dsite.generate()!
+	// }
 
-	// Get the site configuration that was processed from the heroscript files
-	// The site.play() function processes the heroscript and creates sites in the global websites map
-	// We need to get the site by name from the processed configuration
-	config_actions := plbook.find(filter: 'site.config')!
-	if config_actions.len == 0 {
-		return error('No site.config found in heroscript files. Make sure config.heroscript contains !!site.config.')
-	}
-
-	// Get the site name from the first site.config action
-	site_name := config_actions[0].params.get('name') or {
-		return error('site.config must specify a name parameter')
-	}
-
-	// Get the processed site configuration
-	mut generic_site := site.get(name: site_name)!
-
-	// Add docusaurus site
-	mut dsite := docusaurus.dsite_add(
-		sitename:     site_name
-		path:         provided_path // Use the provided path from --path flag
-		git_url:      url           // Use URL for git operations if provided
-		path_publish: publish_path
-		git_reset:    false
-		git_pull:     false
-		play:         true
-	)!
-
-	// Conditional site actions based on flags
-	if buildpublish {
-		dsite.build_publish()!
-	} else if builddevpublish {
-		dsite.build_dev_publish()!
-	} else if dev {
-		dsite.dev(host: 'localhost', port: 3000, open: open)!
-	} else if open {
-		dsite.open(host: 'localhost', port: 3000)!
-	} else {
-		// If no specific action (build/dev/open) is requested, just generate the site
-		dsite.generate()!
-	}
+	panic("implement")
 }

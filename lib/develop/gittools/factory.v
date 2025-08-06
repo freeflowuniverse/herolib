@@ -8,24 +8,23 @@ __global (
 	gsinstances map[string]&GitStructure
 )
 
-
 @[params]
-pub struct GetRepoArgs{
+pub struct GetRepoArgs {
 pub mut:
-	path string //if used will check if path exists if yes, just return
-	git_url string
-	git_pull bool
+	path      string // if used will check if path exists if yes, just return
+	git_url   string
+	git_pull  bool
 	git_reset bool
 }
 
 // get_repo_path implements the GitUrlResolver interface
-pub fn  get_repo_path(args GetRepoArgs) !string {
-	if os.exists(args.path){
+pub fn get_repo_path(args GetRepoArgs) !string {
+	if os.exists(args.path) {
 		return args.path
 	}
 	mut gs := get()!
 	mut repo := gs.get_repo(
-		url:  args.git_url
+		url:   args.git_url
 		pull:  args.git_pull
 		reset: args.git_reset
 	)!

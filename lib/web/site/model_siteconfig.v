@@ -1,6 +1,8 @@
 module site
+
 import os
 // Combined config structure
+
 @[heap]
 pub struct SiteConfig {
 pub mut:

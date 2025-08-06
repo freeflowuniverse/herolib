@@ -2,7 +2,7 @@ module herocmds
 
 // import freeflowuniverse.herolib.web.starlight
 import os
-import cli { Command, Flag }
+import cli
 
 // pub fn cmd_starlight(mut cmdroot Command) {
 // 	mut cmd_run := Command{

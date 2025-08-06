@@ -1,11 +1,10 @@
 module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.core.playbook {PlayBook}
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
 fn play_git(mut plbook PlayBook) ! {
-
 	// Handle !!git.define action first to configure GitStructure
 	define_actions := plbook.find(filter: 'git.define')!
 	mut gs := if define_actions.len > 0 {
@@ -150,6 +149,4 @@ fn play_git(mut plbook PlayBook) ! {
 		gs = gittools.new(coderoot: coderoot)!
 		gs.load(true)! // Force reload
 	}
-
-	
 }

@@ -1,7 +1,7 @@
 module playmacros
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.playbook {PlayBook, Action}
+import freeflowuniverse.herolib.core.playbook { Action, PlayBook }
 import freeflowuniverse.herolib.threefold.grid4.gridsimulator
 import freeflowuniverse.herolib.threefold.grid4.farmingsimulator
 import freeflowuniverse.herolib.biz.bizmodel

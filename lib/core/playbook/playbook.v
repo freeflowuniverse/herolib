@@ -73,7 +73,7 @@ pub fn (mut plbook PlayBook) actions_sorted(args SortArgs) ![]&Action {
 		}
 		action_ids := plbook.priorities[nr] or { panic('bug') }
 		for id in action_ids {
-			mut a := plbook.actions[id-1] or { panic("bug in actions sorted") }
+			mut a := plbook.actions[id - 1] or { panic('bug in actions sorted') }
 			res << a
 		}
 	}
@@ -99,7 +99,7 @@ pub fn (mut plbook PlayBook) heroscript(args HeroScriptArgs) !string {
 	// 	out += '${plbook.othertext}'
 	// }
 	out = texttools.remove_empty_js_blocks(out)
-	out +="\n\n"
+	out += '\n\n'
 	return out
 }
 

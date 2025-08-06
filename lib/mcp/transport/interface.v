@@ -41,9 +41,9 @@ pub:
 // HttpConfig holds HTTP-specific configuration
 pub struct HttpConfig {
 pub:
-	port     int = 8080           // Port to listen on
-	host     string = 'localhost' // Host to bind to
-	protocol HttpMode = .both     // Which HTTP protocols to support
+	port     int      = 8080        // Port to listen on
+	host     string   = 'localhost' // Host to bind to
+	protocol HttpMode = .both       // Which HTTP protocols to support
 }
 
 // HttpMode defines which HTTP protocols the server should support

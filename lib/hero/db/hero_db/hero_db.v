@@ -8,7 +8,7 @@ import freeflowuniverse.herolib.core.texttools
 // Generic database interface for Hero root objects
 pub struct HeroDB[T] {
 pub mut:
-	db pg.DB
+	db         pg.DB
 	table_name string
 }
 
@@ -22,14 +22,12 @@ pub fn new[T]() !HeroDB[T] {
 		table_name = '${dirname}_${texttools.snake_case(T.name)}'
 	}
 
-	mut dbclient:=postgresql_client.get()!
+	mut dbclient := postgresql_client.get()!
 
-	mut dbcl:=dbclient.db() or {
-			return error('Failed to connect to database')
-		}
-	
+	mut dbcl := dbclient.db() or { return error('Failed to connect to database') }
+
 	return HeroDB[T]{
-		db: dbcl
+		db:         dbcl
 		table_name: table_name
 	}
 }
@@ -38,13 +36,13 @@ pub fn new[T]() !HeroDB[T] {
 pub fn (mut self HeroDB[T]) ensure_table() ! {
 	// Get index fields from struct reflection
 	index_fields := self.get_index_fields()
-	
+
 	// Build index column definitions
 	mut index_cols := []string{}
 	for field in index_fields {
 		index_cols << '${field} varchar(255)'
 	}
-	
+
 	// Create table with JSON storage
 	create_sql := '
 		CREATE TABLE IF NOT EXISTS ${self.table_name} (
@@ -54,11 +52,9 @@ pub fn (mut self HeroDB[T]) ensure_table() ! {
 			created_at timestamp DEFAULT CURRENT_TIMESTAMP,
 			updated_at timestamp DEFAULT CURRENT_TIMESTAMP
 		)
-	'
-	
-	// self.db.exec(create_sql)!
-	
+	' // self.db.exec(create_sql)!
 	// Create indexes on index fields
+
 	for field in index_fields {
 		index_sql := 'CREATE INDEX IF NOT EXISTS idx_${self.table_name}_${field} ON ${self.table_name}(${field})'
 		// self.db.exec(index_sql)!
@@ -80,22 +76,22 @@ fn (self HeroDB[T]) get_index_fields() []string {
 pub fn (mut self HeroDB[T]) save(obj T) ! {
 	// Get index values from object
 	index_data := self.extract_index_values(obj)
-	
+
 	// Serialize to JSON
 	json_data := json.encode_pretty(obj)
-	
+
 	// Check if object already exists
 	mut query := 'SELECT id FROM ${self.table_name} WHERE '
 	mut params := []string{}
-	
+
 	// Build WHERE clause for unique lookup
 	for key, value in index_data {
 		params << '${key} = \'${value}\''
 	}
 	query += params.join(' AND ')
-	
-	existing :=self.db.exec(query)!
-	
+
+	existing := self.db.exec(query)!
+
 	if existing.len > 0 {
 		// Update existing record
 		id_val := existing[0].vals[0] or { return error('no id') }
@@ -114,22 +110,21 @@ pub fn (mut self HeroDB[T]) save(obj T) ! {
 		// Insert new record
 		mut columns := []string{}
 		mut values := []string{}
-		
+
 		// Add index columns
 		for key, value in index_data {
 			columns << key
 			values << "'${value}'"
 		}
-		
+
 		// Add JSON data
 		columns << 'data'
 		values << "'${json_data}'"
-		
+
 		insert_sql := '
 			INSERT INTO ${self.table_name} (${columns.join(', ')})
 			VALUES (${values.join(', ')})
-		'
-		// self.db.exec(insert_sql)!
+		' // self.db.exec(insert_sql)!
 	}
 }
 
@@ -137,7 +132,7 @@ pub fn (mut self HeroDB[T]) save(obj T) ! {
 pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 	mut query := 'SELECT data FROM ${self.table_name} WHERE '
 	mut params := []string{}
-	
+
 	for key, value in index_values {
 		params << '${key} = \'${value}\''
 	}
@@ -147,16 +142,16 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 	if rows.len == 0 {
 		return error('${T.name} not found with index values: ${index_values}')
 	}
-	
+
 	json_data_val := rows[0].vals[0] or { return error('no data') }
 	println('json_data_val: ${json_data_val}')
-	if true{
+	if true {
 		panic('sd2221')
 	}
 	// mut obj := json.decode(T, json_data_val) or {
 	// 	return error('Failed to decode JSON: ${err}')
 	// }
-	
+
 	// return &obj
 	return T{}
 }
@@ -165,7 +160,7 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 // pub fn (mut self HeroDB[T]) get_all() ![]T {
 // 	query := 'SELECT data FROM ${self.table_name} ORDER BY id DESC'
 // 	rows := self.db_client.db()!.exec(query)!
-	
+
 // 	mut results := []T{}
 // 	for row in rows {
 // 		json_data_val := row.vals[0] or { continue }
@@ -176,7 +171,7 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 // 		}
 // 		results << &obj
 // 	}
-	
+
 // 	return results
 // }
 
@@ -184,7 +179,7 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 // pub fn (mut self HeroDB[T]) search_by_index(field_name string, value string) ![]T {
 // 	query := 'SELECT data FROM ${self.table_name} WHERE ${field_name} = \'${value}\' ORDER BY id DESC'
 // 	rows := self.db_client.db()!.exec(query)!
-	
+
 // 	mut results := []T{}
 // 	for row in rows {
 // 		json_data_val := row.vals[0] or { continue }
@@ -194,7 +189,7 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 // 		}
 // 		results << &obj
 // 	}
-	
+
 // 	return results
 // }
 
@@ -202,12 +197,12 @@ pub fn (mut self HeroDB[T]) get_by_index(index_values map[string]string) !T {
 // pub fn (mut self HeroDB[T]) delete_by_index(index_values map[string]string) ! {
 // 	mut query := 'DELETE FROM ${self.table_name} WHERE '
 // 	mut params := []string{}
-	
+
 // 	for key, value in index_values {
 // 		params << '${key} = \'${value}\''
 // 	}
 // 	query += params.join(' AND ')
-	
+
 // 	self.db_client.db()!.exec(query)!
 // }
 
