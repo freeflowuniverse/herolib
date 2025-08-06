@@ -14,7 +14,6 @@ playcmds.run(
             url:"https://openrouter.ai/api/v1" 
             model_default:"gpt-oss-120b"
         '
-    heroscript_path:''
     reset: false
 )!
 

@@ -2,7 +2,7 @@
 
 import freeflowuniverse.herolib.core.playcmds
 
-mut plbook := heroscript.new(
+playcmds.run(
 	heroscript: '
 
 	!!docusaurus.define

@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.web.site
 
 pub fn play(mut plbook PlayBook) ! {
 
-	if !plbook.exists_once(filter: 'docusaurus.') {
+	if !plbook.exists(filter: 'docusaurus.') {
 		return
 	}
 
