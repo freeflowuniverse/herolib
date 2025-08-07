@@ -89,7 +89,8 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 
 		if state == .comment_for_action_maybe {
 			if line.starts_with('//') {
-				comments << line_strip.trim_left('/ ')
+				comment_content := line_strip.trim_left('/ ')
+				comments << comment_content
 			} else {
 				if line_strip.starts_with('!') {
 					// we are at end of comment
@@ -150,7 +151,8 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 				continue
 			} else if line.starts_with('//') {
 				state = .comment_for_action_maybe
-				comments << line_strip.trim_left('/ ')
+				comment_content := line_strip.trim_left('/ ')
+				comments << comment_content
 				// } else {
 				// plbook.othertext += '${line_strip}\n'
 			}

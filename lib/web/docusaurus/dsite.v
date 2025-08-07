@@ -24,9 +24,9 @@ pub mut:
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
 	osal.exec(
-		cmd:   '	
+		cmd:   '
 			cd ${s.path_build.path}
-			exit 1
+			bun run build
 			'
 		retry: 0
 	)!
@@ -35,9 +35,9 @@ pub fn (mut s DocSite) build() ! {
 pub fn (mut s DocSite) build_dev_publish() ! {
 	s.generate()!
 	osal.exec(
-		cmd:   '	
+		cmd:   '
 			cd ${s.path_build.path}
-			exit 1
+			bun run build
 			'
 		retry: 0
 	)!
@@ -46,9 +46,9 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 pub fn (mut s DocSite) build_publish() ! {
 	s.generate()!
 	osal.exec(
-		cmd:   '	
+		cmd:   '
 			cd ${s.path_build.path}
-			exit 1
+			bun run build
 			'
 		retry: 0
 	)!

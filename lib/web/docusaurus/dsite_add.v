@@ -72,15 +72,20 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
 	// get our website
-	console.print_debug('Docusaurus site ${args.sitename} at ${args.path}.')
-	mut mysite := site.new(name: args.sitename)!
-	mut plbook := playbook.new(path: '${args.path}/cfg')!
-	if plbook.actions.len == 0 {
-		return error('No actions found in playbook at ${args.path}/cfg')
-	}
-	site.play(mut plbook)!
-	mysite = site.get(name: args.sitename) or {
-		return error('Failed to get site after playing playbook: ${args.sitename}')
+	mut mysite := &site.Site(unsafe { nil })
+	if site.exists(name: args.sitename) {
+		// Site already exists (likely processed by hero command), use existing site
+		mysite = site.get(name: args.sitename)!
+	} else {
+		if !args.play {
+			return error('Docusaurus site ${args.sitename} does not exist, please set play to true to create it.')
+		}
+		// Create new site and process config files
+		mut plbook := playbook.new(path: '${args.path}/cfg')!
+		site.play(mut plbook)!
+		mysite = site.get(name: args.sitename) or {
+			return error('Failed to get site after playing playbook: ${args.sitename}')
+		}
 	}
 
 	println(mysite)

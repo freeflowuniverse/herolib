@@ -25,12 +25,13 @@ mut:
 	site Site
 }
 
-// new creates a new siteconfig and stores it in redis, or gets an existing one
-fn generate(args SiteGeneratorArgs) ! {
+// Generate docs from site configuration
+pub fn generate_docs(args SiteGeneratorArgs) ! {
 	mut path := args.path
 	if args.path == '' {
 		return error('Path must be provided to generate site')
 	}
+
 	mut gen := SiteGenerator{
 		path:   pathlib.get_dir(path: path, create: true)!
 		client: doctreeclient.new()!
@@ -126,8 +127,6 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	mut pagefile := pathlib.get_file(path: pagepath, create: true)!
 
 	pagefile.write(c)!
-
-	// console.print_debug("Copy images in collection '${collection_name}' to ${pagefile.path_dir()}")
 
 	mysite.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
 		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${mysite.client.list_markdown()!}\nError: ${err}")

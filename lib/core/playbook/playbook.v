@@ -8,13 +8,13 @@ import crypto.blake2b
 @[heap]
 pub struct PlayBook {
 pub mut:
-	actions    []&Action
+	actions    []&Action @[skip; str: skip]
 	priorities map[int][]int // first key is the priority, the list of int's is position in list self.actions
 	othertext  string        // in case there is text outside of the actions
 	result     string        // if any result
 	nractions  int
 	done       []int // which actions did we already find/run?
-	session    &base.Session
+	session    &base.Session @[skip; str: skip]
 }
 
 @[params]
