@@ -2,9 +2,6 @@ module herocmds
 
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.core.playcmds
-import freeflowuniverse.herolib.core.playbook
-import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.web.docusaurus
 import os
 import cli { Command, Flag }
@@ -164,40 +161,9 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	console.print_header('Running Docusaurus for: ${source_path}')
 
-	// Process the site configuration first (excluding global includes)
-	mut combined_heroscript := ''
-	cfg_path := os.join_path(source_path, 'cfg')
-	if os.exists(cfg_path) {
-		files := os.ls(cfg_path) or { []string{} }
-		for file in files {
-			if file.ends_with('.heroscript') {
-				file_path := os.join_path(cfg_path, file)
-				content := os.read_file(file_path) or { continue }
-
-				// Skip files that contain play.include to avoid global processing
-				if content.contains('!!play.include') {
-					continue
-				}
-
-				combined_heroscript += content + '\n\n'
-			}
-		}
-	}
-
-	if combined_heroscript.len == 0 {
-		return error('No valid heroscript files found (all contained global includes)')
-	}
-
-	// Process the site configuration to get the site name
-	mut plbook := playbook.new(text: combined_heroscript)!
-	site.play(mut plbook)!
-
-	// Get the site name from the processed site configuration
-	available_sites := site.list()
-	if available_sites.len == 0 {
-		return error('No sites were created from the configuration')
-	}
-	site_name := available_sites[0] // Use the first (and likely only) site
+	// Use the centralized site processing function from docusaurus module
+	mysite := docusaurus.process_site_from_path(source_path, '')!
+	site_name := mysite.siteconfig.name
 
 	// Set up the docusaurus factory
 	docusaurus.factory_set(

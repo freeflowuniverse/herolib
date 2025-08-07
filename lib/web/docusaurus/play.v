@@ -46,7 +46,7 @@ pub fn play(mut plbook PlayBook) ! {
 			git_root:     p.get_default('git_root', '')! // Make git_root optional
 			git_pull:     p.get_default_false('git_pull')
 			path_publish: p.get_default('path_publish', f.path_publish.path)!
-			play:         false // need to make sure we don't play again
+			play:         p.get_default_false('play') // Respect the play parameter from heroscript
 		)!
 		action.done = true
 	}
