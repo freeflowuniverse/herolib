@@ -50,7 +50,7 @@ pub fn run(args_ PlayArgs) ! {
 	bizmodel.play(mut plbook)!
 	doctree.play(mut plbook)!
 	docusaurus.play(mut plbook)!
-	// openai.play(mut plbook)!
+	openai.play(mut plbook)!
 
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!

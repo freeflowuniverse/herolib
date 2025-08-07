@@ -6,6 +6,7 @@ playcmds.run(
 	heroscript: '
 
 	!!docusaurus.config
+		name: "tfgrid_tech"
 		title: "TFGrid Tech Docs"
 
 	!!docusaurus.define
@@ -15,7 +16,7 @@ playcmds.run(
 		install: 1
 		template_update: 1
 
-	!!docusaurus.add sitename:"default"
+	!!docusaurus.add sitename:"tfgrid_tech"
 		git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
 		git_root:"/tmp/code"
 		git_reset:1
@@ -23,6 +24,6 @@ playcmds.run(
 
 	!!docusaurus.build
 
-	!!docusaurus.dev site:"default" open:true watch_changes:true
+	!!docusaurus.dev site:"tfgrid_tech" open:true watch_changes:true
 '
 )!

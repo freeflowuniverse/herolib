@@ -72,7 +72,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
 	// get our website
-	mut mysite := &site.Site(unsafe { nil })
+	mut mysite := &site.Site{}
 	if site.exists(name: args.sitename) {
 		// Site already exists (likely processed by hero command), use existing site
 		mysite = site.get(name: args.sitename)!
@@ -87,9 +87,6 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 			return error('Failed to get site after playing playbook: ${args.sitename}')
 		}
 	}
-
-	println(mysite)
-	if true{panic("ss8")}
 
 	// Create the DocSite instance
 	mut dsite := &DocSite{

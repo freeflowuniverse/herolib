@@ -5,6 +5,10 @@ import freeflowuniverse.herolib.core.texttools
 import time
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'site.') && !plbook.exists(filter: 'docusaurus.config') {
+		return
+	}
+
 	// Handle multiple site configurations - look for both site.config and docusaurus.config
 	mut config_actions := plbook.find(filter: 'site.config')!
 	if config_actions.len == 0 {
