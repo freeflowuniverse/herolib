@@ -3,21 +3,24 @@
 import freeflowuniverse.herolib.core.playcmds
 
 playcmds.run(
-	heroscript: '
+  heroscript: '
 
-	!!docusaurus.define
+  !!docusaurus.define
 		path_build: "/tmp/docusaurus_build"
 		path_publish: "/tmp/docusaurus_publish"
-		reset: 1
-		install: 1
-		template_update: 1
+		// reset: 1
+		// install: 1
+		// template_update: 1
 
-	!!docusaurus.add name:"tfgrid_docs" 
-		git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
-		git_root:"/tmp/code"
-		git_reset:1
-		git_pull:1
+  !!docusaurus.add name:"tfgrid_docs"
+		sitename:"tfgrid_docs"
+		git_url:"https://git.ourworld.tf/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
+		// git_root:"/tmp/code"
+		// git_reset:1
+		// git_pull:1
 
-	!!docusaurus.build
+//   !!docusaurus.build
+
+//   !!docusaurus.dev site:"tfgrid_docs" open:true watch_changes:true
 '
 )!

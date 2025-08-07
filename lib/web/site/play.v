@@ -5,8 +5,18 @@ import freeflowuniverse.herolib.core.texttools
 import time
 
 pub fn play(mut plbook PlayBook) ! {
+
+	if !plbook.exists(filter: 'site.') {
+		return
+	}
+
+
 	// Handle multiple site configurations
 	mut config_actions := plbook.find(filter: 'site.config')!
+
+	println('Playing site configuration...')
+	// println(config_actions)
+	// if true{panic('site.play not implemented yet, this is a stub')}
 
 	if config_actions.len == 0 {
 		return error('No site.config actions found')
@@ -14,7 +24,9 @@ pub fn play(mut plbook PlayBook) ! {
 
 	// Process each site configuration separately
 	for mut config_action in config_actions {
-		mut website := play_config_single(mut config_action)!
+		mut website := play_config_single( *config_action)!
+
+		config_action.done = true // Mark the action as done
 
 		mut config := &website.siteconfig
 
@@ -28,7 +40,7 @@ pub fn play(mut plbook PlayBook) ! {
 	}
 }
 
-fn play_config_single(mut action Action) !&Site {
+fn play_config_single(action Action) !&Site {
 	mut p := action.params
 	name := p.get('name') or { return error('need to specify name in site.config.\n${action}') }
 
@@ -45,9 +57,6 @@ fn play_config_single(mut action Action) !&Site {
 	config.base_url = p.get_default('base_url', config.base_url)!
 	config.url_home = p.get_default('url_home', config.url_home)!
 	config.name = name
-
-	action.done = true // Mark the action as done
-
 	return website
 }
 

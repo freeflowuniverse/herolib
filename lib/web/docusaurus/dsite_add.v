@@ -63,14 +63,6 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	osal.rm('${args.path}/sync.sh')!
 	osal.rm('${args.path}/.DS_Store')!
 
-	mut website := site.get(name: args.sitename)!
-
-	mut myconfig := new_configuration(website.siteconfig)! // go from site.SiteConfig to docusaurus.Configuration
-
-	if myconfig.main.name.len == 0 {
-		return error('main.name is not set in the site configuration')
-	}
-
 	mut f := factory_get()!
 
 	if args.path_publish == '' {
@@ -80,20 +72,15 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
 	// get our website
+	console.print_debug('Docusaurus site ${args.sitename} at ${args.path}.')
 	mut mysite := site.new(name: args.sitename)!
-	if site.exists(name: args.sitename) {
-		console.print_debug('Docusaurus site ${args.sitename} already exists, using existing site.')
-		mysite = site.get(name: args.sitename)!
-	} else {
-		if !args.play {
-			return error('Docusaurus site ${args.sitename} does not exist, please set play to true to create it.')
-		}
-		console.print_debug('Creating new Docusaurus site ${args.sitename}.')
-		mut plbook := playbook.new(path: '${args.path}/cfg')!
-		site.play(mut plbook)!
-		mysite = site.get(name: args.sitename) or {
-			return error('Failed to get site after playing playbook: ${args.sitename}')
-		}
+	mut plbook := playbook.new(path: '${args.path}/cfg')!
+	if plbook.actions.len == 0 {
+		return error('No actions found in playbook at ${args.path}/cfg')
+	}
+	site.play(mut plbook)!
+	mysite = site.get(name: args.sitename) or {
+		return error('Failed to get site after playing playbook: ${args.sitename}')
 	}
 
 	// Create the DocSite instance
@@ -102,7 +89,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 		path_src:     pathlib.get_dir(path: args.path, create: false)!
 		path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
 		path_build:   pathlib.get_dir(path: path_build_, create: true)!
-		config:       new_configuration(website.siteconfig)!
+		config:       new_configuration(mysite.siteconfig)!
 		website:      mysite
 	}
 

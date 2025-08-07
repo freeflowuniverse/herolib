@@ -15,7 +15,7 @@ pub fn play(mut plbook PlayBook) ! {
 
 	// check if docusaurus.define exists, if not, we create a default factory
 	mut f := DocSiteFactory{}
-	if plbook.exists_once(filter: 'docusaurus.define') {
+	if plbook.max_once(filter: 'docusaurus.define')! {
 		mut a := plbook.get(filter: 'docusaurus.define') or {
 			panic('docusaurus.define action not found, this should not happen.')
 		}
@@ -41,10 +41,10 @@ pub fn play(mut plbook PlayBook) ! {
 
 		dsite_add(
 			sitename:     site_name
-			path:         p.get('path')!
-			git_url:      p.get('git_url')!
+			path:         p.get_default('path', '')!
+			git_url:      p.get_default('git_url','')!
 			git_reset:    p.get_default_false('git_reset')
-			git_root:     p.get('git_root')!
+			git_root:     p.get_default('git_root','')!
 			git_pull:     p.get_default_false('git_pull')
 			path_publish: p.get_default('path_publish', f.path_publish.path)!
 			play:         false // need to make sure we don't play again
@@ -80,4 +80,6 @@ pub fn play(mut plbook PlayBook) ! {
 		dsite.build()!
 		action.done = true
 	}
+
+	plbook.ensure_processed(filter: 'docusaurus.')!
 }
