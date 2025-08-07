@@ -6,7 +6,6 @@ import time
 
 pub fn play(mut plbook PlayBook) ! {
 	// Handle multiple site configurations - look for both site.config and docusaurus.config
-
 	mut config_actions := plbook.find(filter: 'site.config')!
 	if config_actions.len == 0 {
 		// Fallback to docusaurus.config for backward compatibility
@@ -60,9 +59,6 @@ fn play_config_single_safe(name string, mut action Action) !&Site {
 	config.base_url = p.get_default('base_url', config.base_url)!
 	config.url_home = p.get_default('url_home', config.url_home)!
 	config.name = name
-
-	action.done = true // Mark the action as done
-
 	return website
 }
 

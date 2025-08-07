@@ -63,19 +63,6 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	osal.rm('${args.path}/sync.sh')!
 	osal.rm('${args.path}/.DS_Store')!
 
-	// Try to get the site by name, if it doesn't exist, try to get the default site
-	mut website := site.get(name: args.sitename) or {
-		site.get(name: 'default') or {
-			return error('Neither site "${args.sitename}" nor default site exists. Available sites need to be created first with docusaurus.config.')
-		}
-	}
-
-	mut myconfig := new_configuration(website.siteconfig)! // go from site.SiteConfig to docusaurus.Configuration
-
-	if myconfig.main.name.len == 0 {
-		return error('main.name is not set in the site configuration')
-	}
-
 	mut f := factory_get()!
 
 	if args.path_publish == '' {
@@ -107,7 +94,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 		path_src:     pathlib.get_dir(path: args.path, create: false)!
 		path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
 		path_build:   pathlib.get_dir(path: path_build_, create: true)!
-		config:       new_configuration(website.siteconfig)!
+		config:       new_configuration(mysite.siteconfig)!
 		website:      mysite
 	}
 

@@ -14,7 +14,7 @@ pub fn play(mut plbook PlayBook) ! {
 
 	// check if docusaurus.define exists, if not, we create a default factory
 	mut f := DocSiteFactory{}
-	if plbook.exists_once(filter: 'docusaurus.define') {
+	if plbook.max_once(filter: 'docusaurus.define')! {
 		mut a := plbook.get(filter: 'docusaurus.define') or {
 			panic('docusaurus.define action not found, this should not happen.')
 		}
@@ -87,4 +87,6 @@ pub fn play(mut plbook PlayBook) ! {
 		dsite.build()!
 		action.done = true
 	}
+
+	plbook.ensure_processed(filter: 'docusaurus.')!
 }
