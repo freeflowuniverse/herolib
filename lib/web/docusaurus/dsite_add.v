@@ -83,6 +83,9 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 		return error('Failed to get site after playing playbook: ${args.sitename}')
 	}
 
+	println(mysite)
+	if true{panic("ss8")}
+
 	// Create the DocSite instance
 	mut dsite := &DocSite{
 		name:         args.sitename
