@@ -27,6 +27,9 @@ fn play_core(mut plbook PlayBook) ! {
 	// 	action.done = true
 	// }
 
+	// Track included paths to prevent infinite recursion
+	mut included_paths := map[string]bool{}
+
 	for action_ in plbook.find(filter: 'play.*')! {
 		if action_.name == 'include' {
 			console.print_debug('play run:${action_}')
@@ -44,7 +47,15 @@ fn play_core(mut plbook PlayBook) ! {
 			if playrunpath.len == 0 {
 				return error("can't run a heroscript didn't find url or path.")
 			}
+
+			// Check for cycle detection
+			if playrunpath in included_paths {
+				console.print_debug('Skipping already included path: ${playrunpath}')
+				continue
+			}
+
 			console.print_debug('play run path:${playrunpath}')
+			included_paths[playrunpath] = true
 			plbook.add(path: playrunpath)!
 		}
 		if action_.name == 'echo' {

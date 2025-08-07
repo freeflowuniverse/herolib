@@ -63,7 +63,12 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	osal.rm('${args.path}/sync.sh')!
 	osal.rm('${args.path}/.DS_Store')!
 
-	mut website := site.get(name: args.sitename)!
+	// Try to get the site by name, if it doesn't exist, try to get the default site
+	mut website := site.get(name: args.sitename) or {
+		site.get(name: 'default') or {
+			return error('Neither site "${args.sitename}" nor default site exists. Available sites need to be created first with docusaurus.config.')
+		}
+	}
 
 	mut myconfig := new_configuration(website.siteconfig)! // go from site.SiteConfig to docusaurus.Configuration
 
@@ -80,15 +85,15 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
 	// get our website
-	mut mysite := site.new(name: args.sitename)!
+	mut mysite := &site.Site(unsafe { nil })
 	if site.exists(name: args.sitename) {
-		console.print_debug('Docusaurus site ${args.sitename} already exists, using existing site.')
+		// Site already exists (likely processed by hero command), use existing site
 		mysite = site.get(name: args.sitename)!
 	} else {
 		if !args.play {
 			return error('Docusaurus site ${args.sitename} does not exist, please set play to true to create it.')
 		}
-		console.print_debug('Creating new Docusaurus site ${args.sitename}.')
+		// Create new site and process config files
 		mut plbook := playbook.new(path: '${args.path}/cfg')!
 		site.play(mut plbook)!
 		mysite = site.get(name: args.sitename) or {

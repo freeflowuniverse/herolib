@@ -5,6 +5,9 @@ import freeflowuniverse.herolib.core.playcmds
 playcmds.run(
 	heroscript: '
 
+	!!docusaurus.config
+		title: "TFGrid Tech Docs"
+
 	!!docusaurus.define
 		path_build: "/tmp/docusaurus_build"
 		path_publish: "/tmp/docusaurus_publish"
@@ -12,12 +15,14 @@ playcmds.run(
 		install: 1
 		template_update: 1
 
-	!!docusaurus.add name:"tfgrid_docs" 
+	!!docusaurus.add sitename:"default"
 		git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
 		git_root:"/tmp/code"
 		git_reset:1
 		git_pull:1
 
 	!!docusaurus.build
+
+	!!docusaurus.dev site:"default" open:true watch_changes:true
 '
 )!

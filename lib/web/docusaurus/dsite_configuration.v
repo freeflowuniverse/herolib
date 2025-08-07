@@ -155,15 +155,19 @@ fn new_configuration(site_cfg site.SiteConfig) !Configuration {
 }
 
 fn config_fix(config Configuration) !Configuration {
-	// Fix empty logo sources by removing logo entirely if all fields are empty
+	// Fix empty logo sources by providing defaults if all fields are empty
 	mut navbar_fixed := config.navbar
 	if config.navbar.logo.src == '' && config.navbar.logo.src_dark == ''
 		&& config.navbar.logo.alt == '' {
-		// Create navbar without logo if all logo fields are empty
+		// Provide default logo values when all are empty
 		navbar_fixed = Navbar{
 			title: config.navbar.title
+			logo:  Logo{
+				alt:      'Logo'
+				src:      'img/logo.svg'
+				src_dark: 'img/logo_dark.svg'
+			}
 			items: config.navbar.items
-			// logo field omitted entirely
 		}
 	}
 
@@ -175,6 +179,19 @@ fn config_fix(config Configuration) !Configuration {
 			favicon:  if config.main.favicon == '' { 'img/favicon.ico' } else { config.main.favicon }
 			url:      if config.main.url == '' { 'https://example.com' } else { config.main.url }
 			base_url: if config.main.base_url == '' { '/' } else { config.main.base_url }
+			metadata: Metadata{
+				...config.main.metadata
+				description: if config.main.metadata.description == '' {
+					'Documentation built with Docusaurus.'
+				} else {
+					config.main.metadata.description
+				}
+				title:       if config.main.metadata.title == '' {
+					config.main.title
+				} else {
+					config.main.metadata.title
+				}
+			}
 		}
 		navbar: navbar_fixed
 	}

@@ -5,16 +5,27 @@ import freeflowuniverse.herolib.core.texttools
 import time
 
 pub fn play(mut plbook PlayBook) ! {
-	// Handle multiple site configurations
-	mut config_actions := plbook.find(filter: 'site.config')!
+	// Handle multiple site configurations - look for both site.config and docusaurus.config
 
+	mut config_actions := plbook.find(filter: 'site.config')!
 	if config_actions.len == 0 {
-		return error('No site.config actions found')
+		// Fallback to docusaurus.config for backward compatibility
+		config_actions = plbook.find(filter: 'docusaurus.config')!
 	}
 
-	// Process each site configuration separately
-	for mut config_action in config_actions {
-		mut website := play_config_single(mut config_action)!
+	if config_actions.len == 0 {
+		return error('No site.config or docusaurus.config actions found')
+	}
+
+	// For now, just process the first site configuration to avoid memory issues
+	// TODO: Fix the underlying memory corruption issue with multiple site configs
+	if config_actions.len > 0 {
+		mut config_action := config_actions[0]
+		// Work around memory corruption by accessing params directly here
+		mut p := config_action.params
+		name := p.get_default('name', 'default')! // Use 'default' as fallback name
+
+		mut website := play_config_single_safe(name, mut config_action)!
 
 		mut config := &website.siteconfig
 
@@ -25,12 +36,16 @@ pub fn play(mut plbook PlayBook) ! {
 		play_build_dest_dev(mut plbook, mut config)!
 
 		play_pages(mut plbook, mut website)!
+
+		// Mark all other config actions as done to avoid processing them
+		for i in 1 .. config_actions.len {
+			config_actions[i].done = true
+		}
 	}
 }
 
-fn play_config_single(mut action Action) !&Site {
+fn play_config_single_safe(name string, mut action Action) !&Site {
 	mut p := action.params
-	name := p.get('name') or { return error('need to specify name in site.config.\n${action}') }
 
 	mut website := new(name: name)!
 	mut config := &website.siteconfig
@@ -149,6 +164,9 @@ fn play_menu(mut plbook PlayBook, mut config SiteConfig) ! {
 		menu_item_actions = plbook.find(filter: 'site.menu_item')!
 	}
 
+	// Clear existing menu items to prevent duplication
+	config.menu.items = []MenuItem{}
+
 	for mut action in menu_item_actions {
 		mut p := action.params
 		mut item := MenuItem{
@@ -172,6 +190,9 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 
 	mut footer_item_actions := plbook.find(filter: 'site.footer_item')!
 	mut links_map := map[string][]FooterItem{}
+
+	// Clear existing footer links to prevent duplication
+	config.footer.links = []FooterLink{}
 
 	for mut action in footer_item_actions {
 		mut p := action.params

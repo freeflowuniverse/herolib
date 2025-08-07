@@ -14,6 +14,13 @@ pub mut:
 
 pub fn new(args FactoryArgs) !&Site {
 	name := texttools.name_fix(args.name)
+
+	// Check if a site with this name already exists
+	if name in websites {
+		// Return the existing site instead of creating a new one
+		return get(name: name)!
+	}
+
 	websites[name] = &Site{
 		siteconfig: SiteConfig{
 			name: name
@@ -39,4 +46,9 @@ pub fn default() !&Site {
 		return new(name: 'default')!
 	}
 	return get()!
+}
+
+// list returns all site names that have been created
+pub fn list() []string {
+	return websites.keys()
 }

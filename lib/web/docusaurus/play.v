@@ -4,7 +4,6 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.web.site
 
 pub fn play(mut plbook PlayBook) ! {
-
 	if !plbook.exists(filter: 'docusaurus.') {
 		return
 	}
@@ -41,10 +40,10 @@ pub fn play(mut plbook PlayBook) ! {
 
 		dsite_add(
 			sitename:     site_name
-			path:         p.get('path')!
-			git_url:      p.get('git_url')!
+			path:         p.get_default('path', '')! // Make path optional
+			git_url:      p.get_default('git_url', '')! // Make git_url optional too
 			git_reset:    p.get_default_false('git_reset')
-			git_root:     p.get('git_root')!
+			git_root:     p.get_default('git_root', '')! // Make git_root optional
 			git_pull:     p.get_default_false('git_pull')
 			path_publish: p.get_default('path_publish', f.path_publish.path)!
 			play:         false // need to make sure we don't play again
@@ -56,6 +55,7 @@ pub fn play(mut plbook PlayBook) ! {
 	if actions_dev.len > 1 {
 		return error('Multiple "docusaurus.dev" actions found. Only one is allowed.')
 	}
+
 	for mut action in actions_dev {
 		mut p := action.params
 		site_name := p.get('site')!
@@ -75,7 +75,14 @@ pub fn play(mut plbook PlayBook) ! {
 	}
 	for mut action in actions_build {
 		mut p := action.params
-		site_name := p.get('site')!
+		site_name := p.get('site') or {
+			// If no site specified, use the first available site
+			if docusaurus_sites.len == 0 {
+				return error('No docusaurus sites available to build. Use docusaurus.add to create a site first.')
+			}
+			// Get the first site name
+			docusaurus_sites.keys()[0]
+		}
 		mut dsite := dsite_get(site_name)!
 		dsite.build()!
 		action.done = true
