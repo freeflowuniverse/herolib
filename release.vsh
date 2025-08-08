@@ -132,9 +132,11 @@ os.rm('${install_hero_path}.backup') or {
 
 
 cmd:='
+git add . -A
+git commit -am "bump version to ${new_version}"
+git push
 git checkout development
 git pull origin development
-git commit -am "bump version to ${new_version}"
 git push
 git remote set-url origin git@github.com:freeflowuniverse/herolib.git
 git add ${hero_v_path} ${install_hero_path}
