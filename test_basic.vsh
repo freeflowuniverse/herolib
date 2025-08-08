@@ -176,6 +176,7 @@ mut tests_ignore := '
 notifier_test.v
 clients/meilisearch
 clients/zdb
+tst/
 clients/openai
 systemd_process_test.v
 data/graphdb
