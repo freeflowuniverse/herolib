@@ -49,7 +49,7 @@ pub fn generate_docs(args SiteGeneratorArgs) ! {
 	}
 
 	if gen.errors.len > 0 {
-		return error('Errors occurred during site generation:\n${gen.errors.join('\n')}\nPlease fix the errors and try again.\nAvailable pages:\n${gen.client.list_markdown()!}')
+		return error('Errors occurred during site generation:\n${gen.errors.join('\n\n')}\nPlease fix the errors and try again.\nPage List: is header collection and page name per collection.\nAvailable pages:\n${gen.client.list_markdown()!}')
 	}
 
 	
@@ -68,14 +68,14 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 
 	mut parts := args.src.split(':')
 	if parts.len != 2 {
-		mysite.error("Invalid src format for page '${args.src}', expected format: collection:page_name")!
+		mysite.error("Invalid src format for page '${args.src}', expected format: collection:page_name, TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist")!
 		return 
 	}
 	collection_name := parts[0]
 	page_name := parts[1]
 
 	mut page_content := mysite.client.get_page_content(collection_name, page_name) or {
-		mysite.error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. \nError: ${err}")!
+		mysite.error("Couldn't find page '${collection_name}:${page_name}' is formatted as collectionname:pagename.  TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist. ")!
 		return
 	}
 
@@ -144,7 +144,7 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	pagefile.write(c)!
 
 	mysite.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
-		mysite.error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient.}\nError: ${err}")!
+		mysite.error("Couldn't copy image ${pagefile} for '${page_name}' in collection '${collection_name}', try to find the image and fix the path is in ${args.path}.}\nError: ${err}")!
 		return
 	}
 }
