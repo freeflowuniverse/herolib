@@ -4,7 +4,7 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.doctreeclient
 import freeflowuniverse.herolib.web.site { Page, Section, Site }
 import freeflowuniverse.herolib.data.markdown.tools as markdowntools
-// import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.ui.console
 
 // THIS CODE GENERATES A DOCUSAURUS SITE FROM A DOCTREECLIENT AND SITE DEFINITION
 
@@ -15,6 +15,7 @@ mut:
 	client          &doctreeclient.DocTreeClient
 	flat            bool // if flat then won't use sitenames as subdir's
 	site            Site
+	errors []string // collect errors here
 }
 
 @[params]
@@ -46,7 +47,19 @@ pub fn generate_docs(args SiteGeneratorArgs) ! {
 	for page in gen.site.pages {
 		gen.page_generate(page)!
 	}
+
+	if gen.errors.len > 0 {
+		return error('Errors occurred during site generation:\n${gen.errors.join('\n')}\nPlease fix the errors and try again.\nAvailable pages:\n${gen.client.list_markdown()!}')
+	}
+
+	
 }
+
+fn (mut mysite SiteGenerator) error( msg string) ! {
+	console.print_stderr('Error: ${msg}')
+	mysite.errors << msg
+}
+
 
 fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	mut args := args_
@@ -55,13 +68,15 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 
 	mut parts := args.src.split(':')
 	if parts.len != 2 {
-		return error("Invalid src format for page '${args.src}', expected format: collection:page_name")
+		mysite.error("Invalid src format for page '${args.src}', expected format: collection:page_name")!
+		return 
 	}
 	collection_name := parts[0]
 	page_name := parts[1]
 
 	mut page_content := mysite.client.get_page_content(collection_name, page_name) or {
-		return error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${mysite.client.list_markdown()!}\nError: ${err}")
+		mysite.error("Couldn't find page '${page_name}' in collection '${collection_name}' using doctreeclient. \nError: ${err}")!
+		return
 	}
 
 	if args.description.len == 0 {
@@ -129,7 +144,8 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	pagefile.write(c)!
 
 	mysite.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
-		return error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient. Available pages:\n${mysite.client.list_markdown()!}\nError: ${err}")
+		mysite.error("Couldn't copy images for '${page_name}' in collection '${collection_name}' using doctreeclient.}\nError: ${err}")!
+		return
 	}
 }
 
