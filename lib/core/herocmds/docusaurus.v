@@ -113,6 +113,15 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		description: 'create a new docusaurus site.'
 	})
 
+	cmd_run.add_flag(Flag{
+		flag:        .bool
+		required:    false
+		name:        'reset'
+		abbrev:      'r'
+		description: 'reset the docusaurus building process, reinstall all.'
+	})
+
+
 	cmdroot.add_command(cmd_run)
 	return cmdroot
 }
@@ -122,6 +131,8 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
+	mut new := cmd.flags.get_bool('new') or { false }
+	mut reset := cmd.flags.get_bool('reset') or { false }
 
 	// --- Build Path Logic ---
 	mut build_path := cmd.flags.get_string('buildpath') or { '' }
@@ -168,9 +179,9 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	// Set up the docusaurus factory
 	docusaurus.factory_set(
 		path_build:      build_path
-		reset:           true
-		install:         true
-		template_update: true
+		reset:           reset
+		install:         reset
+		template_update: reset
 	)!
 
 	// Add the docusaurus site
@@ -188,7 +199,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	} else if dev {
 		dsite.dev(
 			open:          open
-			watch_changes: true
+			watch_changes: false
 		)!
 	} else {
 		dsite.build()!

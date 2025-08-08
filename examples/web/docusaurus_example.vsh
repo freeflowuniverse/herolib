@@ -7,9 +7,9 @@ playcmds.run(
 	!!docusaurus.define
 		path_build: "/tmp/docusaurus_build"
 		path_publish: "/tmp/docusaurus_publish"
-		reset: 1
-		install: 1
-		template_update: 1
+		// reset: 1
+		// install: 1
+		// template_update: 1
 
 	!!docusaurus.add sitename:"tfgrid_tech"
 		git_url:"https://git.threefold.info/tfgrid/docs_tfgrid4/src/branch/main/ebooks/tech"
@@ -20,6 +20,6 @@ playcmds.run(
 
 	!!docusaurus.build
 
-	!!docusaurus.dev site:"tfgrid_tech" open:true watch_changes:true
+	// !!docusaurus.dev site:"tfgrid_tech" open:true 
 '
 )!
