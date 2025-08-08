@@ -4,7 +4,7 @@ set -e
 
 os_name="$(uname -s)"
 arch_name="$(uname -m)"
-version='1.0.26'
+version='1.0.27'
 
 
 # Base URL for GitHub releases

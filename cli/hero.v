@@ -50,7 +50,7 @@ fn do() ! {
 	mut cmd := Command{
 		name:        'hero'
 		description: 'Your HERO toolset.'
-		version:     '1.0.26'
+		version:     '1.0.27'
 	}
 
 	// herocmds.cmd_run_add_flags(mut cmd)
