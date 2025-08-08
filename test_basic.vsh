@@ -190,6 +190,7 @@ if in_github_actions() {
 }
 
 tests_error := '
+encoderhero
 tmux_window_test.v
 tmux_test.v
 startupmanager_test.v
