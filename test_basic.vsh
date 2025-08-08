@@ -183,6 +183,7 @@ data/graphdb
 data/radixtree
 clients/livekit
 core/playcmds
+doctree/
 '
 
 if in_github_actions() {
