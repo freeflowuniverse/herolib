@@ -31,7 +31,7 @@ pub mut:
 pub fn factory_get(args_ DocSiteFactoryArgs) !DocSiteFactory {
 	mut args := args_
 	if docusaurus_factory.len > 1 {
-		panic("multiple docusaurus factories found, please specify which one to use")
+		panic('multiple docusaurus factories found, please specify which one to use')
 	}
 	if docusaurus_factory.len > 0 {
 		return docusaurus_factory[0]
@@ -59,7 +59,7 @@ pub fn factory_set(args_ DocSiteFactoryArgs) !DocSiteFactory {
 	if args.install {
 		factory.install(args.reset, args.template_update)!
 	}
-	
+
 	docusaurus_factory << factory
 
 	return factory

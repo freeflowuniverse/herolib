@@ -22,24 +22,24 @@ pub mut:
 fn obj_init(mycfg_ OpenAI) !OpenAI {
 	mut mycfg := mycfg_
 	if mycfg.model_default == '' {
-		k := os.getenv('AIMODEL') 
+		k := os.getenv('AIMODEL')
 		if k != '' {
 			mycfg.model_default = k
 		}
 	}
 
 	if mycfg.url == '' {
-		k := os.getenv('AIURL') 
+		k := os.getenv('AIURL')
 		if k != '' {
 			mycfg.url = k
 		}
 	}
 	if mycfg.api_key == '' {
-		k := os.getenv('AIKEY') 
+		k := os.getenv('AIKEY')
 		if k != '' {
 			mycfg.api_key = k
 		}
-		if mycfg.url.contains("openrouter"){
+		if mycfg.url.contains('openrouter') {
 			k2 := os.getenv('OPENROUTER_API_KEY')
 			if k2 != '' {
 				mycfg.api_key = k2
@@ -59,7 +59,8 @@ pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
 		)!
 		c2
 	}
-	//Authorization: 'Bearer <OPENROUTER_API_KEY>',
+
+	// Authorization: 'Bearer <OPENROUTER_API_KEY>',
 	c.default_header.set(.authorization, 'Bearer ${client.api_key}')
 	client.conn = c
 	return c

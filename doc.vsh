@@ -8,10 +8,12 @@ abs_dir_of_script := dir(@FILE)
 println('Formatting code...')
 if os.system('v fmt -w ${abs_dir_of_script}/examples') != 0 {
     eprintln('Warning: Failed to format examples')
+    exit(1)
 }
 
 if os.system('v fmt -w ${abs_dir_of_script}/lib') != 0 {
     eprintln('Warning: Failed to format herolib')
+    exit(1)
 }
 
 // Clean existing docs

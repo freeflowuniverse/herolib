@@ -97,7 +97,7 @@ pub fn (mut plbook PlayBook) exists_once(args FindArgs) bool {
 	return res.len == 1
 }
 
-//checks it exists once, if more than one it returns error
+// checks it exists once, if more than one it returns error
 pub fn (mut plbook PlayBook) max_once(args FindArgs) !bool {
 	mut res := plbook.find(args) or { [] }
 	if res.len > 1 {
@@ -106,8 +106,7 @@ pub fn (mut plbook PlayBook) max_once(args FindArgs) !bool {
 	return res.len == 1
 }
 
-
-//will give error on what is not done yet
+// will give error on what is not done yet
 pub fn (mut plbook PlayBook) ensure_processed(args FindArgs) ! {
 	mut res := plbook.find(args) or { [] }
 	for item in res {
@@ -116,7 +115,6 @@ pub fn (mut plbook PlayBook) ensure_processed(args FindArgs) ! {
 		}
 	}
 }
-
 
 pub fn (mut plbook PlayBook) exists(args FindArgs) bool {
 	mut res := plbook.find(args) or { [] }

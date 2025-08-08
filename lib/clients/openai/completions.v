@@ -88,7 +88,6 @@ pub fn (mut f OpenAI) chat_completion(args_ CompletionArgs) !ChatCompletion {
 	mut conn := f.connection()!
 	r := conn.post_json_str(prefix: 'chat/completions', data: data)!
 
-
 	res := json.decode(ChatCompletionRaw, r)!
 
 	mut result := ''

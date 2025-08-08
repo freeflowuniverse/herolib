@@ -121,7 +121,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		description: 'reset the docusaurus building process, reinstall all.'
 	})
 
-
 	cmdroot.add_command(cmd_run)
 	return cmdroot
 }
