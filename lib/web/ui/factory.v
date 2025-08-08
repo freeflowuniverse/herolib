@@ -2,6 +2,7 @@ module ui
 
 import veb
 import os
+import net.http
 
 // Public Context type for veb
 pub struct Context {
@@ -91,6 +92,64 @@ pub fn (app &App) admin_index(mut ctx Context) veb.Result {
 	return ctx.html(app.render_admin('/', 'Welcome'))
 }
 
+// HeroScript editor page
+@[get; '/admin/heroscript']
+pub fn (app &App) admin_heroscript(mut ctx Context) veb.Result {
+	return ctx.html(app.render_heroscript())
+}
+
+// Static CSS files
+@[get; '/static/css/colors.css']
+pub fn (app &App) serve_colors_css(mut ctx Context) veb.Result {
+	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'colors.css')
+	css_content := os.read_file(css_path) or {
+		return ctx.text('/* CSS file not found */')
+	}
+	ctx.set_content_type('text/css')
+	return ctx.text(css_content)
+}
+
+@[get; '/static/css/main.css']
+pub fn (app &App) serve_main_css(mut ctx Context) veb.Result {
+	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'main.css')
+	css_content := os.read_file(css_path) or {
+		return ctx.text('/* CSS file not found */')
+	}
+	ctx.set_content_type('text/css')
+	return ctx.text(css_content)
+}
+
+// Static JS files
+@[get; '/static/js/theme.js']
+pub fn (app &App) serve_theme_js(mut ctx Context) veb.Result {
+	js_path := os.join_path(os.dir(@FILE), 'templates', 'js', 'theme.js')
+	js_content := os.read_file(js_path) or {
+		return ctx.text('/* JS file not found */')
+	}
+	ctx.set_content_type('application/javascript')
+	return ctx.text(js_content)
+}
+
+@[get; '/static/js/heroscript.js']
+pub fn (app &App) serve_heroscript_js(mut ctx Context) veb.Result {
+	js_path := os.join_path(os.dir(@FILE), 'templates', 'js', 'heroscript.js')
+	js_content := os.read_file(js_path) or {
+		return ctx.text('/* JS file not found */')
+	}
+	ctx.set_content_type('application/javascript')
+	return ctx.text(js_content)
+}
+
+@[get; '/static/css/heroscript.css']
+pub fn (app &App) serve_heroscript_css(mut ctx Context) veb.Result {
+	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'heroscript.css')
+	css_content := os.read_file(css_path) or {
+		return ctx.text('/* CSS file not found */')
+	}
+	ctx.set_content_type('text/css')
+	return ctx.text(css_content)
+}
+
 // Catch-all content under /admin/*
 @[get; '/admin/:path...']
 pub fn (app &App) admin_section(mut ctx Context, path string) veb.Result {
@@ -119,8 +178,60 @@ fn (app &App) render_admin(path string, heading string) string {
 	result = result.replace('{{.heading}}', heading)
 	result = result.replace('{{.path}}', path)
 	result = result.replace('{{.menu_html}}', menu_content)
+	result = result.replace('{{.css_colors_url}}', '/static/css/colors.css')
+	result = result.replace('{{.css_main_url}}', '/static/css/main.css')
+	result = result.replace('{{.js_theme_url}}', '/static/js/theme.js')
 	
 	return result
+}
+
+// HeroScript editor rendering using external template
+fn (app &App) render_heroscript() string {
+	// Get the template file path relative to the module
+	template_path := os.join_path(os.dir(@FILE), 'templates', 'heroscript_editor.html')
+	
+	// Read the template file
+	template_content := os.read_file(template_path) or {
+		// Fallback to basic template if file not found
+		return app.render_heroscript_fallback()
+	}
+	
+	// Generate menu HTML
+	menu_content := menu_html(app.menu, 0, 'm')
+	
+	// Simple template variable replacement
+	mut result := template_content
+	result = result.replace('{{.title}}', app.title)
+	result = result.replace('{{.menu_html}}', menu_content)
+	result = result.replace('{{.css_colors_url}}', '/static/css/colors.css')
+	result = result.replace('{{.css_main_url}}', '/static/css/main.css')
+	result = result.replace('{{.css_heroscript_url}}', '/static/css/heroscript.css')
+	result = result.replace('{{.js_theme_url}}', '/static/js/theme.js')
+	result = result.replace('{{.js_heroscript_url}}', '/static/js/heroscript.js')
+	
+	return result
+}
+
+// Fallback HeroScript rendering method
+fn (app &App) render_heroscript_fallback() string {
+	return '
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>${app.title} - HeroScript Editor</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+	<div class="container mt-5">
+		<h1>HeroScript Editor</h1>
+		<p>HeroScript editor template not found. Please check the template files.</p>
+		<a href="/admin" class="btn btn-primary">Back to Admin</a>
+	</div>
+</body>
+</html>
+'
 }
 
 // Fallback rendering method (inline template)
@@ -248,6 +359,10 @@ fn default_menu() []MenuItem {
 		MenuItem{
 			title: 'Dashboard'
 			href: '/admin'
+		},
+		MenuItem{
+			title: 'HeroScript'
+			href: '/admin/heroscript'
 		},
 		MenuItem{
 			title: 'Users'

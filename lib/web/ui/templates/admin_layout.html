@@ -5,50 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{.title}}</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-	<style>
-		body { padding-top: 44px; }
-		.header {
-			height: 44px;
-			line-height: 44px;
-			font-size: 14px;
-		}
-		.sidebar {
-			position: fixed;
-			top: 44px;
-			bottom: 0;
-			left: 0;
-			width: 260px;
-			overflow-y: auto;
-			background: #f8f9fa;
-			border-right: 1px solid #e0e0e0;
-		}
-		.main {
-			margin-left: 260px;
-			padding: 16px;
-		}
-		.list-group-item {
-			border: 0;
-			padding: .35rem .75rem;
-			background: transparent;
-		}
-		.menu-leaf a {
-			color: #212529;
-			text-decoration: none;
-		}
-		.menu-toggle {
-			text-decoration: none;
-			color: #212529;
-		}
-		.menu-toggle .chev {
-			font-size: 10px;
-			opacity: .6;
-		}
-		.menu-section {
-			font-weight: 600;
-			color: #6c757d;
-			padding: .5rem .75rem;
-		}
-	</style>
+	<link rel="stylesheet" href="{{.css_colors_url}}">
+	<link rel="stylesheet" href="{{.css_main_url}}">
+	<meta name="color-scheme" content="light dark">
 </head>
 <body>
 	<nav class="navbar navbar-dark bg-dark fixed-top header px-2">
@@ -83,5 +42,6 @@
 	</main>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+	<script src="{{.js_theme_url}}"></script>
 </body>
 </html>
