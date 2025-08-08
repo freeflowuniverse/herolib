@@ -9,6 +9,7 @@ import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.data.doctree
 import freeflowuniverse.herolib.web.site as sitegen
+import freeflowuniverse.herolib.core.texttools.regext
 
 pub fn (mut site DocSite) generate() ! {
 	mut f := factory_get()!
@@ -171,7 +172,7 @@ pub fn (mut site DocSite) process_imports() ! {
 	mut gs := gittools.new()!
 	mut f:=factory_get()!
 
-	for item in site.siteconfig.imports {
+	for item in site.website.siteconfig.imports {
 		mypath := gs.get_path(
 			pull:  false
 			reset: false
