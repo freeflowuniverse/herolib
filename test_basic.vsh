@@ -184,6 +184,7 @@ data/radixtree
 clients/livekit
 core/playcmds
 doctree/
+jina/
 '
 
 if in_github_actions() {
