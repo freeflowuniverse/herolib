@@ -45,9 +45,9 @@
 				</div>
 			</div>
 			
-			<div class="row h-100">
+			<div class="resizable-container h-100">
 				<!-- Editor Panel -->
-				<div class="col-lg-9 col-md-8 h-100">
+				<div class="editor-panel" id="editor-panel">
 					<div class="card h-100">
 						<div class="card-header d-flex justify-content-between align-items-center">
 							<h6 class="mb-0">Script Editor</h6>
@@ -89,8 +89,18 @@ console.log('Script execution completed!');
 					</div>
 				</div>
 				
+				<!-- Horizontal Resize Handle (for desktop) -->
+				<div class="resize-handle horizontal" id="horizontal-resize-handle">
+					<div class="resize-handle-line"></div>
+				</div>
+				
+				<!-- Vertical Resize Handle (for medium screens) -->
+				<div class="resize-handle vertical" id="vertical-resize-handle" style="display: none;">
+					<div class="resize-handle-line"></div>
+				</div>
+				
 				<!-- Logs Panel -->
-				<div class="col-lg-3 col-md-4 h-100">
+				<div class="logs-panel" id="logs-panel">
 					<div class="card h-100">
 						<div class="card-header d-flex justify-content-between align-items-center">
 							<h6 class="mb-0">Execution Logs</h6>
