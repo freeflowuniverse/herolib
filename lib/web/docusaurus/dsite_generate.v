@@ -85,6 +85,15 @@ pub fn (mut site DocSite) generate() ! {
 
 	mut updated_site := best_site
 
+	// IMPORTANT: Preserve the original site's imports and other configuration
+	// The sitegen.play() only processes pages, but we need to keep the original site config
+	// including imports, menu, footer, etc. that were processed in the hero command
+	updated_site.siteconfig.imports = site.website.siteconfig.imports
+	updated_site.siteconfig.menu = site.website.siteconfig.menu
+	updated_site.siteconfig.footer = site.website.siteconfig.footer
+	updated_site.siteconfig.build_dest = site.website.siteconfig.build_dest
+	updated_site.siteconfig.build_dest_dev = site.website.siteconfig.build_dest_dev
+
 	// Generate the configuration files using the processed site configuration
 	mut updated_config := new_configuration(updated_site.siteconfig)!
 
@@ -166,17 +175,15 @@ export default function Home() {
 	site.process_imports()!
 }
 
-
-
 pub fn (mut site DocSite) process_imports() ! {
 	mut gs := gittools.new()!
-	mut f:=factory_get()!
+	mut f := factory_get()!
+
+	if site.website.siteconfig.imports.len == 0 {
+		return
+	}
 
 	for item in site.website.siteconfig.imports {
-		println(item)
-		if true{
-			panic("sdsd")
-		}
 		mypath := gs.get_path(
 			pull:  false
 			reset: false
@@ -184,20 +191,44 @@ pub fn (mut site DocSite) process_imports() ! {
 		)!
 		mut mypatho := pathlib.get(mypath)
 
-		mypatho.copy(dest: '${f.path_build.path}/docs/${item.dest}', delete: true)!
+		dest_path := '${f.path_build.path}/docs/${item.dest}'
+		mypatho.copy(dest: dest_path, delete: false)!
 
-		// println(item)
-		// replace: {'NAME': 'MyName', 'URGENCY': 'red'}
-		mut ri := regext.regex_instructions_new()
-		for key, val in item.replace {
-			ri.add_item('\{${key}\}', val)!
+		// Also copy static files if they exist in the imported content
+		static_src_path := '${mypatho.path}/static'
+		if os.exists(static_src_path) && os.is_dir(static_src_path) {
+			static_dest_path := '${f.path_build.path}/static'
+			mut static_src := pathlib.get_dir(path: static_src_path, create: false)!
+			static_src.copy(dest: static_dest_path, delete: false)!
 		}
-		mypatho.copy(dest: '${f.path_build.path}/docs/${item.dest}', delete: true)!
-		ri.replace_in_dir(
-			path:       '${f.path_build.path}/docs/${item.dest}'
-			extensions: [
-				'md',
-			]
-		)!
+
+		// SPECIAL CASE: For heroscriptall imports, also check for ebooksall/static in the same parent directory
+		// This handles the common pattern where heroscriptall contains config and ebooksall contains static assets
+		if mypatho.path.ends_with('heroscriptall') {
+			parent_dir := os.dir(mypatho.path)
+			ebooksall_static_path := '${parent_dir}/ebooksall/static'
+			if os.exists(ebooksall_static_path) && os.is_dir(ebooksall_static_path) {
+				static_dest_path := '${f.path_build.path}/static'
+				mut ebooksall_static_src := pathlib.get_dir(
+					path:   ebooksall_static_path
+					create: false
+				)!
+				ebooksall_static_src.copy(dest: static_dest_path, delete: false)!
+			}
+		}
+
+		// Apply replacements if any
+		if item.replace.len > 0 {
+			mut ri := regext.regex_instructions_new()
+			for key, val in item.replace {
+				ri.add_item('\{${key}\}', val)!
+			}
+			ri.replace_in_dir(
+				path:       dest_path
+				extensions: [
+					'md',
+				]
+			)!
+		}
 	}
 }
