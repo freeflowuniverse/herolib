@@ -10,63 +10,54 @@ import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.playbook
 // import freeflowuniverse.herolib.data.doctree
 
-// Recursively process heroscript files in a directory
-fn process_heroscript_files_recursive(dir_path string) !string {
-	mut combined_heroscript := ''
-	files := os.ls(dir_path) or { return combined_heroscript }
+// Process playbook includes - extracted from playcmds.play_core to avoid circular imports
+fn process_playbook_includes(mut plbook playbook.PlayBook) ! {
+	// Track included paths to prevent infinite recursion
+	mut included_paths := map[string]bool{}
 
-	for file in files {
-		file_path := os.join_path(dir_path, file)
-
-		if os.is_dir(file_path) {
-			// Recursively process subdirectories
-			subdir_content := process_heroscript_files_recursive(file_path)!
-			combined_heroscript += subdir_content
-		} else if file.ends_with('.heroscript') {
-			content := os.read_file(file_path) or { continue }
-
-			// Filter out only the play.include lines while keeping all other content
-			lines := content.split('\n')
-			mut filtered_lines := []string{}
-			for line in lines {
-				trimmed := line.trim_space()
-				if !trimmed.starts_with('!!play.include') {
-					filtered_lines << line
-				}
+	for action_ in plbook.find(filter: 'play.*')! {
+		if action_.name == 'include' {
+			mut action := *action_
+			mut playrunpath := action.params.get_default('path', '')!
+			if playrunpath.len == 0 {
+				action.name = 'pull'
+				playrunpath = gittools.get_repo_path(
+					path:      action.params.get_default('path', '')!
+					git_url:   action.params.get_default('git_url', '')!
+					git_reset: action.params.get_default_false('git_reset')
+					git_pull:  action.params.get_default_false('git_pull')
+				)!
 			}
-			filtered_content := filtered_lines.join('\n')
-
-			// Only add if there's meaningful content after filtering
-			if filtered_content.trim_space().len > 0 {
-				combined_heroscript += filtered_content + '\n\n'
+			if playrunpath.len == 0 {
+				return error("can't run a heroscript didn't find url or path.")
 			}
+
+			// Check for cycle detection
+			if playrunpath in included_paths {
+				continue
+			}
+
+			included_paths[playrunpath] = true
+			plbook.add(path: playrunpath)!
 		}
 	}
-	return combined_heroscript
 }
 
 // Central function to process site configuration from a path
 // This is the single point of use for all site processing logic
 // If sitename is empty, it will return the first available site
 pub fn process_site_from_path(path string, sitename string) !&site.Site {
-	console.print_debug('Processing site configuration from: ${path}')
+	// Create playbook from the config path and let it handle includes properly
+	// This way !!play.include statements will be processed and imports will be included
+	mut plbook := playbook.new(path: '${path}/cfg')!
 
-	// Process the site configuration recursively (excluding global includes)
-	combined_heroscript := process_heroscript_files_recursive('${path}/cfg')!
-	console.print_debug('Combined heroscript length: ${combined_heroscript.len} characters')
+	// Process includes first - this is crucial for getting the imported site.import actions
+	process_playbook_includes(mut plbook)!
 
-	if combined_heroscript.trim_space().len == 0 {
-		return error('No valid heroscript files found in ${path}/cfg')
-	}
-
-	// Create playbook and process site configuration
-	mut plbook := playbook.new(text: combined_heroscript)!
-	console.print_debug('Created playbook with ${plbook.actions.len} actions')
 	site.play(mut plbook)!
 
 	// Check what sites were created
 	available_sites := site.list()
-	console.print_debug('Available sites after site.play(): ${available_sites}')
 
 	if available_sites.len == 0 {
 		return error('No sites were created from the configuration')
@@ -74,18 +65,14 @@ pub fn process_site_from_path(path string, sitename string) !&site.Site {
 
 	// Determine which site to return
 	target_sitename := if sitename.len == 0 {
-		console.print_debug('No specific site requested, using first available: ${available_sites[0]}')
 		available_sites[0] // Use the first (and likely only) site
 	} else {
-		console.print_debug('Looking for specific site: ${sitename}')
 		sitename
 	}
 
 	mysite := site.get(name: target_sitename) or {
 		return error('Failed to get site after playing playbook: ${target_sitename}. Available sites: ${available_sites}')
 	}
-
-	console.print_debug('Site processed successfully: ${mysite.siteconfig.name} with ${mysite.pages.len} pages')
 	return mysite
 }
 
