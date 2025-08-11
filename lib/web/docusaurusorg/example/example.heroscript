@@ -1,0 +1,84 @@
+
+## Definition of the main config
+
+!!docusaurus.config
+    title: 'Internet Geek'
+    tagline: 'Internet Geek'
+    favicon: 'img/favicon.png'
+    url: 'https://friends.threefold.info'
+    url_home: 'docs/'
+    base_url: '/testsite/'
+    image: 'img/tf_graph.png'
+
+!!docusaurus.config_meta
+    description: 'ThreeFold is laying the foundation for a geo aware Web 4, the next generation of the Internet.'
+    image: 'https://threefold.info/kristof/img/tf_graph.png'    
+    title: 'ThreeFold Technology Vision'    
+
+
+## Definition of the imports & build destinations
+
+
+!!docusaurus.ssh_connection name:'main' host:'info.ourworld.tf' port:'21' login:'root' passwd:'' key_path:'' key:''
+
+!!docusaurus.import_source
+        url:'https://git.threefold.info/ourworld_holding/info_docs_owh/src/branch/main/docs'
+        path:''
+        dest:'' //if empty is root of docs
+        replace:'NAME:MyName, URGENCY:red'
+
+!!docusaurus.build_dest ssh_name:'main' 
+        path:' /root/hero/www/info/testsite'
+
+
+## Definition of the navbar (is the top of the page)
+
+!!docusaurus.navbar title:'Kristof = Chief Executive Geek' 
+
+!!docusaurus.navbar_item 
+        label: "ThreeFold Technology"
+        href: "https://threefold.info/tech"
+        position: "right"  #left or right
+
+!!docusaurus.navbar_item 
+        label: "ThreeFold Website"
+        href: "https://threefold.io"
+        position: "right"  #left or right
+
+
+## Definition of the footer
+
+!!docusaurus.footer style:dark
+
+#FIRST PART OF FOOTER (IS VERTICAL PART)
+
+!!docusaurus.footer_item 
+        title: 'Docs'
+        label: 'Introduction'
+        to: '/docs'
+
+!!docusaurus.footer_item 
+        title: 'Docs'
+        label: 'TFGrid V4 Docs'
+        href: 'https://docs.threefold.io/'       
+
+#2ND PART OF FOOTER (IS VERTICAL PART)
+
+
+!!docusaurus.footer_item 
+        title: 'Community'
+        label: 'Telegram'
+        href: 'https://t.me/threefold'       
+
+!!docusaurus.footer_item 
+        title: 'Community'
+        label: 'X'
+        href: 'https://x.com/threefold_io'       
+
+
+#3E PART OF FOOTER (IS VERTICAL PART)
+
+!!docusaurus.footer_item 
+        title: 'Links'
+        label: 'ThreeFold.io'
+        href: 'https://threefold.io'
