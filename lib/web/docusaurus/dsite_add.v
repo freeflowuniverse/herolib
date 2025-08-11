@@ -10,72 +10,6 @@ import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.playbook
 // import freeflowuniverse.herolib.data.doctree
 
-// Process playbook includes - extracted from playcmds.play_core to avoid circular imports
-fn process_playbook_includes(mut plbook playbook.PlayBook) ! {
-	// Track included paths to prevent infinite recursion
-	mut included_paths := map[string]bool{}
-
-	for action_ in plbook.find(filter: 'play.*')! {
-		if action_.name == 'include' {
-			mut action := *action_
-			mut playrunpath := action.params.get_default('path', '')!
-			if playrunpath.len == 0 {
-				action.name = 'pull'
-				playrunpath = gittools.get_repo_path(
-					path:      action.params.get_default('path', '')!
-					git_url:   action.params.get_default('git_url', '')!
-					git_reset: action.params.get_default_false('git_reset')
-					git_pull:  action.params.get_default_false('git_pull')
-				)!
-			}
-			if playrunpath.len == 0 {
-				return error("can't run a heroscript didn't find url or path.")
-			}
-
-			// Check for cycle detection
-			if playrunpath in included_paths {
-				continue
-			}
-
-			included_paths[playrunpath] = true
-			plbook.add(path: playrunpath)!
-		}
-	}
-}
-
-// Central function to process site configuration from a path
-// This is the single point of use for all site processing logic
-// If sitename is empty, it will return the first available site
-pub fn process_site_from_path(path string, sitename string) !&site.Site {
-	// Create playbook from the config path and let it handle includes properly
-	// This way !!play.include statements will be processed and imports will be included
-	mut plbook := playbook.new(path: '${path}/cfg')!
-
-	// Process includes first - this is crucial for getting the imported site.import actions
-	process_playbook_includes(mut plbook)!
-
-	site.play(mut plbook)!
-
-	// Check what sites were created
-	available_sites := site.list()
-
-	if available_sites.len == 0 {
-		return error('No sites were created from the configuration')
-	}
-
-	// Determine which site to return
-	target_sitename := if sitename.len == 0 {
-		available_sites[0] // Use the first (and likely only) site
-	} else {
-		sitename
-	}
-
-	mysite := site.get(name: target_sitename) or {
-		return error('Failed to get site after playing playbook: ${target_sitename}. Available sites: ${available_sites}')
-	}
-	return mysite
-}
-
 @[params]
 pub struct AddArgs {
 pub mut:
@@ -138,17 +72,19 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
 	// get our website
-	mut mysite := &site.Site{}
-	if site.exists(name: args.sitename) {
-		// Site already exists (likely processed by hero command), use existing site
-		mysite = site.get(name: args.sitename)!
-	} else {
-		if !args.play {
-			return error('Docusaurus site ${args.sitename} does not exist, please set play to true to create it.')
-		}
-		// Use the centralized site processing function
-		mysite = process_site_from_path(args.path, args.sitename)!
+	console.print_debug('Docusaurus site ${args.sitename} at ${args.path}.')
+	mut mysite := site.new(name: args.sitename)!
+	mut plbook := playbook.new(path: '${args.path}/cfg')!
+	if plbook.actions.len == 0 {
+		return error('No actions found in playbook at ${args.path}/cfg')
 	}
+	site.play(mut plbook)!
+	mysite = site.get(name: args.sitename) or {
+		return error('Failed to get site after playing playbook: ${args.sitename}')
+	}
+
+	println(mysite)
+	if true{panic("ss8")}
 
 	// Create the DocSite instance
 	mut dsite := &DocSite{

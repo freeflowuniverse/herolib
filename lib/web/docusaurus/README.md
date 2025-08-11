@@ -24,12 +24,6 @@ hero docusaurus -b -path /path/to/your/site
 hero docusaurus -bp -path /path/to/your/site
 ```
 
-The hero command automatically:
-
-- Processes all heroscript files in `cfg/` directory and subdirectories
-- Filters out global includes (`!!play.include`) while preserving page definitions
-- Creates and configures the docusaurus site
-- Handles site name resolution from configuration
 
 ### Example HeroScript
 

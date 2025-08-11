@@ -23,7 +23,7 @@ struct SiteGeneratorArgs {
 mut:
 	path string
 	flat bool // if flat then won't use sitenames as subdir's
-	site Site
+	site Site //this is the generic website we are feeding
 }
 
 // Generate docs from site configuration
