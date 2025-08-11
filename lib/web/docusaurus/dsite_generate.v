@@ -46,25 +46,7 @@ pub fn (mut site DocSite) generate() ! {
 		mut aa := site.path_src.dir_get('docs')!
 		aa.copy(dest: '${f.path_build.path}/docs', delete: true)!
 	}
-
-	// now we need to process the pages, call the sitegen module, which will look for statements like
-	// !!site.page sitename:'atest'
-	// 		path:"crazy/sub.md" position:1
-	// 		src:"marketplace_specs:tft_tfp_marketplace"
-	// 		title:"Just a Page"
-	// 		description:"A description not filled in"
-	// 		draft:1 hide_title:1
-
-	configpath := '${site.path_src.path}/cfg'
-
-	// Create a playbook from the config path and run site processing
-	mut plbook := playbook.new(path: configpath)!
-	sitegen.play(mut plbook)!
-
-	// Get the updated site object after processing
-	mut website := sitegen.get(name: site.name)!
-
-
+	
 	mut main_file := pathlib.get_file(path: '${cfg_path}/main.json', create: true)!
 	main_file.write(json.encode_pretty(site.config.main))!
 

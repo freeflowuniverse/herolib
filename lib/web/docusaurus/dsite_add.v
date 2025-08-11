@@ -68,24 +68,11 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	if args.path_publish == '' {
 		args.path_publish = '${f.path_publish.path}/${args.sitename}'
 	}
-
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
-	// get our website
-	console.print_debug('Docusaurus site ${args.sitename} at ${args.path}.')
-	mut mysite := site.new(name: args.sitename)!
-	mut plbook := playbook.new(path: '${args.path}/cfg')!
-	if plbook.actions.len == 0 {
-		return error('No actions found in playbook at ${args.path}/cfg')
-	}
-	site.play(mut plbook)!
-	mysite = site.get(name: args.sitename) or {
-		return error('Failed to get site after playing playbook: ${args.sitename}')
-	}
-
-	println(mysite)
-	if true{panic("ss8")}
-
+	// Get the site object after processing, this is the website which is a generic definition of a site
+	mut website := sitegen.get(name: site.name)!
+	
 	// Create the DocSite instance
 	mut dsite := &DocSite{
 		name:         args.sitename
@@ -99,3 +86,4 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	docusaurus_sites[args.sitename] = dsite
 	return dsite
 }
+
