@@ -148,7 +148,7 @@ export default function Home() {
 
 		// Export to Redis and temporary location for doctreeclient access
 		tree.export(
-			destination:    '/tmp/doctree_export_${site.name}'
+			destination:    '/tmp/doctree_export/${site.name}'
 			reset:          true
 			exclude_errors: false
 		)!
@@ -173,6 +173,10 @@ pub fn (mut site DocSite) process_imports() ! {
 	mut f:=factory_get()!
 
 	for item in site.website.siteconfig.imports {
+		println(item)
+		if true{
+			panic("sdsd")
+		}
 		mypath := gs.get_path(
 			pull:  false
 			reset: false

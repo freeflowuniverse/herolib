@@ -129,7 +129,7 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 
 	c += '\n${page_content}\n'
 
-	if args.path.ends_with('/') {
+	if args.path.ends_with('/') ||  args.path.trim_space()==""  {
 		// means is dir
 		args.path += page_name
 	}
