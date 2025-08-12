@@ -115,7 +115,7 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 
 fn cmd_docusaurus_execute(cmd Command) ! {
 	// ---------- FLAGS ----------
-	mut open := cmd.flags.get_bool('open') or { false }
+	mut open_ := cmd.flags.get_bool('open') or { false }
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
@@ -155,19 +155,15 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	// ---------- ACTIONS ----------
 	if buildpublish {
-		// TODO: instantiate a DocusaurusSite object (e.g. `dsite_opt := docusaurus.new(...)`)
-		// and call the appropriate method.  The variable is currently undefined,
-		// so the call is commented out until the implementation is added.
-		// dsite_opt.build_publish()!
-	// } else if builddevpublish {
-	// 	dsite_opt.build()!
+		dsite_opt := docusaurus.new(path:docusaurus_path)!
+		dsite_opt.build()!
 	} else if dev {
-		// dsite_opt.dev(
-			open:          open
+		dsite_opt.dev(
+			open:          open_
 			watch_changes: false
 		)!
 	} else {
 		// default: just build the static site
-		// dsite_opt.build()!
+		dsite_opt.build()!
 	}
 }
