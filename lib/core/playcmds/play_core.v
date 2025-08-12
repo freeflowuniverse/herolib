@@ -54,10 +54,8 @@ fn play_core(mut plbook PlayBook) ! {
     // 2.  Session environment handling
     // ----------------------------------------------------------------
     // Guard – make sure a session exists
-    mut session := plbook.session or {
-        return error('PlayBook has no attached Session')
-    }
-
+    mut session := plbook.session
+    
     // !!session.env_set / env_set_once
     for mut action in plbook.find(filter: 'session.')! {
         mut p := action.params
