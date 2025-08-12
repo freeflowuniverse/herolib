@@ -16,34 +16,41 @@ pub struct ImportParams {
 	git_reset bool
 	git_root string
 	git_pull bool
+	dest string
 }
-pub fn (mut site DocSite) import(args ImportParams) ! {
+pub fn (mut site DocSite) import() ! {
 
-	mypath := gittools.get_repo_path(
-		git_pull:  args.git_pull
-		git_reset: args.git_reset
-		git_url:   args.git_url
-		path: args.path
-	)!
+	for importparams in site.importparams {
+		console.print_header('Importing: ${importparams.path} from ${importparams.git_url}')
 
-	println(site)
-	if true{panic("3456789")}
+		mut f := factory_get()!
 
-	mut mypatho := pathlib.get(mypath)
+		mut mypath := gittools.get_repo_path(
+			git_pull:  importparams.git_pull
+			git_reset: importparams.git_reset
+			git_url:   importparams.git_url
+			path: importparams.path
+		)!
 
-	// mypatho.copy(dest: '${f.path_build.path}/docs/${item.dest}', delete: false)!
+		println(site)
+		if true{panic("3456789")}
 
-	// println(item)
-	// // replace: {'NAME': 'MyName', 'URGENCY': 'red'}
-	// mut ri := regext.regex_instructions_new()
-	// for key, val in item.replace {
-	// 	ri.add_item('\{${key}\}', val)!
-	// }
-	// ri.replace_in_dir(
-	// 	path:       '${f.path_build.path}/docs/${item.dest}'
-	// 	extensions: [
-	// 		'md',
-	// 	]
-	// )!
-	
+		mut mypatho := pathlib.get(mypath)
+
+		mypatho.copy(dest: '${f.path_build.path}/docs/${importparams.dest}', delete: false)!
+
+		// println(item)
+		// // replace: {'NAME': 'MyName', 'URGENCY': 'red'}
+		// mut ri := regext.regex_instructions_new()
+		// for key, val in item.replace {
+		// 	ri.add_item('\{${key}\}', val)!
+		// }
+		// ri.replace_in_dir(
+		// 	path:       '${f.path_build.path}/docs/${item.dest}'
+		// 	extensions: [
+		// 		'md',
+		// 	]
+		// )!
+	}
+		
 }

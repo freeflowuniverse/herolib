@@ -42,6 +42,7 @@ pub fn play(mut plbook PlayBook) ! {
 			git_url:      p.get_default('git_url', '')!
 			git_reset:    p.get_default_false('git_reset')
 			git_pull:     p.get_default_false('git_pull')
+			dest: p.get_default('dest', '')!
 		}
 		action.done = true
 	}	

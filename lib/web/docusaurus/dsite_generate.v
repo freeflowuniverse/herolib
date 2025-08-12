@@ -15,7 +15,6 @@ pub fn (mut site DocSite) generate() ! {
 	mut f := factory_get()!
 
 	console.print_header(' site generate: ${site.name} on ${f.path_build.path}')
-	console.print_header(' site source on ${site.path_src.path}')
 
 	// lets make sure we remove the cfg dir so we rebuild
 	cfg_path := os.join_path(f.path_build.path, 'cfg')
@@ -29,23 +28,7 @@ pub fn (mut site DocSite) generate() ! {
 		url:   'https://github.com/freeflowuniverse/docusaurus_template/src/branch/main/template/'
 	)!
 
-	// we need to copy the template each time for these 2 items, otherwise there can be leftovers from other run
-	for item in ['src', 'static'] {
-		mut template_src_path := pathlib.get_dir(path: '${template_path}/${item}', create: true)!
-		template_src_path.copy(dest: '${f.path_build.path}/${item}', delete: true)!
-		// now copy the info which can be overruled from source in relation to the template
-		if os.exists('${site.path_src.path}/${item}') {
-			mut src_path := pathlib.get_dir(path: '${site.path_src.path}/${item}', create: false)!
-			src_path.copy(dest: '${f.path_build.path}/${item}', delete: false)!
-		}
-	}
-
 	osal.rm('${f.path_build.path}/docs')!
-
-	if os.exists('${site.path_src.path}/docs') {
-		mut aa := site.path_src.dir_get('docs')!
-		aa.copy(dest: '${f.path_build.path}/docs', delete: true)!
-	}
 
 	mut main_file := pathlib.get_file(path: '${cfg_path}/main.json', create: true)!
 	main_file.write(json.encode_pretty(site.config.main))!
@@ -65,5 +48,7 @@ pub fn (mut site DocSite) generate() ! {
 		path: docs_path
 		site: website
 	)!
+
+	site.import()!
 
 }
