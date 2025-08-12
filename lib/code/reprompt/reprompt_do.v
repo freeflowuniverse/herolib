@@ -7,6 +7,6 @@ import os
 
 // your checking & initialization code if needed
 fn (mut ws RepromptWorkspace) reprompt() !string {
-	//TODO: fill in template based on selection
-	return ""
+	// TODO: fill in template based on selection
+	return ''
 }

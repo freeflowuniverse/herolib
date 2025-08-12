@@ -21,27 +21,27 @@ pub mut:
 }
 
 pub fn run(args_ PlayArgs) ! {
-    mut args := args_
-    mut plbook := args.plbook or {
-        playbook.new(text: args.heroscript, path: args.heroscript_path)!
-    }
+	mut args := args_
+	mut plbook := args.plbook or {
+		playbook.new(text: args.heroscript, path: args.heroscript_path)!
+	}
 
-    // Core actions
-    play_core(mut plbook)!
-    // Git actions
-    play_git(mut plbook)!
+	// Core actions
+	play_core(mut plbook)!
+	// Git actions
+	play_git(mut plbook)!
 
-    // Business model (e.g. currency, bizmodel)
-    bizmodel.play(mut plbook)!
+	// Business model (e.g. currency, bizmodel)
+	bizmodel.play(mut plbook)!
 
-    // OpenAI client
-    openai.play(mut plbook)!
+	// OpenAI client
+	openai.play(mut plbook)!
 
-    // Website / docs
-    site.play(mut plbook)!
-    doctree.play(mut plbook)!
-    docusaurus.play(mut plbook)!
+	// Website / docs
+	site.play(mut plbook)!
+	doctree.play(mut plbook)!
+	docusaurus.play(mut plbook)!
 
-    // Ensure we did not leave any actions un‑processed
-    plbook.empty_check()!
+	// Ensure we did not leave any actions un‑processed
+	plbook.empty_check()!
 }

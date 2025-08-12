@@ -81,103 +81,89 @@ pub fn start(args FactoryArgs) ! {
 // Routes
 
 // Redirect root to /admin
-@[get; '/']
+@['/'; get]
 pub fn (app &App) root(mut ctx Context) veb.Result {
 	return ctx.redirect('/admin')
 }
 
 // Admin home page
-@[get; '/admin']
+@['/admin'; get]
 pub fn (app &App) admin_index(mut ctx Context) veb.Result {
 	return ctx.html(app.render_admin('/', 'Welcome'))
 }
 
 // HeroScript editor page
-@[get; '/admin/heroscript']
+@['/admin/heroscript'; get]
 pub fn (app &App) admin_heroscript(mut ctx Context) veb.Result {
 	return ctx.html(app.render_heroscript())
 }
 
 // Chat page
-@[get; '/admin/chat']
+@['/admin/chat'; get]
 pub fn (app &App) admin_chat(mut ctx Context) veb.Result {
 	return ctx.html(app.render_chat())
 }
 
 // Static CSS files
-@[get; '/static/css/colors.css']
+@['/static/css/colors.css'; get]
 pub fn (app &App) serve_colors_css(mut ctx Context) veb.Result {
 	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'colors.css')
-	css_content := os.read_file(css_path) or {
-		return ctx.text('/* CSS file not found */')
-	}
+	css_content := os.read_file(css_path) or { return ctx.text('/* CSS file not found */') }
 	ctx.set_content_type('text/css')
 	return ctx.text(css_content)
 }
 
-@[get; '/static/css/main.css']
+@['/static/css/main.css'; get]
 pub fn (app &App) serve_main_css(mut ctx Context) veb.Result {
 	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'main.css')
-	css_content := os.read_file(css_path) or {
-		return ctx.text('/* CSS file not found */')
-	}
+	css_content := os.read_file(css_path) or { return ctx.text('/* CSS file not found */') }
 	ctx.set_content_type('text/css')
 	return ctx.text(css_content)
 }
 
 // Static JS files
-@[get; '/static/js/theme.js']
+@['/static/js/theme.js'; get]
 pub fn (app &App) serve_theme_js(mut ctx Context) veb.Result {
 	js_path := os.join_path(os.dir(@FILE), 'templates', 'js', 'theme.js')
-	js_content := os.read_file(js_path) or {
-		return ctx.text('/* JS file not found */')
-	}
+	js_content := os.read_file(js_path) or { return ctx.text('/* JS file not found */') }
 	ctx.set_content_type('application/javascript')
 	return ctx.text(js_content)
 }
 
-@[get; '/static/js/heroscript.js']
+@['/static/js/heroscript.js'; get]
 pub fn (app &App) serve_heroscript_js(mut ctx Context) veb.Result {
 	js_path := os.join_path(os.dir(@FILE), 'templates', 'js', 'heroscript.js')
-	js_content := os.read_file(js_path) or {
-		return ctx.text('/* JS file not found */')
-	}
+	js_content := os.read_file(js_path) or { return ctx.text('/* JS file not found */') }
 	ctx.set_content_type('application/javascript')
 	return ctx.text(js_content)
 }
 
-@[get; '/static/js/chat.js']
+@['/static/js/chat.js'; get]
 pub fn (app &App) serve_chat_js(mut ctx Context) veb.Result {
 	js_path := os.join_path(os.dir(@FILE), 'templates', 'js', 'chat.js')
-	js_content := os.read_file(js_path) or {
-		return ctx.text('/* JS file not found */')
-	}
+	js_content := os.read_file(js_path) or { return ctx.text('/* JS file not found */') }
 	ctx.set_content_type('application/javascript')
 	return ctx.text(js_content)
 }
 
-@[get; '/static/css/heroscript.css']
+@['/static/css/heroscript.css'; get]
 pub fn (app &App) serve_heroscript_css(mut ctx Context) veb.Result {
 	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'heroscript.css')
-	css_content := os.read_file(css_path) or {
-		return ctx.text('/* CSS file not found */')
-	}
+	css_content := os.read_file(css_path) or { return ctx.text('/* CSS file not found */') }
 	ctx.set_content_type('text/css')
 	return ctx.text(css_content)
 }
 
-@[get; '/static/css/chat.css']
+@['/static/css/chat.css'; get]
 pub fn (app &App) serve_chat_css(mut ctx Context) veb.Result {
 	css_path := os.join_path(os.dir(@FILE), 'templates', 'css', 'chat.css')
-	css_content := os.read_file(css_path) or {
-		return ctx.text('/* CSS file not found */')
-	}
+	css_content := os.read_file(css_path) or { return ctx.text('/* CSS file not found */') }
 	ctx.set_content_type('text/css')
 	return ctx.text(css_content)
 }
 
 // Catch-all content under /admin/*
-@[get; '/admin/:path...']
+@['/admin/:path...'; get]
 pub fn (app &App) admin_section(mut ctx Context, path string) veb.Result {
 	// Render current path in the main content
 	return ctx.html(app.render_admin(path, 'Content'))
@@ -188,16 +174,16 @@ pub fn (app &App) admin_section(mut ctx Context, path string) veb.Result {
 fn (app &App) render_admin(path string, heading string) string {
 	// Get the template file path relative to the module
 	template_path := os.join_path(os.dir(@FILE), 'templates', 'admin_layout.html')
-	
+
 	// Read the template file
 	template_content := os.read_file(template_path) or {
 		// Fallback to inline template if file not found
 		return app.render_admin_fallback(path, heading)
 	}
-	
+
 	// Generate menu HTML
 	menu_content := menu_html(app.menu, 0, 'm')
-	
+
 	// Simple template variable replacement
 	mut result := template_content
 	result = result.replace('{{.title}}', app.title)
@@ -207,7 +193,7 @@ fn (app &App) render_admin(path string, heading string) string {
 	result = result.replace('{{.css_colors_url}}', '/static/css/colors.css')
 	result = result.replace('{{.css_main_url}}', '/static/css/main.css')
 	result = result.replace('{{.js_theme_url}}', '/static/js/theme.js')
-	
+
 	return result
 }
 
@@ -215,16 +201,16 @@ fn (app &App) render_admin(path string, heading string) string {
 fn (app &App) render_heroscript() string {
 	// Get the template file path relative to the module
 	template_path := os.join_path(os.dir(@FILE), 'templates', 'heroscript_editor.html')
-	
+
 	// Read the template file
 	template_content := os.read_file(template_path) or {
 		// Fallback to basic template if file not found
 		return app.render_heroscript_fallback()
 	}
-	
+
 	// Generate menu HTML
 	menu_content := menu_html(app.menu, 0, 'm')
-	
+
 	// Simple template variable replacement
 	mut result := template_content
 	result = result.replace('{{.title}}', app.title)
@@ -234,7 +220,7 @@ fn (app &App) render_heroscript() string {
 	result = result.replace('{{.css_heroscript_url}}', '/static/css/heroscript.css')
 	result = result.replace('{{.js_theme_url}}', '/static/js/theme.js')
 	result = result.replace('{{.js_heroscript_url}}', '/static/js/heroscript.js')
-	
+
 	return result
 }
 
@@ -242,16 +228,16 @@ fn (app &App) render_heroscript() string {
 fn (app &App) render_chat() string {
 	// Get the template file path relative to the module
 	template_path := os.join_path(os.dir(@FILE), 'templates', 'chat.html')
-	
+
 	// Read the template file
 	template_content := os.read_file(template_path) or {
 		// Fallback to basic template if file not found
 		return app.render_chat_fallback()
 	}
-	
+
 	// Generate menu HTML
 	menu_content := menu_html(app.menu, 0, 'm')
-	
+
 	// Simple template variable replacement
 	mut result := template_content
 	result = result.replace('{{.title}}', app.title)
@@ -261,7 +247,7 @@ fn (app &App) render_chat() string {
 	result = result.replace('{{.css_chat_url}}', '/static/css/chat.css')
 	result = result.replace('{{.js_theme_url}}', '/static/js/theme.js')
 	result = result.replace('{{.js_chat_url}}', '/static/js/chat.js')
-	
+
 	return result
 }
 
@@ -376,7 +362,8 @@ fn (app &App) render_admin_fallback(path string, heading string) string {
 		<div class="p-2">
 			<div class="menu-section">Navigation</div>
 			<div class="list-group list-group-flush">
-				${menu_html(app.menu, 0, 'm')}
+				${menu_html(app.menu,
+		0, 'm')}
 			</div>
 		</div>
 	</aside>
@@ -411,10 +398,14 @@ fn menu_html(items []MenuItem, depth int, prefix string) string {
 		if it.children.len > 0 {
 			// expandable group
 			out << '<div class="list-group-item">'
-			out << '<a class="menu-toggle d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#${id}" role="button" aria-expanded="${if depth == 0 { "true" } else { "false" }}" aria-controls="${id}">'
+			out << '<a class="menu-toggle d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#${id}" role="button" aria-expanded="${if depth == 0 {
+				'true'
+			} else {
+				'false'
+			}}" aria-controls="${id}">'
 			out << '<span>${it.title}</span><span class="chev">&rsaquo;</span>'
 			out << '</a>'
-			out << '<div class="collapse ${if depth == 0 { "show" } else { "" }}" id="${id}">'
+			out << '<div class="collapse ${if depth == 0 { 'show' } else { '' }}" id="${id}">'
 			out << '<div class="ms-2 mt-1">'
 			out << menu_html(it.children, depth + 1, id)
 			out << '</div>'
@@ -422,7 +413,11 @@ fn menu_html(items []MenuItem, depth int, prefix string) string {
 			out << '</div>'
 		} else {
 			// leaf
-			out << '<div class="list-group-item menu-leaf"><a href="${if it.href.len > 0 { it.href } else { "/admin" }}">${it.title}</a></div>'
+			out << '<div class="list-group-item menu-leaf"><a href="${if it.href.len > 0 {
+				it.href
+			} else {
+				'/admin'
+			}}">${it.title}</a></div>'
 		}
 	}
 	return out.join('\n')
@@ -433,44 +428,74 @@ fn default_menu() []MenuItem {
 	return [
 		MenuItem{
 			title: 'Dashboard'
-			href: '/admin'
+			href:  '/admin'
 		},
 		MenuItem{
 			title: 'HeroScript'
-			href: '/admin/heroscript'
+			href:  '/admin/heroscript'
 		},
 		MenuItem{
 			title: 'Chat'
-			href: '/admin/chat'
+			href:  '/admin/chat'
 		},
 		MenuItem{
-			title: 'Users'
+			title:    'Users'
 			children: [
-				MenuItem{ title: 'Overview', href: '/admin/users/overview' },
-				MenuItem{ title: 'Create', href: '/admin/users/create' },
-				MenuItem{ title: 'Roles', href: '/admin/users/roles' },
+				MenuItem{
+					title: 'Overview'
+					href:  '/admin/users/overview'
+				},
+				MenuItem{
+					title: 'Create'
+					href:  '/admin/users/create'
+				},
+				MenuItem{
+					title: 'Roles'
+					href:  '/admin/users/roles'
+				},
 			]
 		},
 		MenuItem{
-			title: 'Content'
+			title:    'Content'
 			children: [
-				MenuItem{ title: 'Pages', href: '/admin/content/pages' },
-				MenuItem{ title: 'Media', href: '/admin/content/media' },
 				MenuItem{
-					title: 'Settings'
+					title: 'Pages'
+					href:  '/admin/content/pages'
+				},
+				MenuItem{
+					title: 'Media'
+					href:  '/admin/content/media'
+				},
+				MenuItem{
+					title:    'Settings'
 					children: [
-						MenuItem{ title: 'SEO', href: '/admin/content/settings/seo' },
-						MenuItem{ title: 'Themes', href: '/admin/content/settings/themes' },
+						MenuItem{
+							title: 'SEO'
+							href:  '/admin/content/settings/seo'
+						},
+						MenuItem{
+							title: 'Themes'
+							href:  '/admin/content/settings/themes'
+						},
 					]
 				},
 			]
 		},
 		MenuItem{
-			title: 'System'
+			title:    'System'
 			children: [
-				MenuItem{ title: 'Status', href: '/admin/system/status' },
-				MenuItem{ title: 'Logs', href: '/admin/system/logs' },
-				MenuItem{ title: 'Backups', href: '/admin/system/backups' },
+				MenuItem{
+					title: 'Status'
+					href:  '/admin/system/status'
+				},
+				MenuItem{
+					title: 'Logs'
+					href:  '/admin/system/logs'
+				},
+				MenuItem{
+					title: 'Backups'
+					href:  '/admin/system/backups'
+				},
 			]
 		},
 	]

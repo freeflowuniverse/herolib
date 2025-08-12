@@ -13,12 +13,12 @@ prod_mode := fp.bool('prod', `p`, false, 'Build production version (optimized)')
 help_requested := fp.bool('help', `h`, false, 'Show help message')
 
 if help_requested {
-    println(fp.usage())
-    exit(0)
+	println(fp.usage())
+	exit(0)
 }
 
 additional_args := fp.finalize() or {
-    eprintln(err)
-    println(fp.usage())
-    exit(1)
+	eprintln(err)
+	println(fp.usage())
+	exit(1)
 }

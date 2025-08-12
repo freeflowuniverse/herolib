@@ -1,11 +1,11 @@
 module site
 
-import freeflowuniverse.herolib.core.playbook { Action, PlayBook }
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.core.texttools
 import time
 
 pub fn play(mut plbook PlayBook) ! {
-	if !plbook.exists(filter: 'site.'){
+	if !plbook.exists(filter: 'site.') {
 		return
 	}
 
@@ -14,7 +14,7 @@ pub fn play(mut plbook PlayBook) ! {
 	mut p := config_action.params
 	name := p.get_default('name', 'default')! // Use 'default' as fallback name
 
-	//configure the website
+	// configure the website
 	mut website := new(name: name)!
 	mut config := &website.siteconfig
 
@@ -29,7 +29,6 @@ pub fn play(mut plbook PlayBook) ! {
 	config.url = p.get_default('url', '')!
 	config.base_url = p.get_default('base_url', '/')!
 	config.url_home = p.get_default('url_home', '')!
-
 
 	// Process !!site.config_meta for specific metadata overrides
 	mut meta_action := plbook.ensure_once(filter: 'site.config_meta')!
@@ -53,9 +52,7 @@ pub fn play(mut plbook PlayBook) ! {
 	play_build_dest_dev(mut plbook, mut config)!
 
 	play_pages(mut plbook, mut website)!
-
 }
-
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 	mut import_actions := plbook.find(filter: 'site.import')!

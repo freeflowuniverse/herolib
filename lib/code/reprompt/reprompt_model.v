@@ -24,7 +24,6 @@ pub mut:
 	selections []string // paths selected in the RepromptDir
 }
 
-
 // your checking & initialization code if needed
 fn obj_init(mycfg_ RepromptWorkspace) !RepromptWorkspace {
 	mut mycfg := mycfg_
@@ -37,13 +36,13 @@ fn obj_init(mycfg_ RepromptWorkspace) !RepromptWorkspace {
 /////////////NORMALLY NO NEED TO TOUCH
 
 pub fn heroscript_dumps(obj RepromptWorkspace) !string {
-	//create heroscript following template
-	//check for our homedir on our machine and replace in the heroscript to @HOME in path
+	// create heroscript following template
+	// check for our homedir on our machine and replace in the heroscript to @HOME in path
 	return encoderhero.encode[RepromptWorkspace](obj)!
 }
 
 pub fn heroscript_loads(heroscript string) !RepromptWorkspace {
-	//TODO: parse heroscript populate RepromptWorkspace
+	// TODO: parse heroscript populate RepromptWorkspace
 	mut obj := encoderhero.decode[RepromptWorkspace](heroscript)!
 	return obj
 }

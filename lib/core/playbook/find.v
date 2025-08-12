@@ -92,21 +92,21 @@ pub fn (mut plbook PlayBook) find(args FindArgs) ![]&Action {
 	return res
 }
 
-//use this in play function to make sure we only have one of those actions, the one action is then returned
-pub fn (mut plbook PlayBook) ensure_once(args FindArgs) !&Action  {
+// use this in play function to make sure we only have one of those actions, the one action is then returned
+pub fn (mut plbook PlayBook) ensure_once(args FindArgs) !&Action {
 	mut res := plbook.find(args) or { [] }
 	if res.len == 0 {
 		return error('No actions found based on filter: ${args.filter}')
 	}
 
 	if res.len > 1 {
-		return error("More than 1 action found based on filter: ${args.filter}, this Playbook only supports 1.")
+		return error('More than 1 action found based on filter: ${args.filter}, this Playbook only supports 1.')
 	}
 	return res[0] or { panic('bug') }
 }
 
-//check its once, if not say that playbook only can have one action
-pub fn (mut plbook PlayBook)exists_once (args FindArgs) bool {
+// check its once, if not say that playbook only can have one action
+pub fn (mut plbook PlayBook) exists_once(args FindArgs) bool {
 	mut res := plbook.find(args) or { [] }
 	return res.len == 1
 }

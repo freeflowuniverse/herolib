@@ -15,7 +15,7 @@ import freeflowuniverse.herolib.core.playcmds
 
 fn playcmds_do(path string) ! {
 	mut plbook := playbook.new(path: path)!
-	playcmds.run(plbook:plbook)!
+	playcmds.run(plbook: plbook)!
 }
 
 fn do() ! {

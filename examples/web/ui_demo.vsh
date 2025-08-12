@@ -5,9 +5,9 @@ import freeflowuniverse.herolib.web.ui
 fn main() {
 	println('Starting UI test server on port 8080...')
 	println('Visit http://localhost:8080 to see the admin interface')
-	
+
 	ui.start(
 		title: 'Test Admin Panel'
-		port: 8080
+		port:  8080
 	)!
 }

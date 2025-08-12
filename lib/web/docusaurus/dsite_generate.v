@@ -46,7 +46,7 @@ pub fn (mut site DocSite) generate() ! {
 		mut aa := site.path_src.dir_get('docs')!
 		aa.copy(dest: '${f.path_build.path}/docs', delete: true)!
 	}
-	
+
 	mut main_file := pathlib.get_file(path: '${cfg_path}/main.json', create: true)!
 	main_file.write(json.encode_pretty(site.config.main))!
 
@@ -56,11 +56,10 @@ pub fn (mut site DocSite) generate() ! {
 	mut footer_file := pathlib.get_file(path: '${cfg_path}/footer.json', create: true)!
 	footer_file.write(json.encode_pretty(site.config.footer))!
 
-
 	// Generate the actual docs content from the processed site configuration
 	docs_path := '${f.path_build.path}/docs'
 
-	//TODO: check site vs website
+	// TODO: check site vs website
 	website := site.website
 	generate_docs(
 		path: docs_path
@@ -72,11 +71,12 @@ pub fn (mut site DocSite) generate() ! {
 
 pub fn (mut site DocSite) process_imports() ! {
 	mut gs := gittools.new()!
-	mut f:=factory_get()!
+	mut f := factory_get()!
 
 	for item in site.website.siteconfig.imports {
-
-		if true{panic("not implemented import")}
+		if true {
+			panic('not implemented import')
+		}
 
 		mypath := gs.get_path(
 			pull:  false
@@ -88,7 +88,7 @@ pub fn (mut site DocSite) process_imports() ! {
 		mypatho.copy(dest: '${f.path_build.path}/docs/${item.dest}', delete: false)!
 
 		println(item)
-		//replace: {'NAME': 'MyName', 'URGENCY': 'red'}
+		// replace: {'NAME': 'MyName', 'URGENCY': 'red'}
 		mut ri := regext.regex_instructions_new()
 		for key, val in item.replace {
 			ri.add_item('\{${key}\}', val)!

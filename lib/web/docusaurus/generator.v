@@ -15,7 +15,7 @@ mut:
 	client          &doctreeclient.DocTreeClient
 	flat            bool // if flat then won't use sitenames as subdir's
 	site            Site
-	errors []string // collect errors here
+	errors          []string // collect errors here
 }
 
 @[params]
@@ -23,7 +23,7 @@ struct SiteGeneratorArgs {
 mut:
 	path string
 	flat bool // if flat then won't use sitenames as subdir's
-	site Site //this is the generic website we are feeding
+	site Site // this is the generic website we are feeding
 }
 
 // Generate docs from site configuration
@@ -51,15 +51,12 @@ pub fn generate_docs(args SiteGeneratorArgs) ! {
 	if gen.errors.len > 0 {
 		return error('Errors occurred during site generation:\n${gen.errors.join('\n\n')}\nPlease fix the errors and try again.\nPage List: is header collection and page name per collection.\nAvailable pages:\n${gen.client.list_markdown()!}')
 	}
-
-	
 }
 
-fn (mut mysite SiteGenerator) error( msg string) ! {
+fn (mut mysite SiteGenerator) error(msg string) ! {
 	console.print_stderr('Error: ${msg}')
 	mysite.errors << msg
 }
-
 
 fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	mut args := args_
@@ -69,7 +66,7 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 	mut parts := args.src.split(':')
 	if parts.len != 2 {
 		mysite.error("Invalid src format for page '${args.src}', expected format: collection:page_name, TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist")!
-		return 
+		return
 	}
 	collection_name := parts[0]
 	page_name := parts[1]
@@ -129,7 +126,7 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 
 	c += '\n${page_content}\n'
 
-	if args.path.ends_with('/') ||  args.path.trim_space()==""  {
+	if args.path.ends_with('/') || args.path.trim_space() == '' {
 		// means is dir
 		args.path += page_name
 	}

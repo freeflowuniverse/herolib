@@ -5,6 +5,7 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.web.docusaurus
 import os
 import cli { Command, Flag }
+import freeflowuniverse.herolib.core.playbook
 
 pub fn cmd_docusaurus(mut cmdroot Command) Command {
 	mut cmd_run := Command{
@@ -113,94 +114,98 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 	// 	description: 'create a new docusaurus site.'
 	// })
 
-	cmd_run.add_flag(Flag{
-		flag:        .bool
-		required:    false
-		name:        'reset'
-		abbrev:      'r'
-		description: 'reset the docusaurus building process, reinstall all.'
-	})
-
 	cmdroot.add_command(cmd_run)
 	return cmdroot
 }
 
 fn cmd_docusaurus_execute(cmd Command) ! {
+	// ---------- FLAGS ----------
 	mut open := cmd.flags.get_bool('open') or { false }
 	mut buildpublish := cmd.flags.get_bool('buildpublish') or { false }
 	mut builddevpublish := cmd.flags.get_bool('builddevpublish') or { false }
 	mut dev := cmd.flags.get_bool('dev') or { false }
-	mut new := cmd.flags.get_bool('new') or { false }
 	mut reset := cmd.flags.get_bool('reset') or { false }
+	// (the earlier duplicate reset flag has been removed)
 
-	// --- Build Path Logic ---
-	mut build_path := cmd.flags.get_string('buildpath') or { '' }
-	if build_path == '' {
-		build_path = '${os.home_dir()}/hero/var/docusaurus'
-	}
-
-	// --- Path Logic ---
-	mut provided_path := cmd.flags.get_string('path') or { '' }
+	// ---------- PATH LOGIC ----------
+	// Resolve the source directory that contains a “cfg” sub‑directory.
+	mut path := cmd.flags.get_string('path') or { '' }
 	mut source_path := ''
-
-	if provided_path != '' {
-		if !os.exists(provided_path) || !os.is_dir(provided_path) {
-			return error('Provided path "${provided_path}" does not exist or is not a directory.')
+	if path != '' {
+		// user supplied a path
+		if !os.exists(path) || !os.is_dir(path) {
+			return error('Provided path "${path}" does not exist or is not a directory.')
 		}
-
-		// Check if the provided path contains a cfg subdirectory (ebook directory structure)
-		cfg_subdir := os.join_path(provided_path, 'cfg')
-		if os.exists(cfg_subdir) && os.is_dir(cfg_subdir) {
-			source_path = provided_path
+		cfg_subdir := os.join_path(path, 'cfg')
+		source_path = if os.exists(cfg_subdir) && os.is_dir(cfg_subdir) {
+			path
+		} else if path.ends_with('cfg') {
+			os.dir(path)
 		} else {
-			if provided_path.ends_with('cfg') {
-				// If path ends with cfg, use parent directory as source
-				source_path = os.dir(provided_path)
-			} else {
-				return error('Provided path "${provided_path}" does not contain a "cfg" subdirectory.')
-			}
+			return error('Provided path "${path}" does not contain a “cfg” subdirectory.')
 		}
 	} else {
-		mut cwd := os.getwd()
+		// default to current working directory
+		cwd := os.getwd()
 		cfg_dir := os.join_path(cwd, 'cfg')
 		if !os.exists(cfg_dir) || !os.is_dir(cfg_dir) {
-			return error('Flag -path not provided and directory "./cfg" not found in the current working directory.')
+			return error('No path supplied and "./cfg" not found in the current directory.')
 		}
 		source_path = cwd
 	}
 
 	console.print_header('Running Docusaurus for: ${source_path}')
 
-	// Use the centralized site processing function from docusaurus module
-	mysite := docusaurus.process_site_from_path(source_path, '')!
-	site_name := mysite.siteconfig.name
+	// ---------- BUILD PLAYBOOK ----------
+	// Build a PlayBook from the source directory (it contains the HeroScript actions)
+	mut plbook := playbook.new(path: source_path)!
 
-	// Set up the docusaurus factory
-	docusaurus.factory_set(
-		path_build:      build_path
-		reset:           reset
-		install:         reset
-		template_update: reset
-	)!
+	// If the user asked for a CLI‑level reset we inject a temporary define action
+	// so that the underlying factory_set receives `reset:true`.
+	if reset {
+		// prepend a temporary docusaurus.define action (this is safe because the playbook
+		// already contains the real definitions, the extra one will just be ignored later)
+		mut reset_action := playbook.Action{
+			actor:  'docusaurus'
+			name:   'define'
+			params: {
+				'reset': 'true'
+			}
+			done:   false
+		}
+		// Insert at the front of the action list
+		plbook.actions.prepend(reset_action)
+	}
 
-	// Add the docusaurus site
-	mut dsite := docusaurus.dsite_add(
-		sitename: site_name
-		path:     source_path
-		play:     false // Site already processed
-	)!
+	// ---------- RUN DOCUSUROUS ----------
+	// This will:
+	//   * read the generic `site.*` definitions,
+	//   * create a Docusaurus factory (or reuse an existing one),
+	//   * add the site to the factory via `dsite_add`.
+	docusaurus.play(mut plbook)!
 
-	// Execute the requested action directly
+	// After `play` we should have exactly one site in the global map.
+	// Retrieve it – if more than one exists we pick the one whose source path matches.
+	mut dsite_opt := docusaurus.dsite_get(plbook.ensure_once(filter: 'site.define')!.params.get('name')!) or {
+		// fallback: take the first entry
+		if docusaurus_sites.len == 0 {
+			return error('No Docusaurus site was created by the playbook.')
+		}
+		docusaurus_sites.values()[0]!
+	}
+
+	// ---------- ACTIONS ----------
 	if buildpublish {
-		dsite.build_publish()!
+		dsite_opt.build_publish()!
 	} else if builddevpublish {
-		dsite.build()!
+		dsite_opt.build()!
 	} else if dev {
-		dsite.dev(
+		dsite_opt.dev(
 			open:          open
 			watch_changes: false
 		)!
 	} else {
-		dsite.build()!
+		// default: just build the static site
+		dsite_opt.build()!
 	}
 }

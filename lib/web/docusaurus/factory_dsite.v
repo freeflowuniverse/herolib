@@ -8,8 +8,6 @@ import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
 
-
-
 @[params]
 pub struct AddArgs {
 pub mut:
@@ -71,7 +69,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 
 	// Get the site object after processing, this is the website which is a generic definition of a site
 	mut website := site.get(name: args.sitename)!
-	
+
 	// Create the DocSite instance
 	mut dsite := &DocSite{
 		name:         args.sitename
