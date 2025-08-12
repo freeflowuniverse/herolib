@@ -14,6 +14,7 @@ fn play_ssh(mut plbook PlayBook) ! {
 				agent.add(name, privkey)!
 			}
 			else {
+				// Currently only `key_add` is supported
 				return error('action name ${action.name} not supported')
 			}
 		}

@@ -5,28 +5,14 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 
-// !!context.configure
-//     name:'test'
-//     coderoot:...
-//     interactive:true
+// -------------------------------------------------------------------
+// Core play‑command processing (context, session, env‑subst, etc)
+// -------------------------------------------------------------------
 
 fn play_core(mut plbook PlayBook) ! {
-	// for mut action in plbook.find(filter: 'context.configure')! {
-	// 	mut p := action.params
-	// 	mut session := plbook.session
-
-	// 	if p.exists('interactive') {
-	// 		session.interactive = p.get_default_false('interactive')
-	// 	}
-
-	// 	if p.exists('coderoot') {
-	// 		panic('implement')
-	// 		// mut coderoot := p.get_path_create('coderoot')!
-	// 		// mut gs := gittools.get()!
-	// 	}
-	// 	action.done = true
-	// }
-
+    // ----------------------------------------------------------------
+    // 1.  Include handling (play include / echo)
+    // ----------------------------------------------------------------
 	// Track included paths to prevent infinite recursion
 	mut included_paths := map[string]bool{}
 
@@ -64,30 +50,37 @@ fn play_core(mut plbook PlayBook) ! {
 		}
 	}
 
-	for mut action in plbook.find(filter: 'session.')! {
-		mut p := action.params
-		mut session := plbook.session
+    // ----------------------------------------------------------------
+    // 2.  Session environment handling
+    // ----------------------------------------------------------------
+    // Guard – make sure a session exists
+    mut session := plbook.session or {
+        return error('PlayBook has no attached Session')
+    }
 
-		//!!session.env_set key:'JWT_SHARED_KEY' val:'...'
-		if action.name == 'env_set' {
-			mut key := p.get('key')!
-			mut val := p.get('val') or { p.get('value')! }
-			session.env_set(key, val)!
-		}
+    // !!session.env_set / env_set_once
+    for mut action in plbook.find(filter: 'session.')! {
+        mut p := action.params
+        match action.name {
+            'env_set' {
+                key := p.get('key')!
+                val := p.get('val') or { p.get('value')! }
+                session.env_set(key, val)!
+            }
+            'env_set_once' {
+                key := p.get('key')!
+                val := p.get('val') or { p.get('value')! }
+                // Use the dedicated “set‑once” method
+                session.env_set_once(key, val)!
+            }
+            else { /* ignore unknown sub‑action */ }
+        }
+        action.done = true
+    }
 
-		if action.name == 'env_set_once' {
-			mut key := p.get('key')!
-			mut val := p.get('val') or { p.get('value')! }
-			// Use env_set instead of env_set_once to avoid duplicate errors
-			session.env_set(key, val)!
-		}
-
-		action.done = true
-	}
-	mut session := plbook.session
-
-	sitename := session.env_get('SITENAME') or { '' }
-
+    // ----------------------------------------------------------------
+    // 3.  Template replacement in action parameters
+    // ----------------------------------------------------------------
 	// Apply template replacement from session environment variables
 	if session.env.len > 0 {
 		// Create a map with name_fix applied to keys for template replacement

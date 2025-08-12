@@ -2,10 +2,18 @@ module playcmds
 
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.playbook { PlayBook }
-import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.ui.console // For verbose error reporting
+
+// ---------------------------------------------------------------
+// Git actions interpreter for HeroScript. This file
+// parses `!!git.*` actions and forwards them to the
+// gittools package.
+// ---------------------------------------------------------------
 
 fn play_git(mut plbook PlayBook) ! {
-	// Handle !!git.define action first to configure GitStructure
+	// -----------------------------------------------------------
+	// !!git.define – configure the GitStructure
+	// -----------------------------------------------------------
 	define_actions := plbook.find(filter: 'git.define')!
 	mut gs := if define_actions.len > 0 {
 		mut p := define_actions[0].params
@@ -17,7 +25,7 @@ fn play_git(mut plbook PlayBook) ! {
 		ssh_key_path := p.get_default('ssh_key_path', '')!
 		reload := p.get_default_false('reload')
 
-		gittools.new( // Changed to gittools.new
+		gittools.new(
 			coderoot:     coderoot
 			light:        light
 			log:          log
@@ -27,11 +35,13 @@ fn play_git(mut plbook PlayBook) ! {
 			reload:       reload
 		)!
 	} else {
-		// Initialize GitStructure with defaults
-		gittools.get(gittools.GitStructureArgGet{})! // Changed to gittools.get with default args
+		// Default GitStructure (no args)
+		gittools.get()!
 	}
 
-	// Handle !!git.clone action
+	// -----------------------------------------------------------
+	// !!git.clone – clone repositories
+	// -----------------------------------------------------------
 	clone_actions := plbook.find(filter: 'git.clone')!
 	for action in clone_actions {
 		mut p := action.params
@@ -41,14 +51,16 @@ fn play_git(mut plbook PlayBook) ! {
 		light := p.get_default_true('light')
 		recursive := p.get_default_false('recursive')
 
-		mut clone_args := gittools.GitCloneArgs{ // Changed to gittools.GitCloneArgs
+		mut clone_args := gittools.GitCloneArgs{
 			url:       url
 			sshkey:    sshkey
 			recursive: recursive
 			light:     light
 		}
 		if coderoot.len > 0 {
-			gs = gittools.new(coderoot: coderoot)! // Changed to gittools.new
+			// Re-initialize GitStructure only when a coderoot is explicitly given.
+			// This shadows the previous `gs` and loses the original configuration (e.g. `light`, `log`).
+			gs = gittools.new(coderoot: coderoot)!
 		}
 		gs.clone(clone_args)!
 	}
