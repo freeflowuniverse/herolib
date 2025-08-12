@@ -46,6 +46,7 @@ pub fn play(mut plbook PlayBook) ! {
 	}
 
 	config_action.done = true // Mark the action as done
+	meta_action.done = true
 
 	play_import(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
@@ -54,6 +55,7 @@ pub fn play(mut plbook PlayBook) ! {
 	play_build_dest_dev(mut plbook, mut config)!
 
 	play_pages(mut plbook, mut website)!
+
 }
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {

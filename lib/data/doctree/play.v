@@ -6,8 +6,8 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 pub fn play(mut plbook PlayBook) ! {
 	mut doctrees := map[string]&Tree{}
 
-	collection_actions := plbook.find(filter: 'doctree.scan')!
-	for action in collection_actions {
+	mut collection_actions := plbook.find(filter: 'doctree.scan')!
+	for mut action in collection_actions {
 		mut p := action.params
 		name := p.get_default('name', 'main')!
 		mut doctree := doctrees[name] or {
@@ -20,11 +20,11 @@ pub fn play(mut plbook PlayBook) ! {
 		git_reset := p.get_default_false('git_reset')
 		git_pull := p.get_default_false('git_pull')
 		doctree.scan(path: path, git_url: git_url, git_reset: git_reset, git_pull: git_pull)!
-
+		action.done = true
 		tree_set(doctree)
 	}
 
-	export_actions := plbook.find(filter: 'doctree.export')!
+	mut export_actions := plbook.find(filter: 'doctree.export')!
 	if export_actions.len == 0 && collection_actions.len > 0 {
 		// Only auto-export if we have collections to export
 		name0 := 'main'
@@ -38,7 +38,7 @@ pub fn play(mut plbook PlayBook) ! {
 		}
 	}
 
-	for action in export_actions {
+	for mut action in export_actions {
 		mut p := action.params
 		name := p.get_default('name', 'main')!
 		destination := p.get('destination')!
@@ -50,6 +50,7 @@ pub fn play(mut plbook PlayBook) ! {
 			reset:          reset
 			exclude_errors: exclude_errors
 		)!
+		action.done = true
 	}
 
 	// println(tree_list())	

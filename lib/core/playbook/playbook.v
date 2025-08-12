@@ -14,6 +14,7 @@ pub mut:
 	result     string        // if any result
 	nractions  int
 	done       []int // which actions did we already find/run?
+	path       string
 	session    &base.Session @[skip; str: skip]
 }
 
@@ -83,7 +84,7 @@ pub fn (mut plbook PlayBook) actions_sorted(args SortArgs) ![]&Action {
 @[params]
 pub struct HeroScriptArgs {
 pub mut:
-	show_done bool = true
+	show_done bool
 }
 
 // serialize to heroscript

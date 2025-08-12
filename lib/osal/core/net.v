@@ -53,7 +53,7 @@ pub fn ping(args PingArgs) !PingResult {
 				}
 				else {
 					// println("${err} ${err.code()}")
-					error("can't ping on osx (${err.code()})\n${err}")
+					return error("can't ping on osx (${err.code()})\n${err}")
 				}
 			}
 		} else if platform_ == .ubuntu {

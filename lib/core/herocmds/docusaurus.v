@@ -138,16 +138,15 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	)!
 
 	// `docusaurus_path` is a pathlib.Path – we need its string representation
-	if !os.exists(os.join_path(docusaurus_path.path, 'cfg')) {
-		error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path.path,
+	if os.exists(os.join_path(docusaurus_path.path, 'cfg'))==false {
+		return error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path.path,
 			'cfg')}')
 	}
 
-	console.print_header('Running Docusaurus for: ${docusaurus_path}')
+	console.print_header('Running Docusaurus for: ${docusaurus_path.path}')
 
 	// The `playcmds.run` helper expects a string path. Use the underlying
 	// filesystem path from the pathlib.Path value.
-	println('DEBUG: The heroscript path is: ${docusaurus_path.path}')
 	playcmds.run(
 		heroscript_path: docusaurus_path.path
 		reset:           false

@@ -13,6 +13,7 @@ pub mut:
 	git_reset  bool
 	prio       int = 50
 	priorities map[int]string // filter and give priority, see filtersort method to know how to use
+	replace    map[string]string
 	// session    ?&base.Session
 }
 
@@ -25,9 +26,11 @@ pub mut:
 // git_branch string
 // git_reset bool
 // session &base.Session
+// replace    map[string]string
 // ```
 pub fn new(args_ PlayBookNewArgs) !PlayBook {
 	mut args := args_
+
 
 	mut c := base.context() or { return error('failed to get context: ${err}') }
 

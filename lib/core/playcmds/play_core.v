@@ -4,6 +4,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
+import os
 
 // -------------------------------------------------------------------
 // Core play‑command processing (context, session, env‑subst, etc)
@@ -16,10 +17,10 @@ fn play_core(mut plbook PlayBook) ! {
 	// Track included paths to prevent infinite recursion
 	mut included_paths := map[string]bool{}
 
-	for action_ in plbook.find(filter: 'play.*')! {
+	for mut action_ in plbook.find(filter: 'play.*')! {
 		if action_.name == 'include' {
-			console.print_debug('play run:${action_}')
 			mut action := *action_
+			mut toreplace := action.params.get_default('replace', '')!
 			mut playrunpath := action.params.get_default('path', '')!
 			if playrunpath.len == 0 {
 				action.name = 'pull'
@@ -34,15 +35,24 @@ fn play_core(mut plbook PlayBook) ! {
 				return error("can't run a heroscript didn't find url or path.")
 			}
 
+			// console.print_debug('play run:\n${action_}')
+			if ! playrunpath.starts_with('/') {
+				playrunpath=os.abs_path("${plbook.path}/${playrunpath}")
+			}
+
+			console.print_debug('play run include path:${playrunpath}')
+
 			// Check for cycle detection
 			if playrunpath in included_paths {
 				console.print_debug('Skipping already included path: ${playrunpath}')
 				continue
 			}
-
-			console.print_debug('play run path:${playrunpath}')
+			toreplacedict:=texttools.to_map(toreplace)
 			included_paths[playrunpath] = true
-			plbook.add(path: playrunpath)!
+			plbook.add(path: playrunpath,replace:toreplacedict)!
+
+			action.done = true			
+
 		}
 		if action_.name == 'echo' {
 			content := action_.params.get_default('content', "didn't find content")!

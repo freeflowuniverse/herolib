@@ -12,6 +12,18 @@ enum State {
 	othertext
 }
 
+
+// pub struct PlayBookNewArgs {
+// 	path       string
+// 	text       string
+// 	git_url    string
+// 	git_pull   bool
+// 	git_branch string
+// 	git_reset  bool
+// 	prio       int = 50
+// 	priorities map[int]string // filter and give priority, see filtersort method to know how to use
+// replace    map[string]string
+// }
 pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 	mut args := args_
 
@@ -21,9 +33,27 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 			git_pull:  args.git_pull
 			git_reset: args.git_reset
 		}
-		args.path = gittools.path(git_path_args)!.path
+		newpath := gittools.path(git_path_args)!
+		args.path = newpath.path
 	}
 
+	if plbook.path=="" && args.path!="" {
+		plbook.path = args.path
+	}
+
+	if args.text.len>0 && args.replace.len>0{
+		//now we need to replace any placeholders in the text
+		for key, value in args.replace {
+			if key.starts_with('@') || key.starts_with('$') || key.starts_with('[') || key.starts_with('{') {
+				args.text = args.text.replace(key, value)
+			}else{
+				args.text = args.text.replace("@${key}", value)
+				args.text = args.text.replace("$\{${key}\}", value)
+				args.text = args.text.replace("\{${key}\}", value)			
+			}
+		}
+	}
+	
 	// walk over directory
 	if args.path.len > 0 {
 		// console.print_header("PLBOOK add path:'${args.path}'")
@@ -33,7 +63,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 		}
 		if p.is_file() {
 			c := p.read()!
-			plbook.add(text: c, prio: args.prio)!
+			plbook.add(text: c, prio: args.prio, replace: args.replace)!
 			return
 		} else if p.is_dir() {
 			// get .md and .hero files from dir
@@ -45,7 +75,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 			paths << ol2.paths
 			for mut p2 in paths {
 				c2 := p2.read()!
-				plbook.add(text: c2, prio: args.prio)!
+				plbook.add(text: c2, prio: args.prio, replace: args.replace)!
 			}
 			return
 		}
@@ -122,7 +152,7 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 					paramsdata << line_strip.all_after_first(' ').trim_space()
 				}
 				if actionname.starts_with('!!!!!') {
-					error('there is no action starting with 5 x !')
+					return error('there is no action starting with 5 x !')
 				} else if actionname.starts_with('!!!!') {
 					action.actiontype = .wal
 				} else if actionname.starts_with('!!!') {

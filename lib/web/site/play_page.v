@@ -19,9 +19,9 @@ fn play_pages(mut plbook PlayBook, mut site Site) ! {
 	}
 
 	// LETS FIRST DO THE CATEGORIES
-	category_actions := plbook.find(filter: 'site.page_category')!
+	mut category_actions := plbook.find(filter: 'site.page_category')!
 	mut section := Section{}
-	for action in category_actions {
+	for mut action in category_actions {
 		// println(action)
 		mut p := action.params
 		section.position = p.get_int_default('position', 20)!
@@ -32,9 +32,10 @@ fn play_pages(mut plbook PlayBook, mut site Site) ! {
 			return error('need to specify path in site.page_category')
 		}
 		site.sections << section
+		action.done = true // Mark the action as done
 	}
 
-	page_actions := plbook.find(filter: 'site.page')!
+	mut page_actions := plbook.find(filter: 'site.page')!
 	mut mypage := Page{
 		src:  ''
 		path: ''
@@ -42,7 +43,7 @@ fn play_pages(mut plbook PlayBook, mut site Site) ! {
 	mut position_next := 1
 	mut position := 0
 	mut path := ''
-	for action in page_actions {
+	for mut action in page_actions {
 		// println(action)
 		mut p := action.params
 		pathnew := p.get_default('path', '')!
@@ -82,5 +83,7 @@ fn play_pages(mut plbook PlayBook, mut site Site) ! {
 		mypage.title_nr = p.get_int_default('title_nr', 0)!
 
 		site.pages << mypage
+
+		action.done = true // Mark the action as done
 	}
 }
