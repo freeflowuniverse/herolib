@@ -94,7 +94,10 @@ pub fn (mut plbook PlayBook) find(args FindArgs) ![]&Action {
 
 // use this in play function to make sure we only have one of those actions, the one action is then returned
 pub fn (mut plbook PlayBook) ensure_once(args FindArgs) !&Action {
+	println('DEBUG: In the error')
+
 	mut res := plbook.find(args) or { [] }
+	println('res: ${res}')
 	if res.len == 0 {
 		return error('No actions found based on filter: ${args.filter}')
 	}

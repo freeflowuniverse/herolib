@@ -22,9 +22,12 @@ pub mut:
 
 pub fn run(args_ PlayArgs) ! {
 	mut args := args_
+	println('DEBUG: the args is: ${args}')
 	mut plbook := args.plbook or {
 		playbook.new(text: args.heroscript, path: args.heroscript_path)!
 	}
+
+	println('DEBUG: The playbook is ${plbook}')
 
 	// Core actions
 	play_core(mut plbook)!
@@ -39,8 +42,12 @@ pub fn run(args_ PlayArgs) ! {
 
 	// Website / docs
 	site.play(mut plbook)!
+	println('DEBUG: Site play is done')
 	doctree.play(mut plbook)!
+	println('DEBUG: doctree play is done')
+
 	docusaurus.play(mut plbook)!
+	println('DEBUG: docusaurus play is done')
 
 	// Ensure we did not leave any actions un‑processed
 	plbook.empty_check()!

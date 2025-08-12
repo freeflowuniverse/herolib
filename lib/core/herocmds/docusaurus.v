@@ -108,7 +108,6 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		description: 'Run your dev environment on local browser.'
 	})
 
-
 	cmdroot.add_command(cmd_run)
 	return cmdroot
 }
@@ -127,43 +126,48 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	mut path := cmd.flags.get_string('path') or { '' }
 	mut url := cmd.flags.get_string('url') or { '' }
 
-	if path=="" && url==""{
+	if path == '' && url == '' {
 		path = os.getwd()
 	}
 
-
-	docusaurus_path :=gittools.path(
-		git_url:url
-		path: path
-		reset: reset
-		pull: update
+	docusaurus_path := gittools.path(
+		git_url:   url
+		path:      path
+		git_reset: reset
+		git_pull:  update
 	)!
 
 	// `docusaurus_path` is a pathlib.Path – we need its string representation
-	if ! os.exists(os.join_path(docusaurus_path.path, 'cfg')) {
-		error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path.path, 'cfg')}')
+	if !os.exists(os.join_path(docusaurus_path.path, 'cfg')) {
+		error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path.path,
+			'cfg')}')
 	}
 
 	console.print_header('Running Docusaurus for: ${docusaurus_path}')
 
-	// The `playcmds.run` helper expects a string path.  Use the underlying
+	// The `playcmds.run` helper expects a string path. Use the underlying
 	// filesystem path from the pathlib.Path value.
+	println('DEBUG: The heroscript path is: ${docusaurus_path.path}')
 	playcmds.run(
 		heroscript_path: docusaurus_path.path
-		reset: false
+		reset:           false
 	)!
 
-	// ---------- ACTIONS ----------
-	if buildpublish {
-		dsite_opt := docusaurus.new(path:docusaurus_path)!
-		dsite_opt.build()!
-	} else if dev {
-		dsite_opt.dev(
-			open:          open_
-			watch_changes: false
-		)!
-	} else {
-		// default: just build the static site
-		dsite_opt.build()!
-	}
+	// // ---------- ACTIONS ----------
+	// mut dsite_opt := docusaurus.dsite_add(
+	// 	sitename: 'default'
+	// 	path:     docusaurus_path.path
+	// )!
+
+	// if buildpublish {
+	// 	dsite_opt.build()!
+	// } else if dev {
+	// 	dsite_opt.dev(
+	// 		open:          open_
+	// 		watch_changes: false
+	// 	)!
+	// } else {
+	// 	// default: just build the static site
+	// 	dsite_opt.build()!
+	// }
 }

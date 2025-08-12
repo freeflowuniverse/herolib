@@ -9,6 +9,8 @@ pub fn play(mut plbook PlayBook) ! {
 		return
 	}
 
+	println('DEBUG: Before the error')
+
 	mut config_action := plbook.ensure_once(filter: 'site.config')!
 
 	mut p := config_action.params
