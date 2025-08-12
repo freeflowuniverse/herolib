@@ -94,7 +94,12 @@ fn do() ! {
 	// herocmds.cmd_installers(mut cmd)
 	// herocmds.cmd_configure(mut cmd)
 	// herocmds.cmd_postgres(mut cmd)
-	herocmds.cmd_mdbook(mut cmd)
+	// Ensure the herocmds module is imported so the remaining commands are visible
+	import freeflowuniverse.herolib.core.herocmds
+	// `cmd_mdbook` is not part of the current code base – it has been removed.
+	// If you need markdown‑book support, re‑introduce the command implementation
+	// and uncomment the line below.
+	// herocmds.cmd_mdbook(mut cmd)
 	// herocmds.cmd_luadns(mut cmd)
 	// herocmds.cmd_caddy(mut cmd)
 	// herocmds.cmd_zola(mut cmd)

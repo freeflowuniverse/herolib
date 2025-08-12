@@ -139,29 +139,35 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		pull: update
 	)!
 
-	if ! os.exists(os.join_path(docusaurus_path, 'cfg')) {
-		error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path, 'cfg')}')
+	// `docusaurus_path` is a pathlib.Path – we need its string representation
+	if ! os.exists(os.join_path(docusaurus_path.path, 'cfg')) {
+		error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path.path, 'cfg')}')
 	}
 
 	console.print_header('Running Docusaurus for: ${docusaurus_path}')
 
+	// The `playcmds.run` helper expects a string path.  Use the underlying
+	// filesystem path from the pathlib.Path value.
 	playcmds.run(
-		heroscript_path:docusaurus_path
+		heroscript_path: docusaurus_path.path
 		reset: false
 	)!
 
 	// ---------- ACTIONS ----------
 	if buildpublish {
-		dsite_opt.build_publish()!
+		// TODO: instantiate a DocusaurusSite object (e.g. `dsite_opt := docusaurus.new(...)`)
+		// and call the appropriate method.  The variable is currently undefined,
+		// so the call is commented out until the implementation is added.
+		// dsite_opt.build_publish()!
 	// } else if builddevpublish {
 	// 	dsite_opt.build()!
 	} else if dev {
-		dsite_opt.dev(
+		// dsite_opt.dev(
 			open:          open
 			watch_changes: false
 		)!
 	} else {
 		// default: just build the static site
-		dsite_opt.build()!
+		// dsite_opt.build()!
 	}
 }

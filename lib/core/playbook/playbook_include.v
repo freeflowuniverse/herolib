@@ -35,8 +35,8 @@ pub fn (mut plbook PlayBook) include() ! {
             includepath = gittools.path(
                 git_url: git_url,
                 path: path,
-                pull: git_pull,
-                reset: git_reset,
+                git_pull: git_pull,
+                git_reset: git_reset,
             )!.path
         } else {
             includepath = path
