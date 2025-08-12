@@ -14,13 +14,13 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		execute:       cmd_docusaurus_execute
 	}
 
-	// cmd_run.add_flag(Flag{
-	// 	flag:        .bool
-	// 	required:    false
-	// 	name:        'reset'
-	// 	abbrev:      'r'
-	// 	description: 'will reset.'
-	// })
+	cmd_run.add_flag(Flag{
+		flag:        .bool
+		required:    false
+		name:        'reset'
+		abbrev:      'r'
+		description: 'will reset.'
+	})
 
 	cmd_run.add_flag(Flag{
 		flag:     .string
@@ -40,31 +40,31 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		description: 'Path where docusaurus configuration is.'
 	})
 
-	cmd_run.add_flag(Flag{
-		flag:     .string
-		required: false
-		name:     'buildpath'
-		abbrev:   'b'
-		// default: ''
-		description: 'Path where docusaurus build is.'
-	})
+	// cmd_run.add_flag(Flag{
+	// 	flag:     .string
+	// 	required: false
+	// 	name:     'buildpath'
+	// 	abbrev:   'b'
+	// 	// default: ''
+	// 	description: 'Path where docusaurus build is.'
+	// })
 
-	cmd_run.add_flag(Flag{
-		flag:     .string
-		required: false
-		name:     'deploykey'
-		abbrev:   'dk'
-		// default: ''
-		description: 'Path of SSH Key used to deploy.'
-	})
+	// cmd_run.add_flag(Flag{
+	// 	flag:     .string
+	// 	required: false
+	// 	name:     'deploykey'
+	// 	abbrev:   'dk'
+	// 	// default: ''
+	// 	description: 'Path of SSH Key used to deploy.'
+	// })
 
-	cmd_run.add_flag(Flag{
-		flag:     .string
-		required: false
-		name:     'publish'
-		// default: ''
-		description: 'Path where to publish.'
-	})
+	// cmd_run.add_flag(Flag{
+	// 	flag:     .string
+	// 	required: false
+	// 	name:     'publish'
+	// 	// default: ''
+	// 	description: 'Path where to publish.'
+	// })
 
 	cmd_run.add_flag(Flag{
 		flag:        .bool
@@ -74,13 +74,13 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		description: 'build and publish.'
 	})
 
-	cmd_run.add_flag(Flag{
-		flag:        .bool
-		required:    false
-		name:        'builddevpublish'
-		abbrev:      'bpd'
-		description: 'build dev version and publish.'
-	})
+	// cmd_run.add_flag(Flag{
+	// 	flag:        .bool
+	// 	required:    false
+	// 	name:        'builddevpublish'
+	// 	abbrev:      'bpd'
+	// 	description: 'build dev version and publish.'
+	// })
 
 	cmd_run.add_flag(Flag{
 		flag:        .bool
@@ -105,13 +105,13 @@ pub fn cmd_docusaurus(mut cmdroot Command) Command {
 		description: 'Run your dev environment on local browser.'
 	})
 
-	cmd_run.add_flag(Flag{
-		flag:        .bool
-		required:    false
-		name:        'new'
-		abbrev:      'n'
-		description: 'create a new docusaurus site.'
-	})
+	// cmd_run.add_flag(Flag{
+	// 	flag:        .bool
+	// 	required:    false
+	// 	name:        'new'
+	// 	abbrev:      'n'
+	// 	description: 'create a new docusaurus site.'
+	// })
 
 	cmd_run.add_flag(Flag{
 		flag:        .bool

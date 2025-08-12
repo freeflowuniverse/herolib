@@ -5,73 +5,16 @@ import freeflowuniverse.herolib.core.texttools
 import time
 
 pub fn play(mut plbook PlayBook) ! {
-	if !plbook.exists(filter: 'site.') && !plbook.exists(filter: 'docusaurus.config') {
+	if !plbook.exists(filter: 'site.'){
 		return
 	}
 
-	// Handle multiple site configurations - look for both site.config and docusaurus.config
-	mut config_actions := plbook.find(filter: 'site.config')!
-	if config_actions.len == 0 {
-		// Fallback to docusaurus.config for backward compatibility
-		config_actions = plbook.find(filter: 'docusaurus.config')!
-	}
+	mut config_action := plbook.ensure_once(filter: 'site.config')!
 
-	if config_actions.len == 0 {
-		return error('No site.config or docusaurus.config actions found')
-	}
+	mut p := config_action.params
+	name := p.get_default('name', 'default')! // Use 'default' as fallback name
 
-	// For now, just process the first site configuration to avoid memory issues
-	// TODO: Fix the underlying memory corruption issue with multiple site configs
-	if config_actions.len > 0 {
-		mut config_action := config_actions[0]
-		// Work around memory corruption by accessing params directly here
-		mut p := config_action.params
-		name := p.get_default('name', 'default')! // Use 'default' as fallback name
-
-		mut website := play_config_single_safe(name, mut config_action)!
-
-		mut config := &website.siteconfig
-
-		play_import(mut plbook, mut config)!
-		play_menu(mut plbook, mut config)!
-		play_footer(mut plbook, mut config)!
-		play_build_dest(mut plbook, mut config)!
-		play_build_dest_dev(mut plbook, mut config)!
-
-		play_pages(mut plbook, mut website)!
-
-		// Mark all other config actions as done to avoid processing them
-		for i in 1 .. config_actions.len {
-			config_actions[i].done = true
-		}
-	}
-}
-
-fn play_config_single_safe(name string, mut action Action) !&Site {
-	mut p := action.params
-
-	mut website := new(name: name)!
-	mut config := &website.siteconfig
-
-	config.title = p.get_default('title', config.title)!
-	config.description = p.get_default('description', config.description)!
-	config.tagline = p.get_default('tagline', config.tagline)!
-	config.favicon = p.get_default('favicon', config.favicon)!
-	config.image = p.get_default('image', config.image)!
-	config.copyright = p.get_default('copyright', config.copyright)!
-	config.url = p.get_default('url', config.url)!
-	config.base_url = p.get_default('base_url', config.base_url)!
-	config.url_home = p.get_default('url_home', config.url_home)!
-	config.name = name
-	return website
-}
-
-fn play_config(mut plbook PlayBook) !&Site {
-	mut action := plbook.get(filter: 'site.config')!
-
-	mut p := action.params
-	name := p.get('name') or { return error('need to specify name in site.config') }
-
+	//configure the website
 	mut website := new(name: name)!
 	mut config := &website.siteconfig
 
@@ -87,10 +30,11 @@ fn play_config(mut plbook PlayBook) !&Site {
 	config.base_url = p.get_default('base_url', '/')!
 	config.url_home = p.get_default('url_home', '')!
 
-	// Process !!site.config_meta for specific metadata overrides
-	mut meta_action := plbook.get(filter: 'site.config_meta')!
 
+	// Process !!site.config_meta for specific metadata overrides
+	mut meta_action := plbook.ensure_once(filter: 'site.config_meta')!
 	mut p_meta := meta_action.params
+
 	// If 'title' is present in site.config_meta, it overrides. Otherwise, meta_title remains empty or uses site.config.title logic in docusaurus model.
 	config.meta_title = p_meta.get_default('title', config.title)!
 	// If 'image' is present in site.config_meta, it overrides. Otherwise, meta_image remains empty or uses site.config.image logic.
@@ -100,9 +44,18 @@ fn play_config(mut plbook PlayBook) !&Site {
 		config.description = p_meta.get('description')!
 	}
 
-	action.done = true // Mark the action as done
-	return website
+	config_action.done = true // Mark the action as done
+
+	play_import(mut plbook, mut config)!
+	play_menu(mut plbook, mut config)!
+	play_footer(mut plbook, mut config)!
+	play_build_dest(mut plbook, mut config)!
+	play_build_dest_dev(mut plbook, mut config)!
+
+	play_pages(mut plbook, mut website)!
+
 }
+
 
 fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 	mut import_actions := plbook.find(filter: 'site.import')!
@@ -224,7 +177,7 @@ fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
 	for mut action in build_dest_actions {
 		mut p := action.params
 		mut dest := BuildDest{
-			path:     p.get('path')!
+			path:     p.get_default('path', '')!
 			ssh_name: p.get_default('ssh_name', '')!
 		}
 		config.build_dest << dest

@@ -64,16 +64,3 @@ pub fn factory_set(args_ DocSiteFactoryArgs) !DocSiteFactory {
 
 	return factory
 }
-
-pub fn dsite_get(name_ string) !&DocSite {
-	name := texttools.name_fix(name_)
-	return docusaurus_sites[name] or {
-		return error('docusaurus site with name "${name}" does not exist')
-	}
-}
-
-pub fn dsite_exists(name_ string) !bool {
-	name := texttools.name_fix(name_)
-	d := docusaurus_sites[name] or { return false }
-	return true
-}

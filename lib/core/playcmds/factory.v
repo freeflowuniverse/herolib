@@ -5,6 +5,7 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.data.doctree
 import freeflowuniverse.herolib.biz.bizmodel
 import freeflowuniverse.herolib.web.docusaurus
+import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.clients.openai
 
 // import freeflowuniverse.herolib.hero.publishing
@@ -36,6 +37,19 @@ pub fn run(args_ PlayArgs) ! {
 	play_core(mut plbook)!
 	play_git(mut plbook)!
 
+	//simulators first
+	bizmodel.play(mut plbook)!
+
+	//clients
+	openai.play(mut plbook)!
+
+
+	//web stuff
+	site.play(mut plbook)!
+	doctree.play(mut plbook)!
+	docusaurus.play(mut plbook)!
+
+
 	// play_ssh(mut plbook)!
 	// play_publisher(mut plbook)!
 	// play_zola(mut plbook)!
@@ -47,14 +61,10 @@ pub fn run(args_ PlayArgs) ! {
 
 	// plbook = farmingsimulator.play(mut plbook)!
 	// plbook = gridsimulator.play(mut plbook)!
-	bizmodel.play(mut plbook)!
-	doctree.play(mut plbook)!
-	docusaurus.play(mut plbook)!
-	openai.play(mut plbook)!
 
 	// slides.play(mut plbook)!
 	// base_install(play(mut plbook)!
 	// coredns.play(mut plbook)!
 
-	// plbook.empty_check()!
+	plbook.empty_check()!
 }

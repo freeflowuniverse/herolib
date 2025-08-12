@@ -75,6 +75,9 @@ pub fn (mut site DocSite) process_imports() ! {
 	mut f:=factory_get()!
 
 	for item in site.website.siteconfig.imports {
+
+		if true{panic("not implemented import")}
+
 		mypath := gs.get_path(
 			pull:  false
 			reset: false
@@ -85,7 +88,7 @@ pub fn (mut site DocSite) process_imports() ! {
 		mypatho.copy(dest: '${f.path_build.path}/docs/${item.dest}', delete: false)!
 
 		println(item)
-		replace: {'NAME': 'MyName', 'URGENCY': 'red'}
+		//replace: {'NAME': 'MyName', 'URGENCY': 'red'}
 		mut ri := regext.regex_instructions_new()
 		for key, val in item.replace {
 			ri.add_item('\{${key}\}', val)!
@@ -98,4 +101,4 @@ pub fn (mut site DocSite) process_imports() ! {
 			]
 		)!
 	}
-// }
+}

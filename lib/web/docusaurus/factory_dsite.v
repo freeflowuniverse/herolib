@@ -7,8 +7,8 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
-import freeflowuniverse.herolib.core.playbook
-// import freeflowuniverse.herolib.data.doctree
+
+
 
 @[params]
 pub struct AddArgs {
@@ -20,7 +20,6 @@ pub mut:
 	git_root     string
 	git_pull     bool
 	path_publish string
-	play         bool = true
 }
 
 pub fn dsite_add(args_ AddArgs) !&DocSite {
@@ -30,7 +29,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	console.print_header('Add Docusaurus Site: ${args.sitename}')
 
 	if args.sitename in docusaurus_sites {
-		return error('Docusaurus site ${args.sitename} already exists, returning existing.')
+		return error('Docusaurus site ${args.sitename} already exists, no need to add again.')
 	}
 
 	mut path := gittools.path(
@@ -71,7 +70,7 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 	path_build_ := '${f.path_build.path}/${args.sitename}'
 
 	// Get the site object after processing, this is the website which is a generic definition of a site
-	mut website := sitegen.get(name: site.name)!
+	mut website := site.get(name: args.sitename)!
 	
 	// Create the DocSite instance
 	mut dsite := &DocSite{
@@ -79,11 +78,23 @@ pub fn dsite_add(args_ AddArgs) !&DocSite {
 		path_src:     pathlib.get_dir(path: args.path, create: false)!
 		path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
 		path_build:   pathlib.get_dir(path: path_build_, create: true)!
-		config:       new_configuration(mysite.siteconfig)!
-		website:      mysite
+		config:       new_configuration(website.siteconfig)!
+		website:      website
 	}
 
 	docusaurus_sites[args.sitename] = dsite
 	return dsite
 }
 
+pub fn dsite_get(name_ string) !&DocSite {
+	name := texttools.name_fix(name_)
+	return docusaurus_sites[name] or {
+		return error('docusaurus site with name "${name}" does not exist')
+	}
+}
+
+pub fn dsite_exists(name_ string) !bool {
+	name := texttools.name_fix(name_)
+	d := docusaurus_sites[name] or { return false }
+	return true
+}

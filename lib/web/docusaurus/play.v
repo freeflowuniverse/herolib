@@ -13,24 +13,18 @@ pub fn play(mut plbook PlayBook) ! {
 	// This populates the global `site.websites` map.
 	site.play(mut plbook)!
 
+	mut a := plbook.ensure_once(filter: 'docusaurus.define')!
+
 	// check if docusaurus.define exists, if not, we create a default factory
-	mut f := DocSiteFactory{}
-	if plbook.max_once(filter: 'docusaurus.define')! {
-		mut a := plbook.get(filter: 'docusaurus.define') or {
-			panic('docusaurus.define action not found, this should not happen.')
-		}
-		mut p := a.params
-		f = factory_set(
-			path_build:      p.get_default('path_build', '')!
-			path_publish:    p.get_default('path_publish', '')!
-			reset:           p.get_default_false('reset')
-			template_update: p.get_default_false('template_update')
-			install:         p.get_default_false('install')
-		)!
-		a.done = true
-	} else {
-		f = factory_get()!
-	}
+	mut p2 := a.params
+	mut f := factory_set(
+		path_build:      p2.get_default('path_build', '')!
+		path_publish:    p2.get_default('path_publish', '')!
+		reset:           p2.get_default_false('reset')
+		template_update: p2.get_default_false('template_update')
+		install:         p2.get_default_false('install')
+	)!
+	a.done = true
 
 	// 3. Process `docusaurus.add` actions to create sites.
 	for mut action in plbook.find(filter: 'docusaurus.add')! {
@@ -47,7 +41,6 @@ pub fn play(mut plbook PlayBook) ! {
 			git_root:     p.get_default('git_root','')!
 			git_pull:     p.get_default_false('git_pull')
 			path_publish: p.get_default('path_publish', f.path_publish.path)!
-			play:         false // need to make sure we don't play again
 		)!
 		action.done = true
 	}
