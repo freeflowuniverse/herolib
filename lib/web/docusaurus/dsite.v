@@ -35,7 +35,7 @@ pub fn (mut s DocSite) build_dev_publish() ! {
 	osal.exec(
 		cmd:   '
 			cd ${s.path_build.path}
-			bun run build
+			bun run buildp
 			'
 		retry: 0
 	)!
