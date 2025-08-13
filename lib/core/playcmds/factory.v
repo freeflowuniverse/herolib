@@ -45,14 +45,6 @@ pub fn run(args_ PlayArgs) ! {
 
 	docusaurus.play(mut plbook)!
 
-	println("=========____________===========")
-	println(plbook)
-	println("=========____________===========")
-
-
-	if true{panic("sdsds")}
-
-
 	// Ensure we did not leave any actions un‑processed
 	plbook.empty_check()!
 }

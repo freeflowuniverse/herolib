@@ -1,7 +1,8 @@
 module docusaurus
 
-import freeflowuniverse.herolib.core.playbook { PlayBook, Action }
+import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.web.site
+import os
 
 pub fn play(mut plbook PlayBook) ! {
 	if !plbook.exists(filter: 'docusaurus.') {
@@ -17,12 +18,12 @@ pub fn play(mut plbook PlayBook) ! {
 	// 3. Process `docusaurus.add` actions to create sites.
 	mut param_define := action_define.params
 
-	mut f := factory_set(
+	_ := factory_set(
 		path_build:      param_define.get_default('path_build', '')!
 		path_publish:    param_define.get_default('path_publish', '')!
 		reset:           param_define.get_default_false('reset')
 		template_update: param_define.get_default_false('template_update')
-		install:        param_define.get_default_false('install')
+		install:         param_define.get_default_false('install')
 	)!
 
 	site_name := param_define.get('name') or {
@@ -33,19 +34,24 @@ pub fn play(mut plbook PlayBook) ! {
 	action_define.done = true
 	mut dsite := dsite_get(site_name)!
 
-	//imports
+	// imports
 	mut actions_import := plbook.find(filter: 'docusaurus.import')!
 	for mut action in actions_import {
 		mut p := action.params
+		// TODO: We need to get the repo path from the path
+		// Import paths like ../docusaurus are authored relative to the project root (docs_owh)
+		// project_root = dirname(dirname(plbook.path)) since plbook.path = ebooks/owh_investment_memo
+		mut project_root := os.abs_path(os.join_path(plbook.path, '..', '..'))
 		dsite.importparams << ImportParams{
-			path:         p.get_default('path', '')!
-			git_url:      p.get_default('git_url', '')!
-			git_reset:    p.get_default_false('git_reset')
-			git_pull:     p.get_default_false('git_pull')
-			dest: p.get_default('dest', '')!
+			path:      p.get_default('path', '')!
+			git_url:   p.get_default('git_url', '')!
+			git_reset: p.get_default_false('git_reset')
+			git_pull:  p.get_default_false('git_pull')
+			git_root:  project_root
+			dest:      p.get_default('dest', '')!
 		}
 		action.done = true
-	}	
+	}
 
 	mut actions_dev := plbook.find(filter: 'docusaurus.dev')!
 	if actions_dev.len > 1 {
@@ -54,9 +60,9 @@ pub fn play(mut plbook PlayBook) ! {
 	for mut action in actions_dev {
 		mut p := action.params
 		dsite.dev(
-			host:          p.get_default('host', 'localhost')!
-			port:          p.get_int_default('port', 3000)!
-			open:          p.get_default_false('open')
+			host: p.get_default('host', 'localhost')!
+			port: p.get_int_default('port', 3000)!
+			open: p.get_default_false('open')
 		)!
 		action.done = true
 	}
@@ -66,8 +72,16 @@ pub fn play(mut plbook PlayBook) ! {
 		return error('Multiple "docusaurus.build" actions found. Only one is allowed.')
 	}
 	for mut action in actions_build {
-		mut p := action.params
 		dsite.build()!
+		action.done = true
+	}
+
+	mut actions_export := plbook.find(filter: 'docusaurus.export')!
+	if actions_export.len > 1 {
+		return error('Multiple "docusaurus.export" actions found. Only one is allowed.')
+	}
+	for mut action in actions_export {
+		dsite.build_publish()!
 		action.done = true
 	}
 

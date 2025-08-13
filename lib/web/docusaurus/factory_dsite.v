@@ -1,21 +1,17 @@
 module docusaurus
 
-import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.core.texttools
-import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.osal.core as osal
 
 @[params]
 pub struct AddArgs {
 pub mut:
-	sitename     string // needs to exist in web.site module
+	sitename string // needs to exist in web.site module
 }
 
 pub fn dsite_define(sitename string) ! {
-	
 	console.print_header('Add Docusaurus Site: ${sitename}')
 
 	mut f := factory_get()!
@@ -47,6 +43,26 @@ pub fn dsite_get(name_ string) !&DocSite {
 
 pub fn dsite_exists(name_ string) !bool {
 	name := texttools.name_fix(name_)
-	d := docusaurus_sites[name] or { return false }
+	_ := docusaurus_sites[name] or { return false }
 	return true
+}
+
+// dsite_names returns the list of defined docusaurus site names.
+pub fn dsite_names() []string {
+	mut names := []string{}
+	for k, _ in docusaurus_sites {
+		names << k
+	}
+	return names
+}
+
+// dsite_get_only returns the only defined site, or an error if there are none or more than one.
+pub fn dsite_get_only() !&DocSite {
+	if docusaurus_sites.len != 1 {
+		return error('expected exactly one docusaurus site to be defined, found ${docusaurus_sites.len}')
+	}
+	for _, v in docusaurus_sites {
+		return v
+	}
+	return error('no docusaurus site found')
 }

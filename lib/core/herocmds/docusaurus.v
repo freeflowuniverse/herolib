@@ -137,12 +137,6 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		git_pull:  update
 	)!
 
-	// `docusaurus_path` is a pathlib.Path – we need its string representation
-	if os.exists(os.join_path(docusaurus_path.path, 'cfg'))==false {
-		return error('Docusaurus configuration directory not found at: ${os.join_path(docusaurus_path.path,
-			'cfg')}')
-	}
-
 	console.print_header('Running Docusaurus for: ${docusaurus_path.path}')
 
 	// The `playcmds.run` helper expects a string path. Use the underlying
@@ -152,21 +146,22 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 		reset:           false
 	)!
 
-	// // ---------- ACTIONS ----------
-	// mut dsite_opt := docusaurus.dsite_add(
-	// 	sitename: 'default'
-	// 	path:     docusaurus_path.path
-	// )!
+	// TODO: We need to load the sitename instead, or maybe remove it
+	mut dsite := docusaurus.dsite_get_only() or {
+		return error('No docusaurus site named "default" and not exactly one site defined. Please set site.config name:"..." or add a --name flag support.')
+	}
 
-	// if buildpublish {
-	// 	dsite_opt.build()!
-	// } else if dev {
-	// 	dsite_opt.dev(
-	// 		open:          open_
-	// 		watch_changes: false
-	// 	)!
-	// } else {
-	// 	// default: just build the static site
-	// 	dsite_opt.build()!
-	// }
+	if buildpublish {
+		// Build and publish production-ready artifacts
+		dsite.build_publish()!
+	} else if dev {
+		// Run local development server
+		dsite.dev(
+			open:          open_
+			watch_changes: false
+		)!
+	} else {
+		// Default: just build the static site
+		dsite.build()!
+	}
 }
