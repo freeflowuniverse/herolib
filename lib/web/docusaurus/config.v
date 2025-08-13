@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.core.pathlib
 
 __global (
 	docusaurus_sites   map[string]&DocSite
-	docusaurus_config ?DocusaurusConfigParams
+	docusaurus_config []DocusaurusConfigParams
 	docusaurus_last string //the last one we worked with
 )
 
@@ -32,8 +32,11 @@ pub mut:
 
 //return the last know config
 pub fn config() !DocusaurusConfig {
-	mut args:= docusaurus_config or {DocusaurusConfig{}}
-	if args.path_build == '' {
+	if docusaurus_config.len == 0 {
+		docusaurus_config << DocusaurusConfigParams{}
+	}
+	mut args:= docusaurus_config[0] or { panic("bug in docusaurus config") }
+ 	if args.path_build == '' {
 		args.path_build = '${os.home_dir()}/hero/var/docusaurus/build'
 	}
 	if args.path_publish == '' {
@@ -59,5 +62,5 @@ pub fn config() !DocusaurusConfig {
 }
 
 pub fn config_set(args_ DocusaurusConfigParams) ! {
-	docusaurus_config = args_
+	docusaurus_config = [args_]
 }

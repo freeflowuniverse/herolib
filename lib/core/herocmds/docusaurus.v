@@ -145,9 +145,8 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	)!
 
 	// TODO: We need to load the sitename instead, or maybe remove it
-	mut dsite := docusaurus.dsite_get_only() or {
-		return error('No docusaurus site named "default" and not exactly one site defined. Please set site.config name:"..." or add a --name flag support.')
-	}
+	mut dsite := docusaurus.dsite_get("")!
+
 
 	if buildpublish {
 		// Build and publish production-ready artifacts
