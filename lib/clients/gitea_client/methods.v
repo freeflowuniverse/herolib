@@ -1,69 +1,119 @@
+// File: lib/clients/gitea_client/methods.v
 module gitea_client
 
+import freeflowuniverse.herolib.core.httpconnection
 import json
 import net.http
 
-// Repository operations
-pub fn (mut client GiteaClient) create_repo(name string, description string, private bool) !string {
-	data := {
-		'name':        name
-		'description': description
-		'private':     private.str()
+// NOTE: This file should contain the implementation for all API endpoints from the swagger spec.
+// Each public method on GiteaClient corresponds to an API call.
+
+//
+// Repository Operations
+//
+
+// List a user's own repositories
+pub fn (mut client GiteaClient) user_list_repos() ![]Repository {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/user/repos'
 	}
-
-	resp := client.connection.post('/api/v1/user/repos', json.encode(data))!
-	return resp
+	mut http_client := client.httpclient()!
+	return http_client.get_json_list_generic[Repository](req)!
 }
 
-pub fn (mut client GiteaClient) get_repo(owner string, repo string) !string {
-	resp := client.connection.get('/api/v1/repos/${owner}/${repo}')!
-	return resp
-}
-
-pub fn (mut client GiteaClient) list_repos() !string {
-	resp := client.connection.get('/api/v1/user/repos')!
-	return resp
-}
-
-// User operations
-pub fn (mut client GiteaClient) get_user() !string {
-	resp := client.connection.get('/api/v1/user')!
-	return resp
-}
-
-pub fn (mut client GiteaClient) list_users() !string {
-	resp := client.connection.get('/api/v1/admin/users')!
-	return resp
-}
-
-// Organization operations
-pub fn (mut client GiteaClient) create_org(name string, description string) !string {
-	data := {
-		'username':    name
-		'description': description
+// Get a repository
+pub fn (mut client GiteaClient) get_repo(owner string, repo string) !&Repository {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/repos/${owner}/${repo}'
 	}
-
-	resp := client.connection.post('/api/v1/orgs', json.encode(data))!
-	return resp
+	mut http_client := client.httpclient()!
+	return http_client.get_json_generic[Repository](req)!
 }
 
-pub fn (mut client GiteaClient) list_orgs() !string {
-	resp := client.connection.get('/api/v1/orgs')!
-	return resp
-}
-
-// Issue operations
-pub fn (mut client GiteaClient) create_issue(owner string, repo string, title string, body string) !string {
-	data := {
-		'title': title
-		'body':  body
+// Create a repository for the authenticated user.
+pub fn (mut client GiteaClient) create_current_user_repo(args CreateRepoOption) !&Repository {
+	req := httpconnection.Request{
+		method:     .post
+		prefix:     '/user/repos'
+		data:       json.encode(args)
+		dataformat: .json
 	}
-
-	resp := client.connection.post('/api/v1/repos/${owner}/${repo}/issues', json.encode(data))!
-	return resp
+	mut http_client := client.httpclient()!
+	return http_client.post_json_generic[Repository](req)!
 }
 
-pub fn (mut client GiteaClient) list_issues(owner string, repo string) !string {
-	resp := client.connection.get('/api/v1/repos/${owner}/${repo}/issues')!
-	return resp
+//
+// Issue Operations
+//
+
+// List a repository's issues
+pub fn (mut client GiteaClient) list_repo_issues(owner string, repo string) ![]Issue {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/repos/${owner}/${repo}/issues'
+	}
+	mut http_client := client.httpclient()!
+	return http_client.get_json_list_generic[Issue](req)!
+}
+
+// Get an issue
+pub fn (mut client GiteaClient) get_issue(owner string, repo string, index i64) !&Issue {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/repos/${owner}/${repo}/issues/${index}'
+	}
+	mut http_client := client.httpclient()!
+	return http_client.get_json_generic[Issue](req)!
+}
+
+// Create an issue
+pub fn (mut client GiteaClient) create_issue(owner string, repo string, args CreateIssueOption) !&Issue {
+	req := httpconnection.Request{
+		method:     .post
+		prefix:     '/repos/${owner}/${repo}/issues'
+		data:       json.encode(args)
+		dataformat: .json
+	}
+	mut http_client := client.httpclient()!
+	return http_client.post_json_generic[Issue](req)!
+}
+
+//
+// User Operations
+//
+
+// get_user gets a user by username
+pub fn (mut client GiteaClient) get_user(username string) !&User {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/users/${username}'
+	}
+	mut http_client := client.httpclient()!
+	return http_client.get_json_generic[User](req)!
+}
+
+// get_current_user gets the authenticated user
+pub fn (mut client GiteaClient) get_current_user() !&User {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/user'
+	}
+	mut http_client := client.httpclient()!
+	return http_client.get_json_generic[User](req)!
+}
+
+//
+// Admin Operations
+//
+
+// list_users lists all users
+pub fn (mut client GiteaClient) admin_list_users() ![]User {
+	req := httpconnection.Request{
+		method: .get
+		prefix: '/admin/users'
+	}
+	mut http_client := client.httpclient()!
+	return http_client.get_json_list_generic[User](req)!
 }
