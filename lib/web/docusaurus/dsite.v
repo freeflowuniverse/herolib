@@ -1,12 +1,9 @@
 module docusaurus
 
-import freeflowuniverse.herolib.osal.screen
-import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.web.site as sitemodule
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
-import time
 
 @[heap]
 pub struct DocSite {
@@ -19,7 +16,6 @@ pub mut:
 	errors       []SiteError
 	config       Configuration
 	website      sitemodule.Site
-	importparams     []ImportParams
  }
 
 pub fn (mut s DocSite) build() ! {

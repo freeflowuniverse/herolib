@@ -15,6 +15,7 @@ pub mut:
 	git_url   string
 	git_pull  bool
 	git_reset bool
+	git_root  string 
 }
 
 // get_repo_path implements the GitUrlResolver interface
@@ -22,7 +23,7 @@ pub fn get_repo_path(args GetRepoArgs) !string {
 	if os.exists(args.path) {
 		return args.path
 	}
-	mut gs := get()!
+	mut gs := get(coderoot:args.git_root)!
 	mut repo := gs.get_repo(
 		url:   args.git_url
 		pull:  args.git_pull

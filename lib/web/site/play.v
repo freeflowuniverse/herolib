@@ -49,9 +49,8 @@ pub fn play(mut plbook PlayBook) ! {
 	play_import(mut plbook, mut config)!
 	play_menu(mut plbook, mut config)!
 	play_footer(mut plbook, mut config)!
-	play_build_dest(mut plbook, mut config)!
-	play_build_dest_dev(mut plbook, mut config)!
-
+	play_publish(mut plbook, mut config)!
+	play_publish_dev(mut plbook, mut config)!
 	play_pages(mut plbook, mut website)!
 }
 
@@ -170,12 +169,12 @@ fn play_footer(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut build_dest_actions := plbook.find(filter: 'site.build_dest')!
+fn play_publish(mut plbook PlayBook, mut config SiteConfig) ! {
+	mut build_dest_actions := plbook.find(filter: 'site.publish')!
 	for mut action in build_dest_actions {
 		mut p := action.params
 		mut dest := BuildDest{
-			path:     p.get_default('path', '')!
+			path:     p.get_default('path', '')! //can be url
 			ssh_name: p.get_default('ssh_name', '')!
 		}
 		config.build_dest << dest
@@ -183,15 +182,16 @@ fn play_build_dest(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-fn play_build_dest_dev(mut plbook PlayBook, mut config SiteConfig) ! {
-	mut build_dest_dev_actions := plbook.find(filter: 'site.build_dest_dev')!
-	for mut action in build_dest_dev_actions {
+
+fn play_publish_dev(mut plbook PlayBook, mut config SiteConfig) ! {
+	mut build_dest_actions := plbook.find(filter: 'site.publish_dev')!
+	for mut action in build_dest_actions {
 		mut p := action.params
-		mut dest_dev := BuildDest{
-			path:     p.get('path')!
+		mut dest := BuildDest{
+			path:     p.get_default('path', '')! //can be url
 			ssh_name: p.get_default('ssh_name', '')!
 		}
-		config.build_dest_dev << dest_dev
+		config.build_dest_dev << dest
 		action.done = true // Mark the action as done
 	}
 }

@@ -116,7 +116,7 @@ pub fn (mut gitstructure GitStructure) get_repo(args_ ReposGetArgs) !&GitRepo {
 	}
 
 	if repositories.len > 1 {
-		repos := repositories.map('- ${it} ${it.account}.${it.name}').join_lines()
+		repos := repositories.map('- ${it.account}.${it.name}').join_lines()
 		return error('Found more than one repository for \n${args}\n${repos}')
 	}
 

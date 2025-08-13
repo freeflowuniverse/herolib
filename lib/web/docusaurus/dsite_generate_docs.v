@@ -18,26 +18,19 @@ mut:
 	errors          []string // collect errors here
 }
 
-@[params]
-struct SiteGeneratorArgs {
-mut:
-	path string
-	flat bool // if flat then won't use sitenames as subdir's
-	site Site // this is the generic website we are feeding
-}
-
 // Generate docs from site configuration
-pub fn generate_docs(args SiteGeneratorArgs) ! {
-	mut path := args.path
-	if args.path == '' {
-		return error('Path must be provided to generate site')
-	}
+pub fn (mut docsite DocSite) generate_docs() ! {
+
+	c := config()!
+
+	//we generate the docs in the build path
+	docs_path := '${c.path_build.path}/docs'
 
 	mut gen := SiteGenerator{
-		path:   pathlib.get_dir(path: path, create: true)!
+		path:   pathlib.get_dir(path: docs_path, create: true)!
 		client: doctreeclient.new()!
-		flat:   args.flat
-		site:   args.site
+		flat:   true
+		site:   docsite.website
 	}
 
 	for section in gen.site.sections {
@@ -53,26 +46,26 @@ pub fn generate_docs(args SiteGeneratorArgs) ! {
 	}
 }
 
-fn (mut mysite SiteGenerator) error(msg string) ! {
+fn (mut generator SiteGenerator) error(msg string) ! {
 	console.print_stderr('Error: ${msg}')
-	mysite.errors << msg
+	generator.errors << msg
 }
 
-fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
+fn (mut generator SiteGenerator) page_generate(args_ Page) ! {
 	mut args := args_
 
 	mut content := ['---']
 
 	mut parts := args.src.split(':')
 	if parts.len != 2 {
-		mysite.error("Invalid src format for page '${args.src}', expected format: collection:page_name, TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist")!
+		generator.error("Invalid src format for page '${args.src}', expected format: collection:page_name, TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist")!
 		return
 	}
 	collection_name := parts[0]
 	page_name := parts[1]
 
-	mut page_content := mysite.client.get_page_content(collection_name, page_name) or {
-		mysite.error("Couldn't find page '${collection_name}:${page_name}' is formatted as collectionname:pagename.  TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist. ")!
+	mut page_content := generator.client.get_page_content(collection_name, page_name) or {
+		generator.error("Couldn't find page '${collection_name}:${page_name}' is formatted as collectionname:pagename.  TODO: fix in ${args.path}, check the collection & page_name exists in the pagelist. ")!
 		return
 	}
 
@@ -135,18 +128,18 @@ fn (mut mysite SiteGenerator) page_generate(args_ Page) ! {
 		args.path += '.md'
 	}
 
-	mut pagepath := '${mysite.path.path}/${args.path}'
+	mut pagepath := '${generator.path.path}/${args.path}'
 	mut pagefile := pathlib.get_file(path: pagepath, create: true)!
 
 	pagefile.write(c)!
 
-	mysite.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
-		mysite.error("Couldn't copy image ${pagefile} for '${page_name}' in collection '${collection_name}', try to find the image and fix the path is in ${args.path}.}\nError: ${err}")!
+	generator.client.copy_images(collection_name, page_name, pagefile.path_dir()) or {
+		generator.error("Couldn't copy image ${pagefile} for '${page_name}' in collection '${collection_name}', try to find the image and fix the path is in ${args.path}.}\nError: ${err}")!
 		return
 	}
 }
 
-fn (mut mysite SiteGenerator) section_generate(args_ Section) ! {
+fn (mut generator SiteGenerator) section_generate(args_ Section) ! {
 	mut args := args_
 
 	mut c := '{
@@ -157,7 +150,7 @@ fn (mut mysite SiteGenerator) section_generate(args_ Section) ! {
     }
   }'
 
-	mut category_path := '${mysite.path.path}/${args.path}/_category_.json'
+	mut category_path := '${generator.path.path}/${args.path}/_category_.json'
 	mut catfile := pathlib.get_file(path: category_path, create: true)!
 
 	catfile.write(c)!

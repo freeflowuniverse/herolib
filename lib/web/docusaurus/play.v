@@ -9,16 +9,11 @@ pub fn play(mut plbook PlayBook) ! {
 		return
 	}
 
-	// 1. Process generic site configuration first.
-	// This populates the global `site.websites` map.
-	site.play(mut plbook)!
-
+	//there should be 1 define section
 	mut action_define := plbook.ensure_once(filter: 'docusaurus.define')!
-
-	// 3. Process `docusaurus.add` actions to create sites.
 	mut param_define := action_define.params
 
-	_ := factory_set(
+	config_set(
 		path_build:      param_define.get_default('path_build', '')!
 		path_publish:    param_define.get_default('path_publish', '')!
 		reset:           param_define.get_default_false('reset')
@@ -34,25 +29,6 @@ pub fn play(mut plbook PlayBook) ! {
 	action_define.done = true
 	mut dsite := dsite_get(site_name)!
 
-	// imports
-	mut actions_import := plbook.find(filter: 'docusaurus.import')!
-	for mut action in actions_import {
-		mut p := action.params
-		// TODO: We need to get the repo path from the path
-		// Import paths like ../docusaurus are authored relative to the project root (docs_owh)
-		// project_root = dirname(dirname(plbook.path)) since plbook.path = ebooks/owh_investment_memo
-		mut project_root := os.abs_path(os.join_path(plbook.path, '..', '..'))
-		dsite.importparams << ImportParams{
-			path:      p.get_default('path', '')!
-			git_url:   p.get_default('git_url', '')!
-			git_reset: p.get_default_false('git_reset')
-			git_pull:  p.get_default_false('git_pull')
-			git_root:  project_root
-			dest:      p.get_default('dest', '')!
-		}
-		action.done = true
-	}
-
 	mut actions_dev := plbook.find(filter: 'docusaurus.dev')!
 	if actions_dev.len > 1 {
 		return error('Multiple "docusaurus.dev" actions found. Only one is allowed.')
@@ -67,6 +43,7 @@ pub fn play(mut plbook PlayBook) ! {
 		action.done = true
 	}
 
+
 	mut actions_build := plbook.find(filter: 'docusaurus.build')!
 	if actions_build.len > 1 {
 		return error('Multiple "docusaurus.build" actions found. Only one is allowed.')
@@ -76,9 +53,9 @@ pub fn play(mut plbook PlayBook) ! {
 		action.done = true
 	}
 
-	mut actions_export := plbook.find(filter: 'docusaurus.export')!
+	mut actions_export := plbook.find(filter: 'docusaurus.publish')!
 	if actions_export.len > 1 {
-		return error('Multiple "docusaurus.export" actions found. Only one is allowed.')
+		return error('Multiple "docusaurus.publish" actions found. Only one is allowed.')
 	}
 	for mut action in actions_export {
 		dsite.build_publish()!

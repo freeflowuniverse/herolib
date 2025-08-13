@@ -139,8 +139,6 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 
 	console.print_header('Running Docusaurus for: ${docusaurus_path.path}')
 
-	// The `playcmds.run` helper expects a string path. Use the underlying
-	// filesystem path from the pathlib.Path value.
 	playcmds.run(
 		heroscript_path: docusaurus_path.path
 		reset:           false

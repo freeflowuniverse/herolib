@@ -4,59 +4,54 @@ import freeflowuniverse.herolib.develop.gittools
 import os
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.core.texttools.regext
 
-@[params]
-pub struct ImportParams {
-	path      string
-	git_url   string
-	git_reset bool
-	git_root  string
-	git_pull  bool
-	dest      string
-}
 
-pub fn (mut site DocSite) import() ! {
-	for importparams in site.importparams {
-		console.print_header('Importing: ${importparams.path} from ${importparams.git_url}')
-		mut f := factory_get()!
-		mut mypath := ''
-		mut target_path := if os.is_abs_path(importparams.path) {
-			importparams.path
-		} else {
-			os.abs_path(os.join_path(importparams.git_root, importparams.path))
-		}
 
-		// Use gittools to get/update the repo, then navigate to the specific path
-		repo_path := gittools.get_repo_path(
-			git_pull:  importparams.git_pull
-			git_reset: importparams.git_reset
-			git_url:   importparams.git_url
-			path:      importparams.git_root
+pub fn (mut docsite DocSite) import() ! {
+	for importparams in docsite.website.siteconfig.imports {
+
+		console.print_header('Importing: path:${importparams.path} or url:${importparams.url}')
+	
+		// pub struct ImportItem {
+		// 	name    string // will normally be empty
+		// 	url     string // http git url can be to specific path
+		// 	path    string
+		// 	dest    string            // location in the docs folder of the place where we will build the documentation site e.g. docusaurus
+		// 	replace map[string]string // will replace ${NAME} in the imported content
+		// 	visible bool = true
+		// }
+
+		c:=config()!
+
+		// Use gittools to get path of what we want to import
+		import_path := gittools.get_repo_path(
+			git_pull:  c.reset
+			git_reset: c.reset
+			git_url:   importparams.url
+			git_root:  c.coderoot
+			path:      importparams.path
 		)!
 
-		mut mypatho := pathlib.get(repo_path)
-		// TODO: We need to think about a better way to do it
-		mypatho.path = repo_path + '/' + importparams.path.all_after('/')
+		mut import_patho := pathlib.get(import_path)
 
-		mut static_dest := '${f.path_build.path}/static'
-		println('static_dest: ${static_dest}')
-
-		if importparams.dest.len > 0 {
-			static_dest = '${static_dest}/${importparams.dest}'
+		if importparams.dest.starts_with("/") {
+			return error("Import path ${importparams.dest} must be relative, will be relative in relation to the build dir.")
 		}
-		mypatho.copy(dest: static_dest, delete: false)!
 
-		// println(item)
-		// // replace: {'NAME': 'MyName', 'URGENCY': 'red'}
-		// mut ri := regext.regex_instructions_new()
-		// for key, val in item.replace {
-		// 	ri.add_item('\{${key}\}', val)!
-		// }
-		// ri.replace_in_dir(
-		// 	path:       '${f.path_build.path}/docs/${item.dest}'
-		// 	extensions: [
-		// 		'md',
-		// 	]
-		// )!
+		import_patho.copy(dest: '${c.path_build.path}/${importparams.dest}', delete: false)!
+
+		// println(importparams)
+		// replace: {'NAME': 'MyName', 'URGENCY': 'red'}
+		mut ri := regext.regex_instructions_new()
+		for key, val in importparams.replace {
+			ri.add_item('\{${key}\}', val)!
+		}
+		ri.replace_in_dir(
+			path:       '${c.path_build.path}/docs/${importparams.dest}'
+			extensions: [
+				'md',
+			]
+		)!
 	}
 }
