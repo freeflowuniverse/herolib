@@ -22,9 +22,11 @@ pub:
 pub struct FactoryArgs {
 pub mut:
 	name  string = 'default'
+	host  string = 'localhost'
 	port  int    = 8080
 	title string = 'Admin'
 	menu  []MenuItem
+	open  bool
 }
 
 // The App holds server state and config
