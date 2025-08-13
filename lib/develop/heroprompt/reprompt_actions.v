@@ -10,3 +10,7 @@ fn (mut ws HeropromptWorkspace) heroprompt() !string {
 	// TODO: fill in template based on selection
 	return ''
 }
+
+pub fn get_tree() {}
+
+pub fn format_prompt() {}

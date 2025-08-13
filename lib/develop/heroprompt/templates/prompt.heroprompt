@@ -1,0 +1,11 @@
+<user_instructions>
+{{text}}
+</user_instructions>
+
+<file_map>
+{{map}}
+</file_map>
+
+<file_contents>
+{{content}}
+</file_contents>
