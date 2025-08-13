@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -cg -w -parallel-cc -enable-globals run
+#!/usr/bin/env -S v -n -g -cg -w -parallel-cc -showcc -enable-globals run
 
 // #!/usr/bin/env -S v -n -w -gc none -cc tcc -d use_openssl -enable-globals run
 import os
@@ -43,9 +43,9 @@ if os.user_os() == 'macos' {
 // Set compilation command based on OS and mode
 compile_cmd := if os.user_os() == 'macos' {
 	if prod_mode {
-		'v -enable-globals -w -n -prod hero.v'
+		'v -enable-globals -g -w -n -prod hero.v'
 	} else {
-		'v -w -cg -gc none  -cc tcc -d use_openssl -enable-globals hero.v'
+		'v  -n -g -w -cg -gc none  -cc tcc -d use_openssl -enable-globals hero.v'
 	}
 } else {
 	if prod_mode {
@@ -56,6 +56,7 @@ compile_cmd := if os.user_os() == 'macos' {
 }
 
 println('Building in ${if prod_mode { 'production' } else { 'debug' }} mode...')
+// eprintln(compile_cmd)
 
 if os.system(compile_cmd) != 0 {
 	panic('Failed to compile hero.v with command: ${compile_cmd}')

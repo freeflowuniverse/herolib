@@ -13,7 +13,6 @@ pub mut:
 
 pub fn dsite_define(sitename string) ! {
 	console.print_header('Add Docusaurus Site: ${sitename}')
-
 	mut c := config()!
 
 	path_publish := '${c.path_publish.path}/${sitename}'

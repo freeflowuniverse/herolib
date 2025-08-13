@@ -16,6 +16,7 @@ pub mut:
 	errors       []SiteError
 	config       Configuration
 	website      sitemodule.Site
+	generated    bool
  }
 
 pub fn (mut s DocSite) build() ! {

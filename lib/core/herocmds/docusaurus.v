@@ -1,13 +1,11 @@
 module herocmds
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.web.docusaurus
 import freeflowuniverse.herolib.core.playcmds
 import freeflowuniverse.herolib.develop.gittools
 import os
 import cli { Command, Flag }
-import freeflowuniverse.herolib.core.playbook
 
 pub fn cmd_docusaurus(mut cmdroot Command) Command {
 	mut cmd_run := Command{

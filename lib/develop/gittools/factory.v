@@ -20,9 +20,16 @@ pub mut:
 
 // get_repo_path implements the GitUrlResolver interface
 pub fn get_repo_path(args GetRepoArgs) !string {
-	if os.exists(args.path) {
-		return args.path
+	if args.path!=""{
+		if os.exists(args.path) {
+			return args.path
+		}else{
+			if args.git_url == "" {
+				return error("can't resolve git repo path without url or existing path, ${args.path} does not exist.")
+			}
+		}
 	}
+	
 	mut gs := get(coderoot:args.git_root)!
 	mut repo := gs.get_repo(
 		url:   args.git_url

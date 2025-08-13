@@ -8,6 +8,9 @@ import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.ui.console
 
 pub fn (mut docsite DocSite) generate() ! {
+	if docsite.generated {
+		return
+	}
 	mut c := config()!
 
 	console.print_header(' docsite generate: ${docsite.name} on ${c.path_build.path}')

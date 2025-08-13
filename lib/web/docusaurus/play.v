@@ -22,12 +22,16 @@ pub fn play(mut plbook PlayBook) ! {
 	)!
 
 	site_name := param_define.get('name') or {
-		return error('In docusaurus.add, param "name" is required.')
+		return error('In docusaurus.define, param "name" is required.')
 	}
-
+	
 	dsite_define(site_name)!
+
+	
 	action_define.done = true
 	mut dsite := dsite_get(site_name)!
+
+	dsite.generate()!
 
 	mut actions_dev := plbook.find(filter: 'docusaurus.dev')!
 	if actions_dev.len > 1 {

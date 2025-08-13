@@ -6,15 +6,14 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.web.bun
 
-fn install() ! {
+fn install(c DocusaurusConfig) ! {
 	mut gs := gittools.new()!
-
-	mut c:=config()!
 
 	if c.reset {
 		osal.rm(c.path_build.path)!
 		osal.dir_ensure(c.path_build.path)!
 	}
+
 
 	template_path := gs.get_path(
 		pull:  c.template_update
@@ -26,18 +25,17 @@ fn install() ! {
 
 	template_path0.copy(dest: c.path_build.path, delete: false)! //the dir has already been deleted so no point to delete again
 
-	if c.install { //config.install is set in factory if there is missing bun
-		// install bun
-		mut installer := bun.get()!
-		installer.install()!
-		osal.exec(
-			// always stay in the context of the build directory
-			cmd: '
-				${osal.profile_path_source_and()!} 
-				export PATH=${c.path_build.path}/node_modules/.bin::${os.home_dir()}/.bun/bin/:\$PATH
-				cd ${c.path_build.path}
-				bun install
-			'
-		)!
-	}
+	// install bun
+	mut installer := bun.get()!
+	installer.install()!
+	osal.exec(
+		// always stay in the context of the build directory
+		cmd: '
+			${osal.profile_path_source_and()!} 
+			export PATH=${c.path_build.path}/node_modules/.bin::${os.home_dir()}/.bun/bin/:\$PATH
+			cd ${c.path_build.path}
+			bun install
+		'
+	)!
+
 }

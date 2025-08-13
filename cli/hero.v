@@ -3,8 +3,6 @@ module main
 import os
 import cli { Command }
 import freeflowuniverse.herolib.core.herocmds
-// import freeflowuniverse.herolib.hero.cmds
-// import freeflowuniverse.herolib.hero.publishing
 import freeflowuniverse.herolib.installers.base
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.ui
@@ -83,9 +81,14 @@ fn do() ! {
 
 	base.redis_install()!
 
-	// herocmds.cmd_bootstrap(mut cmd)
+	
+
 	herocmds.cmd_run(mut cmd)
 	herocmds.cmd_git(mut cmd)
+	herocmds.cmd_generator(mut cmd)
+	herocmds.cmd_docusaurus(mut cmd)
+
+	// herocmds.cmd_bootstrap(mut cmd)
 	// herocmds.cmd_init(mut cmd)
 	// herocmds.cmd_imagedownsize(mut cmd)
 	// herocmds.cmd_biztools(mut cmd)
@@ -103,8 +106,6 @@ fn do() ! {
 	// herocmds.cmd_caddy(mut cmd)
 	// herocmds.cmd_zola(mut cmd)
 	// herocmds.cmd_juggler(mut cmd)
-	herocmds.cmd_generator(mut cmd)
-	herocmds.cmd_docusaurus(mut cmd)
 	// herocmds.cmd_starlight(mut cmd)
 	// herocmds.cmd_docsorter(mut cmd)
 	// cmd.add_command(publishing.cmd_publisher(pre_func))
@@ -113,9 +114,15 @@ fn do() ! {
 }
 
 fn main() {
-	do() or { panic(err) }
+	do() or {
+		$dbg;
+		eprintln('Error: ${err}')
+		print_backtrace()
+		exit(1)
+	}
 }
 
-fn pre_func(cmd Command) ! {
-	herocmds.plbook_run(cmd)!
-}
+
+// fn pre_func(cmd Command) ! {
+// 	herocmds.plbook_run(cmd)!
+// }

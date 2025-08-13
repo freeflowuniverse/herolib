@@ -118,6 +118,9 @@ pub fn (mut plbook PlayBook) exists_once(args FindArgs) bool {
 pub fn (mut plbook PlayBook) max_once(args FindArgs) !bool {
 	mut res := plbook.find(args) or { [] }
 	if res.len > 1 {
+		$if debug {
+			print_backtrace()
+		}
 		return error("found more than one action: '${args.filter}'")
 	}
 	return res.len == 1
@@ -143,6 +146,9 @@ pub fn (mut plbook PlayBook) get(args FindArgs) !&Action {
 	if res.len == 0 {
 		return error("can't find action: '${args.filter}'")
 	} else if res.len > 1 {
+		$if debug {
+			print_backtrace()
+		}		
 		return error("found more than one action: '${args.filter}'")
 	}
 	return res[0] or { panic('bug') }

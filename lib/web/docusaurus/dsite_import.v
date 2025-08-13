@@ -24,6 +24,10 @@ pub fn (mut docsite DocSite) import() ! {
 
 		c:=config()!
 
+		if importparams.path == "" && importparams.url != "" {			
+			return error("in import for docusaurus need to specify url or path")
+		}
+
 		// Use gittools to get path of what we want to import
 		import_path := gittools.get_repo_path(
 			git_pull:  c.reset

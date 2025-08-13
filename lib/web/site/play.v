@@ -1,5 +1,5 @@
 module site
-
+import os
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.core.texttools
 import time
@@ -70,10 +70,18 @@ fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 				}
 			}
 		}
+
+		mut importpath := p.get_default('path', '')!
+		if importpath != '' {
+			if ! importpath.starts_with('/') {
+				importpath = os.abs_path('${plbook.path}/${importpath}')
+			}
+		}
+
 		mut import_ := ImportItem{
 			name:    p.get_default('name', '')!
-			url:     p.get('url')!
-			path:    p.get_default('path', '')!
+			url:     p.get_default('url', '')!
+			path:    importpath
 			dest:    p.get_default('dest', '')!
 			replace: replace_map
 			visible: p.get_default_false('visible')

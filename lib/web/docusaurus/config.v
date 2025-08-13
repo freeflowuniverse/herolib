@@ -55,7 +55,7 @@ pub fn config() !DocusaurusConfig {
 		template_update: args.template_update
 	}
 	if c.install {
-		install()!
+		install(c)!
 		c.install=false
 	}
 	return c

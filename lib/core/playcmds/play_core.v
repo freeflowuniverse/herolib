@@ -17,7 +17,10 @@ fn play_core(mut plbook PlayBook) ! {
 	// Track included paths to prevent infinite recursion
 	mut included_paths := map[string]bool{}
 
+	
+
 	for mut action_ in plbook.find(filter: 'play.*')! {
+		
 		if action_.name == 'include' {
 			mut action := *action_
 			mut toreplace := action.params.get_default('replace', '')!
@@ -25,7 +28,7 @@ fn play_core(mut plbook PlayBook) ! {
 			if playrunpath.len == 0 {
 				action.name = 'pull'
 				playrunpath = gittools.get_repo_path(
-					path:      action.params.get_default('path', '')!
+					path:      playrunpath
 					git_url:   action.params.get_default('git_url', '')!
 					git_reset: action.params.get_default_false('git_reset')
 					git_pull:  action.params.get_default_false('git_pull')
@@ -60,6 +63,7 @@ fn play_core(mut plbook PlayBook) ! {
 		}
 	}
 
+	
     // ----------------------------------------------------------------
     // 2.  Session environment handling
     // ----------------------------------------------------------------
@@ -68,6 +72,7 @@ fn play_core(mut plbook PlayBook) ! {
     
     // !!session.env_set / env_set_once
     for mut action in plbook.find(filter: 'session.')! {
+
         mut p := action.params
         match action.name {
             'env_set' {
@@ -85,6 +90,7 @@ fn play_core(mut plbook PlayBook) ! {
         }
         action.done = true
     }
+	
 
     // ----------------------------------------------------------------
     // 3.  Template replacement in action parameters
@@ -136,4 +142,5 @@ fn play_core(mut plbook PlayBook) ! {
 		session.save()!
 		action.done = true
 	}
+
 }
