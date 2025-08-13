@@ -1,12 +1,12 @@
-module reprompt
+module heroprompt
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 
 __global (
-	reprompt_global  map[string]&RepromptWorkspace
-	reprompt_default string
+	heroprompt_global  map[string]&HeropromptWorkspace
+	heroprompt_default string
 )
 
 /////////FACTORY
@@ -25,61 +25,61 @@ fn args_get(args_ ArgsGet) ArgsGet {
 	return args
 }
 
-pub fn get(args_ ArgsGet) !&RepromptWorkspace {
+pub fn get(args_ ArgsGet) !&HeropromptWorkspace {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	mut obj := RepromptWorkspace{
+	mut obj := HeropromptWorkspace{
 		name: args.name
 	}
-	if args.name !in reprompt_global {
+	if args.name !in heroprompt_global {
 		if !exists(args)! {
 			set(obj)!
 		} else {
-			heroscript := context.hero_config_get('reprompt', args.name)!
+			heroscript := context.hero_config_get('heroprompt', args.name)!
 			mut obj_ := heroscript_loads(heroscript)!
 			set_in_mem(obj_)!
 		}
 	}
-	return reprompt_global[args.name] or {
-		println(reprompt_global)
+	return heroprompt_global[args.name] or {
+		println(heroprompt_global)
 		// bug if we get here because should be in globals
-		panic('could not get config for reprompt with name, is bug:${args.name}')
+		panic('could not get config for heroprompt with name, is bug:${args.name}')
 	}
 }
 
 // register the config for the future
-pub fn set(o RepromptWorkspace) ! {
+pub fn set(o HeropromptWorkspace) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('reprompt', o.name, heroscript)!
+	context.hero_config_set('heroprompt', o.name, heroscript)!
 }
 
 // does the config exists?
 pub fn exists(args_ ArgsGet) !bool {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	return context.hero_config_exists('reprompt', args.name)
+	return context.hero_config_exists('heroprompt', args.name)
 }
 
 pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_delete('reprompt', args.name)!
-	if args.name in reprompt_global {
-		// del reprompt_global[args.name]
+	context.hero_config_delete('heroprompt', args.name)!
+	if args.name in heroprompt_global {
+		// del heroprompt_global[args.name]
 	}
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o RepromptWorkspace) ! {
+fn set_in_mem(o HeropromptWorkspace) ! {
 	mut o2 := obj_init(o)!
-	reprompt_global[o.name] = &o2
-	reprompt_default = o.name
+	heroprompt_global[o.name] = &o2
+	heroprompt_default = o.name
 }
 
 pub fn play(mut plbook PlayBook) ! {
-	mut install_actions := plbook.find(filter: 'reprompt.configure')!
+	mut install_actions := plbook.find(filter: 'heroprompt.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
@@ -89,9 +89,9 @@ pub fn play(mut plbook PlayBook) ! {
 	}
 }
 
-// switch instance to be used for reprompt
+// switch instance to be used for heroprompt
 pub fn switch(name string) {
-	reprompt_default = name
+	heroprompt_default = name
 }
 
 // helpers
