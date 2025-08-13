@@ -6,6 +6,7 @@ import freeflowuniverse.herolib.biz.bizmodel
 import freeflowuniverse.herolib.web.site
 import freeflowuniverse.herolib.web.docusaurus
 import freeflowuniverse.herolib.clients.openai
+import freeflowuniverse.herolib.clients.giteaclient
 
 // -------------------------------------------------------------------
 // run – entry point for all HeroScript play‑commands
@@ -18,6 +19,11 @@ pub mut:
 	heroscript_path string
 	plbook          ?PlayBook
 	reset           bool
+	emptycheck      bool = true
+}
+
+pub fn play(args_ PlayArgs) ! {
+	return run(args_)
 }
 
 pub fn run(args_ PlayArgs) ! {
@@ -45,6 +51,11 @@ pub fn run(args_ PlayArgs) ! {
 
 	docusaurus.play(mut plbook)!
 
-	// Ensure we did not leave any actions un‑processed
-	plbook.empty_check()!
+	giteaclient.play(mut plbook)!
+
+	if args.emptycheck{
+		// Ensure we did not leave any actions un‑processed
+		plbook.empty_check()!
+	}
+
 }

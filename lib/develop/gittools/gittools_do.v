@@ -43,7 +43,7 @@ pub mut:
 //```
 pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut args := args_
-	// console.print_debug('git do ${args.cmd}')
+	console.print_debug('git do ${args.cmd}')
 
 	if args.path == '' && args.url == '' && args.repo == '' && args.account == ''
 		&& args.provider == '' && args.filter == '' {
@@ -59,17 +59,6 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			args.account = r0.account
 			args.provider = r0.provider
 		}
-	}
-
-	// see if a url was used means we are in 1 repo
-	if args.url.len > 0 {
-		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {
-			return error('when specify url cannot specify repo, account, profider or filter')
-		}
-		mut r0 := gs.get_repo(url: args.url)!
-		args.repo = r0.name
-		args.account = r0.account
-		args.provider = r0.provider
 	}
 
 	args.cmd = args.cmd.trim_space().to_lower()
@@ -126,6 +115,18 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		}
 		gs.clone(url: args.url, recursive: args.recursive)!
 		return ''
+	}
+
+
+	// see if a url was used means we are in 1 repo
+	if args.url.len > 0 {
+		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {
+			return error('when specify url cannot specify repo, account, profider or filter')
+		}
+		mut r0 := gs.get_repo(url: args.url)!
+		args.repo = r0.name
+		args.account = r0.account
+		args.provider = r0.provider
 	}
 
 	if args.cmd in 'pull,push,commit,delete'.split(',') {

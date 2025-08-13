@@ -88,27 +88,6 @@ fn do() ! {
 	herocmds.cmd_generator(mut cmd)
 	herocmds.cmd_docusaurus(mut cmd)
 
-	// herocmds.cmd_bootstrap(mut cmd)
-	// herocmds.cmd_init(mut cmd)
-	// herocmds.cmd_imagedownsize(mut cmd)
-	// herocmds.cmd_biztools(mut cmd)
-	// herocmds.cmd_gen(mut cmd)
-	// herocmds.cmd_sshagent(mut cmd)
-	// herocmds.cmd_installers(mut cmd)
-	// herocmds.cmd_configure(mut cmd)
-	// herocmds.cmd_postgres(mut cmd)
-	// Ensure the herocmds module is imported so the remaining commands are visible
-	// `cmd_mdbook` is not part of the current code base – it has been removed.
-	// If you need markdown‑book support, re‑introduce the command implementation
-	// and uncomment the line below.
-	// herocmds.cmd_mdbook(mut cmd)
-	// herocmds.cmd_luadns(mut cmd)
-	// herocmds.cmd_caddy(mut cmd)
-	// herocmds.cmd_zola(mut cmd)
-	// herocmds.cmd_juggler(mut cmd)
-	// herocmds.cmd_starlight(mut cmd)
-	// herocmds.cmd_docsorter(mut cmd)
-	// cmd.add_command(publishing.cmd_publisher(pre_func))
 	cmd.setup()
 	cmd.parse(os.args)
 }

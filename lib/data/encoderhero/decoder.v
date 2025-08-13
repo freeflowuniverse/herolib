@@ -24,6 +24,9 @@ fn decode_struct[T](_ T, data string) !T {
 		if !data.contains(action_name) {
 			action_name = '${obj_name}.configure'
 			if !data.contains(action_name) {
+				$if debug{
+					print_backtrace()
+				}
 				return error('Data does not contain action name: ${obj_name}.define or ${action_name}')
 			}
 		}

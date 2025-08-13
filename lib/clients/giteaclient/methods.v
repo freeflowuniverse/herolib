@@ -1,29 +1,25 @@
-// File: lib/clients/gitea_client/methods.v
-module gitea_client
+// File: lib/clients/giteaclient/methods.v
+module giteaclient
 
 import freeflowuniverse.herolib.core.httpconnection
 import json
 import net.http
 
-// NOTE: This file should contain the implementation for all API endpoints from the swagger spec.
-// Each public method on GiteaClient corresponds to an API call.
-
-//
-// Repository Operations
-//
-
 // List a user's own repositories
 pub fn (mut client GiteaClient) user_list_repos() ![]Repository {
+	$dbg;
 	req := httpconnection.Request{
 		method: .get
 		prefix: '/user/repos'
 	}
 	mut http_client := client.httpclient()!
-	return http_client.get_json_list_generic[Repository](req)!
+	r:=http_client.get_json_list_generic[Repository](req)!
+	$dbg;
+	return r
 }
 
 // Get a repository
-pub fn (mut client GiteaClient) get_repo(owner string, repo string) !&Repository {
+pub fn (mut client GiteaClient) get_repo(owner string, repo string) !Repository {
 	req := httpconnection.Request{
 		method: .get
 		prefix: '/repos/${owner}/${repo}'
@@ -33,7 +29,7 @@ pub fn (mut client GiteaClient) get_repo(owner string, repo string) !&Repository
 }
 
 // Create a repository for the authenticated user.
-pub fn (mut client GiteaClient) create_current_user_repo(args CreateRepoOption) !&Repository {
+pub fn (mut client GiteaClient) create_current_user_repo(args CreateRepoOption) !Repository {
 	req := httpconnection.Request{
 		method:     .post
 		prefix:     '/user/repos'
@@ -59,7 +55,7 @@ pub fn (mut client GiteaClient) list_repo_issues(owner string, repo string) ![]I
 }
 
 // Get an issue
-pub fn (mut client GiteaClient) get_issue(owner string, repo string, index i64) !&Issue {
+pub fn (mut client GiteaClient) get_issue(owner string, repo string, index i64) !Issue {
 	req := httpconnection.Request{
 		method: .get
 		prefix: '/repos/${owner}/${repo}/issues/${index}'
@@ -69,7 +65,7 @@ pub fn (mut client GiteaClient) get_issue(owner string, repo string, index i64) 
 }
 
 // Create an issue
-pub fn (mut client GiteaClient) create_issue(owner string, repo string, args CreateIssueOption) !&Issue {
+pub fn (mut client GiteaClient) create_issue(owner string, repo string, args CreateIssueOption) !Issue {
 	req := httpconnection.Request{
 		method:     .post
 		prefix:     '/repos/${owner}/${repo}/issues'
@@ -85,7 +81,7 @@ pub fn (mut client GiteaClient) create_issue(owner string, repo string, args Cre
 //
 
 // get_user gets a user by username
-pub fn (mut client GiteaClient) get_user(username string) !&User {
+pub fn (mut client GiteaClient) get_user(username string) !User {
 	req := httpconnection.Request{
 		method: .get
 		prefix: '/users/${username}'
@@ -95,7 +91,7 @@ pub fn (mut client GiteaClient) get_user(username string) !&User {
 }
 
 // get_current_user gets the authenticated user
-pub fn (mut client GiteaClient) get_current_user() !&User {
+pub fn (mut client GiteaClient) get_current_user() !User {
 	req := httpconnection.Request{
 		method: .get
 		prefix: '/user'

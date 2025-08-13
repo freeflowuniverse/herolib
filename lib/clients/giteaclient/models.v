@@ -1,4 +1,4 @@
-module gitea_client
+module giteaclient
 
 import time
 
@@ -27,9 +27,9 @@ pub:
 
 pub struct Activity {
 pub:
-	act_user &User
+	act_user User
 	act_user_id i64
-	comment &Comment
+	comment Comment
 	comment_id i64
 	content string
 	created time.Time
@@ -37,7 +37,7 @@ pub:
 	is_private bool
 	op_type string
 	ref_name string
-	repo &Repository
+	repo Repository
 	repo_id i64
 	user_id i64
 }
@@ -64,12 +64,12 @@ pub:
 pub struct AnnotatedTag {
 pub:
 	message string
-	object &AnnotatedTagObject
+	object AnnotatedTagObject
 	sha string
 	tag string
-	tagger &CommitUser
+	tagger CommitUser
 	url string
-	verification &PayloadCommitVerification
+	verification PayloadCommitVerification
 }
 
 pub struct Attachment {
@@ -93,7 +93,7 @@ pub:
 
 pub struct Branch {
 pub:
-	commit &PayloadCommit
+	commit PayloadCommit
 	effective_branch_protection_name string
 	enable_status_check bool
 	name string
@@ -145,10 +145,10 @@ pub:
 
 pub struct ChangeFilesOptions {
 pub:
-	author &Identity
+	author Identity
 	branch string
-	committer &Identity
-	dates &CommitDateOptions
+	committer Identity
+	dates CommitDateOptions
 	files []ChangeFileOperation
 	message string
 	new_branch string
@@ -170,15 +170,15 @@ pub:
 
 pub struct Commit {
 pub:
-	author &User
-	commit &RepoCommit
-	committer &User
+	author User
+	commit RepoCommit
+	committer User
 	created time.Time
 	files []CommitAffectedFiles
 	html_url string
 	parents []CommitMeta
 	sha string
-	stats &CommitStats
+	stats CommitStats
 	url string
 }
 
@@ -215,11 +215,26 @@ pub:
 	name string
 }
 
+pub struct Comment {
+pub:
+	assets []Attachment
+	body string
+	created_at time.Time
+	html_url string
+	id i64
+	issue_url string
+	original_author string
+	original_author_id i64
+	pull_request_url string
+	updated_at time.Time
+	user User
+}
+
 pub struct CreateIssueOption {
 pub:
 	title string
 	assignee string
-	assignees []string
+		assignees []string
 	body string
 	closed bool
 	due_date time.Time
@@ -250,21 +265,28 @@ pub:
 	name string
 }
 
+pub struct InternalTracker {
+pub:
+	allow_only_contributors_to_track_time bool
+	enable_issue_dependencies bool
+	enable_time_tracker bool
+}
+
 pub struct Issue {
 pub:
 	id i64
 	url string
 	html_url string
 	number i64
-	user &User
+	user User
 	original_author string
 	original_author_id i64
 	title string
 	body string
 	ref string
 	labels []Label
-	milestone &Milestone
-	assignee &User
+	milestone Milestone
+	assignee User
 	assignees []User
 	state string // StateType
 	is_locked bool
@@ -273,8 +295,8 @@ pub:
 	updated_at time.Time
 	closed_at time.Time
 	due_date time.Time
-	pull_request &PullRequestMeta
-	repository &RepositoryMeta
+	pull_request PullRequestMeta
+	repository RepositoryMeta
 	assets []Attachment
 	pin_order i64
 }
@@ -304,15 +326,58 @@ pub:
 	due_on time.Time
 }
 
+pub struct Organization {
+pub:
+	avatar_url string
+	description string
+	email string
+	full_name string
+	id i64
+	location string
+	name string
+	repo_admin_change_team_access bool
+	username string
+	visibility string
+	website string
+}
+
 pub struct PayloadCommitVerification {
 pub:
 	payload string
 	reason string
 	signature string
-	signer &PayloadUser
+	signer PayloadUser
 	verified bool
 }
 
+
+pub struct PayloadCommit {
+pub:
+	added []string
+	author PayloadUser
+	committer PayloadUser
+	id string
+	message string
+	modified []string
+	removed []string
+	timestamp time.Time
+	url string
+	verification PayloadCommitVerification
+}
+
+pub struct PayloadUser {
+pub:
+	email string
+	name string
+	username string
+}
+
+pub struct Permission {
+pub:
+	admin bool
+	pull bool
+	push bool
+}
 
 pub struct PullRequestMeta {
 pub:
@@ -324,18 +389,18 @@ pub:
 
 pub struct RepoCommit {
 pub:
-	author &CommitUser
-	committer &CommitUser
+	author CommitUser
+	committer CommitUser
 	message string
-	tree &CommitMeta
+	tree CommitMeta
 	url string
-	verification &PayloadCommitVerification
+	verification PayloadCommitVerification
 }
 
 pub struct Repository {
 pub:
 	id i64
-	owner &User
+	owner User
 	name string
 	full_name string
 	description string
@@ -343,7 +408,7 @@ pub:
 	private bool
 	fork bool
 	template bool
-	parent &Repository
+	parent_id i64
 	mirror bool
 	size i64
 	language string
@@ -365,9 +430,9 @@ pub:
 	created_at time.Time
 	updated_at time.Time
 	archived_at time.Time
-	permissions &Permission
+	permissions Permission
 	has_issues bool
-	internal_tracker &InternalTracker
+	internal_tracker InternalTracker
 	has_wiki bool
 	has_pull_requests bool
 	has_projects bool
@@ -388,7 +453,7 @@ pub:
 	internal bool
 	mirror_interval string
 	mirror_updated time.Time
-	repo_transfer &RepoTransfer
+	repo_transfer RepoTransfer
 }
 pub struct RepositoryMeta {
 pub:
@@ -396,6 +461,26 @@ pub:
 	name string
 	owner string
 	full_name string
+}
+
+pub struct Team {
+pub:
+	can_create_org_repo bool
+	description string
+	id i64
+	includes_all_repositories bool
+	name string
+	organization Organization
+	permission string
+	units []string
+	units_map map[string]string
+}
+
+pub struct RepoTransfer {
+pub:
+	doer User
+	recipient User
+	teams []Team
 }
 
 pub struct User {

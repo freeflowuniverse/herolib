@@ -1,5 +1,5 @@
-// File: lib/clients/gitea_client/readme.md
-# gitea_client
+// File: lib/clients/giteaclient/readme.md
+# giteaclient
 
 This library provides a client for interacting with the Gitea API.
 
@@ -8,7 +8,7 @@ This library provides a client for interacting with the Gitea API.
 You can configure the client using a HeroScript file:
 
 ```hero
-!!gitea_client.configure
+!!giteaclient.configure
     name: 'default' // optional, 'default' is the default instance name
     url: 'https://git.ourworld.tf'
     secret: 'your-gitea-api-token'
@@ -21,7 +21,7 @@ Save this content in your project's configuration (e.g., `~/.config/hero/config.
 Here's how to get the client and use its methods.
 
 ```vlang
-import freeflowuniverse.herolib.clients.gitea_client
+import freeflowuniverse.herolib.clients.giteaclient
 import freeflowuniverse.herolib.core.base
 
 fn main() ! {
@@ -29,12 +29,12 @@ fn main() ! {
     base.init()!
 
 	// Example configuration (can also be loaded from file)
-	heroscript_config := "!!gitea_client.configure url:'https://gitea.com' secret:'...your_token...'"
+	heroscript_config := "!!giteaclient.configure url:'https://gitea.com' secret:'...your_token...'"
 	mut plbook := playbook.new(text: heroscript_config)!
-	gitea_client.play(mut plbook)!
+	giteaclient.play(mut plbook)!
 
 	// Get the default configured client
-	mut client := gitea_client.get()!
+	mut client := giteaclient.get()!
 
 	// Get the authenticated user
 	user := client.get_current_user()!
@@ -57,3 +57,8 @@ fn main() ! {
         println('  #${issue.number}: ${issue.title}')
     }
 }
+
+
+## tips
+
+- to see the admin api: https://git.ourworld.tf/api/swagger

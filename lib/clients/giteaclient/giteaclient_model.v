@@ -1,5 +1,5 @@
-// File: lib/clients/gitea_client/gitea_client_model.v
-module gitea_client
+// File: lib/clients/giteaclient/giteaclient_model.v
+module giteaclient
 
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
@@ -35,6 +35,24 @@ fn obj_init(mycfg_ GiteaClient) !GiteaClient {
 	mut mycfg := mycfg_
 	if mycfg.url == '' {
 		return error('url needs to be filled in for ${mycfg.name}')
+	}
+	if mycfg.url.starts_with('https://') {
+		mycfg.url = mycfg.url.replace('https://', '')
+	}
+	if mycfg.url.starts_with('http://') {
+		mycfg.url = mycfg.url.replace('http://', '')
+	}
+	mycfg.url = mycfg.url.trim_right('/')
+	if mycfg.url.ends_with('/api/v1') {
+		mycfg.url = mycfg.url.replace('/api/v1', '')
+	}
+	if mycfg.url.ends_with('/api') {
+		mycfg.url = mycfg.url.replace('/api', '')
+	}
+	mycfg.url = "https://${mycfg.url}/api/v1"
+
+	if mycfg.secret.len == 0 {
+		return error('secret needs to be filled in for ${mycfg.name}')
 	}
 	return mycfg
 }

@@ -24,9 +24,6 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 	git_location := gitstructure.gitlocation_from_url(args.url)!
 
 	mut repo := gitstructure.repo_new_from_gitlocation(git_location)!
-	// TODO: this seems to be wrong, we should not set the url here
-	// repo.status_wanted.url = args.url
-	// repo.status_wanted.branch = git_location.branch_or_tag
 
 	mut repopath := repo.patho()!
 	if repopath.exists() {

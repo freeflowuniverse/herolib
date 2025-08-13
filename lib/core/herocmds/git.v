@@ -96,6 +96,7 @@ pub fn cmd_git(mut cmdroot Command) {
 	mut allcmdsref := [&list_command, &clone_command, &push_command, &pull_command, &commit_command,
 		&reload_command, &delete_command, &sourcetree_command, &editor_command]
 
+
 	for mut c in allcmdsref {
 		c.add_flag(Flag{
 			flag:        .bool
@@ -216,6 +217,7 @@ fn cmd_git_execute(cmd Command) ! {
 	// create the filter for doing group actions, or action on 1 repo
 	mut filter := cmd.flags.get_string('filter') or { '' }
 
+
 	if cmd.name in gittools.gitcmds.split(',') {
 		mut pull := cmd.flags.get_bool('pull') or { false }
 		mut reset := cmd.flags.get_bool('reset') or { false }
@@ -224,6 +226,7 @@ fn cmd_git_execute(cmd Command) ! {
 			pull = true
 			reset = true
 		}
+
 		mypath := gs.do(
 			filter:    filter
 			reload:    reload
