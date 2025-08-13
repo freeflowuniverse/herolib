@@ -160,12 +160,12 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				need_commit0 = true
 			}
 
-			// console.print_debug(" --- status repo ${g.name}'s\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
+			console.print_debug(" --- status repo ${g.name}'s\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
 
 		}
 
-		// console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")		
-		// $dbg;
+		console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")		
+		$dbg;
 
 		mut ok := false
 		if need_commit0 || need_pull0 || need_push0 {
