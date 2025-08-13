@@ -111,7 +111,7 @@ pub fn cmd_git(mut cmdroot Command) {
 			required:    false
 			name:        'load'
 			abbrev:      'l'
-			description: 'reload the data in cache.'
+			description: 'reload the data in cache for selected repos.'
 		})
 	}
 
@@ -208,7 +208,7 @@ fn cmd_git_execute(cmd Command) ! {
 		coderoot = os.environ()['CODEROOT']
 	}
 
-	mut gs := gittools.get()!
+	mut gs := gittools.get(coderoot: coderoot)!
 	if coderoot.len > 0 {
 		// is a hack for now
 		gs = gittools.new(coderoot: coderoot)!
@@ -216,7 +216,6 @@ fn cmd_git_execute(cmd Command) ! {
 
 	// create the filter for doing group actions, or action on 1 repo
 	mut filter := cmd.flags.get_string('filter') or { '' }
-
 
 	if cmd.name in gittools.gitcmds.split(',') {
 		mut pull := cmd.flags.get_bool('pull') or { false }

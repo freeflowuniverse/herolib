@@ -3,6 +3,7 @@ module gittools
 import os
 import json
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.ui.console
 
 __global (
 	gsinstances map[string]&GitStructure
@@ -102,8 +103,10 @@ pub fn get(args_ GitStructureArgGet) !&GitStructure {
 		mut gs := gsinstances[rediskey_] or {
 			panic('Unexpected error: key not found in gsinstances')
 		}
-		gs.load(args.reload)!
+		gs.load(false)!
 		return gs
+	}else{
+		console.print_header("Loading GitStructure for ${args.coderoot}.")
 	}
 
 	// Create and load the GitStructure instance.
