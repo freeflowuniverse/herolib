@@ -12,6 +12,7 @@ pub const version = '0.0.0'
 pub struct GiteaClient {
 pub mut:
 	name   string = 'default'
+	user   string
 	url    string = 'https://git.ourworld.tf'
 	secret string
 }
@@ -35,10 +36,6 @@ fn obj_init(mycfg_ GiteaClient) !GiteaClient {
 	if mycfg.url == '' {
 		return error('url needs to be filled in for ${mycfg.name}')
 	}
-	// The secret is optional for public gitea instances
-	// if mycfg.secret == '' {
-	// 	return error('secret needs to be filled in for ${mycfg.name}')
-	// }
 	return mycfg
 }
 
