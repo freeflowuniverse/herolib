@@ -6,14 +6,13 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.web.bun
 
-fn install(c DocusaurusConfig) ! {
+fn install( c DocusaurusConfig) ! {
 	mut gs := gittools.new()!
 
 	if c.reset {
 		osal.rm(c.path_build.path)!
 		osal.dir_ensure(c.path_build.path)!
 	}
-
 
 	template_path := gs.get_path(
 		pull:  c.template_update

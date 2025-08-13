@@ -56,7 +56,7 @@ pub fn config() !DocusaurusConfig {
 	}
 	if c.install {
 		install(c)!
-		c.install=false
+		c.install=true
 	}
 	return c
 }
