@@ -66,10 +66,19 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {
 			return error('when specify url cannot specify repo, account, profider or filter')
 		}
-		mut r0 := gs.get_repo(url: args.url)!
-		args.repo = r0.name
-		args.account = r0.account
-		args.provider = r0.provider
+		if args.cmd.trim_space().to_lower() == 'clone' {
+			// Do NOT call get_repo for clone: it would clone implicitly and then clone again below
+			// Only derive identifiers from the URL so later logging/printing can use them
+			mut gl := gs.gitlocation_from_url(args.url)!
+			args.repo = gl.name
+			args.account = gl.account
+			args.provider = gl.provider
+		} else {
+			mut r0 := gs.get_repo(url: args.url)!
+			args.repo = r0.name
+			args.account = r0.account
+			args.provider = r0.provider
+		}
 	}
 
 	args.cmd = args.cmd.trim_space().to_lower()
