@@ -17,7 +17,7 @@ pub fn (mut site DocSite) generate() ! {
 	console.print_header(' site generate: ${site.name} on ${f.path_build.path}')
 
 	// lets make sure we remove the cfg dir so we rebuild
-	cfg_path := os.join_path(f.path_build.path, 'cfg')
+	cfg_path := os.join_path(f.path_build.path)
 	osal.rm(cfg_path)!
 
 	mut gs := gittools.new()!
