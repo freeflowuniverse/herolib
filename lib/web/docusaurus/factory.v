@@ -16,7 +16,7 @@ pub fn dsite_define(sitename string) ! {
 	mut c := config()!
 
 	path_publish := '${c.path_publish.path}/${sitename}'
-	path_build_ := '${c.path_build.path}/${sitename}'
+	path_build_ := '${c.path_build.path}'
 
 	// Get the site object after processing, this is the website which is a generic definition of a site
 	mut website := site.get(name: sitename)!
@@ -24,7 +24,7 @@ pub fn dsite_define(sitename string) ! {
 	// Create the DocSite instance
 	mut dsite := &DocSite{
 		name:         sitename
-		path_publish: pathlib.get_dir(path: path_publish, create: true)!
+		path_publish: pathlib.get_dir(path: "${path_build_}/build", create: true)!
 		path_build:   pathlib.get_dir(path: path_build_, create: true)!
 		config:       new_configuration(website.siteconfig)!
 		website:      website

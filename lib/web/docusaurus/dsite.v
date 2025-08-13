@@ -50,6 +50,21 @@ pub fn (mut s DocSite) build_publish() ! {
 			'
 		retry: 0
 	)!
+	for item in s.website.siteconfig.build_dest {
+		if item.path.trim_space().trim("/ ") == "" {
+			$if debug{
+				print_backtrace()
+			}
+			return error("build destination path is empty for docusaurus.")
+		}
+		osal.exec(
+			cmd:   '
+				cd ${s.path_build.path}
+				rsync -avz --delete -e "ssh -p 22  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" build/ ${item.path}
+				'
+		)!
+	}
+	
 }
 
 @[params]
