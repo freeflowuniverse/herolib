@@ -23,7 +23,7 @@ client...
 ```hero
 !!gitea_client.configure
     url: 'https://git.ourworld.tf/'
-    key: '...'
+    secret: '...'
 ```
 
 

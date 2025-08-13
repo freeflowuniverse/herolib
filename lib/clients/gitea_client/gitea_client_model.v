@@ -2,6 +2,7 @@ module gitea_client
 
 import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.data.encoderhero
+import freeflowuniverse.herolib.core.httpconnection
 import os
 
 pub const version = '0.0.0'
@@ -13,10 +14,24 @@ const default = true
 @[heap]
 pub struct GiteaClient {
 pub mut:
-	name          string = 'default'
-	url     string = "https://git.ourworld.tf"
-	key     string
+	name        string = 'default'
+	url     	string = "https://git.ourworld.tf"
+	secret     	string
 }
+
+fn (mut self GiteaClient) httpclient() !&httpconnection.HTTPConnection {
+	mut http_conn := httpconnection.new(
+		name: 'giteaclient'
+		url:  self.url
+	)!
+
+	// Add authentication header if API key is provided
+	if self.secret.len > 0 {
+		http_conn.default_header.add(.authorization, 'Bearer ${self.secret}')
+	}
+	return http_conn
+}
+
 
 // your checking & initialization code if needed
 fn obj_init(mycfg_ GiteaClient) !GiteaClient {
