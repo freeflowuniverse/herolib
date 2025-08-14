@@ -1,4 +1,4 @@
-# reprompt
+# heroprompt
 
 
 
@@ -7,9 +7,9 @@ To get started
 ```vlang
 
 
-import freeflowuniverse.herolib.clients. reprompt
+import freeflowuniverse.herolib.clients. heroprompt
 
-mut client:= reprompt.get()!
+mut client:= heroprompt.get()!
 
 client...
 
@@ -21,7 +21,7 @@ client...
 ## example heroscript
 
 ```hero
-!!reprompt.configure
+!!heroprompt.configure
     secret: '...'
     host: 'localhost'
     port: 8888

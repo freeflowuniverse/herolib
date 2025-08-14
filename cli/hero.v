@@ -81,12 +81,11 @@ fn do() ! {
 
 	base.redis_install()!
 
-	
-
 	herocmds.cmd_run(mut cmd)
 	herocmds.cmd_git(mut cmd)
 	herocmds.cmd_generator(mut cmd)
 	herocmds.cmd_docusaurus(mut cmd)
+	herocmds.cmd_web(mut cmd)
 
 	cmd.setup()
 	cmd.parse(os.args)
@@ -100,7 +99,6 @@ fn main() {
 		exit(1)
 	}
 }
-
 
 // fn pre_func(cmd Command) ! {
 // 	herocmds.plbook_run(cmd)!
