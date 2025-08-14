@@ -1,5 +1,16 @@
 module heroprompt
 
+// import freeflowuniverse.herolib.data.paramsparser
+import freeflowuniverse.herolib.core.pathlib
+import os
+
+pub struct HeropromptFile {
+pub mut:
+	content string
+	path    pathlib.Path
+	name    string
+}
+
 // Utility function to get file extension with special handling for common files
 pub fn get_file_extension(filename string) string {
 	// Handle special cases for common files without extensions
@@ -56,4 +67,10 @@ pub fn get_file_extension(filename string) string {
 	}
 
 	return parts[parts.len - 1]
+}
+
+// Read the file content
+pub fn (fl HeropromptFile) read() !string {
+	content := os.read_file(fl.path.path)!
+	return content
 }

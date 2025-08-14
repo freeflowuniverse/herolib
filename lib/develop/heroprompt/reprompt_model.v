@@ -1,51 +1,43 @@
 module heroprompt
 
-import freeflowuniverse.herolib.data.paramsparser
-// import freeflowuniverse.herolib.data.encoderhero  // temporarily commented out
-import freeflowuniverse.herolib.core.pathlib
-import os
+import freeflowuniverse.herolib.data.encoderhero
 
 pub const version = '0.0.0'
 const singleton = false
 const default = true
 
-// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-
-pub struct HeropromptFile {
+// HeropromptWorkspace represents a workspace containing multiple directories
+// and their selected files for AI prompt generation
+@[heap]
+pub struct HeropromptWorkspace {
 pub mut:
-	content string
-	path    pathlib.Path
-	name    string
+	name      string = 'default' // Workspace name
+	base_path string           // Base path of the workspace
+	dirs      []&HeropromptDir // List of directories in this workspace
 }
 
-pub struct HeropromptDir {
+@[params]
+pub struct AddWorkspaceParams {
 pub mut:
-	name  string
-	path  pathlib.Path
-	files []&HeropromptFile
-	dirs  []&HeropromptDir
+	name string
+	path string
 }
 
-// pub fn (wsp HeropromptWorkspace) to_tag() {
-// 	tag := HeropromptTags.file_map
-// 	// We need to pass it to the template
-// }
+// add_workspace creates and adds a new workspace
+pub fn new_workspace(args_ AddWorkspaceParams) !&HeropromptWorkspace {
+	mut wsp := &HeropromptWorkspace{}
+	wsp = wsp.new(name: args_.name, path: args_.path)!
+	return wsp
+}
 
-// // pub fn (dir HeropromptDir) to_tag() {
-// // 	tag := HeropromptTags.file_content
-// // 	// We need to pass it to the template
-// // }
+// get_workspace gets the saved workspace
+pub fn get_workspace(args_ AddWorkspaceParams) !&HeropromptWorkspace {
+	if args_.name.len == 0 {
+		return error('Workspace name is required')
+	}
 
-// pub fn (fil HeropromptFile) to_tag() {
-// 	tag := HeropromptTags.file_content
-// 	// We need to pass it to the template
-// }
-
-// pub enum HeropromptTags {
-// 	file_map
-// 	file_content
-// 	user_instructions
-// }
+	return get(name: args_.name)!
+}
 
 // your checking & initialization code if needed
 fn obj_init(mycfg_ HeropromptWorkspace) !HeropromptWorkspace {
@@ -55,16 +47,11 @@ fn obj_init(mycfg_ HeropromptWorkspace) !HeropromptWorkspace {
 
 /////////////NORMALLY NO NEED TO TOUCH
 
-// TODO: Check the compiler issue with the encde/decode
 pub fn heroscript_dumps(obj HeropromptWorkspace) !string {
-	// return encoderhero.encode[HeropromptWorkspace](obj)!  // temporarily commented out
-	return 'name: "${obj.name}"'
+	return encoderhero.encode[HeropromptWorkspace](obj)!
 }
 
 pub fn heroscript_loads(heroscript string) !HeropromptWorkspace {
-	// mut obj := encoderhero.decode[HeropromptWorkspace](heroscript)!  // temporarily commented out
-	obj := HeropromptWorkspace{
-		name: 'default'
-	}
+	mut obj := encoderhero.decode[HeropromptWorkspace](heroscript)!
 	return obj
 }

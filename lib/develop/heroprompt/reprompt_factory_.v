@@ -2,7 +2,6 @@ module heroprompt
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
-import freeflowuniverse.herolib.ui.console
 
 __global (
 	heroprompt_global  map[string]&HeropromptWorkspace
@@ -35,7 +34,7 @@ pub fn get(args_ ArgsGet) !&HeropromptWorkspace {
 		if !exists(args)! {
 			set(obj)!
 		} else {
-			heroscript := context.hero_config_get('heroprompt', args.name)!
+			heroscript := context.hero_config_get('heropromptworkspace', args.name)!
 			mut obj_ := heroscript_loads(heroscript)!
 			set_in_mem(obj_)!
 		}
@@ -52,20 +51,20 @@ pub fn set(o HeropromptWorkspace) ! {
 	set_in_mem(o)!
 	mut context := base.context()!
 	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('heroprompt', o.name, heroscript)!
+	context.hero_config_set('heropromptworkspace', o.name, heroscript)!
 }
 
 // does the config exists?
 pub fn exists(args_ ArgsGet) !bool {
 	mut context := base.context()!
 	mut args := args_get(args_)
-	return context.hero_config_exists('heroprompt', args.name)
+	return context.hero_config_exists('heropromptworkspace', args.name)
 }
 
 pub fn delete(args_ ArgsGet) ! {
 	mut args := args_get(args_)
 	mut context := base.context()!
-	context.hero_config_delete('heroprompt', args.name)!
+	context.hero_config_delete('heropromptworkspace', args.name)!
 	if args.name in heroprompt_global {
 		// del heroprompt_global[args.name]
 	}
@@ -79,7 +78,7 @@ fn set_in_mem(o HeropromptWorkspace) ! {
 }
 
 pub fn play(mut plbook PlayBook) ! {
-	mut install_actions := plbook.find(filter: 'heroprompt.configure')!
+	mut install_actions := plbook.find(filter: 'heropromptworkspace.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()

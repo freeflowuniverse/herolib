@@ -5,19 +5,11 @@ import time
 import os
 import freeflowuniverse.herolib.core.pathlib
 
-// HeropromptWorkspace represents a workspace containing multiple directories
-// and their selected files for AI prompt generation
-@[heap]
-pub struct HeropromptWorkspace {
-pub mut:
-	name string = 'default' // Workspace name
-	dirs []&HeropromptDir // List of directories in this workspace
-}
-
 @[params]
-pub struct NewWorkspaceParams {
-pub mut:
+struct NewWorkspaceParams {
+mut:
 	name string
+	path string
 }
 
 /// Create a new workspace
@@ -28,8 +20,198 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 		args.name = generate_random_workspace_name()
 	}
 
-	workspace := get(name: args.name)!
+	// Validate and set base path
+	if args.path.len > 0 {
+		if !os.exists(args.path) {
+			return error('Workspace path does not exist: ${args.path}')
+		}
+		if !os.is_dir(args.path) {
+			return error('Workspace path is not a directory: ${args.path}')
+		}
+	}
+
+	mut workspace := &HeropromptWorkspace{
+		name:      args.name
+		base_path: os.real_path(args.path)
+	}
 	return workspace
+}
+
+// WorkspaceItem represents a file or directory in the workspace tree
+pub struct WorkspaceItem {
+pub mut:
+	name         string          // Item name (file or directory name)
+	path         string          // Full path to the item
+	is_directory bool            // True if this is a directory
+	is_file      bool            // True if this is a file
+	size         i64             // File size in bytes (0 for directories)
+	extension    string          // File extension (empty for directories)
+	children     []WorkspaceItem // Child items (for directories)
+	is_expanded  bool            // Whether directory is expanded in UI
+	is_selected  bool            // Whether this item is selected for prompts
+	depth        int             // Depth level in the tree (0 = root)
+}
+
+// WorkspaceList represents the complete hierarchical listing of a workspace
+pub struct WorkspaceList {
+pub mut:
+	root_path   string          // Root path of the workspace
+	items       []WorkspaceItem // Top-level items in the workspace
+	total_files int             // Total number of files
+	total_dirs  int             // Total number of directories
+}
+
+// list returns the complete hierarchical structure of the workspace
+pub fn (wsp HeropromptWorkspace) list() WorkspaceList {
+	mut result := WorkspaceList{
+		root_path: wsp.base_path
+	}
+
+	if wsp.base_path.len == 0 || !os.exists(wsp.base_path) {
+		return result
+	}
+
+	// Build the complete tree structure (ALL files and directories)
+	result.items = wsp.build_workspace_tree(wsp.base_path, 0)
+	wsp.calculate_totals(result.items, mut result)
+
+	// Mark selected items
+	wsp.mark_selected_items(mut result.items)
+
+	return result
+}
+
+// build_workspace_tree recursively builds the workspace tree structure
+fn (wsp HeropromptWorkspace) build_workspace_tree(path string, depth int) []WorkspaceItem {
+	mut items := []WorkspaceItem{}
+
+	entries := os.ls(path) or { return items }
+
+	for entry in entries {
+		full_path := os.join_path(path, entry)
+
+		if os.is_dir(full_path) {
+			mut dir_item := WorkspaceItem{
+				name:         entry
+				path:         full_path
+				is_directory: true
+				is_file:      false
+				size:         0
+				extension:    ''
+				is_expanded:  false
+				is_selected:  false
+				depth:        depth
+			}
+
+			// Recursively get children
+			dir_item.children = wsp.build_workspace_tree(full_path, depth + 1)
+			items << dir_item
+		} else if os.is_file(full_path) {
+			file_info := os.stat(full_path) or { continue }
+			extension := get_file_extension(entry)
+
+			file_item := WorkspaceItem{
+				name:         entry
+				path:         full_path
+				is_directory: false
+				is_file:      true
+				size:         file_info.size
+				extension:    extension
+				children:     []
+				is_expanded:  false
+				is_selected:  false
+				depth:        depth
+			}
+			items << file_item
+		}
+	}
+
+	// Sort: directories first, then files, both alphabetically
+	items.sort_with_compare(fn (a &WorkspaceItem, b &WorkspaceItem) int {
+		if a.is_directory && !b.is_directory {
+			return -1
+		}
+		if !a.is_directory && b.is_directory {
+			return 1
+		}
+		if a.name < b.name {
+			return -1
+		}
+		if a.name > b.name {
+			return 1
+		}
+		return 0
+	})
+
+	return items
+}
+
+// calculate_totals counts total files and directories in the workspace
+fn (wsp HeropromptWorkspace) calculate_totals(items []WorkspaceItem, mut result WorkspaceList) {
+	for item in items {
+		if item.is_directory {
+			result.total_dirs++
+			wsp.calculate_totals(item.children, mut result)
+		} else {
+			result.total_files++
+		}
+	}
+}
+
+// mark_selected_items marks which items are currently selected for prompts
+fn (wsp HeropromptWorkspace) mark_selected_items(mut items []WorkspaceItem) {
+	for mut item in items {
+		// Check if this item is selected by comparing paths
+		item.is_selected = wsp.is_item_selected(item.path)
+
+		// Recursively mark children
+		if item.is_directory && item.children.len > 0 {
+			wsp.mark_selected_items(mut item.children)
+		}
+	}
+}
+
+// is_item_selected checks if a specific path is selected in the workspace
+fn (wsp HeropromptWorkspace) is_item_selected(path string) bool {
+	for dir in wsp.dirs {
+		// Check if this directory is selected
+		if dir.path.path == path {
+			return true
+		}
+
+		// Check if any file in this directory is selected
+		for file in dir.files {
+			if file.path.path == path {
+				return true
+			}
+		}
+
+		// Recursively check subdirectories
+		if wsp.is_path_in_selected_dirs(path, dir.dirs) {
+			return true
+		}
+	}
+	return false
+}
+
+// is_path_in_selected_dirs recursively checks subdirectories for selected items
+fn (wsp HeropromptWorkspace) is_path_in_selected_dirs(path string, dirs []&HeropromptDir) bool {
+	for dir in dirs {
+		if dir.path.path == path {
+			return true
+		}
+
+		for file in dir.files {
+			if file.path.path == path {
+				return true
+			}
+		}
+
+		if wsp.is_path_in_selected_dirs(path, dir.dirs) {
+			return true
+		}
+	}
+	return false
 }
 
 @[params]

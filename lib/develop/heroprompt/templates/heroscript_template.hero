@@ -1,10 +1,10 @@
 
-!!heroprompt.configure name:"default"
+!!heropromptworkspace.configure name:"default"
 
-!!heroprompt.workspace_dir name:"default" 
-    path:"@HOME/code/github/freeflowuniverse/herolib/lib/builder" 
-    selection:"path1,path2" //paths are relative in the path of workspace 
-    filter_exclude:"," 
-    filter_include:","
+// !!heropromptworkspace.workspace_dir name:"default" 
+   //  path:"@HOME/code/github/freeflowuniverse/herolib/lib/builder" 
+    // selection:"path1,path2" //paths are relative in the path of workspace 
+    // filter_exclude:"," 
+    // filter_include:","
 
 

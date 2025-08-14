@@ -3,6 +3,15 @@ module heroprompt
 import os
 import freeflowuniverse.herolib.core.pathlib
 
+@[heap]
+pub struct HeropromptDir {
+pub mut:
+	name  string
+	path  pathlib.Path
+	files []&HeropromptFile @[skip; str: skip]
+	dirs  []&HeropromptDir
+}
+
 // Parameters for adding a file to a directory
 @[params]
 pub struct AddFileParams {
