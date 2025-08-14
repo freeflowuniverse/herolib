@@ -20,13 +20,9 @@ dir2.select_file(name: 'build.sh')!
 dir2.select_file(name: 'debug.sh')!
 
 mut dir3 := workspace1.add_dir(
-	path:             '/Users/mahmoud/code/github/freeflowuniverse/herolib/docker/postgresql'
-	select_all_dirs:  true
-	select_all_files: false
-	select_all:       false
+	path:       '/Users/mahmoud/code/github/freeflowuniverse/herolib/docker/postgresql'
+	select_all: true
 )!
-
-dir3.select_file(name: 'docker-compose.yml')!
 
 selected := workspace1.get_selected()
 

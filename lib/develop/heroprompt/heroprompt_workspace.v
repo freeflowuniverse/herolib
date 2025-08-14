@@ -5,11 +5,13 @@ import time
 import os
 import freeflowuniverse.herolib.core.pathlib
 
+// HeropromptWorkspace represents a workspace containing multiple directories
+// and their selected files for AI prompt generation
 @[heap]
 pub struct HeropromptWorkspace {
 pub mut:
-	name string = 'default'
-	dirs []&HeropromptDir
+	name string = 'default' // Workspace name
+	dirs []&HeropromptDir // List of directories in this workspace
 }
 
 @[params]
@@ -33,7 +35,8 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 @[params]
 pub struct AddDirParams {
 pub mut:
-	path string @[required]
+	path       string @[required]
+	select_all bool
 }
 
 pub fn (mut wsp HeropromptWorkspace) add_dir(args_ AddDirParams) !&HeropromptDir {
@@ -51,7 +54,7 @@ pub fn (mut wsp HeropromptWorkspace) add_dir(args_ AddDirParams) !&HeropromptDir
 	parts := abs_path.split(os.path_separator)
 	dir_name := parts[parts.len - 1]
 
-	added_dir := &HeropromptDir{
+	mut added_dir := &HeropromptDir{
 		path: pathlib.Path{
 			path:  abs_path
 			cat:   .dir
@@ -60,25 +63,30 @@ pub fn (mut wsp HeropromptWorkspace) add_dir(args_ AddDirParams) !&HeropromptDir
 		name: dir_name
 	}
 
+	if args_.select_all {
+		added_dir.select_all_files_and_dirs(abs_path)
+	}
+
 	wsp.dirs << added_dir
 	return added_dir
 }
 
+// Metadata structures for selected files and directories
 struct SelectedFilesMetadata {
-	content_length int
-	extension      string
-	name           string
-	path           string
+	content_length int    // File content length in characters
+	extension      string // File extension
+	name           string // File name
+	path           string // Full file path
 }
 
 struct SelectedDirsMetadata {
-	name           string
-	selected_files []SelectedFilesMetadata
+	name           string                  // Directory name
+	selected_files []SelectedFilesMetadata // Files in this directory
 }
 
 struct HeropromptWorkspaceGetSelected {
 pub mut:
-	dirs []SelectedDirsMetadata
+	dirs []SelectedDirsMetadata // All directories with their selected files
 }
 
 pub fn (wsp HeropromptWorkspace) get_selected() HeropromptWorkspaceGetSelected {
@@ -119,7 +127,8 @@ fn (wsp HeropromptWorkspace) build_user_instructions(text string) string {
 	return text
 }
 
-fn build_file_map(dirs []&HeropromptDir, prefix string) string {
+// build_file_tree creates a tree-like representation of directories and files
+fn build_file_tree(dirs []&HeropromptDir, prefix string) string {
 	mut out := ''
 
 	for i, dir in dirs {
@@ -129,36 +138,194 @@ fn build_file_map(dirs []&HeropromptDir, prefix string) string {
 		// Directory name
 		out += '${prefix}${connector}${dir.name}\n'
 
+		// Calculate new prefix for children
+		child_prefix := if i == dirs.len - 1 { prefix + '    ' } else { prefix + '│   ' }
+
+		// Count total children (files + subdirs) for proper tree formatting
+		total_children := dir.files.len + dir.dirs.len
+
 		// Files in this directory
 		for j, file in dir.files {
-			file_connector := if j == dir.files.len - 1 && dir.dirs.len == 0 {
+			file_connector := if j == total_children - 1 { '└── ' } else { '├── ' }
+			out += '${child_prefix}${file_connector}${file.name} *\n'
+		}
+
+		// Recurse into subdirectories
+		for j, sub_dir in dir.dirs {
+			sub_connector := if dir.files.len + j == total_children - 1 {
 				'└── '
 			} else {
 				'├── '
 			}
-			out += '${prefix}    ${file_connector}${file.name} *\n'
-		}
+			out += '${child_prefix}${sub_connector}${sub_dir.name}\n'
 
-		// Recurse into subdirectories
-		if dir.dirs.len > 0 {
-			new_prefix := if i == dirs.len - 1 { prefix + '    ' } else { prefix + '│   ' }
-			out += build_file_map(dir.dirs, new_prefix)
+			// Recursive call for subdirectory contents
+			sub_prefix := if dir.files.len + j == total_children - 1 {
+				child_prefix + '    '
+			} else {
+				child_prefix + '│   '
+			}
+
+			// Build content for this subdirectory directly without calling build_file_map again
+			sub_total_children := sub_dir.files.len + sub_dir.dirs.len
+
+			// Files in subdirectory
+			for k, sub_file in sub_dir.files {
+				sub_file_connector := if k == sub_total_children - 1 {
+					'└── '
+				} else {
+					'├── '
+				}
+				out += '${sub_prefix}${sub_file_connector}${sub_file.name} *\n'
+			}
+
+			// Recursively handle deeper subdirectories
+			if sub_dir.dirs.len > 0 {
+				out += build_file_tree(sub_dir.dirs, sub_prefix)
+			}
 		}
 	}
 
 	return out
 }
 
+// build_file_content generates formatted content for all selected files
 fn (wsp HeropromptWorkspace) build_file_content() string {
-	return ''
+	mut content := ''
+
+	for dir in wsp.dirs {
+		// Process files in current directory
+		for file in dir.files {
+			if content.len > 0 {
+				content += '\n\n'
+			}
+
+			// File path
+			content += '${file.path.path}\n'
+
+			// File content with syntax highlighting or empty file info
+			extension := get_file_extension(file.name)
+			if file.content.len == 0 {
+				content += '(Empty file)\n'
+			} else {
+				content += '```${extension}\n'
+				content += file.content
+				content += '\n```'
+			}
+		}
+
+		// Recursively process subdirectories
+		content += wsp.build_dir_file_content(dir.dirs)
+	}
+
+	return content
 }
 
+// build_dir_file_content recursively processes subdirectories
+fn (wsp HeropromptWorkspace) build_dir_file_content(dirs []&HeropromptDir) string {
+	mut content := ''
+
+	for dir in dirs {
+		// Process files in current directory
+		for file in dir.files {
+			if content.len > 0 {
+				content += '\n\n'
+			}
+
+			// File path
+			content += '${file.path.path}\n'
+
+			// File content with syntax highlighting or empty file info
+			extension := get_file_extension(file.name)
+			if file.content.len == 0 {
+				content += '(Empty file)\n'
+			} else {
+				content += '```${extension}\n'
+				content += file.content
+				content += '\n```'
+			}
+		}
+
+		// Recursively process subdirectories
+		if dir.dirs.len > 0 {
+			content += wsp.build_dir_file_content(dir.dirs)
+		}
+	}
+
+	return content
+}
+
+pub struct HeropromptTmpPrompt {
+pub mut:
+	user_instructions string
+	file_map          string
+	file_contents     string
+}
+
+// build_prompt generates the final prompt with metadata and file tree
 fn (wsp HeropromptWorkspace) build_prompt(text string) string {
 	user_instructions := wsp.build_user_instructions(text)
-	file_map := build_file_map(wsp.dirs, '')
+	file_map := wsp.build_file_map()
 	file_contents := wsp.build_file_content()
 
-	// Handle reading the prompt file and parse it
+	prompt := HeropromptTmpPrompt{
+		user_instructions: user_instructions
+		file_map:          file_map
+		file_contents:     file_contents
+	}
+
+	reprompt := $tmpl('./templates/prompt.template')
+	return reprompt
+}
+
+// build_file_map creates a complete file map with base path and metadata
+fn (wsp HeropromptWorkspace) build_file_map() string {
+	mut file_map := ''
+	if wsp.dirs.len > 0 {
+		// Get the common base path from the first directory
+		base_path := wsp.dirs[0].path.path
+		// Find the parent directory of the base path
+		parent_path := if base_path.contains('/') {
+			base_path.split('/')[..base_path.split('/').len - 1].join('/')
+		} else {
+			base_path
+		}
+
+		// Calculate metadata
+		selected_metadata := wsp.get_selected()
+		mut total_files := 0
+		mut total_content_length := 0
+		mut file_extensions := map[string]int{}
+
+		for dir_meta in selected_metadata.dirs {
+			total_files += dir_meta.selected_files.len
+			for file_meta in dir_meta.selected_files {
+				total_content_length += file_meta.content_length
+				if file_meta.extension.len > 0 {
+					file_extensions[file_meta.extension] = file_extensions[file_meta.extension] + 1
+				}
+			}
+		}
+
+		// Build metadata summary
+		mut extensions_summary := ''
+		for ext, count in file_extensions {
+			if extensions_summary.len > 0 {
+				extensions_summary += ', '
+			}
+			extensions_summary += '${ext}(${count})'
+		}
+
+		// Build header with metadata
+		file_map = '${parent_path}\n'
+		file_map += '# Selected Files: ${total_files} | Total Content: ${total_content_length} chars'
+		if extensions_summary.len > 0 {
+			file_map += ' | Extensions: ${extensions_summary}'
+		}
+		file_map += '\n\n'
+		file_map += build_file_tree(wsp.dirs, '')
+	}
+
 	return file_map
 }
 
@@ -207,13 +374,4 @@ fn generate_random_workspace_name() string {
 	number := rand.intn(100) or { 0 } // 0–99
 
 	return '${adj}_${noun}_${number}'
-}
-
-fn get_file_extension(filename string) string {
-	parts := filename.split('.')
-	if parts.len < 2 {
-		// Handle the files with no exe such as Dockerfile, LICENSE
-		return ''
-	}
-	return parts[parts.len - 1]
 }
