@@ -14,8 +14,6 @@ You can configure the client using a HeroScript file:
     secret: 'your-gitea-api-token'
 ```
 
-Save this content in your project's configuration (e.g., `~/.config/hero/config.hcl`) or pass it to a playbook.
-
 ## Usage Example
 
 Here's how to get the client and use its methods.

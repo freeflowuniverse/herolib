@@ -49,7 +49,7 @@ fn (mut repo GitRepo) load_internal() ! {
 	console.print_debug('load ${repo.print_key()}')
 	repo.init()!
 
-	repo.exec('git fetch --all') or {
+	repo.exec('fetch --all') or {
 		repo.status.error = 'Failed to fetch updates: ${err}'
 		return error('Failed to fetch updates for ${repo.name} at ${repo.path()}: ${err}. Please check network connection and repository access.')
 	}
@@ -61,7 +61,7 @@ fn (mut repo GitRepo) load_internal() ! {
 	repo.status.behind = 0
 
 	// Get ahead/behind information for the current branch
-	status_res := repo.exec('git status --porcelain=v2 --branch')!
+	status_res := repo.exec('status --porcelain=v2 --branch')!
 	for line in status_res.split_into_lines() {
 		if line.starts_with('# branch.ab') {
 			parts := line.split(' ')
@@ -92,7 +92,7 @@ fn (mut repo GitRepo) load_internal() ! {
 
 // Helper to load remote tags
 fn (mut repo GitRepo) load_branches() ! {
-	tags_result := repo.exec("git for-each-ref --format='%(objectname) %(refname:short)' refs/heads refs/remotes/origin") or {
+	tags_result := repo.exec("for-each-ref --format='%(objectname) %(refname:short)' refs/heads refs/remotes/origin") or {
 		return error('Failed to get branch references: ${err}. Command: git for-each-ref')
 	}
 	for line in tags_result.split('\n') {
@@ -120,7 +120,7 @@ fn (mut repo GitRepo) load_branches() ! {
 		}
 	}
 
-	mybranch := repo.exec('git branch --show-current') or {
+	mybranch := repo.exec('branch --show-current') or {
 		return error('Failed to get current branch: ${err}')
 	}.split_into_lines().filter(it.trim_space() != '')
 	if mybranch.len == 1 {
@@ -133,7 +133,7 @@ fn (mut repo GitRepo) load_branches() ! {
 // Helper to load remote tags
 fn (mut repo GitRepo) load_tags() ! {
 	// CORRECTED: Use for-each-ref to get commit hashes for tags.
-	tags_result := repo.exec("git for-each-ref --format='%(objectname) %(refname:short)' refs/tags") or {
+	tags_result := repo.exec("for-each-ref --format='%(objectname) %(refname:short)' refs/tags") or {
 		return error('Failed to list tags: ${err}. Please ensure git is installed and repository is accessible.')
 	}
 
@@ -162,7 +162,7 @@ fn (mut repo GitRepo) load_tags() ! {
 // - An array of strings representing file paths of unstaged changes.
 // - Throws an error if the command execution fails.
 pub fn (repo GitRepo) get_changes_unstaged() ![]string {
-	unstaged_result := repo.exec('git ls-files --other --modified --exclude-standard') or {
+	unstaged_result := repo.exec('ls-files --other --modified --exclude-standard') or {
 		return error('Failed to check for unstaged changes: ${repo.path()}\n${err}')
 	}
 
@@ -178,7 +178,7 @@ pub fn (repo GitRepo) get_changes_unstaged() ![]string {
 // - An array of strings representing file paths of staged changes.
 // - Throws an error if the command execution fails.
 pub fn (repo GitRepo) get_changes_staged() ![]string {
-	staged_result := repo.exec('git diff --name-only --staged') or {
+	staged_result := repo.exec('diff --name-only --staged') or {
 		return error('Failed to check for staged changes: ${repo.path()}\n${err}')
 	}
 	// Filter out any empty lines from the result.

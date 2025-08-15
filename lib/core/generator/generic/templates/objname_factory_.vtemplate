@@ -80,6 +80,16 @@ pub fn delete(args_ ArgsGet)! {
     }
 }
 
+pub fn list()![]&${args.classname} {
+    mut args := args_get(args_)
+   	mut res:=[]&${args.classname}
+    if args.name in ${args.name}_global {
+        res << ${args.name}_global[o.name]
+    }
+    return res
+}
+
+
 //only sets in mem, does not set as config
 fn set_in_mem(o ${args.classname})! {
 	mut o2:=obj_init(o)!

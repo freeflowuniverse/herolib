@@ -71,6 +71,22 @@ pub fn delete(args_ ArgsGet) ! {
 	}
 }
 
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool //will load from filesystem
+}
+
+
+pub fn list(args ArgsList) ![]&GiteaClient {
+	
+	mut res := []&GiteaClient{}
+	if args.name in giteaclient_global {
+		res << giteaclient_global[o.name]
+	}
+	return res
+}
+
 // only sets in mem, does not set as config
 fn set_in_mem(o GiteaClient) ! {
 	mut o2 := obj_init(o)!

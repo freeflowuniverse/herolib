@@ -16,8 +16,8 @@ pub fn (mut repo GitRepo) commit(msg string) ! {
 	if msg == '' {
 		return error('Commit message cannot be empty.')
 	}
-	repo.exec('git add . -A')!
-	repo.exec('git commit -m "${msg}"') or {
+	repo.exec('add . -A')!
+	repo.exec('commit -m "${msg}"') or {
 		// A common case for failure is when changes are only whitespace changes and git is configured to ignore them.
 		console.print_debug('Could not commit in ${repo.path()}. Maybe nothing to commit? Error: ${err}')
 		return
@@ -38,7 +38,7 @@ pub fn (mut repo GitRepo) push() ! {
 	console.print_header('Pushing changes to ${url}')
 	// This will push the current branch to its upstream counterpart.
 	// --set-upstream is useful for new branches.
-	repo.exec('git push --set-upstream origin ${repo.status.branch}')!
+	repo.exec('push --set-upstream origin ${repo.status.branch}')!
 	console.print_green('Changes pushed successfully.')
 	repo.cache_last_load_clear()!
 }
@@ -62,7 +62,7 @@ pub fn (mut repo GitRepo) pull(args PullArgs) ! {
 		return error('Cannot pull in ${repo.path()} due to uncommitted changes. Either commit them or use the reset:true option.')
 	}
 
-	repo.exec('git pull')!
+	repo.exec('pull')!
 
 	if args.submodules {
 		repo.update_submodules()!
@@ -74,7 +74,7 @@ pub fn (mut repo GitRepo) pull(args PullArgs) ! {
 
 // branch_create creates a new branch.
 pub fn (mut repo GitRepo) branch_create(branchname string) ! {
-	repo.exec('git branch ${branchname}')!
+	repo.exec('branch ${branchname}')!
 	repo.cache_last_load_clear()!
 	console.print_green('Branch ${branchname} created successfully in ${repo.path()}.')
 }
@@ -84,7 +84,7 @@ pub fn (mut repo GitRepo) branch_switch(branchname string) ! {
 	if repo.need_commit()! {
 		return error('Cannot switch branch in ${repo.path()} due to uncommitted changes.')
 	}
-	repo.exec('git switch ${branchname}')!
+	repo.exec('switch ${branchname}')!
 	console.print_green('Switched to branch ${branchname} in ${repo.path()}.')
 	repo.status.branch = branchname
 	repo.status.tag = ''
@@ -93,7 +93,7 @@ pub fn (mut repo GitRepo) branch_switch(branchname string) ! {
 
 // tag_create creates a new tag.
 pub fn (mut repo GitRepo) tag_create(tagname string) ! {
-	repo.exec('git tag ${tagname}')!
+	repo.exec('tag ${tagname}')!
 	console.print_green('Tag ${tagname} created successfully in ${repo.path()}.')
 	repo.cache_last_load_clear()!
 }
@@ -103,7 +103,7 @@ pub fn (mut repo GitRepo) tag_switch(tagname string) ! {
 	if repo.need_commit()! {
 		return error('Cannot switch to tag in ${repo.path()} due to uncommitted changes.')
 	}
-	repo.exec('git checkout tags/${tagname}')!
+	repo.exec('checkout tags/${tagname}')!
 	console.print_green('Switched to tag ${tagname} in ${repo.path()}.')
 	repo.status.branch = ''
 	repo.status.tag = tagname
@@ -177,7 +177,7 @@ fn (mut repo GitRepo) set_sshkey(key_name string) ! {
 		return error('SSH Key with name ${key_name} not found.')
 	}
 	private_key_path := key.private_key_path()!
-	repo.exec('git config core.sshCommand "ssh -i ${private_key_path}"')!
+	repo.exec('config core.sshCommand "ssh -i ${private_key_path}"')!
 	repo.deploysshkey = key_name
 }
 
@@ -186,7 +186,7 @@ pub fn (mut repo GitRepo) remove_changes() ! {
 	repo.status_update()!
 	if repo.status.has_changes {
 		console.print_header('Removing all local changes in ${repo.path()}')
-		repo.exec('git reset --hard HEAD && git clean -fdx')!
+		repo.exec('reset --hard HEAD && git clean -fdx')!
 		repo.cache_last_load_clear()!
 	}
 }
@@ -198,14 +198,20 @@ pub fn (mut repo GitRepo) reset() ! {
 
 // update_submodules initializes and updates all submodules.
 fn (mut repo GitRepo) update_submodules() ! {
-	repo.exec('git submodule update --init --recursive')!
+	repo.exec('submodule update --init --recursive')!
 }
 
 // exec executes a command within the repository's directory.
 // This is the designated wrapper for all git commands for this repo.
 fn (repo GitRepo) exec(cmd_ string) !string {
 	repo_path := repo.path()
-	cmd := 'cd ${repo_path} && ${cmd_}'
+
+	if cmd_.starts_with("pull ") || cmd_.starts_with("push ") || cmd_.starts_with("fetch "){
+		//means we need to be able to fetch from remote repo, check we have a key registered e.g. for gitea
+		$dbg;
+
+	}
+	cmd := 'cd ${repo_path} && git ${cmd_}'
 	// console.print_debug(cmd)
 	r := os.execute(cmd)
 	if r.exit_code != 0 {

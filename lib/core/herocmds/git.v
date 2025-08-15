@@ -8,7 +8,7 @@ import os
 pub fn cmd_git(mut cmdroot Command) {
 	mut cmd_run := Command{
 		name:        'git'
-		description: 'Work with your repos, list, commit, pull, reload, ...'
+		description: 'Work with your repos, list, commit, pull, reload, ...\narg is url or path, or nothing if for all repos. \nCheck -f for filter. '
 		// required_args: 1
 		usage:         'sub commands of git are '
 		execute:       cmd_git_execute
@@ -61,7 +61,7 @@ pub fn cmd_git(mut cmdroot Command) {
 		sort_flags:  true
 		name:        'list'
 		execute:     cmd_git_execute
-		description: 'list all repos.'
+		description: 'list all repos.\nThe Argument is url or path, otherwise use -f filter.'
 	}
 
 	mut sourcetree_command := Command{
