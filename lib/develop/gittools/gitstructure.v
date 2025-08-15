@@ -2,21 +2,9 @@ module gittools
 
 import crypto.md5
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.core.redisclient
 import os
-import freeflowuniverse.herolib.ui.console
 import json
 
-pub struct GitStructureConfig {
-pub mut:
-	coderoot     string // just to be informative, its not used
-	light        bool = true // If true, clones only the last history for all branches (clone with only 1 level deep)
-	log          bool = true // If true, logs git commands/statements
-	debug        bool = true
-	ssh_key_name string
-	ssh_key_path string
-	offline      bool = false
-}
 
 // GitStructure holds information about repositories within a specific code root.
 // This structure keeps track of loaded repositories, their configurations, and their status.
@@ -28,6 +16,9 @@ pub mut:
 	key      string              // Unique key representing the git structure (default is hash of $home/code).	
 	repos    map[string]&GitRepo // Map of repositories
 	coderoot pathlib.Path
+	log          bool = true // If true, logs git commands/statements
+	debug        bool = true
+	offline      bool	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -134,8 +125,7 @@ fn (mut gitstructure GitStructure) repo_init_from_path_(path string, params Repo
 	// Initialize and return a GitRepo struct.
 	mut r := GitRepo{
 		gs:            &gitstructure
-		status_remote: GitRepoStatusRemote{}
-		status_local:  GitRepoStatusLocal{}
+		status: 	  GitStatus{}
 		config:        GitRepoConfig{}
 		provider:      gl.provider
 		account:       gl.account
@@ -195,35 +185,4 @@ pub fn (mut self GitStructure) cache_reset() ! {
 fn (mut self GitStructure) coderoot() !pathlib.Path {
 	mut coderoot := pathlib.get_dir(path: self.coderoot.path, create: true)!
 	return coderoot
-}
-
-////// CONFIG
-
-// Load config from redis
-pub fn (mut self GitStructure) config() !GitStructureConfig {
-	mut config := self.config_ or {
-		mut redis := redis_get()
-		data := redis.get('${self.cache_key()}:config')!
-		mut c := GitStructureConfig{}
-		if data.len > 0 {
-			c = json.decode(GitStructureConfig, data)!
-		}
-		c
-	}
-
-	return config
-}
-
-// Reset the configuration cache for Git structures.
-pub fn (mut self GitStructure) config_reset() ! {
-	mut redis := redis_get()
-	redis.del('${self.cache_key()}:config')!
-}
-
-// save to the cache
-pub fn (mut self GitStructure) config_save() ! {
-	// Retrieve the configuration from Redis.
-	mut redis := redis_get()
-	datajson := json.encode(self.config()!)
-	redis.set('${self.cache_key()}:config', datajson)!
 }

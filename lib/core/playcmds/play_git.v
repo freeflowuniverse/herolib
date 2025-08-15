@@ -11,11 +11,11 @@ import freeflowuniverse.herolib.ui.console // For verbose error reporting
 // ---------------------------------------------------------------
 
 fn play_git(mut plbook PlayBook) ! {
-	// -----------------------------------------------------------
-	// !!git.define – configure the GitStructure
-	// -----------------------------------------------------------
+
+	mut gs:=gittools.new()!
+
 	define_actions := plbook.find(filter: 'git.define')!
-	mut gs := if define_actions.len > 0 {
+	if define_actions.len > 0 {
 		mut p := define_actions[0].params
 		coderoot := p.get_default('coderoot', '')!
 		light := p.get_default_true('light')
@@ -25,19 +25,19 @@ fn play_git(mut plbook PlayBook) ! {
 		ssh_key_path := p.get_default('ssh_key_path', '')!
 		reload := p.get_default_false('reload')
 
-		gittools.new(
+		gs=gittools.new(
 			coderoot:     coderoot
-			light:        light
 			log:          log
 			debug:        debug
 			offline:      offline
-			ssh_key_path: ssh_key_path
 			reload:       reload
 		)!
-	} else {
-		// Default GitStructure (no args)
-		gittools.get()!
-	}
+
+		if light || ssh_key_path.len > 0 {
+			gs.config_set(light: light, ssh_key_path: ssh_key_path)!
+		}
+
+	} 
 
 	// -----------------------------------------------------------
 	// !!git.clone – clone repositories

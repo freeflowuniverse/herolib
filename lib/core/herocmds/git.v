@@ -208,11 +208,7 @@ fn cmd_git_execute(cmd Command) ! {
 		coderoot = os.environ()['CODEROOT']
 	}
 
-	mut gs := gittools.get(coderoot: coderoot)!
-	if coderoot.len > 0 {
-		// is a hack for now
-		gs = gittools.new(coderoot: coderoot)!
-	}
+	mut gs := gittools.new(coderoot: coderoot)!
 
 	// create the filter for doing group actions, or action on 1 repo
 	mut filter := cmd.flags.get_string('filter') or { '' }

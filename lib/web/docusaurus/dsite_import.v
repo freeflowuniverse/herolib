@@ -29,7 +29,7 @@ pub fn (mut docsite DocSite) import() ! {
 		}
 
 		// Use gittools to get path of what we want to import
-		import_path := gittools.get_repo_path(
+		mut import_path := gittools.path(
 			git_pull:  c.reset
 			git_reset: c.reset
 			git_url:   importparams.url
@@ -37,13 +37,14 @@ pub fn (mut docsite DocSite) import() ! {
 			path:      importparams.path
 		)!
 
-		mut import_patho := pathlib.get(import_path)
-
+		if import_path.path == "" {
+			return error("import path not found for url:${importparams.url} and path:${importparams.path}")
+		}
 		if importparams.dest.starts_with("/") {
 			return error("Import path ${importparams.dest} must be relative, will be relative in relation to the build dir.")
 		}
 
-		import_patho.copy(dest: '${c.path_build.path}/${importparams.dest}', delete: false)!
+		import_path.copy(dest: '${c.path_build.path}/${importparams.dest}', delete: false)!
 
 		// println(importparams)
 		// replace: {'NAME': 'MyName', 'URGENCY': 'red'}

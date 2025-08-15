@@ -27,12 +27,13 @@ fn play_core(mut plbook PlayBook) ! {
 			mut playrunpath := action.params.get_default('path', '')!
 			if playrunpath.len == 0 {
 				action.name = 'pull'
-				playrunpath = gittools.get_repo_path(
+				mypath:=gittools.path(
 					path:      playrunpath
 					git_url:   action.params.get_default('git_url', '')!
 					git_reset: action.params.get_default_false('git_reset')
 					git_pull:  action.params.get_default_false('git_pull')
 				)!
+				playrunpath = mypath.path
 			}
 			if playrunpath.len == 0 {
 				return error("can't run a heroscript didn't find url or path.")

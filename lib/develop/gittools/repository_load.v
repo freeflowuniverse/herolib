@@ -13,7 +13,7 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 	repo.init()!
 
 	// Skip remote checks if offline.
-	if 'OFFLINE' in os.environ() || (repo.gs.config()!.offline) {
+	if repo.gs.offline {
 		console.print_debug('status update skipped (offline) for ${repo.path()}')
 		return
 	}
@@ -79,7 +79,7 @@ fn (mut repo GitRepo) load_internal() ! {
 	// Persist the newly loaded state to the cache.
 	repo.cache_set()!
 
-	println(repo)
+	// println(repo)
 
 	$dbg;
 }

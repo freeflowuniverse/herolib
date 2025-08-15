@@ -38,7 +38,7 @@ pub fn install(args_ InstallArgs) ! {
 
 	base.develop()!
 
-	mut gs := gittools.get(coderoot: '${os.home_dir()}/_code')!
+	mut gs := gittools.new(coderoot: '${os.home_dir()}/_code')!
 	mut repo := gs.get_repo(
 		pull:  true
 		reset: true

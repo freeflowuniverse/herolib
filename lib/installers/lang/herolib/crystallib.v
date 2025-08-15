@@ -29,7 +29,7 @@ pub fn install(args InstallArgs) ! {
 	vlang.install(reset: args.reset)!
 	vlang.v_analyzer_install(reset: args.reset)!
 
-	mut gs := gittools.get()!
+	mut gs := gittools.new()!
 	gs.config()!.light = true // means we clone depth 1
 
 	mut repo := gs.get_repo(

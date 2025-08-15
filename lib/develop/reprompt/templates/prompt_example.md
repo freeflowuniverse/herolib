@@ -591,7 +591,7 @@ module playcmds
 // 	}
 
 // 	// if action.name == 'get' {
-// 	// 	mut gs := gittools.get()!
+// 	// 	mut gs := gittools.new()!
 // 	// 	url := action.params.get('url')!
 // 	// 	branch := action.params.get_default('branch', '')!
 // 	// 	reset := action.params.get_default_false('reset')!
@@ -1493,7 +1493,7 @@ fn play_core(mut plbook PlayBook) ! {
 			mut playrunpath := action.params.get_default('path', '')!
 			if playrunpath.len == 0 {
 				action.name = 'pull'
-				playrunpath = gittools.get_repo_path(
+				playrunpath = gittools.path(
 					path:      action.params.get_default('path', '')!
 					git_url:   action.params.get_default('git_url', '')!
 					git_reset: action.params.get_default_false('git_reset')

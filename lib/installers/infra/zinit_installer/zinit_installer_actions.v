@@ -101,7 +101,7 @@ fn build() ! {
 	// install zinit if it was already done will return true
 	console.print_header('build zinit')
 
-	mut gs := gittools.get(coderoot: '/tmp/builder')!
+	mut gs := gittools.new(coderoot: '/tmp/builder')!
 	mut repo := gs.get_repo(
 		url:   'https://github.com/threefoldtech/zinit'
 		reset: true
