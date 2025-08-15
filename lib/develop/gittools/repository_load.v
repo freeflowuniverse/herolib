@@ -24,8 +24,8 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 		|| current_time - repo.last_load >= repo.config.remote_check_period {
 		repo.load_internal() or {
 			// Persist the error state to the cache
-			if repo.status_remote.error == '' {
-				repo.status_remote.error = 'Failed to load repository: ${err}'
+			if repo.status.error == '' {
+				repo.status.error = 'Failed to load repository: ${err}'
 			}
 			repo.cache_set()!
 			return error('Failed to load repository ${repo.name}: ${err}')
@@ -40,15 +40,15 @@ fn (mut repo GitRepo) load_internal() ! {
 	repo.init()!
 
 	repo.exec('git fetch --all') or {
-		repo.status_remote.error = 'Failed to fetch updates: ${err}'
+		repo.status.error = 'Failed to fetch updates: ${err}'
 		return error('Failed to fetch updates for ${repo.name} at ${repo.path()}: ${err}. Please check network connection and repository access.')
 	}
 	repo.load_branches()!
 	repo.load_tags()! 
 
 	// Reset ahead/behind counts before recalculating
-	repo.status_local.ahead = 0
-	repo.status_local.behind = 0
+	repo.status.ahead = 0
+	repo.status.behind = 0
 
 	// Get ahead/behind information for the current branch
 	status_res := repo.exec('git status --porcelain=v2 --branch')!
@@ -59,10 +59,10 @@ fn (mut repo GitRepo) load_internal() ! {
 				ahead_str := parts[2]
 				behind_str := parts[3]
 				if ahead_str.starts_with('+') {
-					repo.status_local.ahead = ahead_str[1..].int()
+					repo.status.ahead = ahead_str[1..].int()
 				}
 				if behind_str.starts_with('-') {
-					repo.status_local.behind = behind_str[1..].int()
+					repo.status.behind = behind_str[1..].int()
 				}
 			}
 			break // We only need this one line
@@ -71,13 +71,17 @@ fn (mut repo GitRepo) load_internal() ! {
 
 	repo.last_load = int(time.now().unix())
 
-	repo.has_changes = repo.detect_changes() or {
-		repo.status_local.error = 'Failed to detect changes: ${err}'
+	repo.status.has_changes = repo.detect_changes() or {
+		repo.status.error = 'Failed to detect changes: ${err}'
 		return error('Failed to detect changes in repository ${repo.name}: ${err}')
 	}
 
 	// Persist the newly loaded state to the cache.
 	repo.cache_set()!
+
+	println(repo)
+
+	$dbg;
 }
 
 // Helper to load remote tags
@@ -99,13 +103,13 @@ fn (mut repo GitRepo) load_branches() ! {
 			if name.contains('_archive') {
 				continue
 			} else if name == 'origin' {
-				repo.status_remote.ref_default = commit_hash
+				// No longer storing ref_default separately, it's implied by the branch map
 			} else if name.starts_with('origin') {
 				name = name.all_after('origin/').trim_space()
-				// Update remote tags info
-				repo.status_remote.branches[name] = commit_hash
+				// Update branches info
+				repo.status.branches[name] = commit_hash
 			} else {
-				repo.status_local.branches[name] = commit_hash
+				repo.status.branches[name] = commit_hash
 			}
 		}
 	}
@@ -114,7 +118,7 @@ fn (mut repo GitRepo) load_branches() ! {
 		return error('Failed to get current branch: ${err}')
 	}.split_into_lines().filter(it.trim_space() != '')
 	if mybranch.len == 1 {
-		repo.status_local.branch = mybranch[0].trim_space()
+		repo.status.branch = mybranch[0].trim_space()
 	} else {
 		return error('bug: git branch does not give branchname.\n${mybranch}')
 	}
@@ -139,7 +143,7 @@ fn (mut repo GitRepo) load_tags() ! {
 			tag_name := parts[1].trim_space()
 
 			// Update remote tags info
-			repo.status_remote.tags[tag_name] = commit_hash
+			repo.status.tags[tag_name] = commit_hash
 		}
 	}
 }
