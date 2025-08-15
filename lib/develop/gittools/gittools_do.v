@@ -45,12 +45,10 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut args := args_
 	console.print_debug('git do ${args.cmd}')
 
-	$dbg;
-
-	if args.path == '' && args.url == '' && args.repo == '' && args.account == ''
-		&& args.provider == '' && args.filter == '' {
-		args.path = os.getwd()
-	}
+	// if args.path == '' && args.url == '' && args.repo == '' && args.account == ''
+	// 	&& args.provider == '' && args.filter == '' {
+	// 	args.path = os.getwd()
+	// }
 
 	if args.path != '' {
 		mut curdiro := pathlib.get_dir(path: args.path, create: false)!
@@ -83,8 +81,6 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	// 	gs.load(true)! // <-- REMOVED
 	// }
 
-	// NEW: Update status only for the relevant repos.
-	console.print_header('Updating status for selected repos...')
 	for mut repo in repos {
 		repo.status_update(reset: args.reload || args.cmd == 'reload')!
 	}

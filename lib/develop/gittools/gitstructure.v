@@ -43,6 +43,7 @@ pub fn (mut gitstructure GitStructure) load(reset bool) ! {
 	for _, mut repo in gitstructure.repos {
 		repo.status_update(reset: reset)!
 	}
+	gitstructure.config_save()!
 }
 
 // Recursively loads repositories from the provided path, updating their statuses, does not check the status
@@ -127,7 +128,7 @@ fn (mut gitstructure GitStructure) repo_init_from_path_(path string, params Repo
 	// Retrieve GitLocation from the path.
 	gl := gitstructure.gitlocation_from_path(mypath.path)!
 
-	console.print_debug("Initializing GitRepo from path: ${mypath.path}")
+	// console.print_debug("Initializing GitRepo from path: ${mypath.path}")
 	// Initialize and return a GitRepo struct.
 	mut r := GitRepo{
 		gs:            &gitstructure

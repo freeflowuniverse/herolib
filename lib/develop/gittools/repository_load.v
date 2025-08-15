@@ -18,25 +18,36 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 		return
 	}
 
+	if args.reset || repo.last_load == 0 {
+		// console.print_debug('${repo.name} : Cache get')
+		repo.cache_get()!
+	}
+
+	// cacheexists:=repo.cache_exists()!
+	// console.print_debug('${repo.name} : Checking if a full load is needed for  cacheexists:${cacheexists} ')
+
 	current_time := int(time.now().unix())
 	// Decide if a full load is needed.
 	if args.reset || repo.last_load == 0
 		|| current_time - repo.last_load >= repo.config.remote_check_period {
+		$dbg;
 		repo.load_internal() or {
 			// Persist the error state to the cache
+			console.print_stderr('Failed to load repository ${repo.name} at ${repo.path()}: ${err}')
 			if repo.status.error == '' {
 				repo.status.error = 'Failed to load repository: ${err}'
 			}
-			repo.cache_set()!
 			return error('Failed to load repository ${repo.name}: ${err}')
 		}
+		repo.cache_set()!
+		// $dbg;
 	}
 }
 
 // load_internal performs the expensive git operations to refresh the repository state.
 // It should only be called by status_update().
 fn (mut repo GitRepo) load_internal() ! {
-	console.print_header('load ${repo.print_key()}')
+	console.print_debug('load ${repo.print_key()}')
 	repo.init()!
 
 	repo.exec('git fetch --all') or {

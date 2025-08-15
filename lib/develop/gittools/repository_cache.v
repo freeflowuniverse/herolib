@@ -13,6 +13,7 @@ fn (mut repo GitRepo) cache_set() ! {
 	mut redis_client := redis_get()
 	repo_json := json.encode(repo)
 	cache_key := repo.cache_key()
+	// println("Caching repository ${repo.name} at ${cache_key}")
 	redis_client.set(cache_key, repo_json)!
 }
 
@@ -28,6 +29,16 @@ fn (mut repo GitRepo) cache_get() ! {
 		cached.gs = repo.gs
 		repo = cached
 	}
+}
+
+fn (mut repo GitRepo) cache_exists() !bool {
+	mut repo_json := ''
+	mut redis_client := redis_get()
+	cache_key := repo.cache_key()
+	// println("${repo.name} : Checking if cache exists at ${cache_key}")
+	repo_json = redis_client.get(cache_key) or { return false }
+	// println(repo_json)
+	return repo_json.len > 0
 }
 
 // Remove cache

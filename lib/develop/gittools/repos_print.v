@@ -57,7 +57,7 @@ pub fn (mut gitstructure GitStructure) repos_print(args ReposGetArgs) ! {
 	console.clear()
 	// console.print_lf(1) // Removed to reduce newlines
 
-	header := 'Repositories: ${gitstructure.coderoot}'
+	header := 'Repositories: ${gitstructure.coderoot.path}'
 	console.print_header(header)
 	console.print_lf(1) // Keep one newline after header
 

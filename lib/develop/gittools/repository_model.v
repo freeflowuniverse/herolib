@@ -38,21 +38,5 @@ pub mut:
 
 pub struct GitRepoConfig {
 pub mut:
-	remote_check_period int = 300 // seconds, 5 min
+	remote_check_period int = 3600 // seconds = 1h
 }
-
-// // just some initialization mechanism
-// fn (mut gitstructure GitStructure) repo_new_from_gitlocation(git_location GitLocation) !&GitRepo {
-// 	mut repo := GitRepo{
-// 		provider:      git_location.provider
-// 		name:          git_location.name
-// 		account:       git_location.account
-// 		gs:            &gitstructure
-// 		status_remote: GitRepoStatusRemote{}
-// 		status_local:  GitRepoStatusLocal{}
-// 		status_wanted: GitRepoStatusWanted{}
-// 	}
-// 	gitstructure.repos[repo.cache_key()] = &repo
-
-// 	return &repo
-// }

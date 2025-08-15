@@ -39,7 +39,7 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		}
 		return gs
 	}else{
-		console.print_header("Loading GitStructure for ${args.coderoot}.")
+		console.print_debug("Loading GitStructure for ${args.coderoot}")
 	}
 
 	// Create and load the GitStructure instance.
@@ -57,7 +57,7 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 
 	gs.config()! // will load the config, don't remove
 
-	if gs.repos.keys().len == 0 || args.reload {
+	if args.reload {
 		gs.load(true)!
 	}else{
 		gs.load(false)!
