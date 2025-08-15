@@ -30,7 +30,6 @@ pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
 	// Decide if a full load is needed.
 	if args.reset || repo.last_load == 0
 		|| current_time - repo.last_load >= repo.config.remote_check_period {
-		$dbg;
 		repo.load_internal() or {
 			// Persist the error state to the cache
 			console.print_stderr('Failed to load repository ${repo.name} at ${repo.path()}: ${err}')
@@ -55,7 +54,7 @@ fn (mut repo GitRepo) load_internal() ! {
 		return error('Failed to fetch updates for ${repo.name} at ${repo.path()}: ${err}. Please check network connection and repository access.')
 	}
 	repo.load_branches()!
-	repo.load_tags()! 
+	repo.load_tags()!
 
 	// Reset ahead/behind counts before recalculating
 	repo.status.ahead = 0
@@ -89,7 +88,6 @@ fn (mut repo GitRepo) load_internal() ! {
 
 	// Persist the newly loaded state to the cache.
 	repo.cache_set()!
-
 }
 
 // Helper to load remote tags

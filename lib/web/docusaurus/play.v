@@ -9,7 +9,7 @@ pub fn play(mut plbook PlayBook) ! {
 		return
 	}
 
-	//there should be 1 define section
+	// there should be 1 define section
 	mut action_define := plbook.ensure_once(filter: 'docusaurus.define')!
 	mut param_define := action_define.params
 
@@ -24,10 +24,9 @@ pub fn play(mut plbook PlayBook) ! {
 	site_name := param_define.get('name') or {
 		return error('In docusaurus.define, param "name" is required.')
 	}
-	
+
 	dsite_define(site_name)!
 
-	
 	action_define.done = true
 	mut dsite := dsite_get(site_name)!
 
@@ -46,7 +45,6 @@ pub fn play(mut plbook PlayBook) ! {
 		)!
 		action.done = true
 	}
-
 
 	mut actions_build := plbook.find(filter: 'docusaurus.build')!
 	if actions_build.len > 1 {

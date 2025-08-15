@@ -6,7 +6,6 @@ import freeflowuniverse.herolib.ui.console
 import os
 import json
 
-
 // GitStructure holds information about repositories within a specific code root.
 // This structure keeps track of loaded repositories, their configurations, and their status.
 @[heap]
@@ -17,9 +16,9 @@ pub mut:
 	key      string              // Unique key representing the git structure (default is hash of $home/code).	
 	repos    map[string]&GitRepo // Map of repositories
 	coderoot pathlib.Path
-	log          bool = true // If true, logs git commands/statements
-	debug        bool = true
-	offline      bool	
+	log      bool = true // If true, logs git commands/statements
+	debug    bool = true
+	offline  bool
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -52,8 +51,6 @@ pub fn (mut gitstructure GitStructure) load(reset bool) ! {
 // - path (string): The path to search for repositories.
 // - processed_paths ([]string): List of already processed paths to avoid duplication.
 fn (mut gitstructure GitStructure) load_recursive(path string, mut processed_paths []string) ! {
-
-
 	path_object := pathlib.get(path)
 	relpath := path_object.path_relative(gitstructure.coderoot.path)!
 
@@ -72,7 +69,8 @@ fn (mut gitstructure GitStructure) load_recursive(path string, mut processed_pat
 		current_path := os.join_path(path, item)
 
 		if os.is_dir(current_path) {
-			excluded_dirs := ['node_modules', 'vendor', 'dist', 'build', 'bin', 'obj', 'target', 'tmp', 'temp']
+			excluded_dirs := ['node_modules', 'vendor', 'dist', 'build', 'bin', 'obj', 'target',
+				'tmp', 'temp']
 			if item.starts_with('.') || item.starts_with('_') || excluded_dirs.contains(item) {
 				continue
 			}
@@ -131,13 +129,13 @@ fn (mut gitstructure GitStructure) repo_init_from_path_(path string, params Repo
 	// console.print_debug("Initializing GitRepo from path: ${mypath.path}")
 	// Initialize and return a GitRepo struct.
 	mut r := GitRepo{
-		gs:            &gitstructure
-		status: 	  GitStatus{}
-		config:        GitRepoConfig{}
-		provider:      gl.provider
-		account:       gl.account
-		name:          gl.name
-		deploysshkey:  params.ssh_key_name
+		gs:           &gitstructure
+		status:       GitStatus{}
+		config:       GitRepoConfig{}
+		provider:     gl.provider
+		account:      gl.account
+		name:         gl.name
+		deploysshkey: params.ssh_key_name
 	}
 
 	return r

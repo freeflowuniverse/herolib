@@ -20,7 +20,7 @@ pub mut:
 fn (mut self GiteaClient) httpclient() !&httpconnection.HTTPConnection {
 	mut http_conn := httpconnection.new(
 		name: 'giteaclient_${self.name}'
-		url: self.url
+		url:  self.url
 	)!
 
 	// Add authentication header if API key is provided
@@ -49,7 +49,7 @@ fn obj_init(mycfg_ GiteaClient) !GiteaClient {
 	if mycfg.url.ends_with('/api') {
 		mycfg.url = mycfg.url.replace('/api', '')
 	}
-	mycfg.url = "https://${mycfg.url}/api/v1"
+	mycfg.url = 'https://${mycfg.url}/api/v1'
 
 	if mycfg.secret.len == 0 {
 		return error('secret needs to be filled in for ${mycfg.name}')

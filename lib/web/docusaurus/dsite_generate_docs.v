@@ -20,10 +20,9 @@ mut:
 
 // Generate docs from site configuration
 pub fn (mut docsite DocSite) generate_docs() ! {
-
 	c := config()!
 
-	//we generate the docs in the build path
+	// we generate the docs in the build path
 	docs_path := '${c.path_build.path}/docs'
 
 	mut gen := SiteGenerator{

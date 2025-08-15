@@ -11,23 +11,20 @@ import os
 // -------------------------------------------------------------------
 
 fn play_core(mut plbook PlayBook) ! {
-    // ----------------------------------------------------------------
-    // 1.  Include handling (play include / echo)
-    // ----------------------------------------------------------------
+	// ----------------------------------------------------------------
+	// 1.  Include handling (play include / echo)
+	// ----------------------------------------------------------------
 	// Track included paths to prevent infinite recursion
 	mut included_paths := map[string]bool{}
 
-	
-
 	for mut action_ in plbook.find(filter: 'play.*')! {
-		
 		if action_.name == 'include' {
 			mut action := *action_
 			mut toreplace := action.params.get_default('replace', '')!
 			mut playrunpath := action.params.get_default('path', '')!
 			if playrunpath.len == 0 {
 				action.name = 'pull'
-				mypath:=gittools.path(
+				mypath := gittools.path(
 					path:      playrunpath
 					git_url:   action.params.get_default('git_url', '')!
 					git_reset: action.params.get_default_false('git_reset')
@@ -40,8 +37,8 @@ fn play_core(mut plbook PlayBook) ! {
 			}
 
 			// console.print_debug('play run:\n${action_}')
-			if ! playrunpath.starts_with('/') {
-				playrunpath=os.abs_path("${plbook.path}/${playrunpath}")
+			if !playrunpath.starts_with('/') {
+				playrunpath = os.abs_path('${plbook.path}/${playrunpath}')
 			}
 
 			console.print_debug('play run include path:${playrunpath}')
@@ -51,12 +48,11 @@ fn play_core(mut plbook PlayBook) ! {
 				console.print_debug('Skipping already included path: ${playrunpath}')
 				continue
 			}
-			toreplacedict:=texttools.to_map(toreplace)
+			toreplacedict := texttools.to_map(toreplace)
 			included_paths[playrunpath] = true
-			plbook.add(path: playrunpath,replace:toreplacedict)!
+			plbook.add(path: playrunpath, replace: toreplacedict)!
 
-			action.done = true			
-
+			action.done = true
 		}
 		if action_.name == 'echo' {
 			content := action_.params.get_default('content', "didn't find content")!
@@ -64,38 +60,35 @@ fn play_core(mut plbook PlayBook) ! {
 		}
 	}
 
-	
-    // ----------------------------------------------------------------
-    // 2.  Session environment handling
-    // ----------------------------------------------------------------
-    // Guard – make sure a session exists
-    mut session := plbook.session
-    
-    // !!session.env_set / env_set_once
-    for mut action in plbook.find(filter: 'session.')! {
+	// ----------------------------------------------------------------
+	// 2.  Session environment handling
+	// ----------------------------------------------------------------
+	// Guard – make sure a session exists
+	mut session := plbook.session
 
-        mut p := action.params
-        match action.name {
-            'env_set' {
-                key := p.get('key')!
-                val := p.get('val') or { p.get('value')! }
-                session.env_set(key, val)!
-            }
-            'env_set_once' {
-                key := p.get('key')!
-                val := p.get('val') or { p.get('value')! }
-                // Use the dedicated “set‑once” method
-                session.env_set_once(key, val)!
-            }
-            else { /* ignore unknown sub‑action */ }
-        }
-        action.done = true
-    }
-	
+	// !!session.env_set / env_set_once
+	for mut action in plbook.find(filter: 'session.')! {
+		mut p := action.params
+		match action.name {
+			'env_set' {
+				key := p.get('key')!
+				val := p.get('val') or { p.get('value')! }
+				session.env_set(key, val)!
+			}
+			'env_set_once' {
+				key := p.get('key')!
+				val := p.get('val') or { p.get('value')! }
+				// Use the dedicated “set‑once” method
+				session.env_set_once(key, val)!
+			}
+			else {}
+		}
+		action.done = true
+	}
 
-    // ----------------------------------------------------------------
-    // 3.  Template replacement in action parameters
-    // ----------------------------------------------------------------
+	// ----------------------------------------------------------------
+	// 3.  Template replacement in action parameters
+	// ----------------------------------------------------------------
 	// Apply template replacement from session environment variables
 	if session.env.len > 0 {
 		// Create a map with name_fix applied to keys for template replacement
@@ -143,5 +136,4 @@ fn play_core(mut plbook PlayBook) ! {
 		session.save()!
 		action.done = true
 	}
-
 }

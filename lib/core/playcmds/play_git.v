@@ -11,8 +11,7 @@ import freeflowuniverse.herolib.ui.console // For verbose error reporting
 // ---------------------------------------------------------------
 
 fn play_git(mut plbook PlayBook) ! {
-
-	mut gs:=gittools.new()!
+	mut gs := gittools.new()!
 
 	define_actions := plbook.find(filter: 'git.define')!
 	if define_actions.len > 0 {
@@ -25,19 +24,18 @@ fn play_git(mut plbook PlayBook) ! {
 		ssh_key_path := p.get_default('ssh_key_path', '')!
 		reload := p.get_default_false('reload')
 
-		gs=gittools.new(
-			coderoot:     coderoot
-			log:          log
-			debug:        debug
-			offline:      offline
-			reload:       reload
+		gs = gittools.new(
+			coderoot: coderoot
+			log:      log
+			debug:    debug
+			offline:  offline
+			reload:   reload
 		)!
 
 		if light || ssh_key_path.len > 0 {
 			gs.config_set(light: light, ssh_key_path: ssh_key_path)!
 		}
-
-	} 
+	}
 
 	// -----------------------------------------------------------
 	// !!git.clone – clone repositories

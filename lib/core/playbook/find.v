@@ -148,7 +148,7 @@ pub fn (mut plbook PlayBook) get(args FindArgs) !&Action {
 	} else if res.len > 1 {
 		$if debug {
 			print_backtrace()
-		}		
+		}
 		return error("found more than one action: '${args.filter}'")
 	}
 	return res[0] or { panic('bug') }

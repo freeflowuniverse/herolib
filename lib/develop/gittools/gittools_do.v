@@ -44,17 +44,44 @@ pub mut:
 pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 	mut args := args_
 	console.print_debug('git do ${args.cmd}')
+	// println(args)
+	// $dbg;
 
-	// if args.path == '' && args.url == '' && args.repo == '' && args.account == ''
-	// 	&& args.provider == '' && args.filter == '' {
-	// 	args.path = os.getwd()
-	// }
+	if args.path.len > 0 && args.url.len > 0 {
+		panic('bug')
+	}
+	if args.path.len > 0 && args.filter.len > 0 {
+		panic('bug')
+	}
+	if args.url.len > 0 && args.filter.len > 0 {
+		panic('bug')
+	}
 
 	if args.path != '' {
-		mut curdiro := pathlib.get_dir(path: args.path, create: false)!
-		mut parentpath := curdiro.parent_find('.git') or { pathlib.Path{} }
-		if parentpath.path != '' {
-			r0 := gs.repo_init_from_path_(parentpath.path)!
+		if args.path.contains('*') {
+			panic('bug')
+		}
+		if args.path == '.' {
+			// means current dir
+			args.path = os.getwd()
+			mut curdiro := pathlib.get_dir(path: args.path, create: false)!
+			mut parentpath := curdiro.parent_find('.git') or { pathlib.Path{} }
+			args.path = curdiro.path
+		}
+		if !os.exists(args.path) {
+			return error('Path does not exist: ${args.path}')
+		}
+
+		r0 := gs.repo_init_from_path_(args.path)!
+		args.repo = r0.name
+		args.account = r0.account
+		args.provider = r0.provider
+	} else {
+		if args.url.len > 0 {
+			if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {
+				return error('when specify url cannot specify repo, account, profider or filter')
+			}
+			mut r0 := gs.get_repo(url: args.url)!
 			args.repo = r0.name
 			args.account = r0.account
 			args.provider = r0.provider
@@ -71,15 +98,6 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		account:  args.account
 		provider: args.provider
 	)!
-
-	// MODIFIED: Remove the global reload.
-	   // The reload flag will now be handled inside the loop.
-	// if args.reload || args.cmd == 'reload' {
-	// 	for mut repo in repos {
-	// 		repo.cache_last_load_clear()!
-	// 	}
-	// 	gs.load(true)! // <-- REMOVED
-	// }
 
 	for mut repo in repos {
 		repo.status_update(reset: args.reload || args.cmd == 'reload')!
@@ -122,18 +140,6 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		return ''
 	}
 
-
-	// see if a url was used means we are in 1 repo
-	if args.url.len > 0 {
-		if !(args.repo == '' && args.account == '' && args.provider == '' && args.filter == '') {
-			return error('when specify url cannot specify repo, account, profider or filter')
-		}
-		mut r0 := gs.get_repo(url: args.url)!
-		args.repo = r0.name
-		args.account = r0.account
-		args.provider = r0.provider
-	}
-
 	if args.cmd in 'pull,push,commit,delete'.split(',') {
 		gs.repos_print(
 			filter:   args.filter
@@ -166,10 +172,9 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			}
 
 			console.print_debug(" --- status repo ${g.name}'s\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
-
 		}
 
-		console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")		
+		console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
 
 		mut ok := false
 		if need_commit0 || need_pull0 || need_push0 {

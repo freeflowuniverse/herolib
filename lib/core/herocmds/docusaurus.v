@@ -143,8 +143,7 @@ fn cmd_docusaurus_execute(cmd Command) ! {
 	)!
 
 	// TODO: We need to load the sitename instead, or maybe remove it
-	mut dsite := docusaurus.dsite_get("")!
-
+	mut dsite := docusaurus.dsite_get('')!
 
 	if buildpublish {
 		// Build and publish production-ready artifacts

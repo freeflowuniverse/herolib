@@ -119,7 +119,7 @@ pub fn (mut gitstructure GitStructure) get_repo(args_ ReposGetArgs) !&GitRepo {
 		// repos := repositories.map('- ${it.account}.${it.name}').join_lines()
 		$if debug {
 			print_backtrace()
-		}		
+		}
 		return error('Found more than one repository for \n${args}')
 	}
 

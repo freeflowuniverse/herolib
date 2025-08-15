@@ -5,8 +5,6 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
 import os
 
-
-
 // commit stages all changes and commits them with the provided message.
 pub fn (mut repo GitRepo) commit(msg string) ! {
 	repo.status_update()!

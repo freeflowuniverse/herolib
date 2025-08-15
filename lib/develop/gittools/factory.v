@@ -1,7 +1,6 @@
 module gittools
 
 import os
-
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.ui.console
 
@@ -16,11 +15,11 @@ pub fn reset() {
 @[params]
 pub struct GitStructureArgsNew {
 pub mut:
-	coderoot     string
-	log          bool = true // If true, logs git commands/statements
-	debug        bool = true
-	reload       bool
-	offline      bool
+	coderoot string
+	log      bool = true // If true, logs git commands/statements
+	debug    bool = true
+	reload   bool
+	offline  bool
 }
 
 // Retrieve or create a new GitStructure instance with the given configuration.
@@ -38,8 +37,8 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 			panic('Unexpected error: key not found in gsinstances')
 		}
 		return gs
-	}else{
-		console.print_debug("Loading GitStructure for ${args.coderoot}")
+	} else {
+		console.print_debug('Loading GitStructure for ${args.coderoot}')
 	}
 
 	// Create and load the GitStructure instance.
@@ -47,8 +46,8 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 		key:      rediskey_
 		coderoot: pathlib.get_dir(path: args.coderoot, create: true)!
 		log:      args.log
-		debug:   args.debug
-		offline: args.offline
+		debug:    args.debug
+		offline:  args.offline
 	}
 
 	if 'OFFLINE' in os.environ() {
@@ -59,14 +58,13 @@ pub fn new(args_ GitStructureArgsNew) !&GitStructure {
 
 	if args.reload {
 		gs.load(true)!
-	}else{
+	} else {
 		gs.load(false)!
 	}
 
 	gsinstances[rediskey_] = &gs
 
 	return gsinstances[rediskey_] or { panic('bug') }
-
 }
 
 @[params]
@@ -90,15 +88,15 @@ pub mut:
 pub fn path(args_ GitPathGetArgs) !pathlib.Path {
 	mut args := args_
 
-	if args.path!=""{
+	if args.path != '' {
 		if os.exists(args.path) {
 			return pathlib.get(args.path)
-		}else{
-			if args.git_url == "" {
+		} else {
+			if args.git_url == '' {
 				return error("can't resolve git repo path without url or existing path, ${args.path} does not exist.")
 			}
 		}
-	}	
+	}
 
 	if args.git_url.len > 0 {
 		mut gs := new(coderoot: args.git_root)!
@@ -114,4 +112,3 @@ pub fn path(args_ GitPathGetArgs) !pathlib.Path {
 	}
 	return pathlib.get(args.path)
 }
-

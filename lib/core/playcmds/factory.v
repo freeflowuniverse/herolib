@@ -53,9 +53,8 @@ pub fn run(args_ PlayArgs) ! {
 
 	giteaclient.play(mut plbook)!
 
-	if args.emptycheck{
+	if args.emptycheck {
 		// Ensure we did not leave any actions un‑processed
 		plbook.empty_check()!
 	}
-
 }

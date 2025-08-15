@@ -37,4 +37,3 @@ println('Found ${issues.len} issues.')
 for issue in issues {
 	println('  #${issue.number}: ${issue.title}')
 }
-

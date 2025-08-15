@@ -26,13 +26,13 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 
 	// Initialize a new GitRepo instance
 	mut repo := GitRepo{
-		gs:            &gitstructure
-		provider:      git_location.provider
-		account:       git_location.account
-		name:          git_location.name
-		deploysshkey:  args.sshkey // Use the sshkey from args
-		config:        GitRepoConfig{} // Initialize with default config
-		status:        GitStatus{} // Initialize with default status
+		gs:           &gitstructure
+		provider:     git_location.provider
+		account:      git_location.account
+		name:         git_location.name
+		deploysshkey: args.sshkey // Use the sshkey from args
+		config:       GitRepoConfig{} // Initialize with default config
+		status:       GitStatus{}     // Initialize with default status
 	}
 
 	// Add the new repo to the gitstructure's repos map
@@ -70,7 +70,7 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 	if result.exit_code != 0 {
 		return error('Cannot clone the repository due to: \n${result.output}')
 	}
-	
+
 	// The repo is now cloned. Load its initial status.
 	repo.load_internal()!
 

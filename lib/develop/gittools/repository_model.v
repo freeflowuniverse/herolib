@@ -1,12 +1,11 @@
 module gittools
 
-
 // GitRepo represents a single git repository.
 @[heap]
 pub struct GitRepo {
 	// a git repo is always part of a git structure
 mut:
-	gs &GitStructure @[skip; str: skip]
+	gs        &GitStructure @[skip; str: skip]
 	last_load int // epoch when last loaded
 pub mut:
 	provider     string // e.g., github.com
@@ -26,10 +25,10 @@ pub mut:
 	tags     map[string]string // All tag names -> commit hash
 
 	// Current local state
-	branch   string // The current checked-out branch.
-	tag      string // The current checked-out tag (if any).
-	ahead    int    // Commits ahead of remote.
-	behind   int    // Commits behind remote.
+	branch string // The current checked-out branch.
+	tag    string // The current checked-out tag (if any).
+	ahead  int    // Commits ahead of remote.
+	behind int    // Commits behind remote.
 
 	// Combined status
 	has_changes bool   // True if there are uncommitted local changes.

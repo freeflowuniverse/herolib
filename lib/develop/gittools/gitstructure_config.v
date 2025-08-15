@@ -2,7 +2,6 @@ module gittools
 
 import json
 
-
 @[params]
 pub struct GitStructureConfig {
 pub mut:
@@ -10,8 +9,6 @@ pub mut:
 	ssh_key_name string
 	ssh_key_path string
 }
-
-
 
 // Load config from redis
 pub fn (mut self GitStructure) config() !GitStructureConfig {
@@ -24,9 +21,9 @@ pub fn (mut self GitStructure) config() !GitStructureConfig {
 		}
 		c
 	}
+
 	return config
 }
-
 
 pub fn (mut self GitStructure) config_set(args GitStructureConfig) ! {
 	mut redis := redis_get()

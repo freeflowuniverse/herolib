@@ -12,7 +12,6 @@ enum State {
 	othertext
 }
 
-
 // pub struct PlayBookNewArgs {
 // 	path       string
 // 	text       string
@@ -37,23 +36,24 @@ pub fn (mut plbook PlayBook) add(args_ PlayBookNewArgs) ! {
 		args.path = newpath.path
 	}
 
-	if plbook.path=="" && args.path!="" {
+	if plbook.path == '' && args.path != '' {
 		plbook.path = args.path
 	}
 
-	if args.text.len>0 && args.replace.len>0{
-		//now we need to replace any placeholders in the text
+	if args.text.len > 0 && args.replace.len > 0 {
+		// now we need to replace any placeholders in the text
 		for key, value in args.replace {
-			if key.starts_with('@') || key.starts_with('$') || key.starts_with('[') || key.starts_with('{') {
+			if key.starts_with('@') || key.starts_with('$') || key.starts_with('[')
+				|| key.starts_with('{') {
 				args.text = args.text.replace(key, value)
-			}else{
-				args.text = args.text.replace("@${key}", value)
-				args.text = args.text.replace("$\{${key}\}", value)
-				args.text = args.text.replace("\{${key}\}", value)			
+			} else {
+				args.text = args.text.replace('@${key}', value)
+				args.text = args.text.replace('$\{${key}\}', value)
+				args.text = args.text.replace('\{${key}\}', value)
 			}
 		}
 	}
-	
+
 	// walk over directory
 	if args.path.len > 0 {
 		// console.print_header("PLBOOK add path:'${args.path}'")
