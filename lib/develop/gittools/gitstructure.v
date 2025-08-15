@@ -2,6 +2,7 @@ module gittools
 
 import crypto.md5
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.ui.console
 import os
 import json
 
@@ -37,7 +38,6 @@ pub fn (mut gitstructure GitStructure) load(reset bool) ! {
 
 	if reset {
 		gitstructure.cache_reset()!
-		$dbg;
 	}
 
 	for _, mut repo in gitstructure.repos {
@@ -51,13 +51,17 @@ pub fn (mut gitstructure GitStructure) load(reset bool) ! {
 // - path (string): The path to search for repositories.
 // - processed_paths ([]string): List of already processed paths to avoid duplication.
 fn (mut gitstructure GitStructure) load_recursive(path string, mut processed_paths []string) ! {
+
+
 	path_object := pathlib.get(path)
 	relpath := path_object.path_relative(gitstructure.coderoot.path)!
 
-	// Limit the recursion depth to avoid deep directory traversal.
-	if relpath.count('/') > 4 {
+	// Limit the recursion depth to avoid deep directory traversal, because we have a predefined structure of git repo's.
+	if relpath.count('/') > 2 {
 		return
 	}
+
+	// console.print_debug("Loading git repositories from: ${path}, relpath:${relpath}")
 
 	items := os.ls(path) or {
 		return error('Cannot load gitstructure because directory not found: ${path}')
@@ -67,10 +71,14 @@ fn (mut gitstructure GitStructure) load_recursive(path string, mut processed_pat
 		current_path := os.join_path(path, item)
 
 		if os.is_dir(current_path) {
+			excluded_dirs := ['node_modules', 'vendor', 'dist', 'build', 'bin', 'obj', 'target', 'tmp', 'temp']
+			if item.starts_with('.') || item.starts_with('_') || excluded_dirs.contains(item) {
+				continue
+			}
+
 			if os.exists(os.join_path(current_path, '.git')) {
 				// Initialize the repository from the current path.
 				mut repo := gitstructure.repo_init_from_path_(current_path)!
-				// repo.status_update()!
 
 				key_ := repo.cache_key()
 				path_ := repo.path()
@@ -85,9 +93,6 @@ fn (mut gitstructure GitStructure) load_recursive(path string, mut processed_pat
 				continue
 			}
 
-			if item.starts_with('.') || item.starts_with('_') {
-				continue
-			}
 			// Recursively search in subdirectories.
 			gitstructure.load_recursive(current_path, mut processed_paths)!
 		}
@@ -122,6 +127,7 @@ fn (mut gitstructure GitStructure) repo_init_from_path_(path string, params Repo
 	// Retrieve GitLocation from the path.
 	gl := gitstructure.gitlocation_from_path(mypath.path)!
 
+	console.print_debug("Initializing GitRepo from path: ${mypath.path}")
 	// Initialize and return a GitRepo struct.
 	mut r := GitRepo{
 		gs:            &gitstructure
@@ -179,10 +185,4 @@ pub fn (mut self GitStructure) cache_reset() ! {
 	for key in keys {
 		redis.del(key)!
 	}
-}
-
-// Load config from redis
-fn (mut self GitStructure) coderoot() !pathlib.Path {
-	mut coderoot := pathlib.get_dir(path: self.coderoot.path, create: true)!
-	return coderoot
 }

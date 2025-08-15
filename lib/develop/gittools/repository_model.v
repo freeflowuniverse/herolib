@@ -6,7 +6,7 @@ module gittools
 pub struct GitRepo {
 	// a git repo is always part of a git structure
 mut:
-	gs &GitStructure
+	gs &GitStructure @[skip; str: skip]
 	last_load int // epoch when last loaded
 pub mut:
 	provider     string // e.g., github.com

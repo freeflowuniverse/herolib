@@ -79,9 +79,6 @@ fn (mut repo GitRepo) load_internal() ! {
 	// Persist the newly loaded state to the cache.
 	repo.cache_set()!
 
-	// println(repo)
-
-	$dbg;
 }
 
 // Helper to load remote tags
