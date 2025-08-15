@@ -6,76 +6,67 @@ import os
 
 @[params]
 pub struct StatusUpdateArgs {
-	reload bool
-	force  bool // Add force flag to bypass cache when callers need it.
+	reset bool
 }
 
 pub fn (mut repo GitRepo) status_update(args StatusUpdateArgs) ! {
-	// Clear previous errors
-	repo.status_local.error = ''
-	repo.status_remote.error = ''
+	repo.init()!
 
-	// Check current time vs last check, if needed (check period) then load
-	repo.cache_get() or {
-		repo.status_local.error = 'Failed to get cache: ${err}'
-		return error('Failed to get cache for repo ${repo.name}: ${err}')
-	} // Ensure we have the situation from redis
-	repo.init() or {
-		repo.status_local.error = 'Failed to initialize: ${err}'
-		return error('Failed to initialize repo ${repo.name}: ${err}')
-	}
-
-	// If there's an existing error, skip loading and just return.
-	// This prevents repeated attempts to load a problematic repo.
-	if repo.status_local.error.len > 0 || repo.status_remote.error.len > 0 {
-		console.print_debug('Skipping load for ${repo.name} due to existing error.')
-		return
-	}
-
+	// Skip remote checks if offline.
 	if 'OFFLINE' in os.environ() || (repo.gs.config()!.offline) {
-		console.print_debug('fetch skipped (offline)')
+		console.print_debug('status update skipped (offline) for ${repo.path()}')
 		return
 	}
+
 	current_time := int(time.now().unix())
-	if args.reload || repo.last_load == 0
+	// Decide if a full load is needed.
+	if args.reset || repo.last_load == 0
 		|| current_time - repo.last_load >= repo.config.remote_check_period {
-		// console.print_debug('${repo.name} ${current_time}-${repo.last_load} (${current_time - repo.last_load >= repo.config.remote_check_period}): ${repo.config.remote_check_period}  +++')
-		// if true{exit(0)}
-		repo.load() or {
-			repo.status_remote.error = 'Failed to load repository: ${err}'
+		repo.load_internal() or {
+			// Persist the error state to the cache
+			if repo.status_remote.error == '' {
+				repo.status_remote.error = 'Failed to load repository: ${err}'
+			}
+			repo.cache_set()!
 			return error('Failed to load repository ${repo.name}: ${err}')
 		}
 	}
 }
 
-// Load repo information
-// Does not check cache, it is the callers responsibility to check cache and load accordingly.
-fn (mut repo GitRepo) load() ! {
+// load_internal performs the expensive git operations to refresh the repository state.
+// It should only be called by status_update().
+fn (mut repo GitRepo) load_internal() ! {
 	console.print_header('load ${repo.print_key()}')
-	repo.init() or {
-		repo.status_local.error = 'Failed to initialize repo during load operation: ${err}'
-		return error('Failed to initialize repo during load operation: ${err}')
-	}
-
-	git_path := '${repo.path()}/.git'
-	if os.exists(git_path) == false {
-		repo.status_local.error = 'Repository not found: missing .git directory'
-		return error('Repository not found: ${repo.path()} is not a valid git repository (missing .git directory)')
-	}
+	repo.init()!
 
 	repo.exec('git fetch --all') or {
 		repo.status_remote.error = 'Failed to fetch updates: ${err}'
 		return error('Failed to fetch updates for ${repo.name} at ${repo.path()}: ${err}. Please check network connection and repository access.')
 	}
+	repo.load_branches()!
+	repo.load_tags()! 
 
-	repo.load_branches() or {
-		repo.status_remote.error = 'Failed to load branches: ${err}'
-		return error('Failed to load branches for ${repo.name}: ${err}')
-	}
+	// Reset ahead/behind counts before recalculating
+	repo.status_local.ahead = 0
+	repo.status_local.behind = 0
 
-	repo.load_tags() or {
-		repo.status_remote.error = 'Failed to load tags: ${err}'
-		return error('Failed to load tags for ${repo.name}: ${err}')
+	// Get ahead/behind information for the current branch
+	status_res := repo.exec('git status --porcelain=v2 --branch')!
+	for line in status_res.split_into_lines() {
+		if line.starts_with('# branch.ab') {
+			parts := line.split(' ')
+			if parts.len > 3 {
+				ahead_str := parts[2]
+				behind_str := parts[3]
+				if ahead_str.starts_with('+') {
+					repo.status_local.ahead = ahead_str[1..].int()
+				}
+				if behind_str.starts_with('-') {
+					repo.status_local.behind = behind_str[1..].int()
+				}
+			}
+			break // We only need this one line
+		}
 	}
 
 	repo.last_load = int(time.now().unix())
@@ -84,10 +75,9 @@ fn (mut repo GitRepo) load() ! {
 		repo.status_local.error = 'Failed to detect changes: ${err}'
 		return error('Failed to detect changes in repository ${repo.name}: ${err}')
 	}
-	repo.cache_set() or {
-		repo.status_local.error = 'Failed to update cache: ${err}'
-		return error('Failed to update cache for repository ${repo.name}: ${err}')
-	}
+
+	// Persist the newly loaded state to the cache.
+	repo.cache_set()!
 }
 
 // Helper to load remote tags
@@ -132,23 +122,65 @@ fn (mut repo GitRepo) load_branches() ! {
 
 // Helper to load remote tags
 fn (mut repo GitRepo) load_tags() ! {
-	tags_result := repo.exec('git tag --list') or {
+	// CORRECTED: Use for-each-ref to get commit hashes for tags.
+	tags_result := repo.exec("git for-each-ref --format='%(objectname) %(refname:short)' refs/tags") or {
 		return error('Failed to list tags: ${err}. Please ensure git is installed and repository is accessible.')
 	}
-	// println(tags_result)
+
 	for line in tags_result.split('\n') {
 		line_trimmed := line.trim_space()
 		if line_trimmed != '' {
 			parts := line_trimmed.split(' ')
 			if parts.len < 2 {
-				// console.print_debug('Skipping malformed tag line: ${line_trimmed}')
-				continue
+				continue // Skip malformed lines
 			}
 			commit_hash := parts[0].trim_space()
-			tag_name := parts[1].all_after('refs/tags/').trim_space()
+			// refname:short for tags is just the tag name itself.
+			tag_name := parts[1].trim_space()
 
 			// Update remote tags info
 			repo.status_remote.tags[tag_name] = commit_hash
 		}
 	}
+}
+
+// Retrieves a list of unstaged changes in the repository.
+//
+// This function returns a list of files that are modified or untracked.
+//
+// Returns:
+// - An array of strings representing file paths of unstaged changes.
+// - Throws an error if the command execution fails.
+pub fn (repo GitRepo) get_changes_unstaged() ![]string {
+	unstaged_result := repo.exec('git ls-files --other --modified --exclude-standard') or {
+		return error('Failed to check for unstaged changes: ${repo.path()}\n${err}')
+	}
+
+	// Filter out any empty lines from the result.
+	return unstaged_result.split('\n').filter(it.len > 0)
+}
+
+// Retrieves a list of staged changes in the repository.
+//
+// This function returns a list of files that are staged and ready to be committed.
+//
+// Returns:
+// - An array of strings representing file paths of staged changes.
+// - Throws an error if the command execution fails.
+pub fn (repo GitRepo) get_changes_staged() ![]string {
+	staged_result := repo.exec('git diff --name-only --staged') or {
+		return error('Failed to check for staged changes: ${repo.path()}\n${err}')
+	}
+	// Filter out any empty lines from the result.
+	return staged_result.split('\n').filter(it.len > 0)
+}
+
+// Check if there are any unstaged or untracked changes in the repository.
+pub fn (mut repo GitRepo) detect_changes() !bool {
+	r0 := repo.get_changes_unstaged()!
+	r1 := repo.get_changes_staged()!
+	if r0.len + r1.len > 0 {
+		return true
+	}
+	return false
 }

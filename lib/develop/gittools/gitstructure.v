@@ -34,34 +34,23 @@ pub mut:
 //////////////////////////////////////////////////////////////////////////////////////
 
 // Loads all repository information from the filesystem and updates from remote if necessary.
-// Use the reload argument to force reloading from the disk.
-//
-// Args:
-// - args (StatusUpdateArgs): Arguments controlling the reload behavior. (is just a reload:bool)
-pub fn (mut gitstructure GitStructure) load(reload bool) ! {
-	mut processed_paths := []string{}
+// Use the reset argument to force reloading from the disk.
+pub fn (mut gitstructure GitStructure) load(reset bool) ! {
+	mut processed_paths := []string{} // Re-added initialization
 
-	if reload {
+	if reset {
 		gitstructure.repos = map[string]&GitRepo{}
 	}
+
 	gitstructure.load_recursive(gitstructure.coderoot.path, mut processed_paths)!
 
-	if reload {
+	if reset {
 		gitstructure.cache_reset()!
+		$dbg;
 	}
 
-	redisclient.reset()!
-	redisclient.checkempty()
-
 	for _, mut repo in gitstructure.repos {
-		repo.status_update(reload: reload) or {
-			// If status_update fails, the error is already captured within the repo object.
-			// We log it here and continue to process other repositories.
-			console.print_stderr('Error updating status for repo ${repo.path()}: ${err}')
-			// Ensure last_load is reset to 0 if there was an error, so it's re-checked next time.
-			repo.last_load = 0
-			repo.cache_set()! // Persist the updated last_load and error state
-		}
+		repo.status_update(reset: reset)!
 	}
 }
 

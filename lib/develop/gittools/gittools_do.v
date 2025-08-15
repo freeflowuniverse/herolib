@@ -72,12 +72,19 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		provider: args.provider
 	)!
 
-	// reset the status for the repo
-	if args.reload || args.cmd == 'reload' {
-		for mut repo in repos {
-			repo.cache_last_load_clear()!
-		}
-		gs.load(true)!
+	// MODIFIED: Remove the global reload.
+	   // The reload flag will now be handled inside the loop.
+	// if args.reload || args.cmd == 'reload' {
+	// 	for mut repo in repos {
+	// 		repo.cache_last_load_clear()!
+	// 	}
+	// 	gs.load(true)! // <-- REMOVED
+	// }
+
+	// NEW: Update status only for the relevant repos.
+	console.print_header('Updating status for selected repos...')
+	for mut repo in repos {
+		repo.status_update(reload: args.reload || args.cmd == 'reload')!
 	}
 
 	if args.cmd == 'list' {

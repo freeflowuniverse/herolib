@@ -4,75 +4,6 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.osal.core as osal
 import os
 
-// GitRepo holds information about a single Git repository.
-@[heap]
-pub struct GitRepo {
-pub mut:
-	gs            &GitStructure @[skip; str: skip] // Reference to the parent GitStructure
-	provider      string              // e.g., github.com, shortened to 'github'
-	account       string              // Git account name
-	name          string              // Repository name
-	status_remote GitRepoStatusRemote // Remote repository status
-	status_local  GitRepoStatusLocal  // Local repository status
-	status_wanted GitRepoStatusWanted // what is the status we want?
-	config        GitRepoConfig       // Repository-specific configuration
-	last_load     int                 // Epoch timestamp of the last load from reality
-	deploysshkey  string              // to use with git
-	has_changes   bool
-}
-
-// this is the status we want, we need to work towards off
-pub struct GitRepoStatusWanted {
-pub mut:
-	branch   string
-	tag      string
-	url      string // Remote repository URL, is basically the one we want	
-	readonly bool   // if read only then we cannot push or commit, all changes will be reset when doing pull
-}
-
-// GitRepoStatusRemote holds remote status information for a repository.
-pub struct GitRepoStatusRemote {
-pub mut:
-	ref_default string            // is the default branch hash
-	branches    map[string]string // Branch name -> commit hash
-	tags        map[string]string // Tag name -> commit hash
-	error       string            // Error message if remote status update fails
-}
-
-// GitRepoStatusLocal holds local status information for a repository.
-pub struct GitRepoStatusLocal {
-pub mut:
-	branches map[string]string // Branch name -> commit hash
-	branch   string            // the current branch
-	tag      string            // If the local branch is not set, the tag may be set
-	error    string            // Error message if local status update fails
-}
-
-// GitRepoConfig holds repository-specific configuration options.
-pub struct GitRepoConfig {
-pub mut:
-	remote_check_period int = 3600 * 24 * 7 // Seconds to wait between remote checks (0 = check every time), default 7 days
-}
-
-// just some initialization mechanism
-pub fn (mut gitstructure GitStructure) repo_new_from_gitlocation(git_location GitLocation) !&GitRepo {
-	mut repo := GitRepo{
-		provider:      git_location.provider
-		name:          git_location.name
-		account:       git_location.account
-		gs:            &gitstructure
-		status_remote: GitRepoStatusRemote{}
-		status_local:  GitRepoStatusLocal{}
-		status_wanted: GitRepoStatusWanted{}
-	}
-	gitstructure.repos[repo.cache_key()] = &repo
-
-	return &repo
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-
 // Commit the staged changes with the provided commit message.
 pub fn (mut repo GitRepo) commit(msg string) ! {
 	repo.status_update()!
@@ -90,7 +21,7 @@ pub fn (mut repo GitRepo) commit(msg string) ! {
 		return error('Cannot commit repo: ${repo_path}. Error: ${err}')
 	}
 	console.print_green('Changes committed successfully.')
-	repo.load()!
+	repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 }
 
 // Push local changes to the remote repository.
@@ -102,7 +33,7 @@ pub fn (mut repo GitRepo) push() ! {
 		// We may need to push the locally created branches
 		repo.exec('git push --set-upstream origin ${repo.status_local.branch}')!
 		console.print_green('Changes pushed successfully.')
-		repo.load()!
+		repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 	} else {
 		console.print_header('Everything is up to date.')
 	}
@@ -127,7 +58,7 @@ pub fn (mut repo GitRepo) pull(args_ PullCheckoutArgs) ! {
 		repo.update_submodules()!
 	}
 
-	repo.load()!
+	repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 	console.print_green('Changes pulled successfully.')
 }
 
@@ -165,7 +96,7 @@ pub fn (mut repo GitRepo) branch_switch(branchname string) ! {
 	console.print_green('Branch ${branchname} switched successfully.')
 	repo.status_local.branch = branchname
 	repo.status_local.tag = ''
-	repo.pull()!
+	repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 }
 
 // Create a new branch in the repository.
@@ -175,6 +106,7 @@ pub fn (mut repo GitRepo) tag_create(tagname string) ! {
 		return error('Cannot create tag: ${repo_path}. Error: ${err}')
 	}
 	console.print_green('Tag ${tagname} created successfully.')
+	repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 }
 
 pub fn (mut repo GitRepo) tag_switch(tagname string) ! {
@@ -184,7 +116,7 @@ pub fn (mut repo GitRepo) tag_switch(tagname string) ! {
 	console.print_green('Tag ${tagname} activated.')
 	repo.status_local.branch = ''
 	repo.status_local.tag = tagname
-	repo.pull()!
+	repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 }
 
 // Create a new branch in the repository.
@@ -294,7 +226,7 @@ pub fn (mut repo GitRepo) remove_changes() ! {
 			// p.delete()! // remove path, this will re-clone the full thing
 			// repo.load_from_url()!
 		}
-		repo.load()!
+		repo.cache_last_load_clear()! // MODIFIED: Invalidate cache instead of full reload.
 	}
 }
 

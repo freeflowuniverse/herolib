@@ -35,8 +35,6 @@ fn (mut repo GitRepo) cache_delete() ! {
 	mut redis_client := redis_get()
 	cache_key := repo.cache_key()
 	redis_client.del(cache_key) or { return error('Cannot delete the repo cache due to: ${err}') }
-	// TODO: report v bug, function should work without return as well
-	return
 }
 
 // put the data of last load on 0, means first time a git status check will be done it will update its info
