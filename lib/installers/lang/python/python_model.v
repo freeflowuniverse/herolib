@@ -1,7 +1,6 @@
 module python
 
-import freeflowuniverse.herolib.data.encoderhero
-import os
+import freeflowuniverse.herolib.data.encoderheroos
 
 pub const version = '0.8.11'
 const singleton = false
