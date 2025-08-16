@@ -11,6 +11,11 @@ import os
 // -------------------------------------------------------------------
 
 fn play_core(mut plbook PlayBook) ! {
+
+	if  plbook.exists(filter: 'play.')==false && plbook.exists(filter: 'play.')==false && plbook.exists(filter: 'core.')==false{
+		return
+	}
+
 	// ----------------------------------------------------------------
 	// 1.  Include handling (play include / echo)
 	// ----------------------------------------------------------------

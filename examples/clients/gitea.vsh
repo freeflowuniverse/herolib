@@ -18,9 +18,9 @@ heroscript := "
 
 "
 // Process the heroscript configuration
-playcmds.play(heroscript: heroscript, emptycheck: false)!
+// playcmds.play(heroscript: heroscript, emptycheck: false)!
 
-println(giteaclient.list()!)
+println(giteaclient.list(fromdb:true)!)
 
 $dbg;
 

@@ -80,8 +80,6 @@ pub fn (mut self Context) redis() !&redisclient.Redis {
 pub fn (mut self Context) save() ! {
 	jsonargs := json.encode_pretty(self.config)
 	mut r := self.redis()!
-	// console.print_debug("save")
-	// console.print_debug(jsonargs)	
 	r.set('context:config', jsonargs)!
 }
 
@@ -89,8 +87,6 @@ pub fn (mut self Context) save() ! {
 pub fn (mut self Context) load() ! {
 	mut r := self.redis()!
 	d := r.get('context:config')!
-	// console.print_debug("load")
-	// console.print_debug(d)
 	if d.len > 0 {
 		self.config = json.decode(ContextConfig, d)!
 	}
@@ -130,38 +126,37 @@ pub fn (mut self Context) db_config_get() !dbfs.DB {
 	return dbc.db_get_create(name: 'config', withkeys: true)!
 }
 
-pub fn (mut self Context) hero_config_set(cat string, name string, content_ string) ! {
-	mut content := texttools.dedent(content_)
-	content = rootpath.shell_expansion(content)
-	path := '${self.path()!.path}/${cat}/${name}.hero'
-	mut config_file := pathlib.get_file(path: path,create: true)!
-	config_file.write(content)!
-}
+// pub fn (mut self Context) hero_config_set(cat string, name string, content_ string) ! {
+// 	mut content := texttools.dedent(content_)
+// 	content = rootpath.shell_expansion(content)
+// 	path := '${self.path()!.path}/${cat}/${name}.json'
+// 	mut config_file := pathlib.get_file(path: path,create: true)!
+// 	config_file.write(content)!
+// }
 
-pub fn (mut self Context) hero_config_delete(cat string, name string) ! {
-	path := '${self.path()!.path}/${cat}/${name}.hero'
-	mut config_file := pathlib.get_file(path: path)!
-	config_file.delete()!
-}
+// pub fn (mut self Context) hero_config_delete(cat string, name string) ! {
+// 	path := '${self.path()!.path}/${cat}/${name}.json'
+// 	mut config_file := pathlib.get_file(path: path)!
+// 	config_file.delete()!
+// }
 
-pub fn (mut self Context) hero_config_exists(cat string, name string) bool {
-	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}/${name}.hero'
-	return os.exists(path)
-}
+// pub fn (mut self Context) hero_config_exists(cat string, name string) bool {
+// 	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}/${name}.json'
+// 	return os.exists(path)
+// }
 
-pub fn (mut self Context) hero_config_get(cat string, name string) !string {
-	path := '${self.path()!.path}/${cat}/${name}.hero'
-	mut config_file := pathlib.get_file(path: path, create: false)!
-	return config_file.read()!
-}
+// pub fn (mut self Context) hero_config_get(cat string, name string) !string {
+// 	path := '${self.path()!.path}/${cat}/${name}.json'
+// 	mut config_file := pathlib.get_file(path: path, create: false)!
+// 	return config_file.read()!
+// }
 
-pub fn (mut self Context) hero_config_list(cat string) ![]string {
-	path := '${self.path()!.path}/${cat}/*.hero'
-	mut config_files := os.ls(path)!
-	println(config_files)
-	$dbg;
-	return config_files
-}
+// pub fn (mut self Context) hero_config_list(cat string) ![]string {
+// 	path := '${self.path()!.path}/${cat}'
+// 	mut config_files := os.ls(path)!
+// 	config_files = config_files.filter(it.ends_with('.json').map(it.split('.')[0] or {panic("bug")})
+// 	return config_files
+// }
 
 
 pub fn (mut self Context) secret_encrypt(txt string) !string {

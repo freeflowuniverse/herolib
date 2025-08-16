@@ -11,6 +11,11 @@ import freeflowuniverse.herolib.ui.console // For verbose error reporting
 // ---------------------------------------------------------------
 
 fn play_git(mut plbook PlayBook) ! {
+
+	if  plbook.exists(filter: 'git.')==false{
+		return
+	}
+
 	mut gs := gittools.new()!
 
 	define_actions := plbook.find(filter: 'git.define')!
