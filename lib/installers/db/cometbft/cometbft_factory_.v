@@ -58,11 +58,11 @@ pub fn get(args ArgsGet) !&CometBFT {
 
 // register the config for the future
 pub fn set(o CometBFT) ! {
-	set_in_mem(o)!
-	cometbft_default = o.name
+	mut o2 := set_in_mem(o)!
+	cometbft_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:cometbft', o.name, json.encode(o))!
+	r.hset('context:cometbft', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -111,10 +111,11 @@ pub fn list(args ArgsList) ![]&CometBFT {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o CometBFT) ! {
+fn set_in_mem(o CometBFT) !CometBFT {
 	mut o2 := obj_init(o)!
-	cometbft_global[o.name] = &o2
-	cometbft_default = o.name
+	cometbft_global[o2.name] = &o2
+	cometbft_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

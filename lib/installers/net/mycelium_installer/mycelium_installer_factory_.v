@@ -58,11 +58,11 @@ pub fn get(args ArgsGet) !&MyceliumInstaller {
 
 // register the config for the future
 pub fn set(o MyceliumInstaller) ! {
-	set_in_mem(o)!
-	mycelium_installer_default = o.name
+	mut o2 := set_in_mem(o)!
+	mycelium_installer_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:mycelium_installer', o.name, json.encode(o))!
+	r.hset('context:mycelium_installer', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -111,10 +111,11 @@ pub fn list(args ArgsList) ![]&MyceliumInstaller {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o MyceliumInstaller) ! {
+fn set_in_mem(o MyceliumInstaller) !MyceliumInstaller {
 	mut o2 := obj_init(o)!
-	mycelium_installer_global[o.name] = &o2
-	mycelium_installer_default = o.name
+	mycelium_installer_global[o2.name] = &o2
+	mycelium_installer_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

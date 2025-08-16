@@ -53,11 +53,11 @@ pub fn get(args ArgsGet) !&CoreDNS {
 
 // register the config for the future
 pub fn set(o CoreDNS) ! {
-	set_in_mem(o)!
-	coredns_default = o.name
+	mut o2 := set_in_mem(o)!
+	coredns_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:coredns', o.name, json.encode(o))!
+	r.hset('context:coredns', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -106,10 +106,11 @@ pub fn list(args ArgsList) ![]&CoreDNS {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o CoreDNS) ! {
+fn set_in_mem(o CoreDNS) !CoreDNS {
 	mut o2 := obj_init(o)!
-	coredns_global[o.name] = &o2
-	coredns_default = o.name
+	coredns_global[o2.name] = &o2
+	coredns_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

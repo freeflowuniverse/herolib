@@ -15,8 +15,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
     podman run --name ${cfg.container_name} -e POSTGRES_USER=${cfg.user} -e POSTGRES_PASSWORD=\"${cfg.password}\" -v ${cfg.volume_path}:/var/lib/postgresql/data -p ${cfg.port}:5432 --health-cmd=\"pg_isready -U ${cfg.user}\" postgres:latest
     "
 
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'postgresql'
 		cmd:         cmd
 		startuptype: .zinit

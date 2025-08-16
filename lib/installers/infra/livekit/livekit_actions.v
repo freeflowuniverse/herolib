@@ -48,8 +48,7 @@ fn generate_keys() ! {
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut res := []startupmanager.ZProcessNewArgs{}
 	mut installer := get()!
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'livekit'
 		cmd:         'livekit-server --config ${installer.configpath} --bind 0.0.0.0'
 		startuptype: .zinit

@@ -16,7 +16,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	if core.is_linux()! {
 		res << startupmanager.ZProcessNewArgs{
 			name:        'zinit'
-			cmd:         '/usr/local/bin/zinit init'
+			cmd:         '/usr/local/bin/zinit init ~/hero/cfg/zinit'
 			startuptype: .systemd
 			start:       true
 			restart:     true

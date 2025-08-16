@@ -53,11 +53,11 @@ pub fn get(args ArgsGet) !&GiteaServer {
 
 // register the config for the future
 pub fn set(o GiteaServer) ! {
-	set_in_mem(o)!
-	gitea_default = o.name
+	mut o2 := set_in_mem(o)!
+	gitea_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:gitea', o.name, json.encode(o))!
+	r.hset('context:gitea', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -106,10 +106,11 @@ pub fn list(args ArgsList) ![]&GiteaServer {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o GiteaServer) ! {
+fn set_in_mem(o GiteaServer) !GiteaServer {
 	mut o2 := obj_init(o)!
-	gitea_global[o.name] = &o2
-	gitea_default = o.name
+	gitea_global[o2.name] = &o2
+	gitea_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

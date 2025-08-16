@@ -1,9 +1,10 @@
-module zinit_rpc
+module zinit
 
 import freeflowuniverse.herolib.schemas.jsonrpc
+import freeflowuniverse.herolib.schemas.jsonrpcmodel
 
 // Helper function to get or create the RPC client
-fn (mut c ZinitRPC) get_client() !&jsonrpc.Client {
+fn (mut c ZinitRPC) client_() !&jsonrpc.Client {
 	if client := c.rpc_client {
 		return client
 	}
@@ -16,23 +17,23 @@ fn (mut c ZinitRPC) get_client() !&jsonrpc.Client {
 // Admin methods
 
 // rpc_discover returns the OpenRPC specification for the API
-pub fn (mut c ZinitRPC) rpc_discover() !OpenRPCSpec {
-	mut client := c.get_client()!
+pub fn (mut c ZinitRPC) rpc_discover() !jsonrpcmodel.OpenRPCSpec {
+	mut client := c.client_()!
 	request := jsonrpc.new_request_generic('rpc.discover', []string{})
-	return client.send[[]string, OpenRPCSpec](request)!
+	return client.send[[]string, jsonrpcmodel.OpenRPCSpec](request)!
 }
 
 // service_list lists all services managed by Zinit
 // Returns a map of service names to their current states
 pub fn (mut c ZinitRPC) service_list() !map[string]string {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	request := jsonrpc.new_request_generic('service_list', []string{})
 	return client.send[[]string, map[string]string](request)!
 }
 
 // service_status shows detailed status information for a specific service
 pub fn (mut c ZinitRPC) service_status(name string) !ServiceStatus {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -42,7 +43,7 @@ pub fn (mut c ZinitRPC) service_status(name string) !ServiceStatus {
 
 // service_start starts a service
 pub fn (mut c ZinitRPC) service_start(name string) ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -52,7 +53,7 @@ pub fn (mut c ZinitRPC) service_start(name string) ! {
 
 // service_stop stops a service
 pub fn (mut c ZinitRPC) service_stop(name string) ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -63,7 +64,7 @@ pub fn (mut c ZinitRPC) service_stop(name string) ! {
 // service_monitor starts monitoring a service
 // The service configuration is loaded from the config directory
 pub fn (mut c ZinitRPC) service_monitor(name string) ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -74,7 +75,7 @@ pub fn (mut c ZinitRPC) service_monitor(name string) ! {
 // service_forget stops monitoring a service
 // You can only forget a stopped service
 pub fn (mut c ZinitRPC) service_forget(name string) ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -84,7 +85,7 @@ pub fn (mut c ZinitRPC) service_forget(name string) ! {
 
 // service_kill sends a signal to a running service
 pub fn (mut c ZinitRPC) service_kill(name string, signal string) ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := ServiceKillParams{
 		name:   name
 		signal: signal
@@ -95,7 +96,7 @@ pub fn (mut c ZinitRPC) service_kill(name string, signal string) ! {
 
 // service_create creates a new service configuration file
 pub fn (mut c ZinitRPC) service_create(name string, config ServiceConfig) !string {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := ServiceCreateParams{
 		name:    name
 		content: config
@@ -106,7 +107,7 @@ pub fn (mut c ZinitRPC) service_create(name string, config ServiceConfig) !strin
 
 // service_delete deletes a service configuration file
 pub fn (mut c ZinitRPC) service_delete(name string) !string {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -116,7 +117,7 @@ pub fn (mut c ZinitRPC) service_delete(name string) !string {
 
 // service_get gets a service configuration file
 pub fn (mut c ZinitRPC) service_get(name string) !ServiceConfig {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -126,7 +127,7 @@ pub fn (mut c ZinitRPC) service_get(name string) !ServiceConfig {
 
 // service_stats gets memory and CPU usage statistics for a service
 pub fn (mut c ZinitRPC) service_stats(name string) !ServiceStats {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'name': name
 	}
@@ -138,21 +139,21 @@ pub fn (mut c ZinitRPC) service_stats(name string) !ServiceStats {
 
 // system_shutdown stops all services and powers off the system
 pub fn (mut c ZinitRPC) system_shutdown() ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	request := jsonrpc.new_request_generic('system_shutdown', []string{})
 	client.send[[]string, string](request)!
 }
 
 // system_reboot stops all services and reboots the system
 pub fn (mut c ZinitRPC) system_reboot() ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	request := jsonrpc.new_request_generic('system_reboot', []string{})
 	client.send[[]string, string](request)!
 }
 
 // system_start_http_server starts an HTTP/RPC server at the specified address
 pub fn (mut c ZinitRPC) system_start_http_server(address string) !string {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	params := {
 		'address': address
 	}
@@ -162,7 +163,7 @@ pub fn (mut c ZinitRPC) system_start_http_server(address string) !string {
 
 // system_stop_http_server stops the HTTP/RPC server if running
 pub fn (mut c ZinitRPC) system_stop_http_server() ! {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	request := jsonrpc.new_request_generic('system_stop_http_server', []string{})
 	client.send[[]string, string](request)!
 }
@@ -171,7 +172,7 @@ pub fn (mut c ZinitRPC) system_stop_http_server() ! {
 
 // stream_current_logs gets current logs from zinit and monitored services
 pub fn (mut c ZinitRPC) stream_current_logs(args LogParams) ![]string {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	if args.name != '' {
 		params := {
 			'name': args.name
@@ -187,7 +188,7 @@ pub fn (mut c ZinitRPC) stream_current_logs(args LogParams) ![]string {
 // stream_subscribe_logs subscribes to log messages generated by zinit and monitored services
 // Returns a subscription ID that can be used to manage the subscription
 pub fn (mut c ZinitRPC) stream_subscribe_logs(args LogParams) !u64 {
-	mut client := c.get_client()!
+	mut client := c.client_()!
 	if args.name != '' {
 		params := {
 			'name': args.name

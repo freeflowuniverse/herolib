@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&MyceliumRPC {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&MyceliumRPC {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&MyceliumRPC {
 		if r.hexists('context:mycelium_rpc', args.name)! {
 			data := r.hget('context:mycelium_rpc', args.name)!
 			if data.len == 0 {
-				return error('mycelium_rpc with name: mycelium_rpc does not exist, prob bug.')
+				return error('MyceliumRPC with name: mycelium_rpc does not exist, prob bug.')
 			}
 			mut obj := json.decode(MyceliumRPC, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&MyceliumRPC {
 
 // register the config for the future
 pub fn set(o MyceliumRPC) ! {
-	set_in_mem(o)!
-	mycelium_rpc_default = o.name
+	mut o2 := set_in_mem(o)!
+	mycelium_rpc_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:mycelium_rpc', o.name, json.encode(o))!
+	r.hset('context:mycelium_rpc', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&MyceliumRPC {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o MyceliumRPC) ! {
+fn set_in_mem(o MyceliumRPC) !MyceliumRPC {
 	mut o2 := obj_init(o)!
-	mycelium_rpc_global[o.name] = &o2
-	mycelium_rpc_default = o.name
-}
-
-// switch instance to be used for mycelium_rpc
-pub fn switch(name string) {
-	mycelium_rpc_default = name
+	mycelium_rpc_global[o2.name] = &o2
+	mycelium_rpc_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'mycelium_rpc.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'mycelium_rpc.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,8 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for mycelium_rpc
+pub fn switch(name string) {
 }

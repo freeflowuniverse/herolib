@@ -1,4 +1,4 @@
-module zinit_rpc
+module zinit
 
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
@@ -6,8 +6,8 @@ import freeflowuniverse.herolib.ui.console
 import json
 
 __global (
-	zinit_rpc_global  map[string]&ZinitRPC
-	zinit_rpc_default string
+	zinit_global  map[string]&ZinitRPC
+	zinit_default string
 )
 
 /////////FACTORY
@@ -25,18 +25,18 @@ pub fn new(args ArgsGet) !&ZinitRPC {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&ZinitRPC {
 	mut context := base.context()!
-	zinit_rpc_default = args.name
-	if args.fromdb || args.name !in zinit_rpc_global {
+	zinit_default = args.name
+	if args.fromdb || args.name !in zinit_global {
 		mut r := context.redis()!
-		if r.hexists('context:zinit_rpc', args.name)! {
-			data := r.hget('context:zinit_rpc', args.name)!
+		if r.hexists('context:zinit', args.name)! {
+			data := r.hget('context:zinit', args.name)!
 			if data.len == 0 {
-				return error('zinit_rpc with name: zinit_rpc does not exist, prob bug.')
+				return error('ZinitRPC with name: zinit does not exist, prob bug.')
 			}
 			mut obj := json.decode(ZinitRPC, data)!
 			set_in_mem(obj)!
@@ -44,36 +44,36 @@ pub fn get(args ArgsGet) !&ZinitRPC {
 			if args.create {
 				new(args)!
 			} else {
-				return error("ZinitRPC with name 'zinit_rpc' does not exist")
+				return error("ZinitRPC with name 'zinit' does not exist")
 			}
 		}
 		return get(name: args.name)! // no longer from db nor create
 	}
-	return zinit_rpc_global[args.name] or {
-		return error('could not get config for zinit_rpc with name:zinit_rpc')
+	return zinit_global[args.name] or {
+		return error('could not get config for zinit with name:zinit')
 	}
 }
 
 // register the config for the future
 pub fn set(o ZinitRPC) ! {
-	set_in_mem(o)!
-	zinit_rpc_default = o.name
+	mut o2 := set_in_mem(o)!
+	zinit_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:zinit_rpc', o.name, json.encode(o))!
+	r.hset('context:zinit', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
 pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
 	mut r := context.redis()!
-	return r.hexists('context:zinit_rpc', args.name)!
+	return r.hexists('context:zinit', args.name)!
 }
 
 pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hdel('context:zinit_rpc', args.name)!
+	r.hdel('context:zinit', args.name)!
 }
 
 @[params]
@@ -88,12 +88,12 @@ pub fn list(args ArgsList) ![]&ZinitRPC {
 	mut context := base.context()!
 	if args.fromdb {
 		// reset what is in mem
-		zinit_rpc_global = map[string]&ZinitRPC{}
-		zinit_rpc_default = ''
+		zinit_global = map[string]&ZinitRPC{}
+		zinit_default = ''
 	}
 	if args.fromdb {
 		mut r := context.redis()!
-		mut l := r.hkeys('context:zinit_rpc')!
+		mut l := r.hkeys('context:zinit')!
 
 		for name in l {
 			res << get(name: name, fromdb: true)!
@@ -101,7 +101,7 @@ pub fn list(args ArgsList) ![]&ZinitRPC {
 		return res
 	} else {
 		// load from memory
-		for _, client in zinit_rpc_global {
+		for _, client in zinit_global {
 			res << client
 		}
 	}
@@ -109,19 +109,18 @@ pub fn list(args ArgsList) ![]&ZinitRPC {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o ZinitRPC) ! {
+fn set_in_mem(o ZinitRPC) !ZinitRPC {
 	mut o2 := obj_init(o)!
-	zinit_rpc_global[o.name] = &o2
-	zinit_rpc_default = o.name
-}
-
-// switch instance to be used for zinit_rpc
-pub fn switch(name string) {
-	zinit_rpc_default = name
+	zinit_global[o2.name] = &o2
+	zinit_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
-	mut install_actions := plbook.find(filter: 'zinit_rpc.configure')!
+	if !plbook.exists(filter: 'zinit.') {
+		return
+	}
+	mut install_actions := plbook.find(filter: 'zinit.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
 			heroscript := install_action.heroscript()
@@ -129,4 +128,9 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for zinit
+pub fn switch(name string) {
+	zinit_default = name
 }

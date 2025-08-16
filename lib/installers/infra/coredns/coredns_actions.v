@@ -16,8 +16,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut args := get()!
 	mut res := []startupmanager.ZProcessNewArgs{}
 	cmd := "coredns -conf '${args.config_path}'"
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name: 'coredns'
 		cmd:  cmd
 	}

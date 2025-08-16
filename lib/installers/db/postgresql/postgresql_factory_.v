@@ -53,11 +53,11 @@ pub fn get(args ArgsGet) !&Postgresql {
 
 // register the config for the future
 pub fn set(o Postgresql) ! {
-	set_in_mem(o)!
-	postgresql_default = o.name
+	mut o2 := set_in_mem(o)!
+	postgresql_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:postgresql', o.name, json.encode(o))!
+	r.hset('context:postgresql', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -106,10 +106,11 @@ pub fn list(args ArgsList) ![]&Postgresql {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o Postgresql) ! {
+fn set_in_mem(o Postgresql) !Postgresql {
 	mut o2 := obj_init(o)!
-	postgresql_global[o.name] = &o2
-	postgresql_default = o.name
+	postgresql_global[o2.name] = &o2
+	postgresql_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

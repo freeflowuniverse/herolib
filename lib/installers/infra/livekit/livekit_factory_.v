@@ -58,11 +58,11 @@ pub fn get(args ArgsGet) !&LivekitServer {
 
 // register the config for the future
 pub fn set(o LivekitServer) ! {
-	set_in_mem(o)!
-	livekit_default = o.name
+	mut o2 := set_in_mem(o)!
+	livekit_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:livekit', o.name, json.encode(o))!
+	r.hset('context:livekit', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -111,10 +111,11 @@ pub fn list(args ArgsList) ![]&LivekitServer {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o LivekitServer) ! {
+fn set_in_mem(o LivekitServer) !LivekitServer {
 	mut o2 := obj_init(o)!
-	livekit_global[o.name] = &o2
-	livekit_default = o.name
+	livekit_global[o2.name] = &o2
+	livekit_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

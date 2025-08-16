@@ -29,8 +29,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	if installer.production {
 		env = 'production'
 	}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'meilisearch'
 		cmd:         'meilisearch --no-analytics --http-addr ${installer.host}:${installer.port} --env ${env} --db-path ${installer.path} --master-key ${installer.masterkey}'
 		startuptype: .zinit

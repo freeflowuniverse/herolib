@@ -89,8 +89,7 @@ fn upload() ! {}
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut cfg := get()!
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name: 'gitea'
 		cmd:  'gitea server'
 		env:  {

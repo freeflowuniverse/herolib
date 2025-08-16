@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&GiteaClient {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&GiteaClient {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&GiteaClient {
 		if r.hexists('context:giteaclient', args.name)! {
 			data := r.hget('context:giteaclient', args.name)!
 			if data.len == 0 {
-				return error('giteaclient with name: giteaclient does not exist, prob bug.')
+				return error('GiteaClient with name: giteaclient does not exist, prob bug.')
 			}
 			mut obj := json.decode(GiteaClient, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&GiteaClient {
 
 // register the config for the future
 pub fn set(o GiteaClient) ! {
-	set_in_mem(o)!
-	giteaclient_default = o.name
+	mut o2 := set_in_mem(o)!
+	giteaclient_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:giteaclient', o.name, json.encode(o))!
+	r.hset('context:giteaclient', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&GiteaClient {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o GiteaClient) ! {
+fn set_in_mem(o GiteaClient) !GiteaClient {
 	mut o2 := obj_init(o)!
-	giteaclient_global[o.name] = &o2
-	giteaclient_default = o.name
-}
-
-// switch instance to be used for giteaclient
-pub fn switch(name string) {
-	giteaclient_default = name
+	giteaclient_global[o2.name] = &o2
+	giteaclient_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'giteaclient.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'giteaclient.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,9 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for giteaclient
+pub fn switch(name string) {
+	giteaclient_default = name
 }

@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&MailClient {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&MailClient {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&MailClient {
 		if r.hexists('context:mailclient', args.name)! {
 			data := r.hget('context:mailclient', args.name)!
 			if data.len == 0 {
-				return error('mailclient with name: mailclient does not exist, prob bug.')
+				return error('MailClient with name: mailclient does not exist, prob bug.')
 			}
 			mut obj := json.decode(MailClient, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&MailClient {
 
 // register the config for the future
 pub fn set(o MailClient) ! {
-	set_in_mem(o)!
-	mailclient_default = o.name
+	mut o2 := set_in_mem(o)!
+	mailclient_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:mailclient', o.name, json.encode(o))!
+	r.hset('context:mailclient', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&MailClient {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o MailClient) ! {
+fn set_in_mem(o MailClient) !MailClient {
 	mut o2 := obj_init(o)!
-	mailclient_global[o.name] = &o2
-	mailclient_default = o.name
-}
-
-// switch instance to be used for mailclient
-pub fn switch(name string) {
-	mailclient_default = name
+	mailclient_global[o2.name] = &o2
+	mailclient_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'mailclient.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'mailclient.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,9 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for mailclient
+pub fn switch(name string) {
+	mailclient_default = name
 }

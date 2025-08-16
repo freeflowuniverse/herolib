@@ -58,11 +58,11 @@ pub fn get(args ArgsGet) !&MeilisearchInstaller {
 
 // register the config for the future
 pub fn set(o MeilisearchInstaller) ! {
-	set_in_mem(o)!
-	meilisearch_installer_default = o.name
+	mut o2 := set_in_mem(o)!
+	meilisearch_installer_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:meilisearch_installer', o.name, json.encode(o))!
+	r.hset('context:meilisearch_installer', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -111,10 +111,11 @@ pub fn list(args ArgsList) ![]&MeilisearchInstaller {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o MeilisearchInstaller) ! {
+fn set_in_mem(o MeilisearchInstaller) !MeilisearchInstaller {
 	mut o2 := obj_init(o)!
-	meilisearch_installer_global[o.name] = &o2
-	meilisearch_installer_default = o.name
+	meilisearch_installer_global[o2.name] = &o2
+	meilisearch_installer_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

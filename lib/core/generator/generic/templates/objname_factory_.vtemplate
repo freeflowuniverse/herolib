@@ -14,12 +14,10 @@ import time
 @end
 @end
 
-@if ! args.singleton
 __global (
 	${args.name}_global map[string]&${args.classname}
 	${args.name}_default string
 )
-@end
 
 /////////FACTORY
 
@@ -45,7 +43,7 @@ pub fn new(args ArgsGet) !&${args.classname} {
 			name: args.name
 		}
 	set(obj)!
-	return &obj
+	return get(name:args.name)!
 }
 
 pub fn get(args ArgsGet) !&${args.classname} {
@@ -76,11 +74,11 @@ pub fn get(args ArgsGet) !&${args.classname} {
 
 // register the config for the future
 pub fn set(o ${args.classname}) ! {
-	set_in_mem(o)!
-	${args.name}_default = o.name
+	mut o2:=set_in_mem(o)!
+	${args.name}_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:${args.name}', o.name, json.encode(o))!
+	r.hset('context:${args.name}', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -130,10 +128,11 @@ pub fn list(args ArgsList) ![]&${args.classname} {
 
 
 // only sets in mem, does not set as config
-fn set_in_mem(o ${args.classname}) ! {
+fn set_in_mem(o ${args.classname}) ! ${args.classname} {
 	mut o2 := obj_init(o)!
-	${args.name}_global[o.name] = &o2
-	${args.name}_default = o.name
+	${args.name}_global[o2.name] = &o2
+	${args.name}_default = o2.name
+    return o2
 }
 
 

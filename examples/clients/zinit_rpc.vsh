@@ -1,6 +1,7 @@
 #!/usr/bin/env -S v -n -w -gc none -cc tcc -d use_openssl -enable-globals run
 
-import freeflowuniverse.herolib.clients.zinit_rpc
+import freeflowuniverse.herolib.clients.zinit
+import freeflowuniverse.herolib.installers.infra.zinit_installer
 import os
 import time
 
@@ -9,34 +10,33 @@ import time
 
 println('=== Zinit RPC Client Example ===\n')
 
-// Start Zinit in the background
-println('Starting Zinit in background...')
-mut zinit_process := os.new_process('/usr/local/bin/zinit')
-zinit_process.set_args(['init'])
-zinit_process.set_redirect_stdio()
-zinit_process.run()
+// // Start Zinit in the background
+// println('Starting Zinit in background...')
+// mut zinit_process := os.new_process('/usr/local/bin/zinit')
+// zinit_process.set_args(['init'])
+// zinit_process.set_redirect_stdio()
+// zinit_process.run()
 
 // Wait a moment for Zinit to start up
-time.sleep(2000 * time.millisecond)
-println('✓ Zinit started')
+// time.sleep(2000 * time.millisecond)
+// println('✓ Zinit started')
 
 // Ensure we clean up Zinit when done
-defer {
-	println('\nCleaning up...')
-	zinit_process.signal_kill()
-	zinit_process.wait()
-	println('✓ Zinit stopped')
-}
+// defer {
+// 	println('\nCleaning up...')
+// 	zinit_process.signal_kill()
+// 	zinit_process.wait()
+// 	println('✓ Zinit stopped')
+// }
+
+// mut installer := zinit_installer.get()!
+// installer.install()!
+// installer.start()!
 
 // Create a new client
-mut client := zinit_rpc.new_client(
-	name:        'example_client'
-	socket_path: '/tmp/zinit.sock'
-) or {
-	println('Failed to create client: ${err}')
-	println('Make sure Zinit is running and the socket exists at /tmp/zinit.sock')
-	exit(1)
-}
+mut client := zinit.new()!
+
+println(client)
 
 println('✓ Created Zinit RPC client')
 
@@ -66,7 +66,7 @@ for service_name, state in services {
 // 3. Create a test service configuration
 println('\n3. Creating a test service...')
 test_service_name := 'test_echo_service'
-config := zinit_rpc.ServiceConfig{
+config := zinit.ServiceConfig{
 	exec:             '/bin/echo "Hello from test service"'
 	oneshot:          true
 	log:              'stdout'
@@ -147,7 +147,7 @@ println('\n8. Getting service statistics...')
 stats := client.service_stats(test_service_name) or {
 	println('Failed to get service stats (service might not be running): ${err}')
 	// Continue anyway
-	zinit_rpc.ServiceStats{}
+	zinit.ServiceStats{}
 }
 if stats.name != '' {
 	println('✓ Service statistics:')
@@ -208,7 +208,7 @@ if subscription_id != 0 {
 // Get fresh status to make sure service is still running
 fresh_status := client.service_status(test_service_name) or {
 	println('\n12. Skipping signal test (cannot get service status)')
-	zinit_rpc.ServiceStatus{}
+	zinit.ServiceStatus{}
 }
 if fresh_status.state == 'Running' && fresh_status.pid > 0 {
 	println('\n12. Sending SIGTERM signal to service...')
@@ -258,7 +258,6 @@ server_result := client.system_start_http_server('127.0.0.1:9999') or {
 }
 if server_result != '' {
 	println('✓ HTTP server started: ${server_result}')
-
 	// Stop the HTTP server
 	client.system_stop_http_server() or { println('Failed to stop HTTP server: ${err}') }
 	println('✓ HTTP server stopped')

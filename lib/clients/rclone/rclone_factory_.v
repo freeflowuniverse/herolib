@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&RCloneClient {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&RCloneClient {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&RCloneClient {
 		if r.hexists('context:rclone', args.name)! {
 			data := r.hget('context:rclone', args.name)!
 			if data.len == 0 {
-				return error('rclone with name: rclone does not exist, prob bug.')
+				return error('RCloneClient with name: rclone does not exist, prob bug.')
 			}
 			mut obj := json.decode(RCloneClient, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&RCloneClient {
 
 // register the config for the future
 pub fn set(o RCloneClient) ! {
-	set_in_mem(o)!
-	rclone_default = o.name
+	mut o2 := set_in_mem(o)!
+	rclone_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:rclone', o.name, json.encode(o))!
+	r.hset('context:rclone', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&RCloneClient {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o RCloneClient) ! {
+fn set_in_mem(o RCloneClient) !RCloneClient {
 	mut o2 := obj_init(o)!
-	rclone_global[o.name] = &o2
-	rclone_default = o.name
-}
-
-// switch instance to be used for rclone
-pub fn switch(name string) {
-	rclone_default = name
+	rclone_global[o2.name] = &o2
+	rclone_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'rclone.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'rclone.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,8 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for rclone
+pub fn switch(name string) {
 }

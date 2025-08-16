@@ -58,11 +58,11 @@ pub fn get(args ArgsGet) !&QDrant {
 
 // register the config for the future
 pub fn set(o QDrant) ! {
-	set_in_mem(o)!
-	qdrant_installer_default = o.name
+	mut o2 := set_in_mem(o)!
+	qdrant_installer_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:qdrant_installer', o.name, json.encode(o))!
+	r.hset('context:qdrant_installer', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -111,10 +111,11 @@ pub fn list(args ArgsList) ![]&QDrant {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o QDrant) ! {
+fn set_in_mem(o QDrant) !QDrant {
 	mut o2 := obj_init(o)!
-	qdrant_installer_global[o.name] = &o2
-	qdrant_installer_default = o.name
+	qdrant_installer_global[o2.name] = &o2
+	qdrant_installer_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

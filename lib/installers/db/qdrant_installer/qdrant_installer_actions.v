@@ -7,8 +7,7 @@ import os
 
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'qdrant'
 		cmd:         'sleep 5 && qdrant --config-path ${os.home_dir()}/hero/var/qdrant/config.yaml'
 		startuptype: .zinit

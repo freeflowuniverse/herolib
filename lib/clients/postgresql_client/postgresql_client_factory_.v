@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&PostgresqlClient {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&PostgresqlClient {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&PostgresqlClient {
 		if r.hexists('context:postgresql_client', args.name)! {
 			data := r.hget('context:postgresql_client', args.name)!
 			if data.len == 0 {
-				return error('postgresql_client with name: postgresql_client does not exist, prob bug.')
+				return error('PostgresqlClient with name: postgresql_client does not exist, prob bug.')
 			}
 			mut obj := json.decode(PostgresqlClient, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&PostgresqlClient {
 
 // register the config for the future
 pub fn set(o PostgresqlClient) ! {
-	set_in_mem(o)!
-	postgresql_client_default = o.name
+	mut o2 := set_in_mem(o)!
+	postgresql_client_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:postgresql_client', o.name, json.encode(o))!
+	r.hset('context:postgresql_client', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&PostgresqlClient {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o PostgresqlClient) ! {
+fn set_in_mem(o PostgresqlClient) !PostgresqlClient {
 	mut o2 := obj_init(o)!
-	postgresql_client_global[o.name] = &o2
-	postgresql_client_default = o.name
-}
-
-// switch instance to be used for postgresql_client
-pub fn switch(name string) {
-	postgresql_client_default = name
+	postgresql_client_global[o2.name] = &o2
+	postgresql_client_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'postgresql_client.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'postgresql_client.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,9 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for postgresql_client
+pub fn switch(name string) {
+	postgresql_client_default = name
 }

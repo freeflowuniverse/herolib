@@ -22,8 +22,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	}
 
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'zdb'
 		cmd:         cmd
 		startuptype: .zinit

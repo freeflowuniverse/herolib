@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&QDrantClient {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&QDrantClient {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&QDrantClient {
 		if r.hexists('context:qdrant', args.name)! {
 			data := r.hget('context:qdrant', args.name)!
 			if data.len == 0 {
-				return error('qdrant with name: qdrant does not exist, prob bug.')
+				return error('QDrantClient with name: qdrant does not exist, prob bug.')
 			}
 			mut obj := json.decode(QDrantClient, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&QDrantClient {
 
 // register the config for the future
 pub fn set(o QDrantClient) ! {
-	set_in_mem(o)!
-	qdrant_default = o.name
+	mut o2 := set_in_mem(o)!
+	qdrant_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:qdrant', o.name, json.encode(o))!
+	r.hset('context:qdrant', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&QDrantClient {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o QDrantClient) ! {
+fn set_in_mem(o QDrantClient) !QDrantClient {
 	mut o2 := obj_init(o)!
-	qdrant_global[o.name] = &o2
-	qdrant_default = o.name
-}
-
-// switch instance to be used for qdrant
-pub fn switch(name string) {
-	qdrant_default = name
+	qdrant_global[o2.name] = &o2
+	qdrant_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'qdrant.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'qdrant.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,9 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for qdrant
+pub fn switch(name string) {
+	qdrant_default = name
 }

@@ -25,7 +25,7 @@ pub fn new(args ArgsGet) !&WireGuard {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&WireGuard {
@@ -36,7 +36,7 @@ pub fn get(args ArgsGet) !&WireGuard {
 		if r.hexists('context:wireguard', args.name)! {
 			data := r.hget('context:wireguard', args.name)!
 			if data.len == 0 {
-				return error('wireguard with name: wireguard does not exist, prob bug.')
+				return error('WireGuard with name: wireguard does not exist, prob bug.')
 			}
 			mut obj := json.decode(WireGuard, data)!
 			set_in_mem(obj)!
@@ -56,11 +56,11 @@ pub fn get(args ArgsGet) !&WireGuard {
 
 // register the config for the future
 pub fn set(o WireGuard) ! {
-	set_in_mem(o)!
-	wireguard_default = o.name
+	mut o2 := set_in_mem(o)!
+	wireguard_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:wireguard', o.name, json.encode(o))!
+	r.hset('context:wireguard', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -109,18 +109,17 @@ pub fn list(args ArgsList) ![]&WireGuard {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o WireGuard) ! {
+fn set_in_mem(o WireGuard) !WireGuard {
 	mut o2 := obj_init(o)!
-	wireguard_global[o.name] = &o2
-	wireguard_default = o.name
-}
-
-// switch instance to be used for wireguard
-pub fn switch(name string) {
-	wireguard_default = name
+	wireguard_global[o2.name] = &o2
+	wireguard_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'wireguard.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'wireguard.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -129,4 +128,9 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
+}
+
+// switch instance to be used for wireguard
+pub fn switch(name string) {
+	wireguard_default = name
 }
