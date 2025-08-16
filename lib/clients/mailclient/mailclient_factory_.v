@@ -3,6 +3,7 @@ module mailclient
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 __global (
 	mailclient_global  map[string]&MailClient
@@ -14,61 +15,97 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&MailClient {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&MailClient {
 	mut obj := MailClient{
 		name: args.name
 	}
-	if args.name !in mailclient_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return &obj
+}
+
+pub fn get(args ArgsGet) !&MailClient {
+	mut context := base.context()!
+	mailclient_default = args.name
+	if args.fromdb || args.name !in mailclient_global {
+		mut r := context.redis()!
+		if r.hexists('context:mailclient', args.name)! {
+			data := r.hget('context:mailclient', args.name)!
+			if data.len == 0 {
+				return error('mailclient with name: mailclient does not exist, prob bug.')
+			}
+			mut obj := json.decode(MailClient, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('mailclient', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("MailClient with name 'mailclient' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return mailclient_global[args.name] or {
-		println(mailclient_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for mailclient with name, is bug:${args.name}')
+		return error('could not get config for mailclient with name:mailclient')
 	}
 }
 
 // register the config for the future
 pub fn set(o MailClient) ! {
 	set_in_mem(o)!
+	mailclient_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('mailclient', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:mailclient', o.name, json.encode(o))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('mailclient', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:mailclient', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('mailclient', args.name)!
-	if args.name in mailclient_global {
-		// del mailclient_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:mailclient', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&MailClient {
+	mut res := []&MailClient{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		mailclient_global = map[string]&MailClient{}
+		mailclient_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:mailclient')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in mailclient_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
@@ -76,6 +113,11 @@ fn set_in_mem(o MailClient) ! {
 	mut o2 := obj_init(o)!
 	mailclient_global[o.name] = &o2
 	mailclient_default = o.name
+}
+
+// switch instance to be used for mailclient
+pub fn switch(name string) {
+	mailclient_default = name
 }
 
 pub fn play(mut plbook PlayBook) ! {
@@ -87,16 +129,4 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-}
-
-// switch instance to be used for mailclient
-pub fn switch(name string) {
-	mailclient_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

@@ -3,6 +3,7 @@ module ipapi
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 __global (
 	ipapi_global  map[string]&IPApi
@@ -14,61 +15,97 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&IPApi {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&IPApi {
 	mut obj := IPApi{
 		name: args.name
 	}
-	if args.name !in ipapi_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return &obj
+}
+
+pub fn get(args ArgsGet) !&IPApi {
+	mut context := base.context()!
+	ipapi_default = args.name
+	if args.fromdb || args.name !in ipapi_global {
+		mut r := context.redis()!
+		if r.hexists('context:ipapi', args.name)! {
+			data := r.hget('context:ipapi', args.name)!
+			if data.len == 0 {
+				return error('ipapi with name: ipapi does not exist, prob bug.')
+			}
+			mut obj := json.decode(IPApi, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('ipapi', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("IPApi with name 'ipapi' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return ipapi_global[args.name] or {
-		println(ipapi_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for ipapi with name, is bug:${args.name}')
+		return error('could not get config for ipapi with name:ipapi')
 	}
 }
 
 // register the config for the future
 pub fn set(o IPApi) ! {
 	set_in_mem(o)!
+	ipapi_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('ipapi', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:ipapi', o.name, json.encode(o))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('ipapi', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:ipapi', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('ipapi', args.name)!
-	if args.name in ipapi_global {
-		// del ipapi_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:ipapi', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&IPApi {
+	mut res := []&IPApi{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		ipapi_global = map[string]&IPApi{}
+		ipapi_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:ipapi')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in ipapi_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
@@ -76,6 +113,11 @@ fn set_in_mem(o IPApi) ! {
 	mut o2 := obj_init(o)!
 	ipapi_global[o.name] = &o2
 	ipapi_default = o.name
+}
+
+// switch instance to be used for ipapi
+pub fn switch(name string) {
+	ipapi_default = name
 }
 
 pub fn play(mut plbook PlayBook) ! {
@@ -87,16 +129,4 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-}
-
-// switch instance to be used for ipapi
-pub fn switch(name string) {
-	ipapi_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

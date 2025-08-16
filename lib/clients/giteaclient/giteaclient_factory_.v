@@ -15,15 +15,15 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name  string = "default"
-	fromdb bool //will load from filesystem
-	create bool //default will not create if not exist
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
 pub fn new(args ArgsGet) !&GiteaClient {
 	mut obj := GiteaClient{
-			name: args.name
-		}
+		name: args.name
+	}
 	set(obj)!
 	return &obj
 }
@@ -36,21 +36,21 @@ pub fn get(args ArgsGet) !&GiteaClient {
 		if r.hexists('context:giteaclient', args.name)! {
 			data := r.hget('context:giteaclient', args.name)!
 			if data.len == 0 {
-				return error('giteaclient with name:${args.name} does not exist, prob bug.')
+				return error('giteaclient with name: giteaclient does not exist, prob bug.')
 			}
-			mut obj := json.decode(GiteaClient,data)!
+			mut obj := json.decode(GiteaClient, data)!
 			set_in_mem(obj)!
-		}else{
+		} else {
 			if args.create {
-				new(args)!				
-			}else{
-				return error("GiteaClient with name '${args.name}' does not exist")
+				new(args)!
+			} else {
+				return error("GiteaClient with name 'giteaclient' does not exist")
 			}
 		}
-		return get(name: args.name)! //no longer from db nor create		
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return giteaclient_global[args.name] or {
-		return error('could not get config for giteaclient with name:${args.name}')
+		return error('could not get config for giteaclient with name:giteaclient')
 	}
 }
 
@@ -68,7 +68,6 @@ pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
 	mut r := context.redis()!
 	return r.hexists('context:giteaclient', args.name)!
-
 }
 
 pub fn delete(args ArgsGet) ! {
@@ -80,11 +79,11 @@ pub fn delete(args ArgsGet) ! {
 @[params]
 pub struct ArgsList {
 pub mut:
-	fromdb bool //will load from filesystem
+	fromdb bool // will load from filesystem
 }
 
 // if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
-pub fn list(args ArgsList) ![]&GiteaClient {	
+pub fn list(args ArgsList) ![]&GiteaClient {
 	mut res := []&GiteaClient{}
 	mut context := base.context()!
 	if args.fromdb {
@@ -92,12 +91,12 @@ pub fn list(args ArgsList) ![]&GiteaClient {
 		giteaclient_global = map[string]&GiteaClient{}
 		giteaclient_default = ''
 	}
-	if args.fromdb {		
+	if args.fromdb {
 		mut r := context.redis()!
 		mut l := r.hkeys('context:giteaclient')!
 
-		for name in l{
-			res << get(name:name,fromdb:true)!
+		for name in l {
+			res << get(name: name, fromdb: true)!
 		}
 		return res
 	} else {
@@ -116,6 +115,11 @@ fn set_in_mem(o GiteaClient) ! {
 	giteaclient_default = o.name
 }
 
+// switch instance to be used for giteaclient
+pub fn switch(name string) {
+	giteaclient_default = name
+}
+
 pub fn play(mut plbook PlayBook) ! {
 	mut install_actions := plbook.find(filter: 'giteaclient.configure')!
 	if install_actions.len > 0 {
@@ -125,16 +129,4 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-}
-
-// switch instance to be used for giteaclient
-pub fn switch(name string) {
-	giteaclient_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

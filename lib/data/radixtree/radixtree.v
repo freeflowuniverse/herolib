@@ -156,10 +156,12 @@ pub fn (mut rt RadixTree) set(key string, value []u8) ! {
 		mut intermediate := Node{
 			key_segment: '' // not used at traversal time
 			value:       []u8{}
-			children:    [NodeRef{
-				key_part: child_suffix
-				node_id:  split_child_id
-			}]
+			children:    [
+				NodeRef{
+					key_part: child_suffix
+					node_id:  split_child_id
+				},
+			]
 			is_leaf:     false
 		}
 
@@ -222,7 +224,7 @@ pub fn (mut rt RadixTree) get(key string) ![]u8 {
 
 		child := node.children[child_idx]
 		common_prefix := get_common_prefix(rem, child.key_part)
-		
+
 		if common_prefix.len != child.key_part.len {
 			// partial match - key doesn't exist
 			return error('Key not found')
@@ -231,7 +233,7 @@ pub fn (mut rt RadixTree) get(key string) ![]u8 {
 		current_id = child.node_id
 		offset += child.key_part.len
 	}
-	
+
 	return error('Key not found')
 }
 
@@ -322,9 +324,9 @@ pub fn (mut rt RadixTree) delete(key string) ! {
 				if common_prefix.len == child.key_part.len {
 					// Full match with child edge
 					path << PathInfo{
-						node_id: current_id
+						node_id:       current_id
 						edge_to_child: child.key_part
-						child_id: child.node_id
+						child_id:      child.node_id
 					}
 					current_id = child.node_id
 					offset += child.key_part.len
@@ -362,7 +364,7 @@ pub fn (mut rt RadixTree) delete(key string) ! {
 		parent_info := path.last()
 		parent_id := parent_info.node_id
 		mut parent_node := deserialize_node(rt.db.get(parent_id)!)!
-		
+
 		// Remove the child reference
 		for i, child in parent_node.children {
 			if child.node_id == current_id {
@@ -370,12 +372,12 @@ pub fn (mut rt RadixTree) delete(key string) ! {
 				break
 			}
 		}
-		
+
 		rt.db.set(id: parent_id, data: serialize_node(parent_node))!
 		rt.db.delete(current_id)!
-		
+
 		// Compress the parent if needed
-		rt.maybe_compress_with_path(parent_id, path[..path.len-1])!
+		rt.maybe_compress_with_path(parent_id, path[..path.len - 1])!
 	} else {
 		// This is the root node, just mark as non-leaf
 		target_node.is_leaf = false
@@ -398,7 +400,7 @@ fn (mut rt RadixTree) maybe_compress_with_path(node_id u32, path []PathInfo) ! {
 	if node.children.len != 1 {
 		return
 	}
-	
+
 	ch := node.children[0]
 	mut child_node := deserialize_node(rt.db.get(ch.node_id)!)!
 
@@ -409,7 +411,7 @@ fn (mut rt RadixTree) maybe_compress_with_path(node_id u32, path []PathInfo) ! {
 
 	rt.db.set(id: node_id, data: serialize_node(node))!
 	rt.db.delete(ch.node_id)!
-	
+
 	// Update the parent's edge to include the compressed path
 	if path.len > 0 {
 		// Find the parent that points to this node
@@ -417,7 +419,7 @@ fn (mut rt RadixTree) maybe_compress_with_path(node_id u32, path []PathInfo) ! {
 			if path[i].child_id == node_id {
 				parent_id := path[i].node_id
 				mut parent_node := deserialize_node(rt.db.get(parent_id)!)!
-				
+
 				// Update the edge label to include the compressed segment
 				for j, child in parent_node.children {
 					if child.node_id == node_id {
@@ -435,18 +437,18 @@ fn (mut rt RadixTree) maybe_compress_with_path(node_id u32, path []PathInfo) ! {
 // Lists all keys with a given prefix
 pub fn (mut rt RadixTree) list(prefix string) ![]string {
 	mut result := []string{}
-	
+
 	if prefix.len == 0 {
 		rt.collect_all_keys(rt.root_id, '', mut result)!
 		return result
 	}
-	
+
 	node_info := rt.find_node_for_prefix_with_path(prefix) or {
 		// prefix not found, return empty result
 		return result
 	}
 	rt.collect_all_keys(node_info.node_id, node_info.path, mut result)!
-	
+
 	// Filter results to only include keys that actually start with the prefix
 	mut filtered_result := []string{}
 	for key in result {
@@ -454,7 +456,7 @@ pub fn (mut rt RadixTree) list(prefix string) ![]string {
 			filtered_result << key
 		}
 	}
-	
+
 	return filtered_result
 }
 
@@ -468,20 +470,20 @@ fn (mut rt RadixTree) find_node_for_prefix_with_path(prefix string) !NodePathInf
 	mut current_id := rt.root_id
 	mut offset := 0
 	mut current_path := ''
-	
+
 	for offset < prefix.len {
 		node := deserialize_node(rt.db.get(current_id)!)!
 		rem := prefix[offset..]
-		
+
 		mut found := false
 		for child in node.children {
 			common_prefix := get_common_prefix(rem, child.key_part)
 			cp_len := common_prefix.len
-			
+
 			if cp_len == 0 {
 				continue
 			}
-			
+
 			if cp_len == child.key_part.len {
 				// child edge is fully consumed by prefix
 				current_id = child.node_id
@@ -494,22 +496,22 @@ fn (mut rt RadixTree) find_node_for_prefix_with_path(prefix string) !NodePathInf
 				// but only those that actually start with the full prefix
 				return NodePathInfo{
 					node_id: current_id
-					path: current_path
+					path:    current_path
 				}
 			} else {
 				// diverged -> no matches
 				return error('Prefix not found')
 			}
 		}
-		
+
 		if !found {
 			return error('Prefix not found')
 		}
 	}
-	
+
 	return NodePathInfo{
 		node_id: current_id
-		path: current_path
+		path:    current_path
 	}
 }
 

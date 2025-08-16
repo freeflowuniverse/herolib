@@ -4,9 +4,7 @@ import freeflowuniverse.herolib.osal.sshagent
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 
 fn play_ssh(mut plbook PlayBook) ! {
-
-
-	if  plbook.exists(filter: 'sshagent.')==false{
+	if plbook.exists(filter: 'sshagent.') == false {
 		return
 	}
 

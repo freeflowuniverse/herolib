@@ -18,19 +18,19 @@ fn serialize_node(node Node) []u8 {
 	if node.is_leaf {
 		flags |= 0x01
 	}
-	
+
 	// Check if value should be stored out-of-line
 	has_large_value := node.value.len > max_inline_value_size
 	if has_large_value {
 		flags |= 0x02
 	}
-	
+
 	// Check if children should be paged
 	has_many_children := node.children.len > max_inline_children
 	if has_many_children {
 		flags |= 0x04
 	}
-	
+
 	e.add_u8(flags)
 
 	// Note: key_segment is redundant and not stored (saves space)

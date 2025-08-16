@@ -11,8 +11,7 @@ import freeflowuniverse.herolib.ui.console // For verbose error reporting
 // ---------------------------------------------------------------
 
 fn play_git(mut plbook PlayBook) ! {
-
-	if  plbook.exists(filter: 'git.')==false{
+	if plbook.exists(filter: 'git.') == false {
 		return
 	}
 

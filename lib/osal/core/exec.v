@@ -482,7 +482,6 @@ pub fn exec_string(cmd Command) !string {
 	return job.cmd.scriptpath
 }
 
-
 @[params]
 pub struct CommandFast {
 pub mut:
@@ -491,18 +490,17 @@ pub mut:
 	work_folder        string            // location where cmd will be executed
 	environment        map[string]string // env variables
 	ignore_error_codes []int
-	debug              bool   // if debug will put +ex in the script which is being executed and will make sure script stays
+	debug              bool // if debug will put +ex in the script which is being executed and will make sure script stays
 	includeprofile     bool
 	notempty           bool
 }
 
-
-//execute something fast, make sure it returns an error if the result is empty
-//source the 
+// execute something fast, make sure it returns an error if the result is empty
+// source the
 pub fn exec_fast(cmd_ CommandFast) !string {
 	mut cmd_str := texttools.dedent(cmd_.cmd)
 
-	mut toexecute:=[]string{}
+	mut toexecute := []string{}
 
 	if cmd_.debug {
 		// Add +ex for debug mode if it's a bash script
@@ -515,13 +513,12 @@ pub fn exec_fast(cmd_ CommandFast) !string {
 		toexecute << profile_path_source_and()!
 	}
 
-	for key,val in cmd_.environment {
-		toexecute <<  'export ${key}=${val}'
+	for key, val in cmd_.environment {
+		toexecute << 'export ${key}=${val}'
 	}
 
-
 	if cmd_.work_folder.len > 0 {
-		toexecute << "cd ${cmd_.work_folder}"
+		toexecute << 'cd ${cmd_.work_folder}'
 	}
 
 	toexecute << cmd_str
@@ -533,7 +530,7 @@ pub fn exec_fast(cmd_ CommandFast) !string {
 	if result.exit_code != 0 {
 		if !(cmd_.ignore_error || result.exit_code in cmd_.ignore_error_codes) {
 			return error("couldn't execute '${cmd_.cmd}', result code: ${result.exit_code}\n${result.output}")
-		}		
+		}
 	}
 
 	if cmd_.notempty && result.output.len == 0 {

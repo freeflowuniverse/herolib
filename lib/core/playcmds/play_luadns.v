@@ -5,11 +5,9 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import os
 
 fn play_luadns(mut plbook PlayBook) ! {
-
-	if  plbook.exists(filter: 'luadns.')==false{
+	if plbook.exists(filter: 'luadns.') == false {
 		return
 	}
-
 
 	// Variables below are not used, commenting them out
 	// mut buildroot := '${os.home_dir()}/hero/var/mdbuild'

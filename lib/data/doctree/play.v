@@ -4,11 +4,9 @@ import freeflowuniverse.herolib.core.playbook { PlayBook }
 // import freeflowuniverse.herolib.ui.console
 
 pub fn play(mut plbook PlayBook) ! {
-
 	if !plbook.exists(filter: 'doctree.') {
 		return
 	}
-
 
 	mut doctrees := map[string]&Tree{}
 

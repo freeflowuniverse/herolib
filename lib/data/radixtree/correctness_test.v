@@ -10,7 +10,7 @@ fn test_prefix_overlap_bug() ! {
 	// Insert longer key first
 	rt.set('test', 'value1'.bytes())!
 	rt.set('testing', 'value2'.bytes())!
-	
+
 	// Now insert shorter key that is a prefix - this was the bug
 	rt.set('te', 'value3'.bytes())!
 
@@ -42,7 +42,7 @@ fn test_partial_overlap_split() ! {
 	rt.set('foobar', 'value1'.bytes())!
 	console.print_debug('After inserting foobar')
 	rt.print_tree()!
-	
+
 	rt.set('foobaz', 'value2'.bytes())!
 	console.print_debug('After inserting foobaz')
 	rt.print_tree()!
@@ -155,7 +155,7 @@ fn test_empty_key() ! {
 
 	// Set empty key
 	rt.set('', 'empty_value'.bytes())!
-	
+
 	// Set regular key
 	rt.set('regular', 'regular_value'.bytes())!
 
@@ -223,7 +223,7 @@ fn test_complex_overlaps() ! {
 		'ac',
 		'b',
 		'ba',
-		'bb'
+		'bb',
 	]
 
 	// Insert in random order to test robustness
@@ -257,7 +257,7 @@ fn test_complex_overlaps() ! {
 // Run all correctness tests
 fn test_all_correctness() ! {
 	console.print_debug('Running all correctness tests...')
-	
+
 	test_prefix_overlap_bug()!
 	test_partial_overlap_split()!
 	test_deletion_compression()!
@@ -266,6 +266,6 @@ fn test_all_correctness() ! {
 	test_empty_key()!
 	test_long_keys()!
 	test_complex_overlaps()!
-	
+
 	console.print_debug('All correctness tests passed!')
 }

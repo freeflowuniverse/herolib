@@ -11,17 +11,17 @@ fn donedb() !&redisclient.Redis {
 
 pub fn done_set(key string, val string) ! {
 	mut db := donedb()!
-	db.hset("context:done",key, val)!
+	db.hset('context:done', key, val)!
 }
 
 pub fn done_get(key string) ?string {
 	mut db := donedb() or { panic(err) }
-	return db.hget("context:done", key) or { return none }
+	return db.hget('context:done', key) or { return none }
 }
 
 pub fn done_delete(key string) ! {
 	mut db := donedb()!
-	db.hdel("context:done", key)!
+	db.hdel('context:done', key)!
 }
 
 pub fn done_get_str(key string) string {
@@ -36,7 +36,7 @@ pub fn done_get_int(key string) int {
 
 pub fn done_exists(key string) bool {
 	mut db := donedb() or { panic(err) }
-	return db.hexists("context:done", key) or { false }
+	return db.hexists('context:done', key) or { false }
 }
 
 pub fn done_print() ! {
@@ -52,5 +52,5 @@ pub fn done_print() ! {
 
 pub fn done_reset() ! {
 	mut db := donedb()!
-	db.del("context:done")!
+	db.del('context:done')!
 }

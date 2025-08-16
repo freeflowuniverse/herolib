@@ -3,6 +3,7 @@ module sendgrid
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 __global (
 	sendgrid_global  map[string]&SendGrid
@@ -14,61 +15,97 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&SendGrid {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&SendGrid {
 	mut obj := SendGrid{
 		name: args.name
 	}
-	if args.name !in sendgrid_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return &obj
+}
+
+pub fn get(args ArgsGet) !&SendGrid {
+	mut context := base.context()!
+	sendgrid_default = args.name
+	if args.fromdb || args.name !in sendgrid_global {
+		mut r := context.redis()!
+		if r.hexists('context:sendgrid', args.name)! {
+			data := r.hget('context:sendgrid', args.name)!
+			if data.len == 0 {
+				return error('sendgrid with name: sendgrid does not exist, prob bug.')
+			}
+			mut obj := json.decode(SendGrid, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('sendgrid', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("SendGrid with name 'sendgrid' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return sendgrid_global[args.name] or {
-		println(sendgrid_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for sendgrid with name, is bug:${args.name}')
+		return error('could not get config for sendgrid with name:sendgrid')
 	}
 }
 
 // register the config for the future
 pub fn set(o SendGrid) ! {
 	set_in_mem(o)!
+	sendgrid_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('sendgrid', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:sendgrid', o.name, json.encode(o))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('sendgrid', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:sendgrid', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('sendgrid', args.name)!
-	if args.name in sendgrid_global {
-		// del sendgrid_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:sendgrid', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&SendGrid {
+	mut res := []&SendGrid{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		sendgrid_global = map[string]&SendGrid{}
+		sendgrid_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:sendgrid')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in sendgrid_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
@@ -76,6 +113,11 @@ fn set_in_mem(o SendGrid) ! {
 	mut o2 := obj_init(o)!
 	sendgrid_global[o.name] = &o2
 	sendgrid_default = o.name
+}
+
+// switch instance to be used for sendgrid
+pub fn switch(name string) {
+	sendgrid_default = name
 }
 
 pub fn play(mut plbook PlayBook) ! {
@@ -87,16 +129,4 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-}
-
-// switch instance to be used for sendgrid
-pub fn switch(name string) {
-	sendgrid_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

@@ -3,6 +3,7 @@ module wireguard
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 __global (
 	wireguard_global  map[string]&WireGuard
@@ -14,61 +15,97 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&WireGuard {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&WireGuard {
 	mut obj := WireGuard{
 		name: args.name
 	}
-	if args.name !in wireguard_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return &obj
+}
+
+pub fn get(args ArgsGet) !&WireGuard {
+	mut context := base.context()!
+	wireguard_default = args.name
+	if args.fromdb || args.name !in wireguard_global {
+		mut r := context.redis()!
+		if r.hexists('context:wireguard', args.name)! {
+			data := r.hget('context:wireguard', args.name)!
+			if data.len == 0 {
+				return error('wireguard with name: wireguard does not exist, prob bug.')
+			}
+			mut obj := json.decode(WireGuard, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('wireguard', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("WireGuard with name 'wireguard' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return wireguard_global[args.name] or {
-		println(wireguard_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for wireguard with name, is bug:${args.name}')
+		return error('could not get config for wireguard with name:wireguard')
 	}
 }
 
 // register the config for the future
 pub fn set(o WireGuard) ! {
 	set_in_mem(o)!
+	wireguard_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('wireguard', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:wireguard', o.name, json.encode(o))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('wireguard', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:wireguard', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('wireguard', args.name)!
-	if args.name in wireguard_global {
-		// del wireguard_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:wireguard', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&WireGuard {
+	mut res := []&WireGuard{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		wireguard_global = map[string]&WireGuard{}
+		wireguard_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:wireguard')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in wireguard_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
@@ -76,6 +113,11 @@ fn set_in_mem(o WireGuard) ! {
 	mut o2 := obj_init(o)!
 	wireguard_global[o.name] = &o2
 	wireguard_default = o.name
+}
+
+// switch instance to be used for wireguard
+pub fn switch(name string) {
+	wireguard_default = name
 }
 
 pub fn play(mut plbook PlayBook) ! {
@@ -87,16 +129,4 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-}
-
-// switch instance to be used for wireguard
-pub fn switch(name string) {
-	wireguard_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

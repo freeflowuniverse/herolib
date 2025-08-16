@@ -12,8 +12,7 @@ const action_priorities = {
 }
 
 pub fn play(mut plbook PlayBook) ! {
-
-	if plbook.exists(filter: 'bizmodel.')==false{
+	if plbook.exists(filter: 'bizmodel.') == false {
 		return
 	}
 	// group actions by which bizmodel they belong to

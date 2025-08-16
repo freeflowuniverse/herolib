@@ -57,4 +57,9 @@ fn obj_init(mycfg_ GiteaClient) !GiteaClient {
 	return mycfg
 }
 
-pub
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_loads(heroscript string) !GiteaClient {
+	mut obj := encoderhero.decode[GiteaClient](heroscript)!
+	return obj
+}

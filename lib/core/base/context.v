@@ -9,9 +9,9 @@ import os
 @[heap]
 pub struct Context {
 mut:
-	params_       ?&paramsparser.Params
-	redis_        ?&redisclient.Redis @[skip; str: skip]
-	path_         ?pathlib.Path
+	params_ ?&paramsparser.Params
+	redis_  ?&redisclient.Redis @[skip; str: skip]
+	path_   ?pathlib.Path
 pub mut:
 	// snippets     map[string]string
 	config ContextConfig
@@ -87,7 +87,6 @@ fn (mut self Context) cfg_redis_exists() !bool {
 	mut r := self.redis()!
 	return r.exists('context:config')!
 }
-
 
 // pub fn (mut self Context) secret_encrypt(txt string) !string {
 // 	return aes_symmetric.encrypt_str(txt, self.secret_get()!)

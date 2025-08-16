@@ -5,6 +5,7 @@ import freeflowuniverse.herolib.core.base
 @end
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 @if args.cat == .installer
 import freeflowuniverse.herolib.osal.startupmanager
@@ -21,7 +22,7 @@ __global (
 
 /////////FACTORY
 
-@[params]
+@@[params]
 pub struct ArgsGet {
 pub mut:
 	name  string = "default"
@@ -42,21 +43,25 @@ pub fn get(args ArgsGet) !&${args.classname} {
 	mut context := base.context()!
 	${args.name}_default = args.name
 	if args.fromdb || args.name !in ${args.name}_global {
-		if context.hero_config_exists('${args.name}', args.name) {
-			heroscript := context.hero_config_get('${args.name}', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+		mut r := context.redis()!
+		if r.hexists('context:${args.name}', args.name)! {
+			data := r.hget('context:${args.name}', args.name)!
+			if data.len == 0 {
+				return error('${args.name} with name: ${args.name} does not exist, prob bug.')
+			}
+			mut obj := json.decode(${args.classname},data)!
+			set_in_mem(obj)!
 		}else{
 			if args.create {
 				new(args)!
 			}else{
-				return error("${args.classname} with name '\${args.name}' does not exist")
+				return error("${args.classname} with name '${args.name}' does not exist")
 			}
 		}
 		return get(name: args.name)! //no longer from db nor create
 	}
 	return ${args.name}_global[args.name] or {
-		return error('could not get config for ${args.name} with name:\${args.name}')
+		return error('could not get config for ${args.name} with name:${args.name}')
 	}
 }
 
@@ -65,23 +70,24 @@ pub fn set(o ${args.classname}) ! {
 	set_in_mem(o)!
 	${args.name}_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('${args.name}', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:${args.name}', o.name, json.encode(o))!
 }
 
 // does the config exists?
 pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	return context.hero_config_exists('${args.name}', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:${args.name}', args.name)!
 }
 
 pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	${args.name}_global.delete(args.name)
-	context.hero_config_delete('${args.name}', args.name)!
+	mut r := context.redis()!
+	r.hdel('context:${args.name}', args.name)!
 }
 
-@[params]
+@@[params]
 pub struct ArgsList {
 pub mut:
 	fromdb bool //will load from filesystem
@@ -97,11 +103,11 @@ pub fn list(args ArgsList) ![]&${args.classname} {
 		${args.name}_default = ''
 	}
 	if args.fromdb {
-		for name in context.hero_config_list('${args.name}')!{
-			mut hscript := context.hero_config_get('${args.name}', name)!
-			mut obj := heroscript_loads(hscript)!
-			set_in_mem(obj)!
-			res << &obj
+		mut r := context.redis()!
+		mut l := r.hkeys('context:${args.name}')!
+
+		for name in l{
+			res << get(name:name,fromdb:true)!
 		}
 		return res
 	} else {
@@ -331,7 +337,3 @@ pub fn (mut self ${args.classname}) destroy() ! {
 @end
 
 
-//switch instance to be used for ${args.name}
-pub fn switch(name string) {
-	${args.name}_default = name
-}

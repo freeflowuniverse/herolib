@@ -31,7 +31,6 @@ pub mut:
 // 	return 'hero:sessions:${self.guid()}'
 // }
 
-
 // load the params from redis
 pub fn (mut self Session) load() ! {
 	mut r := self.context.redis()!

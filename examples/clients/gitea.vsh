@@ -20,9 +20,9 @@ heroscript := "
 // Process the heroscript configuration
 // playcmds.play(heroscript: heroscript, emptycheck: false)!
 
-println(giteaclient.list(fromdb:true)!)
+println(giteaclient.list(fromdb: true)!)
 
-$dbg;
+//$dbg;
 
 // Get the configured client
 mut client := giteaclient.get()!

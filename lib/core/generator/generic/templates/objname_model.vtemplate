@@ -66,3 +66,10 @@ fn configure() ! {
 }
 @end
 
+
+/////////////NORMALLY NO NEED TO TOUCH
+
+pub fn heroscript_loads(heroscript string) !${args.classname} {
+    mut obj := encoderhero.decode[${args.classname}](heroscript)!
+    return obj
+}
