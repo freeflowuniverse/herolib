@@ -2,27 +2,33 @@ module bun
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
-
-__global (
-	bun_global  map[string]&Bun
-	bun_default string
-)
 
 /////////FACTORY
 
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
-pub fn get(args_ ArgsGet) !&Bun {
+pub fn new(args ArgsGet) !&Bun {
 	return &Bun{}
 }
 
+pub fn get(args ArgsGet) !&Bun {
+	return new(args)!
+}
+
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'bun.') {
+		return
+	}
+	mut install_actions := plbook.find(filter: 'bun.configure')!
+	if install_actions.len > 0 {
+		return error("can't configure bun, because no configuration allowed for this installer.")
+	}
 	mut other_actions := plbook.find(filter: 'bun.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -44,28 +50,6 @@ pub fn play(mut plbook PlayBook) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
-	// unknown
-	// screen
-	// zinit
-	// tmux
-	// systemd
-	match cat {
-		.zinit {
-			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
-		}
-		.systemd {
-			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
-		}
-		else {
-			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
-		}
-	}
-}
-
 @[params]
 pub struct InstallArgs {
 pub mut:
@@ -86,12 +70,4 @@ pub fn (mut self Bun) destroy() ! {
 
 // switch instance to be used for bun
 pub fn switch(name string) {
-	bun_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

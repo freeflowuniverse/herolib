@@ -3,75 +3,106 @@ module daguserver
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
 import time
-
-__global (
-	daguserver_global  map[string]&DaguInstaller
-	daguserver_default string
-)
 
 /////////FACTORY
 
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&DaguInstaller {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&DaguInstaller {
 	mut obj := DaguInstaller{
 		name: args.name
 	}
-	if args.name !in daguserver_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return &obj
+}
+
+pub fn get(args ArgsGet) !&DaguInstaller {
+	mut context := base.context()!
+	daguserver_default = args.name
+	if args.fromdb || args.name !in daguserver_global {
+		mut r := context.redis()!
+		if r.hexists('context:daguserver', args.name)! {
+			data := r.hget('context:daguserver', args.name)!
+			if data.len == 0 {
+				return error('DaguInstaller with name: daguserver does not exist, prob bug.')
+			}
+			mut obj := json.decode(DaguInstaller, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('daguserver', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("DaguInstaller with name 'daguserver' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return daguserver_global[args.name] or {
-		println(daguserver_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for daguserver with name, is bug:${args.name}')
+		return error('could not get config for daguserver with name:daguserver')
 	}
 }
 
 // register the config for the future
 pub fn set(o DaguInstaller) ! {
 	set_in_mem(o)!
+	daguserver_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('daguserver', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:daguserver', o.name, json.encode(o))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('daguserver', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:daguserver', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('daguserver', args.name)!
-	if args.name in daguserver_global {
-		// del daguserver_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:daguserver', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&DaguInstaller {
+	mut res := []&DaguInstaller{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		daguserver_global = map[string]&DaguInstaller{}
+		daguserver_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:daguserver')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in daguserver_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
@@ -82,6 +113,9 @@ fn set_in_mem(o DaguInstaller) ! {
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'daguserver.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'daguserver.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -90,7 +124,6 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-
 	mut other_actions := plbook.find(filter: 'daguserver.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -131,36 +164,38 @@ pub fn play(mut plbook PlayBook) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+fn startupmanager_get(cat startupmanager.StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
 	// zinit
 	// tmux
 	// systemd
 	match cat {
+		.screen {
+			console.print_debug('startupmanager: zinit')
+			return startupmanager.get(.screen)!
+		}
 		.zinit {
 			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
+			return startupmanager.get(.zinit)!
 		}
 		.systemd {
 			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
+			return startupmanager.get(.systemd)!
 		}
 		else {
 			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
+			return startupmanager.get(.auto)!
 		}
 	}
 }
 
 // load from disk and make sure is properly intialized
 pub fn (mut self DaguInstaller) reload() ! {
-	switch(self.name)
 	self = obj_init(self)!
 }
 
 pub fn (mut self DaguInstaller) start() ! {
-	switch(self.name)
 	if self.running()! {
 		return
 	}
@@ -223,10 +258,12 @@ pub fn (mut self DaguInstaller) running() !bool {
 
 	// walk over the generic processes, if not running return
 	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		r := sm.running(zprocess.name)!
-		if r == false {
-			return false
+		if zprocess.startuptype != .screen {
+			mut sm := startupmanager_get(zprocess.startuptype)!
+			r := sm.running(zprocess.name)!
+			if r == false {
+				return false
+			}
 		}
 	}
 	return running()!
@@ -253,12 +290,4 @@ pub fn (mut self DaguInstaller) destroy() ! {
 
 // switch instance to be used for daguserver
 pub fn switch(name string) {
-	daguserver_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

@@ -15,6 +15,21 @@ pub mut:
 	pathcmds  pathlib.Path
 }
 
+@[params]
+pub struct ZProcessNewArgs {
+pub mut:
+	name     string @[required]
+	cmd      string @[required]
+	cmd_stop string   // command to stop (optional)
+	cmd_test string   // command line to test service is running
+	workdir  string   // where to execute the commands
+	after    []string // list of service we depend on
+	env      map[string]string
+	oneshot  bool
+	start    bool = true
+	restart  bool = true // whether the process should be restarted on failure
+}
+
 // will delete the process if it exists while starting
 pub fn (mut zinit Zinit) new(args_ ZProcessNewArgs) !ZProcess {
 	console.print_header(' zinit process new')

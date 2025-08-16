@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.osal.systemd
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.golang
 import freeflowuniverse.herolib.installers.lang.rust
@@ -17,7 +17,8 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 	mut installer := get()!
 	mut res := []zinit.ZProcessNewArgs{}
 	mut cfg := get()!
-	res << zinit.ZProcessNewArgs{
+	res << zinit.ZProcessNewArgs
+	{
 		name:        'docker'
 		cmd:         'dockerd'
 		startuptype: .systemd
@@ -31,11 +32,13 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
         cd ${cfg.path}/docker/
         docker compose --env-file ${cfg.path}/docker/.env up
 	"
-	res << zinit.ZProcessNewArgs{
+	res << zinit.ZProcessNewArgs
+	{
 		name:        'dify'
 		cmd:         cmd
 		startuptype: .systemd
 	}
+
 	return res
 }
 

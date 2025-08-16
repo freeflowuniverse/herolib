@@ -9,19 +9,21 @@ import json
 
 @if args.cat == .installer
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
 @if args.startupmanager
 import time
 @end
 @end
 
+@if ! args.singleton
 __global (
 	${args.name}_global map[string]&${args.classname}
 	${args.name}_default string
 )
+@end
 
 /////////FACTORY
 
+@if args.hasconfig
 @@[params]
 pub struct ArgsGet {
 pub mut:
@@ -29,6 +31,13 @@ pub mut:
 	fromdb bool //will load from filesystem
 	create bool //default will not create if not exist
 }
+@else
+@@[params]
+pub struct ArgsGet {
+pub mut:
+	name  string = "default"
+}
+@end
 
 @if args.hasconfig
 pub fn new(args ArgsGet) !&${args.classname} {
@@ -47,7 +56,7 @@ pub fn get(args ArgsGet) !&${args.classname} {
 		if r.hexists('context:${args.name}', args.name)! {
 			data := r.hget('context:${args.name}', args.name)!
 			if data.len == 0 {
-				return error('${args.name} with name: ${args.name} does not exist, prob bug.')
+				return error('${args.classname} with name: ${args.name} does not exist, prob bug.')
 			}
 			mut obj := json.decode(${args.classname},data)!
 			set_in_mem(obj)!
@@ -127,19 +136,21 @@ fn set_in_mem(o ${args.classname}) ! {
 	${args.name}_default = o.name
 }
 
-// switch instance to be used for ${args.name}
-pub fn switch(name string) {
-	${args.name}_default = name
-}
 
 @else
 pub fn new(args ArgsGet) !&${args.classname} {
 	return &${args.classname}{}
 }
+pub fn get(args ArgsGet) !&${args.classname} {
+	return new(args)!
+}
 @end
 
 
 pub fn play(mut plbook PlayBook) ! {
+    if ! plbook.exists(filter: '${args.name}.'){
+        return
+    }
 	mut install_actions := plbook.find(filter: '${args.name}.configure')!
 	if install_actions.len > 0 {
         @if args.hasconfig
@@ -149,7 +160,7 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}           
         @else
-        panic("can't configure ??{${args.name}_obj}, because no config in this class.")
+        return error("can't configure ${args.name}, because no configuration allowed for this installer.")
         @end
 	}
     @if args.cat == .installer
@@ -200,23 +211,27 @@ pub fn play(mut plbook PlayBook) ! {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @if args.startupmanager
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+fn startupmanager_get(cat startupmanager.StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
 	// zinit
 	// tmux
-	// systemd
+	// systemd  
     match cat{
+        .screen {
+            console.print_debug("startupmanager: zinit")
+            return startupmanager.get(.screen)!
+        }
         .zinit{
             console.print_debug("startupmanager: zinit")
-            return startupmanager.get(cat:.zinit)!
+            return startupmanager.get(.zinit)!
         }
         .systemd{
             console.print_debug("startupmanager: systemd")
-            return startupmanager.get(cat:.systemd)!
+            return startupmanager.get(.systemd)!
         }else{
             console.print_debug("startupmanager: auto")
-            return startupmanager.get()!
+            return startupmanager.get(.auto)!
         }
     }
 }
@@ -225,14 +240,18 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
 @if args.hasconfig
 //load from disk and make sure is properly intialized
 pub fn (mut self ${args.classname}) reload() ! {
+    @if ! args.singleton
     switch(self.name)
+    @end
     self=obj_init(self)!
 }
 @end
 
 @if args.startupmanager
 pub fn (mut self ${args.classname}) start() ! {
+    @if ! args.singleton
     switch(self.name)
+    @end
     if self.running()!{
         return
     }
@@ -296,10 +315,12 @@ pub fn (mut self ${args.classname}) running() !bool {
 
     //walk over the generic processes, if not running return
     for zprocess in startupcmd()!{
-        mut sm:=startupmanager_get(zprocess.startuptype)!
-    	r:=sm.running(zprocess.name)!
-        if r==false{
-            return false
+        if zprocess.startuptype != .screen{
+            mut sm:=startupmanager_get(zprocess.startuptype)!
+    	    r:=sm.running(zprocess.name)!
+            if r==false{
+                return false
+            }
         }
     }
     return running()!
@@ -337,3 +358,9 @@ pub fn (mut self ${args.classname}) destroy() ! {
 @end
 
 
+// switch instance to be used for ${args.name}
+pub fn switch(name string) {
+@if ! args.singleton
+	${args.name}_default = name
+@end
+}

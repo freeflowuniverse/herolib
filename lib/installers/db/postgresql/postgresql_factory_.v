@@ -3,75 +3,106 @@ module postgresql
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
 import time
-
-__global (
-	postgresql_global  map[string]&Postgresql
-	postgresql_default string
-)
 
 /////////FACTORY
 
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&Postgresql {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&Postgresql {
 	mut obj := Postgresql{
 		name: args.name
 	}
-	if args.name !in postgresql_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return &obj
+}
+
+pub fn get(args ArgsGet) !&Postgresql {
+	mut context := base.context()!
+	postgresql_default = args.name
+	if args.fromdb || args.name !in postgresql_global {
+		mut r := context.redis()!
+		if r.hexists('context:postgresql', args.name)! {
+			data := r.hget('context:postgresql', args.name)!
+			if data.len == 0 {
+				return error('Postgresql with name: postgresql does not exist, prob bug.')
+			}
+			mut obj := json.decode(Postgresql, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('postgresql', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("Postgresql with name 'postgresql' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return postgresql_global[args.name] or {
-		println(postgresql_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for postgresql with name, is bug:${args.name}')
+		return error('could not get config for postgresql with name:postgresql')
 	}
 }
 
 // register the config for the future
 pub fn set(o Postgresql) ! {
 	set_in_mem(o)!
+	postgresql_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('postgresql', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:postgresql', o.name, json.encode(o))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('postgresql', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:postgresql', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('postgresql', args.name)!
-	if args.name in postgresql_global {
-		// del postgresql_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:postgresql', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&Postgresql {
+	mut res := []&Postgresql{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		postgresql_global = map[string]&Postgresql{}
+		postgresql_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:postgresql')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in postgresql_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
@@ -82,6 +113,9 @@ fn set_in_mem(o Postgresql) ! {
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'postgresql.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'postgresql.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -90,7 +124,6 @@ pub fn play(mut plbook PlayBook) ! {
 			set(obj2)!
 		}
 	}
-
 	mut other_actions := plbook.find(filter: 'postgresql.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -131,36 +164,38 @@ pub fn play(mut plbook PlayBook) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+fn startupmanager_get(cat startupmanager.StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
 	// zinit
 	// tmux
 	// systemd
 	match cat {
+		.screen {
+			console.print_debug('startupmanager: zinit')
+			return startupmanager.get(.screen)!
+		}
 		.zinit {
 			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
+			return startupmanager.get(.zinit)!
 		}
 		.systemd {
 			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
+			return startupmanager.get(.systemd)!
 		}
 		else {
 			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
+			return startupmanager.get(.auto)!
 		}
 	}
 }
 
 // load from disk and make sure is properly intialized
 pub fn (mut self Postgresql) reload() ! {
-	switch(self.name)
 	self = obj_init(self)!
 }
 
 pub fn (mut self Postgresql) start() ! {
-	switch(self.name)
 	if self.running()! {
 		return
 	}
@@ -223,10 +258,12 @@ pub fn (mut self Postgresql) running() !bool {
 
 	// walk over the generic processes, if not running return
 	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		r := sm.running(zprocess.name)!
-		if r == false {
-			return false
+		if zprocess.startuptype != .screen {
+			mut sm := startupmanager_get(zprocess.startuptype)!
+			r := sm.running(zprocess.name)!
+			if r == false {
+				return false
+			}
 		}
 	}
 	return running()!
@@ -253,12 +290,4 @@ pub fn (mut self Postgresql) destroy() ! {
 
 // switch instance to be used for postgresql
 pub fn switch(name string) {
-	postgresql_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

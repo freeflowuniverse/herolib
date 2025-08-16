@@ -34,30 +34,6 @@ pub enum ZProcessStatus {
 	spawned
 }
 
-pub enum StartupManagerType {
-	unknown
-	zinit
-	systemd
-	screen
-}
-
-@[params]
-pub struct ZProcessNewArgs {
-pub mut:
-	name        string @[required]
-	cmd         string @[required]
-	cmd_stop    string   // command to stop (optional)
-	cmd_test    string   // command line to test service is running
-	workdir     string   // where to execute the commands
-	after       []string // list of service we depend on
-	env         map[string]string
-	oneshot     bool
-	start       bool = true
-	restart     bool = true // whether the process should be restarted on failure
-	description string // not used in zinit
-	startuptype StartupManagerType
-}
-
 pub fn (zp ZProcess) cmd() !string {
 	mut zinitobj := new()!
 	mut path := zinitobj.pathcmds.file_get_new('${zp.name}_start.sh')!

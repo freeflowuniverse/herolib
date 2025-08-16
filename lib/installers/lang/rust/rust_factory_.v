@@ -2,27 +2,33 @@ module rust
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
-
-__global (
-	rust_global  map[string]&RustInstaller
-	rust_default string
-)
 
 /////////FACTORY
 
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
-pub fn get(args_ ArgsGet) !&RustInstaller {
+pub fn new(args ArgsGet) !&RustInstaller {
 	return &RustInstaller{}
 }
 
+pub fn get(args ArgsGet) !&RustInstaller {
+	return new(args)!
+}
+
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'rust.') {
+		return
+	}
+	mut install_actions := plbook.find(filter: 'rust.configure')!
+	if install_actions.len > 0 {
+		return error("can't configure rust, because no configuration allowed for this installer.")
+	}
 	mut other_actions := plbook.find(filter: 'rust.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -44,28 +50,6 @@ pub fn play(mut plbook PlayBook) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
-	// unknown
-	// screen
-	// zinit
-	// tmux
-	// systemd
-	match cat {
-		.zinit {
-			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
-		}
-		.systemd {
-			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
-		}
-		else {
-			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
-		}
-	}
-}
-
 @[params]
 pub struct InstallArgs {
 pub mut:
@@ -86,12 +70,4 @@ pub fn (mut self RustInstaller) destroy() ! {
 
 // switch instance to be used for rust
 pub fn switch(name string) {
-	rust_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

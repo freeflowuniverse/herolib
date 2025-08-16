@@ -7,14 +7,15 @@ import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.httpconnection
 import freeflowuniverse.herolib.installers.ulist
 // import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.startupmanager
 import os
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut res := []zinit.ZProcessNewArgs{}
+fn startupcmd() ![]startupmanager.ZProcessNewArgs {
+	mut res := []startupmanager.ZProcessNewArgs{}
 	mut cfg := get()!
 
-	res << zinit.ZProcessNewArgs{
+	res << startupmanager.ZProcessNewArgs
+	{
 		name: 'dagu'
 		cmd:  'dagu server'
 		env:  {
@@ -23,7 +24,8 @@ fn startupcmd() ![]zinit.ZProcessNewArgs {
 		}
 	}
 
-	res << zinit.ZProcessNewArgs{
+	res << startupmanager.ZProcessNewArgs
+	{
 		name: 'dagu_scheduler'
 		cmd:  'dagu scheduler'
 		env:  {

@@ -7,7 +7,7 @@ import freeflowuniverse.herolib.osal.zinit
 
 // // TODO: check if using this interface would simplify things
 // pub interface StartupManagerI {
-// 	new(args zinit.ZProcessNewArgs)!
+// 	new(args startupmanager.ZProcessNewArgs)!
 // 	start(name string)!
 // 	stop(name string)!
 // 	restart(name string)!
@@ -19,35 +19,32 @@ import freeflowuniverse.herolib.osal.zinit
 // 	list_services() ![]string
 // }
 
-pub enum StartupManagerType {
-	unknown
-	screen
-	zinit
-	tmux
-	systemd
-}
-
 pub struct StartupManager {
 pub mut:
 	cat StartupManagerType
 }
 
-@[params]
-pub struct StartupManagerArgs {
-pub mut:
-	cat StartupManagerType
-}
+// @[params]
+// pub struct StartupManagerArgs {
+// pub mut:
+// 	cat StartupManagerType
+// }
 
-pub fn get(args StartupManagerArgs) !StartupManager {
+pub fn get(cat StartupManagerType) !StartupManager {
+	console.print_debug('startupmanager get ${cat}')
 	mut sm := StartupManager{
-		cat: args.cat
+		cat: cat
 	}
-	if args.cat == .unknown {
+	if sm.cat == .auto {
 		if zinit.check() {
 			sm.cat = .zinit
 		} else {
 			sm.cat = .screen
 		}
+	}	
+	if sm.cat == .unknown {
+		print_backtrace()
+		return error("can't determine startup manager type, need to be a known one.")
 	}
 	return sm
 }
@@ -67,12 +64,9 @@ pub fn get(args StartupManagerArgs) !StartupManager {
 // restart     bool = true // whether the process should be restarted on failure
 // description string //not used in zinit
 //```
-pub fn (mut sm StartupManager) new(args zinit.ZProcessNewArgs) ! {
+pub fn (mut sm StartupManager) new(args ZProcessNewArgs) ! {
 	console.print_debug("startupmanager start:${args.name} cmd:'${args.cmd}' restart:${args.restart}")
 	mut mycat := sm.cat
-	if args.startuptype == .systemd {
-		mycat = .systemd
-	}
 	match mycat {
 		.screen {
 			mut scr := screen.new(reset: false)!
@@ -83,40 +77,33 @@ pub fn (mut sm StartupManager) new(args zinit.ZProcessNewArgs) ! {
 			// console.print_debug('systemd start  ${args.name}')
 			mut systemdfactory := systemd.new()!
 			systemdfactory.new(
-				cmd:         args.cmd
-				name:        args.name
-				description: args.description
-				start:       args.start
-				restart:     args.restart
-				env:         args.env
+				cmd:     args.cmd
+				name:    args.name
+				start:   args.start
+				restart: args.restart
+				env:     args.env
 			)!
 		}
 		.zinit {
 			console.print_debug('zinit start ${args.name}')
 			mut zinitfactory := zinit.new()!
-			// pub struct ZProcessNewArgs {
-			// 	name      string            @[required]
-			// 	cmd       string            @[required]
-			// 	cmd_stop       string
-			// 	cmd_test       string
-			// 	cmd_file  bool // if we wanna force to run it as a file which is given to bash -c  (not just a cmd in zinit)
-			// 	test      string
-			// 	test_file bool
-			// 	after     []string
-			// 	env       map[string]string
-			// 	oneshot   bool
-			// }
-			zinitfactory.new(args)!
+			zinitfactory.new(
+				name:     args.name
+				cmd:      args.cmd
+				cmd_stop: args.cmd_stop
+				cmd_test: args.cmd_test
+				workdir:  args.workdir
+				after:    args.after
+				env:      args.env
+				oneshot:  args.oneshot
+				start:    args.start
+				restart:  args.restart
+			)!
 		}
 		else {
 			panic('to implement, startup manager only support screen & systemd for now: ${mycat}')
 		}
 	}
-	// if args.start {
-	// 	sm.start(args.name)!
-	// } else if args.restart {
-	// 	sm.restart(args.name)!
-	// }
 }
 
 pub fn (mut sm StartupManager) start(name string) ! {
@@ -309,7 +296,7 @@ pub fn (mut sm StartupManager) output(name string) !string {
 }
 
 pub fn (mut sm StartupManager) exists(name string) !bool {
-	println(sm.cat)
+
 	if sm.cat == .unknown {
 		if zinit.check() {
 			sm.cat = .zinit
@@ -359,30 +346,3 @@ pub fn (mut sm StartupManager) list() ![]string {
 		}
 	}
 }
-
-// THIS IS PROBABLY PART OF OTHER MODULE NOW
-
-// pub struct SecretArgs {
-// pub mut:
-// 	name string     @[required]
-// 	cat  SecretType
-// }
-
-// pub enum SecretType {
-// 	normal
-// }
-
-// // creates a secret if it doesn exist yet
-// pub fn (mut sm StartupManager) secret(args SecretArgs) !string {
-// 	if !(sm.exists(args.name)) {
-// 		return error("can't find screen with name ${args.name}, for secret")
-// 	}
-// 	key := 'secrets:startup:${args.name}'
-// 	mut redis := redisclient.core_get()!
-// 	mut secret := redis.get(key)!
-// 	if secret.len == 0 {
-// 		secret = rand.hex(16)
-// 		redis.set(key, secret)!
-// 	}
-// 	return secret
-// }

@@ -8,26 +8,26 @@ import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.installers.infra.zinit_installer
 import freeflowuniverse.herolib.clients.mycelium
 import freeflowuniverse.herolib.develop.gittools
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.installers.ulist
 import freeflowuniverse.herolib.installers.lang.rust
 import os
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
+fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut installer := get()!
-	mut res := []zinit.ZProcessNewArgs{}
+	mut res := []startupmanager.ZProcessNewArgs{}
 
 	mut peers_str := installer.peers.join(' ')
 	mut tun_name := 'tun${installer.tun_nr}'
 
-	res << zinit.ZProcessNewArgs{
+	res << startupmanager.ZProcessNewArgs
+	{
 		name:        'mycelium'
 		startuptype: .zinit
 		cmd:         'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
-		env:         {
-			'HOME': '/root'
+		env: {
+			'HOME':         os.home_dir()
 		}
-	}
 
 	return res
 }
