@@ -133,27 +133,36 @@ pub fn (mut self Context) db_config_get() !dbfs.DB {
 pub fn (mut self Context) hero_config_set(cat string, name string, content_ string) ! {
 	mut content := texttools.dedent(content_)
 	content = rootpath.shell_expansion(content)
-	path := '${self.path()!.path}/${cat}__${name}.yaml'
-	mut config_file := pathlib.get_file(path: path)!
+	path := '${self.path()!.path}/${cat}/${name}.hero'
+	mut config_file := pathlib.get_file(path: path,create: true)!
 	config_file.write(content)!
 }
 
 pub fn (mut self Context) hero_config_delete(cat string, name string) ! {
-	path := '${self.path()!.path}/${cat}__${name}.yaml'
+	path := '${self.path()!.path}/${cat}/${name}.hero'
 	mut config_file := pathlib.get_file(path: path)!
 	config_file.delete()!
 }
 
 pub fn (mut self Context) hero_config_exists(cat string, name string) bool {
-	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}__${name}.yaml'
+	path := '${os.home_dir()}/hero/context/${self.config.name}/${cat}/${name}.hero'
 	return os.exists(path)
 }
 
 pub fn (mut self Context) hero_config_get(cat string, name string) !string {
-	path := '${self.path()!.path}/${cat}__${name}.yaml'
+	path := '${self.path()!.path}/${cat}/${name}.hero'
 	mut config_file := pathlib.get_file(path: path, create: false)!
 	return config_file.read()!
 }
+
+pub fn (mut self Context) hero_config_list(cat string) ![]string {
+	path := '${self.path()!.path}/${cat}/*.hero'
+	mut config_files := os.ls(path)!
+	println(config_files)
+	$dbg;
+	return config_files
+}
+
 
 pub fn (mut self Context) secret_encrypt(txt string) !string {
 	return aes_symmetric.encrypt_str(txt, self.secret_get()!)

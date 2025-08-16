@@ -21,103 +21,131 @@ __global (
 
 /////////FACTORY
 
-^^[params]
-pub struct ArgsGet{
+@[params]
+pub struct ArgsGet {
 pub mut:
-    name string
+	name  string = "default"
+	fromdb bool //will load from filesystem
+	create bool //default will not create if not exist
 }
 
 @if args.hasconfig
-fn args_get (args_ ArgsGet) ArgsGet {
-	mut args:=args_
-	if args.name == ""{
-		args.name = "default"
-	}
-	return args
+pub fn new(args ArgsGet) !&${args.classname} {
+	mut obj := ${args.classname}{
+			name: args.name
+		}
+	set(obj)!
+	return &obj
 }
 
-pub fn get(args_ ArgsGet) !&${args.classname}  {
-    mut context:=base.context()!
-    mut args := args_get(args_)
-    mut obj := ${args.classname}{name:args.name}
-	if !(args.name in ${args.name}_global) {
-        if ! exists(args)!{            
-            set(obj)!
-        }else{
-            heroscript := context.hero_config_get("${args.name}",args.name)!
-            mut obj_:=heroscript_loads(heroscript)!
-            set_in_mem(obj_)!
-        }        
+pub fn get(args ArgsGet) !&${args.classname} {
+	mut context := base.context()!
+	${args.name}_default = args.name
+	if args.fromdb || args.name !in ${args.name}_global {
+		if context.hero_config_exists('${args.name}', args.name) {
+			heroscript := context.hero_config_get('${args.name}', args.name)!
+			mut obj_ := heroscript_loads(heroscript)!
+			set_in_mem(obj_)!
+		}else{
+			if args.create {
+				new(args)!
+			}else{
+				return error("${args.classname} with name '\${args.name}' does not exist")
+			}
+		}
+		return get(name: args.name)! //no longer from db nor create
 	}
 	return ${args.name}_global[args.name] or {
-            println(${args.name}_global)
-            //bug if we get here because should be in globals
-            panic("could not get config for ${args.name} with name, is bug:??{args.name}") 
-        }
+		return error('could not get config for ${args.name} with name:\${args.name}')
+	}
 }
 
-//register the config for the future
-pub fn set(o ${args.classname})! {
-    set_in_mem(o)!
-    mut context := base.context()!
-    heroscript := heroscript_dumps(o)!
-    context.hero_config_set("${args.name}", o.name, heroscript)!
+// register the config for the future
+pub fn set(o ${args.classname}) ! {
+	set_in_mem(o)!
+	${args.name}_default = o.name
+	mut context := base.context()!
+	heroscript := heroscript_dumps(o)!
+	context.hero_config_set('${args.name}', o.name, heroscript)!
 }
 
-//does the config exists?
-pub fn exists(args_ ArgsGet)! bool {
-    mut context := base.context()!
-    mut args := args_get(args_)
-    return context.hero_config_exists("${args.name}", args.name)
+// does the config exists?
+pub fn exists(args ArgsGet) !bool {
+	mut context := base.context()!
+	return context.hero_config_exists('${args.name}', args.name)
 }
 
-pub fn delete(args_ ArgsGet)! {
-    mut args := args_get(args_)
-   	mut context:=base.context()!
-	context.hero_config_delete("${args.name}",args.name)! 
-    if args.name in ${args.name}_global {
-        //del ${args.name}_global[args.name]
-    }
+pub fn delete(args ArgsGet) ! {
+	mut context := base.context()!
+	${args.name}_global.delete(args.name)
+	context.hero_config_delete('${args.name}', args.name)!
 }
 
-pub fn list()![]&${args.classname} {
-    mut args := args_get(args_)
-   	mut res:=[]&${args.classname}
-    if args.name in ${args.name}_global {
-        res << ${args.name}_global[o.name]
-    }
-    return res
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool //will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&${args.classname} {
+	mut res := []&${args.classname}{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		${args.name}_global = map[string]&${args.classname}{}
+		${args.name}_default = ''
+	}
+	if args.fromdb {
+		for name in context.hero_config_list('${args.name}')!{
+			mut hscript := context.hero_config_get('${args.name}', name)!
+			mut obj := heroscript_loads(hscript)!
+			set_in_mem(obj)!
+			res << &obj
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in ${args.name}_global {
+			res << client
+		}
+	}
+	return res
 }
 
 
-//only sets in mem, does not set as config
-fn set_in_mem(o ${args.classname})! {
-	mut o2:=obj_init(o)!
+// only sets in mem, does not set as config
+fn set_in_mem(o ${args.classname}) ! {
+	mut o2 := obj_init(o)!
 	${args.name}_global[o.name] = &o2
-    ${args.name}_default = o.name
+	${args.name}_default = o.name
+}
+
+// switch instance to be used for ${args.name}
+pub fn switch(name string) {
+	${args.name}_default = name
 }
 
 @else
-pub fn get(args_ ArgsGet) !&${args.classname}  {
-    return &${args.classname}{}
+pub fn new(args ArgsGet) !&${args.classname} {
+	return &${args.classname}{}
 }
 @end
 
 
 pub fn play(mut plbook PlayBook) ! {
-	
-    
-    @if args.hasconfig
-    mut install_actions := plbook.find(filter: '${args.name}.configure')!
-    if install_actions.len > 0 {
-        for install_action in install_actions {
-            heroscript:=install_action.heroscript()
-            mut obj2:=heroscript_loads(heroscript)!
-            set(obj2)!   
-        }
-    }
-    @end
-
+	mut install_actions := plbook.find(filter: '${args.name}.configure')!
+	if install_actions.len > 0 {
+        @if args.hasconfig
+		for install_action in install_actions {
+			heroscript := install_action.heroscript()
+			mut obj2 := heroscript_loads(heroscript)!
+			set(obj2)!
+		}           
+        @else
+        panic("can't configure ??{${args.name}_obj}, because no config in this class.")
+        @end
+	}
     @if args.cat == .installer
     mut other_actions := plbook.find(filter: '${args.name}.')!
     for other_action in other_actions {
@@ -155,9 +183,9 @@ pub fn play(mut plbook PlayBook) ! {
         }
         @end
     }
-    @end
-
+    @end    
 }
+
 
 @if args.cat == .installer
 
@@ -165,6 +193,7 @@ pub fn play(mut plbook PlayBook) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+@if args.startupmanager
 fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
@@ -185,6 +214,7 @@ fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManag
         }
     }
 }
+@end
 
 @if args.hasconfig
 //load from disk and make sure is properly intialized
@@ -304,12 +334,4 @@ pub fn (mut self ${args.classname}) destroy() ! {
 //switch instance to be used for ${args.name}
 pub fn switch(name string) {
 	${args.name}_default = name
-}
-
-
-//helpers
-
-^^[params]
-pub struct DefaultConfigArgs{
-    instance string = 'default'
 }

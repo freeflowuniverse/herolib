@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.osal.zinit
 
 __global (
-	python_global  map[string]&Python
+	python_global  map[string]&PythonInstaller
 	python_default string
 )
 
@@ -18,8 +18,8 @@ pub mut:
 	name string
 }
 
-pub fn get(args_ ArgsGet) !&Python {
-	return &Python{}
+pub fn get(args_ ArgsGet) !&PythonInstaller {
+	return &PythonInstaller{}
 }
 
 pub fn play(mut plbook PlayBook) ! {
@@ -72,14 +72,14 @@ pub mut:
 	reset bool
 }
 
-pub fn (mut self Python) install(args InstallArgs) ! {
+pub fn (mut self PythonInstaller) install(args InstallArgs) ! {
 	switch(self.name)
 	if args.reset || (!installed()!) {
 		install()!
 	}
 }
 
-pub fn (mut self Python) destroy() ! {
+pub fn (mut self PythonInstaller) destroy() ! {
 	switch(self.name)
 	destroy()!
 }

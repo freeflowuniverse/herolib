@@ -206,11 +206,11 @@ fn (mut repo GitRepo) update_submodules() ! {
 fn (repo GitRepo) exec(cmd_ string) !string {
 	repo_path := repo.path()
 
-	if cmd_.starts_with("pull ") || cmd_.starts_with("push ") || cmd_.starts_with("fetch "){
-		//means we need to be able to fetch from remote repo, check we have a key registered e.g. for gitea
-		$dbg;
+	// if cmd_.starts_with("pull ") || cmd_.starts_with("push ") || cmd_.starts_with("fetch "){
+	// 	//means we need to be able to fetch from remote repo, check we have a key registered e.g. for gitea
+	// 	$dbg;
 
-	}
+	// }
 	cmd := 'cd ${repo_path} && git ${cmd_}'
 	// console.print_debug(cmd)
 	r := os.execute(cmd)
