@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	pacman_global  map[string]&PacmanInstaller
+	pacman_default string
+)
+
 /////////FACTORY
 
 @[params]

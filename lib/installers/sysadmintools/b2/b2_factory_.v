@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	b2_global  map[string]&BackBase
+	b2_default string
+)
+
 /////////FACTORY
 
 @[params]

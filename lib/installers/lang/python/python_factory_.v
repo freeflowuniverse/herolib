@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	python_global  map[string]&PythonInstaller
+	python_default string
+)
+
 /////////FACTORY
 
 @[params]

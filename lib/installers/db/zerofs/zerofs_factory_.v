@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	zerofs_global  map[string]&ZeroFS
+	zerofs_default string
+)
+
 /////////FACTORY
 
 @[params]

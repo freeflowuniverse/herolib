@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	actrunner_global  map[string]&ActRunner
+	actrunner_default string
+)
+
 /////////FACTORY
 
 @[params]

@@ -1,7 +1,5 @@
 module jsonrpcmodel
 
-
-
 // OpenRPCSpec represents the OpenRPC specification structure
 pub struct OpenRPCSpec {
 pub mut:

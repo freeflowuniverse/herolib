@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	youki_global  map[string]&YoukiInstaller
+	youki_default string
+)
+
 /////////FACTORY
 
 @[params]

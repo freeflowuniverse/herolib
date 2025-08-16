@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	s3_global  map[string]&S3Installer
+	s3_default string
+)
+
 /////////FACTORY
 
 @[params]

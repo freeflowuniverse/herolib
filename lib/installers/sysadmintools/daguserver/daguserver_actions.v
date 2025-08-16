@@ -14,8 +14,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut res := []startupmanager.ZProcessNewArgs{}
 	mut cfg := get()!
 
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name: 'dagu'
 		cmd:  'dagu server'
 		env:  {
@@ -24,8 +23,7 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 		}
 	}
 
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name: 'dagu_scheduler'
 		cmd:  'dagu scheduler'
 		env:  {

@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	zinit_installer_global  map[string]&ZinitInstaller
+	zinit_installer_default string
+)
+
 /////////FACTORY
 
 @[params]

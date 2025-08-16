@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	lighttpd_global  map[string]&LightHttpdInstaller
+	lighttpd_default string
+)
+
 /////////FACTORY
 
 @[params]

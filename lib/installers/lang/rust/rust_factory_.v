@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	rust_global  map[string]&RustInstaller
+	rust_default string
+)
+
 /////////FACTORY
 
 @[params]

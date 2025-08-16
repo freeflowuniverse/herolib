@@ -7,6 +7,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	daguserver_global  map[string]&DaguInstaller
+	daguserver_default string
+)
+
 /////////FACTORY
 
 @[params]
@@ -22,7 +27,7 @@ pub fn new(args ArgsGet) !&DaguInstaller {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&DaguInstaller {
@@ -53,11 +58,11 @@ pub fn get(args ArgsGet) !&DaguInstaller {
 
 // register the config for the future
 pub fn set(o DaguInstaller) ! {
-	set_in_mem(o)!
-	daguserver_default = o.name
+	mut o2 := set_in_mem(o)!
+	daguserver_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:daguserver', o.name, json.encode(o))!
+	r.hset('context:daguserver', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -106,10 +111,11 @@ pub fn list(args ArgsList) ![]&DaguInstaller {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o DaguInstaller) ! {
+fn set_in_mem(o DaguInstaller) !DaguInstaller {
 	mut o2 := obj_init(o)!
-	daguserver_global[o.name] = &o2
-	daguserver_default = o.name
+	daguserver_global[o2.name] = &o2
+	daguserver_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

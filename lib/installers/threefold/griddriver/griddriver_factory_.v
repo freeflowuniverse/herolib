@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	griddriver_global  map[string]&GridDriverInstaller
+	griddriver_default string
+)
+
 /////////FACTORY
 
 @[params]

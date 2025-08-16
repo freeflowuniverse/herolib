@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	restic_global  map[string]&Restic
+	restic_default string
+)
+
 /////////FACTORY
 
 @[params]

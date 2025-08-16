@@ -12,8 +12,7 @@ import json
 
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'garage_s3'
 		cmd:         'garage_s3 -c /var/garage/config.toml server'
 		startuptype: .zinit

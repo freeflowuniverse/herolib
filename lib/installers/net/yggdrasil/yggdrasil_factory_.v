@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	yggdrasil_global  map[string]&YggdrasilInstaller
+	yggdrasil_default string
+)
+
 /////////FACTORY
 
 @[params]

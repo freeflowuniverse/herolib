@@ -27,7 +27,7 @@ pub fn new(args ArgsGet) !&MeilisearchInstaller {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&MeilisearchInstaller {

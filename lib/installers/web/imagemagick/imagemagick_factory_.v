@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	imagemagick_global  map[string]&ImageMagick
+	imagemagick_default string
+)
+
 /////////FACTORY
 
 @[params]

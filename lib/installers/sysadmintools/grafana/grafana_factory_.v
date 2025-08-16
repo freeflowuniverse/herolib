@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	grafana_global  map[string]&Grafana
+	grafana_default string
+)
+
 /////////FACTORY
 
 @[params]

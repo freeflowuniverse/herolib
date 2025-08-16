@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	prometheus_global  map[string]&Prometheus
+	prometheus_default string
+)
+
 /////////FACTORY
 
 @[params]

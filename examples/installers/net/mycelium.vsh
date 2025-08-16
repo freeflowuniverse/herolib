@@ -3,17 +3,17 @@
 import freeflowuniverse.herolib.installers.net.mycelium_installer
 import freeflowuniverse.herolib.clients.mycelium
 
-mut installer := mycelium_installer.get(create:true)!
+mut installer := mycelium_installer.get(create: true)!
 println(installer)
 
 installer.start()!
 
-$dbg;
+// $dbg;
 
 mut r := mycelium.inspect()!
 println(r)
 
-$dbg;
+// $dbg;
 
 mut client := mycelium.get()!
 

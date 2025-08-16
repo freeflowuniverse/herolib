@@ -3,10 +3,10 @@
 import freeflowuniverse.herolib.core.generator.generic as generator
 import freeflowuniverse.herolib.core.pathlib
 
-mut args := generator.GeneratorArgs{
-	path:  '~/code/github/freeflowuniverse/herolib/lib/clients'
-	force: true
-}
+// mut args := generator.GeneratorArgs{
+// 	path:  '~/code/github/freeflowuniverse/herolib/lib/clients'
+// 	force: true
+// }
 
 // mut args2 := generator.GeneratorArgs{
 // 	path: '~/code/github/freeflowuniverse/herolib/lib/installers/lang/rust'
@@ -14,9 +14,9 @@ mut args := generator.GeneratorArgs{
 // }	
 // generator.scan(args2)!
 
-// mut args := generator.GeneratorArgs{
-// 	path:  '~/code/github/freeflowuniverse/herolib/lib/installers'
-// 	force: true
-// }
+mut args := generator.GeneratorArgs{
+	path:  '~/code/github/freeflowuniverse/herolib/lib/installers'
+	force: true
+}
 
 generator.scan(args)!

@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	cloudhypervisor_global  map[string]&CloudHypervisor
+	cloudhypervisor_default string
+)
+
 /////////FACTORY
 
 @[params]

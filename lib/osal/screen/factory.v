@@ -134,17 +134,16 @@ pub fn (mut self ScreensFactory) get(name string) !Screen {
 }
 
 pub fn (mut self ScreensFactory) start(name string) ! {
-	
 	mut s := self.get(name) or {
 		return error("can't start screen with name:${name}, couldn't find.\nScreens found.\n${self.str()}")
 	}
 	s.start_()!
 
-	osal.sleep(1) 
-		
+	osal.sleep(1)
+
 	for {
 		self.scan()!
-				
+
 		mut s2 := self.get(name) or {
 			return error('couldnt start screen with name ${name}, was not found in screen scan.\ncmd:\n${s.cmd}\nScreens found.\n${self.str()}')
 		}

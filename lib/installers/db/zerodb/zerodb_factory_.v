@@ -7,6 +7,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	zerodb_global  map[string]&ZeroDB
+	zerodb_default string
+)
+
 /////////FACTORY
 
 @[params]
@@ -22,7 +27,7 @@ pub fn new(args ArgsGet) !&ZeroDB {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&ZeroDB {

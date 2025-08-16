@@ -26,7 +26,7 @@ pub fn new(args ArgsGet) !&RClone {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&RClone {
@@ -57,11 +57,11 @@ pub fn get(args ArgsGet) !&RClone {
 
 // register the config for the future
 pub fn set(o RClone) ! {
-	set_in_mem(o)!
-	rclone_default = o.name
+	mut o2 := set_in_mem(o)!
+	rclone_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:rclone', o.name, json.encode(o))!
+	r.hset('context:rclone', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -110,10 +110,11 @@ pub fn list(args ArgsList) ![]&RClone {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o RClone) ! {
+fn set_in_mem(o RClone) !RClone {
 	mut o2 := obj_init(o)!
-	rclone_global[o.name] = &o2
-	rclone_default = o.name
+	rclone_global[o2.name] = &o2
+	rclone_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

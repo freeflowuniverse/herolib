@@ -11,8 +11,7 @@ import os
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut installer := get()!
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name: 'traefik'
 		cmd:  'traefik'
 	}

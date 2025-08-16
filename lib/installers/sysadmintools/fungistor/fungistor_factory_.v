@@ -6,6 +6,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	fungistor_global  map[string]&FungiStor
+	fungistor_default string
+)
+
 /////////FACTORY
 
 @[params]

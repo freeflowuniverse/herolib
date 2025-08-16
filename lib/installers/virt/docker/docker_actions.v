@@ -8,8 +8,7 @@ import freeflowuniverse.herolib.installers.ulist
 
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name: 'docker'
 		cmd:  'dockerd'
 	}

@@ -10,8 +10,7 @@ import os
 
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut res := []startupmanager.ZProcessNewArgs{}
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'actrunner'
 		cmd:         'actrunner daemon'
 		startuptype: .zinit

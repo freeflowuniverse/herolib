@@ -27,7 +27,7 @@ pub fn new(args ArgsGet) !&GarageS3 {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&GarageS3 {
@@ -58,11 +58,11 @@ pub fn get(args ArgsGet) !&GarageS3 {
 
 // register the config for the future
 pub fn set(o GarageS3) ! {
-	set_in_mem(o)!
-	garage_s3_default = o.name
+	mut o2 := set_in_mem(o)!
+	garage_s3_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:garage_s3', o.name, json.encode(o))!
+	r.hset('context:garage_s3', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -111,10 +111,11 @@ pub fn list(args ArgsList) ![]&GarageS3 {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o GarageS3) ! {
+fn set_in_mem(o GarageS3) !GarageS3 {
 	mut o2 := obj_init(o)!
-	garage_s3_global[o.name] = &o2
-	garage_s3_default = o.name
+	garage_s3_global[o2.name] = &o2
+	garage_s3_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

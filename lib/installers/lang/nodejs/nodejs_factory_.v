@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	nodejs_global  map[string]&NodeJS
+	nodejs_default string
+)
+
 /////////FACTORY
 
 @[params]

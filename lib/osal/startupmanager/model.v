@@ -28,12 +28,12 @@ pub mut:
 
 fn startup_manager_type_get(c string) StartupManagerType {
 	match c {
-		"unknown" { return .unknown }
-		"screen"  { return .screen }
-		"zinit"   { return .zinit }
-		"tmux"    { return .tmux }
-		"systemd" { return .systemd }
-		"auto"    { return .auto }
-		else      { return .unknown }
+		'unknown' { return .unknown }
+		'screen' { return .screen }
+		'zinit' { return .zinit }
+		'tmux' { return .tmux }
+		'systemd' { return .systemd }
+		'auto' { return .auto }
+		else { return .unknown }
 	}
 }

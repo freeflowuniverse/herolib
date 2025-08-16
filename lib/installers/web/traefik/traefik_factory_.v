@@ -7,6 +7,11 @@ import json
 import freeflowuniverse.herolib.osal.startupmanager
 import time
 
+__global (
+	traefik_global  map[string]&TraefikServer
+	traefik_default string
+)
+
 /////////FACTORY
 
 @[params]
@@ -22,7 +27,7 @@ pub fn new(args ArgsGet) !&TraefikServer {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&TraefikServer {
@@ -53,11 +58,11 @@ pub fn get(args ArgsGet) !&TraefikServer {
 
 // register the config for the future
 pub fn set(o TraefikServer) ! {
-	set_in_mem(o)!
-	traefik_default = o.name
+	mut o2 := set_in_mem(o)!
+	traefik_default = o2.name
 	mut context := base.context()!
 	mut r := context.redis()!
-	r.hset('context:traefik', o.name, json.encode(o))!
+	r.hset('context:traefik', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
@@ -106,10 +111,11 @@ pub fn list(args ArgsList) ![]&TraefikServer {
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o TraefikServer) ! {
+fn set_in_mem(o TraefikServer) !TraefikServer {
 	mut o2 := obj_init(o)!
-	traefik_global[o.name] = &o2
-	traefik_default = o.name
+	traefik_global[o2.name] = &o2
+	traefik_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {

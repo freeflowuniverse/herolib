@@ -27,7 +27,7 @@ pub fn new(args ArgsGet) !&CometBFT {
 		name: args.name
 	}
 	set(obj)!
-	return &obj
+	return get(name: args.name)!
 }
 
 pub fn get(args ArgsGet) !&CometBFT {

@@ -5,6 +5,11 @@ import freeflowuniverse.herolib.ui.console
 import json
 import freeflowuniverse.herolib.osal.startupmanager
 
+__global (
+	podman_global  map[string]&PodmanInstaller
+	podman_default string
+)
+
 /////////FACTORY
 
 @[params]

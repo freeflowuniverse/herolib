@@ -5,7 +5,6 @@ import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.core
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.installers.infra.zinit_installer
 import freeflowuniverse.herolib.clients.mycelium
 import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.startupmanager
@@ -20,15 +19,14 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut peers_str := installer.peers.join(' ')
 	mut tun_name := 'tun${installer.tun_nr}'
 
-	res << startupmanager.ZProcessNewArgs
-	{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'mycelium'
 		startuptype: .zinit
 		cmd:         'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
-		env: {
-			'HOME':         os.home_dir()
+		env:         {
+			'HOME': os.home_dir()
 		}
-
+	}
 	return res
 }
 
