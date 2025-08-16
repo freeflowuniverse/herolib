@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
+#!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib.installers.net.mycelium_installer
 import freeflowuniverse.herolib.clients.mycelium
@@ -8,7 +8,7 @@ println(installer)
 
 installer.start()!
 
-// $dbg;
+$dbg;
 
 mut r := mycelium.inspect()!
 println(r)

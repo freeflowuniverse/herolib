@@ -178,7 +178,7 @@ fn startupmanager_get(cat startupmanager.StartupManagerType) !startupmanager.Sta
 	// systemd
 	match cat {
 		.screen {
-			console.print_debug('startupmanager: zinit')
+			console.print_debug('startupmanager: screen')
 			return startupmanager.get(.screen)!
 		}
 		.zinit {
@@ -218,7 +218,10 @@ pub fn (mut self MyceliumInstaller) start() ! {
 
 	start_pre()!
 
+	
+
 	for zprocess in startupcmd()! {
+		
 		mut sm := startupmanager_get(zprocess.startuptype)!
 
 		console.print_debug('starting mycelium_installer with ${zprocess.startuptype}...')
@@ -226,6 +229,7 @@ pub fn (mut self MyceliumInstaller) start() ! {
 		sm.new(zprocess)!
 
 		sm.start(zprocess.name)!
+
 	}
 
 	start_post()!

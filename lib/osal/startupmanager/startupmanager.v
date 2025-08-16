@@ -111,6 +111,7 @@ pub fn (mut sm StartupManager) new(args ZProcessNewArgs) ! {
 }
 
 pub fn (mut sm StartupManager) start(name string) ! {
+	$dbg;
 	match sm.cat {
 		.screen {
 			return

@@ -101,7 +101,10 @@ pub fn (mut c ZinitRPC) service_create(name string, config ServiceConfig) !strin
 		name:    name
 		content: config
 	}
+	println(params)
+	$dbg;
 	request := jsonrpc.new_request_generic('service_create', params)
+	$dbg;
 	return client.send[ServiceCreateParams, string](request)!
 }
 
