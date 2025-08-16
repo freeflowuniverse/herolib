@@ -36,29 +36,11 @@ pub fn context_new(args_ ContextConfigArgs) !&Context {
 		params:      args_.params
 		coderoot:    args_.coderoot
 		interactive: args_.interactive
-		secret:      args_.secret
-		encrypt:     args_.encrypt
-	}
-
-	if args.encrypt && args.secret == '' && args.interactive {
-		mut myui := ui.new()!
-		console.clear()
-		args.secret = myui.ask_question(question: 'Please enter your hero secret string:')!
-	}
-
-	if args.encrypt && args.secret.len > 0 {
-		args.secret = md5.hexhash(args.secret)
 	}
 
 	mut c := Context{
 		config: args
 	}
-
-	// if args_.priv_key_hex.len > 0 {
-	// 	c.privkey_set(args_.priv_key_hex)!
-	// }
-
-	// c.save()!
 
 	if args.params.len > 0 {
 		mut p := paramsparser.new('')!

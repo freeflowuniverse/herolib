@@ -3,6 +3,7 @@ module giteaclient
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 __global (
 	giteaclient_global  map[string]&GiteaClient
@@ -31,10 +32,14 @@ pub fn get(args ArgsGet) !&GiteaClient {
 	mut context := base.context()!
 	giteaclient_default = args.name
 	if args.fromdb || args.name !in giteaclient_global {
-		if context.hero_config_exists('giteaclient', args.name) {
-			heroscript := context.hero_config_get('giteaclient', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+		mut r := context.redis()!
+		if r.hexists('context:giteaclient', args.name)! {
+			data := r.hget('context:giteaclient', args.name)!
+			if data.len == 0 {
+				return error('giteaclient with name:${args.name} does not exist, prob bug.')
+			}
+			mut obj := json.decode(GiteaClient,data)!
+			set_in_mem(obj)!
 		}else{
 			if args.create {
 				new(args)!				
@@ -54,20 +59,22 @@ pub fn set(o GiteaClient) ! {
 	set_in_mem(o)!
 	giteaclient_default = o.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('giteaclient', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:giteaclient', o.name, json.encode(o))!
 }
 
 // does the config exists?
 pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	return context.hero_config_exists('giteaclient', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:giteaclient', args.name)!
+
 }
 
 pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	giteaclient_global.delete(args.name)
-	context.hero_config_delete('giteaclient', args.name)!	
+	mut r := context.redis()!
+	r.hdel('context:giteaclient', args.name)!
 }
 
 @[params]
@@ -86,11 +93,11 @@ pub fn list(args ArgsList) ![]&GiteaClient {
 		giteaclient_default = ''
 	}
 	if args.fromdb {		
-		for name in context.hero_config_list('giteaclient')!{
-			mut hscript := context.hero_config_get('giteaclient', name)!
-			mut obj := heroscript_loads(hscript)!
-			set_in_mem(obj)!
-			res << &obj
+		mut r := context.redis()!
+		mut l := r.hkeys('context:giteaclient')!
+
+		for name in l{
+			res << get(name:name,fromdb:true)!
 		}
 		return res
 	} else {
