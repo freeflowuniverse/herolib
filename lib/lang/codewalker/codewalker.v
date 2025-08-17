@@ -50,7 +50,6 @@ fn (cw CodeWalker) default_gitignore() []string {
 }
 
 pub fn (mut cw CodeWalker) walk() !FileMap {
-
 	if cw.source == '' {
 		return error('Source path is not set')
 	}
@@ -60,9 +59,8 @@ pub fn (mut cw CodeWalker) walk() !FileMap {
 	}
 	
 	mut files := dir.list(recursive: true)!
-
 	mut fm := FileMap{
-		source:cw.source
+		source: cw.source
 	}
 
 	for mut file in files.paths {
@@ -72,12 +70,12 @@ pub fn (mut cw CodeWalker) walk() !FileMap {
 			mut should_ignore := false
 			
 			for pattern in cw.gitignore_patterns {
-				if relpath.contains(pattern.trim_right('/')) || 
+				if relpath.contains(pattern.trim_right('/')) ||
 				   (pattern.ends_with('/') && relpath.starts_with(pattern)) {
 					should_ignore = true
 					break
 				}
-			}			
+			}
 			if !should_ignore {
 				content := file.read()!
 				fm.content[relpath] = content
@@ -105,24 +103,21 @@ pub fn (mut cw CodeWalker) error(msg string,linenr int,category string, fail boo
 fn (mut cw CodeWalker) filename_get(line string,linenr int) !string {
 	parts := line.split('===')
 	if parts.len < 2 {
-		return cw.error("Invalid filename line: ${line}.",linenr, "filename_get", true)!
+		cw.error("Invalid filename line: ${line}.",linenr, "filename_get", true)!
 	}
-	mut name:=parts[1].trim_space() or {panic("bug")}
+	mut name:=parts[1].trim_space()
 	if name.len<2 {
-		return cw.error("Invalid filename, < 2 chars: ${name}.",linenr, "filename_get", true)!
+		cw.error("Invalid filename, < 2 chars: ${name}.",linenr, "filename_get", true)!
 	}
 	return name
 }
 
 enum ParseState {
 	start
-	blockfound
 	in_block
-	end
 }
 
 pub fn (mut cw CodeWalker) parse(content string) !FileMap {
-
 	mut fm := FileMap{
 		source: cw.source
 	}
@@ -130,47 +125,53 @@ pub fn (mut cw CodeWalker) parse(content string) !FileMap {
 	mut filename := ""
 	mut block := []string{}
 	mut state := ParseState.start
-	mut linenr:=0 
-
-	//lets first cleanup	
+	mut linenr := 0
 
 	for line in content.split_into_lines() {
-
 		mut line2 := line.trim_space()
-		linenr+=1
-		// Process each line and extract relevant information
-		if state == .start && line2.starts_with('===') {
-			filename=cw.filename_get(line,linenr)!
-			if filename == "END" {
-				cw.error("END found in ${line} at start not good.",linenr,"parse",true)!
+		linenr += 1
+		
+		match state {
+			.start {
+				if line2.starts_with('===') && !line2.ends_with('===') {
+					filename = cw.filename_get(line2, linenr)!
+					if filename == "END" {
+						cw.error("END found at start, not good.", linenr, "parse", true)!
+						return error("END found at start, not good.")
+					}
+					state = .in_block
+				} else if line2.len > 0 {
+					cw.error("Unexpected content before first file block: '${line}'.", linenr, "parse", false)!
+				}
+			}
+			.in_block {
+				if line2.starts_with('===') {
+					if line2 == '===END===' {
+						fm.content[filename] = block.join_lines()
+						filename = ""
+						block = []string{}
+						state = .start
+					} else if line2.ends_with('===') {
+						fm.content[filename] = block.join_lines()
+						filename = cw.filename_get(line2, linenr)!
+						if filename == "END" {
+							cw.error("Filename 'END' is reserved.", linenr, "parse", true)!
+							return error("Filename 'END' is reserved.")
+						}
+						block = []string{}
+						state = .in_block
+					} else {
+						block << line
+					}
+				} else {
+					block << line
+				}
 			}
 		}
+	}
 
-		if ( state == .blockfound || state == .in_block ) && line2.starts_with('===')  && line2.ends_with('===') {
-			filenamenew=cw.filename_get(line2,linenr)!
-			if filenamenew == "END" {
-				//we are at end of file
-				state = .end
-				fm.content[filename] = block.join_lines()
-				continue
-			}
-
-			//means we now have new block
-			state = .blockfound
-			fm.content[filename] = block.join_lines()
-			block = []string{}
-			filename = filenamenew
-			continue
-		}
-
-		if line2.starts_with('===') && line2.ends_with('===') {
-			cw.error("=== found in ${line2} at wrong location.",linenr,"parse",true)!
-		}
-
-		if status == .in_block {
-			output << line
-		}
-
+	if state == .in_block && filename != '' {
+		fm.content[filename] = block.join_lines()
 	}
 
 	return fm
