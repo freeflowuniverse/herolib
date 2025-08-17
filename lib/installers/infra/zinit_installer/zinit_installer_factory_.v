@@ -2,8 +2,8 @@ module zinit_installer
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
 import time
 
 __global (
@@ -16,14 +16,25 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
-pub fn get(args_ ArgsGet) !&ZinitInstaller {
+pub fn new(args ArgsGet) !&ZinitInstaller {
 	return &ZinitInstaller{}
 }
 
+pub fn get(args ArgsGet) !&ZinitInstaller {
+	return new(args)!
+}
+
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'zinit_installer.') {
+		return
+	}
+	mut install_actions := plbook.find(filter: 'zinit_installer.configure')!
+	if install_actions.len > 0 {
+		return error("can't configure zinit_installer, because no configuration allowed for this installer.")
+	}
 	mut other_actions := plbook.find(filter: 'zinit_installer.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -64,30 +75,33 @@ pub fn play(mut plbook PlayBook) ! {
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
+fn startupmanager_get(cat startupmanager.StartupManagerType) !startupmanager.StartupManager {
 	// unknown
 	// screen
 	// zinit
 	// tmux
 	// systemd
 	match cat {
+		.screen {
+			console.print_debug('startupmanager: zinit')
+			return startupmanager.get(.screen)!
+		}
 		.zinit {
 			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
+			return startupmanager.get(.zinit)!
 		}
 		.systemd {
 			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
+			return startupmanager.get(.systemd)!
 		}
 		else {
 			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
+			return startupmanager.get(.auto)!
 		}
 	}
 }
 
 pub fn (mut self ZinitInstaller) start() ! {
-	switch(self.name)
 	if self.running()! {
 		return
 	}
@@ -150,10 +164,12 @@ pub fn (mut self ZinitInstaller) running() !bool {
 
 	// walk over the generic processes, if not running return
 	for zprocess in startupcmd()! {
-		mut sm := startupmanager_get(zprocess.startuptype)!
-		r := sm.running(zprocess.name)!
-		if r == false {
-			return false
+		if zprocess.startuptype != .screen {
+			mut sm := startupmanager_get(zprocess.startuptype)!
+			r := sm.running(zprocess.name)!
+			if r == false {
+				return false
+			}
 		}
 	}
 	return running()!
@@ -185,12 +201,4 @@ pub fn (mut self ZinitInstaller) destroy() ! {
 
 // switch instance to be used for zinit_installer
 pub fn switch(name string) {
-	zinit_installer_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

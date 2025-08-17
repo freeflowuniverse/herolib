@@ -48,8 +48,8 @@ play_docusaurus.play(mut plbook)!   // <-- new line, optional
 
 | Problem | What to do |
 |---|---|
-| **Wrong API name** – the code uses **`gittools.get(gittools.GitStructureArgGet{})`** – there is no `GitStructureArgGet` struct in the git‑tools package. The correct type is **`gittools.GitStructureArgs`** (or the default `gittools.GitStructure` argument). | Replace `GitStructureArgGet` with the correct type (`gittools.GitStructureArgs`). |
-| **Missing import alias** – the file uses `gittools.get` and `gittools.new` but the import is just `import freeflowuniverse.herolib.develop.gittools`. That is fine, but for clarity rename the import to **`gittools`** (it already is) and use the same alias everywhere. |
+| **Wrong API name** – the code uses **`gittools.new(gittools.GitStructureArgGet{})`** – there is no `GitStructureArgGet` struct in the git‑tools package. The correct type is **`gittools.GitStructureArgs`** (or the default `gittools.GitStructure` argument). | Replace `GitStructureArgGet` with the correct type (`gittools.GitStructureArgs`). |
+| **Missing import alias** – the file uses `gittools.new` and `gittools.new` but the import is just `import freeflowuniverse.herolib.develop.gittools`. That is fine, but for clarity rename the import to **`gittools`** (it already is) and use the same alias everywhere. |
 | **Potential nil `gs`** – after a `git.clone` we do `gs = gittools.new(coderoot: coderoot)!`. This shadows the previous `gs` and loses the original configuration (e.g. `light`, `log`). The intent is to **re‑initialise** the `GitStructure` **only** when a `coderoot` is explicitly given. Keep the current flow but **document** the intention. |
 | **Unused variable `action_`** – the variable `action_` is used only for iteration. No problem. |
 | **Missing `gittools.GitCloneArgs`** – check that the struct is actually named `GitCloneArgs` in the git‑tools package. If not, change to the proper name. | Verify and, if needed, replace with the correct struct name (`gittools.GitCloneArgs`). |
@@ -82,7 +82,7 @@ fn play_git(mut plbook PlayBook) ! {
         // ... (same as before)
     } else {
         // Default GitStructure (no args)
-        gittools.get(gittools.GitStructureArgs{})!
+        gittools.new(gittools.GitStructureArgs{})!
     }
 
     // -----------------------------------------------------------

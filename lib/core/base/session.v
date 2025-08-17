@@ -3,7 +3,6 @@ module base
 import freeflowuniverse.herolib.data.ourtime
 // import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.data.paramsparser
-import freeflowuniverse.herolib.data.dbfs
 import freeflowuniverse.herolib.core.logger
 import json
 import freeflowuniverse.herolib.core.pathlib
@@ -31,16 +30,6 @@ pub mut:
 // fn (mut self Session) key() string {
 // 	return 'hero:sessions:${self.guid()}'
 // }
-
-// get db of the session, is unique per session
-pub fn (mut self Session) db_get() !dbfs.DB {
-	return self.context.db_get('session_${self.name}')!
-}
-
-// get the db of the config, is unique per context
-pub fn (mut self Session) db_config_get() !dbfs.DB {
-	return self.context.db_get('config')!
-}
 
 // load the params from redis
 pub fn (mut self Session) load() ! {

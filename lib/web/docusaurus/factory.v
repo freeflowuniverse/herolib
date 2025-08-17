@@ -24,7 +24,7 @@ pub fn dsite_define(sitename string) ! {
 	// Create the DocSite instance
 	mut dsite := &DocSite{
 		name:         sitename
-		path_publish: pathlib.get_dir(path: "${path_build_}/build", create: true)!
+		path_publish: pathlib.get_dir(path: '${path_build_}/build', create: true)!
 		path_build:   pathlib.get_dir(path: path_build_, create: true)!
 		config:       new_configuration(website.siteconfig)!
 		website:      website
@@ -36,7 +36,7 @@ pub fn dsite_define(sitename string) ! {
 
 pub fn dsite_get(name_ string) !&DocSite {
 	mut name := texttools.name_fix(name_)
-	if name=="" {
+	if name == '' {
 		name = docusaurus_last
 	}
 	return docusaurus_sites[name] or {
@@ -46,9 +46,9 @@ pub fn dsite_get(name_ string) !&DocSite {
 
 pub fn dsite_exists(name_ string) !bool {
 	mut name := texttools.name_fix(name_)
-	if name=="" {
+	if name == '' {
 		name = docusaurus_last
-	}	
+	}
 	_ := docusaurus_sites[name] or { return false }
 	return true
 }

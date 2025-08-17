@@ -4,9 +4,9 @@ import os
 import freeflowuniverse.herolib.core.pathlib
 
 __global (
-	docusaurus_sites   map[string]&DocSite
+	docusaurus_sites  map[string]&DocSite
 	docusaurus_config []DocusaurusConfigParams
-	docusaurus_last string //the last one we worked with
+	docusaurus_last   string // the last one we worked with
 )
 
 pub struct DocusaurusConfig {
@@ -16,7 +16,7 @@ pub mut:
 	install         bool
 	reset           bool
 	template_update bool
-	coderoot       string
+	coderoot        string
 }
 
 @[params]
@@ -27,16 +27,16 @@ pub mut:
 	install         bool
 	reset           bool
 	template_update bool
-	coderoot       string
+	coderoot        string
 }
 
-//return the last know config
+// return the last know config
 pub fn config() !DocusaurusConfig {
 	if docusaurus_config.len == 0 {
 		docusaurus_config << DocusaurusConfigParams{}
 	}
-	mut args:= docusaurus_config[0] or { panic("bug in docusaurus config") }
- 	if args.path_build == '' {
+	mut args := docusaurus_config[0] or { panic('bug in docusaurus config') }
+	if args.path_build == '' {
 		args.path_build = '${os.home_dir()}/hero/var/docusaurus/build'
 	}
 	if args.path_publish == '' {
@@ -47,16 +47,16 @@ pub fn config() !DocusaurusConfig {
 	}
 
 	mut c := DocusaurusConfig{
-		path_publish: pathlib.get_dir(path: args.path_publish, create: true)!
-		path_build:   pathlib.get_dir(path: args.path_build, create: true)!
-		coderoot:     args.coderoot
-		install: args.install
-		reset: args.reset
+		path_publish:    pathlib.get_dir(path: args.path_publish, create: true)!
+		path_build:      pathlib.get_dir(path: args.path_build, create: true)!
+		coderoot:        args.coderoot
+		install:         args.install
+		reset:           args.reset
 		template_update: args.template_update
 	}
 	if c.install {
 		install(c)!
-		c.install=true
+		c.install = true
 	}
 	return c
 }

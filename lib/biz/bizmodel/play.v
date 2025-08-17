@@ -12,6 +12,9 @@ const action_priorities = {
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if plbook.exists(filter: 'bizmodel.') == false {
+		return
+	}
 	// group actions by which bizmodel they belong to
 	actions_by_biz := arrays.group_by[string, &Action](plbook.find(filter: 'bizmodel.*')!,
 		fn (a &Action) string {

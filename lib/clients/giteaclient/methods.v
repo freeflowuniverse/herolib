@@ -7,14 +7,12 @@ import net.http
 
 // List a user's own repositories
 pub fn (mut client GiteaClient) user_list_repos() ![]Repository {
-	$dbg;
 	req := httpconnection.Request{
 		method: .get
 		prefix: '/user/repos'
 	}
 	mut http_client := client.httpclient()!
-	r:=http_client.get_json_list_generic[Repository](req)!
-	$dbg;
+	r := http_client.get_json_list_generic[Repository](req)!
 	return r
 }
 

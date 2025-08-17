@@ -1,6 +1,5 @@
 module docusaurus
 
-
 import freeflowuniverse.herolib.core.pathlib
 import json
 import os
@@ -16,8 +15,8 @@ pub fn (mut docsite DocSite) generate() ! {
 	console.print_header(' docsite generate: ${docsite.name} on ${c.path_build.path}')
 
 	osal.rm('${c.path_build.path}/docs')!
-	
-	cfg_path:="${c.path_build.path}/cfg"
+
+	cfg_path := '${c.path_build.path}/cfg'
 	osal.rm(cfg_path)!
 
 	mut main_file := pathlib.get_file(path: '${cfg_path}/main.json', create: true)!
@@ -32,5 +31,4 @@ pub fn (mut docsite DocSite) generate() ! {
 	docsite.generate_docs()!
 
 	docsite.import()!
-
 }

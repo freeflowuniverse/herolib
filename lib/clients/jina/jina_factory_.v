@@ -3,6 +3,7 @@ module jina
 import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 
 __global (
 	jina_global  map[string]&Jina
@@ -14,71 +15,111 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name   string = 'default'
+	fromdb bool // will load from filesystem
+	create bool // default will not create if not exist
 }
 
-fn args_get(args_ ArgsGet) ArgsGet {
-	mut args := args_
-	if args.name == '' {
-		args.name = 'default'
-	}
-	return args
-}
-
-pub fn get(args_ ArgsGet) !&Jina {
-	mut context := base.context()!
-	mut args := args_get(args_)
+pub fn new(args ArgsGet) !&Jina {
 	mut obj := Jina{
 		name: args.name
 	}
-	if args.name !in jina_global {
-		if !exists(args)! {
-			set(obj)!
+	set(obj)!
+	return get(name: args.name)!
+}
+
+pub fn get(args ArgsGet) !&Jina {
+	mut context := base.context()!
+	jina_default = args.name
+	if args.fromdb || args.name !in jina_global {
+		mut r := context.redis()!
+		if r.hexists('context:jina', args.name)! {
+			data := r.hget('context:jina', args.name)!
+			if data.len == 0 {
+				return error('Jina with name: jina does not exist, prob bug.')
+			}
+			mut obj := json.decode(Jina, data)!
+			set_in_mem(obj)!
 		} else {
-			heroscript := context.hero_config_get('jina', args.name)!
-			mut obj_ := heroscript_loads(heroscript)!
-			set_in_mem(obj_)!
+			if args.create {
+				new(args)!
+			} else {
+				return error("Jina with name 'jina' does not exist")
+			}
 		}
+		return get(name: args.name)! // no longer from db nor create
 	}
 	return jina_global[args.name] or {
-		println(jina_global)
-		// bug if we get here because should be in globals
-		panic('could not get config for jina with name, is bug:${args.name}')
+		return error('could not get config for jina with name:jina')
 	}
 }
 
 // register the config for the future
 pub fn set(o Jina) ! {
-	set_in_mem(o)!
+	mut o2 := set_in_mem(o)!
+	jina_default = o2.name
 	mut context := base.context()!
-	heroscript := heroscript_dumps(o)!
-	context.hero_config_set('jina', o.name, heroscript)!
+	mut r := context.redis()!
+	r.hset('context:jina', o2.name, json.encode(o2))!
 }
 
 // does the config exists?
-pub fn exists(args_ ArgsGet) !bool {
+pub fn exists(args ArgsGet) !bool {
 	mut context := base.context()!
-	mut args := args_get(args_)
-	return context.hero_config_exists('jina', args.name)
+	mut r := context.redis()!
+	return r.hexists('context:jina', args.name)!
 }
 
-pub fn delete(args_ ArgsGet) ! {
-	mut args := args_get(args_)
+pub fn delete(args ArgsGet) ! {
 	mut context := base.context()!
-	context.hero_config_delete('jina', args.name)!
-	if args.name in jina_global {
-		// del jina_global[args.name]
+	mut r := context.redis()!
+	r.hdel('context:jina', args.name)!
+}
+
+@[params]
+pub struct ArgsList {
+pub mut:
+	fromdb bool // will load from filesystem
+}
+
+// if fromdb set: load from filesystem, and not from mem, will also reset what is in mem
+pub fn list(args ArgsList) ![]&Jina {
+	mut res := []&Jina{}
+	mut context := base.context()!
+	if args.fromdb {
+		// reset what is in mem
+		jina_global = map[string]&Jina{}
+		jina_default = ''
 	}
+	if args.fromdb {
+		mut r := context.redis()!
+		mut l := r.hkeys('context:jina')!
+
+		for name in l {
+			res << get(name: name, fromdb: true)!
+		}
+		return res
+	} else {
+		// load from memory
+		for _, client in jina_global {
+			res << client
+		}
+	}
+	return res
 }
 
 // only sets in mem, does not set as config
-fn set_in_mem(o Jina) ! {
+fn set_in_mem(o Jina) !Jina {
 	mut o2 := obj_init(o)!
-	jina_global[o.name] = &o2
-	jina_default = o.name
+	jina_global[o2.name] = &o2
+	jina_default = o2.name
+	return o2
 }
 
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'jina.') {
+		return
+	}
 	mut install_actions := plbook.find(filter: 'jina.configure')!
 	if install_actions.len > 0 {
 		for install_action in install_actions {
@@ -92,11 +133,4 @@ pub fn play(mut plbook PlayBook) ! {
 // switch instance to be used for jina
 pub fn switch(name string) {
 	jina_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

@@ -8,7 +8,7 @@ import os
 pub fn cmd_git(mut cmdroot Command) {
 	mut cmd_run := Command{
 		name:        'git'
-		description: 'Work with your repos, list, commit, pull, reload, ...'
+		description: 'Work with your repos, list, commit, pull, reload, ...\narg is url or path, or nothing if for all repos. \nCheck -f for filter. '
 		// required_args: 1
 		usage:         'sub commands of git are '
 		execute:       cmd_git_execute
@@ -61,7 +61,7 @@ pub fn cmd_git(mut cmdroot Command) {
 		sort_flags:  true
 		name:        'list'
 		execute:     cmd_git_execute
-		description: 'list all repos.'
+		description: 'list all repos.\nThe Argument is url or path, otherwise use -f filter.'
 	}
 
 	mut sourcetree_command := Command{
@@ -96,7 +96,6 @@ pub fn cmd_git(mut cmdroot Command) {
 	mut allcmdsref := [&list_command, &clone_command, &push_command, &pull_command, &commit_command,
 		&reload_command, &delete_command, &sourcetree_command, &editor_command]
 
-
 	for mut c in allcmdsref {
 		c.add_flag(Flag{
 			flag:        .bool
@@ -111,7 +110,15 @@ pub fn cmd_git(mut cmdroot Command) {
 			required:    false
 			name:        'load'
 			abbrev:      'l'
-			description: 'reload the data in cache.'
+			description: 'reload the data in cache for selected repos.'
+		})
+
+		c.add_flag(Flag{
+			flag:        .string
+			required:    false
+			name:        'filter'
+			abbrev:      'f'
+			description: 'filter the repos by name or path.'
 		})
 	}
 
@@ -129,13 +136,6 @@ pub fn cmd_git(mut cmdroot Command) {
 
 	mut urlcmds := [&clone_command, &pull_command, &push_command, &editor_command, &sourcetree_command]
 	for mut c in urlcmds {
-		c.add_flag(Flag{
-			flag:        .string
-			required:    false
-			name:        'url'
-			abbrev:      'u'
-			description: 'url for clone operation.'
-		})
 		c.add_flag(Flag{
 			flag:        .bool
 			required:    false
@@ -160,16 +160,6 @@ pub fn cmd_git(mut cmdroot Command) {
 			required:    false
 			name:        'recursive'
 			description: 'if we do a clone or a pull we also get the git submodules.'
-		})
-	}
-
-	for mut c in allcmdsref {
-		c.add_flag(Flag{
-			flag:        .string
-			required:    false
-			name:        'filter'
-			abbrev:      'f'
-			description: 'Filter is part of path of repo e.g. threefoldtech/info_'
 		})
 	}
 
@@ -208,15 +198,21 @@ fn cmd_git_execute(cmd Command) ! {
 		coderoot = os.environ()['CODEROOT']
 	}
 
-	mut gs := gittools.get()!
-	if coderoot.len > 0 {
-		// is a hack for now
-		gs = gittools.new(coderoot: coderoot)!
-	}
+	mut gs := gittools.new(coderoot: coderoot)!
 
 	// create the filter for doing group actions, or action on 1 repo
-	mut filter := cmd.flags.get_string('filter') or { '' }
+	mut filter := ''
+	mut url := ''
+	mut path := ''
 
+	if cmd.args.len > 0 {
+		arg1 := cmd.args[0]
+		if arg1.starts_with('git') || arg1.starts_with('http') {
+			url = arg1
+		} else {
+			path = arg1
+		}
+	}
 
 	if cmd.name in gittools.gitcmds.split(',') {
 		mut pull := cmd.flags.get_bool('pull') or { false }
@@ -228,7 +224,7 @@ fn cmd_git_execute(cmd Command) ! {
 		}
 
 		mypath := gs.do(
-			filter:    filter
+			filter:    cmd.flags.get_string('filter') or { '' }
 			reload:    reload
 			recursive: recursive
 			cmd:       cmd.name
@@ -236,7 +232,8 @@ fn cmd_git_execute(cmd Command) ! {
 			pull:      pull
 			reset:     reset
 			msg:       cmd.flags.get_string('message') or { '' }
-			url:       cmd.flags.get_string('url') or { '' }
+			url:       url
+			path:      path
 		)!
 		if cmd.name == 'cd' {
 			print('cd ${mypath}\n')

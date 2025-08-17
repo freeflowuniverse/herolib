@@ -1,4 +1,5 @@
 module site
+
 import os
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.core.texttools
@@ -73,7 +74,7 @@ fn play_import(mut plbook PlayBook, mut config SiteConfig) ! {
 
 		mut importpath := p.get_default('path', '')!
 		if importpath != '' {
-			if ! importpath.starts_with('/') {
+			if !importpath.starts_with('/') {
 				importpath = os.abs_path('${plbook.path}/${importpath}')
 			}
 		}
@@ -182,7 +183,7 @@ fn play_publish(mut plbook PlayBook, mut config SiteConfig) ! {
 	for mut action in build_dest_actions {
 		mut p := action.params
 		mut dest := BuildDest{
-			path:     p.get_default('path', '')! //can be url
+			path:     p.get_default('path', '')! // can be url
 			ssh_name: p.get_default('ssh_name', '')!
 		}
 		config.build_dest << dest
@@ -190,13 +191,12 @@ fn play_publish(mut plbook PlayBook, mut config SiteConfig) ! {
 	}
 }
 
-
 fn play_publish_dev(mut plbook PlayBook, mut config SiteConfig) ! {
 	mut build_dest_actions := plbook.find(filter: 'site.publish_dev')!
 	for mut action in build_dest_actions {
 		mut p := action.params
 		mut dest := BuildDest{
-			path:     p.get_default('path', '')! //can be url
+			path:     p.get_default('path', '')! // can be url
 			ssh_name: p.get_default('ssh_name', '')!
 		}
 		config.build_dest_dev << dest

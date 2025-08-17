@@ -2,6 +2,7 @@ module gittools
 
 import freeflowuniverse.herolib.ui.console
 import os
+import freeflowuniverse.herolib.core.pathlib
 
 @[params]
 pub struct GitCloneArgs {
@@ -23,7 +24,20 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 	// gitlocatin comes just from the url, not from fs of whats already there
 	git_location := gitstructure.gitlocation_from_url(args.url)!
 
-	mut repo := gitstructure.repo_new_from_gitlocation(git_location)!
+	// Initialize a new GitRepo instance
+	mut repo := GitRepo{
+		gs:           &gitstructure
+		provider:     git_location.provider
+		account:      git_location.account
+		name:         git_location.name
+		deploysshkey: args.sshkey // Use the sshkey from args
+		config:       GitRepoConfig{} // Initialize with default config
+		status:       GitStatus{}     // Initialize with default status
+	}
+
+	// Add the new repo to the gitstructure's repos map
+	key_ := repo.cache_key()
+	gitstructure.repos[key_] = &repo
 
 	mut repopath := repo.patho()!
 	if repopath.exists() {
@@ -57,12 +71,10 @@ pub fn (mut gitstructure GitStructure) clone(args GitCloneArgs) !&GitRepo {
 		return error('Cannot clone the repository due to: \n${result.output}')
 	}
 
-	repo.load()!
-	if repo.need_checkout() {
-		repo.checkout()!
-	}
+	// The repo is now cloned. Load its initial status.
+	repo.load_internal()!
 
 	console.print_green("The repository '${repo.name}' cloned into ${parent_dir}.")
 
-	return repo
+	return &repo // Return the initialized repo
 }

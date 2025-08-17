@@ -4,6 +4,10 @@ import freeflowuniverse.herolib.osal.sshagent
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 
 fn play_ssh(mut plbook PlayBook) ! {
+	if plbook.exists(filter: 'sshagent.') == false {
+		return
+	}
+
 	mut agent := sshagent.new()!
 	for mut action in plbook.find(filter: 'sshagent.*')! {
 		mut p := action.params

@@ -23,7 +23,7 @@ pub fn to_array_int(r string) []int {
 	return r2
 }
 
-//convert a:b ,c:d,e:f to dict with keys a,c,e and corresponding values b,d,f
+// convert a:b ,c:d,e:f to dict with keys a,c,e and corresponding values b,d,f
 pub fn to_map(mapstring string) map[string]string {
 	mut result := map[string]string{}
 	mut mapstring_array := to_array(mapstring)
@@ -31,7 +31,7 @@ pub fn to_map(mapstring string) map[string]string {
 		if item.contains(':') {
 			parts := item.split(':')
 			if parts.len == 2 {
-				result[parts[0].trim_space()] = parts[1].trim_space().trim("'\"").trim_space()
+				result[parts[0].trim_space()] = parts[1].trim_space().trim('\'"').trim_space()
 			} else {
 				panic('to_map: expected key:value pairs, got: ${item}')
 			}
@@ -40,7 +40,6 @@ pub fn to_map(mapstring string) map[string]string {
 		}
 	}
 	return result
-
 }
 
 // intelligent way how to map a line to a map

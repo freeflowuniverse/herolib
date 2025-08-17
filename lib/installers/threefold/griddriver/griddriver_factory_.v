@@ -2,8 +2,8 @@ module griddriver
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
+import json
 import freeflowuniverse.herolib.osal.startupmanager
-import freeflowuniverse.herolib.osal.zinit
 
 __global (
 	griddriver_global  map[string]&GridDriverInstaller
@@ -15,14 +15,25 @@ __global (
 @[params]
 pub struct ArgsGet {
 pub mut:
-	name string
+	name string = 'default'
 }
 
-pub fn get(args_ ArgsGet) !&GridDriverInstaller {
+pub fn new(args ArgsGet) !&GridDriverInstaller {
 	return &GridDriverInstaller{}
 }
 
+pub fn get(args ArgsGet) !&GridDriverInstaller {
+	return new(args)!
+}
+
 pub fn play(mut plbook PlayBook) ! {
+	if !plbook.exists(filter: 'griddriver.') {
+		return
+	}
+	mut install_actions := plbook.find(filter: 'griddriver.configure')!
+	if install_actions.len > 0 {
+		return error("can't configure griddriver, because no configuration allowed for this installer.")
+	}
 	mut other_actions := plbook.find(filter: 'griddriver.')!
 	for other_action in other_actions {
 		if other_action.name in ['destroy', 'install', 'build'] {
@@ -43,28 +54,6 @@ pub fn play(mut plbook PlayBook) ! {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////# LIVE CYCLE MANAGEMENT FOR INSTALLERS ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-fn startupmanager_get(cat zinit.StartupManagerType) !startupmanager.StartupManager {
-	// unknown
-	// screen
-	// zinit
-	// tmux
-	// systemd
-	match cat {
-		.zinit {
-			console.print_debug('startupmanager: zinit')
-			return startupmanager.get(cat: .zinit)!
-		}
-		.systemd {
-			console.print_debug('startupmanager: systemd')
-			return startupmanager.get(cat: .systemd)!
-		}
-		else {
-			console.print_debug('startupmanager: auto')
-			return startupmanager.get()!
-		}
-	}
-}
 
 @[params]
 pub struct InstallArgs {
@@ -91,12 +80,4 @@ pub fn (mut self GridDriverInstaller) destroy() ! {
 
 // switch instance to be used for griddriver
 pub fn switch(name string) {
-	griddriver_default = name
-}
-
-// helpers
-
-@[params]
-pub struct DefaultConfigArgs {
-	instance string = 'default'
 }

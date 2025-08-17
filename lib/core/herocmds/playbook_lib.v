@@ -125,7 +125,7 @@ pub fn plbook_code_get(cmd Command) !string {
 	pull := cmd.flags.get_bool('gitpull') or { false }
 	// interactive := !cmd.flags.get_bool('script') or { false }
 
-	mut gs := gittools.get(coderoot: coderoot)!
+	mut gs := gittools.new(coderoot: coderoot)!
 	if url.len > 0 {
 		mut repo := gs.get_repo(
 			pull:  pull

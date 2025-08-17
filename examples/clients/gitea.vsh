@@ -3,16 +3,26 @@
 import freeflowuniverse.herolib.core.playcmds
 import freeflowuniverse.herolib.clients.giteaclient
 
-// Configure PostgreSQL client
-// heroscript := "
-// !!giteaclient.configure
-// 	url: 'git.ourworld.tf'
-// 	user: 'despiegk'
-// 	secret: ''
-// "
+heroscript := "
+!!giteaclient.configure
+	name: 'default'
+	url: 'git.ourworld.tf'
+	user: 'despiegk'
+	secret: '1'
 
-// // Process the heroscript configuration
+!!giteaclient.configure
+	name: 'two'
+	url: 'git.ourworld.tf'
+	user: 'despiegk2'
+	secret: '2'
+
+"
+// Process the heroscript configuration
 // playcmds.play(heroscript: heroscript, emptycheck: false)!
+
+println(giteaclient.list(fromdb: true)!)
+
+//$dbg;
 
 // Get the configured client
 mut client := giteaclient.get()!
@@ -37,4 +47,3 @@ println('Found ${issues.len} issues.')
 for issue in issues {
 	println('  #${issue.number}: ${issue.title}')
 }
-

@@ -6,7 +6,7 @@ import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.installers.web.bun
 
-fn install( c DocusaurusConfig) ! {
+fn install(c DocusaurusConfig) ! {
 	mut gs := gittools.new()!
 
 	if c.reset {
@@ -22,7 +22,7 @@ fn install( c DocusaurusConfig) ! {
 
 	mut template_path0 := pathlib.get_dir(path: template_path, create: false)!
 
-	template_path0.copy(dest: c.path_build.path, delete: false)! //the dir has already been deleted so no point to delete again
+	template_path0.copy(dest: c.path_build.path, delete: false)! // the dir has already been deleted so no point to delete again
 
 	// install bun
 	mut installer := bun.get()!
@@ -36,5 +36,4 @@ fn install( c DocusaurusConfig) ! {
 			bun install
 		'
 	)!
-
 }

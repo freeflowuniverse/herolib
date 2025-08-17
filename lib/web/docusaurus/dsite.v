@@ -8,8 +8,8 @@ import freeflowuniverse.herolib.ui.console
 @[heap]
 pub struct DocSite {
 pub mut:
-	name         string
-	url          string
+	name string
+	url  string
 	// path_src     pathlib.Path
 	path_publish pathlib.Path
 	path_build   pathlib.Path
@@ -17,7 +17,7 @@ pub mut:
 	config       Configuration
 	website      sitemodule.Site
 	generated    bool
- }
+}
 
 pub fn (mut s DocSite) build() ! {
 	s.generate()!
@@ -51,20 +51,19 @@ pub fn (mut s DocSite) build_publish() ! {
 		retry: 0
 	)!
 	for item in s.website.siteconfig.build_dest {
-		if item.path.trim_space().trim("/ ") == "" {
-			$if debug{
+		if item.path.trim_space().trim('/ ') == '' {
+			$if debug {
 				print_backtrace()
 			}
-			return error("build destination path is empty for docusaurus.")
+			return error('build destination path is empty for docusaurus.')
 		}
 		osal.exec(
-			cmd:   '
+			cmd: '
 				cd ${s.path_build.path}
 				rsync -avz --delete -e "ssh -p 22  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" build/ ${item.path}
 				'
 		)!
 	}
-	
 }
 
 @[params]

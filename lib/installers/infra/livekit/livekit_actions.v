@@ -1,7 +1,7 @@
 module livekit
 
 import freeflowuniverse.herolib.osal.core as osal
-import freeflowuniverse.herolib.osal.zinit
+import freeflowuniverse.herolib.osal.startupmanager
 import freeflowuniverse.herolib.ui.console
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.ulist
@@ -45,10 +45,10 @@ fn generate_keys() ! {
 	obj.apisecret = api_secret
 }
 
-fn startupcmd() ![]zinit.ZProcessNewArgs {
-	mut res := []zinit.ZProcessNewArgs{}
+fn startupcmd() ![]startupmanager.ZProcessNewArgs {
+	mut res := []startupmanager.ZProcessNewArgs{}
 	mut installer := get()!
-	res << zinit.ZProcessNewArgs{
+	res << startupmanager.ZProcessNewArgs{
 		name:        'livekit'
 		cmd:         'livekit-server --config ${installer.configpath} --bind 0.0.0.0'
 		startuptype: .zinit

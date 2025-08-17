@@ -1,6 +1,6 @@
 module docusaurus
 
-//not longer working because is coming from doctree
+// not longer working because is coming from doctree
 
 // import freeflowuniverse.herolib.osal.notifier
 // import os
@@ -96,9 +96,6 @@ module docusaurus
 // 		}
 // 	}
 // }
-
-
-
 
 // pub fn (mut s DocSite) dev_watch(args DevArgs) ! {
 // 	s.generate()!
