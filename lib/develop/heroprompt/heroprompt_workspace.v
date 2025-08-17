@@ -5,16 +5,11 @@ import time
 import os
 import freeflowuniverse.herolib.core.pathlib
 
-@[params]
-struct NewWorkspaceParams {
-mut:
-	name string
-	path string
-}
 
+/
 /// Create a new workspace
 /// If the name is not passed, we will generate a random one
-fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace {
+fn (wsp Workspace) new(args_ NewWorkspaceParams) !&Workspace {
 	mut args := args_
 	if args.name.len == 0 {
 		args.name = generate_random_workspace_name()
@@ -30,7 +25,7 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 		}
 	}
 
-	mut workspace := &HeropromptWorkspace{
+	mut workspace := &Workspace{
 		name:      args.name
 		base_path: os.real_path(args.path)
 	}
@@ -62,7 +57,7 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 // }
 
 // // list returns the complete hierarchical structure of the workspace
-// pub fn (wsp HeropromptWorkspace) list() WorkspaceList {
+// pub fn (wsp Workspace) list() WorkspaceList {
 // 	mut result := WorkspaceList{
 // 		root_path: wsp.base_path
 // 	}
@@ -82,7 +77,7 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 // }
 
 // // build_workspace_tree recursively builds the workspace tree structure
-// fn (wsp HeropromptWorkspace) build_workspace_tree(path string, depth int) []WorkspaceItem {
+// fn (wsp Workspace) build_workspace_tree(path string, depth int) []WorkspaceItem {
 // 	mut items := []WorkspaceItem{}
 
 // 	entries := os.ls(path) or { return items }
@@ -147,7 +142,7 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 // }
 
 // // calculate_totals counts total files and directories in the workspace
-// fn (wsp HeropromptWorkspace) calculate_totals(items []WorkspaceItem, mut result WorkspaceList) {
+// fn (wsp Workspace) calculate_totals(items []WorkspaceItem, mut result WorkspaceList) {
 // 	for item in items {
 // 		if item.is_directory {
 // 			result.total_dirs++
@@ -159,7 +154,7 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 // }
 
 // // mark_selected_items marks which items are currently selected for prompts
-// fn (wsp HeropromptWorkspace) mark_selected_items(mut items []WorkspaceItem) {
+// fn (wsp Workspace) mark_selected_items(mut items []WorkspaceItem) {
 // 	for mut item in items {
 // 		// Check if this item is selected by comparing paths
 // 		item.is_selected = wsp.is_item_selected(item.path)
@@ -172,7 +167,7 @@ fn (wsp HeropromptWorkspace) new(args_ NewWorkspaceParams) !&HeropromptWorkspace
 // }
 
 // // is_item_selected checks if a specific path is selected in the workspace
-// fn (wsp HeropromptWorkspace) is_item_selected(path string) bool {
+// fn (wsp Workspace) is_item_selected(path string) bool {
 // 	dirs := wsp.children.filter(fn (item &HeropromptChild) bool {
 // 		return item.path.cat == .dir
 // 	})
@@ -212,7 +207,7 @@ pub mut:
 }
 
 // add a directory to the selection (no recursion stored; recursion is done on-demand)
-pub fn (mut wsp HeropromptWorkspace) add_dir(args AddDirParams) !HeropromptChild {
+pub fn (mut wsp Workspace) add_dir(args AddDirParams) !HeropromptChild {
 	if args.path.len == 0 {
 		return error('The dir path is required')
 	}
@@ -234,7 +229,7 @@ pub fn (mut wsp HeropromptWorkspace) add_dir(args AddDirParams) !HeropromptChild
 }
 
 // add a file to the selection
-pub fn (mut wsp HeropromptWorkspace) add_file(args AddFileParams) !HeropromptChild {
+pub fn (mut wsp Workspace) add_file(args AddFileParams) !HeropromptChild {
 	if args.path.len == 0 {
 		return error('The file path is required')
 	}
@@ -273,7 +268,7 @@ fn list_files_recursive(root string) []string {
 }
 
 // build_file_content generates formatted content for all selected files (and all files under selected dirs)
-fn (wsp HeropromptWorkspace) build_file_content() string {
+fn (wsp Workspace) build_file_content() string {
 	mut content := ''
 	// files selected directly
 	for ch in wsp.children {
@@ -382,12 +377,12 @@ pub mut:
 	file_contents     string
 }
 
-fn (wsp HeropromptWorkspace) build_user_instructions(text string) string {
+fn (wsp Workspace) build_user_instructions(text string) string {
 	return text
 }
 
 // build_file_map creates a complete file map with base path and metadata
-fn (wsp HeropromptWorkspace) build_file_map() string {
+fn (wsp Workspace) build_file_map() string {
 	mut file_map := ''
 	// roots are selected directories
 	mut roots := []HeropromptChild{}
@@ -452,12 +447,12 @@ fn (wsp HeropromptWorkspace) build_file_map() string {
 	return file_map
 }
 
-pub struct HeropromptWorkspacePrompt {
+pub struct WorkspacePrompt {
 pub mut:
 	text string
 }
 
-pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
+pub fn (wsp Workspace) prompt(args WorkspacePrompt) string {
 	user_instructions := wsp.build_user_instructions(args.text)
 	file_map := wsp.build_file_map()
 	file_contents := wsp.build_file_content()
@@ -471,7 +466,7 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 }
 
 // // is_path_in_selected_dirs recursively checks subdirectories for selected items
-// fn (wsp HeropromptWorkspace) is_path_in_selected_dirs(path string, dirs []&HeropromptChild) bool {
+// fn (wsp Workspace) is_path_in_selected_dirs(path string, dirs []&HeropromptChild) bool {
 // 	for dir in dirs {
 // 		if dir.path.cat != .dir {
 // 			continue
@@ -504,7 +499,7 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // 	select_all bool
 // }
 
-// pub fn (mut wsp HeropromptWorkspace) add_dir(args_ AddDirParams) !&HeropromptChild {
+// pub fn (mut wsp Workspace) add_dir(args_ AddDirParams) !&HeropromptChild {
 // 	if args_.path.len == 0 {
 // 		return error('The dir path is required')
 // 	}
@@ -542,13 +537,13 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // 	selected_files []SelectedFilesMetadata // Files in this directory
 // }
 
-// struct HeropromptWorkspaceGetSelected {
+// struct WorkspaceGetSelected {
 // pub mut:
 // 	dirs []SelectedDirsMetadata // All directories with their selected files
 // }
 
-// pub fn (wsp HeropromptWorkspace) get_selected() HeropromptWorkspaceGetSelected {
-// 	mut result := HeropromptWorkspaceGetSelected{}
+// pub fn (wsp Workspace) get_selected() WorkspaceGetSelected {
+// 	mut result := WorkspaceGetSelected{}
 // 	for dir in wsp.children.filter(fn (c &HeropromptChild) bool {
 // 		return c.path.cat == .dir
 // 	}) {
@@ -571,18 +566,18 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // 	return result
 // }
 
-// pub struct HeropromptWorkspacePrompt {
+// pub struct WorkspacePrompt {
 // pub mut:
 // 	text string
 // }
 
-// pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
+// pub fn (wsp Workspace) prompt(args WorkspacePrompt) string {
 // 	prompt := wsp.build_prompt(args.text)
 // 	return prompt
 // }
 
 // // Placeholder function for future needs, in case we need to highlight the user_instructions block with some addtional messages
-// fn (wsp HeropromptWorkspace) build_user_instructions(text string) string {
+// fn (wsp Workspace) build_user_instructions(text string) string {
 // 	return text
 // }
 
@@ -650,7 +645,7 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // }
 
 // // build_file_content generates formatted content for all selected files
-// fn (wsp HeropromptWorkspace) build_file_content() string {
+// fn (wsp Workspace) build_file_content() string {
 // 	mut content := ''
 
 // 	for dir in wsp.children.filter(fn (c &HeropromptChild) bool {
@@ -679,7 +674,7 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // }
 
 // // build_dir_file_content recursively processes subdirectories
-// fn (wsp HeropromptWorkspace) build_dir_file_content(dirs []&HeropromptChild) string {
+// fn (wsp Workspace) build_dir_file_content(dirs []&HeropromptChild) string {
 // 	mut content := ''
 // 	for dir in dirs {
 // 		if dir.path.cat != .dir {
@@ -719,7 +714,7 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // }
 
 // // build_prompt generates the final prompt with metadata and file tree
-// fn (wsp HeropromptWorkspace) build_prompt(text string) string {
+// fn (wsp Workspace) build_prompt(text string) string {
 // 	user_instructions := wsp.build_user_instructions(text)
 // 	file_map := wsp.build_file_map()
 // 	file_contents := wsp.build_file_content()
@@ -735,7 +730,7 @@ pub fn (wsp HeropromptWorkspace) prompt(args HeropromptWorkspacePrompt) string {
 // }
 
 // // build_file_map creates a complete file map with base path and metadata
-// fn (wsp HeropromptWorkspace) build_file_map() string {
+// fn (wsp Workspace) build_file_map() string {
 // 	mut file_map := ''
 // 	// Consider only top-level directories as roots
 // 	mut roots := wsp.children.filter(fn (c &HeropromptChild) bool {

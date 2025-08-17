@@ -8,15 +8,15 @@ import freeflowuniverse.herolib.core.pathlib
 // 	force: true
 // }
 
-// mut args2 := generator.GeneratorArgs{
-// 	path: '~/code/github/freeflowuniverse/herolib/lib/installers/lang/rust'
-// 	force: true
-// }	
-// generator.scan(args2)!
-
-mut args := generator.GeneratorArgs{
-	path:  '~/code/github/freeflowuniverse/herolib/lib/installers'
+mut args2 := generator.GeneratorArgs{
+	path: '~/code/github/freeflowuniverse/herolib/lib/develop/heroprompt'
 	force: true
-}
+}	
+generator.scan(args2)!
 
-generator.scan(args)!
+// mut args := generator.GeneratorArgs{
+// 	path:  '~/code/github/freeflowuniverse/herolib/lib/installers'
+// 	force: true
+// }
+
+// generator.scan(args)!

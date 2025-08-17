@@ -4,48 +4,8 @@ import freeflowuniverse.herolib.core.pathlib
 
 pub struct CodeWalker {
 pub mut:
-	gitignore_patterns []string
+	ignorematcher IgnoreMatcher
 	errors []CWError
-}
-
-fn (cw CodeWalker) default_gitignore() []string {
-	return [
-		'__pycache__/',
-		'*.py[cod]',
-		'*\$py.class',
-		'*.so',
-		'.Python',
-		'build/',
-		'develop-eggs/',
-		'dist/',
-		'downloads/',
-		'eggs/',
-		'.eggs/',
-		'lib/',
-		'lib64/',
-		'parts/',
-		'sdist/',
-		'var/',
-		'wheels/',
-		'*.egg-info/',
-		'.installed.cfg',
-		'*.egg',
-		'.env',
-		'.venv',
-		'venv/',
-		'.tox/',
-		'.nox/',
-		'.coverage',
-		'.coveragerc',
-		'coverage.xml',
-		'*.cover',
-		'*.gem',
-		'*.pyc',
-		'.cache',
-		'.pytest_cache/',
-		'.mypy_cache/',
-		'.hypothesis/',
-	]
 }
 
 
@@ -54,6 +14,7 @@ pub struct FileMapArgs{
 pub mut:
 	path string
 	content string
+	content_read bool = true //if we start from path, and this is on false then we don't read the content
 }
 
 pub fn (mut cw CodeWalker) filemap_get(args FileMapArgs) !FileMap {
@@ -66,12 +27,24 @@ pub fn (mut cw CodeWalker) filemap_get(args FileMapArgs) !FileMap {
 	}
 }
 
+//walk recursirve over the dir find all .gitignore and .heroignore
+fn (mut cw CodeWalker) ignore_walk(path string) !{
+
+	//TODO: pahtlib has the features to walk
+	self.ignorematcher.add(path, content)!
+
+}
+
+
+
 //get the filemap from a path
 fn (mut cw CodeWalker) filemap_get_from_path(path string) !FileMap {
 	mut dir := pathlib.get(path)
 	if !dir.exists() {
 		return error('Source directory "${path}" does not exist')
 	}
+
+	//make recursive ourselves, if we find a gitignore then we use it for the level we are on
 	
 	mut files := dir.list(recursive: true)!
 	mut fm := FileMap{
