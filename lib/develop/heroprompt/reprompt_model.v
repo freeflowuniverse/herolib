@@ -12,8 +12,8 @@ const default = true
 pub struct HeropromptWorkspace {
 pub mut:
 	name      string = 'default' // Workspace name
-	base_path string           // Base path of the workspace
-	dirs      []&HeropromptDir // List of directories in this workspace
+	base_path string            // Base path of the workspace
+	children  []HeropromptChild // List of directories and files in this workspace
 }
 
 @[params]

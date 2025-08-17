@@ -1,10 +1,9 @@
 module heroprompt
 
-// import freeflowuniverse.herolib.data.paramsparser
 import freeflowuniverse.herolib.core.pathlib
 import os
 
-pub struct HeropromptFile {
+pub struct HeropromptChild {
 pub mut:
 	content string
 	path    pathlib.Path
@@ -33,44 +32,34 @@ pub fn get_file_extension(filename string) string {
 		'procfile':     'procfile'
 		'vagrantfile':  'vagrantfile'
 	}
-
-	// Convert to lowercase for comparison
 	lower_filename := filename.to_lower()
-
-	// Check if it's a special file without extension
 	if lower_filename in special_files {
 		return special_files[lower_filename]
 	}
-
-	// Handle dotfiles (files starting with .)
 	if filename.starts_with('.') && !filename.starts_with('..') {
-		// For files like .gitignore, .bashrc, etc.
 		if filename.contains('.') && filename.len > 1 {
 			parts := filename[1..].split('.')
 			if parts.len >= 2 {
 				return parts[parts.len - 1]
 			} else {
-				// Files like .gitignore, .bashrc (treat the whole name as extension type)
 				return filename[1..]
 			}
 		} else {
-			// Single dot files
 			return filename[1..]
 		}
 	}
-
-	// Regular files with extensions
 	parts := filename.split('.')
 	if parts.len < 2 {
-		// Files with no extension - return empty string
 		return ''
 	}
-
 	return parts[parts.len - 1]
 }
 
 // Read the file content
-pub fn (fl HeropromptFile) read() !string {
-	content := os.read_file(fl.path.path)!
+pub fn (chl HeropromptChild) read() !string {
+	if chl.path.cat != .file {
+		return error('cannot read content of a directory')
+	}
+	content := os.read_file(chl.path.path)!
 	return content
 }
