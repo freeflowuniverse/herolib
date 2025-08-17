@@ -1,88 +1,118 @@
 module codewalker
 
+// A minimal gitignore-like matcher used by CodeWalker
+// Supports:
+// - Directory patterns ending with '/': ignores any path that has this segment prefix
+// - Extension patterns like '*.pyc' or '*.<ext>'
+// - Simple substrings and '*' wildcards
+// - Lines starting with '#' are comments; empty lines ignored
+// No negation support for simplicity
 
-const default_gitignore := '
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-.env
-.venv
-venv/
-.tox/
-.nox/
-.coverage
-.coveragerc
-coverage.xml
-*.cover
-*.gem
-*.pyc
-.cache
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
-'
+const default_gitignore = '__pycache__/\n*.py[cod]\n*.so\n.Python\nbuild/\ndevelop-eggs/\ndownloads/\neggs/\n.eggs/\nlib/\nlib64/\nparts/\nsdist/\nvar/\nwheels/\n*.egg-info/\n.installed.cfg\n*.egg\n.env\n.venv\nvenv/\n.tox/\n.nox/\n.coverage\n.coveragerc\ncoverage.xml\n*.cover\n*.gem\n*.pyc\n.cache\n.pytest_cache/\n.mypy_cache/\n.hypothesis/\n'
 
-//responsible to help us to find if a file matches or not
+struct IgnoreRule {
+	base    string // relative dir from source root where the ignore file lives ('' means global)
+	pattern string
+}
+
 pub struct IgnoreMatcher {
 pub mut:
-	items map[string]Ignore //the key is the path where the gitignore plays
+	rules []IgnoreRule
 }
 
-pub struct Ignore {
-pub mut:
-	patterns map[string]string
+pub fn gitignore_matcher_new() IgnoreMatcher {
+	mut m := IgnoreMatcher{}
+	m.add_content(default_gitignore)
+	return m
 }
 
+// Add raw .gitignore-style content as global (root-scoped) rules
+pub fn (mut m IgnoreMatcher) add_content(content string) {
+	m.add_content_with_base('', content)
+}
 
-pub fn (mut self Ignore) add(content string) ! {
-	for line in content.split_into_lines() {
-		line = line.trim_space()
-		if line.len == 0 {
+// Add raw .gitignore/.heroignore-style content scoped to base_rel
+pub fn (mut m IgnoreMatcher) add_content_with_base(base_rel string, content string) {
+	mut base := base_rel.replace('\\', '/').trim('/').to_lower()
+	for raw_line in content.split_into_lines() {
+		mut line := raw_line.trim_space()
+		if line.len == 0 || line.starts_with('#') {
 			continue
 		}
-		self.patterns[line] = line
+		m.rules << IgnoreRule{
+			base:    base
+			pattern: line
+		}
 	}
 }
 
-pub fn (mut self Ignore) check(path string) !bool {
-	return false //TODO
-}
+// Very simple glob/substring-based matching with directory scoping
+pub fn (m IgnoreMatcher) is_ignored(relpath string) bool {
+	mut path := relpath.replace('\\', '/').trim_left('/')
+	path_low := path.to_lower()
+	for rule in m.rules {
+		mut pat := rule.pattern.replace('\\', '/').trim_space()
+		if pat == '' {
+			continue
+		}
 
+		// Determine subpath relative to base
+		mut sub := path_low
+		if rule.base != '' {
+			base := rule.base
+			if sub == base {
+				// path equals the base dir; ignore rules apply to entries under base, not the base itself
+				continue
+			}
+			if sub.starts_with(base + '/') {
+				sub = sub[(base.len + 1)..]
+			} else {
+				continue // rule not applicable for this path
+			}
+		}
 
-
-pub fn gitignore_matcher_new() !IgnoreMatcher {
-	mut matcher := IgnoreMatcher{}
-	gitignore.add(default_gitignore)!
-	matcher.patterns['.gitignore'] = gitignore
-	return matcher
-
-}
-
-//add content to path of gitignore
-pub fn (mut self IgnoreMatcher) add(path string, content string) ! {
-	self.items[path] = Ignore{}
-	self.items[path].add(content)!
-}
-
-
-
-pub fn (mut self IgnoreMatcher) check(path string) !bool {
-	return false //TODO here figure out which gitignores apply to the given path and check them all
+		// Directory pattern (relative to base)
+		if pat.ends_with('/') {
+			mut dirpat := pat.trim_right('/')
+			dirpat = dirpat.trim_left('/').to_lower()
+			if sub == dirpat || sub.starts_with(dirpat + '/') || sub.contains('/' + dirpat + '/') {
+				return true
+			}
+			continue
+		}
+		// Extension pattern *.ext
+		if pat.starts_with('*.') {
+			ext := pat.all_after_last('.').to_lower()
+			if sub.ends_with('.' + ext) {
+				return true
+			}
+			continue
+		}
+		// Simple wildcard * anywhere -> sequential contains match
+		if pat.contains('*') {
+			mut parts := pat.to_lower().split('*')
+			mut idx := 0
+			mut ok := true
+			for part in parts {
+				if part == '' {
+					continue
+				}
+				pos := sub.index_after(part, idx) or { -1 }
+				if pos == -1 {
+					ok = false
+					break
+				}
+				idx = pos + part.len
+			}
+			if ok {
+				return true
+			}
+			continue
+		}
+		// Fallback: substring match (case-insensitive) on subpath
+		if sub.contains(pat.to_lower()) {
+			return true
+		}
+	}
+	return false
 }
