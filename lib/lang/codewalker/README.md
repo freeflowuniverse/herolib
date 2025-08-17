@@ -29,6 +29,8 @@ cw.filemap.export('/tmp/exported_files')!
 
 ### format of filemap 
 
+## full files
+
 ```
 
 text before will be ignored
@@ -42,3 +44,21 @@ code
 text behind will be ignored
 
 ```
+
+## files with changes
+
+```
+
+text before will be ignored
+
+===FILECHANGE:filename===
+code
+===FILECHANGE:filename===
+code
+===END===
+
+text behind will be ignored
+
+```
+
+FILECHANGE and FILE can be mixed, in FILE it means we have full content otherwise only changed content e.g. a method or s struct and then we need to use morph to change it

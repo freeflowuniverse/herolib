@@ -4,9 +4,8 @@ import freeflowuniverse.herolib.core.pathlib
 
 pub struct CodeWalker {
 pub mut:
-	source           string
 	gitignore_patterns []string
-	errors []Error
+	errors []CWError
 }
 
 fn (cw CodeWalker) default_gitignore() []string {
@@ -49,24 +48,40 @@ fn (cw CodeWalker) default_gitignore() []string {
 	]
 }
 
-pub fn (mut cw CodeWalker) walk() !FileMap {
-	if cw.source == '' {
-		return error('Source path is not set')
+
+@[params]
+pub struct FileMapArgs{
+pub mut:
+	path string
+	content string
+}
+
+pub fn (mut cw CodeWalker) filemap_get(args FileMapArgs) !FileMap {
+	if args.path != '' {
+		return cw.filemap_get_from_path(args.path)!
+	} else if args.content != '' {
+		return cw.filemap_get_from_content(args.content)!
+	} else {
+		return error('Either path or content must be provided to get FileMap')
 	}
-	mut dir := pathlib.get(cw.source)
+}
+
+//get the filemap from a path
+fn (mut cw CodeWalker) filemap_get_from_path(path string) !FileMap {
+	mut dir := pathlib.get(path)
 	if !dir.exists() {
-		return error('Source directory "${cw.source}" does not exist')
+		return error('Source directory "${path}" does not exist')
 	}
 	
 	mut files := dir.list(recursive: true)!
 	mut fm := FileMap{
-		source: cw.source
+		source: path
 	}
 
 	for mut file in files.paths {
 		if file.is_file() {
 			// Check if file should be ignored
-			relpath := file.path_relative(cw.source)!
+			relpath := file.path_relative(path)!
 			mut should_ignore := false
 			
 			for pattern in cw.gitignore_patterns {
@@ -85,8 +100,8 @@ pub fn (mut cw CodeWalker) walk() !FileMap {
 	return fm
 }
 
-pub fn (mut cw CodeWalker) error(msg string,linenr int,category string, fail bool) ! {
-	cw.errors << Error{
+fn (mut cw CodeWalker) error(msg string,linenr int,category string, fail bool) ! {
+	cw.errors << CWError{
 		message: msg
 		linenr: linenr
 		category: category
@@ -100,7 +115,8 @@ pub fn (mut cw CodeWalker) error(msg string,linenr int,category string, fail boo
 	}
 }
 
-fn (mut cw CodeWalker) filename_get(line string,linenr int) !string {
+//internal function to get the filename
+fn (mut cw CodeWalker) parse_filename_get(line string,linenr int) !string {
 	parts := line.split('===')
 	if parts.len < 2 {
 		cw.error("Invalid filename line: ${line}.",linenr, "filename_get", true)!
@@ -117,10 +133,9 @@ enum ParseState {
 	in_block
 }
 
-pub fn (mut cw CodeWalker) parse(content string) !FileMap {
-	mut fm := FileMap{
-		source: cw.source
-	}
+//get file, is the parser
+fn (mut cw CodeWalker) filemap_get_from_content(content string) !FileMap {
+	mut fm := FileMap{}
 
 	mut filename := ""
 	mut block := []string{}
@@ -133,8 +148,8 @@ pub fn (mut cw CodeWalker) parse(content string) !FileMap {
 		
 		match state {
 			.start {
-				if line2.starts_with('===') && !line2.ends_with('===') {
-					filename = cw.filename_get(line2, linenr)!
+				if line2.starts_with('===FILE') && !line2.ends_with('===') {
+					filename = cw.parse_filename_get(line2, linenr)!
 					if filename == "END" {
 						cw.error("END found at start, not good.", linenr, "parse", true)!
 						return error("END found at start, not good.")
@@ -145,7 +160,7 @@ pub fn (mut cw CodeWalker) parse(content string) !FileMap {
 				}
 			}
 			.in_block {
-				if line2.starts_with('===') {
+				if line2.starts_with('===FILE') {
 					if line2 == '===END===' {
 						fm.content[filename] = block.join_lines()
 						filename = ""
@@ -153,7 +168,7 @@ pub fn (mut cw CodeWalker) parse(content string) !FileMap {
 						state = .start
 					} else if line2.ends_with('===') {
 						fm.content[filename] = block.join_lines()
-						filename = cw.filename_get(line2, linenr)!
+						filename = cw.parse_filename_get(line2, linenr)!
 						if filename == "END" {
 							cw.error("Filename 'END' is reserved.", linenr, "parse", true)!
 							return error("Filename 'END' is reserved.")
