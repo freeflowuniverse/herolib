@@ -29,6 +29,7 @@ fn obj_init(mycfg_ Workspace) !Workspace {
 
 pub fn heroscript_loads(heroscript string) !Workspace {
 	// TODO: go from heroscript to object
+	//load playbook, and manually get the params out of the actions & fill in the object
 	$dbg;
 	return obj
 }
