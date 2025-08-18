@@ -4,32 +4,14 @@ import rand
 import time
 import os
 import freeflowuniverse.herolib.core.pathlib
+import freeflowuniverse.herolib.develop.codewalker
 
-
-/
-/// Create a new workspace
-/// If the name is not passed, we will generate a random one
-fn (wsp Workspace) new(args_ NewWorkspaceParams) !&Workspace {
-	mut args := args_
-	if args.name.len == 0 {
-		args.name = generate_random_workspace_name()
-	}
-
-	// Validate and set base path
-	if args.path.len > 0 {
-		if !os.exists(args.path) {
-			return error('Workspace path does not exist: ${args.path}')
-		}
-		if !os.is_dir(args.path) {
-			return error('Workspace path is not a directory: ${args.path}')
-		}
-	}
-
-	mut workspace := &Workspace{
-		name:      args.name
-		base_path: os.real_path(args.path)
-	}
-	return workspace
+fn (wsp &Workspace) save() !&Workspace {
+	mut tmp := wsp
+	tmp.updated = time.now()
+	tmp.is_saved = true
+	set(tmp)!
+	return get(name: wsp.name)!
 }
 
 // // WorkspaceItem represents a file or directory in the workspace tree
@@ -209,13 +191,22 @@ pub mut:
 // add a directory to the selection (no recursion stored; recursion is done on-demand)
 pub fn (mut wsp Workspace) add_dir(args AddDirParams) !HeropromptChild {
 	if args.path.len == 0 {
-		return error('The dir path is required')
+		return error('the directory path is required')
 	}
+
 	if !os.exists(args.path) || !os.is_dir(args.path) {
-		return error('Path is not an existing directory: ${args.path}')
+		return error('path is not an existing directory: ${args.path}')
 	}
+
 	abs_path := os.real_path(args.path)
 	name := os.base(abs_path)
+
+	for child in wsp.children {
+		if child.name == name {
+			return error('another directory with the same name already exists: ${name}')
+		}
+	}
+
 	mut ch := HeropromptChild{
 		path: pathlib.Path{
 			path:  abs_path
@@ -225,6 +216,7 @@ pub fn (mut wsp Workspace) add_dir(args AddDirParams) !HeropromptChild {
 		name: name
 	}
 	wsp.children << ch
+	wsp.save()!
 	return ch
 }
 
@@ -233,11 +225,24 @@ pub fn (mut wsp Workspace) add_file(args AddFileParams) !HeropromptChild {
 	if args.path.len == 0 {
 		return error('The file path is required')
 	}
+
 	if !os.exists(args.path) || !os.is_file(args.path) {
 		return error('Path is not an existing file: ${args.path}')
 	}
+
 	abs_path := os.real_path(args.path)
 	name := os.base(abs_path)
+
+	for child in wsp.children {
+		if child.path.cat == .file && child.name == name {
+			return error('another file with the same name already exists: ${name}')
+		}
+
+		if child.path.cat == .dir && child.name == name {
+			return error('${name}: is a directory, cannot add file with same name')
+		}
+	}
+
 	content := os.read_file(abs_path) or { '' }
 	mut ch := HeropromptChild{
 		path:    pathlib.Path{
@@ -248,8 +253,94 @@ pub fn (mut wsp Workspace) add_file(args AddFileParams) !HeropromptChild {
 		name:    name
 		content: content
 	}
+
 	wsp.children << ch
+	wsp.save()!
 	return ch
+}
+
+// Removal API
+@[params]
+pub struct RemoveParams {
+pub mut:
+	path string
+	name string
+}
+
+// Remove a directory from the selection (by absolute path or name)
+pub fn (mut wsp Workspace) remove_dir(args RemoveParams) ! {
+	if args.path.len == 0 && args.name.len == 0 {
+		return error('either path or name is required to remove a directory')
+	}
+	mut idxs := []int{}
+	for i, ch in wsp.children {
+		if ch.path.cat != .dir {
+			continue
+		}
+		if args.path.len > 0 && os.real_path(args.path) == ch.path.path {
+			idxs << i
+			continue
+		}
+		if args.name.len > 0 && args.name == ch.name {
+			idxs << i
+		}
+	}
+	if idxs.len == 0 {
+		return error('no matching directory found to remove')
+	}
+	// remove from end to start to keep indices valid
+	idxs.sort(a > b)
+	for i in idxs {
+		wsp.children.delete(i)
+	}
+	wsp.save()!
+}
+
+// Remove a file from the selection (by absolute path or name)
+pub fn (mut wsp Workspace) remove_file(args RemoveParams) ! {
+	if args.path.len == 0 && args.name.len == 0 {
+		return error('either path or name is required to remove a file')
+	}
+	mut idxs := []int{}
+	for i, ch in wsp.children {
+		if ch.path.cat != .file {
+			continue
+		}
+		if args.path.len > 0 && os.real_path(args.path) == ch.path.path {
+			idxs << i
+			continue
+		}
+		if args.name.len > 0 && args.name == ch.name {
+			idxs << i
+		}
+	}
+	if idxs.len == 0 {
+		return error('no matching file found to remove')
+	}
+	idxs.sort(a > b)
+	for i in idxs {
+		wsp.children.delete(i)
+	}
+	wsp.save()!
+}
+
+// Delete this workspace from the store
+pub fn (wsp &Workspace) delete_workspace() ! {
+	delete(name: wsp.name)!
+}
+
+// List workspaces (wrapper over factory list)
+pub fn list_workspaces() ![]&Workspace {
+	return list(fromdb: false)!
+}
+
+pub fn list_workspaces_fromdb() ![]&Workspace {
+	return list(fromdb: true)!
+}
+
+// Get the currently selected children (copy)
+pub fn (wsp Workspace) selected_children() []HeropromptChild {
+	return wsp.children.clone()
 }
 
 // Build utilities
@@ -268,7 +359,7 @@ fn list_files_recursive(root string) []string {
 }
 
 // build_file_content generates formatted content for all selected files (and all files under selected dirs)
-fn (wsp Workspace) build_file_content() string {
+fn (wsp Workspace) build_file_content() !string {
 	mut content := ''
 	// files selected directly
 	for ch in wsp.children {
@@ -291,16 +382,18 @@ fn (wsp Workspace) build_file_content() string {
 			}
 		}
 	}
-	// files under selected directories
+	// files under selected directories, using CodeWalker for filtered traversal
 	for ch in wsp.children {
 		if ch.path.cat == .dir {
-			for f in list_files_recursive(ch.path.path) {
+			mut cw := codewalker.new(codewalker.CodeWalkerArgs{})!
+			mut fm := cw.filemap_get(path: ch.path.path)!
+			for rel, fc in fm.content {
 				if content.len > 0 {
 					content += '\n\n'
 				}
-				content += f + '\n'
-				ext := get_file_extension(os.base(f))
-				fc := os.read_file(f) or { '' }
+				abs := os.join_path(ch.path.path, rel)
+				content += abs + '\n'
+				ext := get_file_extension(os.base(abs))
 				if fc.len == 0 {
 					content += '(Empty file)\n'
 				} else {
@@ -339,7 +432,7 @@ fn build_file_tree_fs(roots []HeropromptChild, prefix string) string {
 		files.sort()
 		// files
 		for j, f in files {
-			file_connector := if (j == files.len - 1 && dirs.len == 0) {
+			file_connector := if j == files.len - 1 && dirs.len == 0 {
 				'└── '
 			} else {
 				'├── '
@@ -455,7 +548,7 @@ pub mut:
 pub fn (wsp Workspace) prompt(args WorkspacePrompt) string {
 	user_instructions := wsp.build_user_instructions(args.text)
 	file_map := wsp.build_file_map()
-	file_contents := wsp.build_file_content()
+	file_contents := wsp.build_file_content() or { '(Error building file contents)' }
 	prompt := HeropromptTmpPrompt{
 		user_instructions: user_instructions
 		file_map:          file_map
