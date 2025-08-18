@@ -5,7 +5,7 @@ import freeflowuniverse.herolib.installers.base
 // import freeflowuniverse.herolib.installers.develapps.chrome
 // import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 // import freeflowuniverse.herolib.installers.virt.buildah as buildah_installer
-import freeflowuniverse.herolib.installers.virt.lima
+// import freeflowuniverse.herolib.installers.virt.lima
 // import freeflowuniverse.herolib.installers.net.mycelium
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.installers.lang.rust
@@ -15,7 +15,7 @@ import freeflowuniverse.herolib.installers.lang.herolib
 import freeflowuniverse.herolib.installers.lang.nodejs
 import freeflowuniverse.herolib.installers.lang.python
 // import freeflowuniverse.herolib.installers.web.zola
-import freeflowuniverse.herolib.installers.web.tailwind
+// import freeflowuniverse.herolib.installers.web.tailwind
 // import freeflowuniverse.herolib.installers.hero.heroweb
 // import freeflowuniverse.herolib.installers.hero.herodev
 // import freeflowuniverse.herolib.installers.sysadmintools.daguserver
@@ -112,10 +112,10 @@ pub fn install_multi(args_ InstallArgs) ! {
 			// 'hero' {
 			// 	herolib.hero_install(reset: args.reset)!
 			// }
-			'caddy' {
+			// 'caddy' {
 				// caddy.install(reset: args.reset)!
 				// caddy.configure_examples()!
-			}
+			// }
 			// 'chrome' {
 			// 	chrome.install(reset: args.reset, uninstall: args.uninstall)!
 			// }
@@ -149,9 +149,9 @@ pub fn install_multi(args_ InstallArgs) ! {
 			// 'grafana' {
 			// 	grafana.install(reset: args.reset)!
 			// }
-			'vscode' {
-				vscode.install(reset: args.reset)!
-			}
+			// 'vscode' {
+			// 	vscode.install(reset: args.reset)!
+			// }
 			'nodejs' {
 				mut i := nodejs.get()!
 				i.install(reset: args.reset)!
@@ -177,10 +177,10 @@ pub fn install_multi(args_ InstallArgs) ! {
 			// 	mut i2 := zola.get()!
 			// 	i2.install()! // will also install tailwind
 			// }
-			'tailwind' {
-				mut i := tailwind.get()!
-				i.install()!
-			}
+			// 'tailwind' {
+			// 	mut i := tailwind.get()!
+			// 	i.install()!
+			// }
 			'zinit' {
 				mut i := zinit_installer.get()!
 				i.install()!
