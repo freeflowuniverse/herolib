@@ -4,6 +4,7 @@ import veb
 import os
 import net.http
 
+
 // Public Context type for veb
 pub struct Context {
 	veb.Context
@@ -38,41 +39,6 @@ pub mut:
 	port  int
 }
 
-// Global registry (multi-instance support by name)
-__global (
-	uireg map[string]&App
-)
-
-// Create a new app (does not start the server)
-pub fn new(args FactoryArgs) !&App {
-	name := if args.name.len == 0 { 'default' } else { args.name }
-	if app := uireg[name] {
-		return app
-	}
-	mut app := &App{
-		title: args.title
-		menu:  if args.menu.len > 0 { args.menu } else { default_menu() }
-		port:  args.port
-	}
-	uireg[name] = app
-	return app
-}
-
-// Get a named app
-pub fn get(name string) !&App {
-	mut app := uireg[name] or {
-		return error('ui: app "${name}" not found, call ui.new(...) first')
-	}
-	return app
-}
-
-// Get default app (creates if not existing)
-pub fn default() !&App {
-	if uireg.len == 0 {
-		return new(port: 8080)!
-	}
-	return get('default')!
-}
 
 // Start the webserver (blocking)
 pub fn start(args FactoryArgs) ! {

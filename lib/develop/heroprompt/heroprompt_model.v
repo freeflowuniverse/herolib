@@ -28,6 +28,7 @@ fn obj_init(mycfg_ Workspace) !Workspace {
 /////////////NORMALLY NO NEED TO TOUCH
 
 pub fn heroscript_loads(heroscript string) !Workspace {
-	mut obj := encoderhero.decode[Workspace](heroscript)!
+	// TODO: go from heroscript to object
+	$dbg;
 	return obj
 }

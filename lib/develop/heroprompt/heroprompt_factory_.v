@@ -4,8 +4,6 @@ import freeflowuniverse.herolib.core.base
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 import freeflowuniverse.herolib.ui.console
 import json
-import os
-import time
 
 __global (
 	heroprompt_global  map[string]&Workspace
@@ -18,32 +16,13 @@ __global (
 pub struct ArgsGet {
 pub mut:
 	name   string = 'default'
-	path   string
 	fromdb bool // will load from filesystem
 	create bool // default will not create if not exist
 }
 
 pub fn new(args ArgsGet) !&Workspace {
-	// validate
-	if args.name.len == 0 {
-		return error('workspace name is required')
-	}
-	mut base_path := ''
-	if args.path.len > 0 {
-		if !os.exists(args.path) {
-			return error('workspace path does not exist: ${args.path}')
-		}
-		if !os.is_dir(args.path) {
-			return error('workspace path is not a directory: ${args.path}')
-		}
-		base_path = os.real_path(args.path)
-	}
 	mut obj := Workspace{
-		name:      args.name
-		base_path: base_path
-		created:   time.now()
-		updated:   time.now()
-		is_saved:  false
+		name: args.name
 	}
 	set(obj)!
 	return get(name: args.name)!
@@ -57,7 +36,7 @@ pub fn get(args ArgsGet) !&Workspace {
 		if r.hexists('context:heroprompt', args.name)! {
 			data := r.hget('context:heroprompt', args.name)!
 			if data.len == 0 {
-				return error('Workspace with name: ${args.name} does not exist, prob bug.')
+				return error('Workspace with name: heroprompt does not exist, prob bug.')
 			}
 			mut obj := json.decode(Workspace, data)!
 			set_in_mem(obj)!
@@ -65,7 +44,7 @@ pub fn get(args ArgsGet) !&Workspace {
 			if args.create {
 				new(args)!
 			} else {
-				return error("Workspace with name '${args.name}' does not exist")
+				return error("Workspace with name 'heroprompt' does not exist")
 			}
 		}
 		return get(name: args.name)! // no longer from db nor create
