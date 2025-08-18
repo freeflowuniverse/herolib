@@ -5,21 +5,25 @@ import freeflowuniverse.herolib.core.pathlib
 pub struct CodeWalker {
 pub mut:
 	ignorematcher IgnoreMatcher
-	errors []CWError
+	errors        []CWError
 }
 
-
 @[params]
-pub struct FileMapArgs{
+pub struct FileMapArgs {
 pub mut:
-	path string
-	content string
-	content_read bool = true //if we start from path, and this is on false then we don't read the content
+	path         string
+	content      string
+	content_read bool = true // if we start from path, and this is on false then we don't read the content
+}
+
+// Public factory to parse the filemap-text format directly
+pub fn (mut cw CodeWalker) parse(content string) !FileMap {
+	return cw.filemap_get_from_content(content)
 }
 
 pub fn (mut cw CodeWalker) filemap_get(args FileMapArgs) !FileMap {
 	if args.path != '' {
-		return cw.filemap_get_from_path(args.path)!
+		return cw.filemap_get_from_path(args.path, args.content_read)!
 	} else if args.content != '' {
 		return cw.filemap_get_from_content(args.content)!
 	} else {
@@ -27,76 +31,109 @@ pub fn (mut cw CodeWalker) filemap_get(args FileMapArgs) !FileMap {
 	}
 }
 
-//walk recursirve over the dir find all .gitignore and .heroignore
-fn (mut cw CodeWalker) ignore_walk(path string) !{
-
-	//TODO: pahtlib has the features to walk
-	self.ignorematcher.add(path, content)!
-
-}
-
-
-
-//get the filemap from a path
-fn (mut cw CodeWalker) filemap_get_from_path(path string) !FileMap {
+// get the filemap from a path
+fn (mut cw CodeWalker) filemap_get_from_path(path string, content_read bool) !FileMap {
 	mut dir := pathlib.get(path)
-	if !dir.exists() {
+	if !dir.exists() || !dir.is_dir() {
 		return error('Source directory "${path}" does not exist')
 	}
 
-	//make recursive ourselves, if we find a gitignore then we use it for the level we are on
-	
-	mut files := dir.list(recursive: true)!
+	mut files := dir.list(ignoredefault: false)!
 	mut fm := FileMap{
 		source: path
 	}
 
-	for mut file in files.paths {
-		if file.is_file() {
-			// Check if file should be ignored
-			relpath := file.path_relative(path)!
-			mut should_ignore := false
-			
-			for pattern in cw.gitignore_patterns {
-				if relpath.contains(pattern.trim_right('/')) ||
-				   (pattern.ends_with('/') && relpath.starts_with(pattern)) {
-					should_ignore = true
-					break
+	// collect ignore patterns from .gitignore and .heroignore files (recursively),
+	// and scope them to the directory where they were found
+	for mut p in files.paths {
+		if p.is_file() {
+			name := p.name()
+			if name == '.gitignore' || name == '.heroignore' {
+				content := p.read() or { '' }
+				if content != '' {
+					rel := p.path_relative(path) or { '' }
+					base_rel := if rel.contains('/') { rel.all_before_last('/') } else { '' }
+					cw.ignorematcher.add_content_with_base(base_rel, content)
 				}
 			}
-			if !should_ignore {
+		}
+	}
+
+	for mut file in files.paths {
+		if file.is_file() {
+			name := file.name()
+			if name == '.gitignore' || name == '.heroignore' {
+				continue
+			}
+			relpath := file.path_relative(path)!
+			if cw.ignorematcher.is_ignored(relpath) {
+				continue
+			}
+			if content_read {
 				content := file.read()!
 				fm.content[relpath] = content
+			} else {
+				fm.content[relpath] = ''
 			}
 		}
 	}
 	return fm
 }
 
-fn (mut cw CodeWalker) error(msg string,linenr int,category string, fail bool) ! {
+// Parse a header line and return (kind, filename)
+// kind: 'FILE' | 'FILECHANGE' | 'LEGACY' | 'END'
+fn (mut cw CodeWalker) parse_header(line string, linenr int) !(string, string) {
+	if line == '===END===' {
+		return 'END', ''
+	}
+	if line.starts_with('===FILE:') && line.ends_with('===') {
+		name := line.trim_left('=').trim_right('=').all_after(':').trim_space()
+		if name.len < 1 {
+			cw.error('Invalid filename, < 1 chars.', linenr, 'filename_get', true)!
+		}
+		return 'FILE', name
+	}
+	if line.starts_with('===FILECHANGE:') && line.ends_with('===') {
+		name := line.trim_left('=').trim_right('=').all_after(':').trim_space()
+		if name.len < 1 {
+			cw.error('Invalid filename, < 1 chars.', linenr, 'filename_get', true)!
+		}
+		return 'FILECHANGE', name
+	}
+	// Legacy header: ===filename===
+	if line.starts_with('===') && line.ends_with('===') {
+		name := line.trim('=').trim_space()
+		if name == 'END' {
+			return 'END', ''
+		}
+		if name.len < 1 {
+			cw.error('Invalid filename, < 1 chars.', linenr, 'filename_get', true)!
+		}
+		return 'LEGACY', name
+	}
+	return '', ''
+}
+
+fn (mut cw CodeWalker) error(msg string, linenr int, category string, fail bool) ! {
 	cw.errors << CWError{
-		message: msg
-		linenr: linenr
+		message:  msg
+		linenr:   linenr
 		category: category
 	}
 	if fail {
-		mut errormsg:= ""
-		for e in cw.errors {
-			errormsg += "${e.message} (line ${e.linenr}, category: ${e.category})\n"
-		}
 		return error(msg)
 	}
 }
 
-//internal function to get the filename
-fn (mut cw CodeWalker) parse_filename_get(line string,linenr int) !string {
+// internal function to get the filename
+fn (mut cw CodeWalker) parse_filename_get(line string, linenr int) !string {
 	parts := line.split('===')
 	if parts.len < 2 {
-		cw.error("Invalid filename line: ${line}.",linenr, "filename_get", true)!
+		cw.error('Invalid filename line: ${line}.', linenr, 'filename_get', true)!
 	}
-	mut name:=parts[1].trim_space()
-	if name.len<2 {
-		cw.error("Invalid filename, < 2 chars: ${name}.",linenr, "filename_get", true)!
+	mut name := parts[1].trim_space()
+	if name.len < 2 {
+		cw.error('Invalid filename, < 2 chars: ${name}.', linenr, 'filename_get', true)!
 	}
 	return name
 }
@@ -106,60 +143,76 @@ enum ParseState {
 	in_block
 }
 
-//get file, is the parser
+// Parse filemap content string
 fn (mut cw CodeWalker) filemap_get_from_content(content string) !FileMap {
 	mut fm := FileMap{}
 
-	mut filename := ""
+	mut current_kind := '' // 'FILE' | 'FILECHANGE' | 'LEGACY'
+	mut filename := ''
 	mut block := []string{}
-	mut state := ParseState.start
+	mut had_any_block := false
+
 	mut linenr := 0
 
 	for line in content.split_into_lines() {
-		mut line2 := line.trim_space()
 		linenr += 1
-		
-		match state {
-			.start {
-				if line2.starts_with('===FILE') && !line2.ends_with('===') {
-					filename = cw.parse_filename_get(line2, linenr)!
-					if filename == "END" {
-						cw.error("END found at start, not good.", linenr, "parse", true)!
-						return error("END found at start, not good.")
-					}
-					state = .in_block
-				} else if line2.len > 0 {
-					cw.error("Unexpected content before first file block: '${line}'.", linenr, "parse", false)!
-				}
-			}
-			.in_block {
-				if line2.starts_with('===FILE') {
-					if line2 == '===END===' {
-						fm.content[filename] = block.join_lines()
-						filename = ""
-						block = []string{}
-						state = .start
-					} else if line2.ends_with('===') {
-						fm.content[filename] = block.join_lines()
-						filename = cw.parse_filename_get(line2, linenr)!
-						if filename == "END" {
-							cw.error("Filename 'END' is reserved.", linenr, "parse", true)!
-							return error("Filename 'END' is reserved.")
-						}
-						block = []string{}
-						state = .in_block
-					} else {
-						block << line
-					}
+		line2 := line.trim_space()
+
+		kind, name := cw.parse_header(line2, linenr)!
+		if kind == 'END' {
+			if filename == '' {
+				if had_any_block {
+					cw.error("Filename 'END' is reserved.", linenr, 'parse', true)!
 				} else {
-					block << line
+					cw.error('END found at start, not good.', linenr, 'parse', true)!
+				}
+			} else {
+				if current_kind == 'FILE' || current_kind == 'LEGACY' {
+					fm.content[filename] = block.join_lines()
+				} else if current_kind == 'FILECHANGE' {
+					fm.content_change[filename] = block.join_lines()
+				}
+				filename = ''
+				block = []string{}
+				current_kind = ''
+			}
+			continue
+		}
+
+		if kind in ['FILE', 'FILECHANGE', 'LEGACY'] {
+			// starting a new block header
+			if filename != '' {
+				if current_kind == 'FILE' || current_kind == 'LEGACY' {
+					fm.content[filename] = block.join_lines()
+				} else if current_kind == 'FILECHANGE' {
+					fm.content_change[filename] = block.join_lines()
 				}
 			}
+			filename = name
+			current_kind = kind
+			block = []string{}
+			had_any_block = true
+			continue
+		}
+
+		// Non-header line
+		if filename == '' {
+			if line2.len > 0 {
+				cw.error("Unexpected content before first file block: '${line}'.", linenr,
+					'parse', false)!
+			}
+		} else {
+			block << line
 		}
 	}
 
-	if state == .in_block && filename != '' {
-		fm.content[filename] = block.join_lines()
+	// EOF: flush current block if any
+	if filename != '' {
+		if current_kind == 'FILE' || current_kind == 'LEGACY' {
+			fm.content[filename] = block.join_lines()
+		} else if current_kind == 'FILECHANGE' {
+			fm.content_change[filename] = block.join_lines()
+		}
 	}
 
 	return fm

@@ -27,7 +27,7 @@ cw.filemap.export('/tmp/exported_files')!
 
 ```
 
-### format of filemap 
+### format of filemap
 
 ## full files
 

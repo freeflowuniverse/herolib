@@ -8,6 +8,7 @@ import freeflowuniverse.herolib.core.httpconnection
 import freeflowuniverse.herolib.installers.ulist
 // import freeflowuniverse.herolib.develop.gittools
 import freeflowuniverse.herolib.osal.startupmanager
+import freeflowuniverse.herolib.libarchive.zinit as zinit_lib
 import os
 
 fn startupcmd() ![]startupmanager.ZProcessNewArgs {
@@ -136,20 +137,20 @@ fn destroy() ! {
         '
 
 	osal.execute_silent(cmd) or {}
-	mut zinit_factory := zinit.new()!
+	mut zinit_factory := zinit_lib.Zinit{}
 
 	if zinit_factory.exists('dagu') {
-		zinit_factory.stop('dagu') or { return error('Could not stop dagu service due to: ${err}') }
-		zinit_factory.delete('dagu') or {
+		zinit_factory.stop('dagu')! or { return error('Could not stop dagu service due to: ${err}') }
+		zinit_factory.delete('dagu')! or {
 			return error('Could not delete dagu service due to: ${err}')
 		}
 	}
 
 	if zinit_factory.exists('dagu_scheduler') {
-		zinit_factory.stop('dagu_scheduler') or {
+		zinit_factory.stop('dagu_scheduler')! or {
 			return error('Could not stop dagu_scheduler service due to: ${err}')
 		}
-		zinit_factory.delete('dagu_scheduler') or {
+		zinit_factory.delete('dagu_scheduler')! or {
 			return error('Could not delete dagu_scheduler service due to: ${err}')
 		}
 	}

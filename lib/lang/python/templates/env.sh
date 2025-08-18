@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cd "$(dirname "$0")"
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 # Check if uv is installed
 if ! command -v uv &> /dev/null; then
@@ -15,7 +17,7 @@ echo "✅ uv found: $(uv --version)"
 # Create virtual environment if it doesn't exist
 if [ ! -d ".venv" ]; then
     echo "📦 Creating Python virtual environment..."
-    uv venv
+    uv venv --python @{python_version}
     echo "✅ Virtual environment created"
 else
     echo "✅ Virtual environment already exists"
@@ -29,5 +31,7 @@ source .venv/bin/activate
 
 echo "✅ Virtual environment activated"
 
+# Sync dependencies
+echo "📦 Installing dependencies with uv..."
 uv sync
-
+echo "✅ Dependencies installed"
