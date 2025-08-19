@@ -2,7 +2,6 @@ module jsonrpc
 
 import net.unix
 import time
-import freeflowuniverse.herolib.ui.console
 import net
 
 // UnixSocketTransport implements the IRPCTransportClient interface for Unix domain sockets

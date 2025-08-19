@@ -14,12 +14,16 @@ actor_spec := specification.from_openapi(openapi_spec)!
 
 println(actor_spec)
 
+// actor_module := generator.generate_actor_module(actor_spec,
+// 	interfaces: [.openapi, .http]
+// )!
+
 actor_module := generator.generate_actor_module(actor_spec,
-	interfaces: [.openapi, .http]
+	interfaces: [ .http]
 )!
 
 actor_module.write(example_dir,
-	format:    false
+	format:    true
 	overwrite: true
 	compile:   false
 )!

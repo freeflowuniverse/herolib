@@ -1,6 +1,5 @@
 module jsonrpc
 
-import log
 import net.websocket
 
 // This file implements a JSON-RPC 2.0 handler for WebSocket servers.

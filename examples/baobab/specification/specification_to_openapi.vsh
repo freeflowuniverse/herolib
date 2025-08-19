@@ -1,4 +1,4 @@
-#!/usr/bin/env -S v -w -n -enable-globals run
+#!/usr/bin/env -S v -n -w -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import json
 import freeflowuniverse.herolib.baobab.specification
