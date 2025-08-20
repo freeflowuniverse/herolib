@@ -186,6 +186,7 @@ core/playcmds
 doctree/
 jina/
 params_reflection_test.v
+python/
 '
 
 if in_github_actions() {
