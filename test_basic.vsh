@@ -185,6 +185,7 @@ clients/livekit
 core/playcmds
 doctree/
 jina/
+params_reflection_test.v
 '
 
 if in_github_actions() {
