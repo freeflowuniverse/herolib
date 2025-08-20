@@ -211,6 +211,7 @@ timetools_test.v
 code/codeparser
 gittools_test.v
 link_def_test.v
+python_test.v
 '
 
 // Split tests into array and remove empty lines
