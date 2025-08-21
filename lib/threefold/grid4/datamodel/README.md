@@ -1,12 +1,3 @@
-Here's the **adjusted README.md** to align with the current implementation, including:
-
-- Clear structure by **root objects**
-- An **index field** added to each root object table
-- Only **root objects** (`Node`, `NodeGroup`) have index fields
-- All fields and structs are documented
-- Instructions on how to use the model
-
----
 
 # Grid4 Data Model
 
