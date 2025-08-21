@@ -2,19 +2,16 @@ module cloudslices
 
 import time
 
-@[params]
-pub struct Node {
+pub struct NodeSim {
+	Node
 pub mut:
-	id           int
-	nodegroupid  int
-	uptime       int // 0..100
+	cost         f64 //free
 	computeslices     []ComputeSlice
 	storageslices     []StorageSlice
 	vendor       string
 	grant        NodeGrant
 	info         NodeInfo     // Descriptive information about the node
 	capacity     NodeCapacity // Hardware capacity details	
-	provisiontime epoch
 }
 
 // NodeInfo represents the descriptive information about a node.
@@ -26,8 +23,8 @@ pub mut:
 	hdd         string // HDD specification
 	ssd         string // SSD specification
 	url         string // URL for more information
-	continent   string // Continent where the node is located, for now text, needs to be normalized in future too
-	country     string // Country where the node is located, for now text, needs to be normalized in future too
+	continent   string // Continent where the node is located
+	country     string // Country where the node is located
 }
 
 pub struct GPU {
