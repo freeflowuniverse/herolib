@@ -2,8 +2,7 @@ module datamodelsimulator
 
 import json
 import freeflowuniverse.herolib.core.pathlib
-import freeflowuniverse.herolib.threefold.grid4.datamodel { Node, NodeCapacity }
-
+import freeflowuniverse.herolib.threefold.grid4.datamodel { Node }
 
 // load the cloudboxes from a path
 pub fn load(path string) ![]Node {
