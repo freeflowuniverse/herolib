@@ -1,4 +1,3 @@
-module heroscript
+module ui
 
 // Placeholder for heroscript-specific utilities
-

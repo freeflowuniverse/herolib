@@ -1,0 +1,329 @@
+/* Heroprompt specific styles using UI project theme system */
+
+/* Tree view specific styles */
+.tree {
+    font-size: 0.875rem;
+}
+
+.tree .chev {
+    transition: transform 0.15s ease;
+    display: inline-block;
+    font-size: 0.75rem;
+    opacity: var(--menu-chevron-opacity);
+}
+
+.tree .toggle:checked+.dir-label .chev {
+    transform: rotate(90deg);
+}
+
+.tree .children {
+    margin-left: 16px;
+    border-left: 1px solid var(--border-primary);
+    padding-left: 8px;
+}
+
+.tree .dir-label {
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.tree .dir-label:hover {
+    background-color: var(--menu-item-hover-bg);
+    color: var(--menu-item-hover-text);
+}
+
+.tree .file {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.tree .file:hover {
+    background-color: var(--menu-item-hover-bg);
+}
+
+.tree .file a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.tree .file a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Tab content styling */
+.tab-pane {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Selection list styling */
+#selected {
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+}
+
+#selected li {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+}
+
+#selected li:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Preview area styling */
+#preview {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+}
+
+/* Prompt output styling */
+#promptOutput {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+}
+
+/* Chat messages styling */
+#chatMessages {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+}
+
+/* Form controls theme integration */
+.form-control {
+    background-color: var(--bg-primary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    background-color: var(--bg-primary);
+    border-color: var(--link-color);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Select elements */
+.form-select {
+    background-color: var(--bg-primary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+}
+
+.form-select:focus {
+    background-color: var(--bg-primary);
+    border-color: var(--link-color);
+    color: var(--text-primary);
+}
+
+/* Button theme integration */
+.btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-primary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+    color: var(--text-primary);
+}
+
+.btn-outline-primary {
+    color: var(--link-color);
+    border-color: var(--link-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--link-color);
+    border-color: var(--link-color);
+    color: var(--text-light);
+}
+
+.btn-outline-danger {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: var(--text-light);
+}
+
+/* Badge styling */
+.badge {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Modal theme integration */
+.modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-bottom-color: var(--border-primary);
+}
+
+.modal-footer {
+    border-top-color: var(--border-primary);
+}
+
+/* Alert styling */
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+/* Tree node buttons */
+.tree .btn {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    line-height: 1.2;
+}
+
+/* Workspace info styling */
+.workspace-info {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--border-primary);
+    border-top-color: var(--link-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error states */
+.error-message {
+    color: var(--danger-color);
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid var(--danger-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Success states */
+.success-message {
+    color: var(--success-color);
+    background-color: rgba(25, 135, 84, 0.1);
+    border: 1px solid var(--success-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tree {
+        font-size: 0.8rem;
+    }
+
+    .tab-pane {
+        height: calc(100vh - 150px);
+    }
+
+    #preview,
+    #promptOutput {
+        font-size: 0.7rem;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+
+    .tree .dir-label:hover,
+    .tree .file:hover {
+        background-color: var(--text-primary);
+        color: var(--bg-primary);
+    }
+
+    .btn-outline-primary,
+    .btn-outline-secondary,
+    .btn-outline-danger {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+    .tree .chev,
+    .tree .dir-label,
+    .tree .file,
+    .form-control,
+    .btn {
+        transition: none;
+    }
+
+    .loading::after {
+        animation: none;
+    }
+}

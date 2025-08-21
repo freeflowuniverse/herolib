@@ -1,4 +1,4 @@
-module heroprompt
+module ui
 
 import veb
 import os
@@ -18,9 +18,9 @@ struct DirResp {
 
 // APIs
 @['/api/heroprompt/workspaces'; get]
-pub fn api_heroprompt_list(mut ctx ui.Context) veb.Result {
+pub fn (app &App) api_heroprompt_list(mut ctx Context) veb.Result {
 	mut names := []string{}
-	ws := hp.list(fromdb: true) or { []&hp.Workspace{} }
+	ws := hp.list_workspaces_fromdb() or { []&hp.Workspace{} }
 	for w in ws {
 		names << w.name
 	}
@@ -29,7 +29,7 @@ pub fn api_heroprompt_list(mut ctx ui.Context) veb.Result {
 }
 
 @['/api/heroprompt/workspaces'; post]
-pub fn (app &App) api_create(mut ctx Context) veb.Result {
+pub fn (app &App) api_heroprompt_create(mut ctx Context) veb.Result {
 	name := ctx.form['name'] or { 'default' }
 	base_path_in := ctx.form['base_path'] or { '' }
 	if base_path_in.len == 0 {
@@ -50,8 +50,21 @@ pub fn (app &App) api_create(mut ctx Context) veb.Result {
 	}))
 }
 
+@['/api/heroprompt/workspaces/:name'; get]
+pub fn (app &App) api_heroprompt_get(mut ctx Context, name string) veb.Result {
+	wsp := hp.get(name: name, create: false) or {
+		return ctx.text('{"error":"workspace not found"}')
+	}
+	ctx.set_content_type('application/json')
+	return ctx.text(json.encode({
+		'name':           wsp.name
+		'base_path':      wsp.base_path
+		'selected_files': wsp.selected_children().len.str()
+	}))
+}
+
 @['/api/heroprompt/directory'; get]
-pub fn (app &App) api_directory(mut ctx Context) veb.Result {
+pub fn (app &App) api_heroprompt_directory(mut ctx Context) veb.Result {
 	wsname := ctx.query['name'] or { 'default' }
 	path_q := ctx.query['path'] or { '' }
 	mut wsp := hp.get(name: wsname, create: false) or {
@@ -73,7 +86,7 @@ pub fn (app &App) api_directory(mut ctx Context) veb.Result {
 }
 
 @['/api/heroprompt/file'; get]
-pub fn (app &App) api_file(mut ctx Context) veb.Result {
+pub fn (app &App) api_heroprompt_file(mut ctx Context) veb.Result {
 	wsname := ctx.query['name'] or { 'default' }
 	path_q := ctx.query['path'] or { '' }
 	if path_q.len == 0 {
@@ -100,7 +113,7 @@ pub fn (app &App) api_file(mut ctx Context) veb.Result {
 }
 
 @['/api/heroprompt/workspaces/:name/files'; post]
-pub fn (app &App) api_add_file(mut ctx Context, name string) veb.Result {
+pub fn (app &App) api_heroprompt_add_file(mut ctx Context, name string) veb.Result {
 	path := ctx.form['path'] or { '' }
 	if path.len == 0 {
 		return ctx.text('{"error":"path required"}')
@@ -113,7 +126,7 @@ pub fn (app &App) api_add_file(mut ctx Context, name string) veb.Result {
 }
 
 @['/api/heroprompt/workspaces/:name/dirs'; post]
-pub fn (app &App) api_add_dir(mut ctx Context, name string) veb.Result {
+pub fn (app &App) api_heroprompt_add_dir(mut ctx Context, name string) veb.Result {
 	path := ctx.form['path'] or { '' }
 	if path.len == 0 {
 		return ctx.text('{"error":"path required"}')
@@ -126,7 +139,7 @@ pub fn (app &App) api_add_dir(mut ctx Context, name string) veb.Result {
 }
 
 @['/api/heroprompt/workspaces/:name/prompt'; post]
-pub fn (app &App) api_generate_prompt(mut ctx Context, name string) veb.Result {
+pub fn (app &App) api_heroprompt_generate_prompt(mut ctx Context, name string) veb.Result {
 	text := ctx.form['text'] or { '' }
 	mut wsp := hp.get(name: name, create: false) or {
 		return ctx.text('{"error":"workspace not found"}')
