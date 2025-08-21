@@ -2,7 +2,6 @@ module ui
 
 import veb
 import os
-import net.http
 
 
 // Public Context type for veb
@@ -20,7 +19,7 @@ pub:
 
 // Factory args
 @[params]
-pub struct FactoryArgs {
+pub struct WebArgs {
 pub mut:
 	name  string = 'default'
 	host  string = 'localhost'
@@ -34,15 +33,19 @@ pub mut:
 pub struct App {
 	veb.StaticHandler
 pub mut:
-	title string
+	title string = "default"
 	menu  []MenuItem
-	port  int
+	port  int = 7711
 }
 
 
 // Start the webserver (blocking)
-pub fn start(args FactoryArgs) ! {
-	mut app := new(args)!
+pub fn start(args WebArgs) ! {
+	mut app := App{
+		title: args.title,
+		menu: args.menu,
+		port: args.port
+	}
 	veb.run[App, Context](mut app, app.port)
 }
 

@@ -59,7 +59,7 @@ fn cmd_web_execute(cmd Command) ! {
 	console.print_header('Starting Hero UI...')
 
 	// Prepare arguments for the UI factory
-	mut factory_args := ui.FactoryArgs{
+	mut factory_args := ui.WebArgs{
 		title: 'Hero Admin Panel'
 		host:  host
 		port:  port
