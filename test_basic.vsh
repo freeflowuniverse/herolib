@@ -163,7 +163,6 @@ tests := '
 lib/data
 lib/osal
 lib/lang
-lib/code
 lib/clients
 lib/core
 lib/develop
@@ -185,6 +184,11 @@ clients/livekit
 core/playcmds
 doctree/
 jina/
+params_reflection_test.v
+python/
+rust_test.v
+rclone/
+qdrant/
 '
 
 if in_github_actions() {
@@ -209,6 +213,8 @@ timetools_test.v
 code/codeparser
 gittools_test.v
 link_def_test.v
+python_test.v
+ipaddress_test.v	
 '
 
 // Split tests into array and remove empty lines
