@@ -37,5 +37,5 @@ pub mut:
 
 pub struct GitRepoConfig {
 pub mut:
-	remote_check_period int = 3600*24*7 // seconds = 7d
+	remote_check_period int = 3600 * 24 * 7 // seconds = 7d
 }

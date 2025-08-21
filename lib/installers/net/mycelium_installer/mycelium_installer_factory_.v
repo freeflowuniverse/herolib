@@ -218,10 +218,7 @@ pub fn (mut self MyceliumInstaller) start() ! {
 
 	start_pre()!
 
-	
-
 	for zprocess in startupcmd()! {
-		
 		mut sm := startupmanager_get(zprocess.startuptype)!
 
 		console.print_debug('starting mycelium_installer with ${zprocess.startuptype}...')
@@ -229,7 +226,6 @@ pub fn (mut self MyceliumInstaller) start() ! {
 		sm.new(zprocess)!
 
 		sm.start(zprocess.name)!
-
 	}
 
 	start_post()!

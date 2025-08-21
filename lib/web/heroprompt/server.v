@@ -30,8 +30,8 @@ pub mut:
 pub fn new(args FactoryArgs) !&App {
 	base := os.dir(@FILE)
 	mut app := App{
-		title: args.title
-		port: args.port
+		title:     args.title
+		port:      args.port
 		base_path: base
 	}
 	// Serve static assets from this module at /static
@@ -62,10 +62,10 @@ fn render_index(app &App) string {
 }
 
 fn render_index_fallback(app &App) string {
-	return '<!doctype html>\n<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'
-		+ html_escape(app.title)
-		+ '</title><link rel="stylesheet" href="/static/css/main.css"></head><body><div class="container"><h1>'
-		+ html_escape(app.title)
-		+ '</h1><p>Heroprompt server is running.</p></div><script src="/static/js/main.js"></script></body></html>'
+	return
+		'<!doctype html>\n<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' +
+		html_escape(app.title) +
+		'</title><link rel="stylesheet" href="/static/css/main.css"></head><body><div class="container"><h1>' +
+		html_escape(app.title) +
+		'</h1><p>Heroprompt server is running.</p></div><script src="/static/js/main.js"></script></body></html>'
 }
-

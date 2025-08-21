@@ -9,8 +9,8 @@ import os
 // )!
 
 mut workspace := heroprompt.get(
-	name: 'example_ws'
-	path: '${os.home_dir()}/code/github/freeflowuniverse/herolib'
+	name:   'example_ws'
+	path:   '${os.home_dir()}/code/github/freeflowuniverse/herolib'
 	create: true
 )!
 
@@ -19,7 +19,9 @@ println('selected (initial): ${workspace.selected_children()}')
 
 // Add a directory and a file
 workspace.add_dir(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/docker')!
-workspace.add_file(path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/docker/docker_ubuntu_install.sh')!
+workspace.add_file(
+	path: '${os.home_dir()}/code/github/freeflowuniverse/herolib/docker/docker_ubuntu_install.sh'
+)!
 println('selected (after add): ${workspace.selected_children()}')
 
 // Build a prompt from current selection (should be empty now)
@@ -39,7 +41,9 @@ println('selected (after remove): ${workspace.selected_children()}')
 // List workspaces (names only)
 mut all := heroprompt.list_workspaces() or { []&heroprompt.Workspace{} }
 mut names := []string{}
-for w in all { names << w.name }
+for w in all {
+	names << w.name
+}
 println('workspaces: ${names}')
 
 // Optionally delete the example workspace

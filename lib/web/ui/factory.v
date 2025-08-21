@@ -3,7 +3,6 @@ module ui
 import veb
 import os
 
-
 // Public Context type for veb
 pub struct Context {
 	veb.Context
@@ -33,18 +32,17 @@ pub mut:
 pub struct App {
 	veb.StaticHandler
 pub mut:
-	title string = "default"
+	title string = 'default'
 	menu  []MenuItem
 	port  int = 7711
 }
 
-
 // Start the webserver (blocking)
-pub fn start(args WebArgs) !{
+pub fn start(args WebArgs) ! {
 	mut app := App{
-		title: args.title,
-		menu: args.menu,
-		port: args.port
+		title: args.title
+		menu:  args.menu
+		port:  args.port
 	}
 	veb.run[App, Context](mut app, app.port)
 }

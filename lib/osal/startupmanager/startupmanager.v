@@ -76,11 +76,11 @@ pub fn (mut sm StartupManager) new(args ZProcessNewArgs) ! {
 
 			// Map ZProcessNewArgs to zinit.ServiceConfig
 			mut service_config := zinit.ServiceConfig{
-				exec:    args.cmd
-				test:    args.cmd_test // Direct mapping
-				oneshot: args.oneshot  // Use the oneshot flag directly
-				after:   args.after    // Direct mapping
-				log: 	 "ring"
+				exec:             args.cmd
+				test:             args.cmd_test // Direct mapping
+				oneshot:          args.oneshot  // Use the oneshot flag directly
+				after:            args.after    // Direct mapping
+				log:              'ring'
 				env:              args.env     // Direct mapping
 				dir:              args.workdir // Direct mapping
 				shutdown_timeout: 0            // Default, or add to ZProcessNewArgs if needed

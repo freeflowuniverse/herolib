@@ -7,41 +7,41 @@ import os
 @[params]
 pub struct TemplateArgs {
 pub mut:
-	name           string = 'herolib-python-project'
-	version        string = '0.1.0'
-	description    string = 'A Python project managed by Herolib'
-	python_version string = '3.11'
-	dependencies   []string
+	name             string = 'herolib-python-project'
+	version          string = '0.1.0'
+	description      string = 'A Python project managed by Herolib'
+	python_version   string = '3.11'
+	dependencies     []string
 	dev_dependencies []string
-	scripts        map[string]string
+	scripts          map[string]string
 }
 
 // generate_pyproject_toml creates a pyproject.toml file from template
 pub fn (mut py PythonEnv) generate_pyproject_toml(args TemplateArgs) ! {
 	template_path := '${@VMODROOT}/lang/python/templates/pyproject.toml'
 	mut template_content := os.read_file(template_path)!
-	
+
 	// Format dependencies
 	mut deps := []string{}
 	for dep in args.dependencies {
 		deps << '    "${dep}",'
 	}
 	dependencies_str := deps.join('\n')
-	
+
 	// Format dev dependencies
 	mut dev_deps := []string{}
 	for dep in args.dev_dependencies {
 		dev_deps << '    "${dep}",'
 	}
 	dev_dependencies_str := dev_deps.join('\n')
-	
+
 	// Format scripts
 	mut scripts := []string{}
 	for name, command in args.scripts {
 		scripts << '${name} = "${command}"'
 	}
 	scripts_str := scripts.join('\n')
-	
+
 	// Replace template variables
 	content := template_content
 		.replace('@{name}', args.name)
@@ -51,7 +51,7 @@ pub fn (mut py PythonEnv) generate_pyproject_toml(args TemplateArgs) ! {
 		.replace('@{dependencies}', dependencies_str)
 		.replace('@{dev_dependencies}', dev_dependencies_str)
 		.replace('@{scripts}', scripts_str)
-	
+
 	// Write to project directory
 	mut pyproject_file := py.path.file_get_new('pyproject.toml')!
 	pyproject_file.write(content)!
@@ -61,10 +61,10 @@ pub fn (mut py PythonEnv) generate_pyproject_toml(args TemplateArgs) ! {
 pub fn (mut py PythonEnv) generate_env_script(args TemplateArgs) ! {
 	template_path := '${@VMODROOT}/lang/python/templates/env.sh'
 	mut template_content := os.read_file(template_path)!
-	
+
 	content := template_content
 		.replace('@{python_version}', args.python_version)
-	
+
 	mut env_file := py.path.file_get_new('env.sh')!
 	env_file.write(content)!
 	os.chmod(env_file.path, 0o755)!
@@ -74,11 +74,11 @@ pub fn (mut py PythonEnv) generate_env_script(args TemplateArgs) ! {
 pub fn (mut py PythonEnv) generate_install_script(args TemplateArgs) ! {
 	template_path := '${@VMODROOT}/lang/python/templates/install.sh'
 	mut template_content := os.read_file(template_path)!
-	
+
 	content := template_content
 		.replace('@{name}', args.name)
 		.replace('@{python_version}', args.python_version)
-	
+
 	mut install_file := py.path.file_get_new('install.sh')!
 	install_file.write(content)!
 	os.chmod(install_file.path, 0o755)!
@@ -123,10 +123,18 @@ source env.sh
 ## Dependencies
 
 ### Production
-${if args.dependencies.len > 0 { '- ' + args.dependencies.join('\n- ') } else { 'None' }}
+${if args.dependencies.len > 0 {
+		'- ' + args.dependencies.join('\n- ')
+	} else {
+		'None'
+	}}
 
 ### Development
-${if args.dev_dependencies.len > 0 { '- ' + args.dev_dependencies.join('\n- ') } else { 'None' }}
+${if args.dev_dependencies.len > 0 {
+		'- ' + args.dev_dependencies.join('\n- ')
+	} else {
+		'None'
+	}}
 '
 
 	mut readme_file := py.path.file_get_new('README.md')!

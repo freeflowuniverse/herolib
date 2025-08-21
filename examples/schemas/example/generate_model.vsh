@@ -1,10 +1,10 @@
 #!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import os
-import freeflowuniverse.herolib.core.code { Alias, Struct }
+import freeflowuniverse.herolib.core.code { Alias }
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.schemas.openrpc
-import freeflowuniverse.herolib.schemas.openrpc.codegen {generate_model}
+import freeflowuniverse.herolib.schemas.openrpc.codegen { generate_model }
 
 const doc_path = '${os.dir(@FILE)}/testdata/openrpc.json'
 
@@ -18,8 +18,7 @@ assert model[0] is Alias
 pet_id := model[0] as Alias
 assert pet_id.name == 'PetId'
 println(pet_id)
-$dbg;
-
+// $dbg;
 
 // 	assert pet_id.typ.symbol == 'int'
 

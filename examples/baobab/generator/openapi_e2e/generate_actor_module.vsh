@@ -19,7 +19,7 @@ println(actor_spec)
 // )!
 
 actor_module := generator.generate_actor_module(actor_spec,
-	interfaces: [ .http]
+	interfaces: [.http]
 )!
 
 actor_module.write(example_dir,

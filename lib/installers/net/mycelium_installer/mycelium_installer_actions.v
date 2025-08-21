@@ -19,15 +19,15 @@ fn startupcmd() ![]startupmanager.ZProcessNewArgs {
 	mut peers_str := installer.peers.join(' ')
 	mut tun_name := 'tun${installer.tun_nr}'
 
-	mut cmd:='mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
+	mut cmd := 'mycelium --key-file ${osal.hero_path()!}/cfg/priv_key.bin --peers ${peers_str} --tun-name ${tun_name}'
 	if core.is_osx()! {
-		cmd = "sudo ${cmd}"
+		cmd = 'sudo ${cmd}'
 	}
 
 	res << startupmanager.ZProcessNewArgs{
 		name:        'mycelium'
 		startuptype: .zinit
-		cmd:        cmd 
+		cmd:         cmd
 		env:         {
 			'HOME': os.home_dir()
 		}

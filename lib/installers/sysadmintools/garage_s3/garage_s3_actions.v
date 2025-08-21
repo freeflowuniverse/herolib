@@ -154,16 +154,16 @@ fn destroy() ! {
 		return error('failed to uninstall garage_s3: ${res.output}')
 	}
 
-	mut zinit_factory := zinit_lib.Zinit{}
+	// mut zinit_factory := zinit_lib.Zinit{}
 
-	if zinit_factory.exists('garage_s3') {
-		zinit_factory.stop('garage_s3')! or {
-			return error('Could not stop garage_s3 service due to: ${err}')
-		}
-		zinit_factory.delete('garage_s3')! or {
-			return error('Could not delete garage_s3 service due to: ${err}')
-		}
-	}
+	// if zinit_factory.exists('garage_s3'){
+	// 	zinit_factory.stop('garage_s3') or {
+	// 		return error('Could not stop garage_s3 service due to: ${err}')
+	// 	}
+	// 	zinit_factory.delete('garage_s3') or {
+	// 		return error('Could not delete garage_s3 service due to: ${err}')
+	// 	}
+	// }
 
 	console.print_header('garage_s3 is uninstalled')
 }

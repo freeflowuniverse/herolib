@@ -1,9 +1,7 @@
 module countries
 
-
 // --- Embed the data file content at compile time ---
 // The path is relative to the location of this `factory.v` file.
-
 
 // get_all_countries parses the country data embedded in the executable.
 // It returns a list of Country structs.
@@ -26,7 +24,8 @@ pub fn get_all_countries() ![]Country {
 
 		// --- Identify and skip the header ---
 		// Check if this line looks like the header (contains key identifiers)
-		if !found_header && trimmed_line.contains('ISO') && trimmed_line.contains('Country') && trimmed_line.contains('CurrencyCode') {
+		if !found_header && trimmed_line.contains('ISO') && trimmed_line.contains('Country')
+			&& trimmed_line.contains('CurrencyCode') {
 			found_header = true
 			continue // Skip the header line itself
 		}
@@ -37,29 +36,28 @@ pub fn get_all_countries() ![]Country {
 		// Use strings.split to split the line by tab character
 		fields := line.split_by_space()
 
-
 		// --- Create Country struct instance ---
 		// Map fields by index based on the header structure.
 		// Handle potential out-of-bounds or missing data gracefully using `or {}`.
 		// The last field might sometimes be empty or missing in the data, handle it
-		iso_field             := fields[0]  or { '' }
-		iso3_field            := fields[1]  or { '' }
-		iso_numeric_field     := fields[2]  or { '' }
-		fips_field            := fields[3]  or { '' }
-		country_name_field    := fields[4]  or { '' }
-		capital_field         := fields[5]  or { '' }
-		area_sqkm_field       := fields[6]  or { '' }
-		population_field      := fields[7]  or { '' }
-		continent_field       := fields[8]  or { '' }
-		tld_field             := fields[9]  or { '' }
-		currency_code_field   := fields[10] or { '' }
-		currency_name_field   := fields[11] or { '' }
-		phone_field           := fields[12] or { '' }
-		postal_format_field   := fields[13] or { '' }
-		postal_regex_field    := fields[14] or { '' }
-		languages_field       := fields[15] or { '' }
-		geonameid_field       := fields[16] or { '' }
-		neighbours_field      := fields[17] or { '' }
+		iso_field := fields[0] or { '' }
+		iso3_field := fields[1] or { '' }
+		iso_numeric_field := fields[2] or { '' }
+		fips_field := fields[3] or { '' }
+		country_name_field := fields[4] or { '' }
+		capital_field := fields[5] or { '' }
+		area_sqkm_field := fields[6] or { '' }
+		population_field := fields[7] or { '' }
+		continent_field := fields[8] or { '' }
+		tld_field := fields[9] or { '' }
+		currency_code_field := fields[10] or { '' }
+		currency_name_field := fields[11] or { '' }
+		phone_field := fields[12] or { '' }
+		postal_format_field := fields[13] or { '' }
+		postal_regex_field := fields[14] or { '' }
+		languages_field := fields[15] or { '' }
+		geonameid_field := fields[16] or { '' }
+		neighbours_field := fields[17] or { '' }
 		equiv_fips_code_field := fields[18] or { '' }
 
 		country := Country{
@@ -93,11 +91,11 @@ pub fn get_all_countries() ![]Country {
 
 // Optional: Helper function to find a country by ISO code
 pub fn find_country_by_iso(iso_code string) !Country {
-	 countries := get_all_countries()!
-	 for country in countries {
-		 if country.iso == iso_code {
-			 return country
-		 }
-	 }
-	 return error('Country with ISO code "${iso_code}" not found')
+	countries := get_all_countries()!
+	for country in countries {
+		if country.iso == iso_code {
+			return country
+		}
+	}
+	return error('Country with ISO code "${iso_code}" not found')
 }

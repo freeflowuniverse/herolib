@@ -8,7 +8,11 @@ fn menu_html(items []MenuItem, depth int, prefix string) string {
 		if it.children.len > 0 {
 			// expandable group
 			out << '<div class="item">'
-			out << '<a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#${id}" role="button" aria-expanded="${if depth == 0 { 'true' } else { 'false' }}" aria-controls="${id}">'
+			out << '<a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#${id}" role="button" aria-expanded="${if depth == 0 {
+				'true'
+			} else {
+				'false'
+			}}" aria-controls="${id}">'
 			out << '<span>${it.title}</span><span class="chev">&rsaquo;</span>'
 			out << '</a>'
 			out << '<div class="collapse ${if depth == 0 { 'show' } else { '' }}" id="${id}">'
@@ -24,4 +28,3 @@ fn menu_html(items []MenuItem, depth int, prefix string) string {
 	}
 	return out.join('\n')
 }
-
