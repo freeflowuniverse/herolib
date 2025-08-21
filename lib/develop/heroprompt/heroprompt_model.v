@@ -1,7 +1,7 @@
 module heroprompt
 
-import freeflowuniverse.herolib.data.encoderhero
 import time
+import freeflowuniverse.herolib.core.playbook
 
 pub const version = '0.0.0'
 const singleton = false
@@ -28,8 +28,23 @@ fn obj_init(mycfg_ Workspace) !Workspace {
 /////////////NORMALLY NO NEED TO TOUCH
 
 pub fn heroscript_loads(heroscript string) !Workspace {
-	// TODO: go from heroscript to object
-	//load playbook, and manually get the params out of the actions & fill in the object
-	$dbg;
-	return obj
+	mut pb := playbook.new(text: heroscript)!
+	// Accept either define or configure; prefer define if present
+	mut action_name := 'heroprompt.define'
+	if !pb.exists_once(filter: action_name) {
+		action_name = 'heroprompt.configure'
+		if !pb.exists_once(filter: action_name) {
+			return error("heroprompt: missing 'heroprompt.define' or 'heroprompt.configure' action")
+		}
+	}
+	mut action := pb.get(filter: action_name)!
+	mut p := action.params
+
+	return Workspace{
+		name:      p.get_default('name', 'default')!
+		base_path: p.get_default('base_path', '')!
+		created:   time.now()
+		updated:   time.now()
+		children:  []HeropromptChild{}
+	}
 }

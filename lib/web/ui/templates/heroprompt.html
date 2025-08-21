@@ -45,10 +45,11 @@
                             <h6 class="mb-0">Workspaces</h6>
                             <button id="create-workspace" class="btn btn-sm btn-primary">New</button>
                         </div>
-                        <div class="card-body p-0">
-                            <div id="workspace-list" class="list-group list-group-flush">
-                                <!-- Workspaces will be populated by JavaScript -->
-                            </div>
+                        <div class="card-body">
+                            <label for="workspace-select" class="form-label small text-muted">Select workspace</label>
+                            <select id="workspace-select" class="form-select form-select-sm mb-2"></select>
+                            <button id="delete-workspace" class="btn btn-sm btn-outline-danger"
+                                style="display:none;">Delete</button>
                         </div>
                     </div>
                 </div>

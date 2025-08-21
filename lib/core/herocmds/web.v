@@ -1,7 +1,7 @@
 module herocmds
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.web.ui
+import freeflowuniverse.herolib.web.heroprompt
 import os
 import cli { Command, Flag }
 import time
@@ -9,7 +9,7 @@ import time
 pub fn cmd_web(mut cmdroot Command) Command {
 	mut cmd_run := Command{
 		name:          'web'
-		description:   'Run or build the Hero UI (located in lib/web/ui).'
+		description:   'Run the Heroprompt UI (located in lib/web/heroprompt).'
 		required_args: 0
 		execute:       cmd_web_execute
 	}
@@ -56,23 +56,22 @@ fn cmd_web_execute(cmd Command) ! {
 		port = 8080
 	}
 
-	console.print_header('Starting Hero UI...')
+	console.print_header('Starting Heroprompt...')
 
-	// Prepare arguments for the UI factory
-	mut factory_args := ui.FactoryArgs{
-		title: 'Hero Admin Panel'
+	// Prepare arguments for the Heroprompt server
+	mut factory_args := heroprompt.FactoryArgs{
+		title: 'Heroprompt'
 		host:  host
 		port:  port
-		open:  open_
 	}
 
 	// ---------- START WEB SERVER ----------
-	console.print_header('Starting Hero UI server...')
+	console.print_header('Starting Heroprompt server...')
 
-	// Start the UI server in a separate thread to allow for browser opening
+	// Start the server in a separate thread to allow for browser opening
 	spawn fn [factory_args] () {
-		ui.start(factory_args) or {
-			console.print_stderr('Failed to start UI server: ${err}')
+		heroprompt.start(factory_args) or {
+			console.print_stderr('Failed to start Heroprompt server: ${err}')
 			return
 		}
 	}()
@@ -81,7 +80,7 @@ fn cmd_web_execute(cmd Command) ! {
 	time.sleep(2 * time.second)
 	url := 'http://${factory_args.host}:${factory_args.port}'
 
-	console.print_green('Hero UI server is running on ${url}')
+	console.print_green('Heroprompt server is running on ${url}')
 
 	if open_ {
 		mut cmd_str := ''
@@ -96,7 +95,7 @@ fn cmd_web_execute(cmd Command) ! {
 		if cmd_str != '' {
 			result := os.execute(cmd_str)
 			if result.exit_code == 0 {
-				console.print_green('Opened UI in default browser.')
+				console.print_green('Opened Heroprompt in default browser.')
 			} else {
 				console.print_stderr('Failed to open browser: ${result.output}')
 			}
