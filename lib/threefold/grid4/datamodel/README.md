@@ -1,6 +1,6 @@
 # Grid4 Data Model
 
-This module defines data models for nodes, groups, slices, and simulations in a cloud/grid infrastructure.
+This module defines data models for nodes, groups, slices in a cloud/grid infrastructure.
 
 ## Node
 
@@ -87,22 +87,6 @@ Aggregated hardware capacity for a node.
 | mem_gb_gpu   | f64  | Total GPU memory in GB |
 | passmark     | int  | Total passmark score |
 | vcores       | int  | Total virtual cores |
-
-## NodeTotalSim
-
-Aggregated simulation data for a node.
-
-| Field              | Type        | Description |
-|--------------------|-------------|-------------|
-| id                 | int         | Unique node ID |
-| cost               | f64         | Total cost |
-| deliverytime       | time.Time   | Delivery time |
-| inca_reward        | int         | Incentive reward |
-| reputation         | int         | Reputation (0-100) |
-| uptime             | int         | Uptime (0-100) |
-| price_simulation   | f64         | Simulated price |
-| info               | NodeInfo    | Descriptive info |
-| capacity           | NodeCapacity| Aggregated capacity |
 
 ## NodeInfo
 
