@@ -113,8 +113,8 @@ pub fn install_multi(args_ InstallArgs) ! {
 			// 	herolib.hero_install(reset: args.reset)!
 			// }
 			// 'caddy' {
-				// caddy.install(reset: args.reset)!
-				// caddy.configure_examples()!
+			// caddy.install(reset: args.reset)!
+			// caddy.configure_examples()!
 			// }
 			// 'chrome' {
 			// 	chrome.install(reset: args.reset, uninstall: args.uninstall)!

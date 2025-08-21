@@ -1,5 +1,6 @@
 #!/usr/bin/env -S v -n -w -cg -gc none  -cc tcc -d use_openssl -enable-globals run
-import freeflowuniverse.herolib.lib.lang.codewalker 
+
+import freeflowuniverse.herolib.lib.lang.codewalker
 import freeflowuniverse.herolib.core.pathlib
 import freeflowuniverse.herolib.osal.core as osal
 

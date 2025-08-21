@@ -3,46 +3,46 @@ module datamodel
 @[heap]
 pub struct Node {
 pub mut:
-	id           int
-	nodegroupid  int
-	uptime       int // 0..100
-	computeslices     []ComputeSlice
-	storageslices     []StorageSlice
-	devices          DeviceInfo
-	country          string // 2 letter code as specified in lib/data/countries/data/countryInfo.txt, use that library for validation
-	capacity        NodeCapacity // Hardware capacity details
-	provisiontime   u32 //lets keep it simple and compatible
+	id            int
+	nodegroupid   int
+	uptime        int // 0..100
+	computeslices []ComputeSlice
+	storageslices []StorageSlice
+	devices       DeviceInfo
+	country       string       // 2 letter code as specified in lib/data/countries/data/countryInfo.txt, use that library for validation
+	capacity      NodeCapacity // Hardware capacity details
+	provisiontime u32          // lets keep it simple and compatible
 }
-
 
 pub struct DeviceInfo {
 pub mut:
-	vendor          string
-	storage   []StorageDevice
-	memory     []MemoryDevice
+	vendor  string
+	storage []StorageDevice
+	memory  []MemoryDevice
 	cpu     []CPUDevice
 	gpu     []GPUDevice
 	network []NetworkDevice
 }
+
 pub struct StorageDevice {
 pub mut:
-	id string //can be used in node
-	size_gb f64 // Size of the storage device in gigabytes
+	id          string // can be used in node
+	size_gb     f64    // Size of the storage device in gigabytes
 	description string // Description of the storage device
 }
 
 pub struct MemoryDevice {
 pub mut:
-	id string //can be used in node
-	size_gb f64 // Size of the memory device in gigabytes
+	id          string // can be used in node
+	size_gb     f64    // Size of the memory device in gigabytes
 	description string // Description of the memory device
 }
 
 pub struct CPUDevice {
 pub mut:
-	id string //can be used in node
-	cores int // Number of CPU cores
-	passmark int
+	id          string // can be used in node
+	cores       int    // Number of CPU cores
+	passmark    int
 	description string // Description of the CPU
 	cpu_brand   string // Brand of the CPU
 	cpu_version string // Version of the CPU
@@ -50,19 +50,18 @@ pub mut:
 
 pub struct GPUDevice {
 pub mut:
-	id string //can be used in node
-	cores int // Number of GPU cores
-	memory_gb f64 // Size of the GPU memory in gigabytes
+	id          string // can be used in node
+	cores       int    // Number of GPU cores
+	memory_gb   f64    // Size of the GPU memory in gigabytes
 	description string // Description of the GPU
-	gpu_brand        string
-	gpu_version      string	
-
+	gpu_brand   string
+	gpu_version string
 }
 
 pub struct NetworkDevice {
 pub mut:
-	id string //can be used in node
-	speed_mbps int // Network speed in Mbps
+	id          string // can be used in node
+	speed_mbps  int    // Network speed in Mbps
 	description string // Description of the network device
 }
 
@@ -84,5 +83,5 @@ pub mut:
 }
 
 fn (mut n Node) check() ! {
-	//todo
+	// todo
 }

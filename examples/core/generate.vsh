@@ -9,9 +9,9 @@ import freeflowuniverse.herolib.core.pathlib
 // }
 
 mut args2 := generator.GeneratorArgs{
-	path: '~/code/github/freeflowuniverse/herolib/lib/develop/heroprompt'
+	path:  '~/code/github/freeflowuniverse/herolib/lib/develop/heroprompt'
 	force: true
-}	
+}
 generator.scan(args2)!
 
 // mut args := generator.GeneratorArgs{

@@ -8,7 +8,7 @@ pub fn play(mut plbook PlayBook) !map[string]&Node {
 
 	mut nodesdict := map[string]&Node{}
 	for action in actions2 {
-		echo("TODO: Implement action handling for ${action.name}")
+		echo('TODO: Implement action handling for ${action.name}')
 	}
 	return nodesdict
 }

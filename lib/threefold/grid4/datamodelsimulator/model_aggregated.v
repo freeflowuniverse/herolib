@@ -2,7 +2,6 @@ module datamodelsimulator
 
 import time
 
-
 // NodeTotalSim represents the aggregated data for a node simulation, including hardware specs, pricing, and location.
 pub struct NodeTotalSim {
 pub mut:
@@ -23,14 +22,14 @@ pub fn (n NodeSim) total() !NodeTotalSim {
 	}
 
 	mut total := NodeTotalSim{
-		id: n.id
-		cost: n.cost
-		deliverytime: time.now() // Placeholder; replace with actual logic if needed
-		inca_reward: 0 // Placeholder; compute from policy if available
-		reputation: 50 // Default; compute from uptime/history
-		uptime: n.uptime
+		id:               n.id
+		cost:             n.cost
+		deliverytime:     time.now() // Placeholder; replace with actual logic if needed
+		inca_reward:      0  // Placeholder; compute from policy if available
+		reputation:       50 // Default; compute from uptime/history
+		uptime:           n.uptime
 		price_simulation: 0.0
-		capacity: NodeCapacity{}
+		capacity:         NodeCapacity{}
 	}
 
 	// Aggregate from compute slices

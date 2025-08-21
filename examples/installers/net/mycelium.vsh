@@ -8,7 +8,7 @@ println(installer)
 
 installer.start()!
 
-$dbg;
+// $dbg;
 
 mut r := mycelium.inspect()!
 println(r)

@@ -28,16 +28,16 @@ pub fn (py PythonEnv) python_shell() ! {
 // Open IPython if available, fallback to regular Python
 pub fn (py PythonEnv) ipython_shell() ! {
 	console.print_green('Opening IPython shell for environment: ${py.name}')
-	
+
 	// Check if IPython is available
 	check_cmd := '
 	cd ${py.path.path}
 	source .venv/bin/activate
 	python -c "import IPython"
 	'
-	
+
 	check_result := osal.exec(cmd: check_cmd, raise_error: false)!
-	
+
 	mut shell_cmd := ''
 	if check_result.exit_code == 0 {
 		shell_cmd = '
@@ -53,7 +53,7 @@ pub fn (py PythonEnv) ipython_shell() ! {
 		python
 		'
 	}
-	
+
 	osal.execute_interactive(shell_cmd)!
 }
 

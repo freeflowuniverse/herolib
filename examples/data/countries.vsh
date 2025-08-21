@@ -12,7 +12,9 @@ println('Total countries loaded: ${all_countries.len}')
 // --- Example: Print the first few countries ---
 println('\n--- First 5 Countries ---')
 for i, country in all_countries {
-	if i >= 5 { break }
+	if i >= 5 {
+		break
+	}
 	println(country.str())
 }
 
@@ -44,7 +46,7 @@ println('Found ${eu_countries.len} European countries.')
 // --- Example: Using the helper function ---
 println('\n--- Using helper function to find Japan ---')
 japan := countries.find_country_by_iso('JP') or {
-	 println('Error finding Japan: ${err}')
-	 return
+	println('Error finding Japan: ${err}')
+	return
 }
 println('Found Japan: ${japan.str()}')

@@ -15,12 +15,12 @@ pub mut:
 @[params]
 pub struct PythonEnvArgs {
 pub mut:
-	name           string = 'default'
-	reset          bool
-	python_version string = '3.11'
-	dependencies   []string
+	name             string = 'default'
+	reset            bool
+	python_version   string = '3.11'
+	dependencies     []string
 	dev_dependencies []string
-	description    string = 'A Python project managed by Herolib'
+	description      string = 'A Python project managed by Herolib'
 }
 
 pub fn new(args_ PythonEnvArgs) !PythonEnv {
@@ -47,14 +47,14 @@ pub fn new(args_ PythonEnvArgs) !PythonEnv {
 
 // Check if the Python environment exists and is properly configured
 pub fn (py PythonEnv) exists() bool {
-	return os.exists('${py.path.path}/.venv/bin/activate') && 
-		   os.exists('${py.path.path}/pyproject.toml')
+	return os.exists('${py.path.path}/.venv/bin/activate')
+		&& os.exists('${py.path.path}/pyproject.toml')
 }
 
 // Initialize the Python environment using uv
 pub fn (mut py PythonEnv) init_env(args PythonEnvArgs) ! {
 	console.print_green('Initializing Python environment at: ${py.path.path}')
-	
+
 	// Remove existing environment if reset is requested
 	if args.reset && py.path.exists() {
 		console.print_debug('Removing existing environment for reset')
@@ -69,13 +69,13 @@ pub fn (mut py PythonEnv) init_env(args PythonEnvArgs) ! {
 
 	// Generate project files from templates
 	template_args := TemplateArgs{
-		name: py.name
-		python_version: args.python_version
-		dependencies: args.dependencies
+		name:             py.name
+		python_version:   args.python_version
+		dependencies:     args.dependencies
 		dev_dependencies: args.dev_dependencies
-		description: args.description
+		description:      args.description
 	}
-	
+
 	py.generate_all_templates(template_args)!
 
 	// Initialize uv project
@@ -84,12 +84,12 @@ pub fn (mut py PythonEnv) init_env(args PythonEnvArgs) ! {
 	uv venv --python ${args.python_version}
 	'
 	osal.exec(cmd: cmd)!
-	
+
 	// Sync dependencies if any are specified
 	if args.dependencies.len > 0 || args.dev_dependencies.len > 0 {
 		py.sync()!
 	}
-	
+
 	console.print_debug('Python environment initialization complete')
 }
 
@@ -109,20 +109,20 @@ pub fn (py PythonEnv) add_dependencies(packages []string, dev bool) ! {
 	if packages.len == 0 {
 		return
 	}
-	
-	console.print_debug('Adding Python packages: ${packages.join(", ")}')
+
+	console.print_debug('Adding Python packages: ${packages.join(', ')}')
 	packages_str := packages.join(' ')
-	
+
 	mut cmd := '
 	cd ${py.path.path}
 	uv add ${packages_str}'
-	
+
 	if dev {
 		cmd += ' --dev'
 	}
-	
+
 	osal.exec(cmd: cmd)!
-	console.print_debug('Successfully added packages: ${packages.join(", ")}')
+	console.print_debug('Successfully added packages: ${packages.join(', ')}')
 }
 
 // Remove dependencies from the project
@@ -130,20 +130,20 @@ pub fn (py PythonEnv) remove_dependencies(packages []string, dev bool) ! {
 	if packages.len == 0 {
 		return
 	}
-	
-	console.print_debug('Removing Python packages: ${packages.join(", ")}')
+
+	console.print_debug('Removing Python packages: ${packages.join(', ')}')
 	packages_str := packages.join(' ')
-	
+
 	mut cmd := '
 	cd ${py.path.path}
 	uv remove ${packages_str}'
-	
+
 	if dev {
 		cmd += ' --dev'
 	}
-	
+
 	osal.exec(cmd: cmd)!
-	console.print_debug('Successfully removed packages: ${packages.join(", ")}')
+	console.print_debug('Successfully removed packages: ${packages.join(', ')}')
 }
 
 // Legacy pip method for backward compatibility - now uses uv add
