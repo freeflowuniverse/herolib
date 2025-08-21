@@ -2,6 +2,7 @@ module countries
 
 // Country represents a country entry from countryInfo.txt
 pub struct Country {
+pub:
 	iso             string // ISO
 	iso3            string // ISO3
 	iso_numeric     string // ISO-Numeric

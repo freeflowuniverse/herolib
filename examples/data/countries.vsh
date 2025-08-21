@@ -18,7 +18,7 @@ for i, country in all_countries {
 
 // --- Example: Find a specific country (e.g., Belgium) ---
 println('\n--- Searching for Belgium ---')
-found := false
+mut found := false
 for country in all_countries {
 	if country.iso == 'BE' {
 		println('Found Belgium: ${country.str()}')
@@ -41,4 +41,10 @@ for country in all_countries {
 println('Found ${eu_countries.len} European countries.')
 // Optionally print them or process further
 
-
+// --- Example: Using the helper function ---
+println('\n--- Using helper function to find Japan ---')
+japan := countries.find_country_by_iso('JP') or {
+	 println('Error finding Japan: ${err}')
+	 return
+}
+println('Found Japan: ${japan.str()}')
