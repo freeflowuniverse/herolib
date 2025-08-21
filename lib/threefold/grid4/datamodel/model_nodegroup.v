@@ -1,11 +1,8 @@
 module cloudslices
 
-import time
-
-
 
 @[heap]
-//is a root object, is the only obj farmer needs to configure in the UI
+//is a root object, is the only obj farmer needs to configure in the UI, this defines how slices will be created
 pub struct NodeGroup {
 pub mut:
 	id u32
@@ -29,6 +26,6 @@ pub mut:
 
 pub struct PricingPolicy {
 pub mut:
-	marketplace_year_discounts []u32 = [30,40,50] //e.g. 30,40,50 means if user has more CC in wallet than 1 year utilization on all his purchaes then this provider gives 30%, 2Y 40%, ... 
-	volume_discounts []u32 = [10,20,30] //e.g. 10,20,30 
+	marketplace_year_discounts []int = [30,40,50] //e.g. 30,40,50 means if user has more CC in wallet than 1 year utilization on all his purchaes then this provider gives 30%, 2Y 40%, ... 
+	volume_discounts []int = [10,20,30] //e.g. 10,20,30 
 }
