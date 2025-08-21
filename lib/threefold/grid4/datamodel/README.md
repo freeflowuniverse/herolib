@@ -29,13 +29,13 @@ Represents a single node in the grid with slices, devices, and capacity.
 | --------------- | ---------------- | -------------------------------------------- | ------- |
 | `id`            | `int`            | Unique node ID                               | ✅       |
 | `nodegroupid`   | `int`            | ID of the owning node group                  | ✅       |
-| `uptime`        | `int`            | Uptime percentage (0-100)                    | ❌       |
+| `uptime`        | `int`            | Uptime percentage (0-100)                    | ✅       |
 | `computeslices` | `[]ComputeSlice` | List of compute slices                       | ❌       |
 | `storageslices` | `[]StorageSlice` | List of storage slices                       | ❌       |
 | `devices`       | `DeviceInfo`     | Hardware device info (storage, memory, etc.) | ❌       |
 | `country`       | `string`         | 2-letter country code                        | ✅       |
 | `capacity`      | `NodeCapacity`   | Aggregated hardware capacity                 | ❌       |
-| `provisiontime` | `u32`            | Provisioning time (simple/compatible format) | ❌       |
+| `provisiontime` | `u32`            | Provisioning time (simple/compatible format) | ✅       |
 
 ---
 
@@ -53,8 +53,8 @@ Represents a group of nodes owned by a farmer, with policies.
 | `pricingpolicy`                       | `PricingPolicy` | Pricing policy details                         | ❌       |
 | `compute_slice_normalized_pricing_cc` | `f64`           | Pricing per 2GB compute slice in cloud credits | ❌       |
 | `storage_slice_normalized_pricing_cc` | `f64`           | Pricing per 1GB storage slice in cloud credits | ❌       |
-| `reputation`                          | `int`           | Reputation (0-100)                             | ❌       |
-| `uptime`                              | `int`           | Uptime (0-100)                                 | ❌       |
+| `reputation`                          | `int`           | Reputation (0-100)                             | ✅       |
+| `uptime`                              | `int`           | Uptime (0-100)                                 | ✅       |
 
 ---
 
@@ -200,33 +200,4 @@ Pricing policy for slices or node groups.
 | `marketplace_year_discounts` | `[]int` | Discounts for 1Y, 2Y, 3Y prepaid usage (e.g. [30,40,50])  |
 | `volume_discounts`           | `[]int` | Volume discounts based on purchase size (e.g. [10,20,30]) |
 
----
 
-## Usage Instructions
-
-### Loading Nodes from JSON Files
-
-Use the `load` function to read all `.json` files from a directory and decode them into `Node` structs:
-
-```v
-import freeflowuniverse.herolib.threefold.grid4.datamodel
-
-nodes := datamodel.load('/path/to/nodes')!
-```
-
-### Defining Nodes and Slices
-
-Nodes and slices are defined using structured data. Each node contains compute and storage slices, and detailed device information.
-
-### Indexing
-
-Only root objects (`Node`, `NodeGroup`) support indexing. The following fields are indexed for fast lookup:
-
-- `Node`: `id`, `nodegroupid`, `country`
-- `NodeGroup`: `id`, `farmerid`
-
-Use these fields in queries for efficient filtering and retrieval.
-
----
-
-Let me know if you'd like this exported to a file or formatted differently.
