@@ -1100,9 +1100,6 @@ if [ "$RESET" = true ] || ! command_exists v; then
 
     sshknownkeysadd
 
-    # Install secp256k1
-    install_secp256k1
-
     # Only clone and install if directory doesn't exist
     if [ ! -d ~/code/v ]; then
         echo "Installing V..."

@@ -257,42 +257,42 @@ function hero_lib_get {
     fi    
 }
 
-function install_secp256k1 {
+# function install_secp256k1 {
 
-    echo "Installing secp256k1..."
-    if [[ "${OSNAME}" == "darwin"* ]]; then
-        # Attempt installation only if not already found
-        echo "Attempting secp256k1 installation via Homebrew..."
-        brew install secp256k1
-    elif [[ "${OSNAME}" == "ubuntu" ]]; then
-        # Install build dependencies
-        package_install "build-essential wget autoconf libtool"
+#     echo "Installing secp256k1..."
+#     if [[ "${OSNAME}" == "darwin"* ]]; then
+#         # Attempt installation only if not already found
+#         echo "Attempting secp256k1 installation via Homebrew..."
+#         brew install secp256k1
+#     elif [[ "${OSNAME}" == "ubuntu" ]]; then
+#         # Install build dependencies
+#         package_install "build-essential wget autoconf libtool"
 
-        # Download and extract secp256k1
-        cd "${DIR_BUILD}"
-        wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
-        tar -xvf v0.3.2.tar.gz
+#         # Download and extract secp256k1
+#         cd "${DIR_BUILD}"
+#         wget https://github.com/bitcoin-core/secp256k1/archive/refs/tags/v0.3.2.tar.gz
+#         tar -xvf v0.3.2.tar.gz
 
-        # Build and install
-        cd secp256k1-0.3.2/
-        ./autogen.sh
-        ./configure
-        make -j 5
-        if is_github_actions; then
-            run_sudo make install
-        else
-            make install
-        fi
+#         # Build and install
+#         cd secp256k1-0.3.2/
+#         ./autogen.sh
+#         ./configure
+#         make -j 5
+#         if is_github_actions; then
+#             run_sudo make install
+#         else
+#             make install
+#         fi
         
-        # Cleanup
-        cd ..
-        rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
-    else
-        echo "secp256k1 installation not implemented for ${OSNAME}"
-        exit 1
-    fi
-    echo "secp256k1 installation complete!"
-}
+#         # Cleanup
+#         cd ..
+#         rm -rf secp256k1-0.3.2 v0.3.2.tar.gz
+#     else
+#         echo "secp256k1 installation not implemented for ${OSNAME}"
+#         exit 1
+#     fi
+#     echo "secp256k1 installation complete!"
+# }
 
 
 remove_all() {
@@ -564,7 +564,6 @@ if [ "$RESET" = true ] || ! command_exists v; then
     sshknownkeysadd
 
     # Install secp256k1
-    install_secp256k1
 
     v-install
 
