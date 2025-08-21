@@ -15,7 +15,7 @@ pub mut:
 	api_key       string
 	url           string = 'https://openrouter.ai/api/v1'
 	model_default string = 'gpt-oss-120b'
-	conn          ?&httpconnection.HTTPConnection @[skip; str: skip]
+	// conn          ?&httpconnection.HTTPConnection @[skip; str: skip]
 }
 
 // your checking & initialization code if needed
@@ -50,20 +50,16 @@ fn obj_init(mycfg_ OpenAI) !OpenAI {
 }
 
 pub fn (mut client OpenAI) connection() !&httpconnection.HTTPConnection {
-	mut c := client.conn or {
-		mut c2 := httpconnection.new(
-			name:  'openaiconnection_${client.name}'
-			url:   client.url
-			cache: false
-			retry: 20
-		)!
-		c2
-	}
-
+	mut c2 := httpconnection.new(
+		name:  'openaiconnection_${client.name}'
+		url:   client.url
+		cache: false
+		retry: 20
+	)!
 	// Authorization: 'Bearer <OPENROUTER_API_KEY>',
-	c.default_header.set(.authorization, 'Bearer ${client.api_key}')
-	client.conn = c
-	return c
+	c2.default_header.set(.authorization, 'Bearer ${client.api_key}')
+	client.conn = c2
+	return c2
 }
 
 /////////////NORMALLY NO NEED TO TOUCH
