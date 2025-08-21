@@ -46,7 +46,7 @@ pub fn start(args WebArgs) !{
 		menu: args.menu,
 		port: args.port
 	}
-	veb.run[App, Context](mut app, app.port)!
+	veb.run[App, Context](mut app, app.port)
 }
 
 // Routes
