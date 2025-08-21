@@ -12,6 +12,9 @@ pub mut:
 	country       string       // 2 letter code as specified in lib/data/countries/data/countryInfo.txt, use that library for validation
 	capacity      NodeCapacity // Hardware capacity details
 	provisiontime u32          // lets keep it simple and compatible
+	pubkey string 
+	signature_node string //signature done on node to validate pubkey with privkey
+	signature_farmer string //signature as done by farmers to validate their identity
 }
 
 pub struct DeviceInfo {
