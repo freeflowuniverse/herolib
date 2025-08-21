@@ -40,13 +40,13 @@ pub mut:
 
 
 // Start the webserver (blocking)
-pub fn start(args WebArgs) ! {
+pub fn start(args WebArgs) !{
 	mut app := App{
 		title: args.title,
 		menu: args.menu,
 		port: args.port
 	}
-	veb.run[App, Context](mut app, app.port)
+	veb.run[App, Context](mut app, app.port)!
 }
 
 // Routes
