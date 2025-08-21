@@ -1,7 +1,7 @@
 module herocmds
 
 import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.web.heroprompt
+import freeflowuniverse.herolib.web.ui
 import os
 import cli { Command, Flag }
 import time
@@ -58,9 +58,9 @@ fn cmd_web_execute(cmd Command) ! {
 
 	console.print_header('Starting Heroprompt...')
 
-	// Prepare arguments for the Heroprompt server
-	mut factory_args := heroprompt.FactoryArgs{
-		title: 'Heroprompt'
+	// Prepare arguments for the UI factory
+	mut factory_args := ui.FactoryArgs{
+		title: 'Hero Admin Panel'
 		host:  host
 		port:  port
 	}
@@ -70,7 +70,7 @@ fn cmd_web_execute(cmd Command) ! {
 
 	// Start the server in a separate thread to allow for browser opening
 	spawn fn [factory_args] () {
-		heroprompt.start(factory_args) or {
+		ui.start(factory_args) or {
 			console.print_stderr('Failed to start Heroprompt server: ${err}')
 			return
 		}

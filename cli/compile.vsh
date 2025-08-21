@@ -45,7 +45,7 @@ compile_cmd := if os.user_os() == 'macos' {
 	if prod_mode {
 		'v -enable-globals -g -w -n -prod hero.v'
 	} else {
-		'v  -n -g -w -cg -gc none  -cc tcc -d use_openssl -enable-globals hero.v'
+		'v  -n -g -w -cg  -cc tcc -d use_openssl -enable-globals hero.v'
 	}
 } else {
 	if prod_mode {
@@ -56,7 +56,7 @@ compile_cmd := if os.user_os() == 'macos' {
 }
 
 println('Building in ${if prod_mode { 'production' } else { 'debug' }} mode...')
-// eprintln(compile_cmd)
+eprintln(compile_cmd)
 
 if os.system(compile_cmd) != 0 {
 	panic('Failed to compile hero.v with command: ${compile_cmd}')
