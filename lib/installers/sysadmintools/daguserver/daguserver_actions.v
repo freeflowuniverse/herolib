@@ -137,7 +137,7 @@ fn destroy() ! {
         '
 
 	osal.execute_silent(cmd) or {}
-	mut zinit_factory := zinit_lib.Zinit{}
+	// mut zinit_factory := zinit_lib.Zinit{}
 
 	// if zinit_factory.exists('dagu') {
 	// 	zinit_factory.stop('dagu')! or { return error('Could not stop dagu service due to: ${err}') }
