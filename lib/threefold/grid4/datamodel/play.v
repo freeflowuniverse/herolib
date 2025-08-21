@@ -1,4 +1,4 @@
-module cloudslices
+module datamodel
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
 

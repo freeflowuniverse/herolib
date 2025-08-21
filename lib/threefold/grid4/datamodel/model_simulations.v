@@ -1,4 +1,4 @@
-module cloudslices
+module datamodel
 
 pub struct NodeSim {
 	Node

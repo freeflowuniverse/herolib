@@ -1,4 +1,4 @@
-module datamodel
+module datamodelsimulator
 
 import json
 import freeflowuniverse.herolib.core.pathlib
