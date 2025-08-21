@@ -17,7 +17,7 @@ pub struct MyceliumRPC {
 pub mut:
 	name       string = 'default'
 	url        string = default_url // RPC server URL
-	rpc_client ?&jsonrpc.Client @[skip]
+	// rpc_client ?&jsonrpc.Client @[skip]
 }
 
 // your checking & initialization code if needed

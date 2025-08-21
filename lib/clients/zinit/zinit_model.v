@@ -30,7 +30,7 @@ pub struct ZinitRPC {
 pub mut:
 	name        string = 'default'
 	socket_path string
-	rpc_client  ?&jsonrpc.Client @[skip]
+	// rpc_client  ?&jsonrpc.Client @[skip]
 }
 
 // your checking & initialization code if needed

@@ -45,7 +45,7 @@ compile_cmd := if os.user_os() == 'macos' {
 	if prod_mode {
 		'v -enable-globals -g -w -n -prod hero.v'
 	} else {
-		'v  -n -g -w -cg  -cc tcc -d use_openssl -enable-globals hero.v'
+		'v  -n -g -w -cg -gc none -cc tcc -d use_openssl -enable-globals hero.v'
 	}
 } else {
 	if prod_mode {

@@ -5,12 +5,8 @@ import freeflowuniverse.herolib.schemas.jsonrpcmodel
 
 // Helper function to get or create the RPC client
 fn (mut c ZinitRPC) client_() !&jsonrpc.Client {
-	if client := c.rpc_client {
-		return client
-	}
 	// Create Unix socket client
 	mut client := jsonrpc.new_unix_socket_client(c.socket_path)
-	c.rpc_client = client
 	return client
 }
 
