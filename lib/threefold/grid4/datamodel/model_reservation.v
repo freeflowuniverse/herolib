@@ -8,7 +8,6 @@ pub mut:
 	compute_slices []u32
 	storage_slices []u32
 	status        ReservationStatus
-	obligation    bool //if obligation then will be charged and money needs to be in escrow, otherwise its an intent
 	start_date u32 //epoch
 	end_date u32
 }
