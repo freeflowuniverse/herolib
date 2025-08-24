@@ -117,6 +117,11 @@ pub fn (mut s Session) windows_get() []&Window {
 	return res
 }
 
+// List windows in a session
+pub fn (mut s Session) list_windows() []&Window {
+	   return s.windows
+}
+
 pub fn (mut s Session) windownames_get() []string {
 	mut res := []string{}
 	for _, window in s.windows {
@@ -133,7 +138,18 @@ pub fn (mut s Session) str() string {
 	return out
 }
 
-// pub fn (mut s Session) activate()! {	
+pub fn (mut s Session) get_total_stats() !ProcessStats {
+	   mut total := ProcessStats{}
+	   for mut window in s.windows {
+	       stats := window.get_total_stats() or { continue }
+	       total.cpu_percent += stats.cpu_percent
+	       total.memory_bytes += stats.memory_bytes
+	       total.memory_percent += stats.memory_percent
+	   }
+	   return total
+}
+
+// pub fn (mut s Session) activate()! {
 // 	active_session := s.tmux.redis.get('tmux:active_session') or { 'No active session found' }
 // 	if active_session != 'No active session found' && s.name != active_session {
 // 		s.tmuxexecutor.db.exec('tmux attach-session -t $active_session') or {

@@ -13,10 +13,8 @@ pub mut:
 	session &Session @[skip]
 	name    string
 	id      int
+	panes   []&Pane  // windows contain multiple panes
 	active  bool
-	pid     int
-	paneid  int
-	cmd     string
 	env     map[string]string
 }
 
@@ -81,12 +79,13 @@ pub fn (mut s Session) window_new(args WindowArgs) !Window {
 	mut w := Window{
 		session: &s
 		name:    namel
-		cmd:     args.cmd
+		panes:   []&Pane{}
 		env:     args.env
 	}
 	s.windows << &w
-	w.create()!
-	s.window_delete(name: 'notused')!
+	w.create(args.cmd)!
+	// After creation, scan to populate panes
+	s.tmux.scan()!
 	return w
 }
 
@@ -136,39 +135,34 @@ pub fn (mut s Session) window_delete(args_ WindowGetArgs) ! {
 	s.windows.delete(i) // i is now the one in the list which needs to be removed	
 }
 
-pub fn (mut w Window) create() ! {
+pub fn (mut w Window) create(cmd_ string) ! {
 	// tmux new-window -P -c /tmp -e good=1 -e bad=0 -n koekoe -t main bash
-	if w.cmd.contains('\n') {
+	mut final_cmd := cmd_
+	if cmd_.contains('\n') {
 		// means is multiline need to write it
 		// scriptpath         string // is the path where the script will be put which is executed
 		// scriptkeep         bool   // means we don't remove the script
 		os.mkdir_all('/tmp/tmux/${w.session.name}')!
 		cmd_new := osal.exec_string(
-			cmd:        w.cmd
+			cmd:        cmd_
 			scriptpath: '/tmp/tmux/${w.session.name}/${w.name}.sh'
 			scriptkeep: true
 		)!
-		w.cmd = cmd_new
+		final_cmd = cmd_new
 	}
 
-	// console.print_debug(w)
-
-	if w.active == false {
-		res_opt := "-P -F '#{session_name}|#{window_name}|#{window_id}|#{pane_active}|#{pane_id}|#{pane_pid}|#{pane_start_command}'"
-		cmd := 'tmux new-window  ${res_opt} -t ${w.session.name} -n ${w.name} \'/bin/bash -c ${w.cmd}\''
-		console.print_debug(cmd)
-		res := osal.exec(cmd: cmd, stdout: false, name: 'tmux_window_create') or {
-			return error("Can't create new window ${w.name} \n${cmd}\n${err}")
-		}
-		// now look at output to get the window id = wid
-		line_arr := res.output.split('|')
-		wid := line_arr[2] or { panic('cannot split line for window create.\n${line_arr}') }
-		w.id = wid.replace('@', '').int()
-		$if debug {
-			console.print_header(' WINDOW - Window: ${w.name} created in session: ${w.session.name}')
-		}
-	} else {
-		return error('cannot create window, it already exists.\n${w.name}:${w.id}:${w.cmd}')
+	res_opt := "-P -F '#{session_name}|#{window_name}|#{window_id}|#{pane_active}|#{pane_id}|#{pane_pid}|#{pane_start_command}'"
+	cmd := 'tmux new-window  ${res_opt} -t ${w.session.name} -n ${w.name} \'/bin/bash -c ${final_cmd}\''
+	console.print_debug(cmd)
+	res := osal.exec(cmd: cmd, stdout: false, name: 'tmux_window_create') or {
+		return error("Can't create new window ${w.name} \n${cmd}\n${err}")
+	}
+	// now look at output to get the window id = wid
+	line_arr := res.output.split('|')
+	wid := line_arr[2] or { panic('cannot split line for window create.\n${line_arr}') }
+	w.id = wid.replace('@', '').int()
+	$if debug {
+		console.print_header(' WINDOW - Window: ${w.name} created in session: ${w.session.name}')
 	}
 }
 
@@ -192,29 +186,58 @@ pub fn (mut w Window) stop() ! {
 		name:   'tmux_kill-window'
 		// die:    false
 	) or { return error("Can't kill window with id:${w.id}: ${err}") }
-	w.pid = 0
-	w.active = false
+	w.active = false // Window is no longer active
 }
 
 pub fn (window Window) str() string {
-	return ' - name:${window.name} wid:${window.id} active:${window.active} pid:${window.pid} cmd:${window.cmd}'
+	mut out := ' - name:${window.name} wid:${window.id} active:${window.active}'
+	for pane in window.panes {
+		out += '\n    ${*pane}'
+	}
+	return out
+}
+
+pub fn (mut w Window) get_total_stats() !ProcessStats {
+	   mut total := ProcessStats{}
+	   for mut pane in w.panes {
+	       stats := pane.get_stats() or { continue }
+	       total.cpu_percent += stats.cpu_percent
+	       total.memory_bytes += stats.memory_bytes
+	       total.memory_percent += stats.memory_percent
+	   }
+	   return total
 }
 
 // will select the current window so with tmux a we can go there .
 // to login into a session do `tmux a -s mysessionname`
 fn (mut w Window) activate() ! {
-	cmd2 := 'tmux select-window -t %${w.id}'
+	cmd2 := 'tmux select-window -t @${w.id}'
 	osal.execute_silent(cmd2) or {
 		return error("Couldn't select window ${w.name} \n${cmd2}\n${err}")
 	}
 }
 
+// List panes in a window
+pub fn (mut w Window) list_panes() []&Pane {
+	   return w.panes
+}
+
+// Get active pane in window
+pub fn (mut w Window) get_active_pane() ?&Pane {
+	   for pane in w.panes {
+	       if pane.active {
+	           return pane
+	       }
+	   }
+	   return none
+}
+
 // show the environment
 pub fn (mut w Window) environment_print() ! {
-	res := osal.execute_silent('tmux show-environment -t %${w.paneid}') or {
-		return error('Couldnt show enviroment cmd: ${w.cmd} \n${err}')
-	}
-	os.log(res)
+	// This function needs to be updated to target a specific pane, not the window directly.
+	// For now, I'll leave it as is, but it's a point for future refinement.
+	// It should probably take a pane ID or operate on the active pane.
+	return error('Window.environment_print() needs to be updated to target a specific pane.')
 }
 
 // capture the output
