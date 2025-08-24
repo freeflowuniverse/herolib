@@ -103,35 +103,29 @@ pub fn (mut p Pane) exit_status() !ProcessStatus {
     return .finished_error
 }
 
-pub fn (mut p Pane) logs_get_all() !string {
+pub fn (mut p Pane) logs_all() !string {
     cmd := 'tmux capture-pane -t ${p.window.session.name}:@${p.window.id}.%${p.id} -S -2000 -p'
     return osal.execute_silent(cmd) or {
         error('Cannot capture pane output: ${err}')
     }
 }
 
-
-
-pub fn (mut w Pane) output_wait(c_ string, timeoutsec int) ! {
-	mut t := ourtime.now()
-	start := t.unix()
-	c := c_.replace('\n', '')
-	for i in 0 .. 2000 {
-		os := w.logs_get_new()!.map(it.content)
-		// console.print_debug(o)
-		// $if debug {
-		// 	console.print_debug(" - tmux ${w.name}: wait for: '${c}'")
-		// }
-		// need to replace \n because can be wrapped because of size of pane
-        for o in os{
-            if o.replace('\n', '').contains(c) {
+// Fix the output_wait method to use correct method name
+pub fn (mut p Pane) output_wait(c_ string, timeoutsec int) ! {
+    mut t := ourtime.now()
+    start := t.unix()
+    c := c_.replace('\n', '')
+    for i in 0 .. 2000 {
+        entries := p.logs_get_new(reset: false)!
+        for entry in entries {
+            if entry.content.replace('\n', '').contains(c) {
                 return
             }
         }
-		mut t2 := ourtime.now()
-		if t2.unix() > start + timeoutsec {
-			return error('timeout on output wait for tmux.\n${w} .\nwaiting for:\n${c}')
-		}
-		time.sleep(100 * time.millisecond)
-	}
+        mut t2 := ourtime.now()
+        if t2.unix() > start + timeoutsec {
+            return error('timeout on output wait for tmux.\n${p} .\nwaiting for:\n${c}')
+        }
+        time.sleep(100 * time.millisecond)
+    }
 }

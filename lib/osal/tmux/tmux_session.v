@@ -19,10 +19,66 @@ pub mut:
 	name  string
 	reset bool
 }
+@[params]
+pub struct WindowGetArgs {
+pub mut:
+    name string
+    id   int
+}
 
 
-pub fn (mut w Session) scan() ! {
-	//TODO: here needs to be the code to check reality and update the windows
+//load info from reality
+pub fn (mut s Session) scan() ! {
+    // Get current windows from tmux for this session
+    cmd := "tmux list-windows -t ${s.name} -F '#{window_name}|#{window_id}|#{window_active}'"
+    result := osal.execute_silent(cmd) or {
+        if err.msg().contains('session not found') {
+            return // Session doesn't exist anymore
+        }
+        return error('Cannot list windows for session ${s.name}: ${err}')
+    }
+    
+    mut current_windows := map[string]bool{}
+    for line in result.split_into_lines() {
+        if line.contains('|') {
+            parts := line.split('|')
+            if parts.len >= 2 {
+                window_name := texttools.name_fix(parts[0])
+                window_id := parts[1].replace('@', '').int()
+                window_active := parts[2] == '1'
+                
+                current_windows[window_name] = true
+                
+                // Update existing window or create new one
+                mut found := false
+                for mut w in s.windows {
+                    if w.name == window_name {
+                        w.id = window_id
+                        w.active = window_active
+                        w.scan()! // Scan panes for this window
+                        found = true
+                        break
+                    }
+                }
+                
+                if !found {
+                    mut new_window := Window{
+                        session: &s
+                        name: window_name
+                        id: window_id
+                        active: window_active
+                        panes: []&Pane{}
+                        env: map[string]string{}
+                    }
+                    new_window.scan()! // Scan panes for new window
+                    s.windows << &new_window
+                }
+            }
+        }
+    }
+    
+    // Remove windows that no longer exist in tmux
+    s.windows = s.windows.filter(current_windows[it.name] == true)
 }
 
 
@@ -58,14 +114,7 @@ pub fn (mut s Session) window_new(args WindowArgs) !Window {
 		env:     args.env
 	}
 	s.windows << &w
-	w.create(args.cmd)!
-	// After creation, scan to populate panes
-	s.tmux.scan()!
-	return w
-}
 
-
-pub fn (mut s Session) create() ! {
 	res_opt := "-P -F '#\{window_id\}'"
 	cmd := "tmux new-session ${res_opt} -d -s ${s.name} 'sh'"
 	window_id_ := osal.execute_silent(cmd) or {
@@ -80,7 +129,12 @@ pub fn (mut s Session) create() ! {
 	osal.execute_silent(cmd2) or {
 		return error("Can't rename window ${window_id} to notused \n${cmd2}\n${err}")
 	}
+	s.scan()!
+	return w
 }
+
+
+
 
 
 // get all windows as found in a session
@@ -95,7 +149,7 @@ pub fn (mut s Session) windows_get() []&Window {
 
 // List windows in a session
 pub fn (mut s Session) window_list() []&Window {
-	   return s.windows
+	return s.windows
 }
 
 pub fn (mut s Session) window_names() []string {
