@@ -1,6 +1,9 @@
 module datamodel
 
+
+
 // typically 1GB of memory, but can be adjusted based based on size of machine
+@[heap]
 pub struct ComputeSlice {
 pub mut:
 	nodeid                   u32 // the node in the grid, there is an object describing the node
@@ -16,14 +19,4 @@ pub mut:
 	price_cc                 f64 // price per slice (even if the grouped one)
 	pricing_policy           PricingPolicy
 	sla_policy               SLAPolicy
-}
-
-// 1GB of storage
-pub struct StorageSlice {
-pub mut:
-	nodeid         u32 // the node in the grid
-	id             int // the id of the slice in the node, are tracked in the node itself
-	price_cc       f64 // price per slice (even if the grouped one)
-	pricing_policy PricingPolicy
-	sla_policy     SLAPolicy
 }
