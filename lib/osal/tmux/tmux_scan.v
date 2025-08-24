@@ -5,73 +5,99 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.ui.console
 import time
 
+// Check if error message indicates tmux server is not running
+fn is_tmux_server_not_running_error(error_msg string) bool {
+	// Common tmux server not running error patterns
+	tmux_not_running_patterns := [
+		'no server running',
+		'error connecting to',
+		'No such file or directory', // when socket doesn't exist
+	]
+
+	error_lower := error_msg.to_lower()
+	for pattern in tmux_not_running_patterns {
+		if error_lower.contains(pattern.to_lower()) {
+			return true
+		}
+	}
+	return false
+}
+
 fn (mut t Tmux) scan_add(line string) !&Pane {
-    // Parse the line to get session, window, and pane info
-    line_arr := line.split('|')
-    session_name := line_arr[0]
-    window_name := line_arr[1]
-    window_id := line_arr[2]
-    pane_active := line_arr[3]
-    pane_id := line_arr[4]
-    pane_pid := line_arr[5]
-    pane_start_command := line_arr[6] or { '' }
+	// Parse the line to get session, window, and pane info
+	line_arr := line.split('|')
+	if line_arr.len < 6 {
+		return error('Invalid tmux pane line format: ${line}')
+	}
+	session_name := line_arr[0]
+	window_name := line_arr[1]
+	window_id := line_arr[2]
+	pane_active := line_arr[3]
+	pane_id := line_arr[4]
+	pane_pid := line_arr[5]
+	pane_start_command := line_arr[6] or { '' }
 
-    wid := (window_id.replace('@', '')).int()
-    pid := (pane_id.replace('%', '')).int()
+	// Skip if window name is empty
+	if window_name.len == 0 {
+		return error('Window name is empty in line: ${line}')
+	}
 
-    mut s := t.session_get(session_name)!
+	wid := (window_id.replace('@', '')).int()
+	pid := (pane_id.replace('%', '')).int()
 
-    // Get or create window
-    mut w := if s.window_exist(name: window_name, id: wid) {
-        s.window_get(name: window_name, id: wid)!
-    } else {
-        mut new_w := Window{
-            session: s
-            name: texttools.name_fix(window_name)
-            id: wid
-            panes: []&Pane{}
-        }
-        s.windows << &new_w
-        &new_w
-    }
+	mut s := t.session_get(session_name)!
 
-    // Create or update pane
-    mut p := Pane{
-        window: w
-        id: pid
-        pid: pane_pid.int()
-        active: pane_active == '1'
-        cmd: pane_start_command
-        created_at: time.now()
-    }
+	// Get or create window
+	mut w := if s.window_exist(name: window_name, id: wid) {
+		s.window_get(name: window_name, id: wid)!
+	} else {
+		mut new_w := Window{
+			session: s
+			name:    texttools.name_fix(window_name)
+			id:      wid
+			panes:   []&Pane{}
+		}
+		s.windows << &new_w
+		&new_w
+	}
 
-    // Check if pane already exists
-    mut found := false
-    for mut existing_pane in w.panes {
-        if existing_pane.id == pid {
-            existing_pane.pid = p.pid
-            existing_pane.active = p.active
-            existing_pane.cmd = p.cmd
-            found = true
-            break
-        }
-    }
+	// Create or update pane
+	mut p := Pane{
+		window:     w
+		id:         pid
+		pid:        pane_pid.int()
+		active:     pane_active == '1'
+		cmd:        pane_start_command
+		created_at: time.now()
+	}
 
-    if !found {
-        w.panes << &p
-    }
+	// Check if pane already exists
+	mut found := false
+	for mut existing_pane in w.panes {
+		if existing_pane.id == pid {
+			existing_pane.pid = p.pid
+			existing_pane.active = p.active
+			existing_pane.cmd = p.cmd
+			found = true
+			break
+		}
+	}
 
-    return &p
+	if !found {
+		w.panes << &p
+	}
+
+	return &p
 }
 
 // scan the system to detect sessions .
-//TODO needs to be done differently, here only find the sessions, then per session call the scan() which will find the windows, call scan() there as well ...
+// TODO needs to be done differently, here only find the sessions, then per session call the scan() which will find the windows, call scan() there as well ...
 pub fn (mut t Tmux) scan() ! {
 	// os.log('TMUX - Scanning ....')
 
 	cmd_list_session := "tmux list-sessions -F '#{session_name}'"
 	exec_list := osal.exec(cmd: cmd_list_session, stdout: false, name: 'tmux_list') or {
-		if err.msg().contains('no server running') {
+		if is_tmux_server_not_running_error(err.msg()) {
 			return
 		}
 		return error('could not execute list sessions.\n${err}')

@@ -7,6 +7,24 @@ import os
 import time
 import freeflowuniverse.herolib.ui.console
 
+// Check if error message indicates tmux server is not running
+fn is_tmux_server_not_running_error(error_msg string) bool {
+	// Common tmux server not running error patterns
+	tmux_not_running_patterns := [
+		'no server running',
+		'error connecting to',
+		'No such file or directory', // when socket doesn't exist
+	]
+
+	error_lower := error_msg.to_lower()
+	for pattern in tmux_not_running_patterns {
+		if error_lower.contains(pattern.to_lower()) {
+			return true
+		}
+	}
+	return false
+}
+
 @[heap]
 pub struct Tmux {
 pub mut:
@@ -177,7 +195,7 @@ pub fn (mut t Tmux) windows_get() []&Window {
 pub fn (mut t Tmux) is_running() !bool {
 	res := os.execute('tmux info')
 	if res.exit_code != 0 {
-		if res.output.contains('no server running') {
+		if is_tmux_server_not_running_error(res.output) {
 			// console.print_debug(" TMUX NOT RUNNING")
 			return false
 		}
