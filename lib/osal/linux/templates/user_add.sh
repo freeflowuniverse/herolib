@@ -64,56 +64,6 @@ cat > "$PROFILE_SCRIPT" <<'EOF'
 SSH_AGENT_PID_FILE="$HOME/.ssh/agent.pid"
 SSH_AUTH_SOCK_FILE="$HOME/.ssh/agent.sock"
 
-# Function to start ssh-agent
-start_ssh_agent() {
-    mkdir -p "$HOME/.ssh"
-    chmod 700 "$HOME/.ssh"
-    
-    # Start ssh-agent and save connection info
-    ssh-agent -s > "$SSH_AGENT_PID_FILE"
-    source "$SSH_AGENT_PID_FILE"
-    
-    # Save socket path for future sessions
-    echo "$SSH_AUTH_SOCK" > "$SSH_AUTH_SOCK_FILE"
-    
-    # Load all private keys found in ~/.ssh
-    if [ -d "$HOME/.ssh" ]; then
-        for KEY in "$HOME"/.ssh/*; do
-            if [ -f "$KEY" ] && [ ! "${KEY##*.}" = "pub" ] && grep -q "PRIVATE KEY" "$KEY" 2>/dev/null; then
-                ssh-add "$KEY" >/dev/null 2>&1 && echo "🔑 Loaded key: $(basename $KEY)"
-            fi
-        done
-    fi
-}
-
-# Check if ssh-agent is running
-if [ -f "$SSH_AGENT_PID_FILE" ]; then
-    source "$SSH_AGENT_PID_FILE" >/dev/null 2>&1
-    # Test if agent is responsive
-    if ! ssh-add -l >/dev/null 2>&1; then
-        start_ssh_agent
-    else
-        # Agent is running, restore socket path
-        if [ -f "$SSH_AUTH_SOCK_FILE" ]; then
-            export SSH_AUTH_SOCK=$(cat "$SSH_AUTH_SOCK_FILE")
-        fi
-    fi
-else
-    start_ssh_agent
-fi
-
-# For interactive shells
-if [[ $- == *i* ]]; then
-    echo "🔑 SSH Agent ready at $SSH_AUTH_SOCK"
-    # Show loaded keys
-    KEY_COUNT=$(ssh-add -l 2>/dev/null | wc -l)
-    if [ "$KEY_COUNT" -gt 0 ]; then
-        echo "🔑 $KEY_COUNT SSH key(s) loaded"
-    fi
-fi
-
-EOF
-
 chown "$NEWUSER":"$NEWUSER" "$PROFILE_SCRIPT"
 chmod 644 "$PROFILE_SCRIPT"
 
