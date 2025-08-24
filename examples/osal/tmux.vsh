@@ -4,7 +4,11 @@
 import freeflowuniverse.herolib.osal.tmux
 
 mut t := tmux.new()!
-t.session_delete('main')!
-println(t)
+if !t.is_running()! {
+	t.start()!
+}
+if t.session_exist('main') {
+	t.session_delete('main')!
+}
 t.window_new(name: 'test', cmd: 'mc', reset: true)!
 println(t)

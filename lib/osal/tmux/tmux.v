@@ -13,18 +13,75 @@ pub mut:
 	sessionid string // unique link to job
 }
 
-@[heap]
-struct Pane {
-pub mut:
-	   window     &Window @[str: skip]
-	   id         int     // pane id (e.g., %1, %2)
-	   pid        int     // process id
-	   active     bool    // is this the active pane
-	   cmd        string  // command running in pane
-	   env        map[string]string
-	   created_at time.Time
-	   last_output_offset int // for tracking new logs
+
+// get session (session has windows) .
+// returns none if not found
+pub fn (mut t Tmux) session_get(name_ string) !&Session {
+	name := texttools.name_fix(name_)
+	for s in t.sessions {
+		if s.name == name {
+			return s
+		}
+	}
+	return error('Can not find session with name: \'${name_}\', out of loaded sessions.')
 }
+
+pub fn (mut t Tmux) session_exist(name_ string) bool {
+	name := texttools.name_fix(name_)
+	t.session_get(name) or { return false }
+	return true
+}
+
+pub fn (mut t Tmux) session_delete(name_ string) ! {
+	if !(t.session_exist(name_)) {
+		return
+	}
+	name := texttools.name_fix(name_)
+	mut i := 0
+	for mut s in t.sessions {
+		if s.name == name {
+			s.stop()!
+			break
+		}
+		i += 1
+	}
+	t.sessions.delete(i)
+}
+
+@[params]
+pub struct SessionCreateArgs {
+pub mut:
+	name  string @[required]
+	reset bool
+}
+
+
+
+// create session, if reset will re-create
+pub fn (mut t Tmux) session_create(args SessionCreateArgs) !&Session {
+	name := texttools.name_fix(args.name)
+	if !(t.session_exist(name)) {
+		$if debug {
+			console.print_header(' tmux - create session: ${args}')
+		}
+		mut s2 := Session{
+			tmux: t // reference back
+			name: name
+		}
+		s2.create()!
+		t.sessions << &s2
+	}
+	mut s := t.session_get(name)!
+	if args.reset {
+		$if debug {
+			console.print_header(' tmux - session ${name} will be restarted.')
+		}
+		s.restart()!
+	}
+	t.scan()!
+	return s
+}
+
 
 @[params]
 pub struct TmuxNewArgs {
@@ -41,49 +98,6 @@ pub fn new(args TmuxNewArgs) !Tmux {
 	return t
 }
 
-// // loads tmux session, populate the object
-// pub fn (mut tmux Tmux) load() ! {
-// 	// isrunning := tmux.is_running()!
-// 	// if !isrunning {
-// 	// 	tmux.start()!
-// 	// }
-// 	// console.print_debug("SCAN")
-// 	tmux.scan()!
-// }
-
-pub struct ProcessStats {
-pub mut:
-    cpu_percent   f64
-    memory_bytes  u64
-    memory_percent f64
-}
-
-pub fn (mut p Pane) get_stats() !ProcessStats {
-    if p.pid == 0 {
-        return ProcessStats{}
-    }
-
-    // Use ps command to get CPU and memory stats
-    cmd := 'ps -p ${p.pid} -o %cpu,%mem,rss --no-headers'
-    result := osal.execute_silent(cmd) or {
-        return error('Cannot get stats for PID ${p.pid}: ${err}')
-    }
-
-    if result.trim() == '' {
-        return error('Process ${p.pid} not found')
-    }
-
-    parts := result.trim().split_any(' \t').filter(it != '')
-    if parts.len < 3 {
-        return error('Invalid ps output: ${result}')
-    }
-
-    return ProcessStats{
-        cpu_percent: parts[0].f64()
-        memory_percent: parts[1].f64()
-        memory_bytes: parts[2].u64() * 1024 // ps returns KB, convert to bytes
-    }
-}
 
 pub fn (mut t Tmux) stop() ! {
 	$if debug {
@@ -126,73 +140,6 @@ pub mut:
     content   string
     timestamp time.Time
     offset    int
-}
-
-pub fn (mut p Pane) get_new_logs() ![]LogEntry {
-    // Capture pane content with line numbers
-    cmd := 'tmux capture-pane -t ${p.window.session.name}:@${p.window.id}.%${p.id} -S ${p.last_output_offset} -p'
-    result := osal.execute_silent(cmd) or {
-        return error('Cannot capture pane output: ${err}')
-    }
-    
-    }
-
-pub fn (mut p Pane) check_process_status() !ProcessStatus {
-        
-        }
-    
-        if result.trim() == '' {
-            // Process not found, check exit status from shell history or tmux
-            return p.check_exit_status() or { .finished_error }
-        }
-    
-        return .running
-    }
-    
-    fn (mut p Pane) check_exit_status() !ProcessStatus {
-        // Get the last few lines to see if there's an exit status
-        logs := p.get_all_logs()!
-        lines := logs.split_into_lines()
-    
-        // Look for shell prompt indicating command finished
-        for line in lines.reverse() {
-            line_clean := line.trim()
-            if line_clean.contains('$') || line_clean.contains('#') || line_clean.contains('>') {
-                // Found shell prompt, command likely finished
-                // Could also check for specific exit codes in history
-                return .finished_ok
-            }
-        }
-    
-        return .finished_error
-    }
-
-    lines := result.split_into_lines()
-    mut entries := []LogEntry{}
-
-    for i, line in lines {
-        if line.trim() != '' {
-            entries << LogEntry{
-                content: line
-                timestamp: time.now()
-                offset: p.last_output_offset + i + 1
-            }
-        }
-    }
-
-    // Update offset to avoid duplicates next time
-    if entries.len > 0 {
-        p.last_output_offset = entries.last().offset
-    }
-
-    return entries
-}
-
-pub fn (mut p Pane) get_all_logs() !string {
-    cmd := 'tmux capture-pane -t ${p.window.session.name}:@${p.window.id}.%${p.id} -S -1000 -p'
-    return osal.execute_silent(cmd) or {
-        error('Cannot capture pane output: ${err}')
-    }
 }
 
 // print list of tmux sessions

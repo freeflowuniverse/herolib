@@ -64,6 +64,7 @@ fn (mut t Tmux) scan_add(line string) !&Pane {
 }
 
 // scan the system to detect sessions .
+//TODO needs to be done differently, here only find the sessions, then per session call the scan() which will find the windows, call scan() there as well ...
 pub fn (mut t Tmux) scan() ! {
 	// os.log('TMUX - Scanning ....')
 
