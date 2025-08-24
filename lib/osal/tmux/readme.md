@@ -22,3 +22,29 @@ tmux library provides functions for managing tmux sessions
 ## to attach to a tmux session
 
 > TODO:
+## HeroScript Usage Examples
+
+```heroscript
+!!tmux.session_create 
+    name:'mysession'
+    reset:true
+
+!!tmux.session_delete 
+    name:'mysession'
+
+!!tmux.window_create 
+    name:"mysession|mywindow"
+    cmd:'htop'
+    env:'VAR1=value1,VAR2=value2'
+    reset:true
+
+!!tmux.window_delete 
+    name:"mysession|mywindow"
+
+!!tmux.pane_execute 
+    name:"mysession|mywindow|mypane" 
+    cmd:'ls -la'
+
+!!tmux.pane_kill 
+    name:"mysession|mywindow|mypane"
+```
