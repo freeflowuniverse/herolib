@@ -1,8 +1,6 @@
 module sshagent
 
 import freeflowuniverse.herolib.core.playbook { PlayBook }
-import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.builder
 
 pub fn play(mut plbook PlayBook) ! {
 	if !plbook.exists(filter: 'sshagent.') {
@@ -25,7 +23,7 @@ pub fn play(mut plbook PlayBook) ! {
 		mut p := action.params
 		name := p.get('name')!
 		passphrase := p.get_default('passphrase', '')!
-		
+
 		sshkey_create(mut agent, name, passphrase)!
 		action.done = true
 	}
@@ -35,7 +33,7 @@ pub fn play(mut plbook PlayBook) ! {
 	for mut action in delete_actions {
 		mut p := action.params
 		name := p.get('name')!
-		
+
 		sshkey_delete(mut agent, name)!
 		action.done = true
 	}
@@ -45,7 +43,7 @@ pub fn play(mut plbook PlayBook) ! {
 	for mut action in load_actions {
 		mut p := action.params
 		name := p.get('name')!
-		
+
 		sshkey_load(mut agent, name)!
 		action.done = true
 	}
@@ -55,7 +53,7 @@ pub fn play(mut plbook PlayBook) ! {
 	for mut action in check_key_actions {
 		mut p := action.params
 		name := p.get('name')!
-		
+
 		sshkey_check(mut agent, name)!
 		action.done = true
 	}
@@ -66,7 +64,7 @@ pub fn play(mut plbook PlayBook) ! {
 		mut p := action.params
 		node_addr := p.get('node')!
 		key_name := p.get('name')!
-		
+
 		remote_copy(mut agent, node_addr, key_name)!
 		action.done = true
 	}
@@ -77,7 +75,7 @@ pub fn play(mut plbook PlayBook) ! {
 		mut p := action.params
 		node_addr := p.get('node')!
 		key_name := p.get('name')!
-		
+
 		remote_auth(mut agent, node_addr, key_name)!
 		action.done = true
 	}
