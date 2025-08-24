@@ -3,6 +3,7 @@ module tmux
 import freeflowuniverse.herolib.osal.core as osal
 import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.ui.console
+import time
 
 fn (mut t Tmux) scan_add(line string) !&Pane {
     // Parse the line to get session, window, and pane info

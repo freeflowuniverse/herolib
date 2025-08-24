@@ -1,9 +1,10 @@
 module tmux
 
 import freeflowuniverse.herolib.osal.core as osal
+import freeflowuniverse.herolib.data.ourtime
+import time
 // import freeflowuniverse.herolib.session
 import os
-import time
 import freeflowuniverse.herolib.ui.console
 
 @[heap]
@@ -48,14 +49,14 @@ pub fn (mut p Pane) stats() !ProcessStats {
 }
 
 
-pub struct LogEntry {
+pub struct TMuxLogEntry {
 pub mut:
     content   string
     timestamp time.Time
     offset    int
 }
 
-pub fn (mut p Pane) logs_get_new(reset bool) ![]LogEntry {
+pub fn (mut p Pane) logs_get_new(reset bool) ![]TMuxLogEntry {
 
     if reset{
         p.last_output_offset = 0
@@ -64,15 +65,15 @@ pub fn (mut p Pane) logs_get_new(reset bool) ![]LogEntry {
     cmd := 'tmux capture-pane -t ${p.window.session.name}:@${p.window.id}.%${p.id} -S ${p.last_output_offset} -p'
     result := osal.execute_silent(cmd) or {
         return error('Cannot capture pane output: ${err}')
-    } 
+    }
 
     lines := result.split_into_lines()
-    mut entries := []LogEntry{}
+    mut entries := []TMuxLogEntry{}
 
     mut i:= 0
     for line in lines {
         if line.trim_space() != '' {
-            entries << LogEntry{
+            entries << TMuxLogEntry{
                 content: line
                 timestamp: time.now()
                 offset: p.last_output_offset + i + 1
@@ -83,7 +84,7 @@ pub fn (mut p Pane) logs_get_new(reset bool) ![]LogEntry {
     if entries.len > 0 {
         p.last_output_offset = entries.last().offset
     }
-    return entries    
+    return entries
 }
 
 pub fn (mut p Pane) exit_status() !ProcessStatus {

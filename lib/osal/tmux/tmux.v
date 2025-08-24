@@ -1,6 +1,7 @@
 module tmux
 
 import freeflowuniverse.herolib.osal.core as osal
+import freeflowuniverse.herolib.core.texttools
 // import freeflowuniverse.herolib.session
 import os
 import time
@@ -98,6 +99,33 @@ pub fn new(args TmuxNewArgs) !Tmux {
 	return t
 }
 
+@[params]
+pub struct WindowNewArgs {
+pub mut:
+	session_name string = 'main'
+	name         string
+	cmd          string
+	env          map[string]string
+	reset        bool
+}
+
+pub fn (mut t Tmux) window_new(args WindowNewArgs) !&Window {
+	// Get or create session
+	mut session := if t.session_exist(args.session_name) {
+		t.session_get(args.session_name)!
+	} else {
+		t.session_create(name: args.session_name)!
+	}
+	
+	// Create window in session
+	return session.window_new(
+		name: args.name
+		cmd: args.cmd
+		env: args.env
+		reset: args.reset
+	)!
+}
+
 
 pub fn (mut t Tmux) stop() ! {
 	$if debug {
@@ -128,19 +156,6 @@ pub fn (mut t Tmux) start() ! {
 	t.scan()!
 }
 
-enum ProcessStatus {
-        running
-        finished_ok
-        finished_error
-        not_found
-    }
-
-pub struct LogEntry {
-pub mut:
-    content   string
-    timestamp time.Time
-    offset    int
-}
 
 // print list of tmux sessions
 pub fn (mut t Tmux) list_print() {

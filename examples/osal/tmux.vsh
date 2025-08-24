@@ -10,5 +10,11 @@ if !t.is_running()! {
 if t.session_exist('main') {
 	t.session_delete('main')!
 }
-t.window_new(name: 'test', cmd: 'mc', reset: true)!
+// Create session first, then create window
+mut session := t.session_create(name: 'main')!
+session.window_new(name: 'test', cmd: 'mc', reset: true)!
+
+// Or use the convenience method
+// t.window_new(session_name: 'main', name: 'test', cmd: 'mc', reset: true)!
+
 println(t)

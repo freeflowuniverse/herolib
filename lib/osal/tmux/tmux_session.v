@@ -17,6 +17,8 @@ pub mut:
 pub struct WindowArgs {
 pub mut:
 	name  string
+	cmd   string
+	env   map[string]string
 	reset bool
 }
 @[params]
@@ -26,6 +28,25 @@ pub mut:
     id   int
 }
 
+
+pub fn (mut s Session) create() ! {
+    // Check if session already exists
+    cmd_check := "tmux has-session -t ${s.name}"
+    check_result := osal.exec(cmd: cmd_check, stdout: false, ignore_error: true) or {
+        // Session doesn't exist, this is expected
+        osal.Job{}
+    }
+    
+    if check_result.exit_code == 0 {
+        return error('duplicate session: ${s.name}')
+    }
+    
+    // Create new session
+    cmd := "tmux new-session -d -s ${s.name}"
+    osal.exec(cmd: cmd, stdout: false, name: 'tmux_session_create') or {
+        return error("Can't create session ${s.name}: ${err}")
+    }
+}
 
 //load info from reality
 pub fn (mut s Session) scan() ! {
@@ -115,21 +136,10 @@ pub fn (mut s Session) window_new(args WindowArgs) !Window {
 	}
 	s.windows << &w
 
-	res_opt := "-P -F '#\{window_id\}'"
-	cmd := "tmux new-session ${res_opt} -d -s ${s.name} 'sh'"
-	window_id_ := osal.execute_silent(cmd) or {
-		return error("Can't create tmux session ${s.name} \n${cmd}\n${err}")
-	}
-
-	cmd3 := 'tmux set-option remain-on-exit on'
-	osal.execute_silent(cmd3) or { return error("Can't execute ${cmd3}\n${err}") }
-
-	window_id := window_id_.trim(' \n')
-	cmd2 := "tmux rename-window -t ${window_id} 'notused'"
-	osal.execute_silent(cmd2) or {
-		return error("Can't rename window ${window_id} to notused \n${cmd2}\n${err}")
-	}
+	// Create the window with the specified command
+	w.create(args.cmd)!
 	s.scan()!
+	
 	return w
 }
 
