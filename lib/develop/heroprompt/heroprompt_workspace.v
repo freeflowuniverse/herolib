@@ -431,7 +431,7 @@ fn (mut wsp Workspace) save() !&Workspace {
 }
 
 // Generate a random name for the workspace
-fn generate_random_workspace_name() string {
+pub fn generate_random_workspace_name() string {
 	adjectives := [
 		'brave',
 		'bright',

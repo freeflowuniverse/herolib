@@ -30,7 +30,7 @@ pub fn (app &App) api_heroprompt_list(mut ctx Context) veb.Result {
 
 @['/api/heroprompt/workspaces'; post]
 pub fn (app &App) api_heroprompt_create(mut ctx Context) veb.Result {
-	name := ctx.form['name'] or { 'default' }
+	name_input := ctx.form['name'] or { '' }
 	base_path_in := ctx.form['base_path'] or { '' }
 	if base_path_in.len == 0 {
 		return ctx.text('{"error":"base_path required"}')
@@ -40,13 +40,20 @@ pub fn (app &App) api_heroprompt_create(mut ctx Context) veb.Result {
 		home := os.home_dir()
 		base_path = os.join_path(home, base_path.all_after('~'))
 	}
-	_ := hp.get(name: name, create: true, path: base_path) or {
+
+	// If no name provided, generate a random name
+	mut name := name_input.trim(' \t\n\r')
+	if name.len == 0 {
+		name = hp.generate_random_workspace_name()
+	}
+
+	wsp := hp.get(name: name, create: true, path: base_path) or {
 		return ctx.text('{"error":"create failed"}')
 	}
 	ctx.set_content_type('application/json')
 	return ctx.text(json.encode({
-		'name':      name
-		'base_path': base_path
+		'name':      wsp.name
+		'base_path': wsp.base_path
 	}))
 }
 
@@ -61,6 +68,61 @@ pub fn (app &App) api_heroprompt_get(mut ctx Context, name string) veb.Result {
 		'base_path':      wsp.base_path
 		'selected_files': wsp.selected_children().len.str()
 	}))
+}
+
+@['/api/heroprompt/workspaces/:name'; put]
+pub fn (app &App) api_heroprompt_update(mut ctx Context, name string) veb.Result {
+	wsp := hp.get(name: name, create: false) or {
+		return ctx.text('{"error":"workspace not found"}')
+	}
+
+	new_name := ctx.form['name'] or { name }
+	new_base_path_in := ctx.form['base_path'] or { wsp.base_path }
+
+	mut new_base_path := new_base_path_in
+	if new_base_path.starts_with('~') {
+		home := os.home_dir()
+		new_base_path = os.join_path(home, new_base_path.all_after('~'))
+	}
+
+	// Update the workspace using the update_workspace method
+	updated_wsp := wsp.update_workspace(
+		name:      new_name
+		base_path: new_base_path
+	) or { return ctx.text('{"error":"failed to update workspace"}') }
+
+	ctx.set_content_type('application/json')
+	return ctx.text(json.encode({
+		'name':      updated_wsp.name
+		'base_path': updated_wsp.base_path
+	}))
+}
+
+@['/api/heroprompt/workspaces/:name'; delete]
+pub fn (app &App) api_heroprompt_delete(mut ctx Context, name string) veb.Result {
+	wsp := hp.get(name: name, create: false) or {
+		return ctx.text('{"error":"workspace not found"}')
+	}
+
+	// Delete the workspace
+	wsp.delete_workspace() or { return ctx.text('{"error":"failed to delete workspace"}') }
+
+	ctx.set_content_type('application/json')
+	return ctx.text('{"ok":true}')
+}
+
+// Alternative delete endpoint using POST with action parameter
+@['/api/heroprompt/workspaces/:name/delete'; post]
+pub fn (app &App) api_heroprompt_delete_alt(mut ctx Context, name string) veb.Result {
+	wsp := hp.get(name: name, create: false) or {
+		return ctx.text('{"error":"workspace not found"}')
+	}
+
+	// Delete the workspace
+	wsp.delete_workspace() or { return ctx.text('{"error":"failed to delete workspace"}') }
+
+	ctx.set_content_type('application/json')
+	return ctx.text('{"ok":true}')
 }
 
 @['/api/heroprompt/directory'; get]
