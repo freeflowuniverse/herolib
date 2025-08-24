@@ -57,45 +57,6 @@ chown root:ourworld /code
 chmod 2775 /code   # rwx for user+group, SGID bit so new files inherit group
 echo "✅ /code prepared (group=ourworld, rwx for group, SGID bit set)"
 
-# --- create login helper script for gpg-agent ---
-PROFILE_SCRIPT="$USERHOME/.profile_gpgagent"
-cat > "$PROFILE_SCRIPT" <<'EOF'
-# Auto-start gpg-agent with SSH support if not running
-mkdir -p "$HOME/.gnupg"
-chmod 700 "$HOME/.gnupg"
-
-# Always overwrite gpg-agent.conf with required config
-cat > "$HOME/.gnupg/gpg-agent.conf" <<CONF
-enable-ssh-support
-default-cache-ttl 7200
-max-cache-ttl 7200
-CONF
-
-# Kill old agent if any (so config is applied)
-gpgconf --kill gpg-agent 2>/dev/null || true
-
-# Launch gpg-agent
-gpgconf --launch gpg-agent
-
-# Export socket path so ssh-add works
-export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-
-# Load all private keys found in ~/.ssh
-if [ -d "$HOME/.ssh" ]; then
-  for KEY in "$HOME"/.ssh/*; do
-    if [ -f "$KEY" ] && grep -q "PRIVATE KEY" "$KEY" 2>/dev/null; then
-      ssh-add "$KEY" >/dev/null 2>&1 && echo "🔑 Loaded key: $KEY"
-    fi
-  done
-fi
-
-# For interactive shells
-if [[ $- == *i* ]]; then
-  echo "🔑 GPG Agent ready at \$SSH_AUTH_SOCK"
-fi
-
-EOF
-
 chown "$NEWUSER":"$NEWUSER" "$PROFILE_SCRIPT"
 chmod 644 "$PROFILE_SCRIPT"
 
