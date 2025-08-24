@@ -129,3 +129,21 @@ pub fn (mut p Pane) output_wait(c_ string, timeoutsec int) ! {
         time.sleep(100 * time.millisecond)
     }
 }
+
+// Get process information for this pane and all its children
+pub fn (mut p Pane) processinfo() !osal.ProcessMap {
+    if p.pid == 0 {
+        return error('Pane has no associated process (pid is 0)')
+    }
+    
+    return osal.processinfo_with_children(p.pid)!
+}
+
+// Get process information for just this pane's main process
+pub fn (mut p Pane) processinfo_main() !osal.ProcessInfo {
+    if p.pid == 0 {
+        return error('Pane has no associated process (pid is 0)')
+    }
+    
+    return osal.processinfo_get(p.pid)!
+}
