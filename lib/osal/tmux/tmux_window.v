@@ -256,3 +256,16 @@ pub fn (mut w Window) pane_split_horizontal(cmd string) !&Pane {
 pub fn (mut w Window) pane_split_vertical(cmd string) !&Pane {
 	return w.pane_split(cmd: cmd, horizontal: false)
 }
+
+// Run ttyd for this window so it can be accessed in the browser
+pub fn (mut w Window) run_ttyd(port int) ! {
+	target := '${w.session.name}:@${w.id}'
+	cmd := 'nohup ttyd -p ${port} tmux attach -t ${target} >/dev/null 2>&1 &'
+
+	code := os.system(cmd)
+	if code != 0 {
+		return error('Failed to start ttyd on port ${port} for window ${w.name}')
+	}
+
+	println('ttyd started for window ${w.name} at http://localhost:${port}')
+}

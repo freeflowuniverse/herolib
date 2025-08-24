@@ -258,3 +258,16 @@ pub fn (mut s Session) stop() ! {
 		return error("Can't delete session ${s.name} - This may happen when session is not found: ${err}")
 	}
 }
+
+// Run ttyd for this session so it can be accessed in the browser
+pub fn (mut s Session) run_ttyd(port int) ! {
+	target := '${s.name}'
+	cmd := 'nohup ttyd -p ${port} tmux attach -t ${target} >/dev/null 2>&1 &'
+
+	code := os.system(cmd)
+	if code != 0 {
+		return error('Failed to start ttyd on port ${port} for session ${s.name}')
+	}
+
+	println('ttyd started for session ${s.name} at http://localhost:${port}')
+}
