@@ -220,6 +220,44 @@ pub:
 	typ  string @[json: 'type']
 }
 
+pub fn (wsp &Workspace) list_dir(rel_path string) ![]ListItem {
+	mut dir := if rel_path.len > 0 {
+		if os.is_abs_path(rel_path) {
+			rel_path
+		} else {
+			os.join_path(wsp.base_path, rel_path)
+		}
+	} else {
+		wsp.base_path
+	}
+
+	if dir.len == 0 {
+		return error('workspace base_path not set')
+	}
+
+	if !os.is_abs_path(dir) {
+		dir = os.join_path(wsp.base_path, dir)
+	}
+
+	entries := os.ls(dir) or { return error('cannot list directory') }
+	mut out := []ListItem{}
+	for e in entries {
+		full := os.join_path(dir, e)
+		if os.is_dir(full) {
+			out << ListItem{
+				name: e
+				typ:  'directory'
+			}
+		} else if os.is_file(full) {
+			out << ListItem{
+				name: e
+				typ:  'file'
+			}
+		}
+	}
+	return out
+}
+
 pub fn (wsp &Workspace) list() ![]ListItem {
 	mut dir := wsp.base_path
 	if dir.len == 0 {

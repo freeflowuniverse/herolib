@@ -1,7 +1,5 @@
 module datamodel
 
-
-
 // typically 1GB of memory, but can be adjusted based based on size of machine
 @[heap]
 pub struct ComputeSlice {
