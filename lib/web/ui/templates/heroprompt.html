@@ -117,7 +117,7 @@
                                     </button>
                                     <button class="nav-link tab" data-tab="chat">
                                         <i class="icon-chat"></i>
-                                        <span>Chat</span>
+                                        <span>AI Chat</span>
                                     </button>
                                 </div>
                                 <div class="workspace-actions">
@@ -219,37 +219,91 @@ Example:
                             <!-- Chat Tab -->
                             <div id="tab-chat" class="tab-pane" style="display: none;">
                                 <div class="chat-workspace">
-                                    <div class="chat-header">
-                                        <h6 class="section-title">AI Assistant</h6>
-                                        <div class="chat-actions">
-                                            <button id="clearChat" class="btn btn-sm btn-ghost" title="Clear Chat">
-                                                <i class="icon-clear"></i>
-                                            </button>
-                                            <button id="exportChat" class="btn btn-sm btn-ghost" title="Export Chat">
-                                                <i class="icon-export"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="chat-content">
-                                        <div class="chat-messages">
-                                            <div id="chatMessages" class="messages-container">
-                                                <div class="welcome-message">
-                                                    <i class="icon-ai"></i>
-                                                    <p>AI Assistant ready to help!</p>
-                                                    <small>Ask questions about your selected code or get
-                                                        suggestions</small>
+                                    <div class="chat-layout">
+                                        <!-- Chat Sidebar -->
+                                        <div class="chat-sidebar">
+                                            <div class="chat-sidebar-header">
+                                                <h6 class="sidebar-title">Conversations</h6>
+                                                <button id="newChatBtn" class="btn btn-sm btn-ghost" title="New Chat">
+                                                    <i class="icon-plus"></i>
+                                                </button>
+                                            </div>
+                                            <div class="chat-list">
+                                                <div id="chatList" class="chat-conversations">
+                                                    <div class="empty-chat-list">
+                                                        <i class="icon-chat"></i>
+                                                        <p>No conversations yet</p>
+                                                        <small>Start a new chat to begin</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="chat-input">
-                                            <div class="input-container">
-                                                <textarea id="chatInput" class="chat-textarea" rows="2"
-                                                    placeholder="Ask about your code, request explanations, or get suggestions..."></textarea>
-                                                <button id="sendChat" class="btn btn-primary send-btn">
-                                                    <i class="icon-send"></i>
-                                                </button>
+                                        <!-- Chat Main Area -->
+                                        <div class="chat-main">
+                                            <div class="chat-header">
+                                                <div class="chat-header-info">
+                                                    <h6 class="section-title">AI Assistant</h6>
+                                                    <span id="chatStatus" class="chat-status">Ready</span>
+                                                </div>
+                                                <div class="chat-actions">
+                                                    <button id="clearChat" class="btn btn-sm btn-ghost"
+                                                        title="Clear Chat">
+                                                        <i class="icon-clear"></i>
+                                                    </button>
+                                                    <button id="exportChat" class="btn btn-sm btn-ghost"
+                                                        title="Export Chat">
+                                                        <i class="icon-export"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="chat-content">
+                                                <div class="chat-messages">
+                                                    <div id="chatMessages" class="messages-container">
+                                                        <div class="welcome-message">
+                                                            <div class="welcome-avatar">
+                                                                <i class="icon-ai"></i>
+                                                            </div>
+                                                            <div class="welcome-content">
+                                                                <h4>Welcome to AI Assistant</h4>
+                                                                <p>I'm here to help you with your code! You can:</p>
+                                                                <ul>
+                                                                    <li>Ask questions about your selected files</li>
+                                                                    <li>Request code explanations and improvements</li>
+                                                                    <li>Get suggestions for best practices</li>
+                                                                    <li>Debug issues and optimize performance</li>
+                                                                </ul>
+                                                                <small>Select some files from the explorer and start
+                                                                    chatting!</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="typingIndicator" class="typing-indicator"
+                                                        style="display: none;">
+                                                        <span>AI is typing</span>
+                                                        <div class="typing-dots">
+                                                            <span></span>
+                                                            <span></span>
+                                                            <span></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="chat-input">
+                                                    <div class="input-container">
+                                                        <textarea id="chatInput" class="chat-textarea" rows="2"
+                                                            placeholder="Ask about your code, request explanations, or get suggestions..."></textarea>
+                                                        <button id="sendChat" class="btn btn-primary send-btn">
+                                                            <i class="icon-send"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="input-footer">
+                                                        <span class="input-hint">Press Enter to send, Shift+Enter for
+                                                            new line</span>
+                                                        <span id="charCount" class="char-count">0</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
