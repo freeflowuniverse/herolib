@@ -21,87 +21,86 @@ pub mut:
 	env   map[string]string
 	reset bool
 }
+
 @[params]
 pub struct WindowGetArgs {
 pub mut:
-    name string
-    id   int
+	name string
+	id   int
 }
-
 
 pub fn (mut s Session) create() ! {
-    // Check if session already exists
-    cmd_check := "tmux has-session -t ${s.name}"
-    check_result := osal.exec(cmd: cmd_check, stdout: false, ignore_error: true) or {
-        // Session doesn't exist, this is expected
-        osal.Job{}
-    }
-    
-    if check_result.exit_code == 0 {
-        return error('duplicate session: ${s.name}')
-    }
-    
-    // Create new session
-    cmd := "tmux new-session -d -s ${s.name}"
-    osal.exec(cmd: cmd, stdout: false, name: 'tmux_session_create') or {
-        return error("Can't create session ${s.name}: ${err}")
-    }
+	// Check if session already exists
+	cmd_check := 'tmux has-session -t ${s.name}'
+	check_result := osal.exec(cmd: cmd_check, stdout: false, ignore_error: true) or {
+		// Session doesn't exist, this is expected
+		osal.Job{}
+	}
+
+	if check_result.exit_code == 0 {
+		return error('duplicate session: ${s.name}')
+	}
+
+	// Create new session
+	cmd := 'tmux new-session -d -s ${s.name}'
+	osal.exec(cmd: cmd, stdout: false, name: 'tmux_session_create') or {
+		return error("Can't create session ${s.name}: ${err}")
+	}
 }
 
-//load info from reality
+// load info from reality
 pub fn (mut s Session) scan() ! {
-    // Get current windows from tmux for this session
-    cmd := "tmux list-windows -t ${s.name} -F '#{window_name}|#{window_id}|#{window_active}'"
-    result := osal.execute_silent(cmd) or {
-        if err.msg().contains('session not found') {
-            return // Session doesn't exist anymore
-        }
-        return error('Cannot list windows for session ${s.name}: ${err}')
-    }
-    
-    mut current_windows := map[string]bool{}
-    for line in result.split_into_lines() {
-        if line.contains('|') {
-            parts := line.split('|')
-            if parts.len >= 2 {
-                window_name := texttools.name_fix(parts[0])
-                window_id := parts[1].replace('@', '').int()
-                window_active := parts[2] == '1'
-                
-                current_windows[window_name] = true
-                
-                // Update existing window or create new one
-                mut found := false
-                for mut w in s.windows {
-                    if w.name == window_name {
-                        w.id = window_id
-                        w.active = window_active
-                        w.scan()! // Scan panes for this window
-                        found = true
-                        break
-                    }
-                }
-                
-                if !found {
-                    mut new_window := Window{
-                        session: &s
-                        name: window_name
-                        id: window_id
-                        active: window_active
-                        panes: []&Pane{}
-                        env: map[string]string{}
-                    }
-                    new_window.scan()! // Scan panes for new window
-                    s.windows << &new_window
-                }
-            }
-        }
-    }
-    
-    // Remove windows that no longer exist in tmux
-    s.windows = s.windows.filter(current_windows[it.name] == true)
-}
+	// Get current windows from tmux for this session
+	cmd := "tmux list-windows -t ${s.name} -F '#{window_name}|#{window_id}|#{window_active}'"
+	result := osal.execute_silent(cmd) or {
+		if err.msg().contains('session not found') {
+			return
+		}
+		return error('Cannot list windows for session ${s.name}: ${err}')
+	}
 
+	mut current_windows := map[string]bool{}
+	for line in result.split_into_lines() {
+		if line.contains('|') {
+			parts := line.split('|')
+			if parts.len >= 2 {
+				window_name := texttools.name_fix(parts[0])
+				window_id := parts[1].replace('@', '').int()
+				window_active := parts[2] == '1'
+
+				current_windows[window_name] = true
+
+				// Update existing window or create new one
+				mut found := false
+				for mut w in s.windows {
+					if w.name == window_name {
+						w.id = window_id
+						w.active = window_active
+						w.scan()! // Scan panes for this window
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					mut new_window := Window{
+						session: &s
+						name:    window_name
+						id:      window_id
+						active:  window_active
+						panes:   []&Pane{}
+						env:     map[string]string{}
+					}
+					new_window.scan()! // Scan panes for new window
+					s.windows << &new_window
+				}
+			}
+		}
+	}
+
+	// Remove windows that no longer exist in tmux
+	s.windows = s.windows.filter(current_windows[it.name] == true)
+}
 
 // window_name is the name of the window in session main (will always be called session main)
 // cmd to execute e.g. bash file
@@ -116,7 +115,7 @@ pub fn (mut s Session) scan() ! {
 // 	reset	bool
 // }
 // ```
-pub fn (mut s Session) window_new(args WindowArgs) !Window {
+pub fn (mut s Session) window_new(args WindowArgs) !&Window {
 	$if debug {
 		console.print_header(' start window: \n${args}')
 	}
@@ -128,7 +127,7 @@ pub fn (mut s Session) window_new(args WindowArgs) !Window {
 			return error('cannot create new window it already exists, window ${namel} in session:${s.name}')
 		}
 	}
-	mut w := Window{
+	mut w := &Window{
 		session: &s
 		name:    namel
 		panes:   []&Pane{}
@@ -139,13 +138,9 @@ pub fn (mut s Session) window_new(args WindowArgs) !Window {
 	// Create the window with the specified command
 	w.create(args.cmd)!
 	s.scan()!
-	
+
 	return w
 }
-
-
-
-
 
 // get all windows as found in a session
 pub fn (mut s Session) windows_get() []&Window {
@@ -179,14 +174,14 @@ pub fn (mut s Session) str() string {
 }
 
 pub fn (mut s Session) stats() !ProcessStats {
-	   mut total := ProcessStats{}
-	   for mut window in s.windows {
-	       stats := window.stats() or { continue }
-	       total.cpu_percent += stats.cpu_percent
-	       total.memory_bytes += stats.memory_bytes
-	       total.memory_percent += stats.memory_percent
-	   }
-	   return total
+	mut total := ProcessStats{}
+	for mut window in s.windows {
+		stats := window.stats() or { continue }
+		total.cpu_percent += stats.cpu_percent
+		total.memory_bytes += stats.memory_bytes
+		total.memory_percent += stats.memory_percent
+	}
+	return total
 }
 
 // pub fn (mut s Session) activate()! {
@@ -207,8 +202,6 @@ pub fn (mut s Session) stats() !ProcessStats {
 // 		os.log('SESSION - Session: $s.name already activate ')
 // 	}
 // }
-
-
 
 fn (mut s Session) window_exist(args_ WindowGetArgs) bool {
 	mut args := args_
@@ -248,7 +241,6 @@ pub fn (mut s Session) window_delete(args_ WindowGetArgs) ! {
 	}
 	s.windows.delete(i) // i is now the one in the list which needs to be removed	
 }
-
 
 pub fn (mut s Session) restart() ! {
 	s.stop()!

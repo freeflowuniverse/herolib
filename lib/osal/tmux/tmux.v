@@ -14,7 +14,6 @@ pub mut:
 	sessionid string // unique link to job
 }
 
-
 // get session (session has windows) .
 // returns none if not found
 pub fn (mut t Tmux) session_get(name_ string) !&Session {
@@ -56,8 +55,6 @@ pub mut:
 	reset bool
 }
 
-
-
 // create session, if reset will re-create
 pub fn (mut t Tmux) session_create(args SessionCreateArgs) !&Session {
 	name := texttools.name_fix(args.name)
@@ -82,7 +79,6 @@ pub fn (mut t Tmux) session_create(args SessionCreateArgs) !&Session {
 	t.scan()!
 	return s
 }
-
 
 @[params]
 pub struct TmuxNewArgs {
@@ -116,16 +112,15 @@ pub fn (mut t Tmux) window_new(args WindowNewArgs) !&Window {
 	} else {
 		t.session_create(name: args.session_name)!
 	}
-	
+
 	// Create window in session
 	return session.window_new(
-		name: args.name
-		cmd: args.cmd
-		env: args.env
+		name:  args.name
+		cmd:   args.cmd
+		env:   args.env
 		reset: args.reset
 	)!
 }
-
 
 pub fn (mut t Tmux) stop() ! {
 	$if debug {
@@ -155,7 +150,6 @@ pub fn (mut t Tmux) start() ! {
 	time.sleep(time.Duration(100 * time.millisecond))
 	t.scan()!
 }
-
 
 // print list of tmux sessions
 pub fn (mut t Tmux) list_print() {
