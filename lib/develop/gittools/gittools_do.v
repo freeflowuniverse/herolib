@@ -237,7 +237,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 			need_commit_repo := need_push_repo || need_pull_repo
 				|| (need_commit0 && g.need_commit()!)
 
-			// console.print_debug(" --- git_do ${g.cache_key()} \n    need_commit_repo:${need_commit_repo} \n    need_pull_repo:${need_pull_repo}  \n    need_push_repo:${need_push_repo}")		
+			// console.print_debug(" --- git_do ${g.cache_key()} \n    need_commit_repo:${need_commit_repo} \n    need_pull_repo:${need_pull_repo}  \n    need_push_repo:${need_push_repo}")
 
 			if need_commit_repo {
 				mut msg := args.msg
