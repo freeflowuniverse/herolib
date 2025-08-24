@@ -13,13 +13,6 @@
     content: "⚙";
 }
 
-.icon-manage::before {
-    content: "☰";
-}
-
-.icon-search::before {
-    content: "🔍";
-}
 
 .icon-close::before {
     content: "✕";
@@ -45,49 +38,16 @@
     content: "✎";
 }
 
-.icon-chat::before {
-    content: "💬";
-}
-
-.icon-token::before {
-    content: "🔢";
-}
-
-.icon-export::before {
-    content: "↗";
-}
-
-.icon-import::before {
-    content: "↙";
-}
 
 .icon-copy::before {
     content: "📋";
 }
 
-.icon-template::before {
-    content: "📝";
-}
-
-.icon-save::before {
-    content: "💾";
-}
 
 .icon-generate::before {
     content: "⚡";
 }
 
-.icon-clear::before {
-    content: "🗑";
-}
-
-.icon-ai::before {
-    content: "🤖";
-}
-
-.icon-send::before {
-    content: "➤";
-}
 
 .icon-empty::before {
     content: "∅";
@@ -885,7 +845,7 @@
 .prompt-workspace {
     height: 100%;
     display: grid;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: auto 1fr;
     gap: 16px;
     padding: 16px;
     overflow: hidden;
@@ -900,7 +860,15 @@
     border-radius: 6px;
     overflow: hidden;
     min-height: 0;
-    max-height: 100%;
+}
+
+.prompt-editor {
+    max-height: 300px;
+}
+
+.prompt-output {
+    flex: 1;
+    min-height: 200px;
 }
 
 .editor-header,
@@ -1324,15 +1292,15 @@
 }
 
 .modal-content-dark {
-    background-color: var(--bg-primary);
+    background-color: var(--bg-primary) !important;
     border: 1px solid var(--border-primary);
     color: var(--text-primary);
 }
 
 .modal-header-dark {
-    background-color: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-primary);
-    color: var(--text-primary);
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
     padding: 12px 20px;
 }
 
@@ -1376,9 +1344,9 @@
 }
 
 .modal-footer-dark {
-    background-color: var(--bg-secondary);
-    border-top: 1px solid var(--border-primary);
-    color: var(--text-primary);
+    background-color: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
@@ -1428,6 +1396,15 @@
     font-size: 13px;
     line-height: 1.5;
     background-color: var(--bg-primary);
+    position: relative;
+}
+
+/* Synchronized scrolling container */
+.code-scroll-container {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-primary);
 }
 
 .line-numbers {
@@ -1441,6 +1418,9 @@
     font-size: 12px;
     overflow: hidden;
     flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: fit-content;
 }
 
 .line-number {
@@ -1462,6 +1442,53 @@
     flex: 1;
     overflow: auto;
     background-color: var(--bg-primary);
+    position: relative;
+}
+
+.line-numbers-container {
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-primary);
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.line-numbers-scroll {
+    padding: 16px 8px;
+    text-align: right;
+    user-select: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+    background-color: var(--bg-secondary);
+}
+
+.code-content-container {
+    flex: 1;
+    overflow: auto;
+    background-color: var(--bg-primary);
+}
+
+.code-text {
+    margin: 0;
+    padding: 16px 20px;
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary);
+    white-space: pre;
+    word-wrap: normal;
+    overflow-wrap: normal;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    border: none;
+    outline: none;
+}
+
+.code-text code {
+    background-color: transparent !important;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    font-family: inherit;
+    line-height: inherit;
 }
 
 .code-content::-webkit-scrollbar {
@@ -1624,115 +1651,28 @@
     border: none;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    background-color: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
 }
 
 .modal-header {
-    border-bottom: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--bs-border-color) !important;
     padding: 1.5rem;
-    background-color: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
 }
 
 .modal-body {
     padding: 1.5rem;
-    background-color: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
 }
 
 .modal-footer {
-    border-top: 1px solid var(--border-primary);
+    border-top: 1px solid var(--bs-border-color) !important;
     padding: 1rem 1.5rem;
-    background-color: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-}
-
-/* Workspace Management Modal */
-#workspaceManageModal .modal-content,
-#workspaceDetailsModal .modal-content {
-    background-color: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
-}
-
-#workspaceManageModal .modal-header,
-#workspaceDetailsModal .modal-header {
-    background-color: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-    border-bottom: 1px solid var(--border-primary);
-}
-
-#workspaceManageModal .modal-body,
-#workspaceDetailsModal .modal-body {
-    background-color: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
-}
-
-#workspaceManageModal .modal-footer,
-#workspaceDetailsModal .modal-footer {
-    background-color: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-    border-top: 1px solid var(--border-primary);
-}
-
-#workspaceManageModal .form-control,
-#workspaceDetailsModal .form-control {
-    background-color: var(--bg-primary) !important;
-    border-color: var(--border-primary) !important;
-    color: var(--text-primary) !important;
-}
-
-#workspaceManageModal .form-control:focus,
-#workspaceDetailsModal .form-control:focus {
-    background-color: var(--bg-primary) !important;
-    border-color: var(--link-color) !important;
-    color: var(--text-primary) !important;
-    box-shadow: 0 0 0 0.2rem rgba(0, 122, 255, 0.25);
-}
-
-#workspaceManageModal .btn,
-#workspaceDetailsModal .btn {
-    color: var(--text-primary) !important;
-}
-
-#workspaceManageModal .btn-primary,
-#workspaceDetailsModal .btn-primary {
-    background-color: var(--link-color) !important;
-    border-color: var(--link-color) !important;
-    color: white !important;
-}
-
-#workspaceManageModal .btn-secondary,
-#workspaceDetailsModal .btn-secondary {
-    background-color: var(--bg-tertiary) !important;
-    border-color: var(--border-primary) !important;
-    color: var(--text-primary) !important;
-}
-
-#workspaceManageModal .btn-danger,
-#workspaceDetailsModal .btn-danger {
-    background-color: var(--danger-color) !important;
-    border-color: var(--danger-color) !important;
-    color: white !important;
-}
-
-#workspaceManageModal .list-group-item,
-#workspaceDetailsModal .list-group-item {
-    background-color: var(--bg-primary) !important;
-    border-color: var(--border-primary) !important;
-    color: var(--text-primary) !important;
-}
-
-#workspaceManageModal .list-group-item:hover,
-#workspaceDetailsModal .list-group-item:hover {
-    background-color: var(--bg-tertiary) !important;
-}
-
-#workspaceManageModal .list-group-item.active,
-#workspaceDetailsModal .list-group-item.active {
-    background-color: var(--link-color) !important;
-    border-color: var(--link-color) !important;
-    color: white !important;
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
 }
 
 /* Ensure modal backdrop is properly styled */
@@ -1742,46 +1682,18 @@
 
 /* Additional modal fixes */
 .modal {
-    --bs-modal-bg: var(--bg-primary);
-    --bs-modal-color: var(--text-primary);
+    --bs-modal-bg: var(--bs-body-bg);
+    --bs-modal-color: var(--bs-body-color);
 }
 
 .modal-dialog {
-    --bs-modal-bg: var(--bg-primary);
-}
-
-/* Modal Enhancements for Dark Theme */
-.modal-content {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-}
-
-.modal-header {
-    border-bottom: 1px solid var(--bs-border-color);
-    padding: 1.5rem;
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-}
-
-.modal-body {
-    padding: 1.5rem;
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-}
-
-.modal-footer {
-    border-top: 1px solid var(--bs-border-color);
-    padding: 1rem 1.5rem;
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
+    --bs-modal-bg: var(--bs-body-bg);
 }
 
 /* Workspace Management Modal */
 #workspaceManageModal .modal-content,
-#workspaceDetailsModal .modal-content {
+#workspaceDetailsModal .modal-content,
+#confirmDeleteModal .modal-content {
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
@@ -1802,19 +1714,22 @@
 }
 
 #workspaceManageModal .btn,
-#workspaceDetailsModal .btn {
+#workspaceDetailsModal .btn,
+#confirmDeleteModal .btn {
     color: var(--bs-body-color);
 }
 
 #workspaceManageModal .btn-primary,
-#workspaceDetailsModal .btn-primary {
+#workspaceDetailsModal .btn-primary,
+#confirmDeleteModal .btn-primary {
     background-color: var(--bs-primary);
     border-color: var(--bs-primary);
     color: white;
 }
 
 #workspaceManageModal .btn-danger,
-#workspaceDetailsModal .btn-danger {
+#workspaceDetailsModal .btn-danger,
+#confirmDeleteModal .btn-danger {
     background-color: var(--bs-danger);
     border-color: var(--bs-danger);
     color: white;
