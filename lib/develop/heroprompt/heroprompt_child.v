@@ -5,9 +5,10 @@ import os
 
 pub struct HeropromptChild {
 pub mut:
-	content string
-	path    pathlib.Path
-	name    string
+	content      string
+	path         pathlib.Path
+	name         string
+	include_tree bool // when true and this child is a dir, include full subtree in maps/contents
 }
 
 // Utility function to get file extension with special handling for common files

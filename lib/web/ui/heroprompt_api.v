@@ -70,7 +70,7 @@ pub fn (app &App) api_heroprompt_directory(mut ctx Context) veb.Result {
 	mut wsp := hp.get(name: wsname, create: false) or {
 		return ctx.text('{"error":"workspace not found"}')
 	}
-	items_w := wsp.list() or { return ctx.text('{"error":"cannot list directory"}') }
+	items_w := wsp.list_dir(path_q) or { return ctx.text('{"error":"cannot list directory"}') }
 	ctx.set_content_type('application/json')
 	mut items := []DirItem{}
 	for it in items_w {
@@ -147,4 +147,34 @@ pub fn (app &App) api_heroprompt_generate_prompt(mut ctx Context, name string) v
 	prompt := wsp.prompt(text: text)
 	ctx.set_content_type('text/plain')
 	return ctx.text(prompt)
+}
+
+@['/api/heroprompt/workspaces/:name/selection'; post]
+pub fn (app &App) api_heroprompt_sync_selection(mut ctx Context, name string) veb.Result {
+	paths_json := ctx.form['paths'] or { '[]' }
+	mut wsp := hp.get(name: name, create: false) or {
+		return ctx.text('{"error":"workspace not found"}')
+	}
+
+	// Clear current selection
+	wsp.children.clear()
+
+	// Parse paths and add them to workspace
+	paths := json.decode([]string, paths_json) or {
+		return ctx.text('{"error":"invalid paths format"}')
+	}
+
+	for path in paths {
+		if os.is_file(path) {
+			wsp.add_file(path: path) or {
+				continue // Skip files that can't be added
+			}
+		} else if os.is_dir(path) {
+			wsp.add_dir(path: path) or {
+				continue // Skip directories that can't be added
+			}
+		}
+	}
+
+	return ctx.text('{"ok":true}')
 }

@@ -39,12 +39,13 @@ pub fn (mut wsp Workspace) add_dir(args AddDirParams) !HeropromptChild {
 	}
 
 	mut ch := HeropromptChild{
-		path: pathlib.Path{
+		path:         pathlib.Path{
 			path:  abs_path
 			cat:   .dir
 			exist: .yes
 		}
-		name: name
+		name:         name
+		include_tree: true
 	}
 	wsp.children << ch
 	wsp.save()!
@@ -221,90 +222,24 @@ pub:
 }
 
 pub fn (wsp &Workspace) list_dir(rel_path string) ![]ListItem {
-	mut dir := if rel_path.len > 0 {
-		if os.is_abs_path(rel_path) {
-			rel_path
-		} else {
-			os.join_path(wsp.base_path, rel_path)
-		}
-	} else {
-		wsp.base_path
-	}
-
-	if dir.len == 0 {
-		return error('workspace base_path not set')
-	}
-
-	if !os.is_abs_path(dir) {
-		dir = os.join_path(wsp.base_path, dir)
-	}
-
-	entries := os.ls(dir) or { return error('cannot list directory') }
+	items := codewalker.list_directory(wsp.base_path, rel_path)!
 	mut out := []ListItem{}
-	for e in entries {
-		full := os.join_path(dir, e)
-		if os.is_dir(full) {
-			out << ListItem{
-				name: e
-				typ:  'directory'
-			}
-		} else if os.is_file(full) {
-			out << ListItem{
-				name: e
-				typ:  'file'
-			}
+	for item in items {
+		out << ListItem{
+			name: item.name
+			typ:  item.typ
 		}
 	}
 	return out
 }
 
 pub fn (wsp &Workspace) list() ![]ListItem {
-	mut dir := wsp.base_path
-	if dir.len == 0 {
-		return error('workspace base_path not set')
-	}
-
-	if !os.is_abs_path(dir) {
-		dir = os.join_path(wsp.base_path, dir)
-	}
-
-	entries := os.ls(dir) or { return error('cannot list directory') }
-	mut out := []ListItem{}
-	for e in entries {
-		full := os.join_path(dir, e)
-		if os.is_dir(full) {
-			out << ListItem{
-				name: e
-				typ:  'directory'
-			}
-		} else if os.is_file(full) {
-			out << ListItem{
-				name: e
-				typ:  'file'
-			}
-		}
-	}
-	return out
+	return wsp.list_dir('')
 }
 
 // Get the currently selected children (copy)
 pub fn (wsp Workspace) selected_children() []HeropromptChild {
 	return wsp.children.clone()
-}
-
-// Build utilities
-fn list_files_recursive(root string) []string {
-	mut out := []string{}
-	entries := os.ls(root) or { return out }
-	for e in entries {
-		fp := os.join_path(root, e)
-		if os.is_dir(fp) {
-			out << list_files_recursive(fp)
-		} else if os.is_file(fp) {
-			out << fp
-		}
-	}
-	return out
 }
 
 // build_file_content generates formatted content for all selected files (and all files under selected dirs)
@@ -333,7 +268,7 @@ fn (wsp Workspace) build_file_content() !string {
 	}
 	// files under selected directories, using CodeWalker for filtered traversal
 	for ch in wsp.children {
-		if ch.path.cat == .dir {
+		if ch.path.cat == .dir && ch.include_tree {
 			mut cw := codewalker.new(codewalker.CodeWalkerArgs{})!
 			mut fm := cw.filemap_get(path: ch.path.path)!
 			for rel, fc in fm.content {
@@ -354,64 +289,6 @@ fn (wsp Workspace) build_file_content() !string {
 	return content
 }
 
-// Minimal tree builder for selected directories only; marks files with *
-fn build_file_tree_fs(roots []HeropromptChild, prefix string) string {
-	mut out := ''
-	for i, root in roots {
-		if root.path.cat != .dir {
-			continue
-		}
-		connector := if i == roots.len - 1 { '└── ' } else { '├── ' }
-		out += '${prefix}${connector}${root.name}\n'
-		child_prefix := if i == roots.len - 1 { prefix + '    ' } else { prefix + '│   ' }
-		// list children under root
-		entries := os.ls(root.path.path) or { []string{} }
-		// sort: dirs first then files
-		mut dirs := []string{}
-		mut files := []string{}
-		for e in entries {
-			fp := os.join_path(root.path.path, e)
-			if os.is_dir(fp) {
-				dirs << fp
-			} else if os.is_file(fp) {
-				files << fp
-			}
-		}
-		dirs.sort()
-		files.sort()
-		// files
-		for j, f in files {
-			file_connector := if j == files.len - 1 && dirs.len == 0 {
-				'└── '
-			} else {
-				'├── '
-			}
-			out += '${child_prefix}${file_connector}${os.base(f)} *\n'
-		}
-		// subdirectories
-		for j, d in dirs {
-			sub_connector := if j == dirs.len - 1 { '└── ' } else { '├── ' }
-			out += '${child_prefix}${sub_connector}${os.base(d)}\n'
-			sub_prefix := if j == dirs.len - 1 {
-				child_prefix + '    '
-			} else {
-				child_prefix + '│   '
-			}
-			out += build_file_tree_fs([
-				HeropromptChild{
-					path: pathlib.Path{
-						path:  d
-						cat:   .dir
-						exist: .yes
-					}
-					name: os.base(d)
-				},
-			], sub_prefix)
-		}
-	}
-	return out
-}
-
 pub struct HeropromptTmpPrompt {
 pub mut:
 	user_instructions string
@@ -430,42 +307,63 @@ fn (wsp Workspace) build_file_map() string {
 	mut roots := []HeropromptChild{}
 	mut files_only := []HeropromptChild{}
 	for ch in wsp.children {
-		if ch.path.cat == .dir {
-			roots << ch
+		if ch.path.cat == .dir && ch.include_tree {
+			roots << ch // only include directories explicitly marked to include subtree
 		} else if ch.path.cat == .file {
 			files_only << ch
 		}
 	}
-	if roots.len > 0 {
-		base_path := roots[0].path.path
-		parent_path := if base_path.contains('/') {
-			base_path.split('/')[..base_path.split('/').len - 1].join('/')
+	if roots.len > 0 || files_only.len > 0 {
+		// derive a parent path for display
+		mut parent_path := ''
+		if roots.len > 0 {
+			base_path := roots[0].path.path
+			parent_path = if base_path.contains('/') {
+				base_path.split('/')[..base_path.split('/').len - 1].join('/')
+			} else {
+				base_path
+			}
 		} else {
-			base_path
+			// no roots; show workspace base if set, else the parent of first file
+			parent_path = if wsp.base_path.len > 0 {
+				wsp.base_path
+			} else if files_only.len > 0 {
+				os.dir(files_only[0].path.path)
+			} else {
+				''
+			}
 		}
 		// metadata
 		mut total_files := 0
 		mut total_content_length := 0
 		mut file_extensions := map[string]int{}
-		// files under dirs
-		for r in roots {
-			for f in list_files_recursive(r.path.path) {
-				total_files++
-				ext := get_file_extension(os.base(f))
-				if ext.len > 0 {
-					file_extensions[ext] = file_extensions[ext] + 1
+		// files under dirs (only when roots present)
+		if roots.len > 0 {
+			for r in roots {
+				for f in codewalker.list_files_recursive(r.path.path) {
+					total_files++
+					ext := get_file_extension(os.base(f))
+					if ext.len > 0 {
+						file_extensions[ext] = file_extensions[ext] + 1
+					}
+					total_content_length += (os.read_file(f) or { '' }).len
 				}
-				total_content_length += (os.read_file(f) or { '' }).len
 			}
 		}
-		// files only
+		// standalone files
 		for fo in files_only {
 			total_files++
 			ext := get_file_extension(fo.name)
 			if ext.len > 0 {
 				file_extensions[ext] = file_extensions[ext] + 1
 			}
-			total_content_length += fo.content.len
+			// if content not loaded, read length on demand
+			file_len := if fo.content.len == 0 {
+				(os.read_file(fo.path.path) or { '' }).len
+			} else {
+				fo.content.len
+			}
+			total_content_length += file_len
 		}
 		mut extensions_summary := ''
 		for ext, count in file_extensions {
@@ -480,10 +378,27 @@ fn (wsp Workspace) build_file_map() string {
 			file_map += ' | Extensions: ${extensions_summary}'
 		}
 		file_map += '\n\n'
-		file_map += build_file_tree_fs(roots, '')
-		// list standalone files as well
-		for fo in files_only {
-			file_map += fo.path.path + ' *\n'
+		// Render selected structure
+		if roots.len > 0 {
+			mut root_paths := []string{}
+			for r in roots {
+				root_paths << r.path.path
+			}
+			file_map += codewalker.build_file_tree_fs(root_paths, '')
+		}
+		// If there are only standalone selected files (no selected dirs),
+		// build a minimal tree via codewalker relative to the workspace base.
+		if files_only.len > 0 && roots.len == 0 {
+			mut paths := []string{}
+			for fo in files_only {
+				paths << fo.path.path
+			}
+			file_map += codewalker.build_selected_tree(paths, wsp.base_path)
+		} else if files_only.len > 0 && roots.len > 0 {
+			// Keep listing absolute paths for standalone files when directories are also selected.
+			for fo in files_only {
+				file_map += fo.path.path + ' *\n'
+			}
 		}
 	}
 	return file_map
@@ -508,11 +423,10 @@ pub fn (wsp Workspace) prompt(args WorkspacePrompt) string {
 }
 
 // Save the workspace
-fn (wsp &Workspace) save() !&Workspace {
-	mut tmp := wsp
-	tmp.updated = time.now()
-	tmp.is_saved = true
-	set(tmp)!
+fn (mut wsp Workspace) save() !&Workspace {
+	wsp.updated = time.now()
+	wsp.is_saved = true
+	set(wsp)!
 	return get(name: wsp.name)!
 }
 
