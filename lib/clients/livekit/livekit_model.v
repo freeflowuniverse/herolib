@@ -8,24 +8,26 @@ pub const version = '0.0.0'
 const singleton = false
 const default = true
 
-// THIS THE THE SOURCE OF THE INFORMATION OF THIS FILE, HERE WE HAVE THE CONFIG OBJECT CONFIGURED AND MODELLED
-
 @[heap]
 pub struct LivekitClient {
 pub mut:
-	name          string = 'default'
-	mail_from     string
-	mail_password string @[secret]
-	mail_port     int
-	mail_server   string
-	mail_username string
+	name       string = 'default'
+	url        string @[required]
+	api_key    string @[required]
+	api_secret string @[required; secret]
 }
 
 // your checking & initialization code if needed
 fn obj_init(mycfg_ LivekitClient) !LivekitClient {
 	mut mycfg := mycfg_
-	if mycfg.password == '' && mycfg.secret == '' {
-		return error('password or secret needs to be filled in for ${mycfg.name}')
+	if mycfg.url == '' {
+		return error('url needs to be filled in for ${mycfg.name}')
+	}
+	if mycfg.api_key == '' {
+		return error('api_key needs to be filled in for ${mycfg.name}')
+	}
+	if mycfg.api_secret == '' {
+		return error('api_secret needs to be filled in for ${mycfg.name}')
 	}
 	return mycfg
 }

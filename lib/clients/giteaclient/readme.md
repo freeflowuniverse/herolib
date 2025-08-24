@@ -18,7 +18,7 @@ You can configure the client using a HeroScript file:
 
 Here's how to get the client and use its methods.
 
-```vlang
+```v
 import freeflowuniverse.herolib.clients.giteaclient
 import freeflowuniverse.herolib.core.base
 
