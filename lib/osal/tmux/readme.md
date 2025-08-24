@@ -3,6 +3,8 @@
 
 TMUX is a very capable process manager.
 
+> TODO: TTYD, need to integrate with TMUX for exposing TMUX over http
+
 ### Concepts
 
 - tmux = is the factory, it represents the tmux process manager, linked to a node
