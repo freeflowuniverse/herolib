@@ -45,122 +45,262 @@
             </div>
 
             <div class="row h-100">
-                <!-- Left Panel: Workspace & File Tree -->
+                <!-- Left Panel: Enhanced File Explorer -->
                 <div class="col-md-4 h-100">
-                    <div class="card h-100">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Workspace Explorer</h6>
-                            <div>
-                                <button id="wsDetailsBtn" class="btn btn-sm btn-outline-secondary me-1"
-                                    title="Workspace Settings">⚙</button>
-                                <button id="openWsManage" class="btn btn-sm btn-outline-secondary"
-                                    title="Manage Workspaces">📋</button>
-                            </div>
-                        </div>
-                        <div class="card-body p-2">
-                            <div class="mb-3">
-                                <label for="workspaceSelect" class="form-label small">Current Workspace:</label>
-                                <select id="workspaceSelect" class="form-select form-select-sm"></select>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="input-group input-group-sm">
-                                    <input id="search" class="form-control" placeholder="Search files...">
-                                    <button id="doSearch" class="btn btn-outline-secondary">🔍</button>
+                    <div class="explorer-panel h-100">
+                        <div class="explorer-header">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0 text-uppercase fw-bold explorer-title">Explorer</h6>
+                                <div class="explorer-actions">
+                                    <button id="collapseAll" class="btn btn-sm btn-ghost me-1" title="Collapse All">
+                                        <i class="icon-collapse"></i>
+                                    </button>
+                                    <button id="refreshExplorer" class="btn btn-sm btn-ghost me-1" title="Refresh">
+                                        <i class="icon-refresh"></i>
+                                    </button>
+                                    <button id="wsDetailsBtn" class="btn btn-sm btn-ghost me-1"
+                                        title="Workspace Settings">
+                                        <i class="icon-settings"></i>
+                                    </button>
+                                    <button id="openWsManage" class="btn btn-sm btn-ghost" title="Manage Workspaces">
+                                        <i class="icon-manage"></i>
+                                    </button>
                                 </div>
                             </div>
 
-                            <div id="tree" class="border rounded p-2"
-                                style="min-height: 300px; max-height: 400px; overflow-y: auto;">
-                                <div class="text-muted small">Select a workspace to browse files</div>
+                            <div class="workspace-selector mb-3">
+                                <select id="workspaceSelect" class="form-select form-select-sm modern-select"></select>
                             </div>
 
-                            <div class="mt-2">
-                                <small class="text-muted">Click + buttons to add files/directories to selection</small>
+                            <div class="search-container mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text search-icon">
+                                        <i class="icon-search"></i>
+                                    </span>
+                                    <input id="search" class="form-control modern-input"
+                                        placeholder="Search files and folders...">
+                                    <button id="clearSearch" class="btn btn-ghost search-clear" title="Clear search">
+                                        <i class="icon-close"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="explorer-content">
+                            <div class="selection-controls mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="selection-info">
+                                        <span class="badge badge-selection">
+                                            <span id="selCount">0</span> selected
+                                        </span>
+                                    </div>
+                                    <div class="selection-actions">
+                                        <button id="selectAll" class="btn btn-xs btn-ghost" title="Select All Visible">
+                                            Select All
+                                        </button>
+                                        <button id="clearSelection" class="btn btn-xs btn-ghost"
+                                            title="Clear Selection">
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="tree" class="file-tree">
+                                <div class="empty-state">
+                                    <i class="icon-folder-open"></i>
+                                    <p>Select a workspace to browse files</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Panel: Tabs for Selection, Prompt, Chat -->
+                <!-- Right Panel: Enhanced Workspace -->
                 <div class="col-md-8 h-100">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <ul class="nav nav-tabs card-header-tabs" id="mainTabs">
-                                <li class="nav-item">
-                                    <a class="nav-link active tab" data-tab="selection" href="#tab-selection">
-                                        Selection (<span id="selCount">0</span>)
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link tab" data-tab="prompt" href="#tab-prompt">Prompt</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link tab" data-tab="chat" href="#tab-chat">Chat</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-body p-0 h-100">
-                            <!-- Selection Tab -->
-                            <div id="tab-selection" class="tab-pane active h-100 p-3">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="mb-0">Selected Files & Directories</h6>
-                                    <span class="badge bg-secondary">~<span id="tokenCount">0</span> tokens</span>
+                    <div class="workspace-panel h-100">
+                        <div class="workspace-header">
+                            <div class="tab-navigation">
+                                <div class="nav nav-tabs modern-tabs" id="mainTabs">
+                                    <button class="nav-link active tab" data-tab="selection">
+                                        <i class="icon-selection"></i>
+                                        <span>Selection</span>
+                                        <span class="badge badge-count" id="selCountTab">0</span>
+                                    </button>
+                                    <button class="nav-link tab" data-tab="prompt">
+                                        <i class="icon-prompt"></i>
+                                        <span>Prompt</span>
+                                    </button>
+                                    <button class="nav-link tab" data-tab="chat">
+                                        <i class="icon-chat"></i>
+                                        <span>Chat</span>
+                                    </button>
                                 </div>
-                                <div class="row h-100">
-                                    <div class="col-md-6">
-                                        <div class="border rounded p-2" style="height: 300px; overflow-y: auto;">
-                                            <ul id="selected" class="list-unstyled mb-0">
-                                                <li class="text-muted small">No files selected</li>
-                                            </ul>
+                                <div class="workspace-actions">
+                                    <span class="token-counter">
+                                        <i class="icon-token"></i>
+                                        <span id="tokenCount">0</span> tokens
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workspace-content">
+                            <!-- Selection Tab -->
+                            <div id="tab-selection" class="tab-pane active">
+                                <div class="selection-workspace">
+                                    <div class="selection-header">
+                                        <h6 class="section-title">Selected Files & Directories</h6>
+                                        <div class="selection-actions">
+                                            <button id="exportSelection" class="btn btn-sm btn-ghost"
+                                                title="Export Selection">
+                                                <i class="icon-export"></i>
+                                            </button>
+                                            <button id="importSelection" class="btn btn-sm btn-ghost"
+                                                title="Import Selection">
+                                                <i class="icon-import"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="border rounded p-2" style="height: 300px; overflow-y: auto;">
-                                            <div id="preview" class="text-muted small">Select a file to preview</div>
+
+                                    <div class="selection-content">
+                                        <div class="selection-list-panel">
+                                            <div class="panel-header">
+                                                <span class="panel-title">Selected Items</span>
+                                                <button id="clearAllSelection" class="btn btn-xs btn-ghost">Clear
+                                                    All</button>
+                                            </div>
+                                            <div class="selection-list">
+                                                <ul id="selected" class="selected-items">
+                                                    <li class="empty-selection">
+                                                        <i class="icon-empty"></i>
+                                                        <p>No files selected</p>
+                                                        <small>Use checkboxes in the explorer to select files</small>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-panel">
+                                            <div class="panel-header">
+                                                <span class="panel-title">File Preview</span>
+                                                <div class="preview-actions">
+                                                    <button id="copyPreview" class="btn btn-xs btn-ghost"
+                                                        title="Copy Content">
+                                                        <i class="icon-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="preview-content">
+                                                <div id="preview" class="file-preview">
+                                                    <div class="empty-preview">
+                                                        <i class="icon-file"></i>
+                                                        <p>Select a file to preview</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Prompt Tab -->
-                            <div id="tab-prompt" class="tab-pane h-100 p-3" style="display: none;">
-                                <div class="h-100 d-flex flex-column">
-                                    <div class="mb-3">
-                                        <label for="promptText" class="form-label">Instructions:</label>
-                                        <textarea id="promptText" class="form-control" rows="8" placeholder="Enter your instructions for what needs to be done with the selected code...
+                            <div id="tab-prompt" class="tab-pane" style="display: none;">
+                                <div class="prompt-workspace">
+                                    <div class="prompt-editor">
+                                        <div class="editor-header">
+                                            <h6 class="section-title">Prompt Instructions</h6>
+                                            <div class="editor-actions">
+                                                <button id="loadTemplate" class="btn btn-sm btn-ghost"
+                                                    title="Load Template">
+                                                    <i class="icon-template"></i>
+                                                </button>
+                                                <button id="saveTemplate" class="btn btn-sm btn-ghost"
+                                                    title="Save Template">
+                                                    <i class="icon-save"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="editor-content">
+                                            <textarea id="promptText" class="modern-textarea" rows="8" placeholder="Enter your instructions for what needs to be done with the selected code...
 
 Example:
-- Analyze the code structure
-- Identify potential improvements  
-- Add error handling
-- Optimize performance
-- Add documentation"></textarea>
+- Analyze the code structure and identify potential improvements
+- Add comprehensive error handling and validation
+- Optimize performance and reduce complexity
+- Add detailed documentation and comments
+- Implement best practices and design patterns"></textarea>
+                                        </div>
+                                        <div class="editor-footer">
+                                            <button id="generatePrompt" class="btn btn-primary">
+                                                <i class="icon-generate"></i>
+                                                Generate Prompt
+                                            </button>
+                                            <button id="copyPrompt" class="btn btn-secondary">
+                                                <i class="icon-copy"></i>
+                                                Copy to Clipboard
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <button id="copyPrompt" class="btn btn-primary">Copy Generated Prompt</button>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div id="promptOutput" class="border rounded p-2 h-100 overflow-auto">
-                                            <div class="text-muted small">Generated prompt will appear here</div>
+
+                                    <div class="prompt-output">
+                                        <div class="output-header">
+                                            <span class="panel-title">Generated Prompt</span>
+                                            <div class="output-actions">
+                                                <button id="copyOutput" class="btn btn-xs btn-ghost"
+                                                    title="Copy Output">
+                                                    <i class="icon-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="output-content">
+                                            <div id="promptOutput" class="prompt-result">
+                                                <div class="empty-output">
+                                                    <i class="icon-prompt"></i>
+                                                    <p>Generated prompt will appear here</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Chat Tab -->
-                            <div id="tab-chat" class="tab-pane h-100 p-3" style="display: none;">
-                                <div class="h-100 d-flex flex-column">
-                                    <div class="flex-grow-1 border rounded p-2 mb-3 overflow-auto"
-                                        style="height: 300px;">
-                                        <div id="chatMessages">
-                                            <div class="text-muted small">Chat functionality coming soon...</div>
+                            <div id="tab-chat" class="tab-pane" style="display: none;">
+                                <div class="chat-workspace">
+                                    <div class="chat-header">
+                                        <h6 class="section-title">AI Assistant</h6>
+                                        <div class="chat-actions">
+                                            <button id="clearChat" class="btn btn-sm btn-ghost" title="Clear Chat">
+                                                <i class="icon-clear"></i>
+                                            </button>
+                                            <button id="exportChat" class="btn btn-sm btn-ghost" title="Export Chat">
+                                                <i class="icon-export"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="input-group">
-                                        <textarea id="chatInput" class="form-control" rows="2"
-                                            placeholder="Type your message..."></textarea>
-                                        <button id="sendChat" class="btn btn-primary">Send</button>
+
+                                    <div class="chat-content">
+                                        <div class="chat-messages">
+                                            <div id="chatMessages" class="messages-container">
+                                                <div class="welcome-message">
+                                                    <i class="icon-ai"></i>
+                                                    <p>AI Assistant ready to help!</p>
+                                                    <small>Ask questions about your selected code or get
+                                                        suggestions</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="chat-input">
+                                            <div class="input-container">
+                                                <textarea id="chatInput" class="chat-textarea" rows="2"
+                                                    placeholder="Ask about your code, request explanations, or get suggestions..."></textarea>
+                                                <button id="sendChat" class="btn btn-primary send-btn">
+                                                    <i class="icon-send"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
