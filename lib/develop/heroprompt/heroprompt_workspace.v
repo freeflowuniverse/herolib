@@ -222,7 +222,9 @@ pub:
 }
 
 pub fn (wsp &Workspace) list_dir(rel_path string) ![]ListItem {
-	items := codewalker.list_directory(wsp.base_path, rel_path)!
+	// Create an ignore matcher with default patterns
+	ignore_matcher := codewalker.gitignore_matcher_new()
+	items := codewalker.list_directory_filtered(wsp.base_path, rel_path, &ignore_matcher)!
 	mut out := []ListItem{}
 	for item in items {
 		out << ListItem{
