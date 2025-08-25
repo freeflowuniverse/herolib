@@ -16,14 +16,14 @@ console.print_header("BUILDAH Demo.")
 
 //if herocompile on, then will forced compile hero, which might be needed in debug mode for hero 
 // to execute hero scripts inside build container
-mut pm:=herocontainers.new(herocompile=true)!
-//mut b:=pm.builder_new(name:"test")!
+mut factory:=herocontainers.new(herocompile=true)!
+//mut b:=factory.builder_new(name:"test")!
 
 //create 
-pm.builderv_create()!
+factory.builderv_create()!
 
 //get the container
-//mut b2:=pm.builder_get("builderv")!
+//mut b2:=factory.builder_get("builderv")!
 //b2.shell()!
 
 

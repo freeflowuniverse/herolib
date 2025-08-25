@@ -10,7 +10,7 @@ pub struct ListArgs {
 pub mut:
 	regex         []string
 	recursive     bool = true
-	ignoredefault bool = true // ignore files starting with . and _
+	ignore_default bool = true // ignore files starting with . and _
 	include_links bool // wether to include links in list
 	dirs_only     bool
 	files_only    bool
@@ -31,8 +31,8 @@ pub mut:
 // params: .
 // ```
 // regex         []string
-// recursive     bool // std off, means we recursive not over dirs by default
-// ignoredefault bool = true // ignore files starting with . and _
+// recursive     bool = true // default true, means we recursive over dirs by default
+// ignore_default bool = true // ignore files starting with . and _
 // dirs_only     bool
 //
 // example see https://github.com/freeflowuniverse/herolib/blob/development/examples/core/pathlib/examples/list/path_list.v
@@ -56,7 +56,7 @@ pub fn (mut path Path) list(args_ ListArgs) !PathList {
 	mut args := ListArgsInternal{
 		regex:         r
 		recursive:     args_.recursive
-		ignoredefault: args_.ignoredefault
+		ignore_default: args_.ignore_default
 		dirs_only:     args_.dirs_only
 		files_only:    args_.files_only
 		include_links: args_.include_links
@@ -74,7 +74,7 @@ pub struct ListArgsInternal {
 mut:
 	regex         []regex.RE // only put files in which follow one of the regexes
 	recursive     bool = true
-	ignoredefault bool = true // ignore files starting with . and _
+	ignore_default bool = true // ignore files starting with . and _
 	dirs_only     bool
 	files_only    bool
 	include_links bool
@@ -108,7 +108,7 @@ fn (mut path Path) list_internal(args ListArgsInternal) ![]Path {
 		if new_path.is_link() && !args.include_links {
 			continue
 		}
-		if args.ignoredefault {
+		if args.ignore_default {
 			if item.starts_with('_') || item.starts_with('.') {
 				continue
 			}
