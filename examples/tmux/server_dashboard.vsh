@@ -11,12 +11,142 @@ const window_name = 'dashboard'
 const python_port = 8000
 const ttyd_port = 7890
 
-println('=== Server Dashboard with 3 Panes ===')
-println('Setting up tmux session with:')
-println('  1. Python HTTP Server (port ${python_port})')
-println('  2. Counter (updating every 5 seconds)')
-println('  3. CPU Monitor (htop)')
-println('')
+// Command line argument handling
+fn show_help() {
+	println('=== Tmux Server Dashboard ===')
+	println('Usage:')
+	println('  ${os.args[0]}           # Start the dashboard')
+	println('  ${os.args[0]} -down     # Stop dashboard and cleanup')
+	println('  ${os.args[0]} -status   # Show dashboard status')
+	println('  ${os.args[0]} -restart  # Restart the dashboard')
+	println('  ${os.args[0]} -help     # Show this help')
+	println('')
+	println('Dashboard includes:')
+	println('  • Python HTTP Server (port ${python_port})')
+	println('  • Counter service (updates every 5 seconds)')
+	println('  • Hero Web (compile and run hero web server)')
+	println('  • CPU Monitor (htop)')
+	println('  • Web access via ttyd (port ${ttyd_port})')
+}
+
+fn stop_dashboard() ! {
+	println('=== Stopping Dashboard ===')
+
+	// Kill ttyd processes
+	println('Stopping ttyd processes...')
+	os.execute('pkill ttyd')
+
+	// Kill tmux session
+	println('Stopping tmux session...')
+	mut t := tmux.new()!
+	if t.session_exist(session_name) {
+		mut session := t.session_get(session_name)!
+		session.stop()!
+		println('✓ Tmux session "${session_name}" stopped')
+	} else {
+		println('• Session "${session_name}" not found')
+	}
+
+	// Check for any remaining processes on our ports
+	println('Checking for processes on ports...')
+
+	// Check Python server port
+	python_check := os.execute('lsof -i :${python_port}')
+	if python_check.exit_code == 0 {
+		println('• Found processes on port ${python_port}')
+		println(python_check.output)
+	} else {
+		println('✓ Port ${python_port} is free')
+	}
+
+	// Check ttyd port
+	ttyd_check := os.execute('lsof -i :${ttyd_port}')
+	if ttyd_check.exit_code == 0 {
+		println('• Found processes on port ${ttyd_port}')
+		println(ttyd_check.output)
+	} else {
+		println('✓ Port ${ttyd_port} is free')
+	}
+
+	println('=== Dashboard stopped ===')
+}
+
+fn show_status() ! {
+	println('=== Dashboard Status ===')
+
+	mut t := tmux.new()!
+
+	// Check tmux session
+	if t.session_exist(session_name) {
+		println('✓ Tmux session "${session_name}" is running')
+
+		mut session := t.session_get(session_name)!
+		mut window := session.window_get(name: window_name) or {
+			println('✗ Window "${window_name}" not found')
+			return
+		}
+		println('✓ Window "${window_name}" exists with ${window.panes.len} panes')
+
+			// Show pane details
+			for i, pane in window.panes {
+				service_name := match i {
+					0 { 'Python HTTP Server' }
+					1 { 'Counter Service' }
+					2 { 'Hero Web Service' }
+					3 { 'CPU Monitor' }
+					else { 'Service ${i+1}' }
+				}
+
+				mut pane_mut := pane
+				stats := pane_mut.stats() or {
+					println('  Pane ${i + 1} (${service_name}): ID=%${pane.id}, PID=${pane.pid} (stats unavailable)')
+					continue
+				}
+
+				memory_mb := f64(stats.memory_bytes) / (1024.0 * 1024.0)
+				println('  Pane ${i + 1} (${service_name}): ID=%${pane.id}, CPU=${stats.cpu_percent:.1f}%, Memory=${memory_mb:.1f}MB')
+			}
+	} else {
+		println('✗ Tmux session "${session_name}" not running')
+	}
+
+	// Check ports
+	python_check := os.execute('lsof -i :${python_port}')
+	if python_check.exit_code == 0 {
+		println('✓ Python server running on port ${python_port}')
+	} else {
+		println('✗ No process on port ${python_port}')
+	}
+
+	ttyd_check := os.execute('lsof -i :${ttyd_port}')
+	if ttyd_check.exit_code == 0 {
+		println('✓ ttyd running on port ${ttyd_port}')
+	} else {
+		println('✗ No process on port ${ttyd_port}')
+	}
+
+	println('')
+	println('Access URLs:')
+	println('  • Python Server: http://localhost:${python_port}')
+	println('  • Web Terminal: http://localhost:${ttyd_port}')
+	println('  • Tmux attach: tmux attach-session -t ${session_name}')
+}
+
+fn restart_dashboard() ! {
+	println('=== Restarting Dashboard ===')
+	stop_dashboard()!
+	time.sleep(2000 * time.millisecond) // Wait 2 seconds
+	start_dashboard()!
+}
+
+fn start_dashboard() ! {
+	println('=== Server Dashboard with 4 Panes ===')
+	println('Setting up tmux session with:')
+	println('  1. Python HTTP Server (port ${python_port})')
+	println('  2. Counter Service (updates every 5 seconds)')
+	println('  3. Hero Web (compile and run hero web server)')
+	println('  4. CPU Monitor (htop)')
+	println('')
 
 // Initialize tmux
 mut t := tmux.new()!
@@ -44,7 +174,7 @@ mut window := session.window_new(name: window_name, cmd: 'bash', reset: true)!
 time.sleep(500 * time.millisecond)
 t.scan()!
 
-println('\n=== Setting up 3-pane layout ===')
+println('\n=== Setting up 4-pane layout ===')
 
 // Get the main window
 window = session.window_get(name: window_name)!
@@ -67,7 +197,26 @@ if window.panes.len >= 2 {
 	window.scan()!
 }
 
-println('3. Layout complete! We now have 3 panes.')
+// Split right pane vertically (top-right and bottom-right)
+println('3. Splitting right pane vertically...')
+window.scan()!
+if window.panes.len >= 3 {
+	// Find the rightmost pane (should be the last one after horizontal split)
+	mut right_pane_current := window.panes[window.panes.len - 1]
+	right_pane_current.select()!
+	time.sleep(200 * time.millisecond)
+	mut bottom_right_pane := window.pane_split_vertical('bash')!
+	time.sleep(300 * time.millisecond)
+	window.scan()!
+}
+
+// Set a proper 2x2 tiled layout using tmux command
+println('4. Setting 2x2 tiled layout...')
+os.execute('tmux select-layout -t ${session_name}:${window_name} tiled')
+time.sleep(500 * time.millisecond)
+window.scan()!
+
+println('5. Layout complete! We now have 4 panes in 2x2 grid.')
 
 // Refresh to get all panes
 window.scan()!
@@ -76,8 +225,8 @@ for i, pane in window.panes {
 	println('  Pane ${i}: ID=%${pane.id}, PID=${pane.pid}')
 }
 
-if window.panes.len < 3 {
-	eprintln('Expected 3 panes, but got ${window.panes.len}')
+if window.panes.len < 4 {
+	eprintln('Expected 4 panes, but got ${window.panes.len}')
 	exit(1)
 }
 
@@ -92,22 +241,30 @@ pane1.send_command('cd /tmp && python3 -m http.server ${python_port}')!
 
 time.sleep(500 * time.millisecond)
 
-// Pane 2 (bottom-left): Counter
-println('Starting Counter in pane 2...')
+// Pane 2 (bottom-left): Counter Service
+println('Starting Counter Service in pane 2...')
 mut pane2 := window.panes[1]
 pane2.select()!
-pane2.send_command('echo "=== Counter 1 to 10000 every 5 seconds ==="')!
-// Start simple counter using a loop instead of watch
+pane2.send_command('echo "=== Counter Service - Updates every 5 seconds ==="')!
 pane2.send_command('while true; do echo "Count: $(date)"; sleep 5; done')!
 
 time.sleep(500 * time.millisecond)
 
-// Pane 3 (right): CPU Monitor
-println('Starting CPU Monitor in pane 3...')
+// Pane 3 (top-right): Hero Web
+println('Starting Hero Web in pane 3...')
 mut pane3 := window.panes[2]
 pane3.select()!
-pane3.send_command('echo "=== CPU Monitor ==="')!
-pane3.send_command('htop')!
+pane3.send_command('echo "=== Hero Web Server ==="')!
+pane3.send_command('./cli/compile.vsh && /Users/mahmoud/hero/bin/hero web')!
+
+time.sleep(500 * time.millisecond)
+
+// Pane 4 (bottom-right): CPU Monitor
+println('Starting CPU Monitor in pane 4...')
+mut pane4 := window.panes[3]
+pane4.select()!
+pane4.send_command('echo "=== CPU Monitor ==="')!
+pane4.send_command('htop')!
 
 println('\n=== All services started! ===')
 
@@ -127,8 +284,9 @@ for i, mut pane in window.panes {
 	memory_mb := f64(stats.memory_bytes) / (1024.0 * 1024.0)
 	service_name := match i {
 		0 { 'Python Server' }
-		1 { 'Counter' }
-		2 { 'CPU Monitor' }
+		1 { 'Counter Service' }
+		2 { 'Hero Web' }
+		3 { 'CPU Monitor' }
 		else { 'Unknown' }
 	}
 	println('  Pane ${i + 1} (${service_name}): ID=%${pane.id}, CPU=${stats.cpu_percent:.1f}%, Memory=${memory_mb:.1f}MB')
@@ -145,8 +303,9 @@ println('  Or programmatically:')
 for i, pane in window.panes {
 	service_name := match i {
 		0 { 'Python Server' }
-		1 { 'Counter' }
-		2 { 'CPU Monitor' }
+		1 { 'Counter Service' }
+		2 { 'Hero Web' }
+		3 { 'CPU Monitor' }
 		else { 'Unknown' }
 	}
 	println('  # Resize ${service_name} pane:')
@@ -156,10 +315,50 @@ for i, pane in window.panes {
 	println('  tmux resize-pane -t ${session_name}:${window_name}.%${pane.id} -R 5  # Right')
 }
 
-println('\n=== Dashboard is running! ===')
-println('Attach to view: tmux attach-session -t ${session_name}')
-println('Press Ctrl+B then d to detach from session')
-println('To stop all services: tmux kill-session -t ${session_name}')
-println('Running the browser-based dashboard: TTYD')
+	println('\n=== Dashboard is running! ===')
+	println('Attach to view: tmux attach-session -t ${session_name}')
+	println('Press Ctrl+B then d to detach from session')
+	println('To stop all services: tmux kill-session -t ${session_name}')
+	println('Running the browser-based dashboard: TTYD')
 
-window.run_ttyd(ttyd_port) or { println('Failed to start ttyd: ${err}') }
+	window.run_ttyd(ttyd_port) or { println('Failed to start ttyd: ${err}') }
+}
+
+// Main execution with argument handling
+if os.args.len > 1 {
+	command := os.args[1]
+	match command {
+		'-down' {
+			stop_dashboard() or {
+				eprintln('Error stopping dashboard: ${err}')
+				exit(1)
+			}
+		}
+		'-status' {
+			show_status() or {
+				eprintln('Error getting status: ${err}')
+				exit(1)
+			}
+		}
+		'-restart' {
+			restart_dashboard() or {
+				eprintln('Error restarting dashboard: ${err}')
+				exit(1)
+			}
+		}
+		'-help', '--help', '-h' {
+			show_help()
+		}
+		else {
+			eprintln('Unknown command: ${command}')
+			show_help()
+			exit(1)
+		}
+	}
+} else {
+	// No arguments - start the dashboard
+	start_dashboard() or {
+		eprintln('Error starting dashboard: ${err}')
+		exit(1)
+	}
+}
