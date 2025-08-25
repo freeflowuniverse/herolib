@@ -4,7 +4,7 @@ dify
 
 To get started
 
-```vlang
+```v
 
 
 import freeflowuniverse.herolib.installers.something.dify as dify_installer

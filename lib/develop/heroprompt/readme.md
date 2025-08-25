@@ -1,30 +1,28 @@
 # heroprompt
 
-
-
 To get started
 
-```vlang
+```v
 
 
-import freeflowuniverse.herolib.clients. heroprompt
+import freeflowuniverse.herolib.develop.heroprompt
 
-mut client:= heroprompt.get()!
+// Example Usage:
 
-client...
+// 1. Create a new workspace
+mut workspace := heroprompt.new(name: 'my_workspace', path: os.getwd())!
 
+// 2. Add a directory to the workspace
+workspace.add_dir(path: './my_project_dir')!
+
+// 3. Add a file to the workspace
+workspace.add_file(path: './my_project_dir/main.v')!
+
+// 4. Generate a prompt
+user_instructions := 'Explain the code in main.v'
+prompt_output := workspace.prompt(text: user_instructions)
+println(prompt_output)
 
 
 
 ```
-
-## example heroscript
-
-```hero
-!!heroprompt.configure
-    secret: '...'
-    host: 'localhost'
-    port: 8888
-```
-
-
