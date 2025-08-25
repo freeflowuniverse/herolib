@@ -34,9 +34,18 @@ pub fn (mut agent SSHAgent) ensure_single_agent() ! {
 	agent.active = true
 }
 
-// get consistent socket path per user
+// get consistent socket path per user in home directory
 fn get_agent_socket_path(user string) string {
-	return '/tmp/ssh-agent-${user}.sock'
+	home := os.home_dir()
+	ssh_dir := '${home}/.ssh'
+
+	// Ensure SSH directory exists with correct permissions
+	if !os.exists(ssh_dir) {
+		os.mkdir_all(ssh_dir) or { return '/tmp/ssh-agent-${user}.sock' }
+		os.chmod(ssh_dir, 0o700) or {}
+	}
+
+	return '${ssh_dir}/hero-agent.sock'
 }
 
 // check if current agent is responsive
