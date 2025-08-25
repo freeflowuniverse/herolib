@@ -8,12 +8,12 @@ import freeflowuniverse.herolib.ui.console
 @[params]
 pub struct ListArgs {
 pub mut:
-	regex         []string
-	recursive     bool = true
+	regex          []string
+	recursive      bool = true
 	ignore_default bool = true // ignore files starting with . and _
-	include_links bool // wether to include links in list
-	dirs_only     bool
-	files_only    bool
+	include_links  bool // wether to include links in list
+	dirs_only      bool
+	files_only     bool
 }
 
 // the result of pathlist
@@ -54,12 +54,12 @@ pub fn (mut path Path) list(args_ ListArgs) !PathList {
 		r << re
 	}
 	mut args := ListArgsInternal{
-		regex:         r
-		recursive:     args_.recursive
+		regex:          r
+		recursive:      args_.recursive
 		ignore_default: args_.ignore_default
-		dirs_only:     args_.dirs_only
-		files_only:    args_.files_only
-		include_links: args_.include_links
+		dirs_only:      args_.dirs_only
+		files_only:     args_.files_only
+		include_links:  args_.include_links
 	}
 	paths := path.list_internal(args)!
 	mut pl := PathList{
@@ -72,12 +72,12 @@ pub fn (mut path Path) list(args_ ListArgs) !PathList {
 @[params]
 pub struct ListArgsInternal {
 mut:
-	regex         []regex.RE // only put files in which follow one of the regexes
-	recursive     bool = true
+	regex          []regex.RE // only put files in which follow one of the regexes
+	recursive      bool = true
 	ignore_default bool = true // ignore files starting with . and _
-	dirs_only     bool
-	files_only    bool
-	include_links bool
+	dirs_only      bool
+	files_only     bool
+	include_links  bool
 }
 
 fn (mut path Path) list_internal(args ListArgsInternal) ![]Path {

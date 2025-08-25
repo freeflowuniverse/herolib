@@ -119,7 +119,9 @@ pub fn (mut lf LinuxFactory) sshkey_create(args SSHKeyCreateArgs) ! {
 	} else {
 		// Generate new SSH key (modern ed25519)
 		key_path := '${ssh_dir}/${args.sshkey_name}'
-		osal.exec(cmd: 'ssh-keygen -t ed25519 -f ${key_path} -N "" -C "${args.username}@$(hostname)"')!
+		osal.exec(
+			cmd: 'ssh-keygen -t ed25519 -f ${key_path} -N "" -C "${args.username}@$(hostname)"'
+		)!
 		console.print_green('✅ New SSH key generated for ${args.username}')
 	}
 
@@ -175,12 +177,12 @@ fn (mut lf LinuxFactory) save_user_config(args UserCreateArgs) ! {
 	}
 
 	new_config := UserConfig{
-		name: args.name
-		giteakey: args.giteakey
-		giteaurl: args.giteaurl
-		email: args.email
+		name:        args.name
+		giteakey:    args.giteakey
+		giteaurl:    args.giteaurl
+		email:       args.email
 		description: args.description
-		tel: args.tel
+		tel:         args.tel
 	}
 
 	if found_idx >= 0 {
@@ -201,7 +203,7 @@ fn (mut lf LinuxFactory) remove_user_config(username string) ! {
 	config_path := '${config_dir}/myconfig.json'
 
 	if !os.exists(config_path) {
-		return // Nothing to remove
+		return
 	}
 
 	content := osal.file_read(config_path)!
@@ -243,7 +245,9 @@ fn (mut lf LinuxFactory) create_user_system(args UserCreateArgs) ! {
 
 	// Ensure ourworld group exists
 	group_check := osal.exec(cmd: 'getent group ourworld', raise_error: false) or {
-		osal.Job{ exit_code: 1 }
+		osal.Job{
+			exit_code: 1
+		}
 	}
 	if group_check.exit_code != 0 {
 		console.print_item('➕ Creating group ourworld')
@@ -284,58 +288,9 @@ fn (mut lf LinuxFactory) create_ssh_agent_profile(username string) ! {
 	user_home := '/home/${username}'
 	profile_script := '${user_home}/.profile_sshagent'
 
-	script_content := '# Auto-start ssh-agent if not running
-SSH_AGENT_PID_FILE="$HOME/.ssh/agent.pid"
-SSH_AUTH_SOCK_FILE="$HOME/.ssh/agent.sock"
+	// script_content := ''
 
-# Function to start ssh-agent
-start_ssh_agent() {
-    mkdir -p "$HOME/.ssh"
-    chmod 700 "$HOME/.ssh"
-    
-    # Start ssh-agent and save connection info
-    ssh-agent -s > "$SSH_AGENT_PID_FILE"
-    source "$SSH_AGENT_PID_FILE"
-    
-    # Save socket path for future sessions
-    echo "$SSH_AUTH_SOCK" > "$SSH_AUTH_SOCK_FILE"
-    
-    # Load all private keys found in ~/.ssh
-    if [ -d "$HOME/.ssh" ]; then
-        for KEY in "$HOME"/.ssh/*; do
-            if [ -f "$KEY" ] && [ ! "${KEY##*.}" = "pub" ] && grep -q "PRIVATE KEY" "$KEY" 2>/dev/null; then
-                'ssh-' + 'add "$KEY" >/dev/null 2>&1 && echo "🔑 Loaded key: $(basename $KEY)"'
-            fi
-        done
-    fi
-}
-
-# Check if ssh-agent is running
-if [ -f "$SSH_AGENT_PID_FILE" ]; then
-    source "$SSH_AGENT_PID_FILE" >/dev/null 2>&1
-    # Test if agent is responsive
-    if ! ('ssh-' + 'add -l >/dev/null 2>&1'); then
-        start_ssh_agent
-    else
-        # Agent is running, restore socket path
-        if [ -f "$SSH_AUTH_SOCK_FILE" ]; then
-            export SSH_AUTH_SOCK=$(cat "$SSH_AUTH_SOCK_FILE")
-        fi
-    fi
-else
-    start_ssh_agent
-fi
-
-# For interactive shells
-if [[ $- == *i* ]]; then
-    echo "🔑 SSH Agent ready at $SSH_AUTH_SOCK"
-    # Show loaded keys
-    KEY_COUNT=$('ssh-' + 'add -l 2>/dev/null | wc -l')
-    if [ "$KEY_COUNT" -gt 0 ]; then
-        echo "🔑 $KEY_COUNT SSH key(s) loaded"
-    fi
-fi
-'
+	panic('implement')
 
 	osal.file_write(profile_script, script_content)!
 	osal.exec(cmd: 'chown ${username}:${username} ${profile_script}')!

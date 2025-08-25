@@ -45,37 +45,37 @@ fn test_stop() ! {
 }
 
 fn test_windows_get() ! {
-    mut tmux := new()!
-    tmux.start()!
-    
-    // After start, scan to get the initial session
-    tmux.scan()!
-    
-    windows := tmux.windows_get()
-    assert windows.len >= 0 // At least the default session should exist
-    
-    tmux.stop()!
+	mut tmux := new()!
+	tmux.start()!
+
+	// After start, scan to get the initial session
+	tmux.scan()!
+
+	windows := tmux.windows_get()
+	assert windows.len >= 0 // At least the default session should exist
+
+	tmux.stop()!
 }
 
 fn test_scan() ! {
-    console.print_debug('-----Testing scan------')
-    mut tmux := new()!
-    tmux.start()!
+	console.print_debug('-----Testing scan------')
+	mut tmux := new()!
+	tmux.start()!
 
-    // Test initial scan
-    tmux.scan()!
-    sessions_before := tmux.sessions.len
-    
-    // Create a test session
-    mut session := tmux.session_create(name: 'test_scan')!
-    
-    // Scan again
-    tmux.scan()!
-    sessions_after := tmux.sessions.len
-    
-    assert sessions_after >= sessions_before
-    
-    tmux.stop()!
+	// Test initial scan
+	tmux.scan()!
+	sessions_before := tmux.sessions.len
+
+	// Create a test session
+	mut session := tmux.session_create(name: 'test_scan')!
+
+	// Scan again
+	tmux.scan()!
+	sessions_after := tmux.sessions.len
+
+	assert sessions_after >= sessions_before
+
+	tmux.stop()!
 }
 
 // //TODO: fix test

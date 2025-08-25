@@ -16,19 +16,19 @@ pub mut:
 pub fn (mut agent SSHAgent) ensure_single_agent() ! {
 	user := os.getenv('USER')
 	socket_path := get_agent_socket_path(user)
-	
+
 	// Check if we have a valid agent already
 	if agent.is_agent_responsive() {
 		console.print_debug('SSH agent already running and responsive')
 		return
 	}
-	
+
 	// Kill any orphaned agents
 	agent.cleanup_orphaned_agents()!
-	
+
 	// Start new agent with consistent socket
 	agent.start_agent_with_socket(socket_path)!
-	
+
 	// Set environment variables
 	os.setenv('SSH_AUTH_SOCK', socket_path, true)
 	agent.active = true
@@ -44,7 +44,7 @@ pub fn (mut agent SSHAgent) is_agent_responsive() bool {
 	if os.getenv('SSH_AUTH_SOCK') == '' {
 		return false
 	}
-	
+
 	res := os.execute('ssh-add -l 2>/dev/null')
 	return res.exit_code == 0 || res.exit_code == 1 // 1 means no keys, but agent is running
 }
@@ -52,12 +52,12 @@ pub fn (mut agent SSHAgent) is_agent_responsive() bool {
 // cleanup orphaned ssh-agent processes
 pub fn (mut agent SSHAgent) cleanup_orphaned_agents() ! {
 	user := os.getenv('USER')
-	
+
 	// Find ssh-agent processes for current user
 	res := os.execute('pgrep -u ${user} ssh-agent')
 	if res.exit_code == 0 && res.output.len > 0 {
 		pids := res.output.trim_space().split('\n')
-		
+
 		for pid in pids {
 			if pid.trim_space() != '' {
 				// Check if this agent has a valid socket
@@ -77,7 +77,7 @@ fn (mut agent SSHAgent) is_agent_pid_valid(pid int) bool {
 	if res.exit_code != 0 {
 		return false
 	}
-	
+
 	for socket_path in res.output.split('\n') {
 		if socket_path.trim_space() != '' {
 			// Test if this socket responds
@@ -85,7 +85,7 @@ fn (mut agent SSHAgent) is_agent_pid_valid(pid int) bool {
 			os.setenv('SSH_AUTH_SOCK', socket_path, true)
 			test_res := os.execute('ssh-add -l 2>/dev/null')
 			os.setenv('SSH_AUTH_SOCK', old_sock, true)
-			
+
 			if test_res.exit_code == 0 || test_res.exit_code == 1 {
 				return true
 			}
@@ -100,45 +100,45 @@ pub fn (mut agent SSHAgent) start_agent_with_socket(socket_path string) ! {
 	if os.exists(socket_path) {
 		os.rm(socket_path)!
 	}
-	
+
 	// Start ssh-agent with specific socket
 	cmd := 'ssh-agent -a ${socket_path}'
 	res := os.execute(cmd)
 	if res.exit_code != 0 {
 		return error('Failed to start ssh-agent: ${res.output}')
 	}
-	
+
 	// Verify socket was created
 	if !os.exists(socket_path) {
 		return error('SSH agent socket was not created at ${socket_path}')
 	}
-	
+
 	// Set environment variable
 	os.setenv('SSH_AUTH_SOCK', socket_path, true)
-	
+
 	// Verify agent is responsive
 	if !agent.is_agent_responsive() {
 		return error('SSH agent started but is not responsive')
 	}
-	
+
 	console.print_debug('SSH agent started with socket: ${socket_path}')
 }
 
 // get agent status and diagnostics
 pub fn (mut agent SSHAgent) diagnostics() map[string]string {
 	mut diag := map[string]string{}
-	
+
 	diag['socket_path'] = os.getenv('SSH_AUTH_SOCK')
 	diag['socket_exists'] = os.exists(diag['socket_path']).str()
 	diag['agent_responsive'] = agent.is_agent_responsive().str()
 	diag['loaded_keys_count'] = agent.keys.filter(it.loaded).len.str()
 	diag['total_keys_count'] = agent.keys.len.str()
-	
+
 	// Count running ssh-agent processes
 	user := os.getenv('USER')
 	res := os.execute('pgrep -u ${user} ssh-agent | wc -l')
 	diag['agent_processes'] = if res.exit_code == 0 { res.output.trim_space() } else { '0' }
-	
+
 	return diag
 }
 

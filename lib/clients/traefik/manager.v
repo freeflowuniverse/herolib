@@ -23,9 +23,9 @@ pub mut:
 @[params]
 pub struct RouterAddArgs {
 pub mut:
-	name        string   @[required]
-	rule        string   @[required]
-	service     string   @[required]
+	name        string @[required]
+	rule        string @[required]
+	service     string @[required]
 	entrypoints []string
 	middlewares []string
 	tls         bool
@@ -43,8 +43,8 @@ pub mut:
 @[params]
 pub struct MiddlewareAddArgs {
 pub mut:
-	name     string            @[required]
-	typ      string            @[required]
+	name     string @[required]
+	typ      string @[required]
 	settings map[string]string
 }
 
@@ -78,7 +78,7 @@ pub fn (mut tm TraefikManager) service_add(args ServiceAddArgs) ! {
 	}
 
 	tm.config.add_service(
-		name: texttools.name_fix(args.name)
+		name:          texttools.name_fix(args.name)
 		load_balancer: osal_traefik.LoadBalancerConfig{
 			servers: servers
 		}
@@ -101,7 +101,7 @@ pub fn (mut tm TraefikManager) entrypoint_add(args EntryPointAddArgs) ! {
 		address: args.address
 		tls:     args.tls
 	}
-	
+
 	// Check if entrypoint already exists
 	for mut ep in tm.entrypoints {
 		if ep.name == entrypoint.name {
@@ -110,7 +110,7 @@ pub fn (mut tm TraefikManager) entrypoint_add(args EntryPointAddArgs) ! {
 			return
 		}
 	}
-	
+
 	tm.entrypoints << entrypoint
 }
 
@@ -118,7 +118,7 @@ pub fn (mut tm TraefikManager) entrypoint_add(args EntryPointAddArgs) ! {
 pub fn (mut tm TraefikManager) apply() ! {
 	// Apply dynamic configuration (routers, services, middlewares)
 	tm.config.set()!
-	
+
 	// Store entrypoints separately (these would typically be in static config)
 	for ep in tm.entrypoints {
 		tm.redis.hset('traefik:entrypoints', ep.name, '${ep.address}|${ep.tls}')!
@@ -135,7 +135,7 @@ pub fn (mut tm TraefikManager) clear() ! {
 	tm.config = osal_traefik.new_traefik_config()
 	tm.config.redis = tm.redis
 	tm.entrypoints = []EntryPointConfig{}
-	
+
 	// Clear Redis keys
 	keys := tm.redis.keys('traefik/*')!
 	for key in keys {

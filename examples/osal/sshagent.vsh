@@ -25,7 +25,7 @@ if agent.keys.len == 0 {
 	console.print_header('No keys found, generating example key...')
 	mut key := agent.generate('example_key', '')!
 	console.print_debug('Generated key: ${key}')
-	
+
 	// Load the generated key
 	key.load()!
 	console.print_debug('Key loaded into agent')

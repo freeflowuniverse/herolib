@@ -24,6 +24,6 @@ pub:
 pub fn new(args LinuxNewArgs) !LinuxFactory {
 	mut t := LinuxFactory{
 		username: args.username
-		}
+	}
 	return t
 }
