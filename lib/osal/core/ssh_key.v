@@ -40,12 +40,6 @@ pub fn (key SSHKey) private_key() !string {
 	return content
 }
 
-
-module core
-
-import freeflowuniverse.herolib.core.pathlib
-import os
-
 @[params]
 pub struct SSHConfig {
 pub:

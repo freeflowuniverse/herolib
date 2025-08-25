@@ -57,19 +57,4 @@ chown root:ourworld /code
 chmod 2775 /code   # rwx for user+group, SGID bit so new files inherit group
 echo "✅ /code prepared (group=ourworld, rwx for group, SGID bit set)"
 
-# --- create login helper script for ssh-agent ---
-PROFILE_SCRIPT="$USERHOME/.profile_sshagent"
-cat > "$PROFILE_SCRIPT" <<'EOF'
-# Auto-start ssh-agent if not running
-SSH_AGENT_PID_FILE="$HOME/.ssh/agent.pid"
-SSH_AUTH_SOCK_FILE="$HOME/.ssh/agent.sock"
-
-chown "$NEWUSER":"$NEWUSER" "$PROFILE_SCRIPT"
-chmod 644 "$PROFILE_SCRIPT"
-
-# --- source it on login ---
-if ! grep -q ".profile_sshagent" "$USERHOME/.bashrc"; then
-  echo "[ -f ~/.profile_sshagent ] && source ~/.profile_sshagent" >> "$USERHOME/.bashrc"
-fi
-
 echo "🎉 Setup complete for user $NEWUSER"
