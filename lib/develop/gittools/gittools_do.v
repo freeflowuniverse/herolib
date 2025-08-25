@@ -99,6 +99,10 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		provider: args.provider
 	)!
 
+	if repos.len<4 || args.cmd in 'pull,push,commit,delete'.split(',') {
+		args.reload = true
+	}
+
 	for mut repo in repos {
 		repo.status_update(reset: args.reload || args.cmd == 'reload')!
 	}
