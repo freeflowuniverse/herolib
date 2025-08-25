@@ -257,15 +257,35 @@ pub fn (mut w Window) pane_split_vertical(cmd string) !&Pane {
 	return w.pane_split(cmd: cmd, horizontal: false)
 }
 
+@[params]
+pub struct TtydArgs {
+pub mut:
+	port     int
+	editable bool // if true, allows write access to the terminal
+}
+
 // Run ttyd for this window so it can be accessed in the browser
-pub fn (mut w Window) run_ttyd(port int) ! {
+pub fn (mut w Window) run_ttyd(args TtydArgs) ! {
 	target := '${w.session.name}:@${w.id}'
-	cmd := 'nohup ttyd -p ${port} tmux attach -t ${target} >/dev/null 2>&1 &'
+
+	// Add -W flag for write access if editable mode is enabled
+	mut ttyd_flags := '-p ${args.port}'
+	if args.editable {
+		ttyd_flags += ' -W'
+	}
+
+	cmd := 'nohup ttyd ${ttyd_flags} tmux attach -t ${target} >/dev/null 2>&1 &'
 
 	code := os.system(cmd)
 	if code != 0 {
-		return error('Failed to start ttyd on port ${port} for window ${w.name}')
+		return error('Failed to start ttyd on port ${args.port} for window ${w.name}')
 	}
 
-	println('ttyd started for window ${w.name} at http://localhost:${port}')
+	mode_str := if args.editable { 'editable' } else { 'read-only' }
+	println('ttyd started for window ${w.name} at http://localhost:${args.port} (${mode_str} mode)')
+}
+
+// Backward compatibility method - runs ttyd in read-only mode
+pub fn (mut w Window) run_ttyd_readonly(port int) ! {
+	w.run_ttyd(port: port, editable: false)!
 }

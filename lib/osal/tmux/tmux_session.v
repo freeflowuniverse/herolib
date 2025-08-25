@@ -260,14 +260,27 @@ pub fn (mut s Session) stop() ! {
 }
 
 // Run ttyd for this session so it can be accessed in the browser
-pub fn (mut s Session) run_ttyd(port int) ! {
+pub fn (mut s Session) run_ttyd(args TtydArgs) ! {
 	target := '${s.name}'
-	cmd := 'nohup ttyd -p ${port} tmux attach -t ${target} >/dev/null 2>&1 &'
+
+	// Add -W flag for write access if editable mode is enabled
+	mut ttyd_flags := '-p ${args.port}'
+	if args.editable {
+		ttyd_flags += ' -W'
+	}
+
+	cmd := 'nohup ttyd ${ttyd_flags} tmux attach -t ${target} >/dev/null 2>&1 &'
 
 	code := os.system(cmd)
 	if code != 0 {
-		return error('Failed to start ttyd on port ${port} for session ${s.name}')
+		return error('Failed to start ttyd on port ${args.port} for session ${s.name}')
 	}
 
-	println('ttyd started for session ${s.name} at http://localhost:${port}')
+	mode_str := if args.editable { 'editable' } else { 'read-only' }
+	println('ttyd started for session ${s.name} at http://localhost:${args.port} (${mode_str} mode)')
+}
+
+// Backward compatibility method - runs ttyd in read-only mode
+pub fn (mut s Session) run_ttyd_readonly(port int) ! {
+	s.run_ttyd(port: port, editable: false)!
 }
