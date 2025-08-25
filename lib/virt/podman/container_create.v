@@ -54,7 +54,7 @@ pub mut:
 }
 
 // create a new container from an image
-pub fn (mut e CEngine) container_create(args_ ContainerCreateArgs) !&Container {
+pub fn (mut e PodmanFactory) container_create(args_ ContainerCreateArgs) !&Container {
 	mut args := args_
 
 	mut cmd := 'podman run --systemd=false'

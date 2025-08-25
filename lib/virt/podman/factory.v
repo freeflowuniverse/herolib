@@ -2,18 +2,17 @@ module herocontainers
 
 import freeflowuniverse.herolib.osal.core as osal { exec }
 import freeflowuniverse.herolib.core
+import freeflowuniverse.herolib.installers.virt.podman as podman_installer
 
 @[heap]
-pub struct CEngine {
+pub struct PodmanFactory {
 pub mut:
-	sshkeys_allowed []string // all keys here have access over ssh into the machine, when ssh enabled
+	// sshkeys_allowed []string // all keys here have access over ssh into the machine, when ssh enabled
 	images          []Image
 	containers      []Container
-	builders        []Builder
 	buildpath       string
-	localonly       bool
-	cache           bool = true
-	push            bool
+	// cache           bool = true
+	// push            bool
 	// platform        []BuildPlatformType // used to build
 	// registries      []BAHRegistry    // one or more supported BAHRegistries
 	prefix string
@@ -24,7 +23,22 @@ pub enum BuildPlatformType {
 	linux_amd64
 }
 
-fn (mut e CEngine) init() ! {
+@[params]
+pub struct NewArgs {
+pub mut:
+	install     bool = true
+	reset       bool
+	herocompile bool
+}
+
+
+	if args.install {
+		mut podman_installer0 := podman_installer.get()!
+		podman_installer0.install()!
+	}
+
+
+fn (mut e PodmanFactory) init() ! {
 	if e.buildpath == '' {
 		e.buildpath = '/tmp/builder'
 		exec(cmd: 'mkdir -p ${e.buildpath}', stdout: false)!
@@ -33,14 +47,14 @@ fn (mut e CEngine) init() ! {
 }
 
 // reload the state from system
-pub fn (mut e CEngine) load() ! {
+pub fn (mut e PodmanFactory) load() ! {
 	e.builders_load()!
 	e.images_load()!
 	e.containers_load()!
 }
 
 // reset all images & containers, CAREFUL!
-pub fn (mut e CEngine) reset_all() ! {
+pub fn (mut e PodmanFactory) reset_all() ! {
 	e.load()!
 	for mut container in e.containers.clone() {
 		container.delete()!
@@ -59,7 +73,7 @@ pub fn (mut e CEngine) reset_all() ! {
 }
 
 // Get free port
-pub fn (mut e CEngine) get_free_port() ?int {
+pub fn (mut e PodmanFactory) get_free_port() ?int {
 	mut used_ports := []int{}
 	mut range := []int{}
 

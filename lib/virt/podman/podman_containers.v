@@ -6,10 +6,10 @@ import freeflowuniverse.herolib.core.texttools
 import freeflowuniverse.herolib.virt.utils
 // import freeflowuniverse.herolib.ui.console
 
-// load all containers, they can be consulted in e.containers
-// see obj: Container as result in e.containers
-fn (mut e CEngine) containers_load() ! {
-	e.containers = []Container{}
+// load all containers, they can be consulted in self.containers
+// see obj: Container as result in self.containers
+fn (mut self PodmanFactory) containers_load() ! {
+	self.containers = []Container{}
 	mut ljob := exec(
 		// we used || because sometimes the command has | in it and this will ruin all subsequent columns
 		cmd:                "podman container list -a --no-trunc --size --format '{{.ID}}||{{.Names}}||{{.ImageID}}||{{.Command}}||{{.CreatedAt}}||{{.Ports}}||{{.State}}||{{.Size}}||{{.Mounts}}||{{.Networks}}||{{.Labels}}'"
@@ -30,9 +30,9 @@ fn (mut e CEngine) containers_load() ! {
 		if fields[2] == '' {
 			continue
 		}
-		mut image := e.image_get(id_full: fields[2])!
+		mut image := self.image_get(id_full: fields[2])!
 		mut container := Container{
-			engine: &e
+			engine: &self
 			image:  &image
 		}
 		container.id = id
@@ -47,7 +47,7 @@ fn (mut e CEngine) containers_load() ! {
 		container.networks = utils.parse_networks(fields[9])!
 		container.labels = utils.parse_labels(fields[10])!
 		container.ssh_enabled = utils.contains_ssh_port(container.ports)
-		e.containers << container
+		self.containers << container
 	}
 }
 
@@ -63,14 +63,14 @@ pub mut:
 
 // get containers from memory
 // params:
-//   name   string  (can also be a glob e.g. use *,? and [])
+//   name   string  (can also be a glob self.g. use *,? and [])
 //   id     string
 //   image_id string
-pub fn (mut e CEngine) containers_get(args_ ContainerGetArgs) ![]&Container {
+pub fn (mut self PodmanFactory) containers_get(args_ ContainerGetArgs) ![]&Container {
 	mut args := args_
 	args.name = texttools.name_fix(args.name)
 	mut res := []&Container{}
-	for _, c in e.containers {
+	for _, c in self.containers {
 		if args.name.contains('*') || args.name.contains('?') || args.name.contains('[') {
 			if c.name.match_glob(args.name) {
 				res << &c
@@ -96,10 +96,10 @@ pub fn (mut e CEngine) containers_get(args_ ContainerGetArgs) ![]&Container {
 }
 
 // get container from memory, can use match_glob see https://modules.vlang.io/index.html#string.match_glob
-pub fn (mut e CEngine) container_get(args_ ContainerGetArgs) !&Container {
+pub fn (mut self PodmanFactory) container_get(args_ ContainerGetArgs) !&Container {
 	mut args := args_
 	args.name = texttools.name_fix(args.name)
-	mut res := e.containers_get(args)!
+	mut res := self.containers_get(args)!
 	if res.len > 1 {
 		return ContainerGetError{
 			args:     args
@@ -109,8 +109,8 @@ pub fn (mut e CEngine) container_get(args_ ContainerGetArgs) !&Container {
 	return res[0]
 }
 
-pub fn (mut e CEngine) container_exists(args ContainerGetArgs) !bool {
-	e.container_get(args) or {
+pub fn (mut self PodmanFactory) container_exists(args ContainerGetArgs) !bool {
+	self.container_get(args) or {
 		if err.code() == 1 {
 			return false
 		}
@@ -119,19 +119,19 @@ pub fn (mut e CEngine) container_exists(args ContainerGetArgs) !bool {
 	return true
 }
 
-pub fn (mut e CEngine) container_delete(args ContainerGetArgs) ! {
-	mut c := e.container_get(args)!
+pub fn (mut self PodmanFactory) container_delete(args ContainerGetArgs) ! {
+	mut c := self.container_get(args)!
 	c.delete()!
-	e.load()!
+	self.load()!
 }
 
 // remove one or more container
-pub fn (mut e CEngine) containers_delete(args ContainerGetArgs) ! {
-	mut cs := e.containers_get(args)!
+pub fn (mut self PodmanFactory) containers_delete(args ContainerGetArgs) ! {
+	mut cs := self.containers_get(args)!
 	for mut c in cs {
 		c.delete()!
 	}
-	e.load()!
+	self.load()!
 }
 
 pub struct ContainerGetError {

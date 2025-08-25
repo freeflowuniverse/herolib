@@ -1,4 +1,4 @@
-module herocontainers
+module buildah
 
 struct BuilderInfo {
 	type_                    string            @[json: 'Type']

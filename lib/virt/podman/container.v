@@ -22,7 +22,7 @@ pub mut:
 	networks        []string
 	labels          map[string]string @[str: skip]
 	image           &Image            @[str: skip]
-	engine          &CEngine          @[skip; str: skip]
+	engine          &PodmanFactory          @[skip; str: skip]
 	status          utils.ContainerStatus
 	memsize         int // in MB
 	command         string
