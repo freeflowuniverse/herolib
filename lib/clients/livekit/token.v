@@ -5,33 +5,33 @@ import time
 
 pub struct AccessToken {
 pub mut:
-	api_key    string
-	api_secret string
-	identity   string
-	name       string
-	ttl        int
+	api_key     string
+	api_secret  string
+	identity    string
+	name        string
+	ttl         int
 	video_grant VideoGrant
 }
 
 pub struct VideoGrant {
 pub mut:
-	room_create bool
-	room_admin  bool
-	room_join   bool
-	room_list   bool
-	can_publish bool
-	can_subscribe bool
+	room_create      bool
+	room_admin       bool
+	room_join        bool
+	room_list        bool
+	can_publish      bool
+	can_subscribe    bool
 	can_publish_data bool
-	room        string
+	room             string
 }
 
 pub fn (mut c LivekitClient) new_access_token(identity string, name string, ttl int) !AccessToken {
 	return AccessToken{
-		api_key: c.api_key
+		api_key:    c.api_key
 		api_secret: c.api_secret
-		identity: identity
-		name: name
-		ttl: ttl
+		identity:   identity
+		name:       name
+		ttl:        ttl
 	}
 }
 

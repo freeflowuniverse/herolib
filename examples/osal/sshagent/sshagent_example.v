@@ -25,19 +25,19 @@ fn test_user_mgmt() ! {
 	mut lf := linux.new()!
 	// Test user creation
 	lf.user_create(
-		name: 'testuser'
+		name:   'testuser'
 		sshkey: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM3/2K7R8A/l0kM0/d'
 	)!
 
 	// Test ssh key creation
 	lf.sshkey_create(
-		username: 'testuser'
+		username:    'testuser'
 		sshkey_name: 'testkey'
 	)!
 
 	// Test ssh key deletion
 	lf.sshkey_delete(
-		username: 'testuser'
+		username:    'testuser'
 		sshkey_name: 'testkey'
 	)!
 

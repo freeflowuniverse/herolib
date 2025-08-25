@@ -77,30 +77,20 @@ pub mut:
 
 pub struct InputAudioState {
 pub mut:
-	mime_type string
-	channels  u32
+	mime_type   string
+	channels    u32
 	sample_rate u32
 }
 
 pub struct CreateIngressArgs {
 pub mut:
-	name       string
-	room_name  string
+	name                 string
+	room_name            string
 	participant_identity string
 	participant_name     string
-	input_type IngressInput
-	audio      IngressAudioOptions
-	video      IngressVideoOptions
-}
-
-pub struct UpdateIngressArgs {
-pub mut:
-	name       string
-	room_name  string
-	participant_identity string
-	participant_name     string
-	audio      IngressAudioOptions
-	video      IngressVideoOptions
+	input_type           IngressInput
+	audio                IngressAudioOptions
+	video                IngressVideoOptions
 }
 
 pub fn (mut c LivekitClient) create_ingress(args CreateIngressArgs) !IngressInfo {
@@ -109,20 +99,43 @@ pub fn (mut c LivekitClient) create_ingress(args CreateIngressArgs) !IngressInfo
 	return ingress_info
 }
 
-pub fn (mut c LivekitClient) update_ingress(ingress_id string, args UpdateIngressArgs) !IngressInfo {
-	mut resp := c.post('twirp/livekit.Ingress/UpdateIngress', {'ingress_id': ingress_id, ...args})!
+pub struct UpdateIngressArgs {
+pub mut:
+	ingress_id           string
+	name                 string
+	room_name            string
+	participant_identity string
+	participant_name     string
+	audio                IngressAudioOptions
+	video                IngressVideoOptions
+}
+
+pub fn (mut c LivekitClient) update_ingress(args UpdateIngressArgs) !IngressInfo {
+	mut resp := c.post('twirp/livekit.Ingress/UpdateIngress', {
+		'ingress_id':           args.ingress_id
+		'name':                 args.name
+		'room_name':            args.room_name
+		'participant_identity': args.participant_identity
+		'participant_name':     args.participant_name
+		'audio':                args.audio
+		'video':                args.video
+	})!
 	ingress_info := json.decode[IngressInfo](resp.body)!
 	return ingress_info
 }
 
 pub fn (mut c LivekitClient) list_ingress(room_name string) ![]IngressInfo {
-	mut resp := c.post('twirp/livekit.Ingress/ListIngress', {'room_name': room_name})!
+	mut resp := c.post('twirp/livekit.Ingress/ListIngress', {
+		'room_name': room_name
+	})!
 	ingress_infos := json.decode[[]IngressInfo](resp.body)!
 	return ingress_infos
 }
 
 pub fn (mut c LivekitClient) delete_ingress(ingress_id string) !IngressInfo {
-	mut resp := c.post('twirp/livekit.Ingress/DeleteIngress', {'ingress_id': ingress_id})!
+	mut resp := c.post('twirp/livekit.Ingress/DeleteIngress', {
+		'ingress_id': ingress_id
+	})!
 	ingress_info := json.decode[IngressInfo](resp.body)!
 	return ingress_info
 }
