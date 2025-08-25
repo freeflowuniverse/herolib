@@ -2,7 +2,7 @@
 
 To get started
 
-```vlang
+```v
 
 import freeflowuniverse.herolib.clients.openai
 import freeflowuniverse.herolib.core.playcmds

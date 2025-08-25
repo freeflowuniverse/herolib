@@ -99,6 +99,10 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 		provider: args.provider
 	)!
 
+	if repos.len<4 || args.cmd in 'pull,push,commit,delete'.split(',') {
+		args.reload = true
+	}
+
 	for mut repo in repos {
 		repo.status_update(reset: args.reload || args.cmd == 'reload')!
 	}
@@ -171,14 +175,16 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				need_commit0 = true
 			}
 
-			console.print_debug(" --- status repo ${g.name}'s\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
+			// console.print_debug(" --- status repo ${g.name}'s\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
 		}
 
-		console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
+		// console.print_debug(" --- status all repo's\n    need_commit0:${need_commit0} \n    need_pull0:${need_pull0}  \n    need_push0:${need_push0}")
+
+		// $dbg;
 
 		mut ok := false
 		if need_commit0 || need_pull0 || need_push0 {
-			mut out := '\n ** NEED TO '
+			mut out := '\n\n** NEED TO '
 			if need_commit0 {
 				out += 'COMMIT '
 			}
@@ -245,7 +251,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				g.commit(msg)!
 				has_changed = true
 			}
-			if need_pull_repo {
+			if has_changed || need_pull_repo {
 				if args.reset {
 					console.print_header(' - remove changes ${g.account}/${g.name}')
 					g.remove_changes()!
@@ -254,7 +260,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 				g.pull()!
 				has_changed = true
 			}
-			if need_push_repo {
+			if has_changed || need_push_repo {
 				console.print_header(' - push ${g.account}/${g.name}')
 				g.push()!
 				has_changed = true
@@ -267,7 +273,7 @@ pub fn (mut gs GitStructure) do(args_ ReposActionsArgs) !string {
 
 		if has_changed {
 			// console.clear()
-			console.print_header('\nCompleted required actions.\n')
+			console.print_header('Completed required actions.\n')
 
 			gs.repos_print(
 				filter:   args.filter
