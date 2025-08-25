@@ -4,7 +4,7 @@ has mechanisms to print better to console, see the methods below
 
 import as
 
-```vlang
+```v
 import freeflowuniverse.herolib.ui.console
 
 ```

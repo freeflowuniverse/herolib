@@ -4,7 +4,7 @@ coredns
 
 To get started
 
-```vlang
+```v
 
 
 import freeflowuniverse.herolib.installers.infra.coredns as coredns_installer

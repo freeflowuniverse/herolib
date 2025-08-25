@@ -8,7 +8,51 @@ module codewalker
 // - Lines starting with '#' are comments; empty lines ignored
 // No negation support for simplicity
 
-const default_gitignore = '__pycache__/\n*.py[cod]\n*.so\n.Python\nbuild/\ndevelop-eggs/\ndownloads/\neggs/\n.eggs/\nlib/\nlib64/\nparts/\nsdist/\nvar/\nwheels/\n*.egg-info/\n.installed.cfg\n*.egg\n.env\n.venv\nvenv/\n.tox/\n.nox/\n.coverage\n.coveragerc\ncoverage.xml\n*.cover\n*.gem\n*.pyc\n.cache\n.pytest_cache/\n.mypy_cache/\n.hypothesis/\n'
+const default_gitignore = '
+.git/
+.svn/
+.hg/
+.bzr/
+node_modules/
+__pycache__/
+*.py[cod]
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+venv/
+.tox/
+.nox/
+.coverage
+.coveragerc
+coverage.xml
+*.cover
+*.gem
+*.pyc
+.cache
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+*.log
+'
 
 struct IgnoreRule {
 	base    string // relative dir from source root where the ignore file lives ('' means global)

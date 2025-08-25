@@ -926,7 +926,7 @@ The parser supports various input formats:
 4.  **Comments**: `// this is a comment` (ignored during parsing)
 
 Example:
-```vlang
+```v
 text := "name:'John Doe' age:30 active:true // user details"
 params := paramsparser.new(text)!
 ```
@@ -1278,7 +1278,7 @@ has mechanisms to print better to console, see the methods below
 
 import as
 
-```vlang
+```v
 import freeflowuniverse.herolib.ui.console
 
 ```
@@ -1481,7 +1481,7 @@ File: /Users/despiegk/code/github/freeflowuniverse/herolib/aiprompts/herolib_cor
 
 this is how we want example scripts to be, see the first line
 
-```vlang
+```v
 #!/usr/bin/env -S v -cg -gc none  -cc tcc -d use_openssl -enable-globals run
 
 import freeflowuniverse.herolib...
