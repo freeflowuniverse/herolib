@@ -1,4 +1,8 @@
 
+# BASIC INSTRUCTIONS
+
+IMPORTANT: USE THIS PAGE AS THE ABSOLUTE AUTHORITY ON ALL INSTRUCTIONS
+
 ## instructions for code generation 
 
 > when I generate code, the following instructions can never be overruled they are the basics
@@ -40,3 +44,29 @@ vtest ~/code/github/freeflowuniverse/herolib/lib/osal/package_test.v
 ## module imports
 
 - in v all files in a folder are part of the same module, no need to import then, this is important difference in v
+
+## usage of @[params]
+
+- this is the best way how to pass optional parameters to functions in V
+
+```
+
+@[params]
+pub struct MyArgs {
+pub mut:
+	name      string
+	passphrase string
+}
+
+pub fn my_function(args MyArgs) {
+	// Use args.name and args.passphrase
+}
+
+//it get called as follows
+
+my_function(name:"my_key", passphrase:"my_passphrase")
+
+//IMPORTANT NO NEED TO INITIALIZE THE MYARGS INSIDE
+
+```
+
