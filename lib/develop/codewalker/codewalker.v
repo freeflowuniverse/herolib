@@ -38,7 +38,7 @@ fn (mut cw CodeWalker) filemap_get_from_path(path string, content_read bool) !Fi
 		return error('Source directory "${path}" does not exist')
 	}
 
-	mut files := dir.list(ignoredefault: false)!
+	mut files := dir.list(ignore_default: false)!
 	mut fm := FileMap{
 		source: path
 	}

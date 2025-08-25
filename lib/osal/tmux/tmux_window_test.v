@@ -24,23 +24,23 @@ fn testsuite_end() {
 }
 
 fn test_window_new() ! {
-    mut tmux := new()!
-    tmux.start()!
+	mut tmux := new()!
+	tmux.start()!
 
-    // Create session first
-    mut session := tmux.session_create(name: 'main')!
-    
-    // Test window creation
-    mut window := session.window_new(
-        name: 'TestWindow'
-        cmd: 'bash'
-        reset: true
-    )!
-    
-    assert window.name == 'testwindow' // name_fix converts to lowercase
-    assert session.window_exist(name: 'testwindow')
-    
-    tmux.stop()!
+	// Create session first
+	mut session := tmux.session_create(name: 'main')!
+
+	// Test window creation
+	mut window := session.window_new(
+		name:  'TestWindow'
+		cmd:   'bash'
+		reset: true
+	)!
+
+	assert window.name == 'testwindow' // name_fix converts to lowercase
+	assert session.window_exist(name: 'testwindow')
+
+	tmux.stop()!
 }
 
 // tests creating duplicate windows

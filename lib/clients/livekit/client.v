@@ -7,13 +7,13 @@ import time
 fn (mut c LivekitClient) post(path string, body any) !http.Response {
 	mut token := c.new_access_token(
 		identity: 'api'
-		name: 'API User'
-		ttl: 10 * 60 // 10 minutes
+		name:     'API User'
+		ttl:      10 * 60 // 10 minutes
 	)!
 	token.add_video_grant(VideoGrant{
 		room_create: true
-		room_admin: true
-		room_list: true
+		room_admin:  true
+		room_list:   true
 	})
 	jwt := token.to_jwt()!
 
@@ -25,9 +25,9 @@ fn (mut c LivekitClient) post(path string, body any) !http.Response {
 	data := json.encode(body)
 	mut req := http.Request{
 		method: .post
-		url: url
+		url:    url
 		header: header
-		data: data
+		data:   data
 	}
 	resp := http.fetch(req)!
 	if resp.status_code != 200 {

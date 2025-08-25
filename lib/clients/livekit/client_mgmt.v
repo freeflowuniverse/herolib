@@ -3,13 +3,16 @@ module livekit
 import freeflowuniverse.herolib.data.caching
 import os
 
-const CACHING_METHOD = caching.CachingMethod.once_per_process
+// const CACHING_METHOD = caching.CachingMethod.once_per_process
 
 fn _init() ! {
 	if caching.is_set(key: 'livekit_clients') {
 		return
 	}
-	caching.set[map[string]LivekitClient](key: 'livekit_clients', val: map[string]LivekitClient{}, CachingMethod.once_per_process)!
+	caching.set[map[string]LivekitClient](
+		key: 'livekit_clients'
+		val: map[string]LivekitClient{}
+	)!
 }
 
 fn _get() !map[string]LivekitClient {
@@ -25,7 +28,7 @@ pub fn get(name string) !LivekitClient {
 pub fn set(client LivekitClient) ! {
 	mut clients := _get()!
 	clients[client.name] = client
-	caching.set[map[string]LivekitClient](key: 'livekit_clients', val: clients, CachingMethod.once_per_process)!
+	caching.set[map[string]LivekitClient](key: 'livekit_clients', val: clients)!
 }
 
 pub fn exists(name string) !bool {

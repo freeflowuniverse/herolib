@@ -2,9 +2,9 @@ module livekit
 
 pub struct SendDataArgs {
 pub mut:
-	room_name string
-	data      []u8
-	kind      DataPacket_Kind
+	room_name        string
+	data             []u8
+	kind             DataPacket_Kind
 	destination_sids []string
 }
 

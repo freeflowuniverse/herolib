@@ -15,8 +15,8 @@ pub const default_url = 'http://localhost:8990'
 @[heap]
 pub struct MyceliumRPC {
 pub mut:
-	name       string = 'default'
-	url        string = default_url // RPC server URL
+	name string = 'default'
+	url  string = default_url // RPC server URL
 	// rpc_client ?&jsonrpc.Client @[skip]
 }
 

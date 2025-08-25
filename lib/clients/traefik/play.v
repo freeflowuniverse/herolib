@@ -14,44 +14,44 @@ pub fn play(mut plbook PlayBook) ! {
 
 	// Process entrypoints first
 	play_entrypoints(mut plbook, mut manager)!
-	
+
 	// Process services (before routers that might reference them)
 	play_services(mut plbook, mut manager)!
-	
+
 	// Process middlewares (before routers that might reference them)
 	play_middlewares(mut plbook, mut manager)!
-	
+
 	// Process routers
 	play_routers(mut plbook, mut manager)!
-	
+
 	// Apply all configurations to Redis
 	manager.apply()!
-	
+
 	console.print_debug('Traefik configuration applied successfully')
 }
 
 fn play_entrypoints(mut plbook PlayBook, mut manager TraefikManager) ! {
 	entrypoint_actions := plbook.find(filter: 'traefik.entrypoint')!
-	
+
 	for mut action in entrypoint_actions {
 		mut p := action.params
-		
+
 		manager.entrypoint_add(
 			name:    p.get('name')!
 			address: p.get('address')!
 			tls:     p.get_default_false('tls')
 		)!
-		
+
 		action.done = true
 	}
 }
 
 fn play_routers(mut plbook PlayBook, mut manager TraefikManager) ! {
 	router_actions := plbook.find(filter: 'traefik.router')!
-	
+
 	for mut action in router_actions {
 		mut p := action.params
-		
+
 		// Parse entrypoints list
 		mut entrypoints := []string{}
 		if entrypoints_str := p.get_default('entrypoints', '') {
@@ -59,7 +59,7 @@ fn play_routers(mut plbook PlayBook, mut manager TraefikManager) ! {
 				entrypoints = entrypoints_str.split(',').map(it.trim_space())
 			}
 		}
-		
+
 		// Parse middlewares list
 		mut middlewares := []string{}
 		if middlewares_str := p.get_default('middlewares', '') {
@@ -67,7 +67,7 @@ fn play_routers(mut plbook PlayBook, mut manager TraefikManager) ! {
 				middlewares = middlewares_str.split(',').map(it.trim_space())
 			}
 		}
-		
+
 		manager.router_add(
 			name:        p.get('name')!
 			rule:        p.get('rule')!
@@ -77,42 +77,42 @@ fn play_routers(mut plbook PlayBook, mut manager TraefikManager) ! {
 			tls:         p.get_default_false('tls')
 			priority:    p.get_int_default('priority', 0)
 		)!
-		
+
 		action.done = true
 	}
 }
 
 fn play_services(mut plbook PlayBook, mut manager TraefikManager) ! {
 	service_actions := plbook.find(filter: 'traefik.service')!
-	
+
 	for mut action in service_actions {
 		mut p := action.params
-		
+
 		// Parse servers list
 		servers_str := p.get('servers')!
 		servers := servers_str.split(',').map(it.trim_space())
-		
+
 		manager.service_add(
 			name:     p.get('name')!
 			servers:  servers
 			strategy: p.get_default('strategy', 'wrr')!
 		)!
-		
+
 		action.done = true
 	}
 }
 
 fn play_middlewares(mut plbook PlayBook, mut manager TraefikManager) ! {
 	middleware_actions := plbook.find(filter: 'traefik.middleware')!
-	
+
 	for mut action in middleware_actions {
 		mut p := action.params
-		
+
 		// Build settings map from remaining parameters
 		mut settings := map[string]string{}
-		
+
 		middleware_type := p.get('type')!
-		
+
 		// Handle common middleware types
 		match middleware_type {
 			'basicAuth' {
@@ -156,13 +156,13 @@ fn play_middlewares(mut plbook PlayBook, mut manager TraefikManager) ! {
 				}
 			}
 		}
-		
+
 		manager.middleware_add(
 			name:     p.get('name')!
 			typ:      middleware_type
 			settings: settings
 		)!
-		
+
 		action.done = true
 	}
 }

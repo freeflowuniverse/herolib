@@ -22,16 +22,16 @@ pub fn new(args FactoryArgs) !&TraefikManager {
 	}
 
 	mut redis := redisclient.core_get(redisclient.get_redis_url(args.redis_url)!)!
-	
+
 	mut manager := &TraefikManager{
-		name: name
-		redis: redis
+		name:   name
+		redis:  redis
 		config: osal_traefik.new_traefik_config()
 	}
-	
+
 	// Set redis connection in config
 	manager.config.redis = redis
-	
+
 	traefik_managers[name] = manager
 	return manager
 }
