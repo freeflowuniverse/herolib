@@ -1,9 +1,10 @@
 module sshagent
 
 import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.builder
 
 // Check if SSH agent is properly configured and all is good
-fn agent_check(mut agent SSHAgent) ! {
+pub fn agent_check(mut agent SSHAgent) ! {
 	console.print_header('SSH Agent Check')
 
 	// Ensure single agent is running
@@ -35,7 +36,7 @@ fn agent_check(mut agent SSHAgent) ! {
 }
 
 // Create a new SSH key
-fn sshkey_create(mut agent SSHAgent, name string, passphrase string) ! {
+pub fn sshkey_create(mut agent SSHAgent, name string, passphrase string) ! {
 	console.print_header('Creating SSH key: ${name}')
 
 	// Check if key already exists
@@ -54,7 +55,7 @@ fn sshkey_create(mut agent SSHAgent, name string, passphrase string) ! {
 }
 
 // Delete an SSH key
-fn sshkey_delete(mut agent SSHAgent, name string) ! {
+pub fn sshkey_delete(mut agent SSHAgent, name string) ! {
 	console.print_header('Deleting SSH key: ${name}')
 
 	// Check if key exists
@@ -95,7 +96,7 @@ fn sshkey_delete(mut agent SSHAgent, name string) ! {
 }
 
 // Load SSH key into agent
-fn sshkey_load(mut agent SSHAgent, name string) ! {
+pub fn sshkey_load(mut agent SSHAgent, name string) ! {
 	console.print_header('Loading SSH key: ${name}')
 
 	mut key := agent.get(name: name) or { return error('SSH key "${name}" not found') }
@@ -110,7 +111,7 @@ fn sshkey_load(mut agent SSHAgent, name string) ! {
 }
 
 // Check if SSH key is valid
-fn sshkey_check(mut agent SSHAgent, name string) ! {
+pub fn sshkey_check(mut agent SSHAgent, name string) ! {
 	console.print_header('Checking SSH key: ${name}')
 
 	mut key := agent.get(name: name) or { return error('SSH key "${name}" not found') }
@@ -148,5 +149,61 @@ fn sshkey_check(mut agent SSHAgent, name string) ! {
 	console.print_green('✓ SSH key "${name}" is valid')
 }
 
-// Note: remote_copy and remote_auth functions moved to builder_integration.v
-// to avoid circular dependencies
+// Copy private key to remote node
+pub fn remote_copy(mut agent SSHAgent, node_addr string, key_name string) ! {
+	console.print_header('Copying SSH key "${key_name}" to ${node_addr}')
+
+	// Get the key
+	mut key := agent.get(name: key_name) or { return error('SSH key "${key_name}" not found') }
+
+	// Create builder node
+	mut b := builder.new() or { return error('Failed to create builder') }
+	mut node := b.node_new(ipaddr: node_addr) or { return error('Failed to create node') }
+
+	// Get private key content
+	mut key_path := key.keypath()!
+	if !key_path.exists() {
+		return error('Private key file not found: ${key_path.path}')
+	}
+
+	private_key_content := key_path.read()!
+
+	// Get home directory on remote
+	home_dir_map := node.environ_get() or {
+		return error('Could not get environment on remote node')
+	}
+	home_dir := home_dir_map['HOME'] or {
+		return error('Could not determine HOME directory on remote node')
+	}
+
+	remote_ssh_dir := '${home_dir}/.ssh'
+	remote_key_path := '${remote_ssh_dir}/${key_name}'
+
+	// Ensure .ssh directory exists with correct permissions
+	node.exec_silent('mkdir -p ${remote_ssh_dir}')!
+	node.exec_silent('chmod 700 ${remote_ssh_dir}')!
+
+	// Copy private key to remote
+	node.file_write(remote_key_path, private_key_content)!
+	node.exec_silent('chmod 600 ${remote_key_path}')!
+
+	// Generate public key on remote
+	node.exec_silent('ssh-keygen -y -f ${remote_key_path} > ${remote_key_path}.pub')!
+	node.exec_silent('chmod 644 ${remote_key_path}.pub')!
+
+	console.print_green('✓ SSH key "${key_name}" copied to ${node_addr}')
+}
+
+// Add public key to authorized_keys on remote node
+pub fn remote_auth(mut agent SSHAgent, node_addr string, key_name string) ! {
+	console.print_header('Adding SSH key "${key_name}" to authorized_keys on ${node_addr}')
+
+	// Create builder node
+	mut b := builder.new() or { return error('Failed to create builder') }
+	mut node := b.node_new(ipaddr: node_addr) or { return error('Failed to create node') }
+
+	// Use existing builder integration
+	agent.push_key_to_node(mut node, key_name)!
+
+	console.print_green('✓ SSH key "${key_name}" added to authorized_keys on ${node_addr}')
+}
