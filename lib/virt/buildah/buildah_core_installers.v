@@ -8,7 +8,7 @@ import os
 import json
 
 
-pub fn (mut self BuildahContainer) install_zinit() ! {
+pub fn (mut self BuildAHContainer) install_zinit() ! {
 	// https://github.com/threefoldtech/zinit
 	self.hero_copy()!
 	self.hero_play_execute('!!installer.zinit')
@@ -17,7 +17,7 @@ pub fn (mut self BuildahContainer) install_zinit() ! {
 }
 
 
-pub fn (mut self BuildahContainer) install_herodb() ! {
+pub fn (mut self BuildAHContainer) install_herodb() ! {
 	self.install_zinit()!
 	// the hero database gets installed and put in zinit for automatic start
 	self.hero_play_execute('!!installer.herodb')
@@ -25,7 +25,7 @@ pub fn (mut self BuildahContainer) install_herodb() ! {
 }
 
 // copies the hero from host into guest
-pub fn (mut self BuildahContainer) install_mycelium() ! {
+pub fn (mut self BuildAHContainer) install_mycelium() ! {
 	self.install_zinit()!
 	// the mycelium database gets installed and put in zinit for automatic start
 	self.hero_play_execute('!!installer.mycelium')

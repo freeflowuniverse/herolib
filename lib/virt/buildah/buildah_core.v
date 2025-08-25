@@ -25,7 +25,7 @@ pub struct IPAddress {
 }
 // need to fill in what is relevant
 @[heap]
-pub struct BuildahContainer {
+pub struct BuildAHContainer {
 pub mut:
 	id            string
 	builder       bool
@@ -34,22 +34,18 @@ pub mut:
 	containername string
 	//TODO: not sure all below is needed
 	hero_in_container bool //once the hero has been installed this is on, does it once per session
-	created         time.Time
-	ssh_enabled     bool // if yes make sure ssh is enabled to the container
-	ipaddr          IPAddress
-	forwarded_ports []string
-	mounts          []ContainerVolume
-	ssh_port        int // ssh port on node that is used to get ssh
-	ports           []string
-	networks        []string
-	labels          map[string]string       @[str: skip]
-	image           &Image            @[str: skip]
-	engine          &CEngine           @[str: skip]
-	status          ContainerStatus
-	memsize         int // in MB
-	command         string
-	factory         &BuildAHFactory
-	node_host       &builder.Node
+// 	created         time.Time
+// 	ssh_enabled     bool // if yes make sure ssh is enabled to the container
+// 	ipaddr          IPAddress
+// 	forwarded_ports []string
+// 	mounts          []ContainerVolume
+// 	ssh_port        int // ssh port on node that is used to get ssh
+// 	ports           []string
+// 	networks        []string
+// 	labels          map[string]string       @[str: skip]
+// 	status          ContainerStatus
+// 	memsize         int // in MB
+// 	command         string
 }
 
 @[params]
@@ -68,24 +64,24 @@ pub mut:
 
 // TODO: mimic osal.package_install('mc,tmux,git,rsync,curl,screen,redis,wget,git-lfs')!
 
-// pub fn (mut self BuildahContainer) package_install(args PackageInstallArgs) !{
+// pub fn (mut self BuildAHContainer) package_install(args PackageInstallArgs) !{
 // 	//TODO
 // 	names := texttools.to_array(args.names)
 // 	//now check which OS, need to make platform function on container level so we know which platform it is
 // 	panic("implement")
 // }
 
-pub fn (mut self BuildahContainer) copy(src string, dest string) ! {
+pub fn (mut self BuildAHContainer) copy(src string, dest string) ! {
 	cmd := 'buildah copy ${self.id} ${src} ${dest}'
 	self.exec(cmd: cmd, stdout: false)!
 }
 
-pub fn (mut self BuildahContainer) shell() ! {
+pub fn (mut self BuildAHContainer) shell() ! {
 	cmd := 'buildah run --terminal --env TERM=xterm ${self.id} /bin/bash'
-	self.node_host.execute_interactive(cmd)!
+	osal.execute_interactive(cmd)!
 }
 
-pub fn (mut self BuildahContainer) clean() ! {
+pub fn (mut self BuildAHContainer) clean() ! {
 	cmd := '
 		#set -x
 		set +e
@@ -112,13 +108,14 @@ pub fn (mut self BuildahContainer) clean() ! {
 	self.exec(cmd: cmd, stdout: false)!
 }
 
-pub fn (mut self BuildahContainer) delete() ! {
-	self.engine.builder_delete(self.containername)!
+pub fn (mut self BuildAHContainer) delete() ! {
+	panic("implement")
 }
 
-pub fn (mut self BuildahContainer) inspect() !BuilderInfo {
+pub fn (mut self BuildAHContainer) inspect() !BuilderInfo {
 	cmd := 'buildah inspect ${self.containername}'
-	out := self.host_exec(cmd:(cmd)!
+	job := self.exec(cmd:(cmd)!
+	out:=job.output
 	mut r := json.decode(BuilderInfo, out) or {
 		return error('Failed to decode JSON for inspect: ${err}')
 	}
@@ -126,28 +123,28 @@ pub fn (mut self BuildahContainer) inspect() !BuilderInfo {
 }
 
 // mount the build container to a path and return the path where its mounted
-pub fn (mut self BuildahContainer) mount_to_path() !string {
+pub fn (mut self BuildAHContainer) mount_to_path() !string {
 	cmd := 'buildah mount ${self.containername}'
 	out := self.exec(cmd:cmd)!
 	return out.trim_space()
 }
 
-pub fn (mut self BuildahContainer) commit(image_name string) ! {
+pub fn (mut self BuildAHContainer) commit(image_name string) ! {
 	cmd := 'buildah commit ${self.containername} ${image_name}'
 	self.exec(cmd: cmd)!
 }
 
-pub fn (self BuildahContainer) set_entrypoint(entrypoint string) ! {
+pub fn (self BuildAHContainer) set_entrypoint(entrypoint string) ! {
 	cmd := 'buildah config --entrypoint \'${entrypoint}\' ${self.containername}'
 	self.exec(cmd: cmd)!
 }
 
-pub fn (self BuildahContainer) set_workingdir(workdir string) ! {
+pub fn (self BuildAHContainer) set_workingdir(workdir string) ! {
 	cmd := 'buildah config --workingdir ${workdir} ${self.containername}'
 	self.exec(cmd: cmd)!
 }
 
-pub fn (self BuildahContainer) set_cmd(command string) ! {
+pub fn (self BuildAHContainer) set_cmd(command string) ! {
 	cmd := 'buildah config --cmd ${command} ${self.containername}'
 	self.exec(cmd: cmd)!
 }

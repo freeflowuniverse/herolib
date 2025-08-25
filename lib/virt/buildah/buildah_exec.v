@@ -1,11 +1,8 @@
 module buildah
 
 import freeflowuniverse.herolib.osal.core as osal
-// import freeflowuniverse.herolib.ui.console
-import freeflowuniverse.herolib.installers.lang.herolib
 import freeflowuniverse.herolib.core.pathlib
 import os
-import json
 
 @[params]
 pub struct Command {
@@ -40,7 +37,7 @@ pub enum RunTime {
 }
 
 //should use builders underneith
-pub fn (mut self BuildahContainer) exec(cmd Command) ! {
+pub fn (mut self BuildAHContainer) exec(cmd Command) !osal.Job {
 
 	//make sure we have hero in the hostnode of self
 	self.hero_copy()!
@@ -64,9 +61,7 @@ pub fn (mut self BuildahContainer) exec(cmd Command) ! {
 	if cmd.runtime == .heroscript || cmd.runtime == .herocmd {
 		self.hero_copy()!
 	}
-	mut node:=self.node()!
-	//TODO: need to check, the node exec needs to be as much as possible same as osal.exec
-	node.exec(
+	mut j:=osal.exec(
 		name:               cmd.name
 		cmd:                cmd_str
 		description:        cmd.description
@@ -88,4 +83,5 @@ pub fn (mut self BuildahContainer) exec(cmd Command) ! {
 		c := epath.read()!
 		return error('cannot execute:\n${c}\nerror:\n${err}')
 	}
+	return j
 }

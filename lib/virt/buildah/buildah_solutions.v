@@ -12,11 +12,8 @@ pub mut:
 
 // builder machine based on arch and install vlang
 // TODO need to change, go to ubuntu
-pub fn builder_base(args GetArgs) !BuildahContainer {
+pub fn builder_base(args GetArgs) !BuildAHContainer {
 	name := 'base'
-	if !args.reset && e.builder_exists(name)! {
-		return e.builder_get(name)!
-	}
 	console.print_header('buildah base build')
 
 	mut builder := e.builder_new(name: name, from: 'scratch', delete: true)!
@@ -70,7 +67,7 @@ pub fn builder_base(args GetArgs) !BuildahContainer {
 //TODO: all below are not good, need to use play cmd over hero remotely. see how we did it with core_installers
 
 // // builder machine based on arch and install vlang
-// pub fn (mut e CEngine) builder_go_rust(args GetArgs) !BuildahContainer {
+// pub fn (mut e CEngine) builder_go_rust(args GetArgs) !BuildAHContainer {
 // 	console.print_header('buildah builder go rust')
 // 	name := 'builder_go_rust'
 // 	e.builder_base(reset: false)!
@@ -85,7 +82,7 @@ pub fn builder_base(args GetArgs) !BuildahContainer {
 // 	return builder
 // }
 
-// pub fn (mut e CEngine) builder_js(args GetArgs) !BuildahContainer {
+// pub fn (mut e CEngine) builder_js(args GetArgs) !BuildAHContainer {
 // 	console.print_header('buildah builder js')
 // 	name := 'builder_js'
 // 	e.builder_base(reset: false)!
@@ -100,7 +97,7 @@ pub fn builder_base(args GetArgs) !BuildahContainer {
 // 	return builder
 // }
 
-// pub fn (mut e CEngine) builder_js_python(args GetArgs) !BuildahContainer {
+// pub fn (mut e CEngine) builder_js_python(args GetArgs) !BuildAHContainer {
 // 	console.print_header('buildah builder js python')
 // 	name := 'builder_js_python'
 // 	e.builder_js(reset: false)!
@@ -115,7 +112,7 @@ pub fn builder_base(args GetArgs) !BuildahContainer {
 // 	return builder
 // }
 
-// pub fn (mut e CEngine) builder_hero(args GetArgs) !BuildahContainer {
+// pub fn (mut e CEngine) builder_hero(args GetArgs) !BuildAHContainer {
 // 	console.print_header('buildah builder hero dev')
 // 	name := 'builder_hero'
 // 	e.builder_js_python(reset: false)!
@@ -130,7 +127,7 @@ pub fn builder_base(args GetArgs) !BuildahContainer {
 // 	return builder
 // }
 
-// pub fn (mut e CEngine) builder_herodev(args GetArgs) !BuildahContainer {
+// pub fn (mut e CEngine) builder_herodev(args GetArgs) !BuildAHContainer {
 // 	console.print_header('buildah builder hero dev')
 // 	name := 'builder_herodev'
 // 	e.builder_js_python(reset: false)!
@@ -145,7 +142,7 @@ pub fn builder_base(args GetArgs) !BuildahContainer {
 // 	return builder
 // }
 
-// pub fn (mut e CEngine) builder_heroweb(args GetArgs) !BuildahContainer {
+// pub fn (mut e CEngine) builder_heroweb(args GetArgs) !BuildAHContainer {
 // 	console.print_header('buildah builder hero web')
 // 	name := 'builder_heroweb'
 // 	e.builder_go_rust(reset: false)!
