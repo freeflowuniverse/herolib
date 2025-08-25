@@ -68,9 +68,9 @@ println('\n=== Demonstrating Pane Resizing ===')
 // Get references to panes for resizing
 window.scan()!
 if window.panes.len >= 4 {
-	mut top_left := window.panes[1]     // bash
-	mut top_right := window.panes[0]    // htop  
-	mut bottom_left := window.panes[2]  // top
+	mut top_left := window.panes[1] // bash
+	mut top_right := window.panes[0] // htop
+	mut bottom_left := window.panes[2] // top
 	mut bottom_right := window.panes[3] // tail
 
 	println('Resizing top-left pane (bash) to be wider...')
@@ -116,7 +116,7 @@ if window.panes.len >= 4 {
 	bash_pane.send_command('pwd')!
 	time.sleep(500 * time.millisecond)
 
-	// Send command to top pane  
+	// Send command to top pane
 	mut top_pane := window.panes[2]
 	top_pane.send_command('echo "=== Top Pane ==="')!
 	time.sleep(500 * time.millisecond)
@@ -127,12 +127,12 @@ t.scan()!
 println('Session: ${session.name}')
 println('Window: ${window.name} (${window.panes.len} panes)')
 for i, pane in window.panes {
-	println('  ${i+1}. Pane %${pane.id} - ${pane.cmd}')
+	println('  ${i + 1}. Pane %${pane.id} - ${pane.cmd}')
 }
 
 println('\n=== Pane Resize Operations Available ===')
 println('✓ resize_up(cells) - Make pane taller by shrinking pane above')
-println('✓ resize_down(cells) - Make pane taller by shrinking pane below') 
+println('✓ resize_down(cells) - Make pane taller by shrinking pane below')
 println('✓ resize_left(cells) - Make pane wider by shrinking pane to the left')
 println('✓ resize_right(cells) - Make pane wider by shrinking pane to the right')
 println('✓ resize(direction: "up/down/left/right", cells: N) - Generic resize method')

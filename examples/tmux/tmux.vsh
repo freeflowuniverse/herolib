@@ -5,11 +5,9 @@ import freeflowuniverse.herolib.osal.core as osal
 import time
 
 // Constants for display formatting
-const (
-	bytes_to_mb = 1024.0 * 1024.0
-	cpu_precision = 1
-	memory_precision = 3
-)
+const bytes_to_mb = 1024.0 * 1024.0
+const cpu_precision = 1
+const memory_precision = 3
 
 println('=== Tmux Pane Example ===')
 

@@ -6,12 +6,10 @@ import time
 import os
 
 // Configuration
-const (
-	session_name = 'server_dashboard'
-	window_name = 'dashboard'
-	python_port = 8000
-	ttyd_port = 7890
-)
+const session_name = 'server_dashboard'
+const window_name = 'dashboard'
+const python_port = 8000
+const ttyd_port = 7890
 
 println('=== Server Dashboard with 3 Panes ===')
 println('Setting up tmux session with:')
@@ -123,7 +121,7 @@ window = session.window_get(name: window_name)!
 println('\n=== Current Dashboard State ===')
 for i, mut pane in window.panes {
 	stats := pane.stats() or {
-		println('  Pane ${i+1}: ID=%${pane.id}, PID=${pane.pid} (stats unavailable)')
+		println('  Pane ${i + 1}: ID=%${pane.id}, PID=${pane.pid} (stats unavailable)')
 		continue
 	}
 	memory_mb := f64(stats.memory_bytes) / (1024.0 * 1024.0)
@@ -133,7 +131,7 @@ for i, mut pane in window.panes {
 		2 { 'CPU Monitor' }
 		else { 'Unknown' }
 	}
-	println('  Pane ${i+1} (${service_name}): ID=%${pane.id}, CPU=${stats.cpu_percent:.1f}%, Memory=${memory_mb:.1f}MB')
+	println('  Pane ${i + 1} (${service_name}): ID=%${pane.id}, CPU=${stats.cpu_percent:.1f}%, Memory=${memory_mb:.1f}MB')
 }
 
 println('\n=== Access Information ===')
