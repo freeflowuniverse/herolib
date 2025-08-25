@@ -1,7 +1,10 @@
 module sshagent
 
+import freeflowuniverse.herolib.ui.console
+import freeflowuniverse.herolib.builder
+
 // Check if SSH agent is properly configured and all is good
-fn agent_check(mut agent SSHAgent) ! {
+pub fn agent_check(mut agent SSHAgent) ! {
 	console.print_header('SSH Agent Check')
 
 	// Ensure single agent is running
@@ -33,7 +36,7 @@ fn agent_check(mut agent SSHAgent) ! {
 }
 
 // Create a new SSH key
-fn sshkey_create(mut agent SSHAgent, name string, passphrase string) ! {
+pub fn sshkey_create(mut agent SSHAgent, name string, passphrase string) ! {
 	console.print_header('Creating SSH key: ${name}')
 
 	// Check if key already exists
@@ -52,7 +55,7 @@ fn sshkey_create(mut agent SSHAgent, name string, passphrase string) ! {
 }
 
 // Delete an SSH key
-fn sshkey_delete(mut agent SSHAgent, name string) ! {
+pub fn sshkey_delete(mut agent SSHAgent, name string) ! {
 	console.print_header('Deleting SSH key: ${name}')
 
 	// Check if key exists
@@ -62,11 +65,11 @@ fn sshkey_delete(mut agent SSHAgent, name string) ! {
 	}
 
 	// Get key paths before deletion
-	key_path := key.keypath() or {
+	mut key_path := key.keypath() or {
 		console.print_debug('Private key path not available for "${name}"')
 		key.keypath_pub() or { return } // Just to trigger the path lookup
 	}
-	key_pub_path := key.keypath_pub() or {
+	mut key_pub_path := key.keypath_pub() or {
 		console.print_debug('Public key path not available for "${name}"')
 		return
 	}
@@ -93,7 +96,7 @@ fn sshkey_delete(mut agent SSHAgent, name string) ! {
 }
 
 // Load SSH key into agent
-fn sshkey_load(mut agent SSHAgent, name string) ! {
+pub fn sshkey_load(mut agent SSHAgent, name string) ! {
 	console.print_header('Loading SSH key: ${name}')
 
 	mut key := agent.get(name: name) or { return error('SSH key "${name}" not found') }
@@ -108,15 +111,17 @@ fn sshkey_load(mut agent SSHAgent, name string) ! {
 }
 
 // Check if SSH key is valid
-fn sshkey_check(mut agent SSHAgent, name string) ! {
+pub fn sshkey_check(mut agent SSHAgent, name string) ! {
 	console.print_header('Checking SSH key: ${name}')
 
 	mut key := agent.get(name: name) or { return error('SSH key "${name}" not found') }
 
 	// Check if key files exist
-	key_path := key.keypath() or { return error('Private key file not found for "${name}"') }
+	mut key_path := key.keypath() or { return error('Private key file not found for "${name}"') }
 
-	key_pub_path := key.keypath_pub() or { return error('Public key file not found for "${name}"') }
+	mut key_pub_path := key.keypath_pub() or {
+		return error('Public key file not found for "${name}"')
+	}
 
 	if !key_path.exists() {
 		return error('Private key file does not exist: ${key_path.path}')
@@ -145,18 +150,18 @@ fn sshkey_check(mut agent SSHAgent, name string) ! {
 }
 
 // Copy private key to remote node
-fn remote_copy(mut agent SSHAgent, node_addr string, key_name string) ! {
+pub fn remote_copy(mut agent SSHAgent, node_addr string, key_name string) ! {
 	console.print_header('Copying SSH key "${key_name}" to ${node_addr}')
 
 	// Get the key
 	mut key := agent.get(name: key_name) or { return error('SSH key "${key_name}" not found') }
 
 	// Create builder node
-	mut b := builder.new()!
-	mut node := b.node_new(ipaddr: node_addr)!
+	mut b := builder.new() or { return error('Failed to create builder') }
+	mut node := b.node_new(ipaddr: node_addr) or { return error('Failed to create node') }
 
 	// Get private key content
-	key_path := key.keypath()!
+	mut key_path := key.keypath()!
 	if !key_path.exists() {
 		return error('Private key file not found: ${key_path.path}')
 	}
@@ -164,7 +169,10 @@ fn remote_copy(mut agent SSHAgent, node_addr string, key_name string) ! {
 	private_key_content := key_path.read()!
 
 	// Get home directory on remote
-	home_dir := node.environ_get()!['HOME'] or {
+	home_dir_map := node.environ_get() or {
+		return error('Could not get environment on remote node')
+	}
+	home_dir := home_dir_map['HOME'] or {
 		return error('Could not determine HOME directory on remote node')
 	}
 
@@ -187,12 +195,12 @@ fn remote_copy(mut agent SSHAgent, node_addr string, key_name string) ! {
 }
 
 // Add public key to authorized_keys on remote node
-fn remote_auth(mut agent SSHAgent, node_addr string, key_name string) ! {
+pub fn remote_auth(mut agent SSHAgent, node_addr string, key_name string) ! {
 	console.print_header('Adding SSH key "${key_name}" to authorized_keys on ${node_addr}')
 
 	// Create builder node
-	mut b := builder.new()!
-	mut node := b.node_new(ipaddr: node_addr)!
+	mut b := builder.new() or { return error('Failed to create builder') }
+	mut node := b.node_new(ipaddr: node_addr) or { return error('Failed to create node') }
 
 	// Use existing builder integration
 	agent.push_key_to_node(mut node, key_name)!
